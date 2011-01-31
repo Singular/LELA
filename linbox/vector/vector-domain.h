@@ -393,6 +393,16 @@ namespace LinBox
 		inline void swap (Vector &v1, Vector &v2) const
 			{ swapSpecialized (v1, v2, typename VectorTraits<Vector>::VectorCategory ()); }
 
+		/** Obtain the first nonzero entry in the given vector
+		 *
+		 * @param a Field-element into which to place first nonzero entry
+		 * @param v Vector from which to extra first nonzero entry
+		 * @returns Index of first nonzero entry or -1 if the vector is zero
+		 */
+		template <class Vector>
+		inline int firstNonzeroEntry (typename Field::Element &a, const Vector &v) const
+			{ return firstNonzeroEntrySpecialized (a, v, typename VectorTraits<Vector>::VectorCategory ()); }
+
 		/** Permute the entries of a given vector using the given
 		 * permutation
 		 *
@@ -1176,6 +1186,19 @@ namespace LinBox
 						   Iterator  P_start,
 						   Iterator  P_end,
 						   VectorCategories::SparseParallelVectorTag) const;
+
+		template <class Vector>
+		inline int firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+							 VectorCategories::DenseVectorTag) const;
+		template <class Vector>
+		inline int firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+							 VectorCategories::SparseSequenceVectorTag) const;
+		template <class Vector>
+		inline int firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+							 VectorCategories::SparseAssociativeVectorTag) const;
+		template <class Vector>
+		inline int firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+							 VectorCategories::SparseParallelVectorTag) const;
 	}; // class VectorDomain
 
 } // namespace LinBox

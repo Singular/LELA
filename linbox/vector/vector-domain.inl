@@ -2355,6 +2355,62 @@ namespace LinBox
 		return v;
 	}
 
+	template <class Field>
+	template <class Vector>
+	inline int VectorDomain<Field>::firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+								      VectorCategories::DenseVectorTag) const
+	{
+		typename Vector::const_iterator i_v;
+
+		for (i_v = v.begin (); i_v != v.end () && VectorDomainBase<Field>::_F.isZero (*i_v); ++i_v);
+
+		if (i_v == v.end ())
+			return -1;
+		else {
+			VectorDomainBase<Field>::_F.assign (a, *i_v);
+			return i_v - v.begin ();
+		}
+	}
+
+	template <class Field>
+	template <class Vector>
+	inline int VectorDomain<Field>::firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+								      VectorCategories::SparseSequenceVectorTag) const
+	{
+		if (v.empty ())
+			return -1;
+		else {
+			VectorDomainBase<Field>::_F.assign (a, v.front ().second);
+			return v.front ().first;
+		}
+	}
+
+	template <class Field>
+	template <class Vector>
+	inline int VectorDomain<Field>::firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+								      VectorCategories::SparseAssociativeVectorTag) const
+	{
+		if (v.empty ())
+			return -1;
+		else {
+			VectorDomainBase<Field>::_F.assign (a, v.front ().second);
+			return v.front ().first;
+		}
+	}
+
+	template <class Field>
+	template <class Vector>
+	inline int VectorDomain<Field>::firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
+								      VectorCategories::SparseParallelVectorTag) const
+	{
+		if (v.empty ())
+			return -1;
+		else {
+			VectorDomainBase<Field>::_F.assign (a, v.second.front ());
+			return v.first.front ();
+		}
+	}
+
 } // namespace LinBox
 
 #endif // __LINBOX_field_vector_domain_INL
