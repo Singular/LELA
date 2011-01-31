@@ -764,7 +764,19 @@ template <class Vector1, class Vector2>
 bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
 					     VectorCategories::SparseZeroOneVectorTag,
 					     VectorCategories::SparseZeroOneVectorTag) const
-{ return v1 == v2;}
+{
+	typename Vector1::const_iterator i_1;
+	typename Vector2::const_iterator i_2;
+
+	if (v1.size () != v2.size ())
+		return false;
+
+	for (i_1 = v1.begin (), i_2 = v2.begin (); i_1 != v1.end (); ++i_1, ++i_2)
+		if (*i_1 != *i_2)
+			return false;
+
+	return true;
+}
 
 template <class Vector>
 bool VectorDomain<GF2>::isZeroSpecialized (const Vector &v,
