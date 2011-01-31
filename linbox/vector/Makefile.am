@@ -19,5 +19,6 @@ pkgincludesub_HEADERS=		\
 	bit-iterator.h		\
 	bit-vector.h		\
 	bit-vector.inl		\
+	shifted-vector.h	\
 	vector-domain.h		\
 	vector-domain.inl
