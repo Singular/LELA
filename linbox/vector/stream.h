@@ -47,6 +47,7 @@
 
 #include <vector>
 #include <cmath>
+#include <fcntl.h>
 
 #include "linbox/vector/vector-traits.h"
 #include "linbox/util/debug.h"
@@ -307,7 +308,7 @@ class RandomSparseStream : public VectorStream<_Vector>
 	 * @param p Proportion of nonzero entries
 	 * @param m Number of vectors to return (0 for unlimited)
 	 */
-	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=time (NULL));
+	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0);
 
 	/** Get next element
 	 * @param v Vector into which to generate random vector
@@ -344,6 +345,23 @@ class RandomSparseStream : public VectorStream<_Vector>
 	void setP (double p);
 };
 
+// Function to use /dev/urandom to get a seed or just time (NULL) if /dev/urandom isn't available
+
+int getSeed ()
+{
+	int x, f = open ("/dev/urandom", O_RDONLY);
+
+	if (f < 0)
+		return time (NULL);
+
+	if (read (f, &x, sizeof (x)) != sizeof (x))
+		x = time (NULL);
+
+	close (f);
+
+	return x;
+}
+
 // Specialization of RandomSparseStream for dense vectors
 
 template <class Field, class _Vector, class RandIter>
@@ -356,12 +374,12 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVector
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1),
 		  _n (n), _p (p), _m (m), _j (0),
-		  MT (time (NULL))
+		  _MT (time (NULL))
 		{ linbox_check ((p >= 0.0) && (p <= 1.0)); _F.init (_zero, 0); }
 
-	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=time (NULL))
+	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=getSeed ())
 		: _F (F), _r1 (r), _r (F, _r1), _n (n), _p (p), _m (m), _j (0),
-		  MT (seed)
+		  _MT (seed)
 		{ linbox_check ((p >= 0.0) && (p <= 1.0)); _F.init (_zero, 0); }
 
 	Vector &get (Vector &v)
@@ -372,7 +390,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVector
 			return v;
 
 		for (typename Vector::iterator i = v.begin (); i != v.end (); ++i) {
-			val = MT.randomDouble ();
+			val = _MT.randomDouble ();
 
 			if (val < _p)
 				_r.random (*i);
@@ -403,7 +421,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVector
 	double                            _p;
 	size_t                            _m;
 	size_t                            _j;
-	MersenneTwister                   MT;
+	MersenneTwister                   _MT;
 };
 
 // Specialization of RandomSparseStream for sparse sequence vectors
@@ -417,12 +435,12 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseSeque
 
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1), _n (n), _m (m), _j (0),
-		  MT (time (NULL))
+		  _MT (time (NULL))
 		{ setP (p); }
 
-	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=time (NULL))
+	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=getSeed ())
 		: _F (F), _r1 (r), _r (F, _r1), _n (n), _p (p), _m (m), _j (0),
-		  MT (seed)
+		  _MT (seed)
 		{ setP (p); }
 
 	Vector &get (Vector &v) 
@@ -438,7 +456,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseSeque
 		v.clear ();
 
 		while (1) {
-			val = MT.randomDouble ();
+			val = _MT.randomDouble ();
 			skip = (int) (ceil (log (val) * _1_log_1mp));
 
 			if (skip <= 0)
@@ -481,7 +499,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseSeque
 	double                            _1_log_1mp;
 	size_t                            _m;
 	size_t                            _j;
-	MersenneTwister                   MT;
+	MersenneTwister                   _MT;
 };
 
 // Specialization of RandomSparseStream for sparse associative vectors
@@ -496,12 +514,12 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseAssoc
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1),
 		  _n (n), _k ((long) (p * n)), _j (0), _m (m),
-		  MT (time (NULL))
+		  _MT (time (NULL))
 	{}
 
-	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=time (NULL))
+	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=getSeed ())
 		: _F (F), _r1 (F), _r (F, _r1), _n (n), _k ((long) (p * n)), _j (0), _m (m),
-		  MT (seed)
+		  _MT (seed)
 	{}
 
 	Vector &get (Vector &v) 
@@ -516,7 +534,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseAssoc
 
 		for (i = 0; i < _k; i++) {
 			_r.random (x);
-			while (!_F.isZero (v[idx = MT.randomIntRange (0, _n)])) ;
+			while (!_F.isZero (v[idx = _MT.randomIntRange (0, _n)]));
 			v[idx] = x;
 		}
 
@@ -542,7 +560,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseAssoc
 	long                              _k;
 	size_t                            _j;
 	size_t                            _m;
-	MersenneTwister                   MT;
+	MersenneTwister                   _MT;
 };
 
 // Specialization of RandomSparseStream for sparse parallel vectors
@@ -556,12 +574,12 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseParal
 
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1), _n (n), _m (m), _j (0),
-		  MT (time (NULL))
+		  _MT (getSeed ())
 		{ setP (p); }
 
-	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=time (NULL))
+	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed=getSeed ())
 		: _F (F), _r1 (r), _r (F, _r1), _n (n), _m (m), _j (0),
-		  MT (seed)
+		  _MT (seed)
 		{ setP (p); }
 
 	Vector &get (Vector &v) 
@@ -578,7 +596,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseParal
 		v.second.clear ();
 
 		while (1) {
-			val = MT.randomDouble ();
+			val = _MT.randomDouble ();
 			skip = (int) (ceil (log (val) * _1_log_1mp));
 
 			if (skip <= 0)
@@ -623,7 +641,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseParal
 	double                            _1_log_1mp;
 	size_t                            _m;
 	size_t                            _j;
-	MersenneTwister                   MT;
+	MersenneTwister                   _MT;
 };
 
 // Specialisation for dense zero-one vectors
