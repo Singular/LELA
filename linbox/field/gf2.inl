@@ -1056,6 +1056,8 @@ class CekstvSwitch<GF2>
 
 } // namespace LinBox
 
+#include "linbox/matrix/matrix-domain-gf2.h"
+
 #endif // __LINBOX_field_gf2_INL
 
 // Local Variables:
