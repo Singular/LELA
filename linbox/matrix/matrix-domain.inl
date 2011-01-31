@@ -1,4 +1,3 @@
-
 /* linbox/matrix/matrix-domain.inl
  * Copyright (C) 2002 Bradford Hovinen
  *
@@ -859,5 +858,11 @@ Matrix1& MatrixDomain::pow_horn(Matrix1& M1, const Matrix2& M2, unsigned long in
 
 #endif // __LINBOX_matrix_domain_INL
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
