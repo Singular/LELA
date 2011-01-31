@@ -6,6 +6,7 @@ pkgincludesubdir=$(pkgincludedir)/matrix
 BASIC_HDRS =			\
 	archetype.h		\
 	matrix-category.h	\
+	matrix-traits.h		\
 	sparse.h		\
 	sparse.inl		\
 	transpose-matrix.h		\
