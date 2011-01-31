@@ -279,10 +279,10 @@ class GF2 : public FieldInterface
 	 * @param  x   field base element.
 	 */
 	std::istream &read (std::istream &is, Element &x) const
-		{ is >> x; return is; }
+		{ int v; is >> v; if (v == 0) x = false; else x = true; return is; }
 
 	std::istream &read (std::istream &is, BitVector::reference x) const
-		{ is >> x; return is; }
+		{ int v; is >> v; if (v == 0) x = false; else x = true; return is; }
 
 	std::istream &read (std::istream &is, std::_Bit_reference x) const
 		{ bool a; is >> a; x=a; return is; }
