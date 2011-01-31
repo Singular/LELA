@@ -17,12 +17,15 @@ BASIC_HDRS =			\
 	dense-rows-matrix.h	\
 	dense-zero-one.h	\
 	dense-zero-one.inl	\
+	m4ri-matrix.h		\
+	m4ri-matrix.inl		\
 	submatrix.h		\
 	submatrix.inl		\
 	matrix-domain.h		\
 	matrix-domain.inl	\
 	matrix-domain-gf2.h	\
 	matrix-domain-gf2.inl	\
+	matrix-domain-m4ri.h	\
 	blas-matrix.h		\
 	factorized-matrix.h	\
 	factorized-matrix.inl	

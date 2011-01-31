@@ -12,6 +12,7 @@ EXTRA_DIST=\
 	maple-check.m4		\
 	sage-check.m4		\
 	expat-check.m4		\
+	m4ri-check.m4		\
 	config-header.m4	\
 	linbox-misc.m4		\
 	maple-check-version.mpl

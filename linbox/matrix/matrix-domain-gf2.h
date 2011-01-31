@@ -390,12 +390,27 @@ private:
 		{ return permuteColsByCol (A, P_start, P_end); }
 };
 
+#ifdef __LINBOX_HAVE_M4RI
+} // namespace LinBox
+
+#  include "linbox/matrix/matrix-domain-m4ri.h"
+
+namespace LinBox {
+
+template <>
+class MatrixDomainSupport<GF2> : public MatrixDomainM4RI
+{
+    public:
+	MatrixDomainSupport (const GF2 &F) : MatrixDomainM4RI (F) {}
+};
+#else // !__LINBOX_HAVE_M4RI
 template <>
 class MatrixDomainSupport<GF2> : public MatrixDomainSupportGF2
 {
     public:
 	MatrixDomainSupport (const GF2 &F) : MatrixDomainSupportGF2 (F) {}
 };
+#endif // __LINBOX_HAVE_M4RI
 
 } // namespace LinBox
 
