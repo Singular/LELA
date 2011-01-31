@@ -24,6 +24,9 @@
 #include "linbox/vector/vector-domain.h"
 #include "linbox/matrix/matrix-traits.h"
 
+// For some specialisations
+#include "linbox/matrix/transpose-matrix.h"
+
 namespace LinBox
 {
 
@@ -32,6 +35,9 @@ namespace LinBox
  * This class implements a method gemvColDense that multiplies a
  * column-represented matrix by a dense vector
  */
+
+// FIXME: Now that we have MatrixDomainSupport, do we need a separate
+// MVProductDomain? What does that bring to us?
 
 template <class Field>
 class MVProductDomain
@@ -43,80 +49,81 @@ class MVProductDomain
 
     protected:
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColDense (const VectorDomain<Field> &VD, const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y) const;
+	Vector2 &gemvColDense (const VectorDomain<Field> &VD, const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y) const;
 };
 
-/** \brief Class of matrix arithmetic functions
+/** \brief Class of basic matrix-arithmetic-operations
  *
- * This class encapuslated matrix-matrix and matrix-vector operations, roughly
- * equivalent to BLAS levels 2 and 3. The arithmetic methods are parameterized
- * by matrix type so that they may be used the same way with sparse matrices,
- * dense matrices, and dense submatrices. Except where otherwise noted, they
- * require the matrix inputs to meet the \ref DenseMatrix archetype.
+ * This class contains definitions for a BLAS-like interface for a set
+ * of matrix-matrix and matrix-vector operations. It is intended that
+ * it be specialised to various fields. The class \ref MatrixDomain
+ * below makes use of these operations to provide an interface at a
+ * higher level.
  *
- * These methods are specialized so that they can run efficiently with different
- * matrix representations. If a matrix has an efficient row iterator, but not an
- * efficient column iterator, a specialization that makes use of the former will
- * be selected. This allows a great deal of flexibility when dealing with sparse
- * matrix arithmetic.
+ * The intention behind this class is to make it easier to specialize
+ * matrix-arithmetic to various fields without having to reimplement
+ * functionality which is common to all fields.
  *
- * For all of the arithmetic operations that output matrices, it is assumed that
- * the output matrix has an efficient row iterator. In typical use, the output
- * matrix will be a \ref DenseMatrixBase or a \ref DenseSubmatrix, which has
- * efficient row and column iterators. In particular, one should not perform
- * these arithmetic operations outputting to a \ref SparseMatrixBase.
- *
- * There are other restrictions. See the method-specific documentation for more
- * details.
+ * Developers using LinBox should declare an instance of \ref
+ * MatrixDomain instead of this class.
  */
-
 template <class Field>
-class MatrixDomain : public MVProductDomain<Field>
+class MatrixDomainSupportGeneric : public MVProductDomain<Field>
 {
-	typename Field::Element zero;
-	typename Field::Element one;
+protected:
+	typename Field::Element _zero;
+	typename Field::Element _one;
+	typename Field::Element _neg_one;
 
-    public:
+	const Field &_F;
+	const VectorDomain<Field> _VD;
 
 	///
-	MatrixDomain (const Field &F) : _F (F), _VD (F) {
-		F.init (zero, 0);
-		F.init (one, 1);
+	MatrixDomainSupportGeneric (const Field &F) : _F (F), _VD (F) {
+		F.init (_zero, 0);
+		F.init (_one, 1);
+		F.init (_neg_one, -1);
 	}
 
-	MatrixDomain& operator= (const MatrixDomain& MD)
-	{ _F = MD._F; 
-	  _VD = MD._VD; 
-	  return *this; 
-	}
+public:
 
-	/** Retrieve the underlying field
-	 * Return a reference to the field that this matrix domain
-	 * object uses
-	 * @returns reference to field
+	/*? @name Matrix-vector arithmetic operations
+	 *
+	 * These operations take a matrix satisfying the \ref
+	 * DenseMatrix archetype and LinBox vectors as inputs. They
+	 * involve matrix-vector product and matrix-vector AXPY. They
+	 * are equivalent to BLAS level 2.
 	 */
-	const Field &field () const
-		{ return _F; }
-	Field &field () 
-		{ return _F; }
 
-	/** Print matrix.
-	 * @param  os  Output stream to which matrix is written.
-	 * @param  A   Matrix.
-	 * @returns reference to os.
+	/** General matrix-vector multiplication
+	 * y <- alpha A x + b y
+	 *
+	 * @param alpha Input scalar alpha
+	 * @param A Input matrix A
+	 * @param x Input vector x
+	 * @param b Input scalar b
+	 * @param y Output vector y
+	 * @returns Reference to y
 	 */
-	template <class Matrix>
-	inline std::ostream &write (std::ostream &os, const Matrix &A) const
-		{ return A.write (os, _F); }
+	template <class Vector1, class Matrix, class Vector2>
+	inline Vector2 &gemv (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y) const
+		{ return gemvSpecialized (a, A, x, b, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
-	/** Read matrix
-	 * @param  is  Input stream from which matrix is read.
-	 * @param  A   Matrix.
-	 * @returns reference to is.
+	/** Triangular solve with vector
+	 * x <- A^{-1} x
+	 *
+	 * @param A Input matrix A, assumed to be upper triangular
+	 * @param x Input vector x
+	 * @returns Reference to x
 	 */
-	template <class Matrix>
-	inline std::istream &read (std::istream &is, Matrix &A) const
-		{ return A.read (is, _F); }
+	template <class Matrix, class Vector>
+	inline Vector &trsv (const Matrix &A, Vector &x) const
+		{ return trsvSpecialized (A, x, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Vector>::VectorCategory ()); }
+
+	/*? @name Matrix-matrix arithmetic operations
+	 *
+	 * These provide the equivalent of BLAS level 3 functionality
+	 */
 
 	/** Matrix copy
 	 * B <- A
@@ -141,7 +148,7 @@ class MatrixDomain : public MVProductDomain<Field>
 	 * @returns true if and only if the matrices A and B are equal
 	 */
 	template <class Matrix1, class Matrix2>
-	bool areEqual (const Matrix1 &A, const Matrix2 &B) const
+	inline bool areEqual (const Matrix1 &A, const Matrix2 &B) const
 		{ return areEqualSpecialized (B, A,
 					      typename MatrixTraits<Matrix1>::MatrixCategory (),
 					      typename MatrixTraits<Matrix2>::MatrixCategory ()); }
@@ -154,121 +161,39 @@ class MatrixDomain : public MVProductDomain<Field>
 	inline bool isZero (const Matrix &A) const
 		{ return isZeroSpecialized (A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
-	/** Matrix-matrix addition
-	 * C <- A + B
+	/** Matrix-scalar multiply
+	 * A <- a * A
 	 *
-	 * Each of A, B, and C must support the same iterator, either row or
-	 * column
-	 *
-	 * @param C Output matrix C
-	 * @param A Input matrix A
-	 * @param B Input matrix B
-	 * @returns Reference to C
-	 */
-	template <class Matrix1, class Matrix2, class Matrix3>
-	inline Matrix1& add (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
-		{ return addSpecialized (C, A, B,
-					 typename MatrixTraits<Matrix1>::MatrixCategory (),
-					 typename MatrixTraits<Matrix2>::MatrixCategory (),
-					 typename MatrixTraits<Matrix3>::MatrixCategory ()); }
-    
-	/** Matrix-matrix in-place addition
-	 * A <- A + B
-	 *
-	 * Each of A and B must support the same iterator, either row or column
-	 *
-	 * @param A Input matrix A
-	 * @param B Input matrix B
-	 * @returns Reference to A
-	 */
-	template <class Matrix1, class Matrix2>
-	inline Matrix1& addin (Matrix1 &A, const Matrix2 &B) const
-		{ return addinSpecialized (A, B,
-					   typename MatrixTraits<Matrix1>::MatrixCategory (),
-					   typename MatrixTraits<Matrix2>::MatrixCategory ()); }
-
-	/** Matrix-matrix subtraction
-	 * C <- A - B
-	 *
-	 * Each of A, B, and C must support the same iterator, either row or
-	 * column
+	 * Multiply A by the scalar element a.
 	 *
 	 * @param C Output matrix C
-	 * @param A Input matrix A
 	 * @param B Input matrix B
+	 * @param a Input scalar a
 	 * @returns Reference to C
-	 */
-	template <class Matrix1, class Matrix2, class Matrix3>
-	inline Matrix1 &sub (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
-		{ return subSpecialized (C, A, B,
-					 typename MatrixTraits<Matrix1>::MatrixCategory (),
-					 typename MatrixTraits<Matrix2>::MatrixCategory (),
-					 typename MatrixTraits<Matrix3>::MatrixCategory ()); }
-
-	/** Matrix-matrix in-place subtraction
-	 * A <- A - B
-	 *
-	 * Each of A and B must support the same iterator, either row or column
-	 *
-	 * @param A Input matrix A
-	 * @param B Input matrix B
-	 * @returns Reference to A
-	 */
-	template <class Matrix1, class Matrix2>
-	inline Matrix1 &subin (Matrix1 &A, const Matrix2 &B) const
-		{ return subinSpecialized (A, B,
-					   typename MatrixTraits<Matrix1>::MatrixCategory (),
-					   typename MatrixTraits<Matrix2>::MatrixCategory ()); }
-
-	/** Matrix negate
-	 * B <- -A
-	 *
-	 * Each of A and B must support the same iterator, either row or column
-	 *
-	 * @param B Output matrix B
-	 * @param A Input matrix A
-	 * @returns reference to B
-	 */
-	template <class Matrix1, class Matrix2>
-	inline Matrix1 &neg (Matrix1 &B, const Matrix2 &A) const
-		{ return negSpecialized (B, A,
-					 typename MatrixTraits<Matrix1>::MatrixCategory (),
-					 typename MatrixTraits<Matrix2>::MatrixCategory ()); }
-
-	/** Matrix in-place negate
-	 * A <- -A
-	 * @param A Input matrix A; result is stored here
 	 */
 	template <class Matrix>
-	inline Matrix &negin (Matrix &A) const
-		{ return neginSpecialized (A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+	inline Matrix &scal (Matrix &A, const typename Field::Element &a) const
+		{ return scalSpecialized (A, a,
+					  typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
-	/** Matrix-matrix multiply
-	 * C <- A * B
+	/** Matrix-axpy
+	 * B <- a * A + B
 	 *
-	 * C must support both row and column iterators, and the vector
-	 * representations must be dense. Examples of supported matrices are
-	 * \ref DenseMatrixBase and \ref DenseSubmatrix.
-	 *
-	 * Either A or B, or both, may have limited iterators. However, either A
-	 * must support row iterators or B must support column iterators. If
-	 * both A and B lack support for an iterator (either row or column),
-	 * then C must support the same type of iterator as A and B.
-	 *
-	 * @param C Output matrix C
+	 * A and B must support the same (row- or column-) iterators
+	 * 
+	 * @param a Input scalar a
 	 * @param A Input matrix A
-	 * @param B Input matrix B
-	 * @returns Reference to C
+	 * @param B Output matrix B
+	 * @returns Reference to A
 	 */
-	template <class Matrix1, class Matrix2, class Matrix3>
-	inline Matrix1 &mul (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
-		{ return gemmSpecialized (one, A, B, zero, C,
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &axpy (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B) const
+		{ return axpySpecialized (a, A, B,
 					  typename MatrixTraits<Matrix1>::MatrixCategory (),
-					  typename MatrixTraits<Matrix2>::MatrixCategory (),
-					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
+					  typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
 	/** General matrix-matrix multiply
-	 * C <- alpha * A * B + beta * C
+	 * C <- a * A * B + b * C
 	 *
 	 * C must support both row and column iterators, and the vector
 	 * representations must be dense. Examples of supported matrices are
@@ -279,208 +204,38 @@ class MatrixDomain : public MVProductDomain<Field>
 	 * both A and B lack support for an iterator (either row or column),
 	 * then C must support the same type of iterator as A and B.
 	 *
-	 * @param alpha Input scalar alpha
+	 * @param a Input scalar a
 	 * @param A Input matrix A
 	 * @param B Input matrix B
-	 * @param beta Input scalar beta
+	 * @param b Input scalar b
 	 * @param C Output matrix C
 	 * @returns Reference to C
 	 */
 	template <class Matrix1, class Matrix2, class Matrix3>
-	inline Matrix3 &gemm (typename Field::Element alpha, const Matrix1 &A, const Matrix2 &B, typename Field::Element beta, Matrix3 &C) const
-		{ return gemmSpecialized (alpha, A, B, beta, C,
+	inline Matrix3 &gemm (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C) const
+		{ return gemmSpecialized (a, A, B, b, C,
 					  typename MatrixTraits<Matrix1>::MatrixCategory (),
 					  typename MatrixTraits<Matrix2>::MatrixCategory (),
 					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
-
-	/** Matrix-matrix in-place multiply on the left
-	 * B <- A * B
-	 *
-	 * B should support both row and column iterators, and must be dense. A
-	 * must support row iterators.
-	 *
-	 * @param A Input matrix A
-	 * @param B Input matrix B
-	 * @returns Reference to B
-	 */
-	template <class Matrix1, class Matrix2>
-	inline Matrix2 &leftMulin (const Matrix1 &A, Matrix2 &B) const;
-
-	/** Matrix-matrix in-place multiply on the right
-	 * A <- A * B
-	 *
-	 * A should support both row and column iterators, and must be dense. B
-	 * must support column iterators.
-	 *
-	 * @param A Input matrix A
-	 * @param B Input matrix B
-	 * @returns Reference to A
-	 */
-	template <class Matrix1, class Matrix2>
-	inline Matrix1 &rightMulin (Matrix1 &A, const Matrix2 &B) const;
-
-	/** Matrix-matrix in-place multiply
-	 * A <- A * B
-	 *
-	 * This is an alias for \ref rightMulin
-	 *
-	 * @param A Input matrix A
-	 * @param B Input matrix B
-	 * @returns Reference to A
-	 */
-	template <class Matrix1, class Matrix2>
-	inline Matrix1 &mulin (Matrix1 &A, const Matrix2 &B) const
-		{ return rightMulin (A, B); }
-
-	/** Matrix-scalar multiply
-	 * C <- B * a
-	 *
-	 * Multiply B by the scalar element a and store the result in C. B and C
-	 * must support the same iterators.
-	 *
-	 * @param C Output matrix C
-	 * @param B Input matrix B
-	 * @param a Input scalar a
-	 * @returns Reference to C
-	 */
-	template <class Matrix1, class Matrix2>
-	inline Matrix1 &mul (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a) const
-		{ return mulSpecialized (C, B, a,
-					 typename MatrixTraits<Matrix1>::MatrixCategory (),
-					 typename MatrixTraits<Matrix2>::MatrixCategory ()); }
-
-	/** Matrix-scalar in-place multiply
-	 * B <- B * a
-	 *
-	 * Multiply B by the scalar element a in-place.
-	 *
-	 * @param B Input matrix B
-	 * @param a Input scalar a
-	 * @returns Reference to B
-	 */
-	template <class Matrix>
-	inline Matrix &mulin (Matrix &B, const typename Field::Element &a) const
-		{ return mulinSpecialized (B, a, typename MatrixTraits<Matrix>::MatrixCategory ()); }
-
-	/** Matrix-matrix in-place axpy
-	 * Y <- Y + A*X
-	 *
-	 * This function combines \ref mul and \ref add, eliminating the need
-	 * for an additional temporary in expressions of the form $Y = Y +
-	 * AX$. Only one row of additional storage is required. Y may have
-	 * either efficient row iterators or efficient column iterators, and the
-	 * same restrictions on A and X apply as in \ref mul.
-	 *
-	 * Note that no out-of-place axpy is provided, since it gives no
-	 * benefit. One may just as easily multiply into the result and call
-	 * \ref addin.
-	 *
-	 * @param Y Input matrix Y; result is stored here
-	 * @param A Input matrix A
-	 * @param X Input matrix X
-	 */
-	template <class Matrix1, class Matrix2, class Matrix3>
-	inline Matrix1 &axpyin (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const
-		{ return gemmSpecialized (one, A, X, one, Y,
-					  typename MatrixTraits<Matrix1>::MatrixCategory (),
-					  typename MatrixTraits<Matrix2>::MatrixCategory (),
-					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
-
-	/* FIXME: Need documentation of these methods */
-	template<class Matrix1, class Matrix2>
-	Matrix1 &pow_apply (Matrix1 &M1, const Matrix2 &M2, unsigned long int k) const;
-
-	template<class Matrix1, class Matrix2>
-	Matrix1 &pow_horn (Matrix1 &M1, const Matrix2 &M2, unsigned long int k) const;
-
-
-	/* @name Matrix-vector arithmetic operations
-	 * These operations take a matrix satisfying the \ref DenseMatrix
-	 * archetype and LinBox vectors as inputs. They involve matrix-vector
-	 * product and matrix-vector AXPY
-	 */
-
-	/** Matrix-vector multiply
-	 * w <- A * v
-	 *
-	 * The vectors v and w must be of the same representation (dense, sparse
-	 * sequence, sparse associative, or sparse parallel), but they may be of
-	 * different types. The matrix A may have any representation.
-	 *
-	 * @param w Output vector w
-	 * @param A Input matrix A
-	 * @param v Input vector v
-	 * @returns Reference to w
-	 */
-	template <class Vector1, class Matrix, class Vector2>
-	inline Vector1 &vectorMul (Vector1 &w, const Matrix &A, const Vector2 &v) const
-		{ return gemvSpecialized (one, A, v, zero, w, typename MatrixTraits<Matrix>::MatrixCategory ()); }
-
-	/** General matrix-vector multiplication
-	 * y <- alpha A x + beta y
-	 *
-	 * @param alpha Input scalar alpha
-	 * @param A Input matrix A
-	 * @param x Input vector x
-	 * @param beta Input scalar beta
-	 * @param y Output vector y
-	 * @returns Reference to y
-	 */
-	template <class Vector1, class Matrix, class Vector2>
-	inline Vector2 &gemv (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y) const
-		{ return gemvSpecialized (alpha, A, x, beta, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
-
-	/** Matrix-vector in-place axpy
-	 * y <- y + A*x
-	 *
-	 * This function eliminates the requirement for temporary storage when
-	 * one is computing an expression of the form given above.
-	 *
-	 * The vectors y and x must be of the same representation (dense, sparse
-	 * sequence, sparse associative, or sparse parallel), but they may be of
-	 * different types. The matrix A may have any representation.
-	 *
-	 * Note that out-of-place axpy is not provided since it provides no
-	 * benefit -- one can use mul and then addin to exactly the same effect,
-	 * with no additional storage or performance cost.
-	 * 
-	 * @param y Input vector y; result is stored here
-	 * @param A Input matrix A
-	 * @param x Input vector x
-	 */
-	template <class Vector1, class Matrix, class Vector2>
-	inline Vector1 &vectorAxpyin (Vector1 &y, const Matrix &A, const Vector2 &x) const
-		{ return gemvSpecialized (one, A, x, one, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
-
-	/** Triangular solve with vector
-	 * x <- A^{-1} x
-	 *
-	 * @param A Input matrix A, assumed to be upper triangular
-	 * @param x Input vector x
-	 * @returns Reference to x
-	 */
-	template <class Matrix, class Vector>
-	inline Vector &trsv (const Matrix &A, Vector &x) const
-		{ return trsvSpecialized (A, x, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Vector>::VectorCategory ()); }
 
 	/** Triangular solve with matrix
-	 * B <- alpha A^{-1} B
+	 * B <- a A^{-1} B
 	 *
-	 * @param alpha Input scalar alpha
+	 * @param a Input scalar a
 	 * @param A Input matrix A, assumed to be upper triangular
 	 * @param B Input matrix B
 	 * @returns Reference to B
 	 */
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trsm (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B) const
-		{ return trsmSpecialized (alpha, A, B, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
+	inline Matrix2 &trsm (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B) const
+		{ return trsmSpecialized (a, A, B, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
 	/*? @name Matrix-black box arithmetic operations
 	 * These operations mimic the matrix-matrix arithmetic operations above,
 	 * but one of the parameters is a \ref BlackboxArchetype.
 	 */
 
-	/** Matrix-black box left-multiply
+	/** Black box-matrix multiply
 	 * C <- A * B
 	 *
 	 * Both C and B must support column iterators
@@ -488,21 +243,23 @@ class MatrixDomain : public MVProductDomain<Field>
 	 * @param C Output matrix
 	 * @param A Black box for A
 	 * @param B Matrix B
+	 * @returns Reference to C
 	 */
 	template <class Matrix1, class Blackbox, class Matrix2>
-	inline Matrix1 &blackboxMulLeft (Matrix1 &C, const Blackbox &A, const Matrix2 &B) const;
+	inline Matrix1 &gebmm (Matrix1 &C, const Blackbox &A, const Matrix2 &B) const;
 
-	/** Matrix-black box right-multiply
+	/** Matrix-black box multiply
 	 * C <- A * B
 	 *
 	 * Both C and A must support row iterators
 	 *
 	 * @param C Output matrix
-	 * @param A Matrix A
+	 * @param A Input matrix A
 	 * @param B Black box for B
+	 * @returns Reference to C
 	 */
 	template <class Matrix1, class Matrix2, class Blackbox>
-	inline Matrix1 &blackboxMulRight (Matrix1 &C, const Matrix2 &A, const Blackbox &B) const;
+	inline Matrix1 &gembm (Matrix1 &C, const Matrix2 &A, const Blackbox &B) const;
 
 	/*? @name Matrix permutations
 	 * These operations permute the rows or columns of a matrix based on
@@ -517,8 +274,6 @@ class MatrixDomain : public MVProductDomain<Field>
 	 */
 	typedef std::pair<unsigned int, unsigned int> Transposition;
 	typedef std::vector<Transposition> Permutation;
-
-
 
 	/** Permute the rows of the given matrix
 	 *
@@ -548,9 +303,61 @@ class MatrixDomain : public MVProductDomain<Field>
 		{ return permuteColsSpecialized (A, P_start, P_end,
 						 typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
-    private:
-
+private:
 	// Specialized function implementations
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::DenseVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::SparseSequenceVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::SparseAssociativeVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::SparseParallelVectorTag) const;
+
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::DenseVectorTag,
+				     VectorCategories::DenseVectorTag) const
+		{ return gemvColDense (_VD, a, A, x, b, y); } 
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::SparseSequenceVectorTag,
+				     VectorCategories::DenseVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::SparseAssociativeVectorTag,
+				     VectorCategories::DenseVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::SparseParallelVectorTag,
+				     VectorCategories::DenseVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     VectorCategories::SparseParallelVectorTag,
+				     VectorCategories::SparseParallelVectorTag) const;
+
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				  MatrixCategories::RowMatrixTag) const
+		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector2>::VectorCategory ()); }
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				 MatrixCategories::ColMatrixTag) const
+		{ return gemvColSpecialized (a, A, x, b, y,
+					    typename VectorTraits<Vector1>::VectorCategory (),
+					    typename VectorTraits<Vector2>::VectorCategory ()); }
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				 MatrixCategories::RowColMatrixTag) const
+		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector2>::VectorCategory ()); }
+
+	template <class Matrix, class Vector>
+	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag);
+
 	template <class Matrix1, class Matrix2> Matrix1 &copyRow (Matrix1 &B, const Matrix2 &A) const;
 	template <class Matrix1, class Matrix2> Matrix1 &copyCol (Matrix1 &B, const Matrix2 &A) const;
 
@@ -602,330 +409,118 @@ class MatrixDomain : public MVProductDomain<Field>
 	bool isZeroSpecialized (const Matrix &A, MatrixCategories::RowColMatrixTag) const
 		{ return isZeroRow (A); }
 
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& addRow (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& addCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
+	template <class Matrix> Matrix &scalRow (Matrix &A, const typename Field::Element &a) const;
+	template <class Matrix> Matrix &scalCol (Matrix &A, const typename Field::Element &a) const;
 
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& addSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::RowMatrixTag,
+	template <class Matrix>
+	Matrix &scalSpecialized (Matrix &A, const typename Field::Element &a,
 				 MatrixCategories::RowMatrixTag) const
-		{ return addRow (C, A, B); }
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& addSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::ColMatrixTag) const
-		{ return addCol (C, A, B); }
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& addSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowColMatrixTag) const
-		{ return addRow (C, A, B); }
-
-	template <class Matrix1, class Matrix2> Matrix1& addinRow (Matrix1 &A, const Matrix2 &B) const;
-	template <class Matrix1, class Matrix2> Matrix1& addinCol (Matrix1 &A, const Matrix2 &B) const;
-
-	template <class Matrix1, class Matrix2>
-	inline Matrix1& addinSpecialized (Matrix1 &A, const Matrix2 &B,
-					  MatrixCategories::RowMatrixTag,
-					  MatrixCategories::RowMatrixTag) const
-		{ return addinRow (A, B); }
-	template <class Matrix1, class Matrix2>
-	inline Matrix1& addinSpecialized (Matrix1 &A, const Matrix2 &B,
-					  MatrixCategories::ColMatrixTag,
-					  MatrixCategories::ColMatrixTag) const
-		{ return addinCol (A, B); }
-	template <class Matrix1, class Matrix2>
-	inline Matrix1& addinSpecialized (Matrix1 &A, const Matrix2 &B,
-					  MatrixCategories::RowColMatrixTag,
-					  MatrixCategories::RowColMatrixTag) const
-		{ return addinRow (A, B); }
-
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& subRow (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& subCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
-
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& subSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::RowMatrixTag) const
-		{ return subRow (C, A, B); }
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& subSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::ColMatrixTag) const
-		{ return subCol (C, A, B); }
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1& subSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowColMatrixTag) const
-		{ return subRow (C, A, B); }
-
-	template <class Matrix1, class Matrix2> Matrix1& subinRow (Matrix1 &A, const Matrix2 &B) const;
-	template <class Matrix1, class Matrix2> Matrix1& subinCol (Matrix1 &A, const Matrix2 &B) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1& subinSpecialized (Matrix1 &A, const Matrix2 &B,
-				   MatrixCategories::RowMatrixTag,
-				   MatrixCategories::RowMatrixTag) const
-		{ return subinRow (A, B); }
-	template <class Matrix1, class Matrix2>
-	Matrix1& subinSpecialized (Matrix1 &A, const Matrix2 &B,
-				   MatrixCategories::ColMatrixTag,
-				   MatrixCategories::ColMatrixTag) const
-		{ return subinCol (A, B); }
-	template <class Matrix1, class Matrix2>
-	Matrix1& subinSpecialized (Matrix1 &A, const Matrix2 &B,
-				   MatrixCategories::RowColMatrixTag,
-				   MatrixCategories::RowColMatrixTag) const
-		{ return subinRow (A, B); }
-
-	template <class Matrix1, class Matrix2> Matrix1& negRow (Matrix1 &A, const Matrix2 &B) const;
-	template <class Matrix1, class Matrix2> Matrix1& negCol (Matrix1 &A, const Matrix2 &B) const;
-
-	template <class Matrix1, class Matrix2>
-	inline Matrix1& negSpecialized (Matrix1 &A, const Matrix2 &B,
-					MatrixCategories::RowMatrixTag,
-					MatrixCategories::RowMatrixTag) const
-		{ return negRow (A, B); }
-	template <class Matrix1, class Matrix2>
-	inline Matrix1& negSpecialized (Matrix1 &A, const Matrix2 &B,
-					MatrixCategories::ColMatrixTag,
-					MatrixCategories::ColMatrixTag) const
-		{ return negCol (A, B); }
-	template <class Matrix1, class Matrix2>
-	inline Matrix1& negSpecialized (Matrix1 &A, const Matrix2 &B,
-					MatrixCategories::RowColMatrixTag,
-					MatrixCategories::RowColMatrixTag) const
-		{ return negRow (A, B); }
-
-	template <class Matrix> Matrix &neginRow (Matrix &A) const;
-	template <class Matrix> Matrix &neginCol (Matrix &A) const;
-
+		{ return scalRow (A, a); }
 	template <class Matrix>
-	Matrix &neginSpecialized (Matrix &A, MatrixCategories::RowMatrixTag) const
-		{ return neginRow (A); }
-	template <class Matrix>
-	Matrix &neginSpecialized (Matrix &A, MatrixCategories::ColMatrixTag) const
-		{ return neginCol (A); }
-	template <class Matrix>
-	Matrix &neginSpecialized (Matrix &A, MatrixCategories::RowColMatrixTag) const
-		{ return neginRow (A); }
-
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmRowRowCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmColRowCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmRowRowRow (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmColColCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
-
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
-				  MatrixCategories::RowMatrixTag,
-				  MatrixCategories::RowMatrixTag,
+	Matrix &scalSpecialized (Matrix &A, const typename Field::Element &a,
 				  MatrixCategories::ColMatrixTag) const
-		{ return gemmRowRowCol (alpha, A, B, beta, C); }
+		{ return scalCol (A, a); }
+	template <class Matrix>
+	Matrix &scalSpecialized (Matrix &A, const typename Field::Element &a,
+				  MatrixCategories::RowColMatrixTag) const
+		{ return scalRow (A, a); }
+
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &axpyRow (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B) const;
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &axpyCol (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B) const;
+
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &axpySpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+					 MatrixCategories::RowMatrixTag,
+					 MatrixCategories::RowMatrixTag) const
+		{ return axpyRow (a, A, B); }
+
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &axpySpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+					 MatrixCategories::ColMatrixTag,
+					 MatrixCategories::ColMatrixTag) const
+		{ return axpyCol (a, A, B); }
+
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &axpySpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+					 MatrixCategories::RowColMatrixTag,
+					 MatrixCategories::RowMatrixTag) const
+		{ return axpyRow (a, A, B); }
+
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+	Matrix3 &gemmRowRowCol (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmColRowCol (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmRowRowRow (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmColColCol (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C) const;
+
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
+				  MatrixCategories::RowMatrixTag,
 				  MatrixCategories::ColMatrixTag,
-				  MatrixCategories::RowMatrixTag,
-				  MatrixCategories::ColMatrixTag) const
-		{ return gemmColRowCol (alpha, A, B, beta, C); }
+				  MatrixCategories::RowMatrixTag) const
+		{ return gemmRowRowCol (a, A, B, b, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
-				  MatrixCategories::RowColMatrixTag,
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
 				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::ColMatrixTag,
 				  MatrixCategories::ColMatrixTag) const
-		{ return gemmRowRowCol (alpha, A, B, beta, C); }
+		{ return gemmColRowCol (a, A, B, b, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
+				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::RowColMatrixTag) const
+		{ return gemmRowRowCol (a, A, B, b, C); }
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
 				  MatrixCategories::RowMatrixTag,
 				  MatrixCategories::RowMatrixTag,
 				  MatrixCategories::RowMatrixTag) const
-		{ return gemmRowRowRow (alpha, A, B, beta, C); }
+		{ return gemmRowRowRow (a, A, B, b, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmSpecialized (typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+	Matrix3 &gemmSpecialized (typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
 				  MatrixCategories::ColMatrixTag,
 				  MatrixCategories::ColMatrixTag,
 				  MatrixCategories::ColMatrixTag) const
-		{ return gemmColColCol (alpha, A, B, beta, C); }
+		{ return gemmColColCol (a, A, B, b, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
 				  MatrixCategories::RowColMatrixTag,
 				  MatrixCategories::RowColMatrixTag,
 				  MatrixCategories::RowColMatrixTag) const
-		{ return gemmRowRowCol (alpha, A, B, beta, C); }
+		{ return gemmRowRowCol (a, A, B, b, C); }
 
-	template <class Matrix1, class Matrix2>
-	Matrix1 &mulRow (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a) const;
-	template <class Matrix1, class Matrix2>
-	Matrix1 &mulCol (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::RowMatrixTag) const
-		{ return mulRow (C, B, a); }
-	template <class Matrix1, class Matrix2>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::ColMatrixTag) const
-		{ return mulCol (C, B, a); }
-	template <class Matrix1, class Matrix2>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowColMatrixTag) const
-		{ return mulRow (C, B, a); }
-
-	template <class Matrix> Matrix &mulinRow (Matrix &B, const typename Field::Element &a) const;
-	template <class Matrix> Matrix &mulinCol (Matrix &B, const typename Field::Element &a) const;
-
-	template <class Matrix>
-	Matrix &mulinSpecialized (Matrix &B, const typename Field::Element &a,
-				  MatrixCategories::RowMatrixTag) const
-		{ return mulinRow (B, a); }
-	template <class Matrix>
-	Matrix &mulinSpecialized (Matrix &B, const typename Field::Element &a,
-				  MatrixCategories::ColMatrixTag) const
-		{ return mulinCol (B, a); }
-	template <class Matrix>
-	Matrix &mulinSpecialized (Matrix &B, const typename Field::Element &a,
+	// These shouldn't be necessary, but for some reason gcc
+	// doesn't want to instantiate the above methods when
+	// TransposeMatrix is used. Ugh.
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const TransposeMatrix<Matrix1> &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::RowColMatrixTag,
 				  MatrixCategories::RowColMatrixTag) const
-		{ return mulinRow (B, a); }
-
+		{ return gemmColColCol (a, A, B, b, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinRowRowCol (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const Matrix1 &A, const TransposeMatrix<Matrix2> &B, const typename Field::Element &b, Matrix3 &C,
+				  MatrixCategories::RowColMatrixTag,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::RowColMatrixTag) const
+		{ return gemmColColCol (a, A, B, b, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinColRowCol (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinRowRowRow (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinColColCol (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
-
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
-				    MatrixCategories::RowMatrixTag,
-				    MatrixCategories::RowMatrixTag,
-				    MatrixCategories::ColMatrixTag) const
-		{ return axpyinRowRowCol (Y, A, X); }
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
-				    MatrixCategories::ColMatrixTag,
-				    MatrixCategories::RowMatrixTag,
-				    MatrixCategories::ColMatrixTag) const
-		{ return axpyinColRowCol (Y, A, X); }
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
-				    MatrixCategories::RowColMatrixTag,
-				    MatrixCategories::RowMatrixTag,
-				    MatrixCategories::ColMatrixTag) const
-		{ return axpyinRowRowCol (Y, A, X); }
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
-				    MatrixCategories::RowMatrixTag,
-				    MatrixCategories::RowMatrixTag,
-				    MatrixCategories::RowMatrixTag) const
-		{ return axpyinRowRowRow (Y, A, X); }
-	
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
-				    MatrixCategories::ColMatrixTag,
-				    MatrixCategories::ColMatrixTag,
-				    MatrixCategories::ColMatrixTag) const
-	{ return axpyinColColCol (Y, A, X); }
-
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
-				    MatrixCategories::RowColMatrixTag,
-				    MatrixCategories::RowColMatrixTag,
-				    MatrixCategories::RowColMatrixTag) const
-		{ return axpyinRowRowCol (Y, A, X); }
-
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::DenseVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::SparseParallelVectorTag) const;
-
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::DenseVectorTag,
-				     VectorCategories::DenseVectorTag) const
-		{ return gemvColDense (_VD, alpha, A, x, beta, y); } 
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::DenseVectorTag,
-				     VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::DenseVectorTag,
-				     VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::DenseVectorTag,
-				     VectorCategories::SparseParallelVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				     VectorCategories::SparseParallelVectorTag,
-				     VectorCategories::SparseParallelVectorTag) const;
-
-	template <class Vector1, class Matrix, class Vector2>
-	inline Vector1 &mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-					   VectorCategories::GenericVectorTag,
-					   VectorCategories::GenericVectorTag) const
-	{
-		typename LinBox::Vector<Field>::Dense y;
-
-		VectorWrapper::ensureDim (y, w.size ());
-
-		VectorWrapper::ensureDim (y, w.size ());
-
-		vectorMul (y, A, v);
-		_VD.copy (w, y);
-
-		return w;
-	}
-
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				  MatrixCategories::RowMatrixTag) const
-		{ return gemvRowSpecialized (alpha, A, x, beta, y, typename VectorTraits<Vector1>::VectorCategory ()); }
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				 MatrixCategories::ColMatrixTag) const
-		{ return gemvColSpecialized (alpha, A, x, beta, y,
-					    typename VectorTraits<Vector1>::VectorCategory (),
-					    typename VectorTraits<Vector2>::VectorCategory ()); }
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
-				 MatrixCategories::RowColMatrixTag) const
-		{ return gemvRowSpecialized (alpha, A, x, beta, y, typename VectorTraits<Vector1>::VectorCategory ()); }
-
-	template <class Matrix, class Vector>
-	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag);
+	Matrix3 &gemmSpecialized (const typename Field::Element &a, const TransposeMatrix<Matrix1> &A, const TransposeMatrix<Matrix2> &B, const typename Field::Element &b, Matrix3 &C,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::RowColMatrixTag) const
+		{ return gemmColColCol (a, A, B, b, C); }
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag);
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag);
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRowsByRow (Matrix   &A,
@@ -988,9 +583,437 @@ class MatrixDomain : public MVProductDomain<Field>
 					       Iterator  P_end,
 					       MatrixCategories::ColMatrixTag) const
 		{ return permuteColsByCol (A, P_start, P_end); }
+};
 
-	Field         _F;
-	VectorDomain<Field>  _VD;
+/** Class which enables a plug-in-architecture for matrix-operations
+ *
+ * May be specialised for specific fields and according to the
+ * presence of optional libraries.
+ */
+template <class Field>
+class MatrixDomainSupport : public MatrixDomainSupportGeneric<Field>
+{
+    public:
+	MatrixDomainSupport (const Field &F) : MatrixDomainSupportGeneric<Field> (F) {}
+};
+
+/** \brief Class of matrix arithmetic functions
+ *
+ * This class encapuslated matrix-matrix and matrix-vector operations, roughly
+ * equivalent to BLAS levels 2 and 3. The arithmetic methods are parameterized
+ * by matrix type so that they may be used the same way with sparse matrices,
+ * dense matrices, and dense submatrices. Except where otherwise noted, they
+ * require the matrix inputs to meet the \ref DenseMatrix archetype.
+ *
+ * These methods are specialized so that they can run efficiently with different
+ * matrix representations. If a matrix has an efficient row iterator, but not an
+ * efficient column iterator, a specialization that makes use of the former will
+ * be selected. This allows a great deal of flexibility when dealing with sparse
+ * matrix arithmetic.
+ *
+ * For all of the arithmetic operations that output matrices, it is assumed that
+ * the output matrix has an efficient row iterator. In typical use, the output
+ * matrix will be a \ref DenseMatrixBase or a \ref DenseSubmatrix, which has
+ * efficient row and column iterators. In particular, one should not perform
+ * these arithmetic operations outputting to a \ref SparseMatrixBase.
+ *
+ * There are other restrictions. See the method-specific documentation for more
+ * details.
+ */
+
+template <class Field>
+class MatrixDomain : public MatrixDomainSupport<Field>
+{
+    public:
+	typedef std::pair<unsigned int, unsigned int> Transposition;
+	typedef std::vector<Transposition> Permutation;
+
+	///
+	MatrixDomain (const Field &F) : MatrixDomainSupport<Field> (F) {}
+
+	/** Retrieve the underlying field
+	 * Return a reference to the field that this matrix domain
+	 * object uses
+	 * @returns reference to field
+	 */
+	const Field &field () const
+		{ return MatrixDomainSupport<Field>::_F; }
+	Field &field () 
+		{ return MatrixDomainSupport<Field>::_F; }
+
+	/*? @name Field-independent functionality
+	 *
+	 * These functions do not do any arithmetic and therefore are
+	 * not designed to be specialised to different fields.
+	 */
+
+	/** Print matrix.
+	 * @param  os  Output stream to which matrix is written.
+	 * @param  A   Matrix.
+	 * @returns reference to os.
+	 */
+	template <class Matrix>
+	inline std::ostream &write (std::ostream &os, const Matrix &A) const
+		{ return A.write (os, MatrixDomainSupport<Field>::_F); }
+
+	/** Read matrix
+	 * @param  is  Input stream from which matrix is read.
+	 * @param  A   Matrix.
+	 * @returns reference to is.
+	 */
+	template <class Matrix>
+	inline std::istream &read (std::istream &is, Matrix &A) const
+		{ return A.read (is, MatrixDomainSupport<Field>::_F); }
+
+	/*? @name Convenience-functions
+	 *
+	 * These functions are just wrappers for corresponding
+	 * arithmetic functions in \ref MatrixDomainSupport. They are
+	 * provided partly for compatibility with existing code. It is
+	 * recommended to use the BLAS-like interface in \ref
+	 * MatrixDomainSupport instead.
+	 */
+
+	/** Matrix-matrix addition
+	 * C <- A + B
+	 *
+	 * Each of A, B, and C must support the same iterator, either row or
+	 * column
+	 *
+	 * @param C Output matrix C
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to C
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::axpy instead
+	 */
+	template <class Matrix1, class Matrix2, class Matrix3>
+	inline Matrix1& add (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
+		{ copy (C, A); return axpy (MatrixDomainSupport<Field>::_one, B, C); }
+    
+	/** Matrix-matrix in-place addition
+	 * A <- A + B
+	 *
+	 * Each of A and B must support the same iterator, either row or column
+	 *
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to A
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::axpy instead
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix1& addin (Matrix1 &A, const Matrix2 &B) const
+		{ return axpy (MatrixDomainSupport<Field>::_one, B, A); }
+
+	/** Matrix-matrix subtraction
+	 * C <- A - B
+	 *
+	 * Each of A, B, and C must support the same iterator, either row or
+	 * column
+	 *
+	 * @param C Output matrix C
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to C
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::axpy instead
+	 */
+	template <class Matrix1, class Matrix2, class Matrix3>
+	inline Matrix1 &sub (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
+		{ copy (C, A); return axpy (MatrixDomainSupport<Field>::_neg_one, B, C); }
+
+	/** Matrix-matrix in-place subtraction
+	 * A <- A - B
+	 *
+	 * Each of A and B must support the same iterator, either row or column
+	 *
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to A
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::axpy instead
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix1 &subin (Matrix1 &A, const Matrix2 &B) const
+		{ return axpy (MatrixDomainSupport<Field>::_neg_one, B, A); }
+
+	/** Matrix negate
+	 * B <- -A
+	 *
+	 * Each of A and B must support the same iterator, either row or column
+	 *
+	 * @param B Output matrix B
+	 * @param A Input matrix A
+	 * @returns reference to B
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::scal instead
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix1 &neg (Matrix1 &B, const Matrix2 &A) const
+		{ copy (B, A); return scal (B, MatrixDomainSupport<Field>::_neg_one); }
+
+	/** Matrix in-place negate
+	 * A <- -A
+	 * @param A Input matrix A; result is stored here
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::scal instead
+	 */
+	template <class Matrix>
+	inline Matrix &negin (Matrix &A) const
+		{ return scal (A, MatrixDomainSupport<Field>::_neg_one); }
+
+	/** Matrix-matrix multiply
+	 * C <- A * B
+	 *
+	 * C must support both row and column iterators, and the vector
+	 * representations must be dense. Examples of supported matrices are
+	 * \ref DenseMatrixBase and \ref DenseSubmatrix.
+	 *
+	 * Either A or B, or both, may have limited iterators. However, either A
+	 * must support row iterators or B must support column iterators. If
+	 * both A and B lack support for an iterator (either row or column),
+	 * then C must support the same type of iterator as A and B.
+	 *
+	 * @param C Output matrix C
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to C
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::gemm instead
+	 */
+	template <class Matrix1, class Matrix2, class Matrix3>
+	inline Matrix1 &mul (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
+		{ return gemm (MatrixDomainSupport<Field>::_one, A, B, MatrixDomainSupport<Field>::_zero, C); }
+
+	/** Matrix-scalar multiply
+	 * C <- B * a
+	 *
+	 * Multiply B by the scalar element a and store the result in C. B and C
+	 * must support the same iterators.
+	 *
+	 * @param C Output matrix C
+	 * @param B Input matrix B
+	 * @param a Input scalar a
+	 * @returns Reference to C
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::scal instead
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix1 &mul (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a) const
+		{ copy (C, B); return scal (C, a); }
+
+	/** Matrix-scalar in-place multiply
+	 * B <- B * a
+	 *
+	 * Multiply B by the scalar element a in-place.
+	 *
+	 * @param B Input matrix B
+	 * @param a Input scalar a
+	 * @returns Reference to B
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::scal instead
+	 */
+	template <class Matrix>
+	inline Matrix &mulin (Matrix &B, const typename Field::Element &a) const
+		{ return scal (B, a); }
+
+	/** Matrix-matrix in-place axpy
+	 * Y <- Y + A*X
+	 *
+	 * This function combines \ref mul and \ref add, eliminating the need
+	 * for an additional temporary in expressions of the form $Y = Y +
+	 * AX$. Only one row of additional storage is required. Y may have
+	 * either efficient row iterators or efficient column iterators, and the
+	 * same restrictions on A and X apply as in \ref mul.
+	 *
+	 * Note that no out-of-place axpy is provided, since it gives no
+	 * benefit. One may just as easily multiply into the result and call
+	 * \ref addin.
+	 *
+	 * @param Y Input matrix Y; result is stored here
+	 * @param A Input matrix A
+	 * @param X Input matrix X
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::gemm instead
+	 */
+	template <class Matrix1, class Matrix2, class Matrix3>
+	inline Matrix1 &axpyin (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const
+		{ return gemm (MatrixDomainSupport<Field>::_one, A, X, MatrixDomainSupport<Field>::_one, Y); }
+
+	/** Matrix-vector multiply
+	 * w <- A * v
+	 *
+	 * The vectors v and w must be of the same representation (dense, sparse
+	 * sequence, sparse associative, or sparse parallel), but they may be of
+	 * different types. The matrix A may have any representation.
+	 *
+	 * @param w Output vector w
+	 * @param A Input matrix A
+	 * @param v Input vector v
+	 * @returns Reference to w
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::gemv instead
+	 */
+	template <class Vector1, class Matrix, class Vector2>
+	inline Vector1 &vectorMul (Vector1 &w, const Matrix &A, const Vector2 &v) const
+		{ return gemv (MatrixDomainSupport<Field>::_one, A, v, MatrixDomainSupport<Field>::_zero, w); }
+
+	/** Matrix-vector in-place axpy
+	 * y <- y + A*x
+	 *
+	 * This function eliminates the requirement for temporary storage when
+	 * one is computing an expression of the form given above.
+	 *
+	 * The vectors y and x must be of the same representation (dense, sparse
+	 * sequence, sparse associative, or sparse parallel), but they may be of
+	 * different types. The matrix A may have any representation.
+	 *
+	 * Note that out-of-place axpy is not provided since it provides no
+	 * benefit -- one can use mul and then addin to exactly the same effect,
+	 * with no additional storage or performance cost.
+	 * 
+	 * @param y Input vector y; result is stored here
+	 * @param A Input matrix A
+	 * @param x Input vector x
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::gemv instead
+	 */
+	template <class Vector1, class Matrix, class Vector2>
+	inline Vector1 &vectorAxpyin (Vector1 &y, const Matrix &A, const Vector2 &x) const
+		{ return gemv (MatrixDomainSupport<Field>::_one, A, x, MatrixDomainSupport<Field>::_one, y); }
+
+	/** Matrix-black box left-multiply
+	 * C <- A * B
+	 *
+	 * Both C and B must support column iterators
+	 *
+	 * @param C Output matrix
+	 * @param A Black box for A
+	 * @param B Matrix B
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::gebmm instead
+	 */
+	template <class Matrix1, class Blackbox, class Matrix2>
+	inline Matrix1 &blackboxMulLeft (Matrix1 &C, const Blackbox &A, const Matrix2 &B) const
+		{ return gebmm (C, A, B); }
+
+	/** Matrix-black box right-multiply
+	 * C <- A * B
+	 *
+	 * Both C and A must support row iterators
+	 *
+	 * @param C Output matrix
+	 * @param A Matrix A
+	 * @param B Black box for B
+	 *
+	 * Interface obsolete; use \ref MatrixDomainSupport::gembm instead
+	 */
+	template <class Matrix1, class Matrix2, class Blackbox>
+	inline Matrix1 &blackboxMulRight (Matrix1 &C, const Matrix2 &A, const Blackbox &B) const
+		{ return gembm (C, A, B); }
+
+	/*? @name Obsolete functions
+	 *
+	 * The use of these functions should be avoided altogether.
+	 */
+
+	/** Matrix-matrix in-place multiply on the left
+	 * B <- A * B
+	 *
+	 * B should support both row and column iterators, and must be dense. A
+	 * must support row iterators.
+	 *
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to B
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &leftMulin (const Matrix1 &A, Matrix2 &B) const;
+
+	/** Matrix-matrix in-place multiply on the right
+	 * A <- A * B
+	 *
+	 * A should support both row and column iterators, and must be dense. B
+	 * must support column iterators.
+	 *
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to A
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix1 &rightMulin (Matrix1 &A, const Matrix2 &B) const;
+
+	/** Matrix-matrix in-place multiply
+	 * A <- A * B
+	 *
+	 * This is an alias for \ref rightMulin
+	 *
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to A
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix1 &mulin (Matrix1 &A, const Matrix2 &B) const
+		{ return rightMulin (A, B); }
+
+	/* FIXME: Need documentation of these methods */
+	template<class Matrix1, class Matrix2>
+	Matrix1 &pow_apply (Matrix1 &M1, const Matrix2 &M2, unsigned long int k) const;
+
+	template<class Matrix1, class Matrix2>
+	Matrix1 &pow_horn (Matrix1 &M1, const Matrix2 &M2, unsigned long int k) const;
+
+    private:
+
+	// These functions are obsolete and retained for backwards compatibility
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinRowRowCol (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinColRowCol (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinRowRowRow (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinColColCol (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const;
+
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
+				    MatrixCategories::RowMatrixTag,
+				    MatrixCategories::RowMatrixTag,
+				    MatrixCategories::ColMatrixTag) const
+		{ return axpyinRowRowCol (Y, A, X); }
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
+				    MatrixCategories::ColMatrixTag,
+				    MatrixCategories::RowMatrixTag,
+				    MatrixCategories::ColMatrixTag) const
+		{ return axpyinColRowCol (Y, A, X); }
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
+				    MatrixCategories::RowColMatrixTag,
+				    MatrixCategories::RowMatrixTag,
+				    MatrixCategories::ColMatrixTag) const
+		{ return axpyinRowRowCol (Y, A, X); }
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
+				    MatrixCategories::RowMatrixTag,
+				    MatrixCategories::RowMatrixTag,
+				    MatrixCategories::RowMatrixTag) const
+		{ return axpyinRowRowRow (Y, A, X); }
+	
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
+				    MatrixCategories::ColMatrixTag,
+				    MatrixCategories::ColMatrixTag,
+				    MatrixCategories::ColMatrixTag) const
+	{ return axpyinColColCol (Y, A, X); }
+
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix1 &axpyinSpecialized (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X,
+				    MatrixCategories::RowColMatrixTag,
+				    MatrixCategories::RowColMatrixTag,
+				    MatrixCategories::RowColMatrixTag) const
+		{ return axpyinRowRowCol (Y, A, X); }
 };
 
 }
