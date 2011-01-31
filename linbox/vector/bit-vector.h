@@ -14,45 +14,10 @@
 #include <stdexcept>
 
 #include "linbox/vector/vector-traits.h"
+#include "linbox/vector/bit-iterator.h"
 
 namespace LinBox
 {
-
-/** Binary constant defined both for 32 and 64 bits
- */
-#if (__LINBOX_SIZEOF_LONG == 4)
-#define __LINBOX_BITSOF_LONG 32
-#define __LINBOX_BITSOF_LONG_MUN 31
-#define __LINBOX_LOGOF_SIZE 5
-#define __LINBOX_POS_ALL_ONES 0x1F
-const unsigned long __LINBOX_ALL_ONES = static_cast<unsigned long>(-1);
-#define __LINBOX_PARITY(s) ParallelParity(s)
-
-    inline bool ParallelParity(unsigned long t) {
-	t ^= (t >> 16);
-	t ^= (t >> 8);
-	t ^= (t >> 4);
-        t &= 0xf;
-        return bool( (0x6996 >> t) & 0x1);
-    }
-#endif
-#if (__LINBOX_SIZEOF_LONG == 8)
-#define __LINBOX_BITSOF_LONG 64
-#define __LINBOX_BITSOF_LONG_MUN 63
-#define __LINBOX_LOGOF_SIZE 6
-#define __LINBOX_POS_ALL_ONES 0x3F
-const unsigned long __LINBOX_ALL_ONES = static_cast<unsigned long>(-1);
-#define __LINBOX_PARITY(s) ParallelParity(s)
-
-    inline bool ParallelParity(unsigned long t) {
-	t ^= (t >> 32);
-	t ^= (t >> 16);
-	t ^= (t >> 8);
-	t ^= (t >> 4);
-        t &= 0xf;
-        return bool( (0x6996 >> t) & 0x1);
-    }
-#endif
 
 /** A vector of boolean 0-1 values, stored compactly to save space. 
  *
@@ -69,15 +34,17 @@ class BitVector
 	typedef bool        value_type;
 	typedef size_t      size_type;
 	typedef long         difference_type;
-	typedef std::vector<unsigned long>::iterator               word_iterator;
-	typedef std::vector<unsigned long>::const_iterator         const_word_iterator;
-	typedef std::vector<unsigned long>::reverse_iterator       reverse_word_iterator;
-	typedef std::vector<unsigned long>::const_reverse_iterator const_reverse_word_iterator;
+	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::iterator               word_iterator;
+	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::const_iterator         const_word_iterator;
+	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::reverse_iterator       reverse_word_iterator;
+	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::const_reverse_iterator const_reverse_word_iterator;
+
+	typedef LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
 
 	BitVector () {}
 	BitVector (std::vector<bool> &v)
 		{ *this = v; }
-	BitVector (std::vector<unsigned long> &v)
+	BitVector (std::vector<__LINBOX_BITVECTOR_WORD_TYPE> &v)
 		: _v (v), _size (_v.size () * __LINBOX_BITSOF_LONG) {}
 	BitVector (size_t n, bool val = false)
 		{ resize (n, val); }
@@ -90,13 +57,13 @@ class BitVector
 
 	// Reference
 
-	class reference;
-	class const_reference;
+	typedef BitVectorReference<word_iterator, Endianness> reference;
+	typedef BitVectorConstReference<const_word_iterator, Endianness> const_reference;
 
 	// Iterators
 
-	class iterator;
-	class const_iterator;
+	typedef BitVectorIterator<word_iterator, const_word_iterator, Endianness> iterator;
+	typedef BitVectorConstIterator<const_word_iterator, Endianness> const_iterator;
 
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
@@ -129,28 +96,66 @@ class BitVector
 	inline reference       operator[] (size_type n);
 	inline const_reference operator[] (size_type n) const;
 
-	reference at       (size_type n);
-	const_reference at (size_type n) const;
+	inline reference at       (size_type n);
+	inline const_reference at (size_type n) const;
 
 	inline reference       front (void);
 	inline const_reference front (void) const;
 	inline reference       back  (void);
 	inline const_reference back  (void) const;
 
-	template<class Container>
-	BitVector &operator = (const Container& x);
+	// Word access
 
-	void resize (size_type new_size, bool val = false);
+	inline __LINBOX_BITVECTOR_WORD_TYPE       &front_word (void)       { return _v.front (); }
+	inline const __LINBOX_BITVECTOR_WORD_TYPE &front_word (void) const { return _v.front (); }
+	inline __LINBOX_BITVECTOR_WORD_TYPE       &back_word  (void)       { return _v.back (); }
+	inline const __LINBOX_BITVECTOR_WORD_TYPE &back_word  (void) const { return _v.back (); }
+
+	// Appending to end of vector
+
+	inline void push_back (bool v);
+
+	// Push a whole word onto the back of the bit-vector
+	// WARNING: Does not change size! Call resize afterwards to set the correct size.
+	inline void push_word_back (__LINBOX_BITVECTOR_WORD_TYPE w)
+		{ _v.push_back (w); }
+
+	// Inserting a word into the vector
+	inline void insertWord (word_iterator position, __LINBOX_BITVECTOR_WORD_TYPE word)
+		{ _v.insert (position, word); }
+
+	// Erasing a word from the vector
+	inline void eraseWord (word_iterator position)
+		{ _v.erase (position); }
+
+	template<class Container>
+	inline BitVector &operator = (const Container& x);
+
+	inline void resize (size_type new_size, bool val = false);
+
+	inline void clear () { _v.clear (); _size = 0; }
 
 	inline size_type size      (void) const { return _size;            }
 	inline bool      empty     (void) const { return _v.empty ();      }
+
+	inline size_type word_size (void) const { return _v.size ();       }
+
+	// FIXME: This should be _v.max_size (), not _v.size (), or am I mistaken?
 	inline size_type max_size  (void) const { return _v.size  () * __LINBOX_BITSOF_LONG; }
 
-	bool operator == (const BitVector &v) const;
+	inline bool operator == (const BitVector &v) const;
+
+	// Used for hybrid vectors to make sure _size is correctly set after setting the vector up
+	void fix_size (size_type size_mod_word) {
+		if (size_mod_word & __LINBOX_POS_ALL_ONES)
+			_size = ((_v.size () - 1) << __LINBOX_LOGOF_SIZE) + (size_mod_word & __LINBOX_POS_ALL_ONES);
+		else
+			_size = (_v.size () << __LINBOX_LOGOF_SIZE);
+	}
 
     protected:
 
-	std::vector<unsigned long> _v;
+	std::vector<__LINBOX_BITVECTOR_WORD_TYPE> _v;
 	size_t              _size;
 
 }; // template <class Vector> class ReverseVector
@@ -161,6 +166,28 @@ struct VectorTraits<BitVector>
 { 
 	typedef BitVector VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
+};
+
+template <>
+struct VectorTraits<const BitVector>
+{ 
+	typedef BitVector VectorType;
+	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
+};
+
+// Vector traits for hybrid sparse-dense format
+template <> 
+struct VectorTraits< std::pair<std::vector<size_t>, BitVector > >
+{ 
+	typedef std::pair<std::vector<size_t>, BitVector > VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <> 
+struct VectorTraits< const std::pair<std::vector<size_t>, BitVector > >
+{ 
+	typedef std::pair<std::vector<size_t>, BitVector > VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 } // namespace LinBox
