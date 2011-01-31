@@ -626,6 +626,212 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseParal
 	MersenneTwister                   MT;
 };
 
+// Specialisation for dense zero-one vectors
+
+template <class Field, class _Vector, class RandIter>
+class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseZeroOneVectorTag > : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef RandomDenseStream<Field, Vector, RandIter, VectorCategories::DenseZeroOneVectorTag > Self_t;
+
+	RandomDenseStream (const Field &F, size_t n, size_t m = 0)
+		: _F (F), _r (F), _n (n), _m (m), _j (0)
+	{}
+
+	RandomDenseStream (const Field &F, const RandIter &r, size_t n, size_t m = 0)
+		: _F (F), _r (r), _n (n), _m (m), _j (0)
+	{}
+
+	Vector &get (Vector &v) 
+	{
+		typename Vector::iterator i;
+
+		if ( (_m > 0) && (_j++ >= _m) )
+			return v;
+
+		for (i = v.begin (); i != v.end (); i++)
+			_r.random (*i);
+
+		return v;
+	}
+
+	/** Extraction operator form
+	 */
+	Self_t &operator >> (Vector &v)
+		{ get (v); return *this; }
+	size_t size () const { return _m; }
+	size_t pos () const { return _j; }
+	size_t dim () const { return _n; }
+	operator bool () const { return _m == 0 || _j < _m; }
+	void reset () { _j = 0; }
+
+    private:
+	const Field &_F;
+	RandIter     _r;
+	size_t       _n;
+	size_t       _m;
+	size_t       _j;
+};
+
+// Specialization of RandomSparseStream for sparse zero-one vectors
+
+template <class Field, class _Vector, class RandIter>
+class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseZeroOneVectorTag > : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseZeroOneVectorTag > Self_t;
+
+	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
+		: _F (F), _n (n), _m (m), _j (0), _MT (getSeed ())
+		{ setP (p); }
+
+	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0)
+		: _F (F), _n (n), _m (m), _j (0), _MT (getSeed ())
+		{ setP (p); }
+
+	Vector &get (Vector &v) 
+	{
+		size_t i = (size_t) -1;
+		double val;
+		int skip;
+
+		if (_m > 0 && _j++ >= _m)
+			return v;
+
+		v.clear ();
+
+		while (1) {
+			val = _MT.randomDouble ();
+			skip = (int) (ceil (log (val) * _1_log_1mp));
+
+			if (skip <= 0)
+				i++;
+			else
+				i += skip;
+
+			if (i >= _n) break;
+
+			v.push_back (i);
+		}
+
+		return v;
+	}
+
+	/** Extraction operator form
+	 */
+	Self_t &operator >> (Vector &v)
+		{ get (v); return *this; }
+
+	size_t size () const { return _m; }
+	size_t pos () const { return _j; }
+	size_t dim () const { return _n; }
+	operator bool () const { return _m == 0 || _j < _m; }
+	void reset () { _j = 0; }
+
+	void setP (double p)
+	{
+		linbox_check ((p >= 0.0) && (p <= 1.0)); 
+		_p = p;
+		_1_log_1mp   = 1 / log (1 - _p);
+	}
+
+    private:
+	const Field                      &_F;
+	size_t                            _n;
+	double                            _p;
+	double                            _1_log_1mp;
+	size_t                            _m;
+	size_t                            _j;
+	MersenneTwister                   _MT;
+};
+
+// Specialization of RandomSparseStream for hybrid zero-one vectors
+
+template <class Field, class _Vector, class RandIter>
+class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroOneVectorTag > : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::HybridZeroOneVectorTag > Self_t;
+
+	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
+		: _F (F), _n (n), _m (m), _j (0), _MT (getSeed ())
+		{ setP (p); }
+
+	RandomSparseStream (const Field &F, const RandIter &r, double p, size_t n, size_t m = 0)
+		: _F (F), _n (n), _m (m), _j (0), _MT (getSeed ())
+		{ setP (p); }
+
+	Vector &get (Vector &v) 
+	{
+		size_t i = (size_t) -1;
+		double val;
+		int skip;
+
+		if (_m > 0 && _j++ >= _m)
+			return v;
+
+		v.first.clear ();
+		v.second.clear ();
+
+		while (1) {
+			val = _MT.randomDouble ();
+			skip = (int) (ceil (log (val) * _1_log_1mp));
+
+			if (skip <= 0)
+				i++;
+			else
+				i += skip;
+
+			if (i >= _n) break;
+
+			size_t idx = i & ~(8 * sizeof (typename Vector::second_type::word_iterator::value_type) - 1);
+			typename Vector::second_type::word_iterator::value_type mask = 1ULL << (i & (8 * sizeof (typename Vector::second_type::word_iterator::value_type) - 1));
+
+			if (!v.first.empty () && idx == v.first.back ()) {
+				v.second.back_word () |= mask;
+			}
+			else {
+				v.first.push_back (idx);
+				v.second.push_word_back (mask);
+			}
+		}
+
+		v.second.fix_size (_n);
+
+		return v;
+	}
+
+	/** Extraction operator form
+	 */
+	Self_t &operator >> (Vector &v)
+		{ get (v); return *this; }
+
+	size_t size () const { return _m; }
+	size_t pos () const { return _j; }
+	size_t dim () const { return _n; }
+	operator bool () const { return _m == 0 || _j < _m; }
+	void reset () { _j = 0; }
+
+	void setP (double p)
+	{
+		linbox_check ((p >= 0.0) && (p <= 1.0)); 
+		_p = p;
+		_1_log_1mp   = 1 / log (1 - _p);
+	}
+
+    private:
+	const Field                      &_F;
+	size_t                            _n;
+	double                            _p;
+	double                            _1_log_1mp;
+	size_t                            _m;
+	size_t                            _j;
+	MersenneTwister                   _MT;
+};
+
 /** Stream for e_1,...,e_n
  * Generates the sequence e_1,...,e_n over a given field
  * 
