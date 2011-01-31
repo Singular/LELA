@@ -24,5 +24,7 @@ pkgincludesub_HEADERS=		\
 	bit-subvector-word-aligned.h	\
 	shifted-vector.h	\
 	sparse-subvector.h	\
+	sparse-subvector-hybrid.h	\
+	sparse-subvector-hybrid.inl	\
 	vector-domain.h		\
 	vector-domain.inl
