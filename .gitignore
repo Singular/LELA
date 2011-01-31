@@ -1,0 +1,8 @@
+configure
+config.guess
+config.sub
+ltmain.sh
+aclocal.m4
+missing
+Makefile.in
+Makefile
