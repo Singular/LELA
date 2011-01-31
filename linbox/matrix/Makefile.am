@@ -17,6 +17,8 @@ BASIC_HDRS =			\
 	dense-rows-matrix.h	\
 	dense-zero-one.h	\
 	dense-zero-one.inl	\
+	submatrix.h		\
+	submatrix.inl		\
 	matrix-domain.h		\
 	matrix-domain.inl	\
 	matrix-domain-gf2.h	\
