@@ -579,7 +579,8 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::SparsePara
 				//os.width (col_width);
 
 				if (j_idx == i->first.end () || col_idx != *j_idx)
-					F.write (os, zero);
+//					F.write (os, zero);
+					os << '.';
 				else {
 					F.write (os, *j_elt);
 					++j_idx; ++j_elt;
@@ -588,7 +589,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::SparsePara
 				os << ' ';
 			}
 
-			os << ']';
+			os << ']' << std::endl;
 		}
 
 		break;

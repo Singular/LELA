@@ -470,7 +470,10 @@ std::ostream& DenseMatrixBase<Element>::write (std::ostream &os, const Field &F)
 
 		for (pe = p->begin (); pe != p->end (); ++pe) {
 			os.width (wid);
-			F.write (os, *pe);
+			if (F.isZero (*pe))
+				os << '.';
+			else
+				F.write (os, *pe);
 			os << " ";
 		}
 
