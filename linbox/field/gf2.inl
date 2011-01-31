@@ -898,6 +898,9 @@ class MatrixDomain<GF2>
 				    VectorCategories::DenseZeroOneVectorTag,
 				    VectorCategories::SparseZeroOneVectorTag) const;
 
+	typedef std::pair<unsigned int, unsigned int> Transposition;
+	typedef std::vector<Transposition> Permutation;
+
 	VectorDomain<GF2> _VD;
 };
 
