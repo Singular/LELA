@@ -52,7 +52,7 @@ template <class Matrix> struct MatrixTraits
 
 /** \brief Helper class to allow specializations of certain matrix-vector products
  *
- * This class implements a method mulColSPD that multiplies a
+ * This class implements a method gemvColDense that multiplies a
  * column-represented matrix by a dense vector
  */
 
@@ -66,7 +66,7 @@ class MVProductDomain
 
     protected:
 	template <class Vector1, class Matrix, class Vector2>
-	inline Vector1 &mulColDense (const VectorDomain<Field> &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const;
+	Vector2 &gemvColDense (const VectorDomain<Field> &VD, const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y) const;
 };
 
 /** \brief Class of matrix arithmetic functions
@@ -96,10 +96,16 @@ class MVProductDomain
 template <class Field>
 class MatrixDomain : public MVProductDomain<Field>
 {
+	typename Field::Element zero;
+	typename Field::Element one;
+
     public:
 
 	///
-	MatrixDomain (const Field &F) : _F (F), _VD (F) {}
+	MatrixDomain (const Field &F) : _F (F), _VD (F) {
+		F.init (zero, 0);
+		F.init (one, 1);
+	}
 
 	MatrixDomain& operator= (const MatrixDomain& MD)
 	{ _F = MD._F; 
@@ -279,10 +285,36 @@ class MatrixDomain : public MVProductDomain<Field>
 	 */
 	template <class Matrix1, class Matrix2, class Matrix3>
 	inline Matrix1 &mul (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
-		{ return mulSpecialized (C, A, B,
-					 typename MatrixTraits<Matrix1>::MatrixCategory (),
-					 typename MatrixTraits<Matrix2>::MatrixCategory (),
-					 typename MatrixTraits<Matrix3>::MatrixCategory ()); }
+		{ return gemmSpecialized (one, A, B, zero, C,
+					  typename MatrixTraits<Matrix1>::MatrixCategory (),
+					  typename MatrixTraits<Matrix2>::MatrixCategory (),
+					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
+
+	/** General matrix-matrix multiply
+	 * C <- alpha * A * B + beta * C
+	 *
+	 * C must support both row and column iterators, and the vector
+	 * representations must be dense. Examples of supported matrices are
+	 * \ref DenseMatrixBase and \ref DenseSubmatrix.
+	 *
+	 * Either A or B, or both, may have limited iterators. However, either A
+	 * must support row iterators or B must support column iterators. If
+	 * both A and B lack support for an iterator (either row or column),
+	 * then C must support the same type of iterator as A and B.
+	 *
+	 * @param alpha Input scalar alpha
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @param beta Input scalar beta
+	 * @param C Output matrix C
+	 * @returns Reference to C
+	 */
+	template <class Matrix1, class Matrix2, class Matrix3>
+	inline Matrix3 &gemm (typename Field::Element alpha, const Matrix1 &A, const Matrix2 &B, typename Field::Element beta, Matrix3 &C) const
+		{ return gemmSpecialized (alpha, A, B, beta, C,
+					  typename MatrixTraits<Matrix1>::MatrixCategory (),
+					  typename MatrixTraits<Matrix2>::MatrixCategory (),
+					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
 
 	/** Matrix-matrix in-place multiply on the left
 	 * B <- A * B
@@ -372,10 +404,10 @@ class MatrixDomain : public MVProductDomain<Field>
 	 */
 	template <class Matrix1, class Matrix2, class Matrix3>
 	inline Matrix1 &axpyin (Matrix1 &Y, const Matrix2 &A, const Matrix3 &X) const
-		{ return axpyinSpecialized (Y, A, X,
-					    typename MatrixTraits<Matrix1>::MatrixCategory (),
-					    typename MatrixTraits<Matrix2>::MatrixCategory (),
-					    typename MatrixTraits<Matrix3>::MatrixCategory ()); }
+		{ return gemmSpecialized (one, A, X, one, Y,
+					  typename MatrixTraits<Matrix1>::MatrixCategory (),
+					  typename MatrixTraits<Matrix2>::MatrixCategory (),
+					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
 
 	/* FIXME: Need documentation of these methods */
 	template<class Matrix1, class Matrix2>
@@ -405,7 +437,21 @@ class MatrixDomain : public MVProductDomain<Field>
 	 */
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector1 &vectorMul (Vector1 &w, const Matrix &A, const Vector2 &v) const
-		{ return mulSpecialized (w, A, v, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+		{ return gemvSpecialized (one, A, v, zero, w, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+
+	/** General matrix-vector multiplication
+	 * y <- alpha A x + beta y
+	 *
+	 * @param alpha Input scalar alpha
+	 * @param A Input matrix A
+	 * @param x Input vector x
+	 * @param beta Input scalar beta
+	 * @param y Output vector y
+	 * @returns Reference to y
+	 */
+	template <class Vector1, class Matrix, class Vector2>
+	inline Vector2 &gemv (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y) const
+		{ return gemvSpecialized (alpha, A, x, beta, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
 	/** Matrix-vector in-place axpy
 	 * y <- y + A*x
@@ -427,7 +473,30 @@ class MatrixDomain : public MVProductDomain<Field>
 	 */
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector1 &vectorAxpyin (Vector1 &y, const Matrix &A, const Vector2 &x) const
-		{ return axpyinSpecialized (y, A, x, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+		{ return gemvSpecialized (one, A, x, one, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+
+	/** Triangular solve with vector
+	 * x <- A^{-1} x
+	 *
+	 * @param A Input matrix A, assumed to be upper triangular
+	 * @param x Input vector x
+	 * @returns Reference to x
+	 */
+	template <class Matrix, class Vector>
+	inline Vector &trsv (const Matrix &A, Vector &x) const
+		{ return trsvSpecialized (A, x, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Vector>::VectorCategory ()); }
+
+	/** Triangular solve with matrix
+	 * B <- alpha A^{-1} B
+	 *
+	 * @param alpha Input scalar alpha
+	 * @param A Input matrix A, assumed to be upper triangular
+	 * @param B Input matrix B
+	 * @returns Reference to B
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &trsm (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B) const
+		{ return trsmSpecialized (alpha, A, B, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
 	/*? @name Matrix-black box arithmetic operations
 	 * These operations mimic the matrix-matrix arithmetic operations above,
@@ -675,50 +744,50 @@ class MatrixDomain : public MVProductDomain<Field>
 		{ return neginRow (A); }
 
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulRowRowCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
+	Matrix3 &gemmRowRowCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulColRowCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
+	Matrix3 &gemmColRowCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulRowRowRow (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
+	Matrix3 &gemmRowRowRow (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulColColCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const;
+	Matrix3 &gemmColColCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const;
 
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::ColMatrixTag) const
-		{ return mulRowRowCol (C, A, B); }
+	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::ColMatrixTag) const
+		{ return gemmRowRowCol (alpha, A, B, beta, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::ColMatrixTag) const
-		{ return mulColRowCol (C, A, B); }
+	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::ColMatrixTag) const
+		{ return gemmColRowCol (alpha, A, B, beta, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::ColMatrixTag) const
-		{ return mulRowRowCol (C, A, B); }
+	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+				  MatrixCategories::RowColMatrixTag,
+				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::ColMatrixTag) const
+		{ return gemmRowRowCol (alpha, A, B, beta, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::RowMatrixTag,
-				 MatrixCategories::RowMatrixTag) const
-		{ return mulRowRowRow (C, A, B); }
+	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::RowMatrixTag,
+				  MatrixCategories::RowMatrixTag) const
+		{ return gemmRowRowRow (alpha, A, B, beta, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::ColMatrixTag,
-				 MatrixCategories::ColMatrixTag) const
-		{ return mulColColCol (C, A, B); }
+	Matrix3 &gemmSpecialized (typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::ColMatrixTag,
+				  MatrixCategories::ColMatrixTag) const
+		{ return gemmColColCol (alpha, A, B, beta, C); }
 	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix1 &mulSpecialized (Matrix1 &C, const Matrix2 &A, const Matrix3 &B,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowColMatrixTag,
-				 MatrixCategories::RowColMatrixTag) const
-		{ return mulRowRowCol (C, A, B); }
+	Matrix3 &gemmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C,
+				  MatrixCategories::RowColMatrixTag,
+				  MatrixCategories::RowColMatrixTag,
+				  MatrixCategories::RowColMatrixTag) const
+		{ return gemmRowRowCol (alpha, A, B, beta, C); }
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &mulRow (Matrix1 &C, const Matrix2 &B, const typename Field::Element &a) const;
@@ -806,35 +875,39 @@ class MatrixDomain : public MVProductDomain<Field>
 		{ return axpyinRowRowCol (Y, A, X); }
 
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				 VectorCategories::DenseVectorTag) const;
+	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				 VectorCategories::SparseSequenceVectorTag) const;
+	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::SparseSequenceVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				 VectorCategories::SparseAssociativeVectorTag) const;
+	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::SparseAssociativeVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				 VectorCategories::SparseParallelVectorTag) const;
+	Vector2 &gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::SparseParallelVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				    VectorCategories::DenseVectorTag,
-				    VectorCategories::DenseVectorTag) const
-	{ return mulColDense (_VD, w, A, v); } 
+	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::DenseVectorTag,
+				     VectorCategories::DenseVectorTag) const
+		{ return gemvColDense (_VD, alpha, A, x, beta, y); } 
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				    VectorCategories::DenseVectorTag,
-				    VectorCategories::SparseSequenceVectorTag) const;
+	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::DenseVectorTag,
+				     VectorCategories::SparseSequenceVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				    VectorCategories::DenseVectorTag,
-				    VectorCategories::SparseAssociativeVectorTag) const;
+	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::DenseVectorTag,
+				     VectorCategories::SparseAssociativeVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				    VectorCategories::DenseVectorTag,
-				    VectorCategories::SparseParallelVectorTag) const;
+	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::DenseVectorTag,
+				     VectorCategories::SparseParallelVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				     VectorCategories::SparseParallelVectorTag,
+				     VectorCategories::SparseParallelVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector1 &mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
@@ -854,58 +927,28 @@ class MatrixDomain : public MVProductDomain<Field>
 	}
 
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-				 MatrixCategories::RowMatrixTag) const
-		{ return mulRowSpecialized (w, A, v, typename VectorTraits<Vector1>::VectorCategory ()); }
+	Vector2 &gemvSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+				  MatrixCategories::RowMatrixTag) const
+		{ return gemvRowSpecialized (alpha, A, x, beta, y, typename VectorTraits<Vector1>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
+	Vector2 &gemvSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
 				 MatrixCategories::ColMatrixTag) const
-		{ return mulColSpecialized (w, A, v,
+		{ return gemvColSpecialized (alpha, A, x, beta, y,
 					    typename VectorTraits<Vector1>::VectorCategory (),
 					    typename VectorTraits<Vector2>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
+	Vector2 &gemvSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
 				 MatrixCategories::RowColMatrixTag) const
-		{ return mulRowSpecialized (w, A, v, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return gemvRowSpecialized (alpha, A, x, beta, y, typename VectorTraits<Vector1>::VectorCategory ()); }
 
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::DenseVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::SparseParallelVectorTag) const;
+	template <class Matrix, class Vector>
+	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag);
 
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::DenseVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				       VectorCategories::SparseParallelVectorTag) const;
+	template <class Matrix1, class Matrix2>
+	Matrix2 &trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				    MatrixCategories::RowMatrixTag) const
-		{ return axpyinRowSpecialized (y, A, x, typename VectorTraits<Vector1>::VectorCategory ()); }
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				    MatrixCategories::ColMatrixTag) const
-		{ return axpyinColSpecialized (y, A, x, typename VectorTraits<Vector1>::VectorCategory ()); }
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &axpyinSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-				    MatrixCategories::RowColMatrixTag) const
-		{ return axpyinRowSpecialized (y, A, x, typename VectorTraits<Vector1>::VectorCategory ()); }
+	template <class Matrix1, class Matrix2>
+	Matrix2 &trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag);
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRowsByRow (Matrix   &A,

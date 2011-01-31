@@ -357,76 +357,86 @@ Matrix &MatrixDomain<Field>::neginCol (Matrix &A) const
 
 template <class Field>
 template <class Matrix1, class Matrix2, class Matrix3>
-Matrix1 &MatrixDomain<Field>::mulRowRowCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
+Matrix3 &MatrixDomain<Field>::gemmRowRowCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
 
-	typename Matrix2::ConstRowIterator i;
-	typename Matrix3::ConstColIterator j;
-	typename Matrix1::RowIterator l1;
-	typename Matrix1::Row::iterator l2;
+	typename Matrix1::ConstRowIterator i;
+	typename Matrix2::ConstColIterator j;
+	typename Matrix3::RowIterator l1;
+	typename Matrix3::Row::iterator l2;
+	typename Field::Element d;
 
-	for (i = A.rowBegin (), l1 = C.rowBegin (); i != A.rowEnd (); ++i, ++l1)
-		for (j = B.colBegin (), l2 = l1->begin (); j != B.colEnd (); ++j, ++l2)
-			_VD.dot (*l2, *i, *j);
+	for (i = A.rowBegin (), l1 = C.rowBegin (); i != A.rowEnd (); ++i, ++l1) {
+		for (j = B.colBegin (), l2 = l1->begin (); j != B.colEnd (); ++j, ++l2) {
+			_VD.dot (d, *i, *j);
+			_F.mulin (*l2, alpha);
+			_F.axpyin (*l2, beta, d);
+		}
+	}
 
 	return C;
 }
 
 template <class Field>
 template <class Matrix1, class Matrix2, class Matrix3>
-Matrix1 &MatrixDomain<Field>::mulColRowCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
+Matrix3 &MatrixDomain<Field>::gemmColRowCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
 
-	typename Matrix2::ConstRowIterator i;
-	typename Matrix3::ConstColIterator j;
-	typename Matrix1::ColIterator l1;
-	typename Matrix1::Col::iterator l2;
+	typename Matrix1::ConstRowIterator i;
+	typename Matrix2::ConstColIterator j;
+	typename Matrix3::ColIterator l1;
+	typename Matrix3::Col::iterator l2;
+	typename Field::Element d;
 
-	for (j = B.colBegin (), l1 = C.colBegin (); j != B.colEnd (); ++j, ++l1)
-		for (i = A.rowBegin (), l2 = l1->begin (); i != A.rowEnd (); ++i, ++l2)
-			_VD.dot (*l2, *i, *j);
+	for (j = B.colBegin (), l1 = C.colBegin (); j != B.colEnd (); ++j, ++l1) {
+		for (i = A.rowBegin (), l2 = l1->begin (); i != A.rowEnd (); ++i, ++l2) {
+			_VD.dot (d, *i, *j);
+			_F.mulin (*l2, alpha);
+			_F.axpyin (*l2, beta, d);
+		}
+	}
 
 	return C;
 }
 
 template <class Field>
 template <class Matrix1, class Matrix2, class Matrix3>
-Matrix1 &MatrixDomain<Field>::mulRowRowRow (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
+Matrix3 &MatrixDomain<Field>::gemmRowRowRow (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
 
-	typename Matrix2::ConstRowIterator i = A.rowBegin ();
-	typename Matrix1::RowIterator j = C.rowBegin ();
+	typename Matrix1::ConstRowIterator i = A.rowBegin ();
+	typename Matrix3::RowIterator j = C.rowBegin ();
 
-	TransposeMatrix<const Matrix3> BT (B);
+	TransposeMatrix<const Matrix2> BT (B);
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		vectorMul (*j, BT, *i);
+		gemv (alpha, BT, *i, beta, *j);
 
 	return C;
 }
 
 template <class Field>
 template <class Matrix1, class Matrix2, class Matrix3>
-Matrix1 &MatrixDomain<Field>::mulColColCol (Matrix1 &C, const Matrix2 &A, const Matrix3 &B) const
+Matrix3 &MatrixDomain<Field>::gemmColColCol (const typename Field::Element &alpha, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &beta, Matrix3 &C) const
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
 
-	typename Matrix3::ConstColIterator i = B.colBegin ();
-	typename Matrix1::ColIterator j = C.colBegin ();
+	typename Matrix2::ConstColIterator i = B.colBegin ();
+	typename Matrix3::ColIterator j = C.colBegin ();
 
 	for (; i != B.colEnd (); ++i, ++j)
-		vectorMul (*j, A, *i);
+		gemv (alpha, B, *i, beta, *j);
 
 	return C;
 }
@@ -637,331 +647,294 @@ Matrix1 &MatrixDomain<Field>::axpyinColColCol (Matrix1 &Y, const Matrix2 &A, con
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-						 VectorCategories::DenseVectorTag) const
+Vector2 &MatrixDomain<Field>::gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
-	typename Vector1::iterator j = w.begin ();
+	typename Vector2::iterator j = y.begin ();
+
+	typename Field::Element d;
 
             // JGD 02.09.2008 : when sizes differ
             // A must decide if dot is possible, not w 
 // 	for (; j != w.end (); ++j, ++i)
 // 		_VD.dot (*j, v, *i);
-	for (; i != A.rowEnd (); ++j, ++i)
-		_VD.dot (*j, v, *i);
-
-	return w;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-						 VectorCategories::SparseSequenceVectorTag) const
-{
-	typename Matrix::ConstRowIterator i = A.rowBegin ();
-	typename Field::Element t;
-	unsigned int idx = 0;
-
-	w.clear ();
-
-	for (; i != A.rowEnd (); ++i, ++idx) {
-		_VD.dot (t, v, *i);
-
-		if (!_F.isZero (t))
-			w.push_back (std::pair<size_t, typename Field::Element> (idx, t));
+	for (; i != A.rowEnd (); ++j, ++i) {
+		_VD.dot (d, x, *i);
+		_F.mulin (*j, beta);
+		_F.axpyin (*j, alpha, d);
 	}
 
-	return w;
+	return y;
 }
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-						 VectorCategories::SparseAssociativeVectorTag) const
+Vector2 &MatrixDomain<Field>::gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::SparseSequenceVectorTag) const
 {
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Field::Element t;
 	unsigned int idx = 0;
 
-	w.clear ();
+	std::vector<std::pair<size_t, typename Field::Element> > yp;
+
+	if (_F.isZero (beta))
+		y.clear ();
+	else
+		_VD.mulin (y, beta);
 
 	for (; i != A.rowEnd (); ++i, ++idx) {
-		_VD.dot (t, v, *i);
+		_VD.dot (t, x, *i);
+		_F.mulin (t, alpha);
 
 		if (!_F.isZero (t))
-			w[idx] = t;
+			yp.push_back (std::pair<size_t, typename Field::Element> (idx, t));
 	}
 
-	return w;
+	return _VD.addin (y, yp);
 }
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::mulRowSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-						 VectorCategories::SparseParallelVectorTag) const
+Vector2 &MatrixDomain<Field>::gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::SparseAssociativeVectorTag) const
 {
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Field::Element t;
 	unsigned int idx = 0;
 
-	w.first.clear ();
-	w.second.clear ();
+	if (_F.isZero (beta))
+		y.clear ();
+	else
+		_VD.mulin (y, beta);
 
 	for (; i != A.rowEnd (); ++i, ++idx) {
-		_VD.dot (t, v, *i);
+		_VD.dot (t, x, *i);
+		_F.mulin (t, alpha);
+
+		if (!_F.isZero (t))
+			y[idx] += t;
+	}
+
+	return y;
+}
+
+template <class Field>
+template <class Vector1, class Matrix, class Vector2>
+Vector2 &MatrixDomain<Field>::gemvRowSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::SparseParallelVectorTag) const
+{
+	typename Matrix::ConstRowIterator i = A.rowBegin ();
+	typename Field::Element t;
+	unsigned int idx = 0;
+
+	std::pair<std::vector<size_t>, std::vector<typename Field::Element> > yp;
+
+	if (_F.isZero (beta)) {
+		y.first.clear ();
+		y.second.clear ();
+	}
+	else
+		_VD.mulin (y, beta);
+
+	for (; i != A.rowEnd (); ++i, ++idx) {
+		_VD.dot (t, x, *i);
+		_F.mulin (t, alpha);
 
 		if (!_F.isZero (t)) {
-			w.first.push_back (idx);
-			w.second.push_back (t);
+			yp.first.push_back (idx);
+			yp.second.push_back (t);
 		}
 	}
 
-	return w;
+	return _VD.addin (y, yp);
 }
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Field>::mulColDense
-	(const VectorDomain<Field> &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const
+Vector2 &MVProductDomain<Field>::gemvColDense (const VectorDomain<Field> &VD, const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y) const
 {
 	linbox_check (A.coldim () == v.size ());
 	linbox_check (A.rowdim () == w.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j = v.begin ();
-
-	VD.subin (w, w);
-
-	for (; j != v.end (); ++j, ++i)
-		VD.axpyin (w, *j, *i);
-
-	return w;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-						 VectorCategories::DenseVectorTag,
-						 VectorCategories::SparseSequenceVectorTag) const
-{
-	linbox_check (A.rowdim () == w.size ());
-
-	typename Vector2::const_iterator j = v.begin ();
-
-	_VD.subin (w, w);
-
-	for (; j != v.end (); ++j) {
-		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
-		_VD.axpyin (w, j->second, *i);
-	}
-
-	return w;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-						 VectorCategories::DenseVectorTag,
-						 VectorCategories::SparseAssociativeVectorTag) const
-{
-	linbox_check (A.rowdim () == w.size ());
-
-	typename Vector2::const_iterator j = v.begin ();
-
-	_VD.subin (w, w);
-
-	for (; j != v.end (); ++j) {
-		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
-		_VD.axpyin (w, j->second, *i);
-	}
-
-	return w;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::mulColSpecialized (Vector1 &w, const Matrix &A, const Vector2 &v,
-						 VectorCategories::DenseVectorTag,
-						 VectorCategories::SparseParallelVectorTag) const
-{
-	linbox_check (A.rowdim () == w.size ());
-
-	typename Vector2::first_type::const_iterator j_idx = v.first.begin ();
-	typename Vector2::second_type::const_iterator j_elt = v.second.begin ();
-
-	_VD.subin (w, w);
-
-	for (; j_idx != v.first.end (); ++j_idx, ++j_elt) {
-		typename Matrix::ConstColIterator i = A.colBegin () + *j_idx;
-		_VD.axpyin (w, *j_elt, *i);
-	}
-
-	return w;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::DenseVectorTag) const
-{
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
-
-	typename Matrix::ConstRowIterator i = A.rowBegin ();
-	typename Vector1::iterator j = y.begin ();
-
-	typename Field::Element t;
-
-	for (; j != y.end (); ++j, ++i) {
-		_VD.dot (t, x, *i);
-		_F.addin (*j, t);
-	}
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::SparseSequenceVectorTag) const
-{
-	typename LinBox::Vector<Field>::Dense t1 (A.coldim ()), t2 (A.rowdim ());
-
-	_VD.copy (t1, x);
-	_VD.copy (t2, y);
-	axpyin (t2, A, t1);
-	_VD.copy (y, t2);
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::SparseAssociativeVectorTag) const
-{
-	typename LinBox::Vector<Field>::Dense t1 (A.coldim ()), t2 (A.rowdim ());
-
-	_VD.copy (t1, x);
-	_VD.copy (t2, y);
-	axpyin (t2, A, t1);
-	_VD.copy (y, t2);
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinRowSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::SparseParallelVectorTag) const
-{
-	typename LinBox::Vector<Field>::Dense t1 (A.coldim ()), t2 (A.rowdim ());
-
-	_VD.copy (t1, x);
-	_VD.copy (t2, y);
-	axpyin (t2, A, t1);
-	_VD.copy (y, t2);
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::DenseVectorTag) const
-{
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
-
-	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j = x.begin ();
+	typename Field::Element d;
 
-	for (; j != x.end (); ++j, ++i)
-		_VD.axpyin (y, *j, *i);
+	VD.mulin (y, beta);
+
+	for (; j != x.end (); ++j, ++i) {
+		VD.field ().mul (d, alpha, *j);
+		VD.axpyin (y, d, *i);
+	}
 
 	return y;
 }
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::SparseSequenceVectorTag) const
+Vector2 &MatrixDomain<Field>::gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::DenseVectorTag,
+						  VectorCategories::SparseSequenceVectorTag) const
 {
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::iterator j = x.begin ();
+	linbox_check (A.rowdim () == y.size ());
 
-	int diff;
+	typename Vector2::const_iterator j = x.begin ();
+	typename Field::Element d;
 
-	typename LinBox::Vector<Field>::Dense t (A.rowdim ());
+	_VD.mulin (y, beta);
 
-	_VD.copy (t, y);
-
-	while (j != x.end ()) {
-		_VD.axpyin (t, j->second, *i);
-		diff = j->first; ++j;
-		diff -= j->first;
-		i -= diff;
+	for (; j != x.end (); ++j) {
+		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
+		_F.mul (d, alpha, j->second);
+		_VD.axpyin (y, d, *i);
 	}
-
-	_VD.copy (y, t);
 
 	return y;
 }
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::SparseAssociativeVectorTag) const
+Vector2 &MatrixDomain<Field>::gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::DenseVectorTag,
+						  VectorCategories::SparseAssociativeVectorTag) const
 {
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::iterator j = x.begin ();
+	linbox_check (A.rowdim () == y.size ());
 
-	int diff;
+	typename Vector2::const_iterator j = x.begin ();
+	typename Field::Element d;
 
-	typename LinBox::Vector<Field>::Dense t (A.rowdim ());
+	_VD.mulin (y, beta);
 
-	_VD.copy (t, y);
-
-	while (j != x.end ()) {
-		_VD.axpyin (t, j->second, *i);
-		diff = j->first; ++j;
-		diff -= j->first;
-		i -= diff;
+	for (; j != x.end (); ++j) {
+		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
+		_F.mul (d, alpha, j->second);
+		_VD.axpyin (y, d, *i);
 	}
-
-	_VD.copy (y, t);
 
 	return y;
 }
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MatrixDomain<Field>::axpyinColSpecialized (Vector1 &y, const Matrix &A, const Vector2 &x,
-						    VectorCategories::SparseParallelVectorTag) const
+Vector2 &MatrixDomain<Field>::gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::DenseVectorTag,
+						  VectorCategories::SparseParallelVectorTag) const
 {
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::iterator j_idx = x.first.begin ();
-	typename Vector2::iterator j_elt = x.second.begin ();
+	linbox_check (A.rowdim () == y.size ());
 
-	int diff;
+	typename Vector2::first_type::const_iterator j_idx = x.first.begin ();
+	typename Vector2::second_type::const_iterator j_elt = x.second.begin ();
+	typename Field::Element d;
 
-	typename LinBox::Vector<Field>::Dense t (A.rowdim ());
+	_VD.mulin (y, beta);
 
-	_VD.copy (t, y);
-
-	for (; j_idx != x.first.end (); ++j_elt) {
-		_VD.axpyin (t, *j_elt, *i);
-		diff = *j_idx; ++j_idx;
-		diff -= *j_idx;
-		i -= diff;
+	for (; j_idx != x.first.end (); ++j_idx, ++j_elt) {
+		typename Matrix::ConstColIterator i = A.colBegin () + *j_idx;
+		_F.mul (d, alpha, *j_elt);
+		_VD.axpyin (y, d, *i);
 	}
 
-	_VD.copy (y, t);
+	return y;
+}
+
+template <class Field>
+template <class Vector1, class Matrix, class Vector2>
+Vector2 &MatrixDomain<Field>::gemvColSpecialized (const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &beta, Vector2 &y,
+						  VectorCategories::SparseParallelVectorTag,
+						  VectorCategories::SparseParallelVectorTag) const
+{
+	linbox_check (A.rowdim () == y.size ());
+
+	typename Vector2::first_type::const_iterator j_idx = x.first.begin ();
+	typename Vector2::second_type::const_iterator j_elt = x.second.begin ();
+	typename Field::Element d;
+
+	_VD.mulin (y, beta);
+
+	for (; j_idx != x.first.end (); ++j_idx, ++j_elt) {
+		typename Matrix::ConstColIterator i = A.colBegin () + *j_idx;
+		_F.mul (d, alpha, *j_elt);
+		_VD.axpyin (y, d, *i);
+	}
 
 	return y;
+}
+
+template <class Field>
+template <class Matrix, class Vector>
+Vector &MatrixDomain<Field>::trsvSpecialized (const Matrix &A, Vector &x,
+					      MatrixCategories::RowMatrixTag,
+					      VectorCategories::DenseVectorTag)
+{
+	linbox_check (A.coldim () == A.rowdim ());
+	linbox_check (A.rowdim () == x.size ());
+
+	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
+	int i = A.rowdim () - 1;
+
+	while (--i >= 0) {
+		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
+			continue;
+
+		_VD.dot (d, *(A.rowBegin () + i), x);
+
+		_F.add (ai_p_1, ai, one);
+		_F.mulin (x[i], ai_p_1);
+		_F.inv (neg_ai_inv, ai);
+		_F.negin (neg_ai_inv);
+		_F.axpyin (x[i], neg_ai_inv, d);
+	}
+
+	return x;
+}
+
+template <class Field>
+template <class Matrix1, class Matrix2>
+Matrix2 &MatrixDomain<Field>::trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B,
+					       MatrixCategories::RowMatrixTag,
+					       MatrixCategories::RowMatrixTag)
+{
+	linbox_check (A.coldim () == A.rowdim ());
+	linbox_check (A.rowdim () == B.rowdim ());
+
+	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
+	int i = A.rowdim () - 1;
+
+	TransposeMatrix<const Matrix1> AT (A);
+
+	while (--i >= 0) {
+		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
+			continue;
+
+		_F.add (ai_p_1, ai, one);
+		_F.inv (neg_ai_inv, ai);
+		_F.negin (neg_ai_inv);
+
+		gemv (neg_ai_inv, AT, *(A.rowBegin () + i), ai_p_1, *(B.rowBegin () + i));
+	}
+
+	return B;
+}
+
+template <class Field>
+template <class Matrix1, class Matrix2>
+Matrix2 &MatrixDomain<Field>::trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B,
+					       MatrixCategories::RowMatrixTag,
+					       MatrixCategories::ColMatrixTag)
+{
+	typename Matrix2::ColIterator i_B;
+
+	for (i_B = B.colBegin (); i_B != B.colEnd (); ++i_B) {
+		trsv (A, *i_B);
+		_VD.mulin (*i_B, alpha);
+	}
+
+	return B;
 }
 
 template <class Field>

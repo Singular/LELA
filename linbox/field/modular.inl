@@ -211,141 +211,141 @@ inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDSP
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint8> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j, j_end;
 	typename Matrix::Column::const_iterator k;
 	std::vector<uint32>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - v.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint8> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseSequenceVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j, j_end;
 	typename Matrix::Column::const_iterator k;
 	std::vector<uint32>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				_tmp[k->first] += k->second * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - v.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint8> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseAssociativeVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j, j_end;
 	typename Matrix::Column::const_iterator k;
 	std::vector<uint32>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				_tmp[k->first] += k->second * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - v.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint8> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseParallelVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j, j_end;
@@ -353,15 +353,15 @@ Vector1 &MVProductDomain<Modular<uint8> >::mulColDenseSpecialized
 	typename Matrix::Column::second_type::const_iterator k_elt;
 	std::vector<uint32>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		j_end = j + __LINBOX_MIN (uint64 (A.coldim ()), VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
@@ -370,73 +370,73 @@ Vector1 &MVProductDomain<Modular<uint8> >::mulColDenseSpecialized
 			     ++k_idx, ++k_elt, ++l)
 				_tmp[*k_idx] += *k_elt * *j;
 
-		j_end += __LINBOX_MIN (uint64 (A.coldim () - (j_end - v.begin ())), VD.field ()._k);
+		j_end += __LINBOX_MIN (uint64 (A.coldim () - (j_end - x.begin ())), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j = v.begin (), j_end;
+	typename Vector2::const_iterator j = x.begin (), j_end;
 	typename Matrix::Column::const_iterator k;
 	// Dan Roche, 7-1-04
 	// std::vector<uint32>::iterator l, l_end;
 	std::vector<uint64>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - v.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseSequenceVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j, j_end;
@@ -445,43 +445,43 @@ Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
         // std::vector<uint32>::iterator l, l_end;
 	std::vector<uint64>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				_tmp[k->first] += k->second * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - v.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseAssociativeVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j, j_end;
@@ -490,43 +490,43 @@ Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
         // std::vector<uint32>::iterator l, l_end;
 	std::vector<uint64>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				_tmp[k->first] += k->second * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - v.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseParallelVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j, j_end;
@@ -536,15 +536,15 @@ Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
         // std::vector<uint32>::iterator l, l_end;
 	std::vector<uint64>::iterator l, l_end;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	l_end = _tmp.begin () + w.size ();
+	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = v.begin ();
+		j = x.begin ();
 		//Dan Roche, 7-2-04
 		//j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
 		j_end = j + __LINBOX_MIN (A.coldim (), VD.field ()._k);
@@ -555,29 +555,29 @@ Vector1 &MVProductDomain<Modular<uint16> >::mulColDenseSpecialized
 			     ++k_idx, ++k_elt, ++l)
 				_tmp[*k_idx] += *k_elt * *j;
 
-		//j_end += __LINBOX_MIN (A->coldim () - (j_end - v.begin ()), VD.field ()._k);
-		j_end += __LINBOX_MIN (A.coldim () - (j_end - v.begin ()), VD.field ()._k);
+		//j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (A.coldim () - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != v.end ());
+	} while (j_end != x.end ());
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j;
@@ -586,12 +586,12 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 
 	uint64 t;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	for (j = v.begin (); j != v.end (); ++j, ++i) {
+	for (j = x.begin (); j != x.end (); ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
 			t = ((uint64) *k) * ((uint64) *j);
 
@@ -602,21 +602,21 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 		}
 	}
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l % VD.field ()._modulus;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseSequenceVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j;
@@ -625,12 +625,12 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 
 	uint64 t;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	for (j = v.begin (); j != v.end (); ++j, ++i) {
+	for (j = x.begin (); j != x.end (); ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
 			t = ((uint64) k->second) * ((uint64) *j);
 
@@ -641,21 +641,21 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 		}
 	}
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l % VD.field ()._modulus;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseAssociativeVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j;
@@ -664,12 +664,12 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 
 	uint64 t;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	for (j = v.begin (); j != v.end (); ++j, ++i) {
+	for (j = x.begin (); j != x.end (); ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
 			t = ((uint64) k->second) * ((uint64) *j);
 
@@ -680,21 +680,21 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 		}
 	}
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l % VD.field ()._modulus;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
+	(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 	 VectorCategories::SparseParallelVectorTag) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector2::const_iterator j;
@@ -704,12 +704,12 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 
 	uint64 t;
 
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
+	if (_tmp.size () < y.size ())
+		_tmp.resize (y.size ());
 
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
+	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	for (j = v.begin (); j != v.end (); ++j, ++i) {
+	for (j = x.begin (); j != x.end (); ++j, ++i) {
 		for (k_idx = i->first.begin (), k_elt = i->second.begin (), l = _tmp.begin ();
 		     k_idx != i->first.end ();
 		     ++k_idx, ++k_elt, ++l)
@@ -723,12 +723,12 @@ Vector1 &MVProductDomain<Modular<uint32> >::mulColDenseSpecialized
 		}
 	}
 
-	typename Vector1::iterator w_j;
+	typename Vector2::iterator y_j;
 
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l % VD.field ()._modulus;
+	for (y_j = y.begin (), l = _tmp.begin (); y_j != y.end (); ++y_j, ++l)
+		*y_j = (alpha * *l + beta * *y_j) % VD.field ()._modulus;
 
-	return w;
+	return y;
 }
 
 }

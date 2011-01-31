@@ -1387,29 +1387,29 @@ namespace LinBox
 
 	    protected:
 		template <class Vector1, class Matrix, class Vector2>
-		inline Vector1 &mulColDense
-			(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const
+		inline Vector2 &gemvColDense
+			(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
 		{
-			return mulColDenseSpecialized
-				(VD, w, A, v, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
+			return gemvColDenseSpecialized
+				(VD, alpha, A, x, beta, y, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
 		}
 
 	    private:
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::DenseVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseSequenceVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseAssociativeVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseParallelVectorTag) const;
 
 		mutable std::vector<uint32> _tmp;
@@ -1426,29 +1426,29 @@ namespace LinBox
 
 	    protected:
 		template <class Vector1, class Matrix, class Vector2>
-		inline Vector1 &mulColDense
-			(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const
+		inline Vector2 &gemvColDense
+			(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
 		{
-			return mulColDenseSpecialized
-				(VD, w, A, v, VectorTraits<typename Matrix::Column>::VectorCategory ());
+			return gemvColDenseSpecialized
+				(VD, alpha, A, x, beta, y, VectorTraits<typename Matrix::Column>::VectorCategory ());
 		}
 
 	    private:
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::DenseVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseSequenceVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseAssociativeVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint16> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseParallelVectorTag) const;
 
 		mutable std::vector<uint64> _tmp;
@@ -1465,29 +1465,29 @@ namespace LinBox
 
 	    protected:
 		template <class Vector1, class Matrix, class Vector2>
-		inline Vector1 &mulColDense
-			(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const
+		inline Vector2 &gemvColDense
+			(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
 		{
-			return mulColDenseSpecialized
-				(VD, w, A, v, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
+			return gemvColDenseSpecialized
+				(VD, alpha, A, x, beta, y, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
 		}
 
 	    private:
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::DenseVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseSequenceVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseAssociativeVectorTag) const;
 		template <class Vector1, class Matrix, class Vector2>
-		Vector1 &mulColDenseSpecialized
-			(const VectorDomain<Modular<uint32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		Vector2 &gemvColDenseSpecialized
+			(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 			 VectorCategories::SparseParallelVectorTag) const;
 
 		mutable std::vector<uint64> _tmp;
