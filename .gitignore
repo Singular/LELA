@@ -6,3 +6,5 @@ aclocal.m4
 missing
 Makefile.in
 Makefile
+*.orig
+*~
