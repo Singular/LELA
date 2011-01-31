@@ -108,10 +108,26 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 					  typename VectorTraits<Vector1>::VectorCategory (),
 					  typename VectorTraits<Vector2>::VectorCategory ()); }
 
+	template <class Vector>
+	inline void swap (Vector &v1, Vector &v2) const
+		{ swapSpecialised (v1, v2,
+				   typename VectorTraits<Vector>::VectorCategory ()); }
+
+	template <class Vector>
+	inline int firstNonzeroEntry (bool &a, const Vector &v) const
+		{ return firstNonzeroEntrySpecialized (a, v, typename VectorTraits<Vector>::VectorCategory ()); }
+
 	template <class Vector1, class Vector2>
 	inline Vector1 &copy (Vector1 &res, const Vector2 &v, size_t i, size_t len = 0) const
 		{ return copySpecialized (res, v, i, len,
 					  typename VectorTraits<Vector1>::VectorCategory ()); }
+
+	template <class Vector, class Iterator>
+	inline Vector &permute (Vector   &v,
+				Iterator  P_start,
+				Iterator  P_end) const
+		{ return permuteSpecialized (v, P_start, P_end,
+					     typename VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline bool areEqual (const Vector1 &v1, const Vector2 &v2) const
@@ -271,6 +287,20 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 					 VectorCategories::SparseZeroOneVectorTag) const
 		{ res = v; return res; }
 
+	template <class Vector>
+	inline void swapSpecialised (Vector &v1, Vector &v2,
+				     VectorCategories::DenseZeroOneVectorTag) const
+		{ std::swap_ranges (v1.wordBegin (), v1.wordEnd (), v2.wordBegin ()); }
+
+	template <class Vector>
+	inline void swapSpecialised (Vector &v1, Vector &v2,
+				     VectorCategories::GenericVectorTag) const
+		{ std::swap (v1, v2); }
+
+	template <class Vector, class Iterator>
+	inline Vector &permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
+					   VectorCategories::DenseZeroOneVectorTag) const;
+
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::DenseZeroOneVectorTag,
@@ -401,6 +431,16 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 
 		return u;
 	}
+
+	template <class Endianness>
+	inline int firstNonzeroEntryInWord (unsigned long long v) const;
+
+	template <class Vector>
+	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+						 VectorCategories::DenseZeroOneVectorTag) const;
+	template <class Vector>
+	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+						 VectorCategories::SparseZeroOneVectorTag) const;
 };
 
 // Specialization of RandomDenseStream
