@@ -127,6 +127,9 @@ private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 				     VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+				     VectorCategories::HybridZeroOneVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
@@ -264,6 +267,15 @@ private:
 					   VectorCategories::SparseZeroOneVectorTag) const;
 	template <class Matrix1, class Matrix3>
 	Matrix3 &gemmRowRowRow (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
+					   VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Matrix1, class Matrix3>
+	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
+					   VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Matrix1, class Matrix2, class Matrix3>
+	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
+					   VectorCategories::HybridZeroOneSequenceVectorTag) const;
 
 	template <class Matrix1, class Matrix2, class Matrix3>
 	Matrix3 &gemmSpecialized (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,

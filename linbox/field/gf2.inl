@@ -49,6 +49,7 @@ class RawVector<bool>
     typedef std::vector<size_t> SparseSeq;
     typedef std::vector<size_t> SparseMap;
     typedef std::vector<size_t> SparsePar;
+    typedef std::pair<std::vector<size_t>, BitVector> Hybrid;
 };
 
 // Specialization of DotProductDomain for GF2
@@ -217,6 +218,12 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	template <class Vector>
 	std::ostream &writeSpecialized (std::ostream &os, const Vector &x,
 					VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector>
+	std::ostream &writeSpecialized (std::ostream &os, const Vector &x,
+					VectorCategories::HybridZeroOneVectorTag) const
+		{ return writeHybridSpecialized (os, x, LittleEndian<typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type> ()); }
+	template <class Vector, class Endianness>
+	std::ostream &writeHybridSpecialized (std::ostream &os, const Vector &x, Endianness) const;
 
 	template <class Vector>
 	std::istream &readSpecialized (std::istream &is, const Vector &x,
@@ -243,6 +250,28 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
 				  VectorCategories::SparseZeroOneVectorTag,
 				  VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::HybridZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::HybridZeroOneVectorTag,
+				  VectorCategories::DenseZeroOneVectorTag) const
+		{ return areEqual (v2, v1); }
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::HybridZeroOneSequenceVectorTag,
+				  VectorCategories::DenseZeroOneVectorTag) const
+		{ return areEqual (v2, v1); }
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::DenseZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::DenseZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneSequenceVectorTag) const;
     
 
 	template <class Vector>
@@ -251,40 +280,50 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	inline bool isZeroSpecialized (const Vector &v,
 				       VectorCategories::SparseZeroOneVectorTag) const
 		{ return v.empty (); }
+	template <class Vector>
+	inline bool isZeroSpecialized (const Vector &v,
+				       VectorCategories::HybridZeroOneVectorTag) const
+		{ return v.first.empty (); }
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
 					 VectorCategories::DenseZeroOneVectorTag,
 					 VectorCategories::DenseZeroOneVectorTag) const
 		{ std::copy (v.wordBegin (), v.wordEnd (), res.wordBegin ()); return res; }
-
-	template <class Vector1, class Vector2>
-	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v, size_t i, size_t len, VectorCategories::DenseZeroOneVectorTag) const
-	{
-		std::copy (v.begin (), (len == 0) ? v.end () : v.begin () + len, res.begin () + i);
-		return res;
-	}
-	template <class Vector1, class Vector2>
-	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v, size_t i, size_t len, VectorCategories::DenseVectorTag) const
-	{
-		std::copy (v.begin (), (len == 0) ? v.end () : v.begin () + len, res.begin () + i);
-		return res;
-	}
-
-
-
 	template <class Vector1, class Vector2>
 	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
 				  VectorCategories::SparseZeroOneVectorTag,
 				  VectorCategories::DenseZeroOneVectorTag) const;
 	template <class Vector1, class Vector2>
 	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
+				  VectorCategories::HybridZeroOneVectorTag,
+				  VectorCategories::DenseZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
 				  VectorCategories::DenseZeroOneVectorTag,
 				  VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
+				  VectorCategories::DenseZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
+				  VectorCategories::DenseZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneSequenceVectorTag) const;
 	template <class Vector1, class Vector2>
 	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
 					 VectorCategories::SparseZeroOneVectorTag,
 					 VectorCategories::SparseZeroOneVectorTag) const
+		{ res = v; return res; }
+	template <class Vector1, class Vector2>
+	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
+					 VectorCategories::HybridZeroOneVectorTag,
+					 VectorCategories::HybridZeroOneVectorTag) const
+		{ res = v; return res; }
+	template <class Vector1, class Vector2>
+	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
+					 VectorCategories::HybridZeroOneSequenceVectorTag,
+					 VectorCategories::HybridZeroOneSequenceVectorTag) const
 		{ res = v; return res; }
 
 	template <class Vector>
@@ -357,6 +396,11 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 				 VectorCategories::SparseZeroOneVectorTag,
 				 VectorCategories::SparseZeroOneVectorTag,
 				 VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Vector2, class Vector3>
+	Vector1 &addSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,
+				 VectorCategories::HybridZeroOneVectorTag,
+				 VectorCategories::HybridZeroOneVectorTag,
+				 VectorCategories::HybridZeroOneVectorTag) const;
 
 	template <class Vector1, class Vector2>
 	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
@@ -368,6 +412,14 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 				   VectorCategories::SparseZeroOneVectorTag) const;
 	template <class Vector1, class Vector2>
 	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
+				   VectorCategories::DenseZeroOneVectorTag,
+				   VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
+				   VectorCategories::DenseZeroOneVectorTag,
+				   VectorCategories::HybridZeroOneSequenceVectorTag) const;
+	template <class Vector1, class Vector2>
+	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
 				   VectorCategories::SparseZeroOneVectorTag,
 				   VectorCategories::DenseZeroOneVectorTag) const
 		{ Vector1 xp, res; copy (xp, x); add (res, y, xp); copy (y, res); return y; }
@@ -375,15 +427,20 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
 				   VectorCategories::SparseZeroOneVectorTag,
 				   VectorCategories::SparseZeroOneVectorTag) const
-		{ Vector1 res; add (res, y, x); this->copy (y, res); return y; }
+		{ static Vector1 res; add (res, y, x); this->copy (y, res); return y; }
+	template <class Vector1, class Vector2>
+	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
+				   VectorCategories::HybridZeroOneVectorTag,
+				   VectorCategories::HybridZeroOneVectorTag) const
+		{ static Vector1 res; add (res, y, x); this->copy (y, res); return y; }
 
 	template <class Vector1, class Vector2>
 	Vector1 &mulSpecialized (Vector1 &res, const Vector2 &x, const Element a,
-				 VectorCategories::DenseZeroOneVectorTag ) const
+				 VectorCategories::DenseZeroOneVectorTag tag) const
 		{ if (a) this->copy (res, x); else std::fill (res.wordBegin (), res.wordEnd (), 0); return res; }
 	template <class Vector1, class Vector2>
 	Vector1 &mulSpecialized (Vector1 &res, const Vector2 &x, const Element a,
-				 VectorCategories::SparseZeroOneVectorTag ) const
+				 VectorCategories::SparseZeroOneVectorTag tag) const
 		{ if (a) this->copy (res, x); else res.clear (); return res; }
 
 	template <class Vector>
@@ -393,8 +450,12 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 
 	template <class Vector>
 	inline Vector &mulinSpecialized (Vector &x, const Element a,
-					 VectorCategories::SparseZeroOneVectorTag ) const
+					 VectorCategories::SparseZeroOneVectorTag tag) const
 		{ if (!a) x.clear (); return x; }
+	template <class Vector>
+	inline Vector &mulinSpecialized (Vector &x, const Element a,
+					 VectorCategories::HybridZeroOneVectorTag tag) const
+		{ if (!a) { x.first.clear (); x.second.clear (); } return x; }
 
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &addSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,
@@ -441,6 +502,12 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	template <class Vector>
 	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
 						 VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector>
+	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+						 VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector>
+	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+						 VectorCategories::HybridZeroOneSequenceVectorTag) const;
 };
 
 // Specialization of RandomDenseStream
@@ -682,6 +749,33 @@ std::ostream &VectorDomain<GF2>::writeSpecialized (std::ostream &os, const Vecto
 	return os;
 }
 
+template <class Vector, class Endianness>
+std::ostream &VectorDomain<GF2>::writeHybridSpecialized (std::ostream &os, const Vector &x, Endianness) const
+{
+	typename Vector::first_type::const_iterator i_idx;
+	typename Vector::second_type::const_word_iterator i_elt;
+	size_t idx = 0;
+	typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type mask;
+
+	os << "[ ";
+
+	for (i_idx = x.first.begin (), i_elt = x.second.wordBegin (); i_idx != x.first.end (); ++i_idx, ++i_elt) {
+		while (++idx <= *i_idx)
+			os << "0 ";
+
+		for (mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1)) {
+			if (*i_elt & mask)
+				os << "1 ";
+			else
+				os << "0 ";
+			++idx;
+		}
+	}
+	os << ']';
+
+	return os;
+}
+
 template <class Vector>
 std::istream &VectorDomain<GF2>::readSpecialized (std::istream &is, const Vector &x,
 						  VectorCategories::DenseZeroOneVectorTag) const
@@ -778,6 +872,89 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 	return true;
 }
 
+template <class Vector1, class Vector2>
+bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+					     VectorCategories::HybridZeroOneVectorTag,
+					     VectorCategories::HybridZeroOneVectorTag) const
+{
+	typename Vector1::first_type::const_iterator i_1_idx;
+	typename Vector2::first_type::const_iterator i_2_idx;
+	typename Vector1::second_type::const_iterator i_1_elt;
+	typename Vector2::second_type::const_iterator i_2_elt;
+
+	if (v1.first.size () != v2.first.size ())
+		return false;
+
+	for (i_1_idx = v1.first.begin (), i_2_idx = v2.first.begin (); i_1_idx != v1.first.end (); ++i_1_idx, ++i_2_idx)
+		if (*i_1_idx != *i_2_idx)
+			return false;
+
+	for (i_1_elt = v1.second.begin (), i_2_elt = v2.second.begin (); i_1_elt != v1.second.end (); ++i_1_elt, ++i_2_elt)
+		if (*i_1_elt != *i_2_elt)
+			return false;
+
+	return true;
+}
+
+template <class Vector1, class Vector2>
+bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+					     VectorCategories::DenseZeroOneVectorTag,
+					     VectorCategories::HybridZeroOneVectorTag) const
+{
+	typename Vector1::const_word_iterator i = v1.wordBegin ();
+	typename Vector2::first_type::const_iterator j_idx = v2.first.begin ();
+	typename Vector2::second_type::const_word_iterator j_elt = v2.second.wordBegin ();
+	size_t idx = 0;
+	int t;
+
+	for (; j_idx != v2.first.end (); ++j_idx, ++j_elt) {
+		while (idx < *j_idx) {
+			if (*i) return false;
+			idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+			++i;
+		}
+
+		if (*i++ != *j_elt)
+			return false;
+
+		idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+	}
+
+	for (; i != v1.wordEnd (); ++i)
+		if (*i) return false;
+
+	return true;
+}
+
+template <class Vector1, class Vector2>
+bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+					     VectorCategories::DenseZeroOneVectorTag,
+					     VectorCategories::HybridZeroOneSequenceVectorTag) const
+{
+	typename Vector1::const_word_iterator i = v1.wordBegin ();
+	typename Vector2::const_iterator j = v2.begin ();
+	size_t idx = 0;
+	int t;
+
+	for (; j != v2.end (); ++j) {
+		while (idx < j->first) {
+			if (*i) return false;
+			idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+			++i;
+		}
+
+		if (*i++ != j->second)
+			return false;
+
+		idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+	}
+
+	for (; i != v1.wordEnd (); ++i)
+		if (*i) return false;
+
+	return true;
+}
+
 template <class Vector>
 bool VectorDomain<GF2>::isZeroSpecialized (const Vector &v,
 					   VectorCategories::DenseZeroOneVectorTag) const
@@ -808,6 +985,27 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
+					     VectorCategories::HybridZeroOneVectorTag,
+					     VectorCategories::DenseZeroOneVectorTag) const
+{
+	typename Vector2::const_word_iterator i;
+	size_t idx = 0;
+
+	res.first.clear ();
+	res.second.clear ();
+
+	for (i = v.wordBegin (); i != v.wordEnd (); ++i, idx += __LINBOX_BITSOF_LONG) {
+		if (*i) {
+			res.first.push_back (idx);
+			res.second.push_word_back (*i);
+		}
+	}
+
+	return res;
+}
+
+template <class Vector1, class Vector2>
+Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::SparseZeroOneVectorTag) const
 {
@@ -820,6 +1018,53 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
              ++i)
         	res[*i] = true;
 	return res;
+}
+
+template <class Vector1, class Vector2>
+Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
+					     VectorCategories::DenseZeroOneVectorTag,
+					     VectorCategories::HybridZeroOneVectorTag) const
+{
+	typename Vector2::first_type::const_iterator i_idx;
+	typename Vector2::second_type::const_word_iterator i_elt;
+
+	std::fill (res.wordBegin (), res.wordEnd (), 0);
+
+	for (i_idx = v.first.begin (), i_elt = v.second.wordBegin (); i_idx != v.first.end (); ++i_idx, ++i_elt)
+        	*(res.wordBegin () + (*i_idx >> __LINBOX_LOGOF_SIZE)) = *i_elt;
+
+	return res;
+}
+
+template <class Vector1, class Vector2>
+Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
+					     VectorCategories::DenseZeroOneVectorTag,
+					     VectorCategories::HybridZeroOneSequenceVectorTag) const
+{
+	typename Vector2::const_iterator i;
+
+	std::fill (res.wordBegin (), res.wordEnd (), 0);
+
+	for (i = v.begin (); i != v.end (); ++i)
+        	*(res.wordBegin () + (i->first >> __LINBOX_LOGOF_SIZE)) = i->second;
+
+	return res;
+}
+
+template <class Vector, class Iterator>
+inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
+						      VectorCategories::DenseZeroOneVectorTag) const 
+{
+	Iterator i;
+	bool t;
+
+	for (i = P_start; i != P_end; ++i) {
+		t = v[i->first];
+		v[i->first] = v[i->second];
+		v[i->second] = t;
+	}
+
+	return v;
 }
 
 template <class Vector1, class Vector2>
@@ -879,6 +1124,52 @@ Vector1 &VectorDomain<GF2>::addSpecialized (Vector1 &res, const Vector2 &y, cons
 	return res;
 }
 
+template <class Vector1, class Vector2, class Vector3>
+Vector1 &VectorDomain<GF2>::addSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,
+					    VectorCategories::HybridZeroOneVectorTag,
+					    VectorCategories::HybridZeroOneVectorTag,
+					    VectorCategories::HybridZeroOneVectorTag) const
+{
+	typename Vector2::first_type::const_iterator i_idx = y.first.begin ();
+	typename Vector3::first_type::const_iterator j_idx = x.first.begin ();
+
+	typename Vector2::second_type::const_word_iterator i_elt = y.second.wordBegin ();
+	typename Vector3::second_type::const_word_iterator j_elt = x.second.wordBegin ();
+
+	res.first.clear ();
+	res.second.clear ();
+
+	while (i_idx != y.first.end () || j_idx != x.first.end ()) {
+		while (i_idx != y.first.end () && (j_idx == x.first.end () || *i_idx < *j_idx)) {
+			res.first.push_back (*i_idx);
+			res.second.push_word_back (*i_elt);
+			++i_idx;
+			++i_elt;
+		}
+		while (j_idx != x.first.end () && (i_idx == y.first.end () || *j_idx < *i_idx)) {
+			res.first.push_back (*j_idx);
+			res.second.push_word_back (*j_elt);
+			++j_idx;
+			++j_elt;
+		}
+		if (i_idx != y.first.end () && j_idx != x.first.end () && *i_idx == *j_idx) {
+			if (*i_elt ^ *j_elt) {
+				res.first.push_back (*i_idx);
+				res.second.push_word_back (*i_elt ^ *j_elt);
+			}
+
+			++i_idx;
+			++j_idx;
+			++i_elt;
+			++j_elt;
+		}
+	}
+
+	res.second.fix_size (x.second.size ());
+
+	return res;
+}
+
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 					      VectorCategories::DenseZeroOneVectorTag,
@@ -908,6 +1199,94 @@ Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 	return y;
 }
 
+template <class Vector1, class Vector2>
+Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
+					      VectorCategories::DenseZeroOneVectorTag,
+					      VectorCategories::HybridZeroOneVectorTag) const
+{
+	typename Vector2::first_type::const_iterator i_idx;
+	typename Vector2::second_type::const_word_iterator i_elt;
+	typename Vector1::word_iterator j = y.wordBegin ();
+
+	for (i_idx = x.first.begin (), i_elt = x.second.wordBegin (); i_idx != x.first.end (); ++i_idx, ++i_elt)
+		*(j + (*i_idx >> __LINBOX_LOGOF_SIZE)) ^= *i_elt;
+
+	return y;
+}
+
+template <class Vector1, class Vector2>
+Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
+					      VectorCategories::DenseZeroOneVectorTag,
+					      VectorCategories::HybridZeroOneSequenceVectorTag) const
+{
+	typename Vector2::const_iterator i;
+	typename Vector1::word_iterator j = y.wordBegin ();
+
+	for (i = x.begin (); i != x.end (); ++i)
+		*(j + (i->first >> __LINBOX_LOGOF_SIZE)) ^= i->second;
+
+	return y;
+}
+
+template <class Endianness>
+inline int VectorDomain<GF2>::firstNonzeroEntryInWord (unsigned long long v) const
+{
+	// FIXME: This can be made faster...
+	unsigned long long mask = Endianness::e_0;
+	int idx = 0;
+
+	for (; mask != 0; mask = Endianness::shift_right (mask, 1), ++idx)
+		if (v & mask)
+			return idx;
+
+	return -1;
+}
+
+template <class Vector>
+inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+							    VectorCategories::DenseZeroOneVectorTag) const
+{
+	typename Vector::const_iterator i;
+
+	for (i = v.begin (); i != v.end (); ++i)
+		if (*i)
+			return i - v.begin ();
+
+	return -1;
+}
+
+template <class Vector>
+inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+							    VectorCategories::SparseZeroOneVectorTag) const
+{
+	if (v.empty ())
+		return -1;
+	else
+		return v.front ();
+}
+
+template <class Vector>
+inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+							    VectorCategories::HybridZeroOneVectorTag) const
+{
+	if (v.first.empty ())
+		return -1;
+	else
+		return firstNonzeroEntryInWord<typename Vector::second_type::Endianness>
+			(v.second.front_word ()) + v.first.front ();
+}
+
+template <class Vector>
+inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vector &v,
+							    VectorCategories::HybridZeroOneSequenceVectorTag) const
+{
+	if (v.empty ())
+		return -1;
+	else
+		return firstNonzeroEntryInWord<typename Vector::second_type::Endianness>
+			(v.begin ()->second) + v.begin ()->first;
+}
+
 // Specialization of diagonal for GF2
 template <>
 class Diagonal<GF2, VectorTraits<Vector<GF2>::Dense>::VectorCategory>
@@ -920,7 +1299,7 @@ class Diagonal<GF2, VectorTraits<Vector<GF2>::Dense>::VectorCategory>
 	typedef BlackboxArchetype         Blackbox;
 	typedef bool                      Element;
 
-	Diagonal (const Field &, const BitVector &y)
+	Diagonal (const Field &F, const BitVector &y)
 		: _v (y) 
 	{}
 

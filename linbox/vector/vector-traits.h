@@ -114,6 +114,19 @@ namespace LinBox
                 } 
             };
 
+            struct HybridZeroOneVectorTag : public GenericVectorTag { 
+                friend std::ostream& operator<< (std::ostream& o, 
+                                                 const HybridZeroOneVectorTag& t) { 
+                    return o << "HybridZeroOneVectorTag"; 
+                } 
+            };
+
+            struct HybridZeroOneSequenceVectorTag : public GenericVectorTag { 
+                friend std::ostream& operator<< (std::ostream& o, 
+                                                 const HybridZeroOneSequenceVectorTag& t) { 
+                    return o << "HybridZeroOneSequenceVectorTag"; 
+                } 
+            };
         };
 
 	// Helper structure used for various STL's sorts (std::list::sort and std::stable_sort) 

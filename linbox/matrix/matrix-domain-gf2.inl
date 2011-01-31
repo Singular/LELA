@@ -171,6 +171,44 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 	return y;
 }
 
+template <class Vector1, class Matrix, class Vector2>
+Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     VectorCategories::HybridZeroOneVectorTag) const
+{
+	typename Matrix::ConstRowIterator i_A;
+	size_t idx;
+
+	bool d;
+
+	Vector2 t;
+
+	if (!b) {
+		y.first.clear ();
+		y.second.clear ();
+	}
+
+	if (!a)
+		return y;
+
+	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
+		_VD.dot (d, *i_A, x);
+
+		if (d) {
+			if (t.first.empty () || t.first.back () != idx & ~__LINBOX_POS_ALL_ONES) {
+				t.first.push_back (idx & ~__LINBOX_POS_ALL_ONES);
+				t.second.push_back (1ULL << (idx & __LINBOX_POS_ALL_ONES));
+			}
+			else {
+				t.second.back () |= 1ULL << (idx & __LINBOX_POS_ALL_ONES);
+			}
+		}
+	}
+
+	_VD.addin (y, t);
+
+	return y;
+}
+
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
 						 MatrixCategories::RowMatrixTag,
@@ -268,6 +306,97 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 		if (_F.isOne (a))
 			for (ip = i->begin (); ip != i->end (); ++ip)
 				_VD.addin (*k, *(B.rowBegin () + *ip));
+	}
+
+	return C;
+}
+
+template <class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
+							   VectorCategories::HybridZeroOneVectorTag) const
+{
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	typename Matrix1::ConstRowIterator i;
+	typename Matrix2::ConstRowIterator j;
+	typename Matrix3::RowIterator k;
+	typename Matrix1::ConstRow::first_type::const_iterator ip_idx;
+	typename Matrix1::ConstRow::second_type::const_word_iterator ip_elt;
+
+	typename Matrix1::ConstRow::second_type::const_word_iterator::value_type mask;
+
+	for (i = A.rowBegin (), k = C.rowBegin (); i != A.rowEnd (); ++i, ++k) {
+		if (_F.isZero (b))
+			_VD.mulin (*k, false);
+
+		if (_F.isOne (a))
+			for (ip_idx = i->first.begin (), ip_elt = i->second.wordBegin (); ip_idx != i->first.end (); ++ip_idx, ++ip_elt)
+				for (mask = 1, j = B.rowBegin () + *ip_idx; mask != 0 && j != B.rowEnd (); mask <<= 1, ++j)
+					if (*ip_elt & mask)
+						_VD.addin (*k, *j);
+	}
+
+	return C;
+}
+
+template <class Matrix1, class Matrix3>
+Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
+							   VectorCategories::HybridZeroOneVectorTag) const
+{
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	typename Matrix1::ConstRowIterator i;
+	typename Submatrix<DenseZeroOneMatrix<> >::ConstRowIterator j;
+	typename Matrix3::RowIterator k;
+	typename Matrix1::ConstRow::first_type::const_iterator ip_idx;
+	typename Matrix1::ConstRow::second_type::const_word_iterator ip_elt;
+	size_t t;
+
+	typename Matrix1::ConstRow::second_type::const_word_iterator::value_type mask;
+
+	for (i = A.rowBegin (), k = C.rowBegin (); i != A.rowEnd (); ++i, ++k) {
+		if (_F.isZero (b))
+			_VD.mulin (*k, false);
+
+		if (_F.isOne (a))
+			for (ip_idx = i->first.begin (), ip_elt = i->second.wordBegin (); ip_idx != i->first.end (); ++ip_idx, ++ip_elt)
+				for (mask = 1, t = *ip_idx, j = B.rowBegin () + *ip_idx; mask != 0 && t < B.rowdim (); mask <<= 1, ++j, ++t)
+					if (*ip_elt & mask)
+						_VD.addin (*k, *j);
+	}
+
+	return C;
+}
+
+template <class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
+							   VectorCategories::HybridZeroOneSequenceVectorTag) const
+{
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	typename Matrix1::ConstRowIterator i;
+	typename Matrix2::ConstRowIterator j;
+	typename Matrix3::RowIterator k;
+	typename Matrix1::ConstRow::const_iterator ip;
+	size_t t;
+
+	typename Matrix1::ConstRow::const_iterator::value_type::second_type mask;
+
+	for (i = A.rowBegin (), k = C.rowBegin (); i != A.rowEnd (); ++i, ++k) {
+		if (_F.isZero (b))
+			_VD.mulin (*k, false);
+
+		if (_F.isOne (a))
+			for (ip = i->begin (); ip != i->end (); ++ip)
+				for (mask = 1, t = ip->first, j = B.rowBegin () + ip->first; mask != 0 && t < B.rowdim (); mask <<= 1, ++j, ++t)
+					if (ip->second & mask)
+						_VD.addin (*k, *j);
 	}
 
 	return C;
