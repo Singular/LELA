@@ -19,6 +19,8 @@ pkgincludesub_HEADERS=		\
 	bit-iterator.h		\
 	bit-vector.h		\
 	bit-vector.inl		\
+	bit-subvector.h		\
+	bit-subvector.inl	\
 	shifted-vector.h	\
 	sparse-subvector.h	\
 	vector-domain.h		\
