@@ -58,7 +58,7 @@ namespace LinBox
  * writing matrices, except for testing purposes.
  */
   
-template <class Matrix, class Trait = typename MatrixTraits<Matrix>::MatrixCategory>
+template <class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
 class TransposeMatrix
 {
     public:
