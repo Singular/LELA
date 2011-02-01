@@ -5,12 +5,13 @@ AC_PREREQ(2.50)
 #AC_INIT(linbox/linbox.doxy)
 AC_INIT(linbox, 1.1.7,linbox-use@googlegroups.com) 
 AM_INIT_AUTOMAKE([1.8 gnu no-dependencies])
-AM_CONFIG_HEADER([config.h])
+#AM_CONFIG_HEADER([config.h])
 AM_CONFIG_HEADER([linbox/linbox-config.h])
 AX_PREFIX_CONFIG_H(linbox/linbox-config.h, __LINBOX)
 AC_PATH_PROG(RM, rm, $FALSE)
 RM="$RM -f"
 
+AC_CONFIG_MACRO_DIR([macros])
 
 AM_MAINTAINER_MODE
 AM_DEP_TRACK

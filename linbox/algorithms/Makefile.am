@@ -1,6 +1,8 @@
 # Copyright (c) 2010 the LinBox group
 # This file is part of LinBox
 # see COPYING for licence
+INCLUDES=-I$(top_srcdir) -I$(top_builddir)
+
 pkgincludesubdir=$(pkgincludedir)/algorithms
 
 noinst_LTLIBRARIES=libalgorithms.la
