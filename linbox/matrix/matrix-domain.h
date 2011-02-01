@@ -1016,8 +1016,7 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 		{ return axpyinRowRowCol (Y, A, X); }
 };
 
-}
-
+} // namespace LinBox
 
 #include "linbox/matrix/matrix-domain.inl"
 

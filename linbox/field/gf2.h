@@ -684,7 +684,7 @@ namespace LinBox
 
     };
     
-}
+} // namespace LinBox
 
 
 
@@ -793,7 +793,7 @@ namespace LinBox
         Source _source;
         Target _target;
     }; // end Hom 
-}
+} // namespace LinBox
 
 // #include <bits/stl_bvector.h>
 namespace std 
