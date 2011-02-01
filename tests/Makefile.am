@@ -2,7 +2,7 @@
 # This file is part of LinBox
 # see COPYING for licence
 
-INCLUDES=-I$(top_srcdir) -I$(top_srcdir)/linbox
+INCLUDES=-I$(top_srcdir) -I$(top_builddir)
 #AM_LDFLAGS = -llapack -lcblas -latlas 
 #AM_CXXFLAGS = -g -DLinBoxSrcOnly -Wall -O2 
 AM_CXXFLAGS = -g -DLinBoxSrcOnly -Wall -DDEBUG -O0
