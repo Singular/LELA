@@ -53,6 +53,7 @@
 #include "linbox/linbox-config.h"
 #include "linbox/blackbox/factory.h"
 #include "linbox/vector/vector-traits.h"
+#include "linbox/matrix/matrix-traits.h"
 #include "linbox/util/debug.h"
 #include "linbox/matrix/matrix-domain.h"
 #include "linbox/util/matrix-stream.h"
@@ -113,27 +114,27 @@ class SparseMatrixWriteHelper
 	};
 
 	template <class Field>
-	static std::ostream &write (const SparseMatrixBase<Element, Row> &A, std::ostream &os, const Field &F, FileFormatTag format);
+	static std::ostream &write (const SparseMatrixBase<Element, Row, Trait> &A, std::ostream &os, const Field &F, FileFormatTag format);
 };
 
 template <class Element, class Row, class Trait = typename VectorTraits<Row>::VectorCategory>
 class SparseMatrixReadWriteHelper : public SparseMatrixWriteHelper<Element, Row, Trait>
 {
 	template <class Field>
-	static std::istream &readTurner    (SparseMatrixBase<Element, Row> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readTurner    (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readGuillaume (SparseMatrixBase<Element, Row> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readGuillaume (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readMatlab    (SparseMatrixBase<Element, Row> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readMatlab    (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readPretty    (SparseMatrixBase<Element, Row> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readPretty    (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readMagmaCpt  (SparseMatrixBase<Element, Row> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readMagmaCpt  (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 
     public:
 
 	template <class Field>
-	static std::istream &read (SparseMatrixBase<Element, Row> &A, std::istream &is, const Field &F, FileFormatTag format);
+	static std::istream &read (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, FileFormatTag format);
 };
 
 // Specialization of the above for sparse parallel vectors
@@ -156,7 +157,53 @@ class SparseMatrixWriteHelper<_Element, Row, VectorCategories::SparseParallelVec
 	};
 
 	template <class Field>
-	static std::ostream &write (const SparseMatrixBase<Element, Row> &A, std::ostream &os, const Field &F, FileFormatTag format);
+	static std::ostream &write (const SparseMatrixBase<Element, Row, VectorCategories::SparseParallelVectorTag> &A, std::ostream &os, const Field &F, FileFormatTag format);
+};
+
+// Specialization of the above for sparse zero-one vectors
+template <class _Element, class Row>
+class SparseMatrixWriteHelper<_Element, Row, VectorCategories::SparseZeroOneVectorTag >
+{
+    public:
+	typedef _Element Element;
+
+	// Dummy class to avoid code duplication
+	class NoField 
+	{
+	    public:
+		typedef _Element Element;
+
+		std::istream &read (std::istream &stream, Element &elt) const
+			{ return stream >> elt; }
+		std::ostream &write (std::ostream &stream, const Element &elt) const
+			{ return stream << elt; }
+	};
+
+	template <class Field, class Trait>
+	static std::ostream &write (const SparseMatrixBase<Element, Row, Trait> &A, std::ostream &os, const Field &F, FileFormatTag format);
+};
+
+// Specialization of the above for sparse zero-one vectors
+template <class _Element, class Row>
+class SparseMatrixWriteHelper<_Element, Row, VectorCategories::HybridZeroOneVectorTag >
+{
+    public:
+	typedef _Element Element;
+
+	// Dummy class to avoid code duplication
+	class NoField 
+	{
+	    public:
+		typedef _Element Element;
+
+		std::istream &read (std::istream &stream, Element &elt) const
+			{ return stream >> elt; }
+		std::ostream &write (std::ostream &stream, const Element &elt) const
+			{ return stream << elt; }
+	};
+
+	template <class Field, class Trait>
+	static std::ostream &write (const SparseMatrixBase<Element, Row, Trait> &A, std::ostream &os, const Field &F, FileFormatTag format);
 };
 
 /** Sparse matrix container
@@ -1351,6 +1398,209 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseParallelVectorTag
 	size_t            _n;
 
     	template<class F, class R, class T> friend class SparseMatrixBase;
+};
+
+/* Specialization for sparse zero-one vectors */
+
+template <class _Element, class _Row>
+class SparseMatrixBase<_Element, _Row, VectorCategories::SparseZeroOneVectorTag >
+{
+public:
+	
+	typedef _Element Element;
+	typedef _Row Row;
+	typedef const Row ConstRow;
+	typedef _SP_BB_VECTOR_<Row> Rep;
+
+	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
+        struct rebind
+        { typedef SparseMatrixBase<typename _Tp1::Element, _R1, VectorCategories::SparseZeroOneVectorTag> other; };
+
+	SparseMatrixBase (size_t m, size_t n)
+		: _A (m), _m (m), _n (n) {}
+	SparseMatrixBase (const SparseMatrixBase<Element, Row> &A)
+		: _A (A._A), _m (A._m), _n (A._n) {}
+    
+    	template<class VectorType>
+	SparseMatrixBase (const SparseMatrixBase<Element, VectorType> &A)
+		: _A(A._m), _m (A._m), _n (A._n) {
+			typename Rep::iterator i;
+			typename SparseMatrixBase<Element, VectorType>::ConstRowIterator i_A;
+
+			for (i = _A.begin (), i_A = A.rowBegin (); i != _A.end (); ++i, ++i_A) {
+				i->resize (i_A->size ());
+				std::copy (i_A->begin (), i_A->end (), i->begin ());
+			}
+		}
+
+	/** Constructor from a MatrixStream
+	 */
+	template <class Field>
+	SparseMatrixBase ( MatrixStream<Field>& ms );
+
+	~SparseMatrixBase () {}
+
+	size_t rowdim () const { return _m; }
+	size_t coldim () const { return _n; }
+	size_t size () const { 
+            size_t s(0);
+            for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
+                s+= LinBox::RawVector<_Element>::size(*it);
+            return s;
+        }
+
+	template <class Field>
+	std::istream &read (std::istream &is, const Field &F, FileFormatTag format = FORMAT_DETECT)
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::read
+			  (*this, is, F, format); }
+	std::istream &read (std::istream &is, FileFormatTag format = FORMAT_DETECT)
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::read
+			  (*this, is, typename SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::NoField (),
+			   format); }
+	template <class Field>
+	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::write
+			  (*this, os, F, format); }
+	std::ostream &write (std::ostream &os, FileFormatTag format = FORMAT_PRETTY) const
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::write
+			  (*this, os, SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::NoField (),
+			   format); }
+
+	void           setEntry (size_t i, size_t j, const Element &value);
+	Element       &refEntry (size_t i, size_t j);
+	const Element &getEntry (size_t i, size_t j) const;
+	Element       &getEntry (Element &x, size_t i, size_t j) const
+			{ return x = getEntry (i, j); }
+
+	typedef typename Rep::iterator RowIterator;
+	typedef typename Rep::const_iterator ConstRowIterator;
+
+	ConstRowIterator rowBegin () const 
+		{ return _A.begin (); }
+	ConstRowIterator rowEnd () const
+		{ return _A.end (); }
+	RowIterator rowBegin ()
+		{ return _A.begin (); }
+	RowIterator rowEnd ()
+		{ return _A.end (); }
+
+	Row &getRow (size_t i) { return _A[i]; }
+	Row &operator [] (size_t i) { return _A[i]; }
+	ConstRow &operator [] (size_t i) const { return _A[i]; }
+
+	template <class Vector> Vector &columnDensity (Vector &v) const;
+	SparseMatrixBase &transpose (SparseMatrixBase &AT) const;
+
+    protected:
+
+	friend class SparseMatrixWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag >;
+	friend class SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag >;
+
+	Rep               _A;
+	size_t            _m;
+	size_t            _n;
+
+    	template<class F, class R, class T> friend class SparseMatrixBase;
+};
+
+/* Specialization for hybrid zero-one vectors */
+
+template <class _Element, class _Row>
+class SparseMatrixBase<_Element, _Row, VectorCategories::HybridZeroOneVectorTag >
+{
+public:
+
+	typedef _Element Element;
+	typedef _Row Row;
+	typedef const Row ConstRow;
+	typedef _SP_BB_VECTOR_<Row> Rep;
+
+	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
+	struct rebind
+	{ typedef SparseMatrixBase<typename _Tp1::Element, _R1, VectorCategories::HybridZeroOneVectorTag> other; };
+
+	SparseMatrixBase (size_t m, size_t n)
+		: _A (m), _m (m), _n (n) {}
+	SparseMatrixBase (const SparseMatrixBase<Element, Row> &A)
+		: _A (A._A), _m (A._m), _n (A._n) {}
+    
+	template<class VectorType>
+	SparseMatrixBase (const SparseMatrixBase<Element, VectorType> &A)
+		: _A(A._m), _m (A._m), _n (A._n) {
+		typename Rep::iterator meit = this->_A.begin();
+		typename SparseMatrixBase<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
+		for( ; meit != this->_A.end(); ++meit, ++copit)
+			LinBox::RawVector<Element>::convert(*meit, *copit);
+	}
+
+	/** Constructor from a MatrixStream
+	 */
+	template <class Field>
+	SparseMatrixBase ( MatrixStream<Field>& ms );
+
+	~SparseMatrixBase () {}
+
+	size_t rowdim () const { return _m; }
+	size_t coldim () const { return _n; }
+	size_t size () const { 
+		size_t s(0);
+		for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
+			s+= LinBox::RawVector<_Element>::size(*it);
+		return s;
+	}
+
+	template <class Field>
+	std::istream &read (std::istream &is, const Field &F, FileFormatTag format = FORMAT_DETECT)
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::read
+				(*this, is, F, format); }
+	std::istream &read (std::istream &is, FileFormatTag format = FORMAT_DETECT)
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::read
+				(*this, is, typename SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::NoField (),
+				 format); }
+	template <class Field>
+	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::write
+				(*this, os, F, format); }
+	std::ostream &write (std::ostream &os, FileFormatTag format = FORMAT_PRETTY) const
+		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::write
+				(*this, os, typename SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::NoField (),
+				 format); }
+
+	void           setEntry (size_t i, size_t j, const Element &value);
+	Element       &refEntry (size_t i, size_t j);
+	const Element &getEntry (size_t i, size_t j) const;
+	Element       &getEntry (Element &x, size_t i, size_t j) const
+		{ return x = getEntry (i, j); }
+
+	typedef typename Rep::iterator RowIterator;
+	typedef typename Rep::const_iterator ConstRowIterator;
+
+	ConstRowIterator rowBegin () const 
+		{ return _A.begin (); }
+	ConstRowIterator rowEnd () const
+		{ return _A.end (); }
+	RowIterator rowBegin ()
+		{ return _A.begin (); }
+	RowIterator rowEnd ()
+		{ return _A.end (); }
+
+	Row &getRow (size_t i) { return _A[i]; }
+	Row &operator [] (size_t i) { return _A[i]; }
+	ConstRow &operator [] (size_t i) const { return _A[i]; }
+
+	template <class Vector> Vector &columnDensity (Vector &v) const;
+	SparseMatrixBase &transpose (SparseMatrixBase &AT) const;
+
+protected:
+
+	friend class SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag >;
+	friend class SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag >;
+
+	Rep               _A;
+	size_t            _m;
+	size_t            _n;
+
+	template<class F, class R, class T> friend class SparseMatrixBase;
 };
 
 template <class Element, class Row>
