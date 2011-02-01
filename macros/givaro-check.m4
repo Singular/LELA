@@ -44,9 +44,9 @@ for GIVARO_HOME in ${GIVARO_HOME_PATH}
  do	
 if test -r "$GIVARO_HOME/include/givaro/givconfig.h"; then
 
-	if test "x$GIVARO_HOME" != "x/usr" -a "x$GIVARO_HOME" != "x/usr/local"; then
+	if test "x$GIVARO_HOME" != "x/usr"; then
 		GIVARO_CFLAGS="-I${GIVARO_HOME}/include"
-		GIVARO_LIBS="-L${GIVARO_HOME}/lib -lgivaro"
+		GIVARO_LIBS="-L${GIVARO_HOME}/lib -lgivaro -Wl,-rpath,${GIVARO_HOME}/lib"
 	else
 		GIVARO_CFLAGS=
 		GIVARO_LIBS="-lgivaro"		
@@ -60,7 +60,7 @@ if test -r "$GIVARO_HOME/include/givaro/givconfig.h"; then
 	[
 	AC_TRY_RUN(
 	[#include <givaro/givconfig.h>	 
-	 int main () { if (GIVARO_VERSION < 030300) return -1; else return 0; }
+	 int main () { if (GIVARO_MAJOR_VERSION < 03 || (GIVARO_MAJOR_VERSION == 03 && GIVARO_MINOR_VERSION < 03)) return -1; else return 0; }
 	],[
 	givaro_found="yes"	
 	break
