@@ -149,8 +149,8 @@ Vector2 &MVProductDomain<Field>::gemvColDense (const VectorDomain<Field>     &VD
 					       const typename Field::Element &beta,
 					       Vector2                       &y) const
 {
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
+	linbox_check (A.coldim () == x.size ());
+	linbox_check (A.rowdim () == y.size ());
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
 	typename Vector1::const_iterator j = x.begin ();

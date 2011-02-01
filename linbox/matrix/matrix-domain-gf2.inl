@@ -257,7 +257,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 }
 
 template <class Matrix1, class Matrix3>
-Matrix3 &MatrixDomainSupportGF2::gemmRowRowRow (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C) const
+Matrix3 &MatrixDomainSupportGF2::gemmRowRowRow (const bool &a, const Matrix1 &A, const SubmatrixBase<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C) const
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -280,7 +280,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRow (const bool &a, const Matrix1 &A,
 
 	gemm (a, A, Bp, b, Cp);
 
-	Submatrix<DenseZeroOneMatrix<> > Cpp (Cp, 0, B.startCol () & __LINBOX_POS_ALL_ONES, C.rowdim (), B.coldim ());
+	SubmatrixBase<DenseZeroOneMatrix<> > Cpp (Cp, 0, B.startCol () & __LINBOX_POS_ALL_ONES, C.rowdim (), B.coldim ());
 	copy (C, Cpp);
 
 	return C;
@@ -342,7 +342,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 }
 
 template <class Matrix1, class Matrix3>
-Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
+Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const SubmatrixBase<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
 							   VectorCategories::HybridZeroOneVectorTag) const
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -350,7 +350,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 	linbox_check (B.coldim () == C.coldim ());
 
 	typename Matrix1::ConstRowIterator i;
-	typename Submatrix<DenseZeroOneMatrix<> >::ConstRowIterator j;
+	typename SubmatrixBase<DenseZeroOneMatrix<> >::ConstRowIterator j;
 	typename Matrix3::RowIterator k;
 	typename Matrix1::ConstRow::first_type::const_iterator ip_idx;
 	typename Matrix1::ConstRow::second_type::const_word_iterator ip_elt;

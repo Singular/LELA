@@ -983,10 +983,10 @@ class SubvectorFactory<SparseMatrixBase<Element, Row, Trait> >
 	typedef SparseSubvector<typename SparseMatrixBase<Element, Row, Trait>::Row, Trait> RowSubvector;
 	typedef SparseSubvector<typename SparseMatrixBase<Element, Row, Trait>::ConstRow, Trait> ConstRowSubvector;
 
-	RowSubvector MakeRowSubvector (Submatrix<SparseMatrixBase<Element, Row, Trait> > &M, typename SparseMatrixBase<Element, Row, Trait>::RowIterator &pos)
+	RowSubvector MakeRowSubvector (SubmatrixBase<SparseMatrixBase<Element, Row, Trait> > &M, typename SparseMatrixBase<Element, Row, Trait>::RowIterator &pos)
 		{ return RowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<SparseMatrixBase<Element, Row, Trait> > &M, typename SparseMatrixBase<Element, Row, Trait>::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const SubmatrixBase<SparseMatrixBase<Element, Row, Trait> > &M, typename SparseMatrixBase<Element, Row, Trait>::ConstRowIterator &pos)
 		{ return ConstRowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 };
 
@@ -997,7 +997,7 @@ class SubvectorFactory<const SparseMatrixBase<Element, Row, Trait> >
 	typedef SparseSubvector<typename SparseMatrixBase<Element, Row, Trait>::ConstRow, Trait> RowSubvector;
 	typedef SparseSubvector<typename SparseMatrixBase<Element, Row, Trait>::ConstRow, Trait> ConstRowSubvector;
 
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const SparseMatrixBase<Element, Row, Trait> > &M, typename SparseMatrixBase<Element, Row, Trait>::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const SubmatrixBase<const SparseMatrixBase<Element, Row, Trait> > &M, typename SparseMatrixBase<Element, Row, Trait>::ConstRowIterator &pos)
 		{ return ConstRowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ());; }
 };
 

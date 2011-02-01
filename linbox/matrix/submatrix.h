@@ -24,19 +24,19 @@ namespace LinBox
 {
 
 template <class Matrix, class Trait>
-class SubmatrixRowIterator;
+class SubmatrixBaseRowIterator;
 
 template <class Matrix, class Trait>
-class SubmatrixConstRowIterator;
+class SubmatrixBaseConstRowIterator;
 
 template <class Matrix, class Trait>
-class SubmatrixColIterator;
+class SubmatrixBaseColIterator;
 
 template <class Matrix, class Trait>
-class SubmatrixConstColIterator;
+class SubmatrixBaseConstColIterator;
 
 template <class Matrix, class Trait>
-class Submatrix;
+class SubmatrixBase;
 
 /** Factory for subvectors
  *
@@ -55,11 +55,11 @@ class SubvectorFactory {
 	class ColSubvector;
 	class ConstColSubvector;
 
-	virtual RowSubvector MakeRowSubvector (Submatrix<Matrix, Trait> &M, const typename Matrix::RowIterator &pos) = 0;
-	virtual ConstRowSubvector MakeConstRowSubvector (const Submatrix<Matrix, Trait> &M, const typename Matrix::ConstRowIterator &pos) = 0;
+	virtual RowSubvector MakeRowSubvector (SubmatrixBase<Matrix, Trait> &M, const typename Matrix::RowIterator &pos) = 0;
+	virtual ConstRowSubvector MakeConstRowSubvector (const SubmatrixBase<Matrix, Trait> &M, const typename Matrix::ConstRowIterator &pos) = 0;
 
-	virtual ColSubvector MakeColSubvector (Submatrix<Matrix, Trait> &M, const typename Matrix::ColIterator &pos) = 0;
-	virtual ConstColSubvector MakeConstColSubvector (const Submatrix<Matrix, Trait> &M, const typename Matrix::ConstColIterator &pos) = 0;
+	virtual ColSubvector MakeColSubvector (SubmatrixBase<Matrix, Trait> &M, const typename Matrix::ColIterator &pos) = 0;
+	virtual ConstColSubvector MakeConstColSubvector (const SubmatrixBase<Matrix, Trait> &M, const typename Matrix::ConstColIterator &pos) = 0;
 };
 
 /** Generic submatrix
@@ -71,7 +71,7 @@ class SubvectorFactory {
 \ingroup matrix
  */
 template<class _Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<_Matrix>::MatrixCategory>::MatrixCategory>
-class Submatrix
+class SubmatrixBase
 {
     public:
  
@@ -79,7 +79,7 @@ class Submatrix
 	class ConstRawIterator;
 
 	typedef _Matrix Matrix;
-        typedef Submatrix<Matrix, Trait> Self_t;
+        typedef SubmatrixBase<Matrix, Trait> Self_t;
     
 	typedef typename Matrix::Element Element;
 
@@ -89,8 +89,8 @@ class Submatrix
 	 * matrix in ascending order. Dereferencing the iterator yields
 	 * a row vector in dense format
 	 */
-	typedef SubmatrixRowIterator<Matrix, Trait> RowIterator;
-	typedef SubmatrixConstRowIterator<Matrix, Trait> ConstRowIterator;
+	typedef SubmatrixBaseRowIterator<Matrix, Trait> RowIterator;
+	typedef SubmatrixBaseConstRowIterator<Matrix, Trait> ConstRowIterator;
 	typedef typename SubvectorFactory<Matrix, Trait>::RowSubvector Row;
 	typedef const typename SubvectorFactory<Matrix, Trait>::ConstRowSubvector ConstRow;
 
@@ -100,8 +100,8 @@ class Submatrix
 	 * matrix in ascending order. Dereferencing the iterator yields
 	 * a column vector in dense format
 	 */
-	typedef SubmatrixColIterator<Matrix, Trait> ColIterator;
-	typedef SubmatrixConstColIterator<Matrix, Trait> ConstColIterator;
+	typedef SubmatrixBaseColIterator<Matrix, Trait> ColIterator;
+	typedef SubmatrixBaseConstColIterator<Matrix, Trait> ConstColIterator;
 	typedef typename SubvectorFactory<Matrix, Trait>::ColSubvector Col;
 	typedef const typename SubvectorFactory<Matrix, Trait>::ConstColSubvector ConstCol;
 
@@ -109,7 +109,7 @@ class Submatrix
 
 	/** \brief
 	 */
-	Submatrix () {}
+	SubmatrixBase () {}
 
 	/** Constructor from an existing matrix and dimensions
 	 * \param M Containing matrix in which to construct submatrix
@@ -118,11 +118,11 @@ class Submatrix
 	 * \param rowdim Row dimension
 	 * \param coldim Column dimension
 	 */
-	Submatrix (Matrix &M,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
+	SubmatrixBase (Matrix &M,
+		       size_t row,
+		       size_t col,
+		       size_t rowdim,
+		       size_t coldim)
 		: _M (&M), _beg_row (row), _end_row (row + rowdim), _beg_col (col), _end_col (col + coldim)
 		{}
 
@@ -134,26 +134,26 @@ class Submatrix
 	 * @param rowdim Row dimension
 	 * @param coldim Column dimension
 	 */
-	Submatrix (const Submatrix<Matrix, Trait> &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
+	SubmatrixBase (const SubmatrixBase<Matrix, Trait> &SM,
+		       size_t row,
+		       size_t col,
+		       size_t rowdim,
+		       size_t coldim)
 		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
 		{}
 
 	/** Copy constructor
-	 * @param _M Submatrix to copy
+	 * @param _M SubmatrixBase to copy
 	 */
-	Submatrix (const Submatrix<Matrix, Trait> &SM)
+	SubmatrixBase (const SubmatrixBase<Matrix, Trait> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	/** Assignment operator
 	 * Assign the given submatrix to this one
-	 * @param _M Submatrix to assign
+	 * @param _M SubmatrixBase to assign
 	 * @return Reference to this submatrix
 	 */
-	Submatrix &operator = (const Submatrix<Matrix, Trait> &SM)
+	SubmatrixBase &operator = (const SubmatrixBase<Matrix, Trait> &SM)
 	{
 		_M = SM._M;
 		_beg_row = SM._beg_row;
@@ -274,8 +274,8 @@ class Submatrix
 	inline size_t startRow () const { return _beg_row; }
 	inline size_t startCol () const { return _beg_col; }
 
-	friend class SubmatrixRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
-	friend class SubmatrixConstRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
+	friend class SubmatrixBaseRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
+	friend class SubmatrixBaseConstRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
 
     protected:
 
@@ -289,42 +289,42 @@ class Submatrix
 /// Specialisation for matrices indexed only by rows
 
 template <class _Matrix>
-class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
+class SubmatrixBase<_Matrix, MatrixCategories::RowMatrixTag>
 {
     public:
  
 	typedef _Matrix Matrix;
-        typedef Submatrix<Matrix, MatrixCategories::RowMatrixTag> Self_t;
+        typedef SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag> Self_t;
     
 	typedef typename Matrix::Element Element;
 
-	typedef SubmatrixRowIterator<Matrix, MatrixCategories::RowMatrixTag> RowIterator;
-	typedef SubmatrixConstRowIterator<Matrix, MatrixCategories::RowMatrixTag> ConstRowIterator;
+	typedef SubmatrixBaseRowIterator<Matrix, MatrixCategories::RowMatrixTag> RowIterator;
+	typedef SubmatrixBaseConstRowIterator<Matrix, MatrixCategories::RowMatrixTag> ConstRowIterator;
 	typedef typename SubvectorFactory<Matrix, MatrixCategories::RowMatrixTag>::RowSubvector Row;
 	typedef const typename SubvectorFactory<Matrix, MatrixCategories::RowMatrixTag>::ConstRowSubvector ConstRow;
 
-	Submatrix () {}
+	SubmatrixBase () {}
 
-	Submatrix (Matrix &M,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
+	SubmatrixBase (Matrix &M,
+		       size_t row,
+		       size_t col,
+		       size_t rowdim,
+		       size_t coldim)
 		: _M (&M), _beg_row (row), _end_row (row + rowdim), _beg_col (col), _end_col (col + coldim)
 		{}
 
-	Submatrix (const Submatrix<Matrix, MatrixCategories::RowMatrixTag> &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
+	SubmatrixBase (const SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag> &SM,
+		       size_t row,
+		       size_t col,
+		       size_t rowdim,
+		       size_t coldim)
 		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
 		{}
 
-	Submatrix (const Submatrix<Matrix, MatrixCategories::RowMatrixTag> &SM)
+	SubmatrixBase (const SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
-	Submatrix &operator = (const Submatrix<Matrix, MatrixCategories::RowMatrixTag> &SM)
+	SubmatrixBase &operator = (const SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag> &SM)
 	{
 		_M = SM._M;
 		_beg_row = SM._beg_row;
@@ -369,8 +369,8 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	inline size_t startCol () const { return _beg_col; }
 
     protected:
-	friend class SubmatrixRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
-	friend class SubmatrixConstRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
+	friend class SubmatrixBaseRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
+	friend class SubmatrixBaseConstRowIterator<Matrix, MatrixCategories::RowMatrixTag>;
 
 	Matrix *_M;
 	size_t _beg_row;
@@ -382,43 +382,43 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 /// Specialisation for matrices indexed only by columns
 
 template <class _Matrix>
-class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
+class SubmatrixBase<_Matrix, MatrixCategories::ColMatrixTag>
 {
     public:
  
 	typedef _Matrix Matrix;
-        typedef Submatrix<Matrix, MatrixCategories::ColMatrixTag> Self_t;
+        typedef SubmatrixBase<Matrix, MatrixCategories::ColMatrixTag> Self_t;
     
 	typedef typename Matrix::Element Element;
 
-	typedef SubmatrixColIterator<Matrix, MatrixCategories::ColMatrixTag> ColIterator;
-	typedef SubmatrixConstColIterator<Matrix, MatrixCategories::ColMatrixTag> ConstColIterator;
+	typedef SubmatrixBaseColIterator<Matrix, MatrixCategories::ColMatrixTag> ColIterator;
+	typedef SubmatrixBaseConstColIterator<Matrix, MatrixCategories::ColMatrixTag> ConstColIterator;
 	typedef typename SubvectorFactory<Matrix, MatrixCategories::ColMatrixTag>::ColSubvector Col;
 	typedef const typename SubvectorFactory<Matrix, MatrixCategories::ColMatrixTag>::ConstColSubvector ConstCol;
 	typedef Col Column;
 
-	Submatrix () {}
+	SubmatrixBase () {}
 
-	Submatrix (Matrix &M,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
+	SubmatrixBase (Matrix &M,
+		       size_t row,
+		       size_t col,
+		       size_t rowdim,
+		       size_t coldim)
 		: _M (&M), _beg_row (row), _end_row (row + rowdim), _beg_col (col), _end_col (col + coldim)
 		{}
 
-	Submatrix (const Submatrix<Matrix, MatrixCategories::ColMatrixTag> &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
+	SubmatrixBase (const SubmatrixBase<Matrix, MatrixCategories::ColMatrixTag> &SM,
+		       size_t row,
+		       size_t col,
+		       size_t rowdim,
+		       size_t coldim)
 		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
 		{}
 
-	Submatrix (const Submatrix<Matrix, MatrixCategories::ColMatrixTag> &SM)
+	SubmatrixBase (const SubmatrixBase<Matrix, MatrixCategories::ColMatrixTag> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
-	Submatrix &operator = (const Submatrix<Matrix, MatrixCategories::ColMatrixTag> &SM)
+	SubmatrixBase &operator = (const SubmatrixBase<Matrix, MatrixCategories::ColMatrixTag> &SM)
 	{
 		_M = SM._M;
 		_beg_row = SM._beg_row;
@@ -463,8 +463,8 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 	inline size_t startCol () const { return _beg_col; }
 
     protected:
-	friend class SubmatrixColIterator<Matrix, MatrixCategories::ColMatrixTag>;
-	friend class SubmatrixConstColIterator<Matrix, MatrixCategories::ColMatrixTag>;
+	friend class SubmatrixBaseColIterator<Matrix, MatrixCategories::ColMatrixTag>;
+	friend class SubmatrixBaseConstColIterator<Matrix, MatrixCategories::ColMatrixTag>;
 
 	Matrix *_M;
 	size_t _beg_row;
@@ -474,16 +474,16 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 };
 
 template <class Matrix, class Trait>
-struct MatrixTraits< Submatrix<Matrix, Trait> >
+struct MatrixTraits< SubmatrixBase<Matrix, Trait> >
 { 
-	typedef Submatrix<Matrix, Trait> MatrixType;
+	typedef SubmatrixBase<Matrix, Trait> MatrixType;
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
 };
 
 template <class Matrix, class Trait>
-struct MatrixTraits< const Submatrix<Matrix, Trait> >
+struct MatrixTraits< const SubmatrixBase<Matrix, Trait> >
 { 
-	typedef const Submatrix<Matrix, Trait> MatrixType;
+	typedef const SubmatrixBase<Matrix, Trait> MatrixType;
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
 };
 

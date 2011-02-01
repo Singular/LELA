@@ -34,12 +34,12 @@ namespace LinBox
 class MatrixDomainSupportGF2
 {
 protected:
+	const GF2 &_F;
+	const VectorDomain<GF2> &_VD;
+
 	const bool _zero;
 	const bool _one;
 	const bool _neg_one;
-
-	const GF2 &_F;
-	const VectorDomain<GF2> &_VD;
 
 	///
 	MatrixDomainSupportGF2 (const GF2 &F) : _F (F), _VD (F), _zero (false), _one (true), _neg_one (true) {}
@@ -266,12 +266,12 @@ private:
 	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
 					   VectorCategories::SparseZeroOneVectorTag) const;
 	template <class Matrix1, class Matrix3>
-	Matrix3 &gemmRowRowRow (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C) const;
+	Matrix3 &gemmRowRowRow (const bool &a, const Matrix1 &A, const SubmatrixBase<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C) const;
 	template <class Matrix1, class Matrix2, class Matrix3>
 	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
 					   VectorCategories::HybridZeroOneVectorTag) const;
 	template <class Matrix1, class Matrix3>
-	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
+	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const SubmatrixBase<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
 					   VectorCategories::HybridZeroOneVectorTag) const;
 	template <class Matrix1, class Matrix2, class Matrix3>
 	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
