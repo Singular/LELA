@@ -30,7 +30,6 @@ BASIC_TESTS =  \
         test-commentator        \
         test-companion          \
         test-dense              \
-        test-det                \
         test-diagonal           \
         test-dif                \
         test-direct-sum         \
@@ -43,7 +42,6 @@ BASIC_TESTS =  \
         test-hom                \
         test-inverse            \
         test-isposdef           \
-        test-ispossemidef       \
         test-matrix-domain      \
         test-matrix-stream      \
         test-minpoly            \
@@ -76,11 +74,16 @@ BASIC_TESTS =  \
         test-last-invariant-factor        \
         test-charpoly 
 
+
 # tests of components not adhering to LinBox requirements.
 NONCOMPLIANT_TESTS =        \
         test-unparametric-field        \
         test-ntl-RR                \
-        test-param-fuzzy
+        test-param-fuzzy	\
+        test-ispossemidef       \
+        test-det
+
+# N.B. test-ispossemidef sometimes hangs and test-det always hangs, including in the original linbox-1.1.7 tarball
 
 #These need clapack
 #test-rational-solver-adaptive
