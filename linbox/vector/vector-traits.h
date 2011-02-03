@@ -210,6 +210,14 @@ namespace LinBox
 		typedef typename VectorCategories::SparseParallelVectorTag VectorCategory; 
 	};
 
+	// Specialization for a const STL vector of size_t's
+	template <> 
+	struct VectorTraits< const std::vector<size_t> >
+	{ 
+		typedef std::vector<size_t> VectorType;
+		typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
+	};
+
 	// Namespace containing some useful generic functions
 
 	namespace VectorWrapper 
