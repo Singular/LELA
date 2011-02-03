@@ -243,7 +243,7 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
 
 	template <class Field>
 	inline std::ostream &write (std::ostream &stream, const Field &F) const
-		{ return _A.write (stream, F); }
+		{ return _A.write (stream, F) << "(transposed)" << std::endl; }
 
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
 	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
@@ -303,7 +303,7 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
 
 	template <class Field>
 	inline std::ostream &write (std::ostream &stream, const Field &F) const
-		{ return _A.write (stream, F); }
+		{ return _A.write (stream, F) << "(transposed)" << std::endl; }
 
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
 	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
@@ -356,7 +356,7 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
 
 	template <class Field>
 	inline std::ostream &write (std::ostream &stream, const Field &F) const
-		{ return _A.write (stream, F); }
+		{ return _A.write (stream, F) << "(transposed)" << std::endl; }
 
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
 	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
