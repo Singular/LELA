@@ -1,7 +1,7 @@
 CXXFLAGS = -g -O2
 CPPFLAGS = -DDETAILED_PROFILE
-INCLUDES = -I../linbox-1.1.7
-LIBS = ../linbox-1.1.7/linbox/.libs/liblinbox.a -lgmp -lgivaro -lpng -lm4ri -Wl,-rpath,/usr/local/lib
+INCLUDES = -I..
+LIBS = ../linbox/.libs/liblinbox.a -lgmp -lgivaro -lpng -lm4ri -Wl,-rpath,/usr/local/lib
 
 TARGETS = test-solver test-gauss-jordan test-hybrid-vector test-bit-subvector test-matrix-domain-gf2
 
