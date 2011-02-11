@@ -36,6 +36,10 @@ void testDenseGJ (const Field &F)
 {
 	std::cout << "Testing DenseRowEchelonForm..." << std::endl;
 
+	Field::Element zero, one;
+	F.init (zero, 0);
+	F.init (one, 1);
+
 	int m = 96;
 	int n = 96;
 
@@ -79,7 +83,7 @@ void testDenseGJ (const Field &F)
 	std::cout << "PA = " << std::endl;
 	MD.write (std::cout, A);
 
-	MD.mul (UPA, U, A);
+	MD.gemm (one, U, A, zero, UPA);
 
 	std::cout << "UPA = " << std::endl;
 	MD.write (std::cout, UPA);
@@ -100,6 +104,10 @@ void testSparseGJ (const Field &F)
 	GaussJordan<Field> GJ (F);
 
 	GJ.RunTests ();
+
+	Field::Element zero, one;
+	F.init (zero, 0);
+	F.init (one, 1);
 
 	std::cout << "Testing StandardRowEchelonForm..." << std::endl;
 
@@ -146,7 +154,7 @@ void testSparseGJ (const Field &F)
 	std::cout << "PA = " << std::endl;
 	Aorig.write (std::cout, F, FORMAT_PRETTY);
 
-	MD.mul (UPA, U, Aorig);
+	MD.gemm (one, U, Aorig, zero, UPA);
 	std::cout << "UPA = " << std::endl;
 	MD.write (std::cout, UPA);
 
@@ -328,6 +336,10 @@ void testSparseTrSolve (const Field &F)
 
 	typedef GaussJordan<Field>::SparseMatrix Matrix;
 
+	Field::Element zero, one;
+	F.init (zero, 0);
+	F.init (one, 1);
+
 	int k = 3;
 	int m = 10;
 	int n = 10;
@@ -391,7 +403,7 @@ void testSparseTrSolve (const Field &F)
 
 	GaussJordan<Field>::DenseMatrix UL (m, p);
 
-	MD.mul (UL, U, L);
+	MD.gemm (one, U, L, zero, UL);
 
 	std::cout << "U' U'⁻1 R = " << std::endl;
 	MD.write (std::cout, UL);

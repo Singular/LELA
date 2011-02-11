@@ -361,9 +361,9 @@ namespace F4 {
 
 				MD.copy (P_1A_2, A_2);
 				MD.permuteRows (P_1A_2, P.begin (), P.end ());
-				MD.mul (R_2, U_2, P_1A_22);
-				MD.addin (R_21, P_1A_21);
-				MD.addin (R_23, P_1A_23);
+				MD.gemm (one, U_2, P_1A_22, zero, R_2);
+				MD.axpy (one, P_1A_21, R_21);
+				MD.axpy (one, P_1A_23, R_23);
 				
 				Permutation P_2;
 
@@ -408,14 +408,14 @@ namespace F4 {
 				// std::cout << "U_3 =" << std::endl;;
 				// MD.write (std::cout, U_3);
 				
-				MD.mul (U_3P_2U_23, U_3, P_2U_23);
+				MD.gemm (one, U_3, P_2U_23, zero, U_3P_2U_23);
 
 				// DEBUG
 				// std::cout << "U_3P_2U_23 =" << std::endl;
 				// MD.write (std::cout, U_3P_2U_23);
 				
-				MD.addin (U_312P_2U_23, U_212);
-				MD.addin (U_34P_2U_23, P_2U_24);
+				MD.axpy (one, U_212, U_312P_2U_23);
+				MD.axpy (one, P_2U_24, U_34P_2U_23);
 				
 				MD.copy (U_2, U_3P_2U_23);
 				
