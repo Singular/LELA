@@ -43,8 +43,8 @@ class BitSubvector
 	typedef Iterator iterator;
 	typedef ConstIterator const_iterator;
 
-	typedef BitVector::size_type	 size_type;
-	typedef BitVector::const_reference const_reference;
+	typedef typename std::iterator_traits<iterator>::size_type	 size_type;
+	typedef typename std::iterator_traits<const_iterator>::const_reference const_reference;
 
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
@@ -62,7 +62,8 @@ class BitSubvector
 
 	BitSubvector () {}
 
-	BitSubvector (BitVector &v, size_t start, size_t end)
+	template <class Endianness>
+	BitSubvector (BitVector<Endianness> &v, size_t start, size_t end)
 		: _begin (v.begin () + start), _end (v.begin () + end) { set_end_word (); }
 
 	BitSubvector (BitSubvector &v, size_t start, size_t end)

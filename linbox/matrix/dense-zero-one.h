@@ -21,16 +21,18 @@
 namespace LinBox
 {
 
-template <class Iterator = BitVector::word_iterator, class ConstIterator = BitVector::const_word_iterator>
+template <class Iterator = BitVector<LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >::word_iterator,
+	  class ConstIterator = typename BitVector<LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >::const_word_iterator,
+	  class Endianness = LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >
 class DenseZeroOneMatrix
 {
     public:
 
 	typedef bool Element;
-	typedef BitVector Rep;
+	typedef BitVector<Endianness> Rep;
         typedef DenseZeroOneMatrix Self_t;
 
-	template <class It1, class It2>
+	template <class It1, class It2, class End>
 	friend class DenseZeroOneMatrix;
 
 	///
@@ -129,15 +131,15 @@ class DenseZeroOneMatrix
 	 * @param a_ij Element to set
 	 */
 	void setEntry (size_t i, size_t j, bool a_ij)
-		{ *(BitVector::iterator (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)) = a_ij; }
+		{ *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)) = a_ij; }
 
 	/** Get a writeable reference to the entry in the (i, j) position.
 	 * @param i Row index of entry
 	 * @param j Column index of entry
 	 * @returns Reference to matrix entry
 	 */
-	BitVector::reference refEntry (size_t i, size_t j)
-		{ return *(BitVector::iterator (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); }
+	BitVectorReference<Iterator, Endianness> refEntry (size_t i, size_t j)
+		{ return *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); }
 
 	/** Get a read-only reference to the entry in the (i, j) position.
 	 * @param i Row index
@@ -145,7 +147,7 @@ class DenseZeroOneMatrix
 	 * @returns Const reference to matrix entry
 	 */
 	bool getEntry (size_t i, size_t j) const
-		{ return *(BitVector::const_iterator (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); }
+		{ return *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); }
 
 	/** Copy the (i, j) entry into x, and return a reference to x.
 	 * This form is more in the Linbox style and is provided for interface
@@ -156,7 +158,7 @@ class DenseZeroOneMatrix
 	 * @returns Reference to x
 	 */
 	Element &getEntry (Element &x, size_t i, size_t j) const
-		{ x = *(BitVector::const_iterator (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); return x; }
+		{ x = *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); return x; }
 
 	/** @name Column of rows iterator
 	 * The column of rows iterator traverses the rows of the

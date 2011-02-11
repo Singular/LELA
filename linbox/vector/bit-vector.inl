@@ -18,13 +18,16 @@
 namespace LinBox
 {
 
-inline BitVector::iterator BitVector::begin (void)
+template <class Endianness>
+inline typename BitVector<Endianness>::iterator BitVector<Endianness>::begin (void)
 	{ return iterator (_v.begin (), 0UL); }
 
-inline BitVector::const_iterator BitVector::begin (void) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_iterator BitVector<Endianness>::begin (void) const
 	{ return const_iterator (_v.begin (), 0UL); }
 
-inline BitVector::iterator BitVector::end (void)
+template <class Endianness>
+inline typename BitVector<Endianness>::iterator BitVector<Endianness>::end (void)
 {
 	if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
 		return iterator (_v.end (), 0UL);
@@ -32,7 +35,8 @@ inline BitVector::iterator BitVector::end (void)
 		return iterator (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
 }
 
-inline BitVector::const_iterator BitVector::end (void) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_iterator BitVector<Endianness>::end (void) const
 {
 	if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
 		return const_iterator (_v.end (), 0UL);
@@ -40,25 +44,32 @@ inline BitVector::const_iterator BitVector::end (void) const
 		return const_iterator (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
 }
 
-inline BitVector::reverse_iterator BitVector::rbegin (void)
+template <class Endianness>
+inline typename BitVector<Endianness>::reverse_iterator BitVector<Endianness>::rbegin (void)
 	{ return reverse_iterator (end () - 1UL); }
 
-inline BitVector::const_reverse_iterator BitVector::rbegin (void) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_reverse_iterator BitVector<Endianness>::rbegin (void) const
 	{ return const_reverse_iterator (end () - 1UL); }
 
-inline BitVector::reverse_iterator BitVector::rend (void)
+template <class Endianness>
+inline typename BitVector<Endianness>::reverse_iterator BitVector<Endianness>::rend (void)
 	{ return reverse_iterator (begin () - 1UL); }
 
-inline BitVector::const_reverse_iterator BitVector::rend (void) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_reverse_iterator BitVector<Endianness>::rend (void) const
 	{ return const_reverse_iterator (begin () - 1UL); }
 
-inline BitVector::reference BitVector::operator[] (BitVector::size_type n)
+template <class Endianness>
+inline typename BitVector<Endianness>::reference BitVector<Endianness>::operator[] (BitVector::size_type n)
 	{ return *(begin () + n); }
 
-inline BitVector::const_reference BitVector::operator[] (BitVector::size_type n) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::operator[] (BitVector::size_type n) const
 	{ return *(begin () + n); }
 
-inline BitVector::reference BitVector::at (BitVector::size_type n)
+template <class Endianness>
+inline typename BitVector<Endianness>::reference BitVector<Endianness>::at (BitVector<Endianness>::size_type n)
 {
 	if (n >= _size)
 		throw std::out_of_range ("LinBox::BitVector");
@@ -66,7 +77,8 @@ inline BitVector::reference BitVector::at (BitVector::size_type n)
 		return (*this)[n];
 }
 
-inline BitVector::const_reference BitVector::at (BitVector::size_type n) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::at (BitVector<Endianness>::size_type n) const
 {
 	if (n >= _size)
 		throw std::out_of_range ("LinBox::BitVector");
@@ -74,13 +86,16 @@ inline BitVector::const_reference BitVector::at (BitVector::size_type n) const
 		return (*this)[n];
 }
 
-inline BitVector::reference BitVector::front (void)
+template <class Endianness>
+inline typename BitVector<Endianness>::reference BitVector<Endianness>::front (void)
 	{ return reference (_v.begin (), 0UL); }
 
-inline BitVector::const_reference BitVector::front (void) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::front (void) const
 	{ return const_reference (_v.begin (), 0UL); }
 
-inline BitVector::reference BitVector::back (void)
+template <class Endianness>
+inline typename BitVector<Endianness>::reference BitVector<Endianness>::back (void)
 {
 	if ( (_size & __LINBOX_POS_ALL_ONES) == 0UL)
 		return reference (_v.end (), 0UL);
@@ -88,7 +103,8 @@ inline BitVector::reference BitVector::back (void)
 		return reference (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
 }
 
-inline BitVector::const_reference BitVector::back (void) const
+template <class Endianness>
+inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::back (void) const
 {
 	if ( (_size & __LINBOX_POS_ALL_ONES) == 0UL)
 		return const_reference (_v.end (), 0UL);
@@ -96,7 +112,8 @@ inline BitVector::const_reference BitVector::back (void) const
 		return const_reference (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
 }
 
-inline void BitVector::push_back (bool v)
+template <class Endianness>
+inline void BitVector<Endianness>::push_back (bool v)
 {
 	if (v) {
 		if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
@@ -113,8 +130,9 @@ inline void BitVector::push_back (bool v)
 	++_size;
 }
 
+template <class Endianness>
 template<class Container>
-inline BitVector &BitVector::operator = (const Container &v)
+inline BitVector<Endianness> &BitVector<Endianness>::operator = (const Container &v)
 {
 	typename Container::const_iterator i;
 	typename Container::const_iterator i_end = v.begin () + (v.size () >> __LINBOX_LOGOF_SIZE);
@@ -145,10 +163,12 @@ inline BitVector &BitVector::operator = (const Container &v)
 	return *this;
 }
 
-inline void BitVector::resize (BitVector::size_type new_size, bool val)
-	{_v.resize ((new_size >> __LINBOX_LOGOF_SIZE) + ((new_size & __LINBOX_POS_ALL_ONES) ? 1UL : 0UL), val ? __LINBOX_ALL_ONES : 0UL); _size = new_size; }
+template <class Endianness>
+inline void BitVector<Endianness>::resize (BitVector<Endianness>::size_type new_size, bool val)
+	{ _v.resize ((new_size >> __LINBOX_LOGOF_SIZE) + ((new_size & __LINBOX_POS_ALL_ONES) ? 1UL : 0UL), val ? __LINBOX_ALL_ONES : 0UL); _size = new_size; }
 
-inline bool BitVector::operator == (const BitVector &v) const
+template <class Endianness>
+inline bool BitVector<Endianness>::operator == (const BitVector<Endianness> &v) const
 {
 	const_word_iterator i, j;
 	__LINBOX_BITVECTOR_WORD_TYPE mask;
@@ -166,22 +186,6 @@ inline bool BitVector::operator == (const BitVector &v) const
 	else
 		return false;
 }
-
-/* 
-namespace VectorWrapper 
-{
-	template <class Field, class Vector, class Trait>
-	inline BitVector::reference refSpecialized
-		(Vector &v, size_t i, VectorCategories::DenseZeroOneVectorTag<Trait>)
-	{ return v[i]; }
-
-	template <class Field, class Vector, class Trait>
-	inline BitVector::const_reference constRefSpecialized
-		(const Vector &v, size_t i, VectorCategories::DenseZeroOneVectorTag<Trait>)
-	{ return v[i]; }
-
-}
-*/
 
 } // namespace LinBox
 

@@ -495,9 +495,11 @@ namespace std
 	{
 		typedef random_access_iterator_tag iterator_category;
 		typedef LinBox::BitVectorReference<word_iterator, _Endianness> reference;
+		typedef LinBox::BitVectorConstReference<const_word_iterator, _Endianness> const_reference;
 		typedef bool *pointer;
 		typedef bool value_type;
 		typedef long difference_type;
+		typedef unsigned long size_type;
 	};
 
 	template <class const_word_iterator, class _Endianness>
@@ -505,9 +507,11 @@ namespace std
 	{
 		typedef random_access_iterator_tag iterator_category;
 		typedef LinBox::BitVectorConstReference<const_word_iterator, _Endianness> reference;
+		typedef LinBox::BitVectorConstReference<const_word_iterator, _Endianness> const_reference;
 		typedef const bool *pointer;
 		typedef bool value_type;
 		typedef long difference_type;
+		typedef unsigned long size_type;
 	};
 }
 

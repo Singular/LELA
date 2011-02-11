@@ -276,7 +276,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRow (const bool &a, const Matrix1 &A,
 	DenseZeroOneMatrix<> &Cp = *const_cast<DenseZeroOneMatrix<> *> (&_Cp);
 	Cp.resize (C.rowdim (), coldim);
 
-	DenseZeroOneMatrix<BitVector::const_word_iterator, BitVector::const_word_iterator> Bp (B.parent (), B.startRow (), B.startCol () & ~__LINBOX_POS_ALL_ONES, B.rowdim (), coldim);
+	DenseZeroOneMatrix<> Bp (B.parent (), B.startRow (), B.startCol () & ~__LINBOX_POS_ALL_ONES, B.rowdim (), coldim);
 
 	gemm (a, A, Bp, b, Cp);
 

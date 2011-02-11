@@ -15,12 +15,12 @@
 
 using namespace LinBox;
 
-typedef BitVector::word_iterator::value_type Word;
+typedef BitVector<>::word_iterator::value_type Word;
 
-void sieve (BitVector &vec, int offset) {
+void sieve (BitVector<> &vec, int offset) {
 	int p, m;
 
-	BitVector::iterator i;
+	BitVector<>::iterator i;
 
 	for (i = vec.begin (); i != vec.end (); ++i)
 		*i = true;
@@ -42,8 +42,8 @@ void sieve (BitVector &vec, int offset) {
 
 bool testSubvectorWordIterator ()
 {
-	BitVector u, v;
-	BitSubvector<BitVector::iterator> w;
+	BitVector<> u, v;
+	BitSubvector<BitVector<>::iterator> w;
 	Word t;
 	bool fail = false;
 
@@ -60,7 +60,7 @@ bool testSubvectorWordIterator ()
 
 		sieve (u, 0);
 		sieve (v, i);
-		w = BitSubvector<BitVector::iterator> (u.begin () + i, u.begin () + i + v.size ());
+		w = BitSubvector<BitVector<>::iterator> (u.begin () + i, u.begin () + i + v.size ());
 
 		if (*(u.wordBegin ()) == 0ULL) {
 			std::cout << std::endl << "Error: sieved vector u is zero" << std::endl;

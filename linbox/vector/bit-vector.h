@@ -28,6 +28,7 @@ namespace LinBox
  \ingroup vector
  */
 
+template <class _Endianness = LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >
 class BitVector
 {
     public:
@@ -39,7 +40,7 @@ class BitVector
 	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::reverse_iterator       reverse_word_iterator;
 	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::const_reverse_iterator const_reverse_word_iterator;
 
-	typedef LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
+	typedef _Endianness Endianness;
 
 	BitVector () {}
 	BitVector (std::vector<bool> &v)
@@ -50,7 +51,7 @@ class BitVector
 		{ resize (n, val); }
 		
 	// Copy constructor
-	BitVector (const BitVector &v) 
+	BitVector (const BitVector<> &v) 
 		: _v (v._v), _size (v._size) {}
 
 	~BitVector () {}
@@ -161,32 +162,32 @@ class BitVector
 }; // template <class Vector> class ReverseVector
 
 // Vector traits for BitVector wrapper
-template <>
-struct VectorTraits<BitVector>
+template <class Endianness>
+struct VectorTraits<BitVector<Endianness> >
 { 
-	typedef BitVector VectorType;
+	typedef BitVector<Endianness> VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
 };
 
-template <>
-struct VectorTraits<const BitVector>
+template <class Endianness>
+struct VectorTraits<const BitVector<Endianness> >
 { 
-	typedef BitVector VectorType;
+	typedef BitVector<Endianness> VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
 };
 
 // Vector traits for hybrid sparse-dense format
-template <> 
-struct VectorTraits< std::pair<std::vector<size_t>, BitVector > >
+template <class Endianness> 
+struct VectorTraits< std::pair<std::vector<size_t>, BitVector<Endianness> > >
 { 
-	typedef std::pair<std::vector<size_t>, BitVector > VectorType;
+	typedef std::pair<std::vector<size_t>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
-template <> 
-struct VectorTraits< const std::pair<std::vector<size_t>, BitVector > >
+template <class Endianness> 
+struct VectorTraits< const std::pair<std::vector<size_t>, BitVector<Endianness> > >
 { 
-	typedef std::pair<std::vector<size_t>, BitVector > VectorType;
+	typedef std::pair<std::vector<size_t>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 

@@ -18,13 +18,13 @@
 namespace LinBox
 {
 
-template <class Iterator, class ConstIterator>
-class DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator
+template <class Iterator, class ConstIterator, class Endianness>
+class DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator
 {
     public:
 	typedef typename ConstRow::const_word_iterator::difference_type difference_type;
 
-	ConstRowIterator (Rep::const_word_iterator p, size_t words, size_t bit_len, size_t d)
+	ConstRowIterator (typename Rep::const_word_iterator p, size_t words, size_t bit_len, size_t d)
 		: _row (p, p + words, bit_len), _disp (d) {}
     
 	ConstRowIterator () {}
@@ -102,13 +102,13 @@ class DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator
 	size_t _disp;
 };
 
-template <class Iterator, class ConstIterator>
-class DenseZeroOneMatrix<Iterator, ConstIterator>::RowIterator
+template <class Iterator, class ConstIterator, class Endianness>
+class DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator
 {
     public:
 	typedef typename Row::word_iterator::difference_type difference_type;
 
-	RowIterator (Rep::word_iterator p, size_t words, size_t bit_len, size_t d)
+	RowIterator (typename Rep::word_iterator p, size_t words, size_t bit_len, size_t d)
 		: _row (p, p + words, bit_len), _disp (d) {}
 
 	RowIterator () {}
@@ -196,37 +196,37 @@ class DenseZeroOneMatrix<Iterator, ConstIterator>::RowIterator
 	size_t _disp;
 };
 
-template <class Iterator, class ConstIterator>
-typename DenseZeroOneMatrix<Iterator, ConstIterator>::RowIterator
-DenseZeroOneMatrix<Iterator, ConstIterator>::rowBegin ()
+template <class Iterator, class ConstIterator, class Endianness>
+typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator
+DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowBegin ()
 {
 	return RowIterator (_begin, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
 }
 
-template <class Iterator, class ConstIterator>
-typename DenseZeroOneMatrix<Iterator, ConstIterator>::RowIterator
-DenseZeroOneMatrix<Iterator, ConstIterator>::rowEnd ()
+template <class Iterator, class ConstIterator, class Endianness>
+typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator
+DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowEnd ()
 {
 	return RowIterator (_begin + _rows * _disp, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
 }
 
-template <class Iterator, class ConstIterator>
-typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator
-DenseZeroOneMatrix<Iterator, ConstIterator>::rowBegin () const
+template <class Iterator, class ConstIterator, class Endianness>
+typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator
+DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowBegin () const
 {
 	return ConstRowIterator (_begin, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
 }
 
-template <class Iterator, class ConstIterator>
-typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator
-DenseZeroOneMatrix<Iterator, ConstIterator>::rowEnd () const
+template <class Iterator, class ConstIterator, class Endianness>
+typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator
+DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowEnd () const
 {
 	return ConstRowIterator (_begin + _rows * _disp, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
 }
 
-template <class Iterator, class ConstIterator>
+template <class Iterator, class ConstIterator, class Endianness>
 template <class Field>
-std::istream& DenseZeroOneMatrix<Iterator, ConstIterator>::read (std::istream &file, const Field& field)
+std::istream& DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::read (std::istream &file, const Field& field)
 {
 	size_t i, j;
 
@@ -240,9 +240,9 @@ std::istream& DenseZeroOneMatrix<Iterator, ConstIterator>::read (std::istream &f
 	return file;
 }
 
-template <class Iterator, class ConstIterator>
+template <class Iterator, class ConstIterator, class Endianness>
 template <class Field>
-std::ostream& DenseZeroOneMatrix<Iterator, ConstIterator>::write (std::ostream &os, const Field &F) const
+std::ostream& DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::write (std::ostream &os, const Field &F) const
 {
 	ConstRowIterator p;
 
@@ -265,28 +265,31 @@ std::ostream& DenseZeroOneMatrix<Iterator, ConstIterator>::write (std::ostream &
 	return os;
 }
 
-template <class Iterator, class ConstIterator>
-class SubvectorFactory<DenseZeroOneMatrix<Iterator, ConstIterator> >
+template <class Iterator, class ConstIterator, class Endianness>
+class SubvectorFactory<DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> >
 {
     public:
-	typedef BitSubvector<BitVector::iterator, BitVector::const_iterator> RowSubvector;
-	typedef BitSubvector<BitVector::const_iterator, BitVector::const_iterator> ConstRowSubvector;
+	typedef BitSubvector<BitVectorIterator<Iterator, ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > RowSubvector;
+	typedef BitSubvector<BitVectorConstIterator<ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > ConstRowSubvector;
 
-	RowSubvector MakeRowSubvector (Submatrix<DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::RowIterator &pos)
+	RowSubvector MakeRowSubvector (Submatrix<DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> > &M,
+				       typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator &pos)
 		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> > &M,
+						 typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator &pos)
 		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
-template <class Iterator, class ConstIterator>
-class SubvectorFactory<const DenseZeroOneMatrix<Iterator, ConstIterator> >
+template <class Iterator, class ConstIterator, class Endianness>
+class SubvectorFactory<const DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> >
 {
     public:
-	typedef BitSubvector<BitVector::const_iterator, BitVector::const_iterator> RowSubvector;
-	typedef BitSubvector<BitVector::const_iterator, BitVector::const_iterator> ConstRowSubvector;
+	typedef BitSubvector<BitVectorConstIterator<ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > RowSubvector;
+	typedef BitSubvector<BitVectorConstIterator<ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > ConstRowSubvector;
 
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> > &M,
+						 typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator &pos)
 		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
