@@ -43,12 +43,12 @@ template <>
 class RawVector<bool>
 {
     public:
-    typedef BitVector Dense;
-    typedef std::vector<size_t> Sparse;
-    typedef std::vector<size_t> SparseSeq;
-    typedef std::vector<size_t> SparseMap;
-    typedef std::vector<size_t> SparsePar;
-    typedef std::pair<std::vector<size_t>, BitVector> Hybrid;
+	typedef BitVector<> Dense;
+	typedef std::vector<size_t> Sparse;
+	typedef std::vector<size_t> SparseSeq;
+	typedef std::vector<size_t> SparseMap;
+	typedef std::vector<size_t> SparsePar;
+	typedef std::pair<std::vector<size_t>, BitVector<> > Hybrid;
 };
 
 // Specialization of DotProductDomain for GF2
@@ -71,11 +71,11 @@ class DotProductDomain<GF2> : private virtual VectorDomainBase<GF2>
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
-	template <class Vector1, class Vector2>
-	inline BitVector::reference dotSpecializedDD (BitVector::reference res, const Vector1 &v1, const Vector2 &v2) const;
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecializedDD (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2) const;
 
-	template <class Vector1, class Vector2>
-	inline BitVector::reference dotSpecializedDSP (BitVector::reference res, const Vector1 &v1, const Vector2 &v2) const;
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecializedDSP (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2) const;
 };
 
 // Specialization of vector domain
@@ -145,8 +145,8 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 					 typename VectorTraits<Vector1>::VectorCategory (),
 					 typename VectorTraits<Vector2>::VectorCategory ()); }
 
-	template <class Vector1, class Vector2>
-	inline BitVector::reference dot (BitVector::reference res, const Vector1 &v1, const Vector2 &v2) const
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dot (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2) const
 		{ return dotSpecialized (res, v1, v2,
 					 typename VectorTraits<Vector1>::VectorCategory (),
 					 typename VectorTraits<Vector2>::VectorCategory ()); }
@@ -359,23 +359,23 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 				 VectorCategories::SparseZeroOneVectorTag,
 				 VectorCategories::SparseZeroOneVectorTag) const;
 
-	template <class Vector1, class Vector2>
-	inline BitVector::reference dotSpecialized (BitVector::reference res, const Vector1 &v1, const Vector2 &v2,
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::DenseZeroOneVectorTag,
 					VectorCategories::DenseZeroOneVectorTag) const
 		{ return DotProductDomain<GF2>::dotSpecializedDD (res, v1, v2); }
-	template <class Vector1, class Vector2>
-	inline BitVector::reference dotSpecialized (BitVector::reference res, const Vector1 &v1, const Vector2 &v2,
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::DenseZeroOneVectorTag,
 					VectorCategories::SparseZeroOneVectorTag) const
 		{ return DotProductDomain<GF2>::dotSpecializedDSP (res, v1, v2); }
-	template <class Vector1, class Vector2>
-	inline BitVector::reference dotSpecialized (BitVector::reference res, const Vector1 &v1, const Vector2 &v2,
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::SparseZeroOneVectorTag,
 					VectorCategories::DenseZeroOneVectorTag) const
 		{ return DotProductDomain<GF2>::dotSpecializedDSP (res, v2, v1); }
-	template <class Vector1, class Vector2>
-	BitVector::reference dotSpecialized (BitVector::reference res, const Vector1 &v1, const Vector2 &v2,
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
 				 VectorCategories::SparseZeroOneVectorTag,
 				 VectorCategories::SparseZeroOneVectorTag) const;
 
@@ -526,10 +526,11 @@ template<> struct MTrandomInt<64> {
     }
 };
 
-class RandomDenseStreamGF2 : public VectorStream<BitVector>
+template <class Endianness>
+class RandomDenseStreamGF2 : public VectorStream<BitVector<Endianness> >
 {
     public:
-	typedef BitVector Vector;
+	typedef BitVector<Endianness> Vector;
 
 	RandomDenseStreamGF2 (const GF2 &, uint32 seed, size_t n, size_t m = 0)
 		: MT (seed), _n (n), _m (m), _j (0)
@@ -537,7 +538,7 @@ class RandomDenseStreamGF2 : public VectorStream<BitVector>
 
 	Vector &get (Vector &v) 
 	{
-		Vector::word_iterator i;
+		typename Vector::word_iterator i;
 
 		if (_m > 0 && _j++ >= _m)
 			return v;
@@ -674,9 +675,9 @@ inline bool &DotProductDomain<GF2>::dotSpecializedDSP
 	return res;
 }
 
-template <class Vector1, class Vector2>
-inline BitVector::reference DotProductDomain<GF2>::dotSpecializedDD
-	(BitVector::reference res,
+template <class Iterator, class Endianness, class Vector1, class Vector2>
+inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDD
+	(BitVectorReference<Iterator, Endianness> res,
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {
@@ -684,9 +685,9 @@ inline BitVector::reference DotProductDomain<GF2>::dotSpecializedDD
     return res = dotSpecializedDD(tmp, v1, v2);
 }
 
-template <class Vector1, class Vector2>
-inline BitVector::reference DotProductDomain<GF2>::dotSpecializedDSP
-	(BitVector::reference res,
+template <class Iterator, class Endianness, class Vector1, class Vector2>
+inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDSP
+	(BitVectorReference<Iterator, Endianness> res,
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {

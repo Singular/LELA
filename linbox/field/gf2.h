@@ -18,7 +18,7 @@
 #include "linbox/integer.h"
 #include "linbox/field/field-interface.h"
 #include "linbox/util/debug.h"
-#include "linbox/vector/bit-vector.h"
+#include "linbox/vector/bit-iterator.h"
 #include "linbox/linbox-config.h"
 #include "linbox/field/field-traits.h"
 
@@ -124,7 +124,8 @@ class GF2 : public FieldInterface
 	Element &init (Element &x, const integer &y) const
 		{ return x = static_cast<long>(y) & 1; }
 
-	BitVector::reference init (BitVector::reference x, const integer &y = 0) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> init (BitVectorReference<Iterator, Endianness> x, const integer &y = 0) const
 		{ return x = long (y) & 1; }
 
 	std::_Bit_reference init (std::_Bit_reference x, const integer &y = 0) const
@@ -177,7 +178,8 @@ class GF2 : public FieldInterface
 	Element &assign (Element &x, Element y) const
 		{ return x = y; }
 
-        BitVector::reference assign (BitVector::reference x, Element y) const
+	template <class Iterator, class Endianness>
+        BitVectorReference<Iterator, Endianness> assign (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x = y; }
 
         std::_Bit_reference assign (std::_Bit_reference x, Element y) const
@@ -281,7 +283,8 @@ class GF2 : public FieldInterface
 	std::istream &read (std::istream &is, Element &x) const
 		{ int v; is >> v; if (v == 0) x = false; else x = true; return is; }
 
-	std::istream &read (std::istream &is, BitVector::reference x) const
+	template <class Iterator, class Endianness>
+	std::istream &read (std::istream &is, BitVectorReference<Iterator, Endianness> x) const
 		{ int v; is >> v; if (v == 0) x = false; else x = true; return is; }
 
 	std::istream &read (std::istream &is, std::_Bit_reference x) const
@@ -309,7 +312,8 @@ class GF2 : public FieldInterface
 	Element &add (Element &x, Element y, Element z) const
 		{ return x = y ^ z; }
 
-	BitVector::reference add (BitVector::reference x, Element y, Element z) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> add (BitVectorReference<Iterator, Endianness> x, Element y, Element z) const
 		{ return x = y ^ z; }
  
 	std::_Bit_reference add (std::_Bit_reference x, Element y, Element z) const
@@ -327,7 +331,8 @@ class GF2 : public FieldInterface
 	Element &sub (Element &x, Element y, Element z) const
 		{ return x = y ^ z; }
 
-	BitVector::reference sub (BitVector::reference x, Element y, Element z) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> sub (BitVectorReference<Iterator, Endianness> x, Element y, Element z) const
 		{ return x = y ^ z; }
  
 	std::_Bit_reference sub (std::_Bit_reference x, Element y, Element z) const
@@ -345,7 +350,8 @@ class GF2 : public FieldInterface
 	Element &mul (Element &x, Element y, Element z) const
 		{ return x = y & z; }
 
-	BitVector::reference mul (BitVector::reference x, Element y, Element z) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> mul (BitVectorReference<Iterator, Endianness> x, Element y, Element z) const
 		{ return x = y & z; }
  
 	std::_Bit_reference mul (std::_Bit_reference x, Element y, Element z) const
@@ -363,7 +369,8 @@ class GF2 : public FieldInterface
 	Element &div (Element &x, Element y, Element ) const // z is unused!
 		{ return x = y; }
 
-	BitVector::reference div (BitVector::reference x, Element y, Element ) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> div (BitVectorReference<Iterator, Endianness> x, Element y, Element ) const
 		{ return x = y; }
  
 	std::_Bit_reference div (std::_Bit_reference x, Element y, Element ) const
@@ -380,7 +387,8 @@ class GF2 : public FieldInterface
 	Element &neg (Element &x, Element y) const
 		{ return x = y; }
 
-	BitVector::reference neg (BitVector::reference x, Element y) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> neg (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x = y; }
  
 	std::_Bit_reference neg (std::_Bit_reference x, Element y) const
@@ -397,7 +405,8 @@ class GF2 : public FieldInterface
 	Element &inv (Element &x, Element y) const
 		{ return x = y; }
 
-	BitVector::reference inv (BitVector::reference x, Element y) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> inv (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x = y; }
 
 	std::_Bit_reference inv (std::_Bit_reference x, Element y) const
@@ -413,16 +422,17 @@ class GF2 : public FieldInterface
 	 * @param  x field element.
 	 * @param  y field element.
 	 */
-	BitVector::reference axpy (BitVector::reference r, 
-				   Element a, 
-				   Element x, 
-				   Element y) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> axpy (BitVectorReference<Iterator, Endianness> r, 
+						       Element a, 
+						       Element x, 
+						       Element y) const
 		{ return r = (a & x) ^ y; }
 
 	std::_Bit_reference axpy (std::_Bit_reference r, 
-				   Element a, 
-				   Element x, 
-				   Element y) const
+				  Element a, 
+				  Element x, 
+				  Element y) const
 		{ return r = (a & x) ^ y; }
 
 	Element &axpy (Element &r, Element a, Element x, Element y) const
@@ -446,7 +456,8 @@ class GF2 : public FieldInterface
 	Element &addin (Element &x, Element y) const
 		{ return x ^= y; }
 
-	BitVector::reference addin (BitVector::reference x, Element y) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> addin (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x ^= y; }
  
 	std::_Bit_reference addin (std::_Bit_reference x, Element y) const
@@ -463,7 +474,8 @@ class GF2 : public FieldInterface
 	Element &subin (Element &x, Element y) const
 		{ return x ^= y; }
 
-	BitVector::reference subin (BitVector::reference x, Element y) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> subin (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x ^= y; }
  
 	std::_Bit_reference subin (std::_Bit_reference x, Element y) const
@@ -480,7 +492,8 @@ class GF2 : public FieldInterface
 	Element &mulin (Element &x, Element y) const
 		{ return x &= y; }
 
-	BitVector::reference mulin (BitVector::reference x, Element y) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> mulin (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x &= y; }
     
 	Element& mulin (std::_Bit_reference& x, Element y) const
@@ -497,7 +510,8 @@ class GF2 : public FieldInterface
 	Element &divin (Element &x, Element ) const //y is unsued !
 		{ return x; }
 
-	BitVector::reference divin (BitVector::reference x, Element ) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> divin (BitVectorReference<Iterator, Endianness> x, Element ) const
 		{ return x; }
  
 	std::_Bit_reference divin (std::_Bit_reference x, Element ) const
@@ -513,7 +527,8 @@ class GF2 : public FieldInterface
 	Element &negin (Element &x) const
 		{ return x; }
 
-	BitVector::reference negin (BitVector::reference x) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> negin (BitVectorReference<Iterator, Endianness> x) const
 		{ return x; }
  
 	std::_Bit_reference negin (std::_Bit_reference x) const
@@ -529,7 +544,8 @@ class GF2 : public FieldInterface
 	Element &invin (Element &x) const
 		{ return x; }
 
-	BitVector::reference invin (BitVector::reference x) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> invin (BitVectorReference<Iterator, Endianness> x) const
 		{ return x; }
 
 	std::_Bit_reference invin (std::_Bit_reference x) const
@@ -548,7 +564,8 @@ class GF2 : public FieldInterface
 	Element &axpyin (Element &r, Element a, Element x) const
 		{ return r ^= a & x; }
 
-	BitVector::reference axpyin (BitVector::reference r, Element a, Element x) const
+	template <class Iterator, class Endianness>
+	BitVectorReference<Iterator, Endianness> axpyin (BitVectorReference<Iterator, Endianness> r, Element a, Element x) const
 		{ return r ^= a & x; }
 
 	std::_Bit_reference axpyin (std::_Bit_reference r, Element a, Element x) const
@@ -584,12 +601,12 @@ class GF2 : public FieldInterface
 namespace std 
 {
 //! @todo JGD 05.11.2009 : it should be in bits/stl_bvector.h  ...
-    inline void swap(_Bit_reference __x, _Bit_reference __y)
-    {
-      bool __tmp = __x;
-      __x = __y;
-      __y = __tmp;
-    }
+	inline void swap(_Bit_reference __x, _Bit_reference __y)
+	{
+		bool __tmp = __x;
+		__x = __y;
+		__y = __tmp;
+	}
 }
 
 
