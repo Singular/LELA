@@ -166,8 +166,8 @@ class DenseZeroOneMatrix
 	 * a row vector in dense format
 	 */
 
-	typedef BitSubvectorWordAligned<Iterator, ConstIterator, LittleEndian<typename Iterator::value_type> > Row;  
-	typedef BitSubvectorWordAligned<ConstIterator, ConstIterator, LittleEndian<typename ConstIterator::value_type> > ConstRow;
+	typedef BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> Row;  
+	typedef BitSubvectorWordAligned<ConstIterator, ConstIterator, Endianness> ConstRow;
 
 	class RowIterator;
 	class ConstRowIterator;

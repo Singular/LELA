@@ -147,7 +147,7 @@ class BitVectorIterator;
 template <class const_word_iterator, class Endianness>
 class BitVectorConstIterator;
 
-template <class word_iterator, class _Endianness = LittleEndian<typename std::iterator_traits<word_iterator>::value_type> >
+template <class word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<word_iterator>::value_type> >
 class BitVectorReference
 {
     public:
@@ -213,7 +213,7 @@ template <class word_iterator, class Endianness>
 inline std::ostream &operator << (std::ostream &os, BitVectorReference<word_iterator, Endianness> &a) 
 	{ os << bool (a); return os; }
 
-template <class const_word_iterator, class _Endianness = LittleEndian<typename std::iterator_traits<const_word_iterator>::value_type> >
+template <class const_word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<const_word_iterator>::value_type> >
 class BitVectorConstReference
 {
     public:
@@ -247,7 +247,7 @@ inline std::ostream &operator << (std::ostream &os, BitVectorConstReference<cons
 	{ os << bool (a); return os; }
 
 // class BitVectorIterator : public std::iterator <std::random_access_iterator_tag, bool>
-template <class _word_iterator, class _const_word_iterator, class _Endianness = LittleEndian<typename std::iterator_traits<_word_iterator>::value_type> >
+template <class _word_iterator, class _const_word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<_word_iterator>::value_type> >
 class BitVectorIterator : public std::_Bit_iterator
 {
     public:
@@ -361,7 +361,7 @@ class BitVectorIterator : public std::_Bit_iterator
 	reference _ref;
 };
 
-template <class _const_word_iterator, class _Endianness = LittleEndian<typename std::iterator_traits<_const_word_iterator>::value_type> >
+template <class _const_word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<_const_word_iterator>::value_type> >
 class BitVectorConstIterator : public std::iterator <std::random_access_iterator_tag, bool>
 {
     public:
