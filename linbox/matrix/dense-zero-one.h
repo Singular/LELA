@@ -21,9 +21,9 @@
 namespace LinBox
 {
 
-template <class Iterator = BitVector<LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >::word_iterator,
-	  class ConstIterator = typename BitVector<LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >::const_word_iterator,
-	  class Endianness = LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >
+template <class Iterator = BitVector<DefaultEndianness>::word_iterator,
+	  class ConstIterator = typename BitVector<DefaultEndianness>::const_word_iterator,
+	  class Endianness = DefaultEndianness>
 class DenseZeroOneMatrix
 {
     public:

@@ -28,7 +28,7 @@ namespace LinBox
  \ingroup vector
  */
 
-template <class _Endianness = LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> >
+template <class _Endianness = DefaultEndianness>
 class BitVector
 {
     public:
