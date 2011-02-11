@@ -11,15 +11,11 @@ pkgincludesubdir=$(pkgincludedir)/util
 
 noinst_LTLIBRARIES=libutil.la
 
-
 libutil_la_SOURCES=	\
 	timer.C		\
 	error.C		\
 	commentator.C	\
 	debug.C
-
-#libutil_la_LIBADD=	\
-#	gmp++/libgmpxx.la
 
 pkgincludesub_HEADERS=\
 	debug.h				\
@@ -30,8 +26,4 @@ pkgincludesub_HEADERS=\
 	prime-stream.h			\
 	field-axpy.h			\
 	matrix-stream.h			\
-	matrix-stream.inl		\
-	mpicpp.h			\
-	mpicpp.inl
-
-EXTRA_DIST = util.doxy
+	matrix-stream.inl

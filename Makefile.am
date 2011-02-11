@@ -2,18 +2,7 @@
 # This file is part of LinBox
 # see COPYING for licence
 
-SUBDIRS=linbox macros tests interfaces doc examples
-#ACLOCAL_AM_FLAGS=-I m4
-
-docs:doc/linbox-html/index.html
-
-doc/linbox-html/index.html:
-	(cd doc; make docs)
-
-examples:
-	(cd examples; make examples)
-
-.PHONY:examples
+SUBDIRS=linbox macros tests
 
 bin_SCRIPTS=linbox-config
 
