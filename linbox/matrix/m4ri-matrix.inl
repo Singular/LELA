@@ -274,10 +274,10 @@ class SubvectorFactory<M4RIMatrix>
 	typedef BitSubvector<BitVectorIterator<word *, const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > RowSubvector;
 	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> > > ConstRowSubvector;
 
-	RowSubvector MakeRowSubvector (SubmatrixBase<M4RIMatrix> &M, M4RIMatrix::RowIterator &pos)
+	RowSubvector MakeRowSubvector (Submatrix<M4RIMatrix> &M, M4RIMatrix::RowIterator &pos)
 		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 
-	ConstRowSubvector MakeConstRowSubvector (const SubmatrixBase<M4RIMatrix> &M, M4RIMatrix::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<M4RIMatrix> &M, M4RIMatrix::ConstRowIterator &pos)
 		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
@@ -288,7 +288,7 @@ class SubvectorFactory<const M4RIMatrix>
 	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> > > RowSubvector;
 	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> > > ConstRowSubvector;
 
-	ConstRowSubvector MakeConstRowSubvector (const SubmatrixBase<const M4RIMatrix> &M, M4RIMatrix::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const M4RIMatrix> &M, M4RIMatrix::ConstRowIterator &pos)
 		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 

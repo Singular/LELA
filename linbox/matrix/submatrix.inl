@@ -15,7 +15,7 @@
 
 namespace std {
 	template <class Matrix, class Trait>
-	struct iterator_traits<LinBox::SubmatrixBaseRowIterator<Matrix, Trait> >
+	struct iterator_traits<LinBox::SubmatrixRowIterator<Matrix, Trait> >
 	{
 		typedef random_access_iterator_tag iterator_category;
 		typedef typename LinBox::SubvectorFactory<Matrix, Trait>::RowSubvector &reference;
@@ -25,7 +25,7 @@ namespace std {
 	};
 
 	template <class Matrix, class Trait>
-	struct iterator_traits<LinBox::SubmatrixBaseConstRowIterator<Matrix, Trait> >
+	struct iterator_traits<LinBox::SubmatrixConstRowIterator<Matrix, Trait> >
 	{
 		typedef random_access_iterator_tag iterator_category;
 		typedef typename LinBox::SubvectorFactory<Matrix, Trait>::ConstRowSubvector &reference;
@@ -35,7 +35,7 @@ namespace std {
 	};
 
 	template <class Matrix, class Trait>
-	struct iterator_traits<LinBox::SubmatrixBaseColIterator<Matrix, Trait> >
+	struct iterator_traits<LinBox::SubmatrixColIterator<Matrix, Trait> >
 	{
 		typedef random_access_iterator_tag iterator_category;
 		typedef typename LinBox::SubvectorFactory<Matrix, Trait>::ColSubvector &reference;
@@ -45,7 +45,7 @@ namespace std {
 	};
 
 	template <class Matrix, class Trait>
-	struct iterator_traits<LinBox::SubmatrixBaseConstColIterator<Matrix, Trait> >
+	struct iterator_traits<LinBox::SubmatrixConstColIterator<Matrix, Trait> >
 	{
 		typedef random_access_iterator_tag iterator_category;
 		typedef typename LinBox::SubvectorFactory<Matrix, Trait>::ConstColSubvector &reference;
@@ -58,20 +58,20 @@ namespace std {
 namespace LinBox {
 
 template <class Matrix, class Trait>
-class SubmatrixBaseConstRowIterator {
+class SubmatrixConstRowIterator {
     public:
-	typedef typename std::iterator_traits<SubmatrixBaseConstRowIterator<Matrix, Trait> >::iterator_category iterator_category;
-	typedef typename std::iterator_traits<SubmatrixBaseConstRowIterator<Matrix, Trait> >::reference reference;
-	typedef typename std::iterator_traits<SubmatrixBaseConstRowIterator<Matrix, Trait> >::pointer pointer;
-	typedef typename std::iterator_traits<SubmatrixBaseConstRowIterator<Matrix, Trait> >::value_type value_type;
-	typedef typename std::iterator_traits<SubmatrixBaseConstRowIterator<Matrix, Trait> >::difference_type difference_type;
+	typedef typename std::iterator_traits<SubmatrixConstRowIterator<Matrix, Trait> >::iterator_category iterator_category;
+	typedef typename std::iterator_traits<SubmatrixConstRowIterator<Matrix, Trait> >::reference reference;
+	typedef typename std::iterator_traits<SubmatrixConstRowIterator<Matrix, Trait> >::pointer pointer;
+	typedef typename std::iterator_traits<SubmatrixConstRowIterator<Matrix, Trait> >::value_type value_type;
+	typedef typename std::iterator_traits<SubmatrixConstRowIterator<Matrix, Trait> >::difference_type difference_type;
 
-	SubmatrixBaseConstRowIterator () {}
-	SubmatrixBaseConstRowIterator (const SubmatrixBase<Matrix, Trait> *M, typename Matrix::ConstRowIterator pos)
+	SubmatrixConstRowIterator () {}
+	SubmatrixConstRowIterator (const Submatrix<Matrix, Trait> *M, typename Matrix::ConstRowIterator pos)
 		: _M (M), _pos (pos), _row_valid (false) {}
-	SubmatrixBaseConstRowIterator (const SubmatrixBaseConstRowIterator &i) : _M (i._M), _pos (i._pos), _row (i._row), _row_valid (i._row_valid) {}
+	SubmatrixConstRowIterator (const SubmatrixConstRowIterator &i) : _M (i._M), _pos (i._pos), _row (i._row), _row_valid (i._row_valid) {}
 
-	SubmatrixBaseConstRowIterator &operator = (const SubmatrixBaseConstRowIterator &i) {
+	SubmatrixConstRowIterator &operator = (const SubmatrixConstRowIterator &i) {
 		_M = i._M;
 		_pos = i._pos;
 		_row = i._row;
@@ -79,53 +79,53 @@ class SubmatrixBaseConstRowIterator {
 		return *this;
 	}
 
-	SubmatrixBaseConstRowIterator &operator ++ () 
+	SubmatrixConstRowIterator &operator ++ () 
 	{
 		++_pos;
 		_row_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseConstRowIterator operator ++ (int) 
+	SubmatrixConstRowIterator operator ++ (int) 
 	{
-		SubmatrixBaseConstRowIterator tmp (*this);
+		SubmatrixConstRowIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
 
-	SubmatrixBaseConstRowIterator operator + (difference_type i) const
+	SubmatrixConstRowIterator operator + (difference_type i) const
 	{
-		return SubmatrixBaseConstRowIterator (_M, _pos + i);
+		return SubmatrixConstRowIterator (_M, _pos + i);
 	}
 
-	SubmatrixBaseConstRowIterator &operator += (difference_type i) 
+	SubmatrixConstRowIterator &operator += (difference_type i) 
 	{
 		_pos += i;
 		_row_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseConstRowIterator &operator -- () 
+	SubmatrixConstRowIterator &operator -- () 
 	{
 		--_pos;
 		_row_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseConstRowIterator operator -- (int) 
+	SubmatrixConstRowIterator operator -- (int) 
 	{
-		SubmatrixBaseConstRowIterator tmp (*this);
+		SubmatrixConstRowIterator tmp (*this);
 		--*this;
 		return tmp;
 	}
 
-	SubmatrixBaseConstRowIterator operator - (difference_type i) const
+	SubmatrixConstRowIterator operator - (difference_type i) const
 		{ return *this + -i; }
 
-	SubmatrixBaseConstRowIterator &operator -= (difference_type i) 
+	SubmatrixConstRowIterator &operator -= (difference_type i) 
 		{ return *this += -i; }
 
-	difference_type operator - (SubmatrixBaseConstRowIterator &i) const 
+	difference_type operator - (SubmatrixConstRowIterator &i) const 
 		{ return _pos - i._pos; }
 
 	reference operator [] (long i) const
@@ -137,16 +137,16 @@ class SubmatrixBaseConstRowIterator {
 	const pointer operator -> ()
 		{ update_row (); return &_row; }
 
-	bool operator == (const SubmatrixBaseConstRowIterator &c) const 
+	bool operator == (const SubmatrixConstRowIterator &c) const 
 		{ return (_pos == c._pos); }
 
-	bool operator != (const SubmatrixBaseConstRowIterator &c) const 
+	bool operator != (const SubmatrixConstRowIterator &c) const 
 		{ return (_pos != c._pos); }
 
     private:
-	friend class SubmatrixBaseRowIterator<Matrix, Trait>;
+	friend class SubmatrixRowIterator<Matrix, Trait>;
 
-	const SubmatrixBase<Matrix, Trait> *_M;
+	const Submatrix<Matrix, Trait> *_M;
 	typename Matrix::ConstRowIterator _pos;
 	typename SubvectorFactory<Matrix, Trait>::ConstRowSubvector _row;
 	bool _row_valid;
@@ -160,21 +160,21 @@ class SubmatrixBaseConstRowIterator {
 };
 
 template <class Matrix, class Trait>
-class SubmatrixBaseRowIterator {
+class SubmatrixRowIterator {
     public:
-	typedef typename std::iterator_traits<SubmatrixBaseRowIterator<Matrix, Trait> >::iterator_category iterator_category;
-	typedef typename std::iterator_traits<SubmatrixBaseRowIterator<Matrix, Trait> >::reference reference;
-	typedef typename std::iterator_traits<SubmatrixBaseRowIterator<Matrix, Trait> >::pointer pointer;
-	typedef typename std::iterator_traits<SubmatrixBaseRowIterator<Matrix, Trait> >::value_type value_type;
-	typedef typename std::iterator_traits<SubmatrixBaseRowIterator<Matrix, Trait> >::difference_type difference_type;
+	typedef typename std::iterator_traits<SubmatrixRowIterator<Matrix, Trait> >::iterator_category iterator_category;
+	typedef typename std::iterator_traits<SubmatrixRowIterator<Matrix, Trait> >::reference reference;
+	typedef typename std::iterator_traits<SubmatrixRowIterator<Matrix, Trait> >::pointer pointer;
+	typedef typename std::iterator_traits<SubmatrixRowIterator<Matrix, Trait> >::value_type value_type;
+	typedef typename std::iterator_traits<SubmatrixRowIterator<Matrix, Trait> >::difference_type difference_type;
 
-	SubmatrixBaseRowIterator () {}
-	SubmatrixBaseRowIterator (SubmatrixBase<Matrix, Trait> *M, typename Matrix::RowIterator pos)
+	SubmatrixRowIterator () {}
+	SubmatrixRowIterator (Submatrix<Matrix, Trait> *M, typename Matrix::RowIterator pos)
 		: _M (M), _pos (pos), _row_valid (false) {}
-	SubmatrixBaseRowIterator (const SubmatrixBaseRowIterator &i)
+	SubmatrixRowIterator (const SubmatrixRowIterator &i)
 		: _M (i._M), _pos (i._pos), _row (i._row), _row_valid (i._row_valid) {}
 
-	SubmatrixBaseRowIterator &operator = (const SubmatrixBaseRowIterator &i) {
+	SubmatrixRowIterator &operator = (const SubmatrixRowIterator &i) {
 		_M = i._M;
 		_pos = i._pos;
 		_row = i._row;
@@ -182,53 +182,53 @@ class SubmatrixBaseRowIterator {
 		return *this;
 	}
 
-	SubmatrixBaseRowIterator &operator ++ () 
+	SubmatrixRowIterator &operator ++ () 
 	{
 		++_pos;
 		_row_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseRowIterator operator ++ (int) 
+	SubmatrixRowIterator operator ++ (int) 
 	{
-		SubmatrixBaseRowIterator tmp (*this);
+		SubmatrixRowIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
 
-	SubmatrixBaseRowIterator operator + (difference_type i) const
+	SubmatrixRowIterator operator + (difference_type i) const
 	{
-		return SubmatrixBaseRowIterator (_M, _pos + i);
+		return SubmatrixRowIterator (_M, _pos + i);
 	}
 
-	SubmatrixBaseRowIterator &operator += (difference_type i) 
+	SubmatrixRowIterator &operator += (difference_type i) 
 	{
 		_pos += i;
 		_row_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseRowIterator &operator -- () 
+	SubmatrixRowIterator &operator -- () 
 	{
 		--_pos;
 		_row_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseRowIterator operator -- (int) 
+	SubmatrixRowIterator operator -- (int) 
 	{
-		SubmatrixBaseRowIterator tmp (*this);
+		SubmatrixRowIterator tmp (*this);
 		--*this;
 		return tmp;
 	}
 
-	SubmatrixBaseRowIterator operator - (difference_type i) const
+	SubmatrixRowIterator operator - (difference_type i) const
 		{ return *this + -i; }
 
-	SubmatrixBaseRowIterator &operator -= (difference_type i) 
+	SubmatrixRowIterator &operator -= (difference_type i) 
 		{ return *this += -i; }
 
-	difference_type operator - (SubmatrixBaseRowIterator &i) const 
+	difference_type operator - (SubmatrixRowIterator &i) const 
 		{ return _pos - i._pos; }
 
 	reference operator [] (long i) 
@@ -240,19 +240,19 @@ class SubmatrixBaseRowIterator {
 	pointer operator -> () 
 		{ update_row (); return &_row; }
 
-	bool operator == (const SubmatrixBaseRowIterator &c) const 
+	bool operator == (const SubmatrixRowIterator &c) const 
 		{ return (_pos == c._pos); }
 
-	bool operator != (const SubmatrixBaseRowIterator &c) const 
+	bool operator != (const SubmatrixRowIterator &c) const 
 		{ return (_pos != c._pos); }
 
-	operator SubmatrixBaseConstRowIterator<Matrix, Trait> ()
-		{ return SubmatrixBaseConstRowIterator<Matrix, Trait> (_M, _pos); }
+	operator SubmatrixConstRowIterator<Matrix, Trait> ()
+		{ return SubmatrixConstRowIterator<Matrix, Trait> (_M, _pos); }
 
     private:
-	friend class SubmatrixBaseConstRowIterator<Matrix, Trait>;
+	friend class SubmatrixConstRowIterator<Matrix, Trait>;
 
-	SubmatrixBase<Matrix, Trait> *_M;
+	Submatrix<Matrix, Trait> *_M;
 	typename Matrix::RowIterator _pos;
 	typename SubvectorFactory<Matrix, Trait>::RowSubvector _row;
 	bool _row_valid;
@@ -266,20 +266,20 @@ class SubmatrixBaseRowIterator {
 };
 
 template <class Matrix, class Trait>
-class SubmatrixBaseConstColIterator {
+class SubmatrixConstColIterator {
     public:
-	typedef typename std::iterator_traits<SubmatrixBaseConstColIterator<Matrix, Trait> >::iterator_category iterator_category;
-	typedef typename std::iterator_traits<SubmatrixBaseConstColIterator<Matrix, Trait> >::reference reference;
-	typedef typename std::iterator_traits<SubmatrixBaseConstColIterator<Matrix, Trait> >::pointer pointer;
-	typedef typename std::iterator_traits<SubmatrixBaseConstColIterator<Matrix, Trait> >::value_type value_type;
-	typedef typename std::iterator_traits<SubmatrixBaseConstColIterator<Matrix, Trait> >::difference_type difference_type;
+	typedef typename std::iterator_traits<SubmatrixConstColIterator<Matrix, Trait> >::iterator_category iterator_category;
+	typedef typename std::iterator_traits<SubmatrixConstColIterator<Matrix, Trait> >::reference reference;
+	typedef typename std::iterator_traits<SubmatrixConstColIterator<Matrix, Trait> >::pointer pointer;
+	typedef typename std::iterator_traits<SubmatrixConstColIterator<Matrix, Trait> >::value_type value_type;
+	typedef typename std::iterator_traits<SubmatrixConstColIterator<Matrix, Trait> >::difference_type difference_type;
 
-	SubmatrixBaseConstColIterator () {}
-	SubmatrixBaseConstColIterator (const SubmatrixBase<Matrix, Trait> *M, typename Matrix::ConstColIterator pos)
+	SubmatrixConstColIterator () {}
+	SubmatrixConstColIterator (const Submatrix<Matrix, Trait> *M, typename Matrix::ConstColIterator pos)
 		: _M (M), _pos (pos), _col_valid (false) {}
-	SubmatrixBaseConstColIterator (const SubmatrixBaseConstColIterator &i) : _M (i._M), _pos (i._pos), _col (i._col), _col_valid (i._col_valid) {}
+	SubmatrixConstColIterator (const SubmatrixConstColIterator &i) : _M (i._M), _pos (i._pos), _col (i._col), _col_valid (i._col_valid) {}
 
-	SubmatrixBaseConstColIterator &operator = (const SubmatrixBaseConstColIterator &i) {
+	SubmatrixConstColIterator &operator = (const SubmatrixConstColIterator &i) {
 		_M = i._M;
 		_pos = i._pos;
 		_col = i._col;
@@ -287,53 +287,53 @@ class SubmatrixBaseConstColIterator {
 		return *this;
 	}
 
-	SubmatrixBaseConstColIterator &operator ++ () 
+	SubmatrixConstColIterator &operator ++ () 
 	{
 		++_pos;
 		_col_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseConstColIterator operator ++ (int) 
+	SubmatrixConstColIterator operator ++ (int) 
 	{
-		SubmatrixBaseConstColIterator tmp (*this);
+		SubmatrixConstColIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
 
-	SubmatrixBaseConstColIterator operator + (difference_type i) const
+	SubmatrixConstColIterator operator + (difference_type i) const
 	{
-		return SubmatrixBaseConstColIterator (_M, _pos + i);
+		return SubmatrixConstColIterator (_M, _pos + i);
 	}
 
-	SubmatrixBaseConstColIterator &operator += (difference_type i) 
+	SubmatrixConstColIterator &operator += (difference_type i) 
 	{
 		_pos += i;
 		_col_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseConstColIterator &operator -- () 
+	SubmatrixConstColIterator &operator -- () 
 	{
 		--_pos;
 		_col_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseConstColIterator operator -- (int) 
+	SubmatrixConstColIterator operator -- (int) 
 	{
-		SubmatrixBaseConstColIterator tmp (*this);
+		SubmatrixConstColIterator tmp (*this);
 		--*this;
 		return tmp;
 	}
 
-	SubmatrixBaseConstColIterator operator - (difference_type i) const
+	SubmatrixConstColIterator operator - (difference_type i) const
 		{ return *this + -i; }
 
-	SubmatrixBaseConstColIterator &operator -= (difference_type i) 
+	SubmatrixConstColIterator &operator -= (difference_type i) 
 		{ return *this += -i; }
 
-	difference_type operator - (SubmatrixBaseConstColIterator &i) const 
+	difference_type operator - (SubmatrixConstColIterator &i) const 
 		{ return _pos - i._pos; }
 
 	reference operator [] (long i) const
@@ -345,16 +345,16 @@ class SubmatrixBaseConstColIterator {
 	const pointer operator -> ()
 		{ update_col (); return &_col; }
 
-	bool operator == (const SubmatrixBaseConstColIterator &c) const 
+	bool operator == (const SubmatrixConstColIterator &c) const 
 		{ return (_pos == c._pos); }
 
-	bool operator != (const SubmatrixBaseConstColIterator &c) const 
+	bool operator != (const SubmatrixConstColIterator &c) const 
 		{ return (_pos != c._pos); }
 
     private:
-	friend class SubmatrixBaseColIterator<Matrix, Trait>;
+	friend class SubmatrixColIterator<Matrix, Trait>;
 
-	const SubmatrixBase<Matrix, Trait> *_M;
+	const Submatrix<Matrix, Trait> *_M;
 	typename Matrix::ConstColIterator _pos;
 	typename SubvectorFactory<Matrix, Trait>::ConstColSubvector _col;
 	bool _col_valid;
@@ -368,21 +368,21 @@ class SubmatrixBaseConstColIterator {
 };
 
 template <class Matrix, class Trait>
-class SubmatrixBaseColIterator {
+class SubmatrixColIterator {
     public:
-	typedef typename std::iterator_traits<SubmatrixBaseColIterator<Matrix, Trait> >::iterator_category iterator_category;
-	typedef typename std::iterator_traits<SubmatrixBaseColIterator<Matrix, Trait> >::reference reference;
-	typedef typename std::iterator_traits<SubmatrixBaseColIterator<Matrix, Trait> >::pointer pointer;
-	typedef typename std::iterator_traits<SubmatrixBaseColIterator<Matrix, Trait> >::value_type value_type;
-	typedef typename std::iterator_traits<SubmatrixBaseColIterator<Matrix, Trait> >::difference_type difference_type;
+	typedef typename std::iterator_traits<SubmatrixColIterator<Matrix, Trait> >::iterator_category iterator_category;
+	typedef typename std::iterator_traits<SubmatrixColIterator<Matrix, Trait> >::reference reference;
+	typedef typename std::iterator_traits<SubmatrixColIterator<Matrix, Trait> >::pointer pointer;
+	typedef typename std::iterator_traits<SubmatrixColIterator<Matrix, Trait> >::value_type value_type;
+	typedef typename std::iterator_traits<SubmatrixColIterator<Matrix, Trait> >::difference_type difference_type;
 
-	SubmatrixBaseColIterator () {}
-	SubmatrixBaseColIterator (SubmatrixBase<Matrix, Trait> *M, typename Matrix::ColIterator pos)
+	SubmatrixColIterator () {}
+	SubmatrixColIterator (Submatrix<Matrix, Trait> *M, typename Matrix::ColIterator pos)
 		: _M (M), _pos (pos), _col_valid (false) {}
-	SubmatrixBaseColIterator (const SubmatrixBaseColIterator &i)
+	SubmatrixColIterator (const SubmatrixColIterator &i)
 		: _M (i._M), _pos (i._pos), _col (i._col), _col_valid (i._col_valid) {}
 
-	SubmatrixBaseColIterator &operator = (const SubmatrixBaseColIterator &i) {
+	SubmatrixColIterator &operator = (const SubmatrixColIterator &i) {
 		_M = i._M;
 		_pos = i._pos;
 		_col = i._col;
@@ -390,53 +390,53 @@ class SubmatrixBaseColIterator {
 		return *this;
 	}
 
-	SubmatrixBaseColIterator &operator ++ () 
+	SubmatrixColIterator &operator ++ () 
 	{
 		++_pos;
 		_col_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseColIterator operator ++ (int) 
+	SubmatrixColIterator operator ++ (int) 
 	{
-		SubmatrixBaseColIterator tmp (*this);
+		SubmatrixColIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
 
-	SubmatrixBaseColIterator operator + (difference_type i) const
+	SubmatrixColIterator operator + (difference_type i) const
 	{
-		return SubmatrixBaseColIterator (_M, _pos + i);
+		return SubmatrixColIterator (_M, _pos + i);
 	}
 
-	SubmatrixBaseColIterator &operator += (difference_type i) 
+	SubmatrixColIterator &operator += (difference_type i) 
 	{
 		_pos += i;
 		_col_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseColIterator &operator -- () 
+	SubmatrixColIterator &operator -- () 
 	{
 		--_pos;
 		_col_valid = false;
 		return *this;
 	}
 
-	SubmatrixBaseColIterator operator -- (int) 
+	SubmatrixColIterator operator -- (int) 
 	{
-		SubmatrixBaseColIterator tmp (*this);
+		SubmatrixColIterator tmp (*this);
 		--*this;
 		return tmp;
 	}
 
-	SubmatrixBaseColIterator operator - (difference_type i) const
+	SubmatrixColIterator operator - (difference_type i) const
 		{ return *this + -i; }
 
-	SubmatrixBaseColIterator &operator -= (difference_type i) 
+	SubmatrixColIterator &operator -= (difference_type i) 
 		{ return *this += -i; }
 
-	difference_type operator - (SubmatrixBaseColIterator &i) const 
+	difference_type operator - (SubmatrixColIterator &i) const 
 		{ return _pos - i._pos; }
 
 	reference operator [] (long i) 
@@ -448,19 +448,19 @@ class SubmatrixBaseColIterator {
 	pointer operator -> () 
 		{ update_col (); return &_col; }
 
-	bool operator == (const SubmatrixBaseColIterator &c) const 
+	bool operator == (const SubmatrixColIterator &c) const 
 		{ return (_pos == c._pos); }
 
-	bool operator != (const SubmatrixBaseColIterator &c) const 
+	bool operator != (const SubmatrixColIterator &c) const 
 		{ return (_pos != c._pos); }
 
-	operator SubmatrixBaseConstColIterator<Matrix, Trait> ()
-		{ return SubmatrixBaseConstColIterator<Matrix, Trait> (_M, _pos); }
+	operator SubmatrixConstColIterator<Matrix, Trait> ()
+		{ return SubmatrixConstColIterator<Matrix, Trait> (_M, _pos); }
 
     private:
-	friend class SubmatrixBaseConstColIterator<Matrix, Trait>;
+	friend class SubmatrixConstColIterator<Matrix, Trait>;
 
-	SubmatrixBase<Matrix, Trait> *_M;
+	Submatrix<Matrix, Trait> *_M;
 	typename Matrix::ColIterator _pos;
 	typename SubvectorFactory<Matrix, Trait>::ColSubvector _col;
 	bool _col_valid;
@@ -475,7 +475,7 @@ class SubmatrixBaseColIterator {
 
 template <class Matrix, class Trait>
 template <class Field>
-std::istream& SubmatrixBase<Matrix, Trait>::read (std::istream &file, const Field& field)
+std::istream& Submatrix<Matrix, Trait>::read (std::istream &file, const Field& field)
 {
 	size_t i, j;
 
@@ -491,7 +491,7 @@ std::istream& SubmatrixBase<Matrix, Trait>::read (std::istream &file, const Fiel
 
 template <class Matrix, class Trait>
 template <class Field>
-std::ostream &SubmatrixBase<Matrix, Trait>::write (std::ostream &os, const Field& field, bool mapleFormat) const
+std::ostream &Submatrix<Matrix, Trait>::write (std::ostream &os, const Field& field, bool mapleFormat) const
 {
 	ConstRowIterator p;
 
@@ -529,7 +529,7 @@ std::ostream &SubmatrixBase<Matrix, Trait>::write (std::ostream &os, const Field
 
 template <class Matrix>
 template <class Field>
-std::istream& SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::read (std::istream &file, const Field& field)
+std::istream& Submatrix<Matrix, MatrixCategories::RowMatrixTag>::read (std::istream &file, const Field& field)
 {
 	size_t i, j;
 
@@ -545,7 +545,7 @@ std::istream& SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::read (std::
 
 template <class Matrix>
 template <class Field>
-std::ostream &SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::write (std::ostream &os, const Field& field, bool mapleFormat) const
+std::ostream &Submatrix<Matrix, MatrixCategories::RowMatrixTag>::write (std::ostream &os, const Field& field, bool mapleFormat) const
 {
 	ConstRowIterator p;
 
@@ -582,49 +582,49 @@ std::ostream &SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::write (std:
 }
 
 template <class Matrix, class Trait>
-inline typename SubmatrixBase<Matrix, Trait>::RowIterator SubmatrixBase<Matrix, Trait>::rowBegin ()
+inline typename Submatrix<Matrix, Trait>::RowIterator Submatrix<Matrix, Trait>::rowBegin ()
 {
 	return RowIterator (this, _M->rowBegin () + _beg_row);
 }
 
 template <class Matrix, class Trait>
-inline typename SubmatrixBase<Matrix, Trait>::RowIterator SubmatrixBase<Matrix, Trait>::rowEnd ()
+inline typename Submatrix<Matrix, Trait>::RowIterator Submatrix<Matrix, Trait>::rowEnd ()
 {
 	return RowIterator (this, _M->rowBegin () + _end_row);
 }
 
 template <class Matrix, class Trait>
-inline typename SubmatrixBase<Matrix, Trait>::ConstRowIterator SubmatrixBase<Matrix, Trait>::rowBegin () const
+inline typename Submatrix<Matrix, Trait>::ConstRowIterator Submatrix<Matrix, Trait>::rowBegin () const
 {
 	return ConstRowIterator (this, _M->rowBegin () + _beg_row);
 }
 
 template <class Matrix, class Trait>
-inline typename SubmatrixBase<Matrix, Trait>::ConstRowIterator SubmatrixBase<Matrix, Trait>::rowEnd () const
+inline typename Submatrix<Matrix, Trait>::ConstRowIterator Submatrix<Matrix, Trait>::rowEnd () const
 {
 	return ConstRowIterator (this, _M->rowBegin () + _end_row);
 }
 
 template <class Matrix>
-inline typename SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::RowIterator SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::rowBegin ()
+inline typename Submatrix<Matrix, MatrixCategories::RowMatrixTag>::RowIterator Submatrix<Matrix, MatrixCategories::RowMatrixTag>::rowBegin ()
 {
 	return RowIterator (this, _M->rowBegin () + _beg_row);
 }
 
 template <class Matrix>
-inline typename SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::RowIterator SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::rowEnd ()
+inline typename Submatrix<Matrix, MatrixCategories::RowMatrixTag>::RowIterator Submatrix<Matrix, MatrixCategories::RowMatrixTag>::rowEnd ()
 {
 	return RowIterator (this, _M->rowBegin () + _end_row);
 }
 
 template <class Matrix>
-inline typename SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::ConstRowIterator SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::rowBegin () const
+inline typename Submatrix<Matrix, MatrixCategories::RowMatrixTag>::ConstRowIterator Submatrix<Matrix, MatrixCategories::RowMatrixTag>::rowBegin () const
 {
 	return ConstRowIterator (this, _M->rowBegin () + _beg_row);
 }
 
 template <class Matrix>
-inline typename SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::ConstRowIterator SubmatrixBase<Matrix, MatrixCategories::RowMatrixTag>::rowEnd () const
+inline typename Submatrix<Matrix, MatrixCategories::RowMatrixTag>::ConstRowIterator Submatrix<Matrix, MatrixCategories::RowMatrixTag>::rowEnd () const
 {
 	return ConstRowIterator (this, _M->rowBegin () + _end_row);
 }

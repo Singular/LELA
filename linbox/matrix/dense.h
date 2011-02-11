@@ -63,22 +63,22 @@ namespace LinBox
  */
   
 template <class _Element>
-class DenseMatrixBase
+class DenseMatrix
 {
     public:
 
 	typedef _Element Element;
 	typedef typename RawVector<Element>::Dense Rep;
-        typedef DenseMatrixBase<_Element> Self_t;
+        typedef DenseMatrix<_Element> Self_t;
 
 	template<typename _Tp1>
         struct rebind
         { 
-            typedef DenseMatrixBase<typename _Tp1::Element> other; 
+            typedef DenseMatrix<typename _Tp1::Element> other; 
         };
 
 	///
-	DenseMatrixBase ()
+	DenseMatrix ()
 		: _rows (0), _cols (0)
 	{}
 
@@ -86,22 +86,22 @@ class DenseMatrixBase
 	 * @param  m  row dimension
 	 * @param  n  column dimension
 	 */
-	DenseMatrixBase (size_t m, size_t n)
+	DenseMatrix (size_t m, size_t n)
 		: _rep (m * n), _rows (m), _cols (n), _ptr(&_rep[0])
 	{}
 
 	/** Constructor from a matrix stream */
 	template< class Field >
-	DenseMatrixBase( MatrixStream<Field>& ms );
+	DenseMatrix( MatrixStream<Field>& ms );
 
 	///
-	DenseMatrixBase (const DenseMatrixBase &M)
+	DenseMatrix (const DenseMatrix &M)
 		: _rep (M._rep),_rows (M._rows), _cols (M._cols), _ptr(&_rep[0])
 	{}
 
-	~DenseMatrixBase(){}
+	~DenseMatrix(){}
 	///
-	DenseMatrixBase& operator= (const DenseMatrixBase& M) {
+	DenseMatrix& operator= (const DenseMatrix& M) {
 		(*this)._rep  = M._rep;
 		(*this)._rows = M._rows;
 		(*this)._cols = M._cols;
@@ -284,16 +284,16 @@ class DenseMatrixBase
 };
 
 template <class Element>
-struct MatrixTraits< DenseMatrixBase<Element> >
+struct MatrixTraits< DenseMatrix<Element> >
 { 
-	typedef DenseMatrixBase<Element> MatrixType;
+	typedef DenseMatrix<Element> MatrixType;
 	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory; 
 };
 
 template <class Element>
-struct MatrixTraits< const DenseMatrixBase<Element> >
+struct MatrixTraits< const DenseMatrix<Element> >
 { 
-	typedef const DenseMatrixBase<Element> MatrixType;
+	typedef const DenseMatrix<Element> MatrixType;
 	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory; 
 };
 

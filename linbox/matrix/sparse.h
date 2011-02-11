@@ -82,7 +82,7 @@ class FieldIO
 };
 
 // made global to avoid duplicate code. 
-/// tags for SparseMatrixBase::read() and write()
+/// tags for SparseMatrix::read() and write()
 enum FileFormatTag {
 	FORMAT_DETECT, FORMAT_GUILLAUME, FORMAT_TURNER, FORMAT_MATLAB, FORMAT_MAPLE, FORMAT_PRETTY, FORMAT_MAGMACPT, FORMAT_ONE_BASED
 };
@@ -91,7 +91,7 @@ enum FileFormatTag {
 template <class _Element,
 	  class _Row   = typename RawVector<_Element>::Sparse,
 	  class Trait  = typename VectorTraits<_Row>::VectorCategory>
-class SparseMatrixBase;
+class SparseMatrix;
 
 
 // Small helper classes to make read and write easier
@@ -114,27 +114,27 @@ class SparseMatrixWriteHelper
 	};
 
 	template <class Field>
-	static std::ostream &write (const SparseMatrixBase<Element, Row, Trait> &A, std::ostream &os, const Field &F, FileFormatTag format);
+	static std::ostream &write (const SparseMatrix<Element, Row, Trait> &A, std::ostream &os, const Field &F, FileFormatTag format);
 };
 
 template <class Element, class Row, class Trait = typename VectorTraits<Row>::VectorCategory>
 class SparseMatrixReadWriteHelper : public SparseMatrixWriteHelper<Element, Row, Trait>
 {
 	template <class Field>
-	static std::istream &readTurner    (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readTurner    (SparseMatrix<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readGuillaume (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readGuillaume (SparseMatrix<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readMatlab    (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readMatlab    (SparseMatrix<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readPretty    (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readPretty    (SparseMatrix<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 	template <class Field>
-	static std::istream &readMagmaCpt  (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
+	static std::istream &readMagmaCpt  (SparseMatrix<Element, Row, Trait> &A, std::istream &is, const Field &F, char *buf);
 
     public:
 
 	template <class Field>
-	static std::istream &read (SparseMatrixBase<Element, Row, Trait> &A, std::istream &is, const Field &F, FileFormatTag format);
+	static std::istream &read (SparseMatrix<Element, Row, Trait> &A, std::istream &is, const Field &F, FileFormatTag format);
 };
 
 // Specialization of the above for sparse parallel vectors
@@ -157,7 +157,7 @@ class SparseMatrixWriteHelper<_Element, Row, VectorCategories::SparseParallelVec
 	};
 
 	template <class Field>
-	static std::ostream &write (const SparseMatrixBase<Element, Row, VectorCategories::SparseParallelVectorTag> &A, std::ostream &os, const Field &F, FileFormatTag format);
+	static std::ostream &write (const SparseMatrix<Element, Row, VectorCategories::SparseParallelVectorTag> &A, std::ostream &os, const Field &F, FileFormatTag format);
 };
 
 /** Sparse matrix container
@@ -172,7 +172,7 @@ class SparseMatrixWriteHelper<_Element, Row, VectorCategories::SparseParallelVec
 \ingroup matrix
  */
 template <class _Element, class _Row, class Trait>
-class SparseMatrixBase
+class SparseMatrix
 {
     public:
 
@@ -183,7 +183,7 @@ class SparseMatrixBase
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
-        { typedef SparseMatrixBase<typename _Tp1::Element, _R1, Trait> other; };
+        { typedef SparseMatrix<typename _Tp1::Element, _R1, Trait> other; };
 
 	/** Constructor.
 	 * Note: the copy constructor and operator= will work as intended
@@ -191,38 +191,38 @@ class SparseMatrixBase
 	 * @param  m  row dimension
 	 * @param  n  column dimension
 	 */
-        SparseMatrixBase (size_t m, size_t n): _A(m), _m(m), _n(n) {};
+        SparseMatrix (size_t m, size_t n): _A(m), _m(m), _n(n) {};
 
 
 	/** Constructor from a MatrixStream
 	 */
 	template <class Field>
-	SparseMatrixBase ( MatrixStream<Field>& ms );
+	SparseMatrix ( MatrixStream<Field>& ms );
     
 
 	/** Copy constructor.
 	 */
-	SparseMatrixBase (const SparseMatrixBase<Element, Row, Trait> &A);
+	SparseMatrix (const SparseMatrix<Element, Row, Trait> &A);
 
 	/** Convert constructor.
 	 */
     	template<class VectorType>
-	SparseMatrixBase (const SparseMatrixBase<Element, VectorType, Trait> &A);
+	SparseMatrix (const SparseMatrix<Element, VectorType, Trait> &A);
 	/** Destructor. */
-	~SparseMatrixBase () {}
+	~SparseMatrix () {}
 
 	/** Retreive row dimension of the matrix.
-	 * @return integer number of rows of SparseMatrixBase matrix.
+	 * @return integer number of rows of SparseMatrix matrix.
 	 */
 	size_t rowdim () const { return _m; }
 
 	/** Retreive column dimension of matrix.
-	 * @return integer number of columns of SparseMatrixBase matrix.
+	 * @return integer number of columns of SparseMatrix matrix.
 	 */
 	size_t coldim () const { return _n; }
 
 	/** Retreive number of elements in the matrix.
-	 * @return integer number of elements of SparseMatrixBase matrix.
+	 * @return integer number of elements of SparseMatrix matrix.
 	 */
 	size_t size () const { 
             size_t s(0);
@@ -361,7 +361,7 @@ class SparseMatrixBase
 	/** Construct the transpose of this matrix and place it in the
 	 * matrix given
 	 */
-	SparseMatrixBase &transpose (SparseMatrixBase &AT) const;
+	SparseMatrix &transpose (SparseMatrix &AT) const;
 
     protected:
 	
@@ -372,13 +372,13 @@ class SparseMatrixBase
 	size_t            _m;
 	size_t            _n;
 
-    	template<class F, class R, class T> friend class SparseMatrixBase;
+    	template<class F, class R, class T> friend class SparseMatrix;
 };
 
 /* Specialization for sparse sequence vectors */
 
 template <class _Element, class _Row>
-class SparseMatrixBase<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
+class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 {
     public:
 
@@ -389,29 +389,29 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseSequenceVectorTag
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
-        { typedef SparseMatrixBase<typename _Tp1::Element, _R1, VectorCategories::SparseSequenceVectorTag> other; };
+        { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseSequenceVectorTag> other; };
 
-	SparseMatrixBase (size_t m, size_t n)
+	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
 
 	/** Constructor from a MatrixStream
 	 */
 	template <class Field>
-	SparseMatrixBase ( MatrixStream<Field>& ms );
+	SparseMatrix ( MatrixStream<Field>& ms );
 
-	SparseMatrixBase (const SparseMatrixBase<Element, Row> &A)
+	SparseMatrix (const SparseMatrix<Element, Row> &A)
 		: _A (A._A), _m (A._m), _n (A._n) {}
 
     	template<class VectorType>
-	SparseMatrixBase (const SparseMatrixBase<Element, VectorType> &A)
+	SparseMatrix (const SparseMatrix<Element, VectorType> &A)
 		: _A(A._m), _m (A._m), _n (A._n) {
             typename Rep::iterator meit = this->_A.begin();
-            typename SparseMatrixBase<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
+            typename SparseMatrix<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
             for( ; meit != this->_A.end(); ++meit, ++copit)
                 LinBox::RawVector<Element>::convert(*meit, *copit);
         }
 
-	~SparseMatrixBase () {}
+	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
@@ -711,7 +711,7 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseSequenceVectorTag
 	ConstRow &operator [] (size_t i) const { return _A[i]; }
 
 	template <class Vector> Vector &columnDensity (Vector &v) const;
-	SparseMatrixBase &transpose (SparseMatrixBase &AT) const;
+	SparseMatrix &transpose (SparseMatrix &AT) const;
 
     protected:
 
@@ -722,13 +722,13 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseSequenceVectorTag
 	size_t            _m;
 	size_t            _n;
 
-    	template<class F, class R, class T> friend class SparseMatrixBase;
+    	template<class F, class R, class T> friend class SparseMatrix;
 };
 
 /* Specialization for sparse associative vectors */
 
 template <class _Element, class _Row>
-class SparseMatrixBase<_Element, _Row, VectorCategories::SparseAssociativeVectorTag >
+class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag >
 {
     public:
 
@@ -739,18 +739,18 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseAssociativeVector
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
-        { typedef SparseMatrixBase<typename _Tp1::Element, _R1, VectorCategories::SparseAssociativeVectorTag> other; };
+        { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseAssociativeVectorTag> other; };
 
-	SparseMatrixBase (size_t m, size_t n)
+	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
-	SparseMatrixBase (const SparseMatrixBase<Element, Row> &A)
+	SparseMatrix (const SparseMatrix<Element, Row> &A)
 		: _A (A._A), _m (A._m), _n (A._n) {}
 
     	template<class VectorType>
-	SparseMatrixBase (const SparseMatrixBase<Element, VectorType> &A)
+	SparseMatrix (const SparseMatrix<Element, VectorType> &A)
 		: _A(A.m), _m (A._m), _n (A._n) {
             typename Rep::iterator meit = this->_A.begin();
-            typename SparseMatrixBase<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
+            typename SparseMatrix<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
             for( ; meit != this->_A.end(); ++meit, ++copit)
                 LinBox::RawVector<Element>::convert(*meit, *copit);
         }
@@ -758,8 +758,8 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseAssociativeVector
 	/** Constructor from a MatrixStream
 	 */
 	template <class Field>
-	SparseMatrixBase ( MatrixStream<Field>& ms );
-	~SparseMatrixBase () {}
+	SparseMatrix ( MatrixStream<Field>& ms );
+	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
@@ -1019,7 +1019,7 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseAssociativeVector
 	ConstRow &operator [] (size_t i) const { return _A[i]; }
 
 	template <class Vector> Vector &columnDensity (Vector &v) const;
-	SparseMatrixBase &transpose (SparseMatrixBase &AT) const;
+	SparseMatrix &transpose (SparseMatrix &AT) const;
 
     protected:
 
@@ -1030,13 +1030,13 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseAssociativeVector
 	size_t            _m;
 	size_t            _n;
 
-    	template<class F, class R, class T> friend class SparseMatrixBase;
+    	template<class F, class R, class T> friend class SparseMatrix;
 };
 
 /* Specialization for sparse parallel vectors */
 
 template <class _Element, class _Row>
-class SparseMatrixBase<_Element, _Row, VectorCategories::SparseParallelVectorTag >
+class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
 {
     public:
 
@@ -1047,18 +1047,18 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseParallelVectorTag
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
-        { typedef SparseMatrixBase<typename _Tp1::Element, _R1, VectorCategories::SparseParallelVectorTag> other; };
+        { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseParallelVectorTag> other; };
 
-	SparseMatrixBase (size_t m, size_t n)
+	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
-	SparseMatrixBase (const SparseMatrixBase<Element, Row> &A)
+	SparseMatrix (const SparseMatrix<Element, Row> &A)
 		: _A (A._A), _m (A._m), _n (A._n) {}
     
     	template<class VectorType>
-	SparseMatrixBase (const SparseMatrixBase<Element, VectorType> &A)
+	SparseMatrix (const SparseMatrix<Element, VectorType> &A)
 		: _A(A._m), _m (A._m), _n (A._n) {
             typename Rep::iterator meit = this->_A.begin();
-            typename SparseMatrixBase<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
+            typename SparseMatrix<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
             for( ; meit != this->_A.end(); ++meit, ++copit)
                 LinBox::RawVector<Element>::convert(*meit, *copit);
         }
@@ -1066,9 +1066,9 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseParallelVectorTag
 	/** Constructor from a MatrixStream
 	 */
 	template <class Field>
-	SparseMatrixBase ( MatrixStream<Field>& ms );
+	SparseMatrix ( MatrixStream<Field>& ms );
 
-	~SparseMatrixBase () {}
+	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
@@ -1340,7 +1340,7 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseParallelVectorTag
 	ConstRow &operator [] (size_t i) const { return _A[i]; }
 
 	template <class Vector> Vector &columnDensity (Vector &v) const;
-	SparseMatrixBase &transpose (SparseMatrixBase &AT) const;
+	SparseMatrix &transpose (SparseMatrix &AT) const;
 
     protected:
 
@@ -1351,28 +1351,28 @@ class SparseMatrixBase<_Element, _Row, VectorCategories::SparseParallelVectorTag
 	size_t            _m;
 	size_t            _n;
 
-    	template<class F, class R, class T> friend class SparseMatrixBase;
+    	template<class F, class R, class T> friend class SparseMatrix;
 };
 
 template <class Element, class Row>
-std::ostream &operator << (std::ostream &os, const SparseMatrixBase<Element, Row> &A)
+std::ostream &operator << (std::ostream &os, const SparseMatrix<Element, Row> &A)
 	{ return A.write (os); }
 
 template <class Element, class Row>
-std::istream &operator >> (std::istream &is, SparseMatrixBase<Element, Row> &A)
+std::istream &operator >> (std::istream &is, SparseMatrix<Element, Row> &A)
 	{ return A.read (is); }
 
 template <class Element, class Row, class Trait>
-struct MatrixTraits< SparseMatrixBase<Element, Row, Trait> >
+struct MatrixTraits< SparseMatrix<Element, Row, Trait> >
 { 
-	typedef SparseMatrixBase<Element, Row, Trait> MatrixType;
+	typedef SparseMatrix<Element, Row, Trait> MatrixType;
 	typedef typename MatrixCategories::RowMatrixTag MatrixCategory; 
 };
 
 template <class Element, class Row, class Trait>
-struct MatrixTraits< const SparseMatrixBase<Element, Row, Trait> >
+struct MatrixTraits< const SparseMatrix<Element, Row, Trait> >
 { 
-	typedef const SparseMatrixBase<Element, Row, Trait> MatrixType;
+	typedef const SparseMatrix<Element, Row, Trait> MatrixType;
 	typedef typename MatrixCategories::RowMatrixTag MatrixCategory; 
 };
 

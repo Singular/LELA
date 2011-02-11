@@ -45,11 +45,11 @@ namespace LinBox
 
 /** Submatrix of a dense matrix
  *
- * This matrix type conforms to the same interface as @ref{DenseMatrixBase},
+ * This matrix type conforms to the same interface as @ref{DenseMatrix},
  * except that you cannot resize it. It represents a submatrix of a dense
  * matrix. Upon construction, one can freely manipulate the entries in the
  * DenseSubmatrix, and the corresponding entries in the underlying
- * DenseMatrixBase will be modified.
+ * DenseMatrix will be modified.
 
 \ingroup matrix
  */
@@ -71,10 +71,10 @@ class DenseSubmatrix
 	 * matrix in ascending order. Dereferencing the iterator yields
 	 * a row vector in dense format
 	 */
-	typedef typename DenseMatrixBase<Element>::RowIterator            RowIterator;
-	typedef typename DenseMatrixBase<Element>::ConstRowIterator       ConstRowIterator;
-	typedef typename DenseMatrixBase<Element>::Row                    Row;
-	typedef typename DenseMatrixBase<Element>::ConstRow               ConstRow;
+	typedef typename DenseMatrix<Element>::RowIterator            RowIterator;
+	typedef typename DenseMatrix<Element>::ConstRowIterator       ConstRowIterator;
+	typedef typename DenseMatrix<Element>::Row                    Row;
+	typedef typename DenseMatrix<Element>::ConstRow               ConstRow;
 
 	/** \brief
 	 *
@@ -82,33 +82,33 @@ class DenseSubmatrix
 	 * matrix in ascending order. Dereferencing the iterator yields
 	 * a column vector in dense format
 	 */
-	typedef typename DenseMatrixBase<Element>::ColIterator            ColIterator;
-	typedef typename DenseMatrixBase<Element>::ConstColIterator       ConstColIterator;
-	typedef typename DenseMatrixBase<Element>::Col                    Col;
-	typedef typename DenseMatrixBase<Element>::Column                 Column;
-	typedef typename DenseMatrixBase<Element>::ConstCol               ConstCol;
+	typedef typename DenseMatrix<Element>::ColIterator            ColIterator;
+	typedef typename DenseMatrix<Element>::ConstColIterator       ConstColIterator;
+	typedef typename DenseMatrix<Element>::Col                    Col;
+	typedef typename DenseMatrix<Element>::Column                 Column;
+	typedef typename DenseMatrix<Element>::ConstCol               ConstCol;
 
 	/** \brief
 	 */
 	DenseSubmatrix () :_M(NULL) {}
 
-	/** Constructor from an existing @ref{DenseMatrixBase} and dimensions
-	 * \param M Pointer to @ref{DenseMatrixBase} of which to construct submatrix
+	/** Constructor from an existing @ref{DenseMatrix} and dimensions
+	 * \param M Pointer to @ref{DenseMatrix} of which to construct submatrix
 	 * \param row Starting row
 	 * \param col Starting column
 	 * \param rowdim Row dimension
 	 * \param coldim Column dimension
 	 */
-	DenseSubmatrix (DenseMatrixBase<Element> &M,
+	DenseSubmatrix (DenseMatrix<Element> &M,
 			size_t row,
 			size_t col,
 			size_t rowdim,
 			size_t coldim);
 
-	/** Constructor from an existing @ref{DenseMatrixBase} 
-	 * \param M Pointer to @ref{DenseMatrixBase} of which to construct submatrix
+	/** Constructor from an existing @ref{DenseMatrix} 
+	 * \param M Pointer to @ref{DenseMatrix} of which to construct submatrix
 	 */
-	DenseSubmatrix (DenseMatrixBase<Element> &M);
+	DenseSubmatrix (DenseMatrix<Element> &M);
 
 
 	/** Constructor from an existing submatrix and dimensions
@@ -258,7 +258,7 @@ class DenseSubmatrix
 	//ConstRow operator[] (int i) const;
 
     protected:
-	DenseMatrixBase<Element> *_M;
+	DenseMatrix<Element> *_M;
 	size_t _beg_row;
 	size_t _end_row;
 	size_t _beg_col;

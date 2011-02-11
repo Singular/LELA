@@ -272,10 +272,10 @@ class SubvectorFactory<DenseZeroOneMatrix<Iterator, ConstIterator> >
 	typedef BitSubvector<BitVector::iterator, BitVector::const_iterator> RowSubvector;
 	typedef BitSubvector<BitVector::const_iterator, BitVector::const_iterator> ConstRowSubvector;
 
-	RowSubvector MakeRowSubvector (SubmatrixBase<DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::RowIterator &pos)
+	RowSubvector MakeRowSubvector (Submatrix<DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::RowIterator &pos)
 		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 
-	ConstRowSubvector MakeConstRowSubvector (const SubmatrixBase<DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator &pos)
 		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
@@ -286,7 +286,7 @@ class SubvectorFactory<const DenseZeroOneMatrix<Iterator, ConstIterator> >
 	typedef BitSubvector<BitVector::const_iterator, BitVector::const_iterator> RowSubvector;
 	typedef BitSubvector<BitVector::const_iterator, BitVector::const_iterator> ConstRowSubvector;
 
-	ConstRowSubvector MakeConstRowSubvector (const SubmatrixBase<const DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator &pos)
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const DenseZeroOneMatrix<Iterator, ConstIterator> > &M, typename DenseZeroOneMatrix<Iterator, ConstIterator>::ConstRowIterator &pos)
 		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 

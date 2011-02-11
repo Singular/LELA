@@ -134,8 +134,8 @@ namespace F4 {
 			for (b = blocks.begin (); b != b_end; ++b) {
 				b_width = GetNextBlockColumn (B.coldim (), b, b_end) - (b->col_idx + b->size);
 
-				SubmatrixBase<DenseMatrix> Dp (D, 0, D_col, D.rowdim (), b_width);
-				SubmatrixBase<const SparseMatrix> Ds (B, 0, b->col_idx + b->size, D.rowdim (), b_width);
+				Submatrix<DenseMatrix> Dp (D, 0, D_col, D.rowdim (), b_width);
+				Submatrix<const SparseMatrix> Ds (B, 0, b->col_idx + b->size, D.rowdim (), b_width);
 
 				MD.copy (Dp, Ds);
 
@@ -148,8 +148,8 @@ namespace F4 {
 				A_row = 0;
 
 				for (c = blocks.begin (); c <= b; ++c) {
-					SubmatrixBase<const SparseMatrix> B1 (B, 0, c->col_idx, D.rowdim (), c->size);
-					SubmatrixBase<const SparseMatrix> A1 (Agj, A_row, b->col_idx + b->size, c->size, b_width);
+					Submatrix<const SparseMatrix> B1 (B, 0, c->col_idx, D.rowdim (), c->size);
+					Submatrix<const SparseMatrix> A1 (Agj, A_row, b->col_idx + b->size, c->size, b_width);
 
 					MD.gemm (neg_one, B1, A1, one, Dp);
 

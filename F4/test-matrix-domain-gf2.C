@@ -20,10 +20,10 @@ using namespace LinBox;
 
 typedef GF2 Field;
 typedef DenseZeroOneMatrix<>::Row::word_iterator::value_type Word;
-typedef SparseMatrixBase<bool, RawVector<bool>::Sparse, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;
-typedef SparseMatrixBase<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> HybridMatrix;
+typedef SparseMatrix<bool, RawVector<bool>::Sparse, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;
+typedef SparseMatrix<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> HybridMatrix;
 
-void testGEMMSubmatrixBaseDense ()
+void testGEMMSubmatrixDense ()
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
@@ -63,10 +63,10 @@ void testGEMMSubmatrixBaseDense ()
 		std::cout << __FUNCTION__ << ": Testing offset " << s << "...";
 		std::cout.flush ();
 
-		SubmatrixBase<DenseZeroOneMatrix<> > Bp (B, 0, s, B.rowdim (), k);
+		Submatrix<DenseZeroOneMatrix<> > Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		SubmatrixBase<DenseZeroOneMatrix<> > Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseZeroOneMatrix<> > Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;
@@ -84,7 +84,7 @@ void testGEMMSubmatrixBaseDense ()
 	std::cout << __FUNCTION__ << ": done" << std::endl;
 }
 
-void testGEMMSubmatrixBaseHybrid ()
+void testGEMMSubmatrixHybrid ()
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
@@ -146,10 +146,10 @@ void testGEMMSubmatrixBaseHybrid ()
 		std::cout << __FUNCTION__ << ": Testing offset " << s << "...";
 		std::cout.flush ();
 
-		SubmatrixBase<HybridMatrix> Bp (B, 0, s, B.rowdim (), k);
+		Submatrix<HybridMatrix> Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		SubmatrixBase<DenseZeroOneMatrix<> > Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseZeroOneMatrix<> > Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;
@@ -169,6 +169,6 @@ void testGEMMSubmatrixBaseHybrid ()
 
 int main (int argc, char **argv)
 {
-	testGEMMSubmatrixBaseDense ();
-	testGEMMSubmatrixBaseHybrid ();
+	testGEMMSubmatrixDense ();
+	testGEMMSubmatrixHybrid ();
 }

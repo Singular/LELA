@@ -31,7 +31,7 @@ namespace LinBox
 {
 
 template <class _Element>
-DenseSubmatrix<_Element>::DenseSubmatrix (DenseMatrixBase<_Element> &M,
+DenseSubmatrix<_Element>::DenseSubmatrix (DenseMatrix<_Element> &M,
 					 size_t row,
 					 size_t col,
 					 size_t rowdim,
@@ -46,7 +46,7 @@ DenseSubmatrix<_Element>::DenseSubmatrix (DenseMatrixBase<_Element> &M,
 
 
 template <class _Element>
-DenseSubmatrix<_Element>::DenseSubmatrix (DenseMatrixBase<_Element> &M)
+DenseSubmatrix<_Element>::DenseSubmatrix (DenseMatrix<_Element> &M)
 	: _M(&M), _beg_row(0), _end_row(M.rowdim()), _beg_col(0), _end_col(M.coldim()) {}
 
 
@@ -93,7 +93,7 @@ class DenseSubmatrix<_Element>::RawIterator
     public:
 	RawIterator (){}
 
-	RawIterator (const typename DenseMatrixBase<_Element>::RawIterator& cur,
+	RawIterator (const typename DenseMatrix<_Element>::RawIterator& cur,
 		     const size_t c_dim,
 		     const size_t stride,
 		     const size_t c_idx)
@@ -138,7 +138,7 @@ class DenseSubmatrix<_Element>::RawIterator
 		{ return *_cur; }
 
     protected:
-	typename DenseMatrixBase<_Element>::RawIterator _cur;
+	typename DenseMatrix<_Element>::RawIterator _cur;
 	size_t _c_dim;
 	size_t _stride;
 	size_t _c_idx;
@@ -150,7 +150,7 @@ class DenseSubmatrix<_Element>::ConstRawIterator
     public:
 	ConstRawIterator (){}
 
-	ConstRawIterator (const typename DenseMatrixBase<_Element>::ConstRawIterator& cur,
+	ConstRawIterator (const typename DenseMatrix<_Element>::ConstRawIterator& cur,
 		     const size_t c_dim,
 		     const size_t stride,
 		     const size_t c_idx)
@@ -192,7 +192,7 @@ class DenseSubmatrix<_Element>::ConstRawIterator
 		{ return *_cur; }
 
     protected:
-	typename DenseMatrixBase<_Element>::ConstRawIterator _cur;
+	typename DenseMatrix<_Element>::ConstRawIterator _cur;
 	size_t _c_dim;
 	size_t _stride;
 	size_t _c_idx;
@@ -204,7 +204,7 @@ class DenseSubmatrix<_Element>::ConstRawIterator
 //     public:
 // 	ConstRawIterator (){}
 
-// 	ConstRawIterator ( const typename DenseMatrixBase<Element>::ConstRawIterator& cur, 
+// 	ConstRawIterator ( const typename DenseMatrix<Element>::ConstRawIterator& cur, 
 // 			  size_t cont_len,
 // 			  size_t gap_len)
 // 		:   _beg (beg), _cur (cur), _cont_len (cont_len), _gap_len (gap_len)
@@ -262,8 +262,8 @@ class DenseSubmatrix<_Element>::ConstRawIterator
 // 	{ return *_cur; }
 
 //     protected:
-// 	typename DenseMatrixBase<Element>::ConstRawIterator _beg;
-// 	typename DenseMatrixBase<Element>::ConstRawIterator _cur;
+// 	typename DenseMatrix<Element>::ConstRawIterator _beg;
+// 	typename DenseMatrix<Element>::ConstRawIterator _cur;
 // 	size_t _cont_len;
 // 	size_t _gap_len;
 // };
@@ -317,7 +317,7 @@ class DenseSubmatrix<_Element>::RawIndexedIterator
        public:
 	RawIndexedIterator (){}
 	
-	RawIndexedIterator (const typename DenseMatrixBase<_Element>::RawIterator& cur, 
+	RawIndexedIterator (const typename DenseMatrix<_Element>::RawIterator& cur, 
 			    size_t c_dim,
 			    size_t stride,
 			    size_t r_idx,
@@ -395,7 +395,7 @@ class DenseSubmatrix<_Element>::RawIndexedIterator
 	const _Element& value () const {return *_cur;}
 
      protected:
-	typename DenseMatrixBase<_Element>::RawIterator _cur;
+	typename DenseMatrix<_Element>::RawIterator _cur;
 	size_t _stride;
 	size_t _c_dim;
 	size_t _r_idx;
@@ -422,7 +422,7 @@ class DenseSubmatrix<_Element>::ConstRawIndexedIterator
     public:
 	ConstRawIndexedIterator (){}
 
-	ConstRawIndexedIterator (const typename DenseMatrixBase<_Element>::ConstRawIterator& cur, 
+	ConstRawIndexedIterator (const typename DenseMatrix<_Element>::ConstRawIterator& cur, 
 				 size_t c_dim,
 				 size_t stride,
 				 size_t r_idx,
@@ -514,7 +514,7 @@ class DenseSubmatrix<_Element>::ConstRawIndexedIterator
         }    
 
     protected:
-	typename DenseMatrixBase<_Element>::ConstRawIterator _cur;
+	typename DenseMatrix<_Element>::ConstRawIterator _cur;
 	size_t _stride;
 	size_t _c_dim;
 	size_t _r_idx;
