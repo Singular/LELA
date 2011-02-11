@@ -205,12 +205,12 @@ class BitVectorReference
 	uint8         _pos;
 };
 
-template <class word_iterator>
-inline std::istream &operator >> (std::istream &is, BitVectorReference<word_iterator> &a) 
+template <class word_iterator, class Endianness>
+inline std::istream &operator >> (std::istream &is, BitVectorReference<word_iterator, Endianness> &a) 
 	{ bool v; is >> v; a = v; return is; }
 
-template <class word_iterator>
-inline std::ostream &operator << (std::ostream &os, BitVectorReference<word_iterator> &a) 
+template <class word_iterator, class Endianness>
+inline std::ostream &operator << (std::ostream &os, BitVectorReference<word_iterator, Endianness> &a) 
 	{ os << bool (a); return os; }
 
 template <class const_word_iterator, class _Endianness = LittleEndian<typename std::iterator_traits<const_word_iterator>::value_type> >
@@ -242,8 +242,8 @@ class BitVectorConstReference
 	uint8               _pos;
 };
 
-template<class const_word_iterator>
-inline std::ostream &operator << (std::ostream &os, BitVectorConstReference<const_word_iterator> &a) 
+template<class const_word_iterator, class Endianness>
+inline std::ostream &operator << (std::ostream &os, BitVectorConstReference<const_word_iterator, Endianness> &a) 
 	{ os << bool (a); return os; }
 
 // class BitVectorIterator : public std::iterator <std::random_access_iterator_tag, bool>
