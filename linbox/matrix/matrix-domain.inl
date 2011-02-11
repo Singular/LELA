@@ -621,40 +621,6 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 }
 
 template <class Field>
-template <class Matrix1, class Blackbox, class Matrix2>
-Matrix1 &MatrixDomainSupportGeneric<Field>::gebmm (Matrix1 &C, const Blackbox &A, const Matrix2 &B) const
-{
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	typename Matrix1::ColIterator i = C.colBegin ();
-	typename Matrix2::ConstColIterator j = B.colBegin ();
-
-	for (; i != C.colEnd (); ++i, ++j)
-		A.apply (*i, *j);
-
-	return C;
-}
-
-template <class Field>
-template <class Matrix1, class Matrix2, class Blackbox>
-Matrix1 &MatrixDomainSupportGeneric<Field>::gembm (Matrix1 &C, const Matrix2 &A, const Blackbox &B) const
-{
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	typename Matrix1::RowIterator i = C.rowBegin ();
-	typename Matrix2::ConstRowIterator j = A.rowBegin ();
-
-	for (; i != C.rowEnd (); ++i, ++j)
-		B.applyTranspose (*i, *j);
-
-	return C;
-}
-
-template <class Field>
 template <class Matrix, class Iterator>
 Matrix &MatrixDomainSupportGeneric<Field>::permuteRowsByRow (Matrix   &A,
 							     Iterator  P_start,

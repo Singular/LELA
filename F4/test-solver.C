@@ -25,6 +25,8 @@ typedef GF2 Field;
 
 static const double nonzero_density = 0.1;
 
+namespace F4Tests {
+
 typedef GaussJordan<Field>::SparseMatrix SparseMatrix;
 typedef GaussJordan<Field>::SparseMatrix::Row SparseVector;
 
@@ -198,6 +200,8 @@ void fileTest (char *filename, char *output) {
 	delete A;
 }
 
+} // namespace F4Tests
+
 int main (int argc, char **argv)
 {
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (2);
@@ -208,9 +212,9 @@ int main (int argc, char **argv)
 	commentator.setReportStream (std::cout);
 
 	if (argc == 2 && !strcmp (argv[1], "-s"))
-		smallTest ();
+		F4Tests::smallTest ();
 	else if (argc == 4 && !strcmp (argv[1], "-f"))
-		fileTest (argv[2], argv[3]);
+		F4Tests::fileTest (argv[2], argv[3]);
 	else {
 		std::cout << "Usage: test-solver -s|{-f <png-input> <matrix-output>}" << std::endl;
 		return 0;

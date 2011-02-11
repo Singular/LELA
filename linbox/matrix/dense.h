@@ -44,8 +44,6 @@
 #include "linbox/matrix/matrix-domain.h"
 #include "linbox/linbox-config.h"
 #include "linbox/util/matrix-stream.h"
-#include "linbox/field/hom.h"
-
 
 namespace LinBox
 {

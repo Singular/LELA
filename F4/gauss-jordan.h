@@ -63,8 +63,8 @@ namespace F4 {
 	class Adaptor {
 	public:
 		typedef typename RawVector<typename Field::Element>::Sparse SparseVector;
-		typedef SparseMatrix<typename Field::Element, typename RawVector<typename Field::Element>::Sparse> SparseMatrix;
-		typedef DenseMatrix<typename Field::Element> DenseMatrix;
+		typedef LinBox::SparseMatrix<typename Field::Element, typename RawVector<typename Field::Element>::Sparse> SparseMatrix;
+		typedef LinBox::DenseMatrix<typename Field::Element> DenseMatrix;
 		static const size_t cutoff = 1;
 	};
 
@@ -72,8 +72,8 @@ namespace F4 {
 	class Adaptor<GF2> {
 	public:
 		typedef RawVector<bool>::Hybrid SparseVector;
-		typedef SparseMatrix<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
-		typedef DenseZeroOneMatrix<> DenseMatrix;
+		typedef LinBox::SparseMatrix<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
+		typedef LinBox::DenseZeroOneMatrix<> DenseMatrix;
 		static const size_t cutoff = __LINBOX_BITSOF_LONG;
 	};
 

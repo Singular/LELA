@@ -16,12 +16,14 @@
 #include "linbox/matrix/sparse-zero-one.h"
 #include "linbox/matrix/submatrix.h"
 
+namespace F4Tests {
+
 using namespace LinBox;
 
 typedef GF2 Field;
 typedef DenseZeroOneMatrix<>::Row::word_iterator::value_type Word;
-typedef SparseMatrix<bool, RawVector<bool>::Sparse, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;
-typedef SparseMatrix<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> HybridMatrix;
+typedef LinBox::SparseMatrix<bool, RawVector<bool>::Sparse, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;
+typedef LinBox::SparseMatrix<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> HybridMatrix;
 
 void testGEMMSubmatrixDense ()
 {
@@ -167,8 +169,10 @@ void testGEMMSubmatrixHybrid ()
 	std::cout << __FUNCTION__ << ": done" << std::endl;
 }
 
+} // namespace F4Tests
+
 int main (int argc, char **argv)
 {
-	testGEMMSubmatrixDense ();
-	testGEMMSubmatrixHybrid ();
+	F4Tests::testGEMMSubmatrixDense ();
+	F4Tests::testGEMMSubmatrixHybrid ();
 }

@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include <linbox/field/modular.h>
-#include <linbox/blackbox/dense.h>
+#include <linbox/matrix/dense.h>
 #include <linbox/matrix/matrix-domain.h>
 #include <linbox/vector/stream.h>
 

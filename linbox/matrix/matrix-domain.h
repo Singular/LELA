@@ -20,7 +20,6 @@
 
 #include <iostream>
 
-#include "linbox/blackbox/archetype.h"
 #include "linbox/vector/vector-domain.h"
 #include "linbox/matrix/matrix-traits.h"
 
@@ -229,37 +228,6 @@ public:
 	template <class Matrix1, class Matrix2>
 	inline Matrix2 &trsm (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B) const
 		{ return trsmSpecialized (a, A, B, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
-
-	/*? @name Matrix-black box arithmetic operations
-	 * These operations mimic the matrix-matrix arithmetic operations above,
-	 * but one of the parameters is a \ref BlackboxArchetype.
-	 */
-
-	/** Black box-matrix multiply
-	 * C <- A * B
-	 *
-	 * Both C and B must support column iterators
-	 *
-	 * @param C Output matrix
-	 * @param A Black box for A
-	 * @param B Matrix B
-	 * @returns Reference to C
-	 */
-	template <class Matrix1, class Blackbox, class Matrix2>
-	inline Matrix1 &gebmm (Matrix1 &C, const Blackbox &A, const Matrix2 &B) const;
-
-	/** Matrix-black box multiply
-	 * C <- A * B
-	 *
-	 * Both C and A must support row iterators
-	 *
-	 * @param C Output matrix
-	 * @param A Input matrix A
-	 * @param B Black box for B
-	 * @returns Reference to C
-	 */
-	template <class Matrix1, class Matrix2, class Blackbox>
-	inline Matrix1 &gembm (Matrix1 &C, const Matrix2 &A, const Blackbox &B) const;
 
 	/*? @name Matrix permutations
 	 * These operations permute the rows or columns of a matrix based on
@@ -882,36 +850,6 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector1 &vectorAxpyin (Vector1 &y, const Matrix &A, const Vector2 &x) const
 		{ return gemv (MatrixDomainSupport<Field>::_one, A, x, MatrixDomainSupport<Field>::_one, y); }
-
-	/** Matrix-black box left-multiply
-	 * C <- A * B
-	 *
-	 * Both C and B must support column iterators
-	 *
-	 * @param C Output matrix
-	 * @param A Black box for A
-	 * @param B Matrix B
-	 *
-	 * Interface obsolete; use \ref MatrixDomainSupport::gebmm instead
-	 */
-	template <class Matrix1, class Blackbox, class Matrix2>
-	inline Matrix1 &blackboxMulLeft (Matrix1 &C, const Blackbox &A, const Matrix2 &B) const
-		{ return gebmm (C, A, B); }
-
-	/** Matrix-black box right-multiply
-	 * C <- A * B
-	 *
-	 * Both C and A must support row iterators
-	 *
-	 * @param C Output matrix
-	 * @param A Matrix A
-	 * @param B Black box for B
-	 *
-	 * Interface obsolete; use \ref MatrixDomainSupport::gembm instead
-	 */
-	template <class Matrix1, class Matrix2, class Blackbox>
-	inline Matrix1 &blackboxMulRight (Matrix1 &C, const Matrix2 &A, const Blackbox &B) const
-		{ return gembm (C, A, B); }
 
 	/*? @name Obsolete functions
 	 *
