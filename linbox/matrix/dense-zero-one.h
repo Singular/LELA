@@ -123,7 +123,7 @@ class DenseZeroOneMatrix
 	 * @param F Field over which to write
 	 */
 	template <class Field>
-	std::ostream &write (std::ostream &os, const Field &F) const;
+	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const;
 
 	/** Set the entry at the (i, j) position to a_ij.
 	 * @param i Row number, 0...rowdim () - 1

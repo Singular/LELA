@@ -374,7 +374,11 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, Trait>
 		break;
 
 	    case FORMAT_MAPLE:
+	    case FORMAT_SAGE:
 		F.init (zero, 0);
+
+		if (format == FORMAT_SAGE)
+			os << "matrix(R,";
 
 		os << "[";
                 firstrow=true;
@@ -404,6 +408,9 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, Trait>
 		}
 
 		os << "]";
+
+		if (format == FORMAT_SAGE)
+			os << ")";
 
 		break;
 

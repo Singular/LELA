@@ -437,7 +437,7 @@ std::istream &DenseMatrix<Element>::read (std::istream &file, const Field &F)
   
 template <class Element>
 template <class Field>
-std::ostream& DenseMatrix<Element>::write (std::ostream &os, const Field &F) const
+std::ostream& DenseMatrix<Element>::write (std::ostream &os, const Field &F, FileFormatTag format) const
 {
 
 	integer c;

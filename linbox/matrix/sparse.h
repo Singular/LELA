@@ -80,12 +80,6 @@ class FieldIO
 		{ return stream << elt; }
 };
 
-// made global to avoid duplicate code. 
-/// tags for SparseMatrix::read() and write()
-enum FileFormatTag {
-	FORMAT_DETECT, FORMAT_GUILLAUME, FORMAT_TURNER, FORMAT_MATLAB, FORMAT_MAPLE, FORMAT_PRETTY, FORMAT_MAGMACPT, FORMAT_ONE_BASED
-};
-
 // Forward declaration
 template <class _Element,
 	  class _Row   = typename RawVector<_Element>::Sparse,

@@ -491,37 +491,54 @@ std::istream& Submatrix<Matrix, Trait>::read (std::istream &file, const Field& f
 
 template <class Matrix, class Trait>
 template <class Field>
-std::ostream &Submatrix<Matrix, Trait>::write (std::ostream &os, const Field& field, bool mapleFormat) const
+std::ostream &Submatrix<Matrix, Trait>::write (std::ostream &os, const Field& field, FileFormatTag format) const
 {
 	ConstRowIterator p;
 
 	typename ConstRow::const_iterator pe;
 
-	if (mapleFormat) os << "[";
+	if (format == FORMAT_MAPLE)
+		os << "[";
+	else if (format == FORMAT_SAGE)
+		os << "matrix(R,[" << std::endl;
 
 	for (p = rowBegin (); p != rowEnd (); ++p) {
-		if (mapleFormat && (p != rowBegin()))
-			os << ',';
-		if (mapleFormat) os << "[";
+		if (format == FORMAT_MAPLE) {
+			if (p != rowBegin())
+				os << ',';
+			os << "[";
+		}
+		else
+			os << "  [ ";
 
 		for (pe = (*p).begin (); pe != (*p).end (); ++pe) {
-			if (mapleFormat && (pe != (*p).begin()))
+			if (format == FORMAT_MAPLE && (pe != (*p).begin()))
 				os << ',';
 
-			if (field.isZero (*pe))
+			if (format == FORMAT_PRETTY && field.isZero (*pe))
 				os << '.';
 			else
 				field.write(os, *pe);
 
-			os << " ";
+			if (format == FORMAT_PRETTY)
+				os << " ";
+			else if (format == FORMAT_SAGE && pe + 1 != p->end ())
+				os << ", ";
 		}
 
-		if (!mapleFormat)
-			os << std::endl;
-		else os << ']';
+		if (format == FORMAT_PRETTY)
+			os << "]" << std::endl;
+		else if (format == FORMAT_SAGE) {
+			if (p + 1 != rowEnd ())
+				os << "]," << std::endl;
+			else
+				os << "] ])" << std::endl;
+		}
 	}
 
-	if (mapleFormat) os << ']';
+	if (format == FORMAT_MAPLE)
+		os << ']';
+
 	os << std::endl;
 
 	return os;

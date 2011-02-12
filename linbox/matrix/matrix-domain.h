@@ -565,6 +565,11 @@ class MatrixDomainSupport : public MatrixDomainSupportGeneric<Field>
 	MatrixDomainSupport (const Field &F) : MatrixDomainSupportGeneric<Field> (F) {}
 };
 
+/// File-formats for matrix-output
+enum FileFormatTag {
+	FORMAT_DETECT, FORMAT_GUILLAUME, FORMAT_TURNER, FORMAT_MATLAB, FORMAT_MAPLE, FORMAT_PRETTY, FORMAT_MAGMACPT, FORMAT_ONE_BASED, FORMAT_SAGE
+};
+
 /** \brief Class of matrix arithmetic functions
  *
  * This class encapuslated matrix-matrix and matrix-vector operations, roughly
@@ -621,8 +626,8 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 	 * @returns reference to os.
 	 */
 	template <class Matrix>
-	inline std::ostream &write (std::ostream &os, const Matrix &A) const
-		{ return A.write (os, MatrixDomainSupport<Field>::_F); }
+	inline std::ostream &write (std::ostream &os, const Matrix &A, FileFormatTag format = FORMAT_PRETTY) const
+		{ return A.write (os, MatrixDomainSupport<Field>::_F, format); }
 
 	/** Read matrix
 	 * @param  is  Input stream from which matrix is read.

@@ -186,7 +186,7 @@ class Submatrix
 	 * @param field
 	 */
 	template<class Field>
-	std::ostream& write (std::ostream &os, const Field& field, bool mapleFormat = false) const;
+	std::ostream& write (std::ostream &os, const Field& field, FileFormatTag format = FORMAT_PRETTY) const;
 	
 	/** Set the entry at (i, j)
 	 * @param i Row number, 0...rowdim () - 1
