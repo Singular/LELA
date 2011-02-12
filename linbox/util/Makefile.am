@@ -23,7 +23,6 @@ pkgincludesub_HEADERS=\
 	commentator.h 			\
 	contracts.h 			\
 	timer.h				\
-	prime-stream.h			\
 	field-axpy.h			\
 	matrix-stream.h			\
 	matrix-stream.inl
