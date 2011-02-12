@@ -99,7 +99,7 @@ namespace F4 {
 		png_infop info_ptr, end_ptr;
 		png_bytepp row_pointers;
 
-		size_t width, height;
+		png_uint_32 width, height;
 		int bit_depth, colour_type, filter_method, compression_type, interlace_type;
 
 		FILE *F = fopen (filename, "rb");
