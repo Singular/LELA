@@ -233,6 +233,8 @@ class BitSubvectorConstWordIterator {
 		: _v (&v), _pos (pos), _ref_valid (false) {}
 	BitSubvectorConstWordIterator (const BitSubvectorConstWordIterator<Iterator, ConstIterator>  &i)
 		: _v (i._v), _pos (i._pos), _word (i._word), _ref_valid (i._ref_valid) {}
+	BitSubvectorConstWordIterator (const BitSubvectorWordIterator<Iterator, ConstIterator>  &i)
+		: _v (i._v), _pos (i._ref._pos), _ref_valid (false) {}
 
 	BitSubvectorConstWordIterator<Iterator, ConstIterator> &operator = (const BitSubvectorConstWordIterator<Iterator, ConstIterator>  &i) {
 		_v = i._v;
