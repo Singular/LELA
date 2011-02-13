@@ -30,15 +30,10 @@ word connect (word word1, word word2, int shift)
 
 // To be tested:
 //  - Termination of word-iterator (gets right number of words at all offsets, all bit-lengths modulo __LINBOX_BITSOF_LONG)
-//  - Bit-vector doesn't end at word-boundary - correct masking
-//  - BIt-subvector doesn't have length which is multiple of word-length
 
-void testConstIterator ()
+int testConstIterator (int n, int k)
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
-
-	const int n = 256;
-	const int k = 128;
 
 	BitVector<> v (n);
 
@@ -64,20 +59,19 @@ void testConstIterator ()
 				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
 				std::cerr << __FUNCTION__ << ": Pattern should be " << std::hex << check << std::endl;
 				std::cerr << __FUNCTION__ << ": Detected " << std::hex << *i << std::endl;
-				return;
+				return -1;
 			}
 		}
 	}
 
 	std::cout << __FUNCTION__ << ": done" << std::endl;
+
+	return 0;
 }
 
-void testIterator ()
+int testIterator (int n, int k)
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
-
-	const int n = 256;
-	const int k = 128;
 
 	BitVector<> v (n);
 
@@ -103,7 +97,7 @@ void testIterator ()
 				std::cerr << __FUNCTION__ << ": word_iterator and const_word_iterator don't agree" << std::endl;
 				std::cerr << __FUNCTION__ << ": word_iterator: " << std::hex << *i << std::endl;
 				std::cerr << __FUNCTION__ << ": const_word_iterator: " << std::hex << *j << std::endl;
-				return;
+				return -1;
 			}
 
 			word val = *j;
@@ -114,7 +108,7 @@ void testIterator ()
 				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
 				std::cerr << __FUNCTION__ << ": Pattern should be 0 after clearing" << std::endl;
 				std::cerr << __FUNCTION__ << ": Detected " << std::hex << *j << std::endl;
-				return;
+				return -1;
 			}
 
 			*i ^= val;
@@ -122,12 +116,75 @@ void testIterator ()
 	}
 
 	std::cout << __FUNCTION__ << ": done" << std::endl;
+
+	return 0;
+}
+
+int testWordLength (int n, int k)
+{
+	std::cout << __FUNCTION__ << ": Enter" << std::endl;
+
+	BitVector<> v (n);
+
+	BitVector<>::word_iterator w;
+	unsigned int flip = 0;
+	
+	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
+		*w = pattern[flip];
+
+	size_t offset;
+
+	size_t correct_len = k / __LINBOX_BITSOF_LONG;
+
+	if (k % __LINBOX_BITSOF_LONG != 0)
+		++correct_len;
+	
+	for (offset = 0; offset <= n - k; ++offset) {
+		BitSubvector<BitVector<>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
+
+		BitSubvector<BitVector<>::iterator>::word_iterator i;
+		BitSubvector<BitVector<>::iterator>::const_word_iterator j;
+
+		size_t len;
+
+		for (i = vp.wordBegin (), len = 0; i != vp.wordEnd (); ++i, ++len);
+		
+		if (len != correct_len) {
+			std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
+			std::cerr << __FUNCTION__ << ": length for word_iterator should be " << correct_len << std::endl;
+			std::cerr << __FUNCTION__ << ": but computed " << len << std::endl;
+		}
+
+		for (j = vp.wordBegin (), len = 0; j != vp.wordEnd (); ++j, ++len);
+		
+		if (len != correct_len) {
+			std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
+			std::cerr << __FUNCTION__ << ": length for const_word_iterator should be " << correct_len << std::endl;
+			std::cerr << __FUNCTION__ << ": but computed " << len << std::endl;
+		}
+	}
+
+	std::cout << __FUNCTION__ << ": done" << std::endl;
+
+	return 0;
+}
+
+void runTests () 
+{
+	int n, k;
+	
+	for (n = 256; n < 256 + __LINBOX_BITSOF_LONG; ++n) {
+		for (k = 128; k < 128 + __LINBOX_BITSOF_LONG; ++k) {
+			std::cout << __FUNCTION__ << ": Running tests for main vector-length " << n << ", subvector-length " << k << std::endl;
+			if (testWordLength (n, k) == -1 || testConstIterator (n, k) == -1 || testIterator (n, k) == -1)
+				return;
+		}
+	}
 }
 
 } // namespace F4Tests
 
 int main (int argc, char **argv)
 {
-	F4Tests::testConstIterator ();
-	F4Tests::testIterator ();
+	F4Tests::runTests ();
 }
