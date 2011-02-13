@@ -343,7 +343,7 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	std::istream& read (std::istream &file, const Field& field);
     
 	template<class Field>
-	std::ostream& write (std::ostream &os, const Field& field, bool mapleFormat = false) const;
+	std::ostream& write (std::ostream &os, const Field& field, FileFormatTag format = FORMAT_PRETTY) const;
 	
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _M->setEntry (_beg_row + i, _beg_col + j, a_ij); }
