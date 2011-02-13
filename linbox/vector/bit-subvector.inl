@@ -242,6 +242,13 @@ class BitSubvectorConstWordIterator {
 		return *this;
 	}
 
+	BitSubvectorConstWordIterator<Iterator, ConstIterator> &operator = (const BitSubvectorWordIterator<Iterator, ConstIterator>  &i) {
+		_v = i._v;
+		_pos = i._ref._pos;
+		_ref_valid = false;
+		return *this;
+	}
+
 	BitSubvectorConstWordIterator<Iterator, ConstIterator> &operator ++ () 
 	{
 		++_pos;

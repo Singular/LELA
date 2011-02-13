@@ -1,97 +1,133 @@
 /* -*- mode: c++;-*-
  * test-bit-subvector.C
- * Test for subvector of a bit-vector
+ * Tests for BitSubvector
  * Written by Bradford Hovinen <hovinen@gmail.com>
- * Copyright 2010 Bradford Hovinen
+ * Copyright 2011 Bradford Hovinen
  *
  * This file is licensed under the terms of the GNU General Public
  * License version 2.0 or greater
  */
 
-#include <cmath>
-
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/bit-subvector.h"
 
+namespace F4Tests {
+
 using namespace LinBox;
 
-typedef BitVector<>::word_iterator::value_type Word;
+typedef __LINBOX_BITVECTOR_WORD_TYPE word;
 
-void sieve (BitVector<> &vec, int offset) {
-	int p, m;
+static const word pattern[2] = { 0xf0f0f0f0f0f0f0f0ULL, 0xaaaaaaaaaaaaaaaaULL };
 
-	BitVector<>::iterator i;
+template <class Endianness>
+word connect (word word1, word word2, int shift) 
+{
+	if (shift == 0)
+		return word1;
+	else
+		return Endianness::shift_left (word1, shift) | Endianness::shift_right (word2, __LINBOX_BITSOF_LONG - shift);
+}
 
-	for (i = vec.begin (); i != vec.end (); ++i)
-		*i = true;
+// To be tested:
+//  - Termination of word-iterator (gets right number of words at all offsets, all bit-lengths modulo __LINBOX_BITSOF_LONG)
+//  - Bit-vector doesn't end at word-boundary - correct masking
+//  - BIt-subvector doesn't have length which is multiple of word-length
 
-	if (offset < 1)
-		vec[-offset] = false;
-	if (offset < 2)
-		vec[1-offset] = false;
+void testConstIterator ()
+{
+	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	for (p = 2; p < sqrt (vec.size () + offset) + 1; ++p) {
-		if (p < offset || vec[p - offset]) {
-			for (m = 2 * p; m < vec.size () + offset; m += p) {
-				if (m >= offset)
-					vec[m - offset] = false;
+	const int n = 256;
+	const int k = 128;
+
+	BitVector<> v (n);
+
+	BitVector<>::word_iterator w;
+	unsigned int flip = 0;
+	
+	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
+		*w = pattern[flip];
+
+	size_t offset;
+	
+	for (offset = 0; offset <= n - k; ++offset) {
+		BitSubvector<BitVector<>::const_iterator> vp (v.begin () + offset, v.begin () + (offset + k));
+
+		BitSubvector<BitVector<>::const_iterator>::const_word_iterator i;
+
+		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
+				
+		for (i = vp.wordBegin (); i != vp.wordEnd (); ++i, flip = 1 - flip) {
+			word check = connect<BitVector<>::Endianness> (pattern[flip], pattern[1-flip], offset % __LINBOX_BITSOF_LONG);
+			
+			if (*i != check) {
+				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
+				std::cerr << __FUNCTION__ << ": Pattern should be " << std::hex << check << std::endl;
+				std::cerr << __FUNCTION__ << ": Detected " << std::hex << *i << std::endl;
+				return;
 			}
 		}
 	}
+
+	std::cout << __FUNCTION__ << ": done" << std::endl;
 }
 
-bool testSubvectorWordIterator ()
+void testIterator ()
 {
-	BitVector<> u, v;
-	BitSubvector<BitVector<>::iterator> w;
-	Word t;
-	bool fail = false;
+	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	int i;
+	const int n = 256;
+	const int k = 128;
 
-	std::cout << "Testing subvector word-iterator..." << std::endl;
+	BitVector<> v (n);
 
-	u.resize (2 * 8 * sizeof (Word));
-	v.resize (1 * 8 * sizeof (Word));
+	BitVector<>::word_iterator w;
+	unsigned int flip = 0;
+	
+	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
+		*w = pattern[flip];
 
-	for (i = 0; i < 1 * 8 * sizeof (Word); ++i) {
-		std::cout << "Testing subvector offset " << i << "...";
-		std::cout.flush ();
+	size_t offset;
+	
+	for (offset = 0; offset <= n - k; ++offset) {
+		BitSubvector<BitVector<>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
 
-		sieve (u, 0);
-		sieve (v, i);
-		w = BitSubvector<BitVector<>::iterator> (u.begin () + i, u.begin () + i + v.size ());
+		BitSubvector<BitVector<>::iterator>::word_iterator i;
+		BitSubvector<BitVector<>::iterator>::const_word_iterator j;
 
-		if (*(u.wordBegin ()) == 0ULL) {
-			std::cout << std::endl << "Error: sieved vector u is zero" << std::endl;
-			fail = true;
+		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
+				
+		for (i = vp.wordBegin (), j = vp.wordBegin (); i != vp.wordEnd (); ++i, ++j, flip = 1 - flip) {
+			if (*j != *i) {
+				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
+				std::cerr << __FUNCTION__ << ": word_iterator and const_word_iterator don't agree" << std::endl;
+				std::cerr << __FUNCTION__ << ": word_iterator: " << std::hex << *i << std::endl;
+				std::cerr << __FUNCTION__ << ": const_word_iterator: " << std::hex << *j << std::endl;
+				return;
+			}
+
+			word val = *j;
+			
+			*i ^= val;
+			
+			if (*j != 0) {
+				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
+				std::cerr << __FUNCTION__ << ": Pattern should be 0 after clearing" << std::endl;
+				std::cerr << __FUNCTION__ << ": Detected " << std::hex << *j << std::endl;
+				return;
+			}
+
+			*i ^= val;
 		}
-
-		if (*(v.wordBegin ()) == 0ULL) {
-			std::cout << std::endl << "Error: sieved vector v is zero" << std::endl;
-			fail = true;
-		}
-
-		if (*(w.wordBegin ()) != *(v.wordBegin ())) {
-			std::cout << std::endl << "Error: subvector word is " << std::hex << *(w.wordBegin ()) << " but should be " << std::hex << *(v.wordBegin ()) << std::endl;
-			fail = true;
-		}
-
-		*(w.wordBegin ()) ^= *(v.wordBegin ());
-
-		if (*(w.wordBegin ()) != 0) {
-			std::cout << std::endl << "Error: after xor, subvector word is " << std::hex << *(w.wordBegin ()) << " but should be 0" << std::endl;
-			fail = true;
-		}
-
-		if (!fail)
-			std::cout << "passed" << std::endl;
 	}
 
-	std::cout << "Finished testing subvector word-iterator" << std::endl;
+	std::cout << __FUNCTION__ << ": done" << std::endl;
 }
+
+} // namespace F4Tests
 
 int main (int argc, char **argv)
 {
-	testSubvectorWordIterator ();
+	F4Tests::testConstIterator ();
+	F4Tests::testIterator ();
 }
