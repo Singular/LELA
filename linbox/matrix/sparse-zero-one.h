@@ -436,6 +436,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 	typename Row::first_type::const_iterator j_idx;
 	typename Row::second_type::const_word_iterator j_elt;
 	typename Field::Element zero;
+	typedef typename Row::second_type::Endianness Endianness;
 	size_t i_idx, j_idx_1, col_idx;
 	//int col_width;
 	integer c;
@@ -463,7 +464,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			     j_idx != i->first.end ();
 			     ++j_idx, ++j_elt)
 			{
-				for (t = 0, mask = 1; mask != 0; mask <<= 1, ++t) {
+				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
 					if (*j_elt & mask) {
 						os << i_idx << ' ' << *j_idx + t << ' ';
 						F.write (os, one) << std::endl;
@@ -480,7 +481,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			     j_idx != i->first.end ();
 			     ++j_idx, ++j_elt)
 			{
-				for (t = 0, mask = 1; mask != 0; mask <<= 1, ++t) {
+				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
 					if (*j_elt & mask) {
 						os << i_idx + 1 << ' ' << *j_idx + t + 1 << ' ';
 						F.write (os, one) << std::endl;
@@ -499,7 +500,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			     j_idx != i->first.end ();
 			     ++j_idx, ++j_elt)
 			{
-				for (t = 0, mask = 1; mask != 0; mask <<= 1, ++t) {
+				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
 					if (*j_elt & mask) {
 						os << i_idx + 1 << ' ' << *j_idx + t + 1 << ' ';
 						F.write (os, one) << std::endl;
@@ -528,12 +529,12 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			j_idx = i->first.begin ();
 			j_elt = i->second.wordBegin ();
 
-			mask = 1;
+			mask = Endianness::e_0;
 			t = 0;
 
 			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
 				if (mask == 0 && j_idx != i->first.end ()) {
-					mask = 1;
+					mask = Endianness::e_0;
 					t = 8 * sizeof (typename Row::second_type::word_iterator::value_type);
 
 					if (*j_idx < t) {
@@ -550,7 +551,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 				if (j_idx_1 < A._n - 1)
 					os << ", ";
 
-				mask <<= 1;
+				mask = Endianness::shift_right (mask, 1);
 			}
 
 			os << "]";
@@ -569,12 +570,12 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			j_idx = i->first.begin ();
 			j_elt = i->second.wordBegin ();
 
-			mask = 1;
+			mask = Endianness::e_0;
 			t = 0;
 
 			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
 				if (mask == 0 && j_idx != i->first.end ()) {
-					mask = 1;
+					mask = Endianness::e_0;
 					t += 8 * sizeof (typename Row::second_type::word_iterator::value_type);
 
 					if (*j_idx < t) {
@@ -591,7 +592,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 				if (j_idx_1 < A._n - 1)
 					os << ", ";
 
-				mask <<= 1;
+				mask = Endianness::shift_right (mask, 1);
 			}
 
 			os << "; ";
@@ -608,12 +609,12 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			j_idx = i->first.begin ();
 			j_elt = i->second.wordBegin ();
 
-			mask = 1;
+			mask = Endianness::e_0;
 			t = 0;
 
 			for (col_idx = 0; col_idx < A._n; col_idx++) {
 				if (mask == 0 && j_idx != i->first.end ()) {
-					mask = 1;
+					mask = Endianness::e_0;
 					t += 8 * sizeof (typename Row::second_type::word_iterator::value_type);
 
 					if (*j_idx < t) {
@@ -629,10 +630,52 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 
 				os << ' ';
 
-				mask <<= 1;
+				mask = Endianness::shift_right (mask, 1);
 			}
 
 			os << ']' << std::endl;
+		}
+
+		break;
+
+	    case FORMAT_SAGE:
+	        os << "matrix(R,[" << std::endl;
+
+		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
+			os << "  [ ";
+
+			j_idx = i->first.begin ();
+			j_elt = i->second.wordBegin ();
+
+			mask = Endianness::e_0;
+			t = 0;
+
+			for (col_idx = 0; col_idx < A._n; col_idx++) {
+				if (mask == 0 && j_idx != i->first.end ()) {
+					mask = Endianness::e_0;
+					t += 8 * sizeof (typename Row::second_type::word_iterator::value_type);
+
+					if (*j_idx < t) {
+						++j_idx;
+						++j_elt;
+					}
+				}
+
+				if (j_idx == i->first.end () || t != *j_idx || !(*j_elt & mask))
+					os << '.';
+				else
+					F.write (os, one);
+
+				if (col_idx < A._n - 1)
+					os << ", ";
+
+				mask = Endianness::shift_right (mask, 1);
+			}
+
+			if (i_idx < A._m - 1)
+				os << "]," << std::endl;
+			else
+				os << "] ])" << std::endl;
 		}
 
 		break;
