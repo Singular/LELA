@@ -29,7 +29,7 @@ word connect (word word1, word word2, int shift)
 }
 
 // To be tested:
-//  - mask set correctly; bit-vector outside of subvector is not modified
+//  - Bits before subvector not touched when subvector modified
 
 int testConstIterator (int n, int k)
 {
@@ -51,9 +51,14 @@ int testConstIterator (int n, int k)
 		BitSubvector<BitVector<>::const_iterator>::const_word_iterator i;
 
 		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
+
+		size_t idx = 0;
 				
-		for (i = vp.wordBegin (); i != vp.wordEnd (); ++i, flip = 1 - flip) {
+		for (i = vp.wordBegin (); i != vp.wordEnd (); ++i, flip = 1 - flip, idx += __LINBOX_BITSOF_LONG) {
 			word check = connect<BitVector<>::Endianness> (pattern[flip], pattern[1-flip], offset % __LINBOX_BITSOF_LONG);
+
+			if (idx + __LINBOX_BITSOF_LONG > k)
+				check &= BitVector<>::Endianness::mask_left (k % __LINBOX_BITSOF_LONG);
 			
 			if (*i != check) {
 				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
@@ -87,11 +92,11 @@ int testIterator (int n, int k)
 		BitSubvector<BitVector<>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
 
 		BitSubvector<BitVector<>::iterator>::word_iterator i;
-		BitSubvector<BitVector<>::iterator>::const_word_iterator j;
+		BitSubvector<BitVector<>::iterator>::const_word_iterator j, k;
 
 		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
 				
-		for (i = vp.wordBegin (), j = vp.wordBegin (); i != vp.wordEnd (); ++i, ++j, flip = 1 - flip) {
+		for (i = vp.wordBegin (), j = vp.wordBegin (), k = vp.wordBegin (); i != vp.wordEnd (); ++i, ++j, ++k, flip = 1 - flip) {
 			if (*j != *i) {
 				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
 				std::cerr << __FUNCTION__ << ": word_iterator and const_word_iterator don't agree" << std::endl;
@@ -104,10 +109,10 @@ int testIterator (int n, int k)
 			
 			*i ^= val;
 			
-			if (*j != 0) {
+			if (*k != 0) {
 				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
 				std::cerr << __FUNCTION__ << ": Pattern should be 0 after clearing" << std::endl;
-				std::cerr << __FUNCTION__ << ": Detected " << std::hex << *j << std::endl;
+				std::cerr << __FUNCTION__ << ": Detected " << std::hex << *k << std::endl;
 				return -1;
 			}
 
@@ -146,7 +151,12 @@ int testMask ()
 
 		*i ^= pattern[0];
 
-		word check = connect<BitVector<>::Endianness> (pattern[0], pattern[1], offset % __LINBOX_BITSOF_LONG);
+		if (k + offset >= __LINBOX_BITSOF_LONG)
+			flip = 1;
+		else
+			flip = 0;
+
+		word check = connect<BitVector<>::Endianness> (pattern[flip], pattern[1 - flip], (k + offset) % __LINBOX_BITSOF_LONG);
 
 		if (*j != check) {
 			std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
