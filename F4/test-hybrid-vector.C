@@ -14,7 +14,8 @@
 using namespace LinBox;
 
 typedef GF2 Field;
-typedef RawVector<Field::Element>::Hybrid HybridVector;
+typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
+typedef std::pair<std::vector<uint16>, BitVector<Endianness> > HybridVector;
 typedef HybridVector::second_type::word_iterator::value_type Word;
 
 bool testAdd ()
@@ -246,18 +247,18 @@ void testFirstNonzeroEntry ()
 
 	bool a;
 
-	typedef RawVector<bool>::Hybrid::second_type::word_iterator::value_type Word;
+	typedef HybridVector::second_type::word_iterator::value_type Word;
 
-	RawVector<bool>::Hybrid v;
+	HybridVector v;
 
 	int idx;
 
-	v.first.push_back (2 * 8 * sizeof (Word));
-	v.second.push_word_back (1);
+	v.first.push_back (2 * __LINBOX_BITSOF_LONG);
+	v.second.push_word_back (Endianness::e_0);
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 2 * 8 * sizeof (Word))
+	if (idx == 2 * __LINBOX_BITSOF_LONG)
 		std::cout << "Test 1 okay" << std::endl;
 	else
 		std::cout << "Test 1 not okay: VD.firstNonzeroEntry (a, v) = " << idx
@@ -266,12 +267,12 @@ void testFirstNonzeroEntry ()
 	v.first.clear ();
 	v.second.clear ();
 
-	v.first.push_back (2 * 8 * sizeof (Word));
-	v.second.push_word_back (1 << 16);
+	v.first.push_back (2 * __LINBOX_BITSOF_LONG);
+	v.second.push_word_back (Endianness::e_j (16));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 2 * 8 * sizeof (Word) + 16)
+	if (idx == 2 * __LINBOX_BITSOF_LONG + 16)
 		std::cout << "Test 2 okay" << std::endl;
 	else
 		std::cout << "Test 2 not okay: VD.firstNonzeroEntry (a, v) = " << idx
@@ -280,12 +281,12 @@ void testFirstNonzeroEntry ()
 	v.first.clear ();
 	v.second.clear ();
 
-	v.first.push_back (3 * 8 * sizeof (Word));
-	v.second.push_word_back (((Word) 1) << (8 * sizeof (Word) - 1));
+	v.first.push_back (3 * __LINBOX_BITSOF_LONG);
+	v.second.push_word_back (Endianness::e_j (__LINBOX_BITSOF_LONG - 1));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 3 * 8 * sizeof (Word) + (8 * sizeof (Word) - 1))
+	if (idx == 3 * __LINBOX_BITSOF_LONG + (__LINBOX_BITSOF_LONG - 1))
 		std::cout << "Test 3 okay" << std::endl;
 	else
 		std::cout << "Test 3 not okay: VD.firstNonzeroEntry (a, v) = " << idx
