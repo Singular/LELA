@@ -17,9 +17,10 @@ using namespace LinBox;
 
 typedef __LINBOX_BITVECTOR_WORD_TYPE word;
 
+typedef BigEndian<word> Endianness;
+
 static const word pattern[2] = { 0xf0f0f0f0f0f0f0f0ULL, 0xaaaaaaaaaaaaaaaaULL };
 
-template <class Endianness>
 word connect (word word1, word word2, int shift) 
 {
 	if (shift == 0)
@@ -35,9 +36,9 @@ int testConstIterator (int n, int k)
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	BitVector<> v (n);
+	BitVector<Endianness> v (n);
 
-	BitVector<>::word_iterator w;
+	BitVector<Endianness>::word_iterator w;
 	unsigned int flip = 0;
 	
 	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
@@ -46,19 +47,19 @@ int testConstIterator (int n, int k)
 	size_t offset;
 	
 	for (offset = 0; offset <= n - k; ++offset) {
-		BitSubvector<BitVector<>::const_iterator> vp (v.begin () + offset, v.begin () + (offset + k));
+		BitSubvector<BitVector<Endianness>::const_iterator> vp (v.begin () + offset, v.begin () + (offset + k));
 
-		BitSubvector<BitVector<>::const_iterator>::const_word_iterator i;
+		BitSubvector<BitVector<Endianness>::const_iterator>::const_word_iterator i;
 
 		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
 
 		size_t idx = 0;
 				
 		for (i = vp.wordBegin (); i != vp.wordEnd (); ++i, flip = 1 - flip, idx += __LINBOX_BITSOF_LONG) {
-			word check = connect<BitVector<>::Endianness> (pattern[flip], pattern[1-flip], offset % __LINBOX_BITSOF_LONG);
+			word check = connect (pattern[flip], pattern[1-flip], offset % __LINBOX_BITSOF_LONG);
 
 			if (idx + __LINBOX_BITSOF_LONG > k)
-				check &= BitVector<>::Endianness::mask_left (k % __LINBOX_BITSOF_LONG);
+				check &= Endianness::mask_left (k % __LINBOX_BITSOF_LONG);
 			
 			if (*i != check) {
 				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
@@ -78,9 +79,9 @@ int testIterator (int n, int k)
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	BitVector<> v (n);
+	BitVector<Endianness> v (n);
 
-	BitVector<>::word_iterator w;
+	BitVector<Endianness>::word_iterator w;
 	unsigned int flip = 0;
 	
 	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
@@ -89,10 +90,10 @@ int testIterator (int n, int k)
 	size_t offset;
 	
 	for (offset = 0; offset <= n - k; ++offset) {
-		BitSubvector<BitVector<>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
+		BitSubvector<BitVector<Endianness>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
 
-		BitSubvector<BitVector<>::iterator>::word_iterator i;
-		BitSubvector<BitVector<>::iterator>::const_word_iterator j, k;
+		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i;
+		BitSubvector<BitVector<Endianness>::iterator>::const_word_iterator j, k;
 
 		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
 				
@@ -132,9 +133,9 @@ int testMask ()
 	static const int n = 3 * __LINBOX_BITSOF_LONG;
 	static const int k = 16;
 
-	BitVector<> v (n);
+	BitVector<Endianness> v (n);
 
-	BitVector<>::word_iterator w;
+	BitVector<Endianness>::word_iterator w;
 	unsigned int flip = 0;
 	
 	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
@@ -143,11 +144,11 @@ int testMask ()
 	size_t offset;
 	
 	for (offset = 0; offset < __LINBOX_BITSOF_LONG; ++offset) {
-		BitSubvector<BitVector<>::iterator> vp1 (v.begin () + offset, v.begin () + (offset + k));
-		BitSubvector<BitVector<>::const_iterator> vp2 (v.begin () + offset + k, v.begin () + (offset + k + __LINBOX_BITSOF_LONG));
+		BitSubvector<BitVector<Endianness>::iterator> vp1 (v.begin () + offset, v.begin () + (offset + k));
+		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset + k, v.begin () + (offset + k + __LINBOX_BITSOF_LONG));
 
-		BitSubvector<BitVector<>::iterator>::word_iterator i = vp1.wordBegin ();
-		BitSubvector<BitVector<>::const_iterator>::const_word_iterator j = vp2.wordBegin ();
+		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i = vp1.wordBegin ();
+		BitSubvector<BitVector<Endianness>::const_iterator>::const_word_iterator j = vp2.wordBegin ();
 
 		*i ^= pattern[0];
 
@@ -156,7 +157,7 @@ int testMask ()
 		else
 			flip = 0;
 
-		word check = connect<BitVector<>::Endianness> (pattern[flip], pattern[1 - flip], (k + offset) % __LINBOX_BITSOF_LONG);
+		word check = connect (pattern[flip], pattern[1 - flip], (k + offset) % __LINBOX_BITSOF_LONG);
 
 		if (*j != check) {
 			std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
@@ -175,9 +176,9 @@ int testWordLength (int n, int k)
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	BitVector<> v (n);
+	BitVector<Endianness> v (n);
 
-	BitVector<>::word_iterator w;
+	BitVector<Endianness>::word_iterator w;
 	unsigned int flip = 0;
 	
 	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
@@ -191,10 +192,10 @@ int testWordLength (int n, int k)
 		++correct_len;
 	
 	for (offset = 0; offset <= n - k; ++offset) {
-		BitSubvector<BitVector<>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
+		BitSubvector<BitVector<Endianness>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
 
-		BitSubvector<BitVector<>::iterator>::word_iterator i;
-		BitSubvector<BitVector<>::iterator>::const_word_iterator j;
+		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i;
+		BitSubvector<BitVector<Endianness>::iterator>::const_word_iterator j;
 
 		size_t len;
 
