@@ -101,9 +101,9 @@ public:
 	static inline word first_position (word w) {
 		word v = e_0;
 
-		while (v && !(w & v)) w >>= 1;
+		while (v && !(w & v)) v >>= 1;
 
-		return w;
+		return v;
 	}
 
 	// Return e_j
