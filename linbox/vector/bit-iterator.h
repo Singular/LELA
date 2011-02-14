@@ -92,10 +92,10 @@ public:
 	static inline word shift_left (word w, uint8 pos) { return w << pos; }
 
 	// Return a word with all positions from pos onwards set to one and the rest set to zero
-	static inline word mask_right (uint8 pos) { return ((e_0 >> pos) - 1); }
+	static inline word mask_right (uint8 pos) { return (((e_0 >> pos) << 1) - 1); }
 
 	// Return a word with all positions up to and not including pos set to one and the rest set to zero
-	static inline word mask_left (uint8 pos) { return ~((e_0 >> pos) - 1); }
+	static inline word mask_left (uint8 pos) { return ~(((e_0 >> pos) << 1) - 1); }
 
 	// Return a word with only the bit at the lowest position of the input word set
 	static inline word first_position (word w) {
