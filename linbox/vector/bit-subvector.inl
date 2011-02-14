@@ -23,18 +23,18 @@ namespace std
 		typedef random_access_iterator_tag iterator_category;
 		typedef typename LinBox::BitSubvector<Iterator, ConstIterator>::word_reference reference;
 		typedef typename LinBox::BitSubvector<Iterator, ConstIterator>::word_reference *pointer;
-		typedef typename Iterator::word_iterator::value_type value_type;
-		typedef typename Iterator::word_iterator::difference_type difference_type;
+		typedef typename std::iterator_traits<typename Iterator::word_iterator>::value_type value_type;
+		typedef typename std::iterator_traits<typename Iterator::word_iterator>::difference_type difference_type;
 	};
 
 	template <class Iterator, class ConstIterator>
 	struct iterator_traits<LinBox::BitSubvectorConstWordIterator<Iterator, ConstIterator> >
 	{
 		typedef random_access_iterator_tag iterator_category;
-		typedef typename ConstIterator::const_word_iterator::value_type &reference;
-		typedef typename ConstIterator::const_word_iterator::value_type *pointer;
-		typedef typename ConstIterator::const_word_iterator::value_type value_type;
-		typedef typename ConstIterator::const_word_iterator::difference_type difference_type;
+		typedef typename std::iterator_traits<typename ConstIterator::const_word_iterator>::value_type &reference;
+		typedef typename std::iterator_traits<typename ConstIterator::const_word_iterator>::value_type *pointer;
+		typedef typename std::iterator_traits<typename ConstIterator::const_word_iterator>::value_type value_type;
+		typedef typename std::iterator_traits<typename ConstIterator::const_word_iterator>::difference_type difference_type;
 	};
 }
 

@@ -203,17 +203,17 @@ class DenseZeroOneMatrix
 	Iterator _begin;
 };
 
-template <class Iterator, class ConstIterator>
-struct MatrixTraits< DenseZeroOneMatrix<Iterator, ConstIterator> >
+template <class Iterator, class ConstIterator, class Endianness>
+struct MatrixTraits< DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> >
 { 
-	typedef DenseZeroOneMatrix<Iterator, ConstIterator> MatrixType;
+	typedef DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> MatrixType;
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
 };
 
-template <class Iterator, class ConstIterator>
-struct MatrixTraits< const DenseZeroOneMatrix<Iterator, ConstIterator> >
+template <class Iterator, class ConstIterator, class Endianness>
+struct MatrixTraits< const DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> >
 { 
-	typedef const DenseZeroOneMatrix<Iterator, ConstIterator> MatrixType;
+	typedef const DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> MatrixType;
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
 };
 

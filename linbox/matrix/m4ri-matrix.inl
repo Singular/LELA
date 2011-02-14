@@ -244,9 +244,12 @@ std::istream& M4RIMatrix::read (std::istream &file, const Field& field)
 }
 
 template <class Field>
-std::ostream& M4RIMatrix::write (std::ostream &os, const Field &F) const
+std::ostream& M4RIMatrix::write (std::ostream &os, const Field &F, FileFormatTag format) const
 {
 	ConstRowIterator p;
+
+	if (format == FORMAT_SAGE)
+		os << "matrix(R,[" << std::endl;
 
 	for (p = rowBegin (); p != rowEnd (); ++p) {
 		typename ConstRow::const_iterator pe;
@@ -254,14 +257,25 @@ std::ostream& M4RIMatrix::write (std::ostream &os, const Field &F) const
 		os << "  [ ";
 
 		for (pe = p->begin (); pe != p->end (); ++pe) {
-			if (F.isZero (*pe))
+			if (F.isZero (*pe) && format == FORMAT_PRETTY)
 				os << '.';
 			else
-				os << '1';
-			os << " ";
+				F.write (os, *pe);
+
+			if (format == FORMAT_PRETTY)
+				os << " ";
+			else if (format == FORMAT_SAGE && pe + 1 != p->end ())
+				os << ", ";
 		}
 
-		os << "]" << std::endl;
+		if (format == FORMAT_PRETTY)
+			os << "]" << std::endl;
+		else if (format == FORMAT_SAGE) {
+			if (p + 1 != rowEnd ())
+				os << "]," << std::endl;
+			else
+				os << "] ])" << std::endl;
+		}
 	}
 
 	return os;

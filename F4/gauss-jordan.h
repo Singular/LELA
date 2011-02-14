@@ -71,9 +71,10 @@ namespace F4 {
 	template <>
 	class Adaptor<GF2> {
 	public:
-		typedef RawVector<bool>::Hybrid SparseVector;
-		typedef LinBox::SparseMatrix<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
-		typedef LinBox::DenseZeroOneMatrix<> DenseMatrix;
+		typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
+		typedef std::pair<std::vector<uint64>, BitVector<Endianness> > SparseVector;
+		typedef LinBox::SparseMatrix<bool, std::pair<std::vector<uint64>, BitVector<Endianness> >, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
+		typedef LinBox::M4RIMatrix DenseMatrix;
 		static const size_t cutoff = __LINBOX_BITSOF_LONG;
 	};
 
@@ -100,6 +101,7 @@ namespace F4 {
 		typedef typename MatrixDomain<Field>::Transposition Transposition;
 		typedef typename Adaptor<Field>::SparseMatrix SparseMatrix;
 		typedef typename Adaptor<Field>::DenseMatrix DenseMatrix;
+		typedef typename Adaptor<Field>::Endianness Endianness;
 
 	private:
 		const Field &F;   // Field over which operations take place
@@ -458,8 +460,7 @@ namespace F4 {
 					      VectorCategories::HybridZeroOneVectorTag) const
 		{
 			static Vector tmp;
-			typedef BitSubvectorWordAligned<typename Vector::second_type::word_iterator, typename Vector::second_type::const_word_iterator,
-				LittleEndian<typename Vector::second_type::word_iterator::value_type> > elt_type;
+			typedef BitSubvectorWordAligned<typename Vector::second_type::word_iterator, typename Vector::second_type::const_word_iterator, Endianness> elt_type;
 
 			std::pair<Subvector<typename Vector::first_type::iterator>, elt_type>
 				t (Subvector<typename Vector::first_type::iterator> (v.first.begin () + idx, v.first.end ()),
@@ -1041,13 +1042,6 @@ namespace F4 {
 		template <class Matrix1, class Matrix2>
 		Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 						      VectorCategories::HybridZeroOneVectorTag) const
-		{
-			return ReduceRowEchelonHybridSpecialised (A, L, compute_L, rank, start_row,
-								  LittleEndian<typename std::iterator_traits<typename Matrix1::Row::second_type::const_word_iterator>::value_type> ());
-		}
-
-		template <class Matrix1, class Matrix2, class Endianness>
-		Matrix1 &ReduceRowEchelonHybridSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row, Endianness) const
 		{
 			commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
