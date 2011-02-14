@@ -784,6 +784,8 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 
 	Vector &get (Vector &v) 
 	{
+		typedef typename Vector::second_type::Endianness Endianness;
+
 		size_t i = (size_t) -1;
 		double val;
 		int skip;
@@ -806,7 +808,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 			if (i >= _n) break;
 
 			size_t idx = i & ~(8 * sizeof (typename Vector::second_type::word_iterator::value_type) - 1);
-			typename Vector::second_type::word_iterator::value_type mask = 1ULL << (i & (8 * sizeof (typename Vector::second_type::word_iterator::value_type) - 1));
+			typename Vector::second_type::word_iterator::value_type mask = Endianness::e_j (i & (8 * sizeof (typename Vector::second_type::word_iterator::value_type) - 1));
 
 			if (!v.first.empty () && idx == v.first.back ()) {
 				v.second.back_word () |= mask;
