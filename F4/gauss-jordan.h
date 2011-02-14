@@ -49,9 +49,23 @@
 
 namespace LinBox {
 	template <class Iterator, class ConstIterator, class Endianness>
-	struct VectorTraits<std::pair<Subvector<std::vector<size_t>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+	struct VectorTraits<std::pair<Subvector<std::vector<uint16>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
 	{ 
-		typedef std::pair<Subvector<std::vector<size_t>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
+		typedef std::pair<Subvector<std::vector<uint16>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
+		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+	};
+
+	template <class Iterator, class ConstIterator, class Endianness>
+	struct VectorTraits<std::pair<Subvector<std::vector<uint32>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+	{ 
+		typedef std::pair<Subvector<std::vector<uint32>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
+		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+	};
+
+	template <class Iterator, class ConstIterator, class Endianness>
+	struct VectorTraits<std::pair<Subvector<std::vector<uint64>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+	{ 
+		typedef std::pair<Subvector<std::vector<uint64>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
 		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 	};
 }
@@ -72,8 +86,8 @@ namespace F4 {
 	class Adaptor<GF2> {
 	public:
 		typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
-		typedef std::pair<std::vector<uint64>, BitVector<Endianness> > SparseVector;
-		typedef LinBox::SparseMatrix<bool, std::pair<std::vector<uint64>, BitVector<Endianness> >, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
+		typedef std::pair<std::vector<uint16>, BitVector<Endianness> > SparseVector;
+		typedef LinBox::SparseMatrix<bool, std::pair<std::vector<uint16>, BitVector<Endianness> >, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
 		typedef LinBox::M4RIMatrix DenseMatrix;
 		static const size_t cutoff = __LINBOX_BITSOF_LONG;
 	};

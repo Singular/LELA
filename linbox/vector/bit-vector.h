@@ -178,16 +178,44 @@ struct VectorTraits<const BitVector<Endianness> >
 
 // Vector traits for hybrid sparse-dense format
 template <class Endianness> 
-struct VectorTraits< std::pair<std::vector<size_t>, BitVector<Endianness> > >
+struct VectorTraits< std::pair<std::vector<uint64>, BitVector<Endianness> > >
 { 
-	typedef std::pair<std::vector<size_t>, BitVector<Endianness> > VectorType;
+	typedef std::pair<std::vector<uint64>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 template <class Endianness> 
-struct VectorTraits< const std::pair<std::vector<size_t>, BitVector<Endianness> > >
+struct VectorTraits< const std::pair<std::vector<uint64>, BitVector<Endianness> > >
 { 
-	typedef std::pair<std::vector<size_t>, BitVector<Endianness> > VectorType;
+	typedef std::pair<std::vector<uint64>, BitVector<Endianness> > VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <class Endianness> 
+struct VectorTraits< std::pair<std::vector<uint32>, BitVector<Endianness> > >
+{ 
+	typedef std::pair<std::vector<uint32>, BitVector<Endianness> > VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <class Endianness> 
+struct VectorTraits< const std::pair<std::vector<uint32>, BitVector<Endianness> > >
+{ 
+	typedef std::pair<std::vector<uint32>, BitVector<Endianness> > VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <class Endianness> 
+struct VectorTraits< std::pair<std::vector<uint16>, BitVector<Endianness> > >
+{ 
+	typedef std::pair<std::vector<uint16>, BitVector<Endianness> > VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <class Endianness> 
+struct VectorTraits< const std::pair<std::vector<uint16>, BitVector<Endianness> > >
+{ 
+	typedef std::pair<std::vector<uint16>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
