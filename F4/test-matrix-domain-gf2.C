@@ -21,8 +21,8 @@ namespace F4Tests {
 using namespace LinBox;
 
 typedef GF2 Field;
-typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
 typedef __LINBOX_BITVECTOR_WORD_TYPE Word;
+typedef BigEndian<Word> Endianness;
 typedef std::vector<size_t> SparseVector;
 typedef std::pair<std::vector<uint16>, BitVector<Endianness> > HybridVector;
 typedef LinBox::SparseMatrix<bool, SparseVector, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;

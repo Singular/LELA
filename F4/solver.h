@@ -152,7 +152,17 @@ namespace F4 {
 					Submatrix<const SparseMatrix> B1 (B, 0, c->col_idx, D.rowdim (), c->size);
 					Submatrix<const SparseMatrix> A1 (Agj, A_row, b->col_idx + b->size, c->size, b_width);
 
+					// DEBUG
+					// std::cout << __FUNCTION__ << ": Adding product of" << std::endl;
+					// MD.write (std::cout, B1);
+					// std::cout << __FUNCTION__ << ": and" << std::endl;
+					// MD.write (std::cout, A1);
+
 					MD.gemm (neg_one, B1, A1, one, Dp);
+
+					// DEBUG
+					// std::cout << __FUNCTION__ << ": Resulting dest-matrix is" << std::endl;
+					// MD.write (std::cout, Dp);
 
 					A_row += c->size;
 				}
