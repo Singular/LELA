@@ -319,6 +319,8 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
 
+	typedef typename Matrix1::ConstRow::second_type::Endianness Endianness;
+
 	typename Matrix1::ConstRowIterator i;
 	typename Matrix2::ConstRowIterator j;
 	typename Matrix3::RowIterator k;
@@ -333,7 +335,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 
 		if (_F.isOne (a))
 			for (ip_idx = i->first.begin (), ip_elt = i->second.wordBegin (); ip_idx != i->first.end (); ++ip_idx, ++ip_elt)
-				for (mask = 1, j = B.rowBegin () + *ip_idx; mask != 0 && j != B.rowEnd (); mask <<= 1, ++j)
+				for (mask = Endianness::e_0, j = B.rowBegin () + *ip_idx; mask != 0 && j != B.rowEnd (); mask = Endianness::shift_right (mask, 1), ++j)
 					if (*ip_elt & mask)
 						_VD.addin (*k, *j);
 	}
@@ -380,6 +382,8 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
 
+	typedef typename Matrix1::ConstRow::Endianness Endianness;
+
 	typename Matrix1::ConstRowIterator i;
 	typename Matrix2::ConstRowIterator j;
 	typename Matrix3::RowIterator k;
@@ -394,7 +398,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 
 		if (_F.isOne (a))
 			for (ip = i->begin (); ip != i->end (); ++ip)
-				for (mask = 1, t = ip->first, j = B.rowBegin () + ip->first; mask != 0 && t < B.rowdim (); mask <<= 1, ++j, ++t)
+				for (mask = Endianness::e_0, t = ip->first, j = B.rowBegin () + ip->first; mask != 0 && t < B.rowdim (); mask = Endianness::shift_right (mask, 1), ++j, ++t)
 					if (ip->second & mask)
 						_VD.addin (*k, *j);
 	}

@@ -34,6 +34,8 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 	typedef typename Vector::first_type::size_type             size_type;
 	typedef typename Vector::first_type::difference_type       difference_type;
 
+	typedef typename Vector::second_type::Endianness Endianness;
+
 	typedef HybridSubvectorConstIterator<Vector> const_iterator;
 
 	friend class HybridSubvectorConstIterator<Vector>;
