@@ -562,7 +562,8 @@ std::istream& Submatrix<Matrix, MatrixCategories::RowMatrixTag>::read (std::istr
 
 template <class Matrix>
 template <class Field>
-std::ostream &Submatrix<Matrix, MatrixCategories::RowMatrixTag>::write (std::ostream &os, const Field& field, FileFormatTag format) const
+std::ostream &Submatrix<Matrix, MatrixCategories::RowMatrixTag>::writeRowSpecialised (std::ostream &os, const Field& field, FileFormatTag format,
+										      VectorCategories::DenseVectorTag) const
 {
 	ConstRowIterator p;
 
@@ -611,6 +612,56 @@ std::ostream &Submatrix<Matrix, MatrixCategories::RowMatrixTag>::write (std::ost
 		os << ']';
 
 	os << std::endl;
+
+	return os;
+}
+
+template <class Matrix>
+template <class Field>
+std::ostream &Submatrix<Matrix, MatrixCategories::RowMatrixTag>::writeRowSpecialised (std::ostream &os, const Field& field, FileFormatTag format,
+										      VectorCategories::HybridZeroOneSequenceVectorTag) const
+{
+	typename Matrix::ConstRow::second_type::word_iterator::value_type mask;
+	typedef typename Matrix::ConstRow::second_type::Endianness Endianness;
+
+	ConstRowIterator i;
+
+	size_t i_idx, t, col_idx;
+
+	typename Row::const_iterator j;
+
+	typename Field::Element one;
+	field.init (one, 1);
+
+	for (i = rowBegin (), i_idx = 0; i != rowEnd (); ++i, ++i_idx) {
+		os << "  [ ";
+
+		j = i->begin ();
+
+		mask = Endianness::e_0;
+		t = 0;
+
+		for (col_idx = 0; col_idx < coldim (); col_idx++) {
+			if (mask == 0 && j != i->end ()) {
+				mask = Endianness::e_0;
+				t += 8 * sizeof (typename Matrix::Row::second_type::word_iterator::value_type);
+
+				if (j->first < t)
+					++j;
+			}
+
+			if (j == i->end () || t != j->first || !(j->second & mask))
+				os << '.';
+			else
+				field.write (os, one);
+
+			os << ' ';
+
+			mask = Endianness::shift_right (mask, 1);
+		}
+
+		os << ']' << std::endl;
+	}
 
 	return os;
 }

@@ -343,7 +343,8 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	std::istream& read (std::istream &file, const Field& field);
     
 	template<class Field>
-	std::ostream& write (std::ostream &os, const Field& field, FileFormatTag format = FORMAT_PRETTY) const;
+	std::ostream& write (std::ostream &os, const Field& field, FileFormatTag format = FORMAT_PRETTY) const
+		{ return writeRowSpecialised (os, field, format, typename VectorTraits<typename ConstRowIterator::value_type>::VectorCategory ()); }
 	
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _M->setEntry (_beg_row + i, _beg_col + j, a_ij); }
@@ -377,6 +378,12 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	size_t _end_row;
 	size_t _beg_col;
 	size_t _end_col;
+
+	template<class Field>
+	std::ostream& writeRowSpecialised (std::ostream &os, const Field& field, FileFormatTag format, VectorCategories::DenseVectorTag) const;
+
+	template<class Field>
+	std::ostream& writeRowSpecialised (std::ostream &os, const Field& field, FileFormatTag format, VectorCategories::HybridZeroOneSequenceVectorTag) const;
 };
 
 /// Specialisation for matrices indexed only by columns
