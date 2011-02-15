@@ -582,34 +582,12 @@ namespace LinBox
 
 	bool MessageClass::isPrinted (unsigned long depth, unsigned long level, const char *fn)
 	{
-		return 
-			checkConfig (_configuration[""], depth, level) 
-			||
-			(	fn != (const char *) 0 
-				&& 
-		   		checkConfig (_configuration[fn], depth, level)
-		   	);
-		/*
  		if (checkConfig (_configuration[""], depth, level))
  			return true;
 		else if (fn != (const char *) 0)
-			//return checkConfig (_configuration[fn], depth, level);
-			{ bool ans = checkConfig (_configuration[fn], depth, level);
-			  if (ans) 
-		 		{	//std::cerr << " fn=" << fn << ", d " << depth << ", l " << level << " true" << std::endl;
-			 		return true;
-		 		}
-			  else
-		 		{	//std::cerr << " fn=" << fn << ", d " << depth << ", l " << level << " false" << std::endl;
-			 		return false;
-		 		}
-		 	}
-
+			return checkConfig (_configuration[fn], depth, level);
 		else
-		{	//std::cerr << " fn=0, d " << depth << ", l " << level << " false" << std::endl;
 			return false;
-		}
-		*/
 	}
 
 	MessageClass::MessageClass (const Commentator &comm,
@@ -632,19 +610,18 @@ namespace LinBox
 	}
 
 	bool MessageClass::checkConfig (std::list <std::pair <unsigned long, unsigned long> > &config, 
-			unsigned long depth, 
-			unsigned long ) //lvl 
+					unsigned long depth, 
+					unsigned long level) //lvl 
 	{
 		std::list <std::pair <unsigned long, unsigned long> >::iterator i;
 
 		for ( i = config.begin (); i != config.end (); ++i) {
 			if (depth < i->first) {
 				//// uninitialized value error goes away if we ignore level.
-				//if (level <= i->second)
-				//	return true;
-				//else
-				//	return false;
-				return true;
+				if (level <= i->second)
+					return true;
+				else
+					return false;
 			}
 		}
 
