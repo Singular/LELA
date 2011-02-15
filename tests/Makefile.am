@@ -40,7 +40,7 @@ BASIC_TESTS =  \
         test-subiterator        \
         test-subvector          \
         test-vector-domain      \
-        test-unparametric-field \
+        test-unparametric-field
 
 # a benchmarker, not to be included in check.
 BENCHMARKS =                    \
@@ -49,6 +49,8 @@ BENCHMARKS =                    \
 
 TESTS =                               \
         $(BASIC_TESTS)
+
+check_PROGRAMS = $(TESTS)
 
 CLEANFILES = $(TESTS)
 
@@ -94,11 +96,6 @@ test_vector_domain_SOURCES =                 \
 
 test_matrix_domain_SOURCES =                 \
         test-matrix-domain.C                \
-        test-common.h
-
-test_param_fuzzy_SOURCES =                \
-        test-param-fuzzy.C                \
-        test-generic.h                        \
         test-common.h
 
 test_modular_int_SOURCES =                \
