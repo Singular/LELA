@@ -27,6 +27,7 @@ static const double nonzero_density = 0.1;
 
 namespace F4Tests {
 
+typedef Adaptor<Field>::Endianness Endianness;
 typedef GaussJordan<Field>::SparseMatrix SparseMatrix;
 typedef GaussJordan<Field>::SparseMatrix::Row SparseVector;
 
@@ -49,14 +50,14 @@ void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, Mersenn
 
 		if (idx <= col) {
 			t = col & __LINBOX_POS_ALL_ONES;
-			mask = 1ULL << t;
+			mask = Endianness::e_j (t);
 			w |= mask;  // Force leading entry to be one
 		} else {
 			t = 0;
-			mask = 1ULL;
+			mask = Endianness::e_0;
 		}
 
-		for (; mask != 0 && idx + t < coldim; mask <<= 1, ++t)
+		for (; mask != 0 && idx + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
 			if (MT.randomDoubleRange (0.0, 1.0) < nonzero_density)
 				w |= mask;
 

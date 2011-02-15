@@ -10,6 +10,7 @@
 
 #include "linbox/field/gf2.h"
 #include "linbox/vector/vector-domain.h"
+#include "linbox/vector/sparse-subvector-hybrid.h"
 
 using namespace LinBox;
 
@@ -295,8 +296,173 @@ void testFirstNonzeroEntry ()
 	std::cout << "Finished testing VD.firstNonzeroEntry" << std::endl;
 }
 
+word connect (word word1, word word2, int shift) 
+{
+	if (shift == 0)
+		return word1;
+	else
+		return Endianness::shift_left (word1, shift) | Endianness::shift_right (word2, __LINBOX_BITSOF_LONG - shift);
+}
+
+void testSparseSubvectorHybrid ()
+{
+	std::cout << __FUNCTION__ << ": Testing SparseSubvector<Hybrid>..." << std::endl;
+
+	HybridVector v;
+
+	Word pattern[2] = { 0xf0f0f0f0f0f0f0f0ULL, 0xaaaaaaaaaaaaaaaaULL };
+	Word check;
+
+	uint16 offset = 10;
+	uint16 len = __LINBOX_BITSOF_LONG + 8;
+
+	std::cout << __FUNCTION__ << ": Test 1" << std::endl;
+
+	v.first.push_back (0);
+	v.second.push_word_back (pattern[0]);
+	v.first.push_back (__LINBOX_BITSOF_LONG);
+	v.second.push_word_back (pattern[1]);
+
+	SparseSubvector<HybridVector> v1 (v, offset, offset + len);
+
+	SparseSubvector<HybridVector>::const_iterator i_v1 = v1.begin ();
+
+	if (i_v1->first != 0)
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v1->first << std::endl;
+
+	check = connect (pattern[0], pattern[1], offset);
+
+	if (i_v1->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v1->second << std::endl;
+
+	++i_v1;
+
+	if (i_v1->first != __LINBOX_BITSOF_LONG)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << __LINBOX_BITSOF_LONG << ", is " << i_v1->first << std::endl;
+
+	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % __LINBOX_BITSOF_LONG);
+
+	if (i_v1->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v1->second << std::endl;
+
+	++i_v1;
+
+	if (i_v1 != v1.end ())
+		std::cerr << __FUNCTION__ << ": ERROR: Did not hit end when expected." << std::endl;
+
+	v.first.clear ();
+	v.second.clear ();
+
+	std::cout << __FUNCTION__ << ": Test 2" << std::endl;
+
+	v.first.push_back (__LINBOX_BITSOF_LONG);
+	v.second.push_word_back (pattern[0]);
+
+	SparseSubvector<HybridVector> v2 (v, offset, offset + len);
+
+	SparseSubvector<HybridVector>::const_iterator i_v2 = v2.begin ();
+
+	if (i_v2->first != 0)
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v2->first << std::endl;
+
+	check = connect (0ULL, pattern[0], offset);
+
+	if (i_v2->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v2->second << std::endl;
+
+	++i_v2;
+
+	if (i_v2->first != __LINBOX_BITSOF_LONG)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << __LINBOX_BITSOF_LONG << ", is " << i_v2->first << std::endl;
+
+	check = connect (pattern[0], 0ULL, offset) & Endianness::mask_left (len % __LINBOX_BITSOF_LONG);
+
+	if (i_v2->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v2->second << std::endl;
+
+	++i_v2;
+
+	if (i_v2 != v2.end ())
+		std::cerr << __FUNCTION__ << ": ERROR: Did not hit end when expected." << std::endl;
+
+	std::cout << __FUNCTION__ << ": Test 3" << std::endl;
+
+	v.first.clear ();
+	v.second.clear ();
+
+	v.first.push_back (0);
+	v.second.push_word_back (pattern[0]);
+	v.first.push_back (2 * __LINBOX_BITSOF_LONG);
+	v.second.push_word_back (pattern[1]);
+
+	SparseSubvector<HybridVector> v3 (v, offset, __LINBOX_BITSOF_LONG + offset + len);
+
+	SparseSubvector<HybridVector>::const_iterator i_v3 = v3.begin ();
+
+	if (i_v3->first != 0)
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v3->first << std::endl;
+
+	check = connect (pattern[0], 0ULL, offset);
+
+	if (i_v3->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v3->second << std::endl;
+
+	++i_v3;
+
+	if (i_v3->first != __LINBOX_BITSOF_LONG)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << __LINBOX_BITSOF_LONG << ", is " << i_v3->first << std::endl;
+
+	check = connect (0ULL, pattern[1], offset);
+
+	if (i_v3->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v3->second << std::endl;
+
+	++i_v3;
+
+	if (i_v3->first != 2 * __LINBOX_BITSOF_LONG)
+		std::cerr << __FUNCTION__ << ": ERROR: Third index should be " << 2 * __LINBOX_BITSOF_LONG << ", is " << i_v3->first << std::endl;
+
+	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % __LINBOX_BITSOF_LONG);
+
+	if (i_v3->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: Third word should be " << std::hex << check << ", is " << std::hex << i_v3->second << std::endl;
+
+	++i_v3;
+
+	if (i_v3 != v3.end ())
+		std::cerr << __FUNCTION__ << ": ERROR: Did not hit end when expected." << std::endl;
+
+	std::cout << __FUNCTION__ << ": Test 4" << std::endl;
+
+	v.first.clear ();
+	v.second.clear ();
+
+	v.first.push_back (0);
+	v.second.push_word_back (pattern[0]);
+
+	SparseSubvector<HybridVector> v4 (v, offset, __LINBOX_BITSOF_LONG + offset + len);
+
+	SparseSubvector<HybridVector>::const_iterator i_v4 = v4.begin ();
+
+	if (i_v4->first != 0)
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v4->first << std::endl;
+
+	check = connect (pattern[0], 0ULL, offset);
+
+	if (i_v4->second != check)
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v4->second << std::endl;
+
+	++i_v4;
+
+	if (i_v4 != v4.end ())
+		std::cerr << __FUNCTION__ << ": ERROR: Did not hit end when expected." << std::endl;
+	
+	std::cout << __FUNCTION__ << ": done" << std::endl;
+}
+
 int main (int argc, char **argv)
 {
 	testAdd ();
 	testFirstNonzeroEntry ();
+	testSparseSubvectorHybrid ();
 }

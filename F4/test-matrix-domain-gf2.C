@@ -21,9 +21,13 @@ namespace F4Tests {
 using namespace LinBox;
 
 typedef GF2 Field;
-typedef DenseZeroOneMatrix<>::Row::word_iterator::value_type Word;
-typedef LinBox::SparseMatrix<bool, RawVector<bool>::Sparse, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;
-typedef LinBox::SparseMatrix<bool, RawVector<bool>::Hybrid, VectorCategories::HybridZeroOneVectorTag> HybridMatrix;
+typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
+typedef __LINBOX_BITVECTOR_WORD_TYPE Word;
+typedef std::vector<size_t> SparseVector;
+typedef std::pair<std::vector<uint16>, BitVector<Endianness> > HybridVector;
+typedef LinBox::SparseMatrix<bool, SparseVector, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;
+typedef LinBox::SparseMatrix<bool, HybridVector, VectorCategories::HybridZeroOneVectorTag> HybridMatrix;
+typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
 
 void testGEMMSubmatrixDense ()
 {
@@ -37,12 +41,12 @@ void testGEMMSubmatrixDense ()
 	size_t l = 96;
 	size_t k = 20;
 
-	RandomDenseStream<Field, DenseZeroOneMatrix<>::Row> A_stream (F, n);
-	RandomDenseStream<Field, DenseZeroOneMatrix<>::Row> B_stream (F, m);
+	RandomDenseStream<Field, DenseMatrix::Row> A_stream (F, n);
+	RandomDenseStream<Field, DenseMatrix::Row> B_stream (F, m);
 
-	DenseZeroOneMatrix<> A (n, m), B (m, l), C (n, l), Cp (n, k);
+	DenseMatrix A (n, m), B (m, l), C (n, l), Cp (n, k);
 
-	DenseZeroOneMatrix<>::RowIterator iter;
+	DenseMatrix::RowIterator iter;
 
 	for (iter = A.rowBegin (); iter != A.rowEnd (); ++iter)
 		A_stream >> *iter;
@@ -65,10 +69,10 @@ void testGEMMSubmatrixDense ()
 		std::cout << __FUNCTION__ << ": Testing offset " << s << "...";
 		std::cout.flush ();
 
-		Submatrix<DenseZeroOneMatrix<> > Bp (B, 0, s, B.rowdim (), k);
+		Submatrix<DenseMatrix > Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		Submatrix<DenseZeroOneMatrix<> > Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseMatrix > Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;
@@ -101,7 +105,7 @@ void testGEMMSubmatrixHybrid ()
 
 	SparseMatrix A (n, m);
 	HybridMatrix B (m, l);
-	DenseZeroOneMatrix<> C (n, l), Cp (n, k);
+	DenseMatrix C (n, l), Cp (n, k);
 
 #if 1
 	RandomSparseStream<Field, SparseMatrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> A_stream (F, p, n, m);
@@ -151,7 +155,7 @@ void testGEMMSubmatrixHybrid ()
 		Submatrix<HybridMatrix> Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		Submatrix<DenseZeroOneMatrix<> > Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseMatrix> Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;

@@ -39,6 +39,7 @@ namespace F4 {
 		typedef typename Field::Element Element;
 		typedef typename GaussJordan<Field>::SparseMatrix SparseMatrix;
 		typedef typename GaussJordan<Field>::DenseMatrix DenseMatrix;
+		typedef typename Adaptor<Field>::Endianness Endianness;
 
 	private:
 		const Field &F;
@@ -168,7 +169,7 @@ namespace F4 {
 		template <class Vector1, class Vector2>
 		void ExpandVector (Vector1 &x, const Vector2 &y, const std::vector<Block> &blocks, size_t coldim) const
 		{
-			static BitVector<> v;
+			static BitVector<Endianness> v;
 
 			v.resize (coldim);
 
@@ -181,7 +182,7 @@ namespace F4 {
 				next_block_col = GetNextBlockColumn (coldim, b, b_end);
 				next_block_y = start_block_y + (next_block_col - (b->col_idx + b->size));
 
-				BitSubvector<BitVector<>::iterator> vs (v.begin () + (b->col_idx + b->size), v.begin () + next_block_col);
+				BitSubvector<typename BitVector<Endianness>::iterator> vs (v.begin () + (b->col_idx + b->size), v.begin () + next_block_col);
 				BitSubvector<typename Vector2::const_iterator> ys (y.begin () + start_block_y, y.begin () + next_block_y);
 
 				VD.copy (vs, ys);

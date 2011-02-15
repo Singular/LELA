@@ -119,12 +119,12 @@ inline void BitVector<Endianness>::push_back (bool v)
 		if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
 			push_word_back (1UL);
 		else
-			_v.back () |= 1 << (_size & __LINBOX_POS_ALL_ONES);
+			_v.back () |= Endianness::e_j (_size & __LINBOX_POS_ALL_ONES);
 	} else {
 		if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
 			push_word_back (0UL);
 		else
-			_v.back () &= (1 << (_size & __LINBOX_POS_ALL_ONES)) - 1;
+			_v.back () &= Endianness::mask_left (_size & __LINBOX_POS_ALL_ONES);
 	}
 
 	++_size;
