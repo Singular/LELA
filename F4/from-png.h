@@ -59,6 +59,10 @@ namespace F4 {
 		void readBlockSpecialised (typename SparseMatrix::Row &v, png_byte x, int start, int stop,
 					   VectorCategories::HybridZeroOneVectorTag);
 
+		template <class Endianness>
+		void readBlockHybridSpecialised (typename SparseMatrixReader<Field>::SparseMatrix::Row &v, png_byte x, int start, int stop,
+						 Endianness);
+
 	public:
 		SparseMatrixReader (const Field &_F) : F (_F) {
 			F.init (one, 1);

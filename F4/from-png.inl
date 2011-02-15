@@ -54,15 +54,22 @@ namespace F4 {
 	void SparseMatrixReader<Field>::readBlockSpecialised (typename SparseMatrixReader<Field>::SparseMatrix::Row &v, png_byte x, int start, int stop,
 							      VectorCategories::HybridZeroOneVectorTag)
 	{
+		readBlockHybridSpecialised (v, x, start, stop, typename SparseMatrix::Row::second_type::Endianness ());
+	}
+
+	template <class Field>
+	template <class Endianness>
+	void SparseMatrixReader<Field>::readBlockHybridSpecialised (typename SparseMatrixReader<Field>::SparseMatrix::Row &v, png_byte x, int start, int stop, Endianness)
+	{
 		typedef typename SparseMatrixReader<Field>::SparseMatrix::Row::second_type::word_iterator::value_type Word;
 
 		size_t idx = start & ~(8 * sizeof (Word) - 1);
 		int count;
 		png_byte t;
 
-		Word mask = 1ULL << (start & (8 * sizeof (Word) - 1));
+		Word mask = Endianness::e_j (start & (8 * sizeof (Word) - 1));
 
-		for (count = 0, t = ~(((png_byte) -1) & (((png_byte) -1) >> 1)); count < stop; t >>= 1, mask <<= 1, ++count) {
+		for (count = 0, t = ~(((png_byte) -1) & (((png_byte) -1) >> 1)); count < stop; t >>= 1, mask = Endianness::shift_right (mask, 1), ++count) {
 			if (!(x & t)) {
 				if (v.first.empty () || v.first.back () != idx) {
 					v.first.push_back (idx);
