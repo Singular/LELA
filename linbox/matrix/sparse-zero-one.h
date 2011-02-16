@@ -723,18 +723,19 @@ void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 	Row &v = _A[i];
 	typename Row::first_type::iterator it_idx;
 	typename Row::second_type::word_iterator it_elt;
+	typedef typename std::iterator_traits<typename Row::second_type::word_iterator>::value_type word_type;
 
-	typename Row::second_type::word_iterator::value_type m = 1ULL << (j & __LINBOX_POS_ALL_ONES);
+	typename Row::second_type::word_iterator::value_type m = 1ULL << (j & WordTraits<word_type>::pos_mask);
 
 	if (value && v.first.size () == 0) {
-		v.first.push_back (j & ~__LINBOX_POS_ALL_ONES);
+		v.first.push_back (j & ~WordTraits<word_type>::pos_mask);
 		v.second.push_word_back (m);
 	} else {
-		it_idx = std::lower_bound (v.first.begin (), v.first.end (), j & ~__LINBOX_POS_ALL_ONES);
+		it_idx = std::lower_bound (v.first.begin (), v.first.end (), j & ~WordTraits<word_type>::pos_mask);
 
-		if (it_idx == v.first.end () || *it_idx != j & ~__LINBOX_POS_ALL_ONES) {
+		if (it_idx == v.first.end () || *it_idx != j & ~WordTraits<word_type>::pos_mask) {
 			if (value) {
-				it_idx = v.first.insert (it_idx, j & ~__LINBOX_POS_ALL_ONES);
+				it_idx = v.first.insert (it_idx, j & ~WordTraits<word_type>::pos_mask);
 				v.second.insertWord (v.second.wordBegin () + (it_idx - v.first.begin ()), m);
 			}
 		}

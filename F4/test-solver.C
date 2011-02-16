@@ -36,20 +36,21 @@ typedef GaussJordan<Field>::SparseMatrix::Row SparseVector;
 void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, MersenneTwister &MT)
 {
 	size_t idx, t;
-	SparseVector::second_type::word_iterator::value_type w;
-	SparseVector::second_type::word_iterator::value_type mask;
+	typedef std::iterator_traits<SparseVector::second_type::word_iterator>::value_type word_type;
+	word_type w;
+	word_type mask;
 
-	size_t colstart = col & ~__LINBOX_POS_ALL_ONES;
-	size_t colend = coldim & ~__LINBOX_POS_ALL_ONES;
+	size_t colstart = col & ~WordTraits<word_type>::pos_mask;
+	size_t colend = coldim & ~WordTraits<word_type>::pos_mask;
 
 	v.first.clear ();
 	v.second.clear ();
 
-	for (idx = colstart; idx <= colend; idx += __LINBOX_BITSOF_LONG) {
+	for (idx = colstart; idx <= colend; idx += WordTraits<word_type>::bits) {
 		w = 0ULL;
 
 		if (idx <= col) {
-			t = col & __LINBOX_POS_ALL_ONES;
+			t = col & WordTraits<word_type>::pos_mask;
 			mask = Endianness::e_j (t);
 			w |= mask;  // Force leading entry to be one
 		} else {

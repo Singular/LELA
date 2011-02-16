@@ -58,7 +58,7 @@ class BitSubvectorWordAligned
 		: _begin (begin), _end (end)
 	{
 		if (bit_len == 0)
-			_bit_len = (end - begin) * __LINBOX_BITSOF_LONG;
+			_bit_len = (end - begin) * WordTraits<word>::bits;
 		else
 			_bit_len = bit_len;
 	}
@@ -72,17 +72,17 @@ class BitSubvectorWordAligned
 	inline const_iterator              begin      (void) const { return const_iterator (_begin, 0); }
 	inline iterator                    end        (void)
 	{
-		if (!(_bit_len & __LINBOX_POS_ALL_ONES))
+		if (!(_bit_len & WordTraits<word>::pos_mask))
 			return iterator (_end, 0);
 		else
-			return iterator (_end - 1, _bit_len & __LINBOX_POS_ALL_ONES);
+			return iterator (_end - 1, _bit_len & WordTraits<word>::pos_mask);
 	}
 	inline const_iterator              end        (void) const
 	{
-		if (!(_bit_len & __LINBOX_POS_ALL_ONES))
+		if (!(_bit_len & WordTraits<word>::pos_mask))
 			return const_iterator (_end, 0);
 		else
-			return const_iterator (_end - 1, _bit_len & __LINBOX_POS_ALL_ONES);
+			return const_iterator (_end - 1, _bit_len & WordTraits<word>::pos_mask);
 	}
 
 	inline reverse_iterator            rbegin     (void)       { return reverse_iterator (_end); }
@@ -102,13 +102,13 @@ class BitSubvectorWordAligned
 
 	// Element access
 
-	inline reference       operator[] (size_type n)       { return *(iterator (_begin + n / __LINBOX_BITSOF_LONG, n & __LINBOX_POS_ALL_ONES)); }
-	inline const_reference operator[] (size_type n) const { return *(const_iterator (_begin + n / __LINBOX_BITSOF_LONG, n & __LINBOX_POS_ALL_ONES)); }
+	inline reference       operator[] (size_type n)       { return *(iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask)); }
+	inline const_reference operator[] (size_type n) const { return *(const_iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask)); }
 
 	inline reference at (size_type n)
 	{
 		if (n < _bit_len)
-			return *iterator (_begin + n / __LINBOX_BITSOF_LONG, n & __LINBOX_POS_ALL_ONES);
+			return *iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask);
 		else 
 			throw std::out_of_range(); //out of range error message.
 	}
@@ -116,7 +116,7 @@ class BitSubvectorWordAligned
 	inline const_reference at (size_type n) const
 	{
 		if (n < _bit_len)
-			return *const_iterator (_begin + n / __LINBOX_BITSOF_LONG, n & __LINBOX_POS_ALL_ONES);
+			return *const_iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask);
 		else 
 			throw std::out_of_range(); //out of range error message
 	}
@@ -126,8 +126,8 @@ class BitSubvectorWordAligned
 
 	inline reference       front (void)       { return *iterator (_begin, 0); }
 	inline const_reference front (void) const { return *const_iterator (_begin, 0); }
-	inline reference       back  (void)       { return *iterator (_end, _bit_len & __LINBOX_POS_ALL_ONES); }
-	inline const_reference back  (void) const { return *const_iterator (_end, _bit_len & __LINBOX_POS_ALL_ONES); }
+	inline reference       back  (void)       { return *iterator (_end, _bit_len & WordTraits<word>::pos_mask); }
+	inline const_reference back  (void) const { return *const_iterator (_end, _bit_len & WordTraits<word>::pos_mask); }
 
 	inline word       &front_word (void)       { return *_begin; }
 	inline const word &front_word (void) const { return *_begin; }

@@ -254,12 +254,12 @@ void testFirstNonzeroEntry ()
 
 	int idx;
 
-	v.first.push_back (2 * __LINBOX_BITSOF_LONG);
+	v.first.push_back (2 * WordTraits<Word>::bits);
 	v.second.push_word_back (Endianness::e_0);
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 2 * __LINBOX_BITSOF_LONG)
+	if (idx == 2 * WordTraits<Word>::bits)
 		std::cout << "Test 1 okay" << std::endl;
 	else
 		std::cout << "Test 1 not okay: VD.firstNonzeroEntry (a, v) = " << idx
@@ -268,12 +268,12 @@ void testFirstNonzeroEntry ()
 	v.first.clear ();
 	v.second.clear ();
 
-	v.first.push_back (2 * __LINBOX_BITSOF_LONG);
+	v.first.push_back (2 * WordTraits<Word>::bits);
 	v.second.push_word_back (Endianness::e_j (16));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 2 * __LINBOX_BITSOF_LONG + 16)
+	if (idx == 2 * WordTraits<Word>::bits + 16)
 		std::cout << "Test 2 okay" << std::endl;
 	else
 		std::cout << "Test 2 not okay: VD.firstNonzeroEntry (a, v) = " << idx
@@ -282,12 +282,12 @@ void testFirstNonzeroEntry ()
 	v.first.clear ();
 	v.second.clear ();
 
-	v.first.push_back (3 * __LINBOX_BITSOF_LONG);
-	v.second.push_word_back (Endianness::e_j (__LINBOX_BITSOF_LONG - 1));
+	v.first.push_back (3 * WordTraits<Word>::bits);
+	v.second.push_word_back (Endianness::e_j (WordTraits<Word>::bits - 1));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 3 * __LINBOX_BITSOF_LONG + (__LINBOX_BITSOF_LONG - 1))
+	if (idx == 3 * WordTraits<Word>::bits + (WordTraits<Word>::bits - 1))
 		std::cout << "Test 3 okay" << std::endl;
 	else
 		std::cout << "Test 3 not okay: VD.firstNonzeroEntry (a, v) = " << idx
@@ -301,7 +301,7 @@ word connect (word word1, word word2, int shift)
 	if (shift == 0)
 		return word1;
 	else
-		return Endianness::shift_left (word1, shift) | Endianness::shift_right (word2, __LINBOX_BITSOF_LONG - shift);
+		return Endianness::shift_left (word1, shift) | Endianness::shift_right (word2, WordTraits<Word>::bits - shift);
 }
 
 void testSparseSubvectorHybrid ()
@@ -314,13 +314,13 @@ void testSparseSubvectorHybrid ()
 	Word check;
 
 	uint16 offset = 10;
-	uint16 len = __LINBOX_BITSOF_LONG + 8;
+	uint16 len = WordTraits<Word>::bits + 8;
 
 	std::cout << __FUNCTION__ << ": Test 1" << std::endl;
 
 	v.first.push_back (0);
 	v.second.push_word_back (pattern[0]);
-	v.first.push_back (__LINBOX_BITSOF_LONG);
+	v.first.push_back (WordTraits<Word>::bits);
 	v.second.push_word_back (pattern[1]);
 
 	SparseSubvector<HybridVector> v1 (v, offset, offset + len);
@@ -337,10 +337,10 @@ void testSparseSubvectorHybrid ()
 
 	++i_v1;
 
-	if (i_v1->first != __LINBOX_BITSOF_LONG)
-		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << __LINBOX_BITSOF_LONG << ", is " << i_v1->first << std::endl;
+	if (i_v1->first != WordTraits<Word>::bits)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << WordTraits<Word>::bits << ", is " << i_v1->first << std::endl;
 
-	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % __LINBOX_BITSOF_LONG);
+	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % WordTraits<Word>::bits);
 
 	if (i_v1->second != check)
 		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v1->second << std::endl;
@@ -355,7 +355,7 @@ void testSparseSubvectorHybrid ()
 
 	std::cout << __FUNCTION__ << ": Test 2" << std::endl;
 
-	v.first.push_back (__LINBOX_BITSOF_LONG);
+	v.first.push_back (WordTraits<Word>::bits);
 	v.second.push_word_back (pattern[0]);
 
 	SparseSubvector<HybridVector> v2 (v, offset, offset + len);
@@ -372,10 +372,10 @@ void testSparseSubvectorHybrid ()
 
 	++i_v2;
 
-	if (i_v2->first != __LINBOX_BITSOF_LONG)
-		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << __LINBOX_BITSOF_LONG << ", is " << i_v2->first << std::endl;
+	if (i_v2->first != WordTraits<Word>::bits)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << WordTraits<Word>::bits << ", is " << i_v2->first << std::endl;
 
-	check = connect (pattern[0], 0ULL, offset) & Endianness::mask_left (len % __LINBOX_BITSOF_LONG);
+	check = connect (pattern[0], 0ULL, offset) & Endianness::mask_left (len % WordTraits<Word>::bits);
 
 	if (i_v2->second != check)
 		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v2->second << std::endl;
@@ -392,10 +392,10 @@ void testSparseSubvectorHybrid ()
 
 	v.first.push_back (0);
 	v.second.push_word_back (pattern[0]);
-	v.first.push_back (2 * __LINBOX_BITSOF_LONG);
+	v.first.push_back (2 * WordTraits<Word>::bits);
 	v.second.push_word_back (pattern[1]);
 
-	SparseSubvector<HybridVector> v3 (v, offset, __LINBOX_BITSOF_LONG + offset + len);
+	SparseSubvector<HybridVector> v3 (v, offset, WordTraits<Word>::bits + offset + len);
 
 	SparseSubvector<HybridVector>::const_iterator i_v3 = v3.begin ();
 
@@ -409,8 +409,8 @@ void testSparseSubvectorHybrid ()
 
 	++i_v3;
 
-	if (i_v3->first != __LINBOX_BITSOF_LONG)
-		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << __LINBOX_BITSOF_LONG << ", is " << i_v3->first << std::endl;
+	if (i_v3->first != WordTraits<Word>::bits)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << WordTraits<Word>::bits << ", is " << i_v3->first << std::endl;
 
 	check = connect (0ULL, pattern[1], offset);
 
@@ -419,10 +419,10 @@ void testSparseSubvectorHybrid ()
 
 	++i_v3;
 
-	if (i_v3->first != 2 * __LINBOX_BITSOF_LONG)
-		std::cerr << __FUNCTION__ << ": ERROR: Third index should be " << 2 * __LINBOX_BITSOF_LONG << ", is " << i_v3->first << std::endl;
+	if (i_v3->first != 2 * WordTraits<Word>::bits)
+		std::cerr << __FUNCTION__ << ": ERROR: Third index should be " << 2 * WordTraits<Word>::bits << ", is " << i_v3->first << std::endl;
 
-	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % __LINBOX_BITSOF_LONG);
+	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % WordTraits<Word>::bits);
 
 	if (i_v3->second != check)
 		std::cerr << __FUNCTION__ << ": ERROR: Third word should be " << std::hex << check << ", is " << std::hex << i_v3->second << std::endl;
@@ -440,7 +440,7 @@ void testSparseSubvectorHybrid ()
 	v.first.push_back (0);
 	v.second.push_word_back (pattern[0]);
 
-	SparseSubvector<HybridVector> v4 (v, offset, __LINBOX_BITSOF_LONG + offset + len);
+	SparseSubvector<HybridVector> v4 (v, offset, WordTraits<Word>::bits + offset + len);
 
 	SparseSubvector<HybridVector>::const_iterator i_v4 = v4.begin ();
 

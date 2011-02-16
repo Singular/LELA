@@ -29,19 +29,19 @@ inline typename BitVector<Endianness>::const_iterator BitVector<Endianness>::beg
 template <class Endianness>
 inline typename BitVector<Endianness>::iterator BitVector<Endianness>::end (void)
 {
-	if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
+	if ((_size & WordTraits<word_type>::pos_mask) == 0UL)
 		return iterator (_v.end (), 0UL);
 	else
-		return iterator (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
+		return iterator (_v.end () - 1UL, _size & WordTraits<word_type>::pos_mask);
 }
 
 template <class Endianness>
 inline typename BitVector<Endianness>::const_iterator BitVector<Endianness>::end (void) const
 {
-	if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
+	if ((_size & WordTraits<word_type>::pos_mask) == 0UL)
 		return const_iterator (_v.end (), 0UL);
 	else
-		return const_iterator (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
+		return const_iterator (_v.end () - 1UL, _size & WordTraits<word_type>::pos_mask);
 }
 
 template <class Endianness>
@@ -97,34 +97,34 @@ inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::fr
 template <class Endianness>
 inline typename BitVector<Endianness>::reference BitVector<Endianness>::back (void)
 {
-	if ( (_size & __LINBOX_POS_ALL_ONES) == 0UL)
+	if ( (_size & WordTraits<word_type>::pos_mask) == 0UL)
 		return reference (_v.end (), 0UL);
 	else
-		return reference (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
+		return reference (_v.end () - 1UL, _size & WordTraits<word_type>::pos_mask);
 }
 
 template <class Endianness>
 inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::back (void) const
 {
-	if ( (_size & __LINBOX_POS_ALL_ONES) == 0UL)
+	if ( (_size & WordTraits<word_type>::pos_mask) == 0UL)
 		return const_reference (_v.end (), 0UL);
 	else
-		return const_reference (_v.end () - 1UL, _size & __LINBOX_POS_ALL_ONES);
+		return const_reference (_v.end () - 1UL, _size & WordTraits<word_type>::pos_mask);
 }
 
 template <class Endianness>
 inline void BitVector<Endianness>::push_back (bool v)
 {
 	if (v) {
-		if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
+		if ((_size & WordTraits<word_type>::pos_mask) == 0UL)
 			push_word_back (1UL);
 		else
-			_v.back () |= Endianness::e_j (_size & __LINBOX_POS_ALL_ONES);
+			_v.back () |= Endianness::e_j (_size & WordTraits<word_type>::pos_mask);
 	} else {
-		if ((_size & __LINBOX_POS_ALL_ONES) == 0UL)
+		if ((_size & WordTraits<word_type>::pos_mask) == 0UL)
 			push_word_back (0UL);
 		else
-			_v.back () &= Endianness::mask_left (_size & __LINBOX_POS_ALL_ONES);
+			_v.back () &= Endianness::mask_left (_size & WordTraits<word_type>::pos_mask);
 	}
 
 	++_size;
@@ -135,24 +135,24 @@ template<class Container>
 inline BitVector<Endianness> &BitVector<Endianness>::operator = (const Container &v)
 {
 	typename Container::const_iterator i;
-	typename Container::const_iterator i_end = v.begin () + (v.size () >> __LINBOX_LOGOF_SIZE);
-	std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::iterator j;
-	__LINBOX_BITVECTOR_WORD_TYPE idx;
+	typename Container::const_iterator i_end = v.begin () + (v.size () >> WordTraits<word_type>::logof_size);
+	std::vector<word_type>::iterator j;
+	word_type idx;
 
-	_v.resize ((v.size () >> __LINBOX_LOGOF_SIZE) + ((v.size () & __LINBOX_POS_ALL_ONES) ? 1UL : 0UL));
+	_v.resize ((v.size () >> WordTraits<word_type>::logof_size) + ((v.size () & WordTraits<word_type>::pos_mask) ? 1UL : 0UL));
 
 	for (j = _v.begin (); i != i_end; ++j) {
 		*j = 0UL;
-		for (idx = 0UL; idx < __LINBOX_BITSOF_LONG; ++idx, ++i) {
+		for (idx = 0UL; idx < WordTraits<word_type>::bits; ++idx, ++i) {
 			*j <<= 1UL;
 			*j |= *i & 1UL;
 		}
 	}
 
-	if (v.size () & __LINBOX_POS_ALL_ONES) {
+	if (v.size () & WordTraits<word_type>::pos_mask) {
 		*j = 0UL;
 
-		for (idx = 0UL; idx < (v.size () & __LINBOX_POS_ALL_ONES); ++idx) {
+		for (idx = 0UL; idx < (v.size () & WordTraits<word_type>::pos_mask); ++idx) {
 			*j <<= 1UL;
 			*j |= *i & 1UL;
 		}
@@ -165,21 +165,21 @@ inline BitVector<Endianness> &BitVector<Endianness>::operator = (const Container
 
 template <class Endianness>
 inline void BitVector<Endianness>::resize (BitVector<Endianness>::size_type new_size, bool val)
-	{ _v.resize ((new_size >> __LINBOX_LOGOF_SIZE) + ((new_size & __LINBOX_POS_ALL_ONES) ? 1UL : 0UL), val ? __LINBOX_ALL_ONES : 0UL); _size = new_size; }
+	{ _v.resize ((new_size >> WordTraits<word_type>::logof_size) + ((new_size & WordTraits<word_type>::pos_mask) ? 1UL : 0UL), val ? WordTraits<word_type>::all_ones : 0UL); _size = new_size; }
 
 template <class Endianness>
 inline bool BitVector<Endianness>::operator == (const BitVector<Endianness> &v) const
 {
 	const_word_iterator i, j;
-	__LINBOX_BITVECTOR_WORD_TYPE mask;
+	word_type mask;
 
 	if (_size != v._size) return false;
 
 	for (i = wordBegin (), j = v.wordBegin (); i != wordEnd () - 1UL; ++i, ++j)
 		if (*i != *j) return false;
 
-	mask = (1UL << (_size & (8 * sizeof (__LINBOX_BITVECTOR_WORD_TYPE) - 1UL))) - 1UL;
-	if (mask == 0UL) mask = (__LINBOX_BITVECTOR_WORD_TYPE) -1UL;
+	mask = (1UL << (_size & (8 * sizeof (word_type) - 1UL))) - 1UL;
+	if (mask == 0UL) mask = (word_type) -1UL;
 
 	if ((*i & mask) == (*j & mask))
 		return true;

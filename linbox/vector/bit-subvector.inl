@@ -65,8 +65,8 @@ class BitSubvector<Iterator, ConstIterator>::word_reference {
 		*_pos = (*_pos & (Endianness::shift_right (~_mask, _shift) | Endianness::mask_left (_shift))) | Endianness::shift_right (v, _shift);
 
 		if (_shift != 0 && !_just_this_word)
-			_pos[1] = (_pos[1] & (~Endianness::shift_left (_mask, __LINBOX_BITSOF_LONG - _shift) | Endianness::mask_right (_shift))) |
-				Endianness::shift_left (v, __LINBOX_BITSOF_LONG - _shift);
+			_pos[1] = (_pos[1] & (~Endianness::shift_left (_mask, WordTraits<word>::bits - _shift) | Endianness::mask_right (_shift))) |
+				Endianness::shift_left (v, WordTraits<word>::bits - _shift);
 
 		return *this;
 	}
@@ -90,7 +90,7 @@ class BitSubvector<Iterator, ConstIterator>::word_reference {
 		{ return *this = ((word) *this) ^ v; }
 
 	operator word (void) const
-		{ return (Endianness::shift_left (*_pos, _shift) | ((_just_this_word || _shift == 0) ? 0 : Endianness::shift_right (_pos[1], __LINBOX_BITSOF_LONG - _shift))) & _mask; }
+		{ return (Endianness::shift_left (*_pos, _shift) | ((_just_this_word || _shift == 0) ? 0 : Endianness::shift_right (_pos[1], WordTraits<word>::bits - _shift))) & _mask; }
 
     private:
 	friend class BitSubvectorWordIterator<Iterator, ConstIterator>;
@@ -208,8 +208,8 @@ class BitSubvectorWordIterator {
 	}
 
 	inline void update_mask () {
-		if (((_ref._pos - _v->_begin.word () + 1) << __LINBOX_LOGOF_SIZE) > _v->_end - _v->_begin)
-			_ref._mask = Endianness::mask_left ((_v->_end - _v->_begin) & __LINBOX_POS_ALL_ONES);
+		if (((_ref._pos - _v->_begin.word () + 1) << WordTraits<value_type>::logof_size) > _v->_end - _v->_begin)
+			_ref._mask = Endianness::mask_left ((_v->_end - _v->_begin) & WordTraits<value_type>::pos_mask);
 
 		if (_ref._pos + 1 == _v->_end_marker)
 			_ref._just_this_word = true;
@@ -333,10 +333,10 @@ class BitSubvectorConstWordIterator {
 			else if (_pos + 1 == (_v->_end.pos () ? (_v->_end.word () + 1) : _v->_end.word ()))
 				_word = Endianness::shift_left (*_pos, _v->_begin.pos ());
 			else
-				_word = Endianness::shift_left (*_pos, _v->_begin.pos ()) | Endianness::shift_right (_pos[1], __LINBOX_BITSOF_LONG - _v->_begin.pos ());
+				_word = Endianness::shift_left (*_pos, _v->_begin.pos ()) | Endianness::shift_right (_pos[1], WordTraits<value_type>::bits - _v->_begin.pos ());
 
-			if (((_pos - _v->_begin.word () + 1) << __LINBOX_LOGOF_SIZE) > _v->_end - _v->_begin)
-				_word &= Endianness::mask_left ((_v->_end - _v->_begin) & __LINBOX_POS_ALL_ONES);
+			if (((_pos - _v->_begin.word () + 1) << WordTraits<value_type>::logof_size) > _v->_end - _v->_begin)
+				_word &= Endianness::mask_left ((_v->_end - _v->_begin) & WordTraits<value_type>::pos_mask);
 
 			_ref_valid = true;
 		}

@@ -544,9 +544,9 @@ class RandomDenseStreamGF2 : public VectorStream<BitVector<Endianness> >
 			return v;
 
 		for (i = v.wordBegin (); i != v.wordEnd (); i++)
-			*i = MTrandomInt<__LINBOX_BITSOF_LONG>()(MT);
+			*i = MTrandomInt<WordTraits<typename BitVector<Endianness>::word_type>::bits>()(MT);
                 
-                const size_t zeroing = __LINBOX_BITSOF_LONG - (v.size() % __LINBOX_BITSOF_LONG);
+                const size_t zeroing = WordTraits<typename BitVector<Endianness>::word_type>::bits - (v.size() % WordTraits<typename BitVector<Endianness>::word_type>::bits);
                 *(v.wordRbegin()) <<= zeroing;
                 *(v.wordRbegin()) >>= zeroing;
 		return v;
@@ -643,20 +643,20 @@ inline bool &DotProductDomain<GF2>::dotSpecializedDD
 {
 	linbox_check (v1.size () == v2.size ());
 
-	unsigned long t = 0;
+	typename Vector1::word_type t = 0;
 	typename Vector1::const_word_iterator i = v1.wordBegin ();
 	typename Vector2::const_word_iterator j = v2.wordBegin ();
 
 	while (i != v1.wordEnd () - 1)
 		t ^= *i++ & *j++;
         
-        const size_t zeroing = __LINBOX_BITSOF_LONG - (v1.size() % __LINBOX_BITSOF_LONG);
-        unsigned long lastdot = *i & *j;
+        const size_t zeroing = WordTraits<typename Vector1::word_type>::bits - (v1.size() % WordTraits<typename Vector1::word_type>::bits);
+        typename Vector1::word_type lastdot = *i & *j;
         lastdot <<= zeroing;
         lastdot >>= zeroing;
         
         t ^= lastdot;
-        return res = __LINBOX_PARITY(t);
+        return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
 }
 
 template <class Vector1, class Vector2>
@@ -988,13 +988,15 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::HybridZeroOneVectorTag,
 					     VectorCategories::DenseZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector1::second_type::const_word_iterator>::value_type word_type;
+
 	typename Vector2::const_word_iterator i;
 	size_t idx = 0;
 
 	res.first.clear ();
 	res.second.clear ();
 
-	for (i = v.wordBegin (); i != v.wordEnd (); ++i, idx += __LINBOX_BITSOF_LONG) {
+	for (i = v.wordBegin (); i != v.wordEnd (); ++i, idx += WordTraits<word_type>::bits) {
 		if (*i) {
 			res.first.push_back (idx);
 			res.second.push_word_back (*i);
@@ -1025,13 +1027,15 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::HybridZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector2::second_type::const_word_iterator>::value_type word_type;
+
 	typename Vector2::first_type::const_iterator i_idx;
 	typename Vector2::second_type::const_word_iterator i_elt;
 
 	std::fill (res.wordBegin (), res.wordEnd (), 0);
 
 	for (i_idx = v.first.begin (), i_elt = v.second.wordBegin (); i_idx != v.first.end (); ++i_idx, ++i_elt)
-        	*(res.wordBegin () + (*i_idx >> __LINBOX_LOGOF_SIZE)) = *i_elt;
+        	*(res.wordBegin () + (*i_idx >> WordTraits<word_type>::logof_size)) = *i_elt;
 
 	return res;
 }
@@ -1046,7 +1050,7 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 	std::fill (res.wordBegin (), res.wordEnd (), 0);
 
 	for (i = v.begin (); i != v.end (); ++i)
-        	*(res.wordBegin () + (i->first >> __LINBOX_LOGOF_SIZE)) = i->second;
+        	*(res.wordBegin () + (i->first >> WordTraits<typename Vector2::word_type>::logof_size)) = i->second;
 
 	return res;
 }
@@ -1204,12 +1208,14 @@ Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 					      VectorCategories::DenseZeroOneVectorTag,
 					      VectorCategories::HybridZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector2::second_type::const_word_iterator>::value_type word_type;
+
 	typename Vector2::first_type::const_iterator i_idx;
 	typename Vector2::second_type::const_word_iterator i_elt;
 	typename Vector1::word_iterator j = y.wordBegin ();
 
 	for (i_idx = x.first.begin (), i_elt = x.second.wordBegin (); i_idx != x.first.end (); ++i_idx, ++i_elt)
-		*(j + (*i_idx >> __LINBOX_LOGOF_SIZE)) ^= *i_elt;
+		*(j + (*i_idx >> WordTraits<word_type>::logof_size)) ^= *i_elt;
 
 	return y;
 }
@@ -1223,7 +1229,7 @@ Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 	typename Vector1::word_iterator j = y.wordBegin ();
 
 	for (i = x.begin (); i != x.end (); ++i)
-		*(j + (i->first >> __LINBOX_LOGOF_SIZE)) ^= i->second;
+		*(j + (i->first >> WordTraits<typename Vector2::word_type>::logof_size)) ^= i->second;
 
 	return y;
 }

@@ -35,18 +35,19 @@ class BitVector
 	typedef bool        value_type;
 	typedef size_t      size_type;
 	typedef long         difference_type;
-	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::iterator               word_iterator;
-	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::const_iterator         const_word_iterator;
-	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::reverse_iterator       reverse_word_iterator;
-	typedef std::vector<__LINBOX_BITVECTOR_WORD_TYPE>::const_reverse_iterator const_reverse_word_iterator;
+	typedef __LINBOX_BITVECTOR_WORD_TYPE word_type;
+	typedef std::vector<word_type>::iterator               word_iterator;
+	typedef std::vector<word_type>::const_iterator         const_word_iterator;
+	typedef std::vector<word_type>::reverse_iterator       reverse_word_iterator;
+	typedef std::vector<word_type>::const_reverse_iterator const_reverse_word_iterator;
 
 	typedef _Endianness Endianness;
 
 	BitVector () {}
 	BitVector (std::vector<bool> &v)
 		{ *this = v; }
-	BitVector (std::vector<__LINBOX_BITVECTOR_WORD_TYPE> &v)
-		: _v (v), _size (_v.size () * __LINBOX_BITSOF_LONG) {}
+	BitVector (std::vector<word_type> &v)
+		: _v (v), _size (_v.size () * WordTraits<word_type>::bits) {}
 	BitVector (size_t n, bool val = false)
 		{ resize (n, val); }
 		
@@ -107,10 +108,10 @@ class BitVector
 
 	// Word access
 
-	inline __LINBOX_BITVECTOR_WORD_TYPE       &front_word (void)       { return _v.front (); }
-	inline const __LINBOX_BITVECTOR_WORD_TYPE &front_word (void) const { return _v.front (); }
-	inline __LINBOX_BITVECTOR_WORD_TYPE       &back_word  (void)       { return _v.back (); }
-	inline const __LINBOX_BITVECTOR_WORD_TYPE &back_word  (void) const { return _v.back (); }
+	inline word_type       &front_word (void)       { return _v.front (); }
+	inline const word_type &front_word (void) const { return _v.front (); }
+	inline word_type       &back_word  (void)       { return _v.back (); }
+	inline const word_type &back_word  (void) const { return _v.back (); }
 
 	// Appending to end of vector
 
@@ -118,11 +119,11 @@ class BitVector
 
 	// Push a whole word onto the back of the bit-vector
 	// WARNING: Does not change size! Call resize afterwards to set the correct size.
-	inline void push_word_back (__LINBOX_BITVECTOR_WORD_TYPE w)
+	inline void push_word_back (word_type w)
 		{ _v.push_back (w); }
 
 	// Inserting a word into the vector
-	inline void insertWord (word_iterator position, __LINBOX_BITVECTOR_WORD_TYPE word)
+	inline void insertWord (word_iterator position, word_type word)
 		{ _v.insert (position, word); }
 
 	// Erasing a word from the vector
@@ -142,21 +143,21 @@ class BitVector
 	inline size_type word_size (void) const { return _v.size ();       }
 
 	// FIXME: This should be _v.max_size (), not _v.size (), or am I mistaken?
-	inline size_type max_size  (void) const { return _v.size  () * __LINBOX_BITSOF_LONG; }
+	inline size_type max_size  (void) const { return _v.size  () * WordTraits<word_type>::bits; }
 
 	inline bool operator == (const BitVector &v) const;
 
 	// Used for hybrid vectors to make sure _size is correctly set after setting the vector up
 	void fix_size (size_type size_mod_word) {
-		if (size_mod_word & __LINBOX_POS_ALL_ONES)
-			_size = ((_v.size () - 1) << __LINBOX_LOGOF_SIZE) + (size_mod_word & __LINBOX_POS_ALL_ONES);
+		if (size_mod_word & WordTraits<word_type>::pos_mask)
+			_size = ((_v.size () - 1) << WordTraits<word_type>::logof_size) + (size_mod_word & WordTraits<word_type>::pos_mask);
 		else
-			_size = (_v.size () << __LINBOX_LOGOF_SIZE);
+			_size = (_v.size () << WordTraits<word_type>::logof_size);
 	}
 
     protected:
 
-	std::vector<__LINBOX_BITVECTOR_WORD_TYPE> _v;
+	std::vector<word_type> _v;
 	size_t              _size;
 
 }; // template <class Vector> class ReverseVector

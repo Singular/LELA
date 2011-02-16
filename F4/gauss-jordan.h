@@ -89,7 +89,7 @@ namespace F4 {
 		typedef std::pair<std::vector<uint16>, BitVector<Endianness> > SparseVector;
 		typedef LinBox::SparseMatrix<bool, std::pair<std::vector<uint16>, BitVector<Endianness> >, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
 		typedef LinBox::M4RIMatrix DenseMatrix;
-		static const size_t cutoff = __LINBOX_BITSOF_LONG;
+		static const size_t cutoff = WordTraits<BitVector<Endianness>::word_type>::bits;
 	};
 
 	/**
@@ -475,6 +475,7 @@ namespace F4 {
 		{
 			static Vector tmp;
 			typedef BitSubvectorWordAligned<typename Vector::second_type::word_iterator, typename Vector::second_type::const_word_iterator, Endianness> elt_type;
+			typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
 
 			std::pair<Subvector<typename Vector::first_type::iterator>, elt_type>
 				t (Subvector<typename Vector::first_type::iterator> (v.first.begin () + idx, v.first.end ()),
@@ -482,7 +483,7 @@ namespace F4 {
 
 			VD.add (tmp, t, w);
 			v.first.resize (idx + tmp.first.size ());
-			v.second.resize ((idx + tmp.second.word_size ()) << __LINBOX_LOGOF_SIZE);
+			v.second.resize ((idx + tmp.second.word_size ()) << WordTraits<word_type>::logof_size);
 			std::copy (tmp.first.begin (), tmp.first.end (), v.first.begin () + idx);
 			std::copy (tmp.second.wordBegin (), tmp.second.wordEnd (), v.second.wordBegin () + idx);
 		}
@@ -492,26 +493,27 @@ namespace F4 {
 			std::cout << "GaussJordan: Testing FastAddin" << std::endl;
 
 			RawVector<bool>::Hybrid v, w;
+			typedef std::iterator_traits<RawVector<bool>::Hybrid::second_type::const_word_iterator>::value_type word_type;
 
 			std::cout << std::hex << std::setfill ('0');
 
 			v.first.push_back (0);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (__LINBOX_BITSOF_LONG);
+			v.first.push_back (WordTraits<word_type>::bits);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
 
-			w.first.push_back (__LINBOX_BITSOF_LONG);
+			w.first.push_back (WordTraits<word_type>::bits);
 			w.second.push_word_back (0x00ffff0000ffff00ULL);
 
 			FastAddin (v, w, 1);
 
 			if (v.second.front_word () != 0xffff0000ffff0000ULL)
-				std::cout << "Test 1 not okay: first word is " << std::setw (__LINBOX_BITSOF_LONG / 4) << v.second.front_word () << " but should be ffff0000ffff0000" << std::endl;
+				std::cout << "Test 1 not okay: first word is " << std::setw (WordTraits<word_type>::bits / 4) << v.second.front_word () << " but should be ffff0000ffff0000" << std::endl;
 			else
 				std::cout << "Test 1 okay" << std::endl;
 
 			if (*(v.second.wordBegin () + 1) != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 2 not okay: second word is " << std::setw (__LINBOX_BITSOF_LONG / 4) << *(v.second.wordBegin () + 1) << " but should be ff00ff00ff00ff00" << std::endl;
+				std::cout << "Test 2 not okay: second word is " << std::setw (WordTraits<word_type>::bits / 4) << *(v.second.wordBegin () + 1) << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 2 okay" << std::endl;
 
@@ -522,7 +524,7 @@ namespace F4 {
 
 			v.first.push_back (0);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (__LINBOX_BITSOF_LONG);
+			v.first.push_back (WordTraits<word_type>::bits);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
 
 			w.first.push_back (0);
@@ -531,12 +533,12 @@ namespace F4 {
 			FastAddin (v, w, 0);
 
 			if (v.second.front_word () != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 3 not okay: first word is " << std::setw (__LINBOX_BITSOF_LONG / 4) << v.second.front_word () << " but should be ff00ff00ff00ff00" << std::endl;
+				std::cout << "Test 3 not okay: first word is " << std::setw (WordTraits<word_type>::bits / 4) << v.second.front_word () << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 3 okay" << std::endl;
 
 			if (*(v.second.wordBegin () + 1) != 0xffff0000ffff0000ULL)
-				std::cout << "Test 4 not okay: second word is " << std::setw (__LINBOX_BITSOF_LONG / 4) << *(v.second.wordBegin () + 1) << " but should be ffff0000ffff0000" << std::endl;
+				std::cout << "Test 4 not okay: second word is " << std::setw (WordTraits<word_type>::bits / 4) << *(v.second.wordBegin () + 1) << " but should be ffff0000ffff0000" << std::endl;
 			else
 				std::cout << "Test 4 okay" << std::endl;
 
@@ -547,23 +549,23 @@ namespace F4 {
 
 			v.first.push_back (0);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (__LINBOX_BITSOF_LONG);
+			v.first.push_back (WordTraits<word_type>::bits);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
 
 			w.first.push_back (0);
 			w.second.push_word_back (0x00ffff0000ffff00ULL);
-			w.first.push_back (__LINBOX_BITSOF_LONG);
+			w.first.push_back (WordTraits<word_type>::bits);
 			w.second.push_word_back (0x00ffff0000ffff00ULL);
 
 			FastAddin (v, w, 0);
 
 			if (v.second.front_word () != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 5 not okay: first word is " << std::setw (__LINBOX_BITSOF_LONG / 4) << v.second.front_word () << " but should be ff00ff00ff00ff00" << std::endl;
+				std::cout << "Test 5 not okay: first word is " << std::setw (WordTraits<word_type>::bits / 4) << v.second.front_word () << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 5 okay" << std::endl;
 
 			if (*(v.second.wordBegin () + 1) != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 6 not okay: second word is " << std::setw (__LINBOX_BITSOF_LONG / 4) << *(v.second.wordBegin () + 1) << " but should be ff00ff00ff00ff00" << std::endl;
+				std::cout << "Test 6 not okay: second word is " << std::setw (WordTraits<word_type>::bits / 4) << *(v.second.wordBegin () + 1) << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 6 okay" << std::endl;
 

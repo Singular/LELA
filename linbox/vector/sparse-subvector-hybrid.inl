@@ -28,6 +28,7 @@ class HybridSubvectorConstIterator
 	typedef typename std::pair<typename Vector::first_type::value_type, typename Vector::second_type::const_word_iterator::value_type> value_type;
 	typedef typename Vector::first_type::difference_type difference_type;
 	typedef typename Vector::second_type::const_iterator::Endianness Endianness;
+	typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
 
 	typedef SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag> container_type;
 
@@ -38,7 +39,7 @@ class HybridSubvectorConstIterator
 			: first (r.first), second (r.second) {}
 
 		typename Vector::first_type::value_type first;
-		typename Vector::second_type::const_word_iterator::value_type second;
+		word_type second;
 	};
 
 	HybridSubvectorConstIterator () {}
@@ -46,7 +47,7 @@ class HybridSubvectorConstIterator
 				      const typename Vector::first_type::const_iterator &index_pos,
 				      const typename Vector::second_type::const_word_iterator &value_pos)
 		: _v (&v), _index_pos (index_pos), _value_pos (value_pos), _ref_first_valid (false), _ref_second_valid (false)
-		{ _ref.first = (typename Vector::first_type::value_type) -__LINBOX_BITSOF_LONG; }
+		{ _ref.first = (typename Vector::first_type::value_type) -WordTraits<word_type>::bits; }
 
 	template <class Vector1>
 	HybridSubvectorConstIterator (const HybridSubvectorConstIterator<Vector1> &i)
@@ -68,7 +69,7 @@ class HybridSubvectorConstIterator
 	HybridSubvectorConstIterator &operator ++ () 
 	{
 		if (_ref.first + _v->_start < *_index_pos) {
-			_ref.first += __LINBOX_BITSOF_LONG;
+			_ref.first += WordTraits<word_type>::bits;
 			_ref_second_valid = false;
 		} else {
 			++_index_pos;
@@ -127,13 +128,13 @@ class HybridSubvectorConstIterator
 	bool _ref_second_valid;
 
 	inline void update_ref () {
-		typename Vector::first_type::value_type shift = _v->_start & __LINBOX_POS_ALL_ONES;
+		typename Vector::first_type::value_type shift = _v->_start & WordTraits<word_type>::pos_mask;
 
 		if (!_ref_first_valid) {
-			if (_ref.first + _v->_start + __LINBOX_BITSOF_LONG >= *_index_pos)
-				_ref.first += __LINBOX_BITSOF_LONG;
+			if (_ref.first + _v->_start + WordTraits<word_type>::bits >= *_index_pos)
+				_ref.first += WordTraits<word_type>::bits;
 			else
-				_ref.first = (*_index_pos - _v->_start) & ~__LINBOX_POS_ALL_ONES;
+				_ref.first = (*_index_pos - _v->_start) & ~WordTraits<word_type>::pos_mask;
 
 			_ref_first_valid = true;
 		}
@@ -142,14 +143,14 @@ class HybridSubvectorConstIterator
 			if (shift == 0)
 				_ref.second = *_value_pos;
 			else if (_ref.first + _v->_start < *_index_pos)
-				_ref.second = Endianness::shift_right (*_value_pos, __LINBOX_BITSOF_LONG - shift);
-			else if ((_index_pos + 1 == _v->_end_idx && _v->_end_is_end) || _index_pos[1] > *_index_pos + __LINBOX_BITSOF_LONG)
+				_ref.second = Endianness::shift_right (*_value_pos, WordTraits<word_type>::bits - shift);
+			else if ((_index_pos + 1 == _v->_end_idx && _v->_end_is_end) || _index_pos[1] > *_index_pos + WordTraits<word_type>::bits)
 				_ref.second = Endianness::shift_left (*_value_pos, shift);
 			else
-				_ref.second = Endianness::shift_left (*_value_pos, shift) | Endianness::shift_right (_value_pos[1], __LINBOX_BITSOF_LONG - shift);
+				_ref.second = Endianness::shift_left (*_value_pos, shift) | Endianness::shift_right (_value_pos[1], WordTraits<word_type>::bits - shift);
 
-			if (_ref.first + __LINBOX_BITSOF_LONG > _v->_end - _v->_start)
-				_ref.second &= Endianness::mask_left ((_v->_end - _v->_start) & __LINBOX_POS_ALL_ONES);
+			if (_ref.first + WordTraits<word_type>::bits > _v->_end - _v->_start)
+				_ref.second &= Endianness::mask_left ((_v->_end - _v->_start) & WordTraits<word_type>::pos_mask);
 
 			_ref_second_valid = true;
 		}

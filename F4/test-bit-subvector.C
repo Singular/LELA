@@ -26,7 +26,7 @@ word connect (word word1, word word2, int shift)
 	if (shift == 0)
 		return word1;
 	else
-		return Endianness::shift_left (word1, shift) | Endianness::shift_right (word2, __LINBOX_BITSOF_LONG - shift);
+		return Endianness::shift_left (word1, shift) | Endianness::shift_right (word2, WordTraits<word>::bits - shift);
 }
 
 // To be tested:
@@ -51,15 +51,15 @@ int testConstIterator (int n, int k)
 
 		BitSubvector<BitVector<Endianness>::const_iterator>::const_word_iterator i;
 
-		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
+		flip = ((offset / WordTraits<word>::bits) % 2 == 0) ? 0 : 1;
 
 		size_t idx = 0;
 				
-		for (i = vp.wordBegin (); i != vp.wordEnd (); ++i, flip = 1 - flip, idx += __LINBOX_BITSOF_LONG) {
-			word check = connect (pattern[flip], pattern[1-flip], offset % __LINBOX_BITSOF_LONG);
+		for (i = vp.wordBegin (); i != vp.wordEnd (); ++i, flip = 1 - flip, idx += WordTraits<word>::bits) {
+			word check = connect (pattern[flip], pattern[1-flip], offset % WordTraits<word>::bits);
 
-			if (idx + __LINBOX_BITSOF_LONG > k)
-				check &= Endianness::mask_left (k % __LINBOX_BITSOF_LONG);
+			if (idx + WordTraits<word>::bits > k)
+				check &= Endianness::mask_left (k % WordTraits<word>::bits);
 			
 			if (*i != check) {
 				std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
@@ -95,7 +95,7 @@ int testIterator (int n, int k)
 		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i;
 		BitSubvector<BitVector<Endianness>::iterator>::const_word_iterator j, k;
 
-		flip = ((offset / __LINBOX_BITSOF_LONG) % 2 == 0) ? 0 : 1;
+		flip = ((offset / WordTraits<word>::bits) % 2 == 0) ? 0 : 1;
 				
 		for (i = vp.wordBegin (), j = vp.wordBegin (), k = vp.wordBegin (); i != vp.wordEnd (); ++i, ++j, ++k, flip = 1 - flip) {
 			if (*j != *i) {
@@ -130,7 +130,7 @@ int testMask ()
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	static const int n = 3 * __LINBOX_BITSOF_LONG;
+	static const int n = 3 * WordTraits<word>::bits;
 	static const int k = 16;
 
 	BitVector<Endianness> v (n);
@@ -143,21 +143,21 @@ int testMask ()
 
 	size_t offset;
 	
-	for (offset = 0; offset < __LINBOX_BITSOF_LONG; ++offset) {
+	for (offset = 0; offset < WordTraits<word>::bits; ++offset) {
 		BitSubvector<BitVector<Endianness>::iterator> vp1 (v.begin () + offset, v.begin () + (offset + k));
-		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset + k, v.begin () + (offset + k + __LINBOX_BITSOF_LONG));
+		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset + k, v.begin () + (offset + k + WordTraits<word>::bits));
 
 		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i = vp1.wordBegin ();
 		BitSubvector<BitVector<Endianness>::const_iterator>::const_word_iterator j = vp2.wordBegin ();
 
 		*i ^= pattern[0];
 
-		if (k + offset >= __LINBOX_BITSOF_LONG)
+		if (k + offset >= WordTraits<word>::bits)
 			flip = 1;
 		else
 			flip = 0;
 
-		word check = connect (pattern[flip], pattern[1 - flip], (k + offset) % __LINBOX_BITSOF_LONG);
+		word check = connect (pattern[flip], pattern[1 - flip], (k + offset) % WordTraits<word>::bits);
 
 		if (*j != check) {
 			std::cerr << __FUNCTION__ << ": error at offset " << offset << std::endl;
@@ -186,9 +186,9 @@ int testWordLength (int n, int k)
 
 	size_t offset;
 
-	size_t correct_len = k / __LINBOX_BITSOF_LONG;
+	size_t correct_len = k / WordTraits<word>::bits;
 
-	if (k % __LINBOX_BITSOF_LONG != 0)
+	if (k % WordTraits<word>::bits != 0)
 		++correct_len;
 	
 	for (offset = 0; offset <= n - k; ++offset) {
@@ -227,8 +227,8 @@ void runTests ()
 
 	testMask ();
 	
-	for (n = 256; n < 256 + __LINBOX_BITSOF_LONG; ++n) {
-		for (k = 128; k < 128 + __LINBOX_BITSOF_LONG; ++k) {
+	for (n = 256; n < 256 + WordTraits<word>::bits; ++n) {
+		for (k = 128; k < 128 + WordTraits<word>::bits; ++k) {
 			std::cout << __FUNCTION__ << ": Running tests for main vector-length " << n << ", subvector-length " << k << std::endl;
 			if (testWordLength (n, k) == -1 || testConstIterator (n, k) == -1 || testIterator (n, k) == -1)
 				return;

@@ -35,6 +35,7 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 	typedef typename Vector::first_type::difference_type       difference_type;
 
 	typedef typename Vector::second_type::Endianness Endianness;
+	typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
 
 	typedef HybridSubvectorConstIterator<Vector> const_iterator;
 
@@ -68,11 +69,11 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 			    typename Vector::first_type::const_iterator idx_end,
 			    typename Vector::second_type::const_word_iterator elt_begin)
 	{
-		_start_idx = std::lower_bound (idx_begin, idx_end, _start & ~__LINBOX_POS_ALL_ONES);
-		_end_idx = std::upper_bound (idx_begin, idx_end, _end & ~__LINBOX_POS_ALL_ONES);
+		_start_idx = std::lower_bound (idx_begin, idx_end, _start & ~WordTraits<word_type>::pos_mask);
+		_end_idx = std::upper_bound (idx_begin, idx_end, _end & ~WordTraits<word_type>::pos_mask);
 		_start_elt = elt_begin + (_start_idx - idx_begin);
 
-		if (_end_idx != _start_idx && *(_end_idx - 1) + (_start & __LINBOX_POS_ALL_ONES) >= _end)
+		if (_end_idx != _start_idx && *(_end_idx - 1) + (_start & WordTraits<word_type>::pos_mask) >= _end)
 			_end_marker = _end_idx - 1;
 		else
 			_end_marker = _end_idx;

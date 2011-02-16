@@ -18,59 +18,79 @@
 namespace LinBox
 {
 
-#undef __LINBOX_SIZEOF_BITVECTOR_WORD_TYPE
-#define __LINBOX_BITVECTOR_WORD_TYPE unsigned long long
-#define __LINBOX_SIZEOF_BITVECTOR_WORD_TYPE __LINBOX_SIZEOF_LONG
+#ifndef __LINBOX_BITVECTOR_WORD_TYPE
+#  if __LINBOX_SIZEOF_LONG == 8
+#    define __LINBOX_BITVECTOR_WORD_TYPE uint64
+#  else
+#    define __LINBOX_BITVECTOR_WORD_TYPE uint32
+#  endif
+#endif
 
-/** Binary constant defined both for 32 and 64 bits
+/** Structure definining information on word-sizes
  */
-#if (__LINBOX_SIZEOF_BITVECTOR_WORD_TYPE == 1)
-#define __LINBOX_BITSOF_LONG 8
-#define __LINBOX_BITSOF_LONG_MUN 7
-#define __LINBOX_LOGOF_SIZE 3
-#define __LINBOX_POS_ALL_ONES 0x07
-const __LINBOX_BITVECTOR_WORD_TYPE __LINBOX_ALL_ONES = static_cast<const __LINBOX_BITVECTOR_WORD_TYPE>(-1);
-#define __LINBOX_PARITY(s) ParallelParity(s)
+template <class _Word>
+struct WordTraits {
+	typedef _Word Word;
+	static const unsigned int bits;
+	static const unsigned int logof_size;
+	static const unsigned int pos_mask;
+	static const Word all_ones;
 
-    inline bool ParallelParity(unsigned char t) {
-	t ^= (t >> 4);
-        t &= 0xf;
-        return bool( (0x6996 >> t) & 0x1);
-    }
-#endif
-#if (__LINBOX_SIZEOF_BITVECTOR_WORD_TYPE == 4)
-#define __LINBOX_BITSOF_LONG 32
-#define __LINBOX_BITSOF_LONG_MUN 31
-#define __LINBOX_LOGOF_SIZE 5
-#define __LINBOX_POS_ALL_ONES 0x1F
-const __LINBOX_BITVECTOR_WORD_TYPE __LINBOX_ALL_ONES = static_cast<const __LINBOX_BITVECTOR_WORD_TYPE>(-1);
-#define __LINBOX_PARITY(s) ParallelParity(s)
+	static inline bool ParallelParity (Word t);
+};
 
-    inline bool ParallelParity(__LINBOX_BITVECTOR_WORD_TYPE t) {
-	t ^= (t >> 16);
-	t ^= (t >> 8);
-	t ^= (t >> 4);
-        t &= 0xf;
-        return bool( (0x6996 >> t) & 0x1);
-    }
-#endif
-#if (__LINBOX_SIZEOF_BITVECTOR_WORD_TYPE == 8)
-#define __LINBOX_BITSOF_LONG 64
-#define __LINBOX_BITSOF_LONG_MUN 63
-#define __LINBOX_LOGOF_SIZE 6
-#define __LINBOX_POS_ALL_ONES 0x3F
-const __LINBOX_BITVECTOR_WORD_TYPE __LINBOX_ALL_ONES = static_cast<const __LINBOX_BITVECTOR_WORD_TYPE>(-1);
-#define __LINBOX_PARITY(s) ParallelParity(s)
+/** Specialisation for 8-bit words */
+template <>
+struct WordTraits<uint8> {
+	typedef uint8 Word;
+	static const unsigned int bits = 8;
+	static const unsigned int logof_size = 3;
+	static const unsigned int pos_mask = 0x07;
+	static const Word all_ones = static_cast<const Word> (-1);
 
-    inline bool ParallelParity(__LINBOX_BITVECTOR_WORD_TYPE t) {
-	t ^= (t >> 32);
-	t ^= (t >> 16);
-	t ^= (t >> 8);
-	t ^= (t >> 4);
-        t &= 0xf;
-        return bool( (0x6996 >> t) & 0x1);
-    }
-#endif
+	static inline bool ParallelParity (Word t) {
+		t ^= (t >> 4);
+		t &= 0xf;
+		return bool( (0x6996 >> t) & 0x1);
+	}
+};
+
+/** Specialisation for 32-bit words */
+template <>
+struct WordTraits<uint32> {
+	typedef uint32 Word;
+	static const unsigned int bits = 32;
+	static const unsigned int logof_size = 5;
+	static const unsigned int pos_mask = 0x1F;
+	static const Word all_ones = static_cast<const Word> (-1);
+
+	static inline bool ParallelParity (Word t) {
+		t ^= (t >> 16);
+		t ^= (t >> 8);
+		t ^= (t >> 4);
+		t &= 0xf;
+		return bool( (0x6996 >> t) & 0x1);
+	}
+};
+
+/** Specialisation for 64-bit words */
+template <>
+struct WordTraits<uint64> {
+	typedef uint64 Word;
+	static const unsigned int bits = 64;
+	static const unsigned int logof_size = 6;
+	static const unsigned int pos_mask = 0x3F;
+	static const Word all_ones = static_cast<const Word> (-1);
+
+	static inline bool ParallelParity (Word t) {
+		t ^= (t >> 32);
+		t ^= (t >> 16);
+		t ^= (t >> 8);
+		t ^= (t >> 4);
+		t &= 0xf;
+		return bool( (0x6996 >> t) & 0x1);
+	}
+};
 
 // Generic routines for big endian word-order
 
@@ -83,7 +103,7 @@ public:
 	typedef _word word;
 
 	// Constant representing a one in the position zero in the word
-	static const word e_0 = 1ULL << __LINBOX_BITSOF_LONG_MUN;
+	static const word e_0 = 1ULL << (WordTraits<word>::bits - 1);
 
 	// Shift the given word pos positions to the right
 	static inline word shift_right (word w, uint8 pos) { return w >> pos; }
@@ -263,6 +283,7 @@ class BitVectorIterator : public std::_Bit_iterator
 	typedef bool value_type;
 	typedef long difference_type;
 	typedef size_t size_type;
+	typedef typename std::iterator_traits<const_word_iterator>::value_type word_type;
 
 	BitVectorIterator () : _ref (word_iterator (), 0UL) {}
 	BitVectorIterator (word_iterator word, uint8 position) : _ref (word, position) {}
@@ -276,7 +297,7 @@ class BitVectorIterator : public std::_Bit_iterator
 
 	BitVectorIterator &operator ++ () 
 	{
-		if (++_ref._pos > __LINBOX_BITSOF_LONG_MUN) {
+		if (++_ref._pos > (WordTraits<word_type>::bits - 1)) {
 			++_ref._word;
 			_ref._pos = 0UL;
 		}
@@ -293,29 +314,29 @@ class BitVectorIterator : public std::_Bit_iterator
 
 	BitVectorIterator operator + (difference_type i) const
 	{
-		word_iterator new_word = _ref._word + (i >> __LINBOX_LOGOF_SIZE);
-		uint8 new_pos = _ref._pos + (i & __LINBOX_POS_ALL_ONES);
+		word_iterator new_word = _ref._word + (i >> WordTraits<word_type>::logof_size);
+		uint8 new_pos = _ref._pos + (i & WordTraits<word_type>::pos_mask);
 
-		new_word += new_pos >> __LINBOX_LOGOF_SIZE;
-		new_pos &= __LINBOX_POS_ALL_ONES;
+		new_word += new_pos >> WordTraits<word_type>::logof_size;
+		new_pos &= WordTraits<word_type>::pos_mask;
 
 		return BitVectorIterator (new_word, new_pos);
 	}
 
 	BitVectorIterator &operator += (difference_type i) 
 	{
-		_ref._word += i >> __LINBOX_LOGOF_SIZE;
-		_ref._pos  += i & __LINBOX_POS_ALL_ONES;
-		_ref._word += _ref._pos >> __LINBOX_LOGOF_SIZE;
-		_ref._pos  &= __LINBOX_POS_ALL_ONES;
+		_ref._word += i >> WordTraits<word_type>::logof_size;
+		_ref._pos  += i & WordTraits<word_type>::pos_mask;
+		_ref._word += _ref._pos >> WordTraits<word_type>::logof_size;
+		_ref._pos  &= WordTraits<word_type>::pos_mask;
 		return *this;
 	}
 
 	BitVectorIterator &operator -- () 
 	{
-		if (--_ref._pos > __LINBOX_BITSOF_LONG_MUN) {
+		if (--_ref._pos > (WordTraits<word_type>::bits - 1)) {
 			--_ref._word;
-			_ref._pos = __LINBOX_BITSOF_LONG_MUN;
+			_ref._pos = (WordTraits<word_type>::bits - 1);
 		}
 
 		return *this;
@@ -335,7 +356,7 @@ class BitVectorIterator : public std::_Bit_iterator
 		{ return *this += -i; }
 
 	difference_type operator - (BitVectorIterator i) const 
-		{ return (_ref._word - i._ref._word) * __LINBOX_BITSOF_LONG + (_ref._pos - i._ref._pos); }
+		{ return (_ref._word - i._ref._word) * WordTraits<word_type>::bits + (_ref._pos - i._ref._pos); }
 
 	reference operator [] (long i) 
 		{ return *(*this + i); }
@@ -377,6 +398,7 @@ class BitVectorConstIterator : public std::iterator <std::random_access_iterator
 	typedef bool value_type;
 	typedef long difference_type;
 	typedef size_t size_type;
+	typedef typename std::iterator_traits<const_word_iterator>::value_type word_type;
 
 	BitVectorConstIterator () : _ref (const_word_iterator (), 0UL) {}
 	BitVectorConstIterator (const_word_iterator word, uint8 position) : _ref (word, position) {}
@@ -399,7 +421,7 @@ class BitVectorConstIterator : public std::iterator <std::random_access_iterator
 
 	BitVectorConstIterator &operator ++ () 
 	{
-		if (++_ref._pos > __LINBOX_BITSOF_LONG_MUN) {
+		if (++_ref._pos > WordTraits<word_type>::bits - 1) {
 			++_ref._word;
 			_ref._pos = 0UL;
 		}
@@ -416,29 +438,29 @@ class BitVectorConstIterator : public std::iterator <std::random_access_iterator
 
 	BitVectorConstIterator operator + (long i) const
 	{
-		const_word_iterator new_word = _ref._word + (i >> __LINBOX_LOGOF_SIZE);
-		uint8 new_pos = _ref._pos + (i & __LINBOX_POS_ALL_ONES);
+		const_word_iterator new_word = _ref._word + (i >> WordTraits<word_type>::logof_size);
+		uint8 new_pos = _ref._pos + (i & WordTraits<word_type>::pos_mask);
 
-		new_word += new_pos >> __LINBOX_LOGOF_SIZE;
-		new_pos &= __LINBOX_POS_ALL_ONES;
+		new_word += new_pos >> WordTraits<word_type>::logof_size;
+		new_pos &= WordTraits<word_type>::pos_mask;
 
 		return BitVectorConstIterator (new_word, new_pos);
 	}
 
 	BitVectorConstIterator &operator += (long i) 
 	{
-		_ref._word += i >> __LINBOX_LOGOF_SIZE;
-		_ref._pos  += i & __LINBOX_POS_ALL_ONES;
-		_ref._word += _ref._pos >> __LINBOX_LOGOF_SIZE;
-		_ref._pos  &= __LINBOX_POS_ALL_ONES;
+		_ref._word += i >> WordTraits<word_type>::logof_size;
+		_ref._pos  += i & WordTraits<word_type>::pos_mask;
+		_ref._word += _ref._pos >> WordTraits<word_type>::logof_size;
+		_ref._pos  &= WordTraits<word_type>::pos_mask;
 		return *this;
 	}
 
 	BitVectorConstIterator &operator -- () 
 	{
-		if (--_ref._pos > __LINBOX_BITSOF_LONG_MUN) {
+		if (--_ref._pos > WordTraits<word_type>::bits - 1) {
 			--_ref._word;
-			_ref._pos = __LINBOX_BITSOF_LONG_MUN;
+			_ref._pos = WordTraits<word_type>::bits - 1;
 		}
 
 		return *this;
@@ -458,7 +480,7 @@ class BitVectorConstIterator : public std::iterator <std::random_access_iterator
 		{ return *this += -i; }
 
 	difference_type operator - (BitVectorConstIterator i) const 
-		{ return (_ref._word - i._ref._word) * __LINBOX_BITSOF_LONG + (_ref._pos - i._ref._pos); }
+		{ return (_ref._word - i._ref._word) * WordTraits<word_type>::bits + (_ref._pos - i._ref._pos); }
 
 	reference operator [] (difference_type i) const
 		{ return *(*this + i); }

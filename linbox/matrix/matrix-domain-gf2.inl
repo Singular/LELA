@@ -175,6 +175,8 @@ template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 						     VectorCategories::HybridZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector2::second_type::const_word_iterator>::value_type word_type;
+	
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
 
@@ -194,12 +196,12 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 		_VD.dot (d, *i_A, x);
 
 		if (d) {
-			if (t.first.empty () || t.first.back () != idx & ~__LINBOX_POS_ALL_ONES) {
-				t.first.push_back (idx & ~__LINBOX_POS_ALL_ONES);
-				t.second.push_back (1ULL << (idx & __LINBOX_POS_ALL_ONES));
+			if (t.first.empty () || t.first.back () != idx & ~WordTraits<word_type>::pos_mask) {
+				t.first.push_back (idx & ~WordTraits<word_type>::pos_mask);
+				t.second.push_back (1ULL << (idx & WordTraits<word_type>::pos_mask));
 			}
 			else {
-				t.second.back () |= 1ULL << (idx & __LINBOX_POS_ALL_ONES);
+				t.second.back () |= 1ULL << (idx & WordTraits<word_type>::pos_mask);
 			}
 		}
 	}
@@ -259,6 +261,8 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 template <class Matrix1, class Matrix3>
 Matrix3 &MatrixDomainSupportGF2::gemmRowRowRow (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C) const
 {
+	typedef typename DenseZeroOneMatrix<>::word_type word_type;
+
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
@@ -270,17 +274,17 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRow (const bool &a, const Matrix1 &A,
 		return C;
 	}
 
-	size_t raw_coldim = (B.startCol () & __LINBOX_POS_ALL_ONES) + B.coldim ();
-	size_t coldim = (!(raw_coldim & __LINBOX_POS_ALL_ONES)) ? raw_coldim : ((raw_coldim & ~__LINBOX_POS_ALL_ONES) + __LINBOX_BITSOF_LONG);
+	size_t raw_coldim = (B.startCol () & WordTraits<word_type>::pos_mask) + B.coldim ();
+	size_t coldim = (!(raw_coldim & WordTraits<word_type>::pos_mask)) ? raw_coldim : ((raw_coldim & ~WordTraits<word_type>::pos_mask) + WordTraits<word_type>::bits);
 
 	DenseZeroOneMatrix<> &Cp = *const_cast<DenseZeroOneMatrix<> *> (&_Cp);
 	Cp.resize (C.rowdim (), coldim);
 
-	DenseZeroOneMatrix<> Bp (B.parent (), B.startRow (), B.startCol () & ~__LINBOX_POS_ALL_ONES, B.rowdim (), coldim);
+	DenseZeroOneMatrix<> Bp (B.parent (), B.startRow (), B.startCol () & ~WordTraits<word_type>::pos_mask, B.rowdim (), coldim);
 
 	gemm (a, A, Bp, b, Cp);
 
-	Submatrix<DenseZeroOneMatrix<> > Cpp (Cp, 0, B.startCol () & __LINBOX_POS_ALL_ONES, C.rowdim (), B.coldim ());
+	Submatrix<DenseZeroOneMatrix<> > Cpp (Cp, 0, B.startCol () & WordTraits<word_type>::pos_mask, C.rowdim (), B.coldim ());
 	copy (C, Cpp);
 
 	return C;

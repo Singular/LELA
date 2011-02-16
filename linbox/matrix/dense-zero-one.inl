@@ -200,28 +200,28 @@ template <class Iterator, class ConstIterator, class Endianness>
 typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator
 DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowBegin ()
 {
-	return RowIterator (_begin, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
+	return RowIterator (_begin, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp);
 }
 
 template <class Iterator, class ConstIterator, class Endianness>
 typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator
 DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowEnd ()
 {
-	return RowIterator (_begin + _rows * _disp, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
+	return RowIterator (_begin + _rows * _disp, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp);
 }
 
 template <class Iterator, class ConstIterator, class Endianness>
 typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator
 DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowBegin () const
 {
-	return ConstRowIterator (_begin, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
+	return ConstRowIterator (_begin, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp);
 }
 
 template <class Iterator, class ConstIterator, class Endianness>
 typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator
 DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowEnd () const
 {
-	return ConstRowIterator (_begin + _rows * _disp, (!(_cols & __LINBOX_POS_ALL_ONES)) ? (_cols >> __LINBOX_LOGOF_SIZE) : ((_cols >> __LINBOX_LOGOF_SIZE) + 1), _cols, _disp);
+	return ConstRowIterator (_begin + _rows * _disp, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp);
 }
 
 template <class Iterator, class ConstIterator, class Endianness>

@@ -31,6 +31,7 @@ class DenseZeroOneMatrix
 	typedef bool Element;
 	typedef BitVector<Endianness> Rep;
         typedef DenseZeroOneMatrix Self_t;
+	typedef typename std::iterator_traits<Iterator>::value_type word_type;
 
 	template <class It1, class It2, class End>
 	friend class DenseZeroOneMatrix;
@@ -46,8 +47,8 @@ class DenseZeroOneMatrix
 	 */
 	DenseZeroOneMatrix (size_t m, size_t n)
 		: _rows (m), _cols (n),
-		  _disp ((!(n & __LINBOX_POS_ALL_ONES)) ? (n >> __LINBOX_LOGOF_SIZE) : ((n >> __LINBOX_LOGOF_SIZE) + 1)),
-		  _rep (m * ((!(n & __LINBOX_POS_ALL_ONES)) ? (n >> __LINBOX_LOGOF_SIZE) : ((n >> __LINBOX_LOGOF_SIZE) + 1)) * __LINBOX_BITSOF_LONG)
+		  _disp ((!(n & WordTraits<word_type>::pos_mask)) ? (n >> WordTraits<word_type>::logof_size) : ((n >> WordTraits<word_type>::logof_size) + 1)),
+		  _rep (m * ((!(n & WordTraits<word_type>::pos_mask)) ? (n >> WordTraits<word_type>::logof_size) : ((n >> WordTraits<word_type>::logof_size) + 1)) * WordTraits<word_type>::bits)
 		{ _begin = _rep.wordBegin (); }
 
 	/** Construct a word-aligned dense submatrix of a given dense matrix
@@ -56,7 +57,7 @@ class DenseZeroOneMatrix
 	DenseZeroOneMatrix (DenseZeroOneMatrix<It1, It2> &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: _rows (m), _cols (n), _disp (M._disp)
 	{
-		_begin = M._begin + beg_row * M._disp + (beg_col >> __LINBOX_LOGOF_SIZE);
+		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
 	}
 
 	/** Version of above for const matrices
@@ -65,7 +66,7 @@ class DenseZeroOneMatrix
 	DenseZeroOneMatrix (const DenseZeroOneMatrix<It1, It2> &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: _rows (m), _cols (n), _disp (M._disp)
 	{
-		_begin = M._begin + beg_row * M._disp + (beg_col >> __LINBOX_LOGOF_SIZE);
+		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
 	}
 
 	///
@@ -106,8 +107,8 @@ class DenseZeroOneMatrix
 	{
 		_rows = m;
 		_cols = n;
-		_disp = (!(n & __LINBOX_POS_ALL_ONES)) ? (n >> __LINBOX_LOGOF_SIZE) : ((n >> __LINBOX_LOGOF_SIZE) + 1);
-		_rep.resize (m * _disp * __LINBOX_BITSOF_LONG);
+		_disp = (!(n & WordTraits<word_type>::pos_mask)) ? (n >> WordTraits<word_type>::logof_size) : ((n >> WordTraits<word_type>::logof_size) + 1);
+		_rep.resize (m * _disp * WordTraits<word_type>::bits);
 		_begin = _rep.wordBegin ();
 	}
 
@@ -131,7 +132,7 @@ class DenseZeroOneMatrix
 	 * @param a_ij Element to set
 	 */
 	void setEntry (size_t i, size_t j, bool a_ij)
-		{ *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)) = a_ij; }
+		{ *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)) = a_ij; }
 
 	/** Get a writeable reference to the entry in the (i, j) position.
 	 * @param i Row index of entry
@@ -139,7 +140,7 @@ class DenseZeroOneMatrix
 	 * @returns Reference to matrix entry
 	 */
 	BitVectorReference<Iterator, Endianness> refEntry (size_t i, size_t j)
-		{ return *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); }
+		{ return *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)); }
 
 	/** Get a read-only reference to the entry in the (i, j) position.
 	 * @param i Row index
@@ -147,7 +148,7 @@ class DenseZeroOneMatrix
 	 * @returns Const reference to matrix entry
 	 */
 	bool getEntry (size_t i, size_t j) const
-		{ return *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); }
+		{ return *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)); }
 
 	/** Copy the (i, j) entry into x, and return a reference to x.
 	 * This form is more in the Linbox style and is provided for interface
@@ -158,7 +159,7 @@ class DenseZeroOneMatrix
 	 * @returns Reference to x
 	 */
 	Element &getEntry (Element &x, size_t i, size_t j) const
-		{ x = *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * __LINBOX_BITSOF_LONG + j)); return x; }
+		{ x = *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)); return x; }
 
 	/** @name Column of rows iterator
 	 * The column of rows iterator traverses the rows of the
@@ -183,10 +184,10 @@ class DenseZeroOneMatrix
 	 * @param i Row index
 	 */
 	Row operator[] (size_t i)
-		{ return Row (_begin + _disp * i, _begin + _disp * i + (_cols >> __LINBOX_LOGOF_SIZE), _cols); }
+		{ return Row (_begin + _disp * i, _begin + _disp * i + (_cols >> WordTraits<word_type>::logof_size), _cols); }
 
 	ConstRow operator[] (size_t i) const
-		{ return ConstRow (_begin + _disp * i, _begin + _disp * i + (_cols >> __LINBOX_LOGOF_SIZE), _cols); }
+		{ return ConstRow (_begin + _disp * i, _begin + _disp * i + (_cols >> WordTraits<word_type>::logof_size), _cols); }
 
 	/** Compute column density
 	 */
