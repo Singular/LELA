@@ -166,6 +166,43 @@ size_t ComputeMemoryUsage (const SparseMatrix &A)
 	return total_len;
 }
 
+// Check hybrid-vector to make sure it is valid
+
+bool CheckHybridVector (const SparseVector &v)
+{
+	SparseVector::first_type::const_iterator i = v.first.begin ();
+	SparseVector::first_type::value_type last = *i;
+
+	bool bad = false;
+
+	while (++i != v.first.end ()) {
+		if (last >= *i) {
+			std::cerr << __FUNCTION__ << ": Error at index " << i - v.first.begin () << ": last index is " << last << ", current is " << *i << std::endl;
+			bad = true;
+		}
+
+		last = *i;
+	}
+
+	return bad;
+}
+
+void CheckHybridMatrix (const SparseMatrix &A)
+{
+	SparseMatrix::ConstRowIterator i;
+
+	std::cout << __FUNCTION__ << ": Checking rows of matrix" << std::endl;
+
+	for (i = A.rowBegin (); i != A.rowEnd (); ++i) {
+		if (CheckHybridVector (*i)) {
+			std::cerr << __FUNCTION__ << ": Error at row " << i - A.rowBegin () << std::endl;
+			break;
+		}
+	}
+
+	std::cout << __FUNCTION__ << ": done" << std::endl;
+}
+
 // Real test using data from a PNG-file
 
 void fileTest (char *filename, char *output) {
@@ -185,6 +222,8 @@ void fileTest (char *filename, char *output) {
 	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 		<< "Total length of row-vectors: " << total << std::endl;
 
+	CheckHybridMatrix (*A);
+
 	F4Solver<Field> Solver (F);
 
 	size_t rank;
@@ -195,6 +234,8 @@ void fileTest (char *filename, char *output) {
 	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 		<< "Computed rank: " << rank << std::endl << "Computed determinant: ";
 	F.write (commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION), det) << std::endl;
+
+	CheckHybridMatrix (*A);
 
 	std::ofstream f (output);
 	A->write (f, F, FORMAT_GUILLAUME);
