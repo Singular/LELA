@@ -184,5 +184,5 @@ linbox/vector/Makefile
 tests/Makefile
 tests/data/Makefile
 macros/Makefile
+doc/Makefile
 ])
-
