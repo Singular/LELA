@@ -53,6 +53,7 @@
 #include "linbox/util/debug.h"
 #include "linbox/randiter/nonzero.h"
 #include "linbox/randiter/mersenne-twister.h"
+#include "linbox/vector/bit-iterator.h"
 
 namespace LinBox 
 {
@@ -784,6 +785,8 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 
 	Vector &get (Vector &v) 
 	{
+		typedef typename std::iterator_traits<typename Vector::first_type::iterator>::value_type index_type;
+		typedef typename std::iterator_traits<typename Vector::second_type::word_iterator>::value_type word_type;
 		typedef typename Vector::second_type::Endianness Endianness;
 
 		size_t i = (size_t) -1;
@@ -807,8 +810,8 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 
 			if (i >= _n) break;
 
-			size_t idx = i & ~(8 * sizeof (typename Vector::second_type::word_iterator::value_type) - 1);
-			typename Vector::second_type::word_iterator::value_type mask = Endianness::e_j (i & (8 * sizeof (typename Vector::second_type::word_iterator::value_type) - 1));
+			index_type idx = i >> WordTraits<word_type>::logof_size;
+			word_type mask = Endianness::e_j (i & WordTraits<word_type>::pos_mask);
 
 			if (!v.first.empty () && idx == v.first.back ()) {
 				v.second.back_word () |= mask;

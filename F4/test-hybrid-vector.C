@@ -71,14 +71,14 @@ bool testAdd ()
 	t.second.clear ();
 
 	u.first.push_back (0);
-	v.first.push_back (8 * sizeof (Word));
+	v.first.push_back (1);
 
 	u.second.push_word_back (1);
 	v.second.push_word_back (1);
 
 	t.first.push_back (0);
 	t.second.push_word_back (1);
-	t.first.push_back (8 * sizeof (Word));
+	t.first.push_back (1);
 	t.second.push_word_back (1);
 
 	VD.add (w, u, v);
@@ -106,7 +106,7 @@ bool testAdd ()
 	t.first.clear ();
 	t.second.clear ();
 
-	u.first.push_back (8 * sizeof (Word));
+	u.first.push_back (1);
 	v.first.push_back (0);
 
 	u.second.push_word_back (1);
@@ -114,7 +114,7 @@ bool testAdd ()
 
 	t.first.push_back (0);
 	t.second.push_word_back (1);
-	t.first.push_back (8 * sizeof (Word));
+	t.first.push_back (1);
 	t.second.push_word_back (1);
 
 	VD.add (w, u, v);
@@ -206,12 +206,12 @@ bool testAdd ()
 
 	u.first.push_back (0);
 	u.second.push_word_back (2ULL);
-	u.first.push_back (8 * sizeof (Word));
+	u.first.push_back (1);
 	u.second.push_word_back (1ULL);
 
 	v.first.push_back (0);
 	v.second.push_word_back (4ULL);
-	v.first.push_back (8 * sizeof (Word));
+	v.first.push_back (1);
 	v.second.push_word_back (1ULL);
 
 	t.first.push_back (0);
@@ -254,7 +254,7 @@ void testFirstNonzeroEntry ()
 
 	int idx;
 
-	v.first.push_back (2 * WordTraits<Word>::bits);
+	v.first.push_back (2);
 	v.second.push_word_back (Endianness::e_0);
 
 	idx = VD.firstNonzeroEntry (a, v);
@@ -268,12 +268,12 @@ void testFirstNonzeroEntry ()
 	v.first.clear ();
 	v.second.clear ();
 
-	v.first.push_back (2 * WordTraits<Word>::bits);
-	v.second.push_word_back (Endianness::e_j (16));
+	v.first.push_back (2);
+	v.second.push_word_back (Endianness::e_j (WordTraits<Word>::bits / 2));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 2 * WordTraits<Word>::bits + 16)
+	if (idx == 5 * WordTraits<Word>::bits / 2)
 		std::cout << "Test 2 okay" << std::endl;
 	else
 		std::cout << "Test 2 not okay: VD.firstNonzeroEntry (a, v) = " << idx
@@ -282,7 +282,7 @@ void testFirstNonzeroEntry ()
 	v.first.clear ();
 	v.second.clear ();
 
-	v.first.push_back (3 * WordTraits<Word>::bits);
+	v.first.push_back (3);
 	v.second.push_word_back (Endianness::e_j (WordTraits<Word>::bits - 1));
 
 	idx = VD.firstNonzeroEntry (a, v);
@@ -313,14 +313,14 @@ void testSparseSubvectorHybrid ()
 	Word pattern[2] = { 0xf0f0f0f0f0f0f0f0ULL, 0xaaaaaaaaaaaaaaaaULL };
 	Word check;
 
-	uint16 offset = 10;
-	uint16 len = WordTraits<Word>::bits + 8;
+	uint16 offset = 5;
+	uint16 len = WordTraits<Word>::bits + 4;
 
 	std::cout << __FUNCTION__ << ": Test 1" << std::endl;
 
 	v.first.push_back (0);
 	v.second.push_word_back (pattern[0]);
-	v.first.push_back (WordTraits<Word>::bits);
+	v.first.push_back (1);
 	v.second.push_word_back (pattern[1]);
 
 	SparseSubvector<HybridVector> v1 (v, offset, offset + len);
@@ -328,22 +328,22 @@ void testSparseSubvectorHybrid ()
 	SparseSubvector<HybridVector>::const_iterator i_v1 = v1.begin ();
 
 	if (i_v1->first != 0)
-		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v1->first << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v1->first << std::endl;
 
 	check = connect (pattern[0], pattern[1], offset);
 
 	if (i_v1->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v1->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v1->second) << std::endl;
 
 	++i_v1;
 
-	if (i_v1->first != WordTraits<Word>::bits)
-		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << WordTraits<Word>::bits << ", is " << i_v1->first << std::endl;
+	if (i_v1->first != 1)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be 1, is " << std::dec << i_v1->first << std::endl;
 
 	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % WordTraits<Word>::bits);
 
 	if (i_v1->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v1->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v1->second) << std::endl;
 
 	++i_v1;
 
@@ -355,7 +355,7 @@ void testSparseSubvectorHybrid ()
 
 	std::cout << __FUNCTION__ << ": Test 2" << std::endl;
 
-	v.first.push_back (WordTraits<Word>::bits);
+	v.first.push_back (1);
 	v.second.push_word_back (pattern[0]);
 
 	SparseSubvector<HybridVector> v2 (v, offset, offset + len);
@@ -363,22 +363,25 @@ void testSparseSubvectorHybrid ()
 	SparseSubvector<HybridVector>::const_iterator i_v2 = v2.begin ();
 
 	if (i_v2->first != 0)
-		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v2->first << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v2->first << std::endl;
 
 	check = connect (0ULL, pattern[0], offset);
 
 	if (i_v2->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v2->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v2->second) << std::endl;
 
 	++i_v2;
 
-	if (i_v2->first != WordTraits<Word>::bits)
-		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << WordTraits<Word>::bits << ", is " << i_v2->first << std::endl;
+	if (i_v2 == v2.end ())
+		std::cerr << __FUNCTION__ << ": ERROR: Iterator ended prematurely." << std::endl;
+
+	if (i_v2->first != 1)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be 1, is " << std::dec << i_v2->first << std::endl;
 
 	check = connect (pattern[0], 0ULL, offset) & Endianness::mask_left (len % WordTraits<Word>::bits);
 
 	if (i_v2->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v2->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v2->second) << std::endl;
 
 	++i_v2;
 
@@ -392,7 +395,7 @@ void testSparseSubvectorHybrid ()
 
 	v.first.push_back (0);
 	v.second.push_word_back (pattern[0]);
-	v.first.push_back (2 * WordTraits<Word>::bits);
+	v.first.push_back (2);
 	v.second.push_word_back (pattern[1]);
 
 	SparseSubvector<HybridVector> v3 (v, offset, WordTraits<Word>::bits + offset + len);
@@ -400,32 +403,38 @@ void testSparseSubvectorHybrid ()
 	SparseSubvector<HybridVector>::const_iterator i_v3 = v3.begin ();
 
 	if (i_v3->first != 0)
-		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v3->first << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v3->first << std::endl;
 
 	check = connect (pattern[0], 0ULL, offset);
 
 	if (i_v3->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v3->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v3->second) << std::endl;
 
 	++i_v3;
 
-	if (i_v3->first != WordTraits<Word>::bits)
-		std::cerr << __FUNCTION__ << ": ERROR: Second index should be " << WordTraits<Word>::bits << ", is " << i_v3->first << std::endl;
+	if (i_v3 == v3.end ())
+		std::cerr << __FUNCTION__ << ": ERROR: Iterator ended prematurely." << std::endl;
+
+	if (i_v3->first != 1)
+		std::cerr << __FUNCTION__ << ": ERROR: Second index should be 1, is " << std::dec << i_v3->first << std::endl;
 
 	check = connect (0ULL, pattern[1], offset);
 
 	if (i_v3->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << check << ", is " << std::hex << i_v3->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v3->second) << std::endl;
 
 	++i_v3;
 
-	if (i_v3->first != 2 * WordTraits<Word>::bits)
-		std::cerr << __FUNCTION__ << ": ERROR: Third index should be " << 2 * WordTraits<Word>::bits << ", is " << i_v3->first << std::endl;
+	if (i_v3 == v3.end ())
+		std::cerr << __FUNCTION__ << ": ERROR: Iterator ended prematurely." << std::endl;
+
+	if (i_v3->first != 2)
+		std::cerr << __FUNCTION__ << ": ERROR: Third index should be 2, is " << std::dec << i_v3->first << std::endl;
 
 	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % WordTraits<Word>::bits);
 
 	if (i_v3->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: Third word should be " << std::hex << check << ", is " << std::hex << i_v3->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: Third word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v3->second) << std::endl;
 
 	++i_v3;
 
@@ -445,12 +454,12 @@ void testSparseSubvectorHybrid ()
 	SparseSubvector<HybridVector>::const_iterator i_v4 = v4.begin ();
 
 	if (i_v4->first != 0)
-		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << i_v4->first << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v4->first << std::endl;
 
 	check = connect (pattern[0], 0ULL, offset);
 
 	if (i_v4->second != check)
-		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << check << ", is " << std::hex << i_v4->second << std::endl;
+		std::cerr << __FUNCTION__ << ": ERROR: First word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v4->second) << std::endl;
 
 	++i_v4;
 

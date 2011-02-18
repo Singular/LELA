@@ -8,6 +8,8 @@
  * License version 2.0 or greater
  */
 
+#define __LINBOX_BITVECTOR_WORD_TYPE uint8
+
 #include "linbox/field/gf2.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/dense-zero-one.h"

@@ -3,7 +3,7 @@
 # see COPYING for licence
 INCLUDES=-I$(top_srcdir) -I$(top_builddir)
 
-AM_CFLAGS=-Wall -O2
+AM_CXXFLAGS=-Wall -O2
 
 SUBDIRS=formats
 

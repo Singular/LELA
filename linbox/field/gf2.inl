@@ -492,8 +492,8 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 		return u;
 	}
 
-	template <class Endianness>
-	inline int firstNonzeroEntryInWord (unsigned long long v) const;
+	template <class word, class Endianness>
+	inline int firstNonzeroEntryInWord (word v) const;
 
 	template <class Vector>
 	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
@@ -731,8 +731,10 @@ template <class Vector>
 std::ostream &VectorDomain<GF2>::writeSpecialized (std::ostream &os, const Vector &x,
 						   VectorCategories::SparseZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type index_type;
+
 	typename Vector::const_iterator i;
-	size_t idx = 0;
+	index_type idx = 0;
 
 // TO BE REMOVED
 	os << "writeSpec SparseZO, of size " << x.size() << ' ';
@@ -752,15 +754,18 @@ std::ostream &VectorDomain<GF2>::writeSpecialized (std::ostream &os, const Vecto
 template <class Vector, class Endianness>
 std::ostream &VectorDomain<GF2>::writeHybridSpecialized (std::ostream &os, const Vector &x, Endianness) const
 {
+	typedef typename std::iterator_traits<typename Vector::first_type::const_iterator>::value_type index_type;
+	typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
+
 	typename Vector::first_type::const_iterator i_idx;
 	typename Vector::second_type::const_word_iterator i_elt;
-	size_t idx = 0;
-	typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type mask;
+	index_type idx = 0;
+	word_type mask;
 
 	os << "[ ";
 
 	for (i_idx = x.first.begin (), i_elt = x.second.wordBegin (); i_idx != x.first.end (); ++i_idx, ++i_elt) {
-		while (++idx <= *i_idx)
+		while (++idx <= *i_idx << WordTraits<word_type>::logof_size)
 			os << "0 ";
 
 		for (mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1)) {
@@ -797,8 +802,10 @@ template <class Vector>
 std::istream &VectorDomain<GF2>::readSpecialized (std::istream &is, const Vector &x,
 						  VectorCategories::SparseZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type index_type;
+
 	char c;
-	size_t idx;
+	index_type idx;
 
 	do { is >> c ; } while (!std::isdigit (c));
 
@@ -822,9 +829,11 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::SparseZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector2::const_iterator>::value_type index_type;
+
 	typename Vector1::const_iterator i = v1.begin ();
 	typename Vector2::const_iterator j = v2.begin ();
-	size_t idx = 0;
+	index_type idx = 0;
 
 	for (; j != v2.end (); ++j, ++i, ++idx) {
 		while (idx < *j) {
@@ -849,8 +858,10 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 {
 	typename Vector1::const_word_iterator i = v1.wordBegin ();
 	typename Vector2::const_word_iterator j = v2.wordBegin ();
+
 	for (; j != v2.wordEnd (); ++j, ++i)
 		if (*i != *j) return false;
+
 	return true;
 }
 
@@ -901,23 +912,25 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::HybridZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector2::first_type::const_iterator>::value_type index_type;
+
 	typename Vector1::const_word_iterator i = v1.wordBegin ();
 	typename Vector2::first_type::const_iterator j_idx = v2.first.begin ();
 	typename Vector2::second_type::const_word_iterator j_elt = v2.second.wordBegin ();
-	size_t idx = 0;
+	index_type idx = 0;
 	int t;
 
 	for (; j_idx != v2.first.end (); ++j_idx, ++j_elt) {
 		while (idx < *j_idx) {
 			if (*i) return false;
-			idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+			++idx;
 			++i;
 		}
 
 		if (*i++ != *j_elt)
 			return false;
 
-		idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+		++idx;
 	}
 
 	for (; i != v1.wordEnd (); ++i)
@@ -931,22 +944,24 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::HybridZeroOneSequenceVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector2::const_iterator>::value_type::first_type index_type;
+
 	typename Vector1::const_word_iterator i = v1.wordBegin ();
 	typename Vector2::const_iterator j = v2.begin ();
-	size_t idx = 0;
+	index_type idx = 0;
 	int t;
 
 	for (; j != v2.end (); ++j) {
 		while (idx < j->first) {
 			if (*i) return false;
-			idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+			++idx;
 			++i;
 		}
 
 		if (*i++ != j->second)
 			return false;
 
-		idx += 8 * sizeof (typename std::iterator_traits<typename Vector1::const_word_iterator>::value_type);
+		++idx;
 	}
 
 	for (; i != v1.wordEnd (); ++i)
@@ -972,8 +987,10 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::SparseZeroOneVectorTag,
 					     VectorCategories::DenseZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector1::const_iterator>::value_type index_type;
+
 	typename Vector2::const_iterator i;
-	size_t idx = 0;
+	index_type idx = 0;
 
 	res.clear ();
 
@@ -988,15 +1005,15 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::HybridZeroOneVectorTag,
 					     VectorCategories::DenseZeroOneVectorTag) const
 {
-	typedef typename std::iterator_traits<typename Vector1::second_type::const_word_iterator>::value_type word_type;
+	typedef typename std::iterator_traits<typename Vector1::first_type::const_iterator>::value_type index_type;
 
 	typename Vector2::const_word_iterator i;
-	size_t idx = 0;
+	index_type idx = 0;
 
 	res.first.clear ();
 	res.second.clear ();
 
-	for (i = v.wordBegin (); i != v.wordEnd (); ++i, idx += WordTraits<word_type>::bits) {
+	for (i = v.wordBegin (); i != v.wordEnd (); ++i, ++idx) {
 		if (*i) {
 			res.first.push_back (idx);
 			res.second.push_word_back (*i);
@@ -1011,14 +1028,16 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::SparseZeroOneVectorTag) const
 {
+	// FIXME
     	size_t sparsesize = *(v.rbegin());
     	if (sparsesize > res.size()) res.resize( *(v.rbegin()) );
 	std::fill (res.wordBegin (), res.wordEnd (), 0);
 
-	for (typename Vector2::const_iterator i = v.begin (); 
-             i != v.end (); 
-             ++i)
+	typename Vector2::const_iterator i;
+
+	for (i = v.begin (); i != v.end (); ++i)
         	res[*i] = true;
+
 	return res;
 }
 
@@ -1035,7 +1054,7 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 	std::fill (res.wordBegin (), res.wordEnd (), 0);
 
 	for (i_idx = v.first.begin (), i_elt = v.second.wordBegin (); i_idx != v.first.end (); ++i_idx, ++i_elt)
-        	*(res.wordBegin () + (*i_idx >> WordTraits<word_type>::logof_size)) = *i_elt;
+        	*(res.wordBegin () + *i_idx) = *i_elt;
 
 	return res;
 }
@@ -1050,7 +1069,7 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 	std::fill (res.wordBegin (), res.wordEnd (), 0);
 
 	for (i = v.begin (); i != v.end (); ++i)
-        	*(res.wordBegin () + (i->first >> WordTraits<typename Vector2::word_type>::logof_size)) = i->second;
+        	*(res.wordBegin () + i->first) = i->second;
 
 	return res;
 }
@@ -1215,7 +1234,7 @@ Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 	typename Vector1::word_iterator j = y.wordBegin ();
 
 	for (i_idx = x.first.begin (), i_elt = x.second.wordBegin (); i_idx != x.first.end (); ++i_idx, ++i_elt)
-		*(j + (*i_idx >> WordTraits<word_type>::logof_size)) ^= *i_elt;
+		*(j + *i_idx) ^= *i_elt;
 
 	return y;
 }
@@ -1229,16 +1248,16 @@ Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 	typename Vector1::word_iterator j = y.wordBegin ();
 
 	for (i = x.begin (); i != x.end (); ++i)
-		*(j + (i->first >> WordTraits<typename Vector2::word_type>::logof_size)) ^= i->second;
+		*(j + i->first) ^= i->second;
 
 	return y;
 }
 
-template <class Endianness>
-inline int VectorDomain<GF2>::firstNonzeroEntryInWord (unsigned long long v) const
+template <class word, class Endianness>
+inline int VectorDomain<GF2>::firstNonzeroEntryInWord (word v) const
 {
 	// FIXME: This can be made faster...
-	unsigned long long mask = Endianness::e_0;
+	word mask = Endianness::e_0;
 	int idx = 0;
 
 	for (; mask != 0; mask = Endianness::shift_right (mask, 1), ++idx)
@@ -1275,22 +1294,26 @@ template <class Vector>
 inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vector &v,
 							    VectorCategories::HybridZeroOneVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
+
 	if (v.first.empty ())
 		return -1;
 	else
-		return firstNonzeroEntryInWord<typename Vector::second_type::Endianness>
-			(v.second.front_word ()) + v.first.front ();
+		return firstNonzeroEntryInWord<word_type, typename Vector::second_type::Endianness> (v.second.front_word ())
+			+ (v.first.front () << WordTraits<word_type>::logof_size);
 }
 
 template <class Vector>
 inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vector &v,
 							    VectorCategories::HybridZeroOneSequenceVectorTag) const
 {
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::second_type word_type;
+
 	if (v.empty ())
 		return -1;
 	else
-		return firstNonzeroEntryInWord<typename Vector::second_type::Endianness>
-			(v.begin ()->second) + v.begin ()->first;
+		return firstNonzeroEntryInWord<word_type, typename Vector::second_type::Endianness> (v.begin ()->second)
+			+ (v.begin ()->first << WordTraits<word_type>::logof_size);
 }
 
 } // namespace LinBox

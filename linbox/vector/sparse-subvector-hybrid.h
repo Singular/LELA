@@ -42,10 +42,10 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 	friend class HybridSubvectorConstIterator<Vector>;
 
 	SparseSubvector () {}
-	SparseSubvector (const Vector &v, typename Vector::first_type::value_type start, typename Vector::first_type::value_type end)
+	SparseSubvector (const Vector &v, size_t start, size_t end)
 		: _start (start), _end (end)
 		{ set_start_end (v.first.begin (), v.first.end (), v.second.wordBegin ()); _end_is_end = (_end_idx == v.first.end ()); }
-	SparseSubvector (const SparseSubvector &v, typename Vector::first_type::value_type start, typename Vector::first_type::value_type end)
+	SparseSubvector (const SparseSubvector &v, size_t start, size_t end)
 		: _start (v._start + start), _end (v._start + end)
 		{ set_start_end (v._start_idx, v._end_idx, v._start_elt); _end_is_end = v._end_is_end && (_end_idx == v._end_idx); }
 	SparseSubvector (const SparseSubvector &v)
@@ -60,7 +60,7 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 	inline bool           empty () const { return _end_idx == _start_idx; }
 
     private:
-	typename Vector::first_type::value_type _start, _end;
+	size_t _start, _end;
 	typename Vector::first_type::const_iterator _start_idx, _end_idx, _end_marker;
 	typename Vector::second_type::const_word_iterator _start_elt;
 	bool _end_is_end;
@@ -69,11 +69,11 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 			    typename Vector::first_type::const_iterator idx_end,
 			    typename Vector::second_type::const_word_iterator elt_begin)
 	{
-		_start_idx = std::lower_bound (idx_begin, idx_end, _start & ~WordTraits<word_type>::pos_mask);
-		_end_idx = std::upper_bound (idx_begin, idx_end, _end & ~WordTraits<word_type>::pos_mask);
+		_start_idx = std::lower_bound (idx_begin, idx_end, _start >> WordTraits<word_type>::logof_size);
+		_end_idx = std::upper_bound (idx_begin, idx_end, _end >> WordTraits<word_type>::logof_size);
 		_start_elt = elt_begin + (_start_idx - idx_begin);
 
-		if (_end_idx != _start_idx && *(_end_idx - 1) + (_start & WordTraits<word_type>::pos_mask) >= _end)
+		if (_end_idx != _start_idx && (static_cast<size_t> (*(_end_idx - 1)) << WordTraits<word_type>::logof_size) + (_start & WordTraits<word_type>::pos_mask) >= _end)
 			_end_marker = _end_idx - 1;
 		else
 			_end_marker = _end_idx;

@@ -67,7 +67,7 @@ void testDenseGJ (const Field &F)
 	GJ.DenseRowEchelonForm (R, U, P, A, rank, det);
 
 	std::cout << "A = " << std::endl;
-	MD.write (std::cout, A);
+	MD.write (std::cout, A, FORMAT_SAGE);
 
 	std::cout << "U = " << std::endl;
 	MD.write (std::cout, U);
@@ -122,6 +122,7 @@ void testSparseGJ (const Field &F)
 	GaussJordan<Field>::DenseMatrix UPA (m, n);
 
 	RandomSparseStream<Field, Matrix::Row, Field::RandIter, VectorCategories::HybridZeroOneVectorTag> A_stream (F, (double) k / (double) n, n, m);
+	// RandomDenseStream<Field, GaussJordan<Field>::DenseMatrix::Row> A_stream (F, n);
 	Matrix::RowIterator iter;
 
 	for (iter = A.rowBegin (); iter != A.rowEnd (); ++iter)
@@ -426,7 +427,7 @@ int main (int argc, char **argv)
 	Field F (p);
 
 	testDenseGJ (F);
-//	testSparseGJ (F);
+	testSparseGJ (F);
 //	smallTestSparseTrSolve (F);
 //	testSparseTrSolve (F);
 }

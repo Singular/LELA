@@ -88,7 +88,8 @@ namespace F4 {
 		typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
 		typedef std::pair<std::vector<uint16>, BitVector<Endianness> > SparseVector;
 		typedef LinBox::SparseMatrix<bool, std::pair<std::vector<uint16>, BitVector<Endianness> >, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
-		typedef LinBox::M4RIMatrix DenseMatrix;
+//		typedef LinBox::M4RIMatrix DenseMatrix;
+		typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
 		static const size_t cutoff = WordTraits<BitVector<Endianness>::word_type>::bits;
 	};
 
@@ -206,6 +207,8 @@ namespace F4 {
 		template <class Matrix>
 		int GetPivotSpecialised (Matrix &A, int start_row, int &col, VectorCategories::HybridZeroOneVectorTag) const
 		{
+			typedef typename std::iterator_traits<typename Matrix::Row::second_type::const_word_iterator>::value_type word_type;
+
 			typename SparseMatrix::RowIterator i;
 			typename Field::Element a;
 
@@ -213,7 +216,7 @@ namespace F4 {
 			col = A.coldim ();
 
 		        for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
-				if (!i->first.empty () && i->first.front () <= col) {
+				if (!i->first.empty () && i->first.front () << WordTraits<word_type>::logof_size <= col) {
 					int idx = VD.firstNonzeroEntry (a, *i);
 					if (idx < col) {
 						col = idx;
@@ -499,10 +502,10 @@ namespace F4 {
 
 			v.first.push_back (0);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (WordTraits<word_type>::bits);
+			v.first.push_back (1);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
 
-			w.first.push_back (WordTraits<word_type>::bits);
+			w.first.push_back (1);
 			w.second.push_word_back (0x00ffff0000ffff00ULL);
 
 			FastAddin (v, w, 1);
@@ -524,7 +527,7 @@ namespace F4 {
 
 			v.first.push_back (0);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (WordTraits<word_type>::bits);
+			v.first.push_back (1);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
 
 			w.first.push_back (0);
@@ -549,12 +552,12 @@ namespace F4 {
 
 			v.first.push_back (0);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (WordTraits<word_type>::bits);
+			v.first.push_back (1);
 			v.second.push_word_back (0xffff0000ffff0000ULL);
 
 			w.first.push_back (0);
 			w.second.push_word_back (0x00ffff0000ffff00ULL);
-			w.first.push_back (WordTraits<word_type>::bits);
+			w.first.push_back (1);
 			w.second.push_word_back (0x00ffff0000ffff00ULL);
 
 			FastAddin (v, w, 0);
@@ -1067,9 +1070,12 @@ namespace F4 {
 			typename Matrix1::RowIterator i_A, i_Ae, j_A;
 			typename Matrix2::RowIterator i_L;
 
+			typedef typename std::iterator_traits<typename SparseMatrix::Row::first_type::iterator>::value_type index_type;
+			typedef typename std::iterator_traits<typename SparseMatrix::Row::second_type::word_iterator>::value_type word_type;
+
 			typename Matrix1::Row::first_type::iterator i_idx;
 
-			typename SparseMatrix::Row::second_type::word_iterator::value_type v, v1, mask;
+			word_type v, v1, mask;
 
 			if (compute_L)
 				i_L = L.rowBegin () + (rank - 1);
@@ -1095,7 +1101,7 @@ namespace F4 {
 					if (prev_idx >= i_A->first.size ())
 						prev_idx = i_A->first.size () - 1;
 
-					typename SparseMatrix::Row::first_type::value_type j_idx = j_A->first.front ();
+					index_type j_idx = j_A->first.front ();
 
 					// Note: We don't need to test for validity because, if the input
 					// is valid, i_idx will *never* go past the beginning

@@ -432,6 +432,8 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 	::write (const SparseMatrix<Element, Row, Trait> &A, std::ostream &os, const Field &F, 
 		 FileFormatTag format)
 {
+	typedef typename std::iterator_traits<typename Row::second_type::const_word_iterator>::value_type word_type;
+
 	typename SparseMatrix<Element, Row, Trait>::Rep::const_iterator i;
 	typename Row::first_type::const_iterator j_idx;
 	typename Row::second_type::const_word_iterator j_elt;
@@ -442,7 +444,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 	integer c;
         bool firstrow;
 
-	typename Row::second_type::word_iterator::value_type mask;
+	word_type mask;
 	size_t t;
         
 	// Avoid massive unneeded overhead in the case that this
@@ -466,7 +468,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			{
 				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
 					if (*j_elt & mask) {
-						os << i_idx << ' ' << *j_idx + t << ' ';
+						os << i_idx << ' ' << (static_cast<size_t> (*j_idx) << WordTraits<word_type>::logof_size) + t << ' ';
 						F.write (os, one) << std::endl;
 					}
 				}
@@ -483,7 +485,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			{
 				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
 					if (*j_elt & mask) {
-						os << i_idx + 1 << ' ' << *j_idx + t + 1 << ' ';
+						os << i_idx + 1 << ' ' << (static_cast<size_t> (*j_idx) << WordTraits<word_type>::logof_size) + t + 1 << ' ';
 						F.write (os, one) << std::endl;
 					}
 				}
@@ -502,7 +504,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			{
 				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
 					if (*j_elt & mask) {
-						os << i_idx + 1 << ' ' << *j_idx + t + 1 << ' ';
+						os << i_idx + 1 << ' ' << (static_cast<size_t> (*j_idx) << WordTraits<word_type>::logof_size) + t + 1 << ' ';
 						F.write (os, one) << std::endl;
 					}
 				}
@@ -535,7 +537,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
 				if (mask == 0 && j_idx != i->first.end ()) {
 					mask = Endianness::e_0;
-					t = 8 * sizeof (typename Row::second_type::word_iterator::value_type);
+					++t;
 
 					if (*j_idx < t) {
 						++j_idx;
@@ -576,7 +578,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
 				if (mask == 0 && j_idx != i->first.end ()) {
 					mask = Endianness::e_0;
-					t += 8 * sizeof (typename Row::second_type::word_iterator::value_type);
+					++t;
 
 					if (*j_idx < t) {
 						++j_idx;
@@ -615,7 +617,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			for (col_idx = 0; col_idx < A._n; col_idx++) {
 				if (mask == 0 && j_idx != i->first.end ()) {
 					mask = Endianness::e_0;
-					t += 8 * sizeof (typename Row::second_type::word_iterator::value_type);
+					++t;
 
 					if (*j_idx < t) {
 						++j_idx;
@@ -653,7 +655,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZero
 			for (col_idx = 0; col_idx < A._n; col_idx++) {
 				if (mask == 0 && j_idx != i->first.end ()) {
 					mask = Endianness::e_0;
-					t += 8 * sizeof (typename Row::second_type::word_iterator::value_type);
+					++t;
 
 					if (*j_idx < t) {
 						++j_idx;

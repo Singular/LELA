@@ -35,21 +35,25 @@ typedef GaussJordan<Field>::SparseMatrix::Row SparseVector;
 
 void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, MersenneTwister &MT)
 {
-	size_t idx, t;
+	typedef std::iterator_traits<SparseVector::first_type::iterator>::value_type index_type;
 	typedef std::iterator_traits<SparseVector::second_type::word_iterator>::value_type word_type;
+
+	size_t t;
+	index_type idx;
+
 	word_type w;
 	word_type mask;
 
-	size_t colstart = col & ~WordTraits<word_type>::pos_mask;
-	size_t colend = coldim & ~WordTraits<word_type>::pos_mask;
+	index_type colstart = col >> WordTraits<word_type>::logof_size;
+	index_type colend = coldim >> WordTraits<word_type>::logof_size;
 
 	v.first.clear ();
 	v.second.clear ();
 
-	for (idx = colstart; idx <= colend; idx += WordTraits<word_type>::bits) {
+	for (idx = colstart; idx <= colend; ++idx) {
 		w = 0ULL;
 
-		if (idx <= col) {
+		if (static_cast<size_t> (idx) << WordTraits<word_type>::logof_size <= col) {
 			t = col & WordTraits<word_type>::pos_mask;
 			mask = Endianness::e_j (t);
 			w |= mask;  // Force leading entry to be one
@@ -58,7 +62,7 @@ void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, Mersenn
 			mask = Endianness::e_0;
 		}
 
-		for (; mask != 0 && idx + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
+		for (; mask != 0 && (static_cast<size_t> (idx) << WordTraits<word_type>::logof_size) + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
 			if (MT.randomDoubleRange (0.0, 1.0) < nonzero_density)
 				w |= mask;
 
@@ -104,8 +108,8 @@ void createRandomF4Matrix (SparseMatrix &A)
 void smallTest () {
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	size_t m = 32;
-	size_t n = 48;
+	size_t m = 64;
+	size_t n = 96;
 
 	SparseMatrix A (m, n), C (m, n);
 	GaussJordan<Field>::DenseMatrix L (m, m);
@@ -170,6 +174,9 @@ size_t ComputeMemoryUsage (const SparseMatrix &A)
 
 bool CheckHybridVector (const SparseVector &v)
 {
+	if (v.first.empty ())
+		return false;
+
 	SparseVector::first_type::const_iterator i = v.first.begin ();
 	SparseVector::first_type::value_type last = *i;
 
