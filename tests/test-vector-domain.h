@@ -19,7 +19,6 @@
 #include "linbox/util/field-axpy.h"
 #include "linbox/vector/stream.h"
 #include "linbox/vector/vector-domain.h"
-#include "linbox/blackbox/dense.h"
 #include "linbox/integer.h"
 
 #include "test-common.h" 

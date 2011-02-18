@@ -22,7 +22,6 @@
 #define __LINBOX_test_generic_H
 
 #include "test-field.h"
-#include "test-blackbox.h"
 #include "test-vector-domain.h"
 
 #endif // __LINBOX_test_generic_H
