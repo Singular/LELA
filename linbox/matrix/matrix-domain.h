@@ -565,11 +565,6 @@ class MatrixDomainSupport : public MatrixDomainSupportGeneric<Field>
 	MatrixDomainSupport (const Field &F) : MatrixDomainSupportGeneric<Field> (F) {}
 };
 
-/// File-formats for matrix-output
-enum FileFormatTag {
-	FORMAT_DETECT, FORMAT_GUILLAUME, FORMAT_TURNER, FORMAT_MATLAB, FORMAT_MAPLE, FORMAT_PRETTY, FORMAT_MAGMACPT, FORMAT_ONE_BASED, FORMAT_SAGE
-};
-
 /** \brief Class of matrix arithmetic functions
  *
  * This class encapuslated matrix-matrix and matrix-vector operations, roughly

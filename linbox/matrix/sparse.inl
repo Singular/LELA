@@ -558,6 +558,7 @@ std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::SparsePara
 		break;
 
 	    case FORMAT_MATLAB:
+	    case FORMAT_SAGE:
 		F.init (zero, 0);
 
 		os << "[";
