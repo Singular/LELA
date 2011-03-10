@@ -214,6 +214,7 @@ void CheckHybridMatrix (const SparseMatrix &A)
 
 void fileTest (char *filename, char *output) {
 	Field F (2);
+	MatrixDomain<Field> MD (F);
 
 	SparseMatrixReader<Field> reader (F);
 
@@ -245,7 +246,7 @@ void fileTest (char *filename, char *output) {
 	CheckHybridMatrix (*A);
 
 	std::ofstream f (output);
-	A->write (f, F, FORMAT_GUILLAUME);
+	MD.write (f, *A, FORMAT_GUILLAUME);
 
 	delete A;
 }

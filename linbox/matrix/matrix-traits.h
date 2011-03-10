@@ -59,11 +59,6 @@ template <> struct MatrixIteratorTypes<MatrixCategories::ZeroOneColMatrixTag>
 	typedef MatrixCategories::ColMatrixTag MatrixCategory;
 };
 
-/// File-formats for matrix-output
-enum FileFormatTag {
-	FORMAT_DETECT, FORMAT_GUILLAUME, FORMAT_TURNER, FORMAT_MATLAB, FORMAT_MAPLE, FORMAT_PRETTY, FORMAT_MAGMACPT, FORMAT_ONE_BASED, FORMAT_SAGE
-};
-
 } // namespace LinBox
 
 #endif // __LINBOX_MATRIX_TRAITS_H

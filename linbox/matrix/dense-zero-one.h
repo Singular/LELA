@@ -17,9 +17,16 @@
 #include "linbox/vector/bit-subvector-word-aligned.h"
 #include "linbox/vector/bit-subvector.h"
 #include "linbox/matrix/submatrix.h"
+#include "linbox/matrix/raw-iterator.h"
 
 namespace LinBox
 {
+
+template <class Iterator, class ConstIterator, class Endianness>
+class DenseZeroOneMatrixConstRowIterator;
+
+template <class Iterator, class ConstIterator, class Endianness>
+class DenseZeroOneMatrixRowIterator;
 
 template <class Iterator = BitVector<DefaultEndianness>::word_iterator,
 	  class ConstIterator = typename BitVector<DefaultEndianness>::const_word_iterator,
@@ -112,20 +119,6 @@ class DenseZeroOneMatrix
 		_begin = _rep.wordBegin ();
 	}
 
-	/** Read the matrix from an input stream
-	 * @param file Input stream from which to read
-	 * @param F Field over which to read
-	 */
-	template <class Field>
-	std::istream &read (std::istream &file, const Field &F);
-
-	/** Write the matrix to an output stream
-	 * @param os Output stream to which to write
-	 * @param F Field over which to write
-	 */
-	template <class Field>
-	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const;
-
 	/** Set the entry at the (i, j) position to a_ij.
 	 * @param i Row number, 0...rowdim () - 1
 	 * @param j Column number 0...coldim () - 1
@@ -167,16 +160,45 @@ class DenseZeroOneMatrix
 	 * a row vector in dense format
 	 */
 
-	typedef BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> Row;  
-	typedef BitSubvectorWordAligned<ConstIterator, ConstIterator, Endianness> ConstRow;
+	typedef DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness> RowIterator;
+	typedef DenseZeroOneMatrixConstRowIterator<Iterator, ConstIterator, Endianness> ConstRowIterator;
 
-	class RowIterator;
-	class ConstRowIterator;
+	typedef typename RowIterator::value_type Row;  
+	typedef typename ConstRowIterator::value_type ConstRow;
 
 	RowIterator rowBegin ();
 	RowIterator rowEnd ();
 	ConstRowIterator rowBegin () const;
 	ConstRowIterator rowEnd () const;
+
+	/** \brief
+	 *
+	 * The raw iterator is a method for accessing all entries in the matrix
+	 * in some unspecified order. This can be used, e.g. to reduce all
+	 * matrix entries modulo a prime before passing the matrix into an
+	 * algorithm.
+	 */
+
+	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
+	typedef RawIterator ConstRawIterator;
+    
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+
+	/** \brief
+	 *
+	 * Like the raw iterator, the indexed iterator is a method for 
+	 * accessing all entries in the matrix in some unspecified order. 
+	 * At each position of the the indexed iterator, it also provides 
+	 * the row and column indices of the currently referenced entry.
+	 * This is provided through it's rowIndex() and colIndex() functions.
+	 */
+
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
+
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
 
 	/** Retrieve a reference to a row.
 	 * Since rows may also be indexed, this allows A[i][j] notation

@@ -19,62 +19,67 @@ namespace LinBox
 {
 
 template <class Iterator, class ConstIterator, class Endianness>
-class DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator
+class DenseZeroOneMatrixConstRowIterator
 {
     public:
+	typedef BitSubvectorWordAligned<ConstIterator, ConstIterator, Endianness> ConstRow;
+	typedef ConstRow Row;
+
+	typedef ConstRow value_type;
+
 	typedef typename ConstRow::const_word_iterator::difference_type difference_type;
 
-	ConstRowIterator (typename Rep::const_word_iterator p, size_t words, size_t bit_len, size_t d)
+	DenseZeroOneMatrixConstRowIterator (ConstIterator p, size_t words, size_t bit_len, size_t d)
 		: _row (p, p + words, bit_len), _disp (d) {}
     
-	ConstRowIterator () {}
+	DenseZeroOneMatrixConstRowIterator () {}
     
-	ConstRowIterator (const ConstRowIterator& colp)
+	DenseZeroOneMatrixConstRowIterator (const DenseZeroOneMatrixConstRowIterator& colp)
 		: _row (colp._row), _disp (colp._disp) {}
     
-	ConstRowIterator& operator = (const ConstRowIterator& colp)
+	DenseZeroOneMatrixConstRowIterator& operator = (const DenseZeroOneMatrixConstRowIterator& colp)
 	{
 		_row = colp._row;
 		_disp = colp._disp;
 		return *this;
 	}
 
-	ConstRowIterator& operator --()
+	DenseZeroOneMatrixConstRowIterator& operator --()
 	{
 		_row = ConstRow (_row.wordBegin () - _disp, _row.wordEnd () - _disp, _row.size ());
 		return *this;
 	}
 
-	ConstRowIterator  operator-- (int)
+	DenseZeroOneMatrixConstRowIterator  operator-- (int)
         {
-                ConstRowIterator tmp (*this);
+                DenseZeroOneMatrixConstRowIterator tmp (*this);
                 --*this;
                 return tmp;
 	}
 
 	
-	ConstRowIterator& operator++ ()
+	DenseZeroOneMatrixConstRowIterator& operator++ ()
 	{
 		_row = ConstRow (_row.wordBegin () + _disp, _row.wordEnd () + _disp, _row.size ());
 		return *this;
 	}
 
-	ConstRowIterator  operator++ (int)
+	DenseZeroOneMatrixConstRowIterator  operator++ (int)
 	{
-		ConstRowIterator tmp (*this);
+		DenseZeroOneMatrixConstRowIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
 
-	ConstRowIterator operator+ (int i) const
+	DenseZeroOneMatrixConstRowIterator operator+ (int i) const
 		{ return ConstRowIterator (_row.wordBegin () + _disp * i, _row.word_size (), _row.size (), _disp); }
 
-	difference_type operator- (const ConstRowIterator &c) const
+	difference_type operator- (const DenseZeroOneMatrixConstRowIterator &c) const
 	{
 		return (c._row.wordBegin () - _row.wordBegin ()) / _disp;
 	}
 
-	ConstRowIterator& operator += (int i)
+	DenseZeroOneMatrixConstRowIterator& operator += (int i)
 	{
 		_row = ConstRow (_row.wordBegin () + _disp * i, _row.wordEnd () + _disp * i, _row.size ());
 		return *this;
@@ -89,75 +94,80 @@ class DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator
 	const ConstRow& operator* () const
 		{ return _row; }
 
-	bool operator == (const ConstRowIterator& c) const
+	bool operator == (const DenseZeroOneMatrixConstRowIterator& c) const
 		{ return (_row.wordBegin () == c._row.wordBegin ()) && (_row.wordEnd () == c._row.wordEnd ()) && (_disp == c._disp); }
     
-	bool operator!= (const ConstRowIterator& c) const
+	bool operator!= (const DenseZeroOneMatrixConstRowIterator& c) const
 		{ return (_row.wordBegin () != c._row.wordBegin ()) || (_row.wordEnd () != c._row.wordEnd ()) || (_disp != c._disp); }
 
     private:
-	friend class DenseZeroOneMatrix::RowIterator;
+	friend class DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness>;
 
 	ConstRow _row;
 	size_t _disp;
 };
 
 template <class Iterator, class ConstIterator, class Endianness>
-class DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator
+class DenseZeroOneMatrixRowIterator
 {
     public:
+	typedef BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> Row;  
+	typedef BitSubvectorWordAligned<ConstIterator, ConstIterator, Endianness> ConstRow;
+
+	typedef Row value_type;
+
 	typedef typename Row::word_iterator::difference_type difference_type;
 
-	RowIterator (typename Rep::word_iterator p, size_t words, size_t bit_len, size_t d)
+	DenseZeroOneMatrixRowIterator (Iterator p, size_t words, size_t bit_len, size_t d)
 		: _row (p, p + words, bit_len), _disp (d) {}
 
-	RowIterator () {}
+	DenseZeroOneMatrixRowIterator () {}
 
-	RowIterator (const RowIterator& colp)
+	DenseZeroOneMatrixRowIterator (const DenseZeroOneMatrixRowIterator& colp)
 		: _row (colp._row), _disp (colp._disp) {}
     
-	RowIterator& operator = (const RowIterator& colp)
+	DenseZeroOneMatrixRowIterator& operator = (const DenseZeroOneMatrixRowIterator& colp)
 	{
 		_row = colp._row;
 		_disp = colp._disp;
 		return *this;
 	}
     
-	RowIterator& operator ++ ()
+	DenseZeroOneMatrixRowIterator& operator ++ ()
 	{
 		_row = Row (_row.wordBegin () + _disp, _row.wordEnd () + _disp, _row.size ());
 		return *this;
 	}
     
-	RowIterator  operator ++ (int)
+	DenseZeroOneMatrixRowIterator  operator ++ (int)
 	{
-		RowIterator tmp (*this);
+		DenseZeroOneMatrixRowIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
     
-        RowIterator& operator -- ()
+        DenseZeroOneMatrixRowIterator& operator -- ()
         {
                 _row = Row (_row.wordBegin () - _disp, _row.wordEnd () - _disp, _row.size ());
                 return *this;
         }
 
-        RowIterator  operator -- (int)
+        DenseZeroOneMatrixRowIterator  operator -- (int)
         {
-                RowIterator tmp (*this);
+                DenseZeroOneMatrixRowIterator tmp (*this);
                 --*this;
                 return tmp;
         }
 
-	RowIterator operator + (int i) const
-		{ return RowIterator (const_cast<Row *> (&_row)->wordBegin () + _disp * i, _row.word_size (), _row.size (), _disp); }
+	DenseZeroOneMatrixRowIterator operator + (int i) const
+		{ return DenseZeroOneMatrixRowIterator (const_cast<Row *> (&_row)->wordBegin () + _disp * i, _row.word_size (), _row.size (), _disp); }
 
-	difference_type operator- (const RowIterator &c) const
+	difference_type operator- (const DenseZeroOneMatrixRowIterator &c) const
 	{
 		return (c._row.wordBegin () - _row.wordBegin ()) / _disp;
 	}
 
-	RowIterator& operator += (int i)
+	DenseZeroOneMatrixRowIterator& operator += (int i)
 	{
 		_row = Row (_row.wordBegin () + _disp * i, _row.wordEnd () + _disp * i, _row.size ());
 		return *this;
@@ -179,17 +189,17 @@ class DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator
 	const Row& operator* () const
 		{ return _row; }
  
-	bool operator == (const RowIterator& c) const
+	bool operator == (const DenseZeroOneMatrixRowIterator& c) const
 		{ return (_row.wordBegin () == c._row.wordBegin ()) && (_row.wordEnd () == c._row.wordEnd ()) && (_disp == c._disp); }
 
-	bool operator != (const RowIterator& c) const
+	bool operator != (const DenseZeroOneMatrixRowIterator& c) const
 		{ return (_row.wordBegin () != c._row.wordBegin ()) || (_row.wordEnd () != c._row.wordEnd ()) || (_disp != c._disp); }
 
-	bool operator != (const ConstRowIterator& c) const
+	bool operator != (const DenseZeroOneMatrixConstRowIterator<Iterator, ConstIterator, Endianness> &c) const
 		{ return (_row.wordBegin () != c._row.wordBegin ()) || (_row.wordEnd () != c._row.wordEnd ()) || (_disp != c._disp); }
 
-	operator ConstRowIterator ()
-		{ return ConstRowIterator (_row.wordBegin (), _row.word_size (), _row.size (), _disp); }
+	operator DenseZeroOneMatrixConstRowIterator<Iterator, ConstIterator, Endianness> ()
+		{ return DenseZeroOneMatrixConstRowIterator<Iterator, ConstIterator, Endianness> (_row.wordBegin (), _row.word_size (), _row.size (), _disp); }
 
     private:
 	Row _row;
@@ -222,61 +232,6 @@ typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterat
 DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::rowEnd () const
 {
 	return ConstRowIterator (_begin + _rows * _disp, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp);
-}
-
-template <class Iterator, class ConstIterator, class Endianness>
-template <class Field>
-std::istream& DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::read (std::istream &file, const Field& field)
-{
-	size_t i, j;
-
-	for (i = 0; i < rowdim (); ++i) {
-		for (j = 0; j < coldim (); ++j) {
-			file.ignore (1);
-			field.read (file, refEntry (i, j));
-		}
-	}
-
-	return file;
-}
-
-template <class Iterator, class ConstIterator, class Endianness>
-template <class Field>
-std::ostream& DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::write (std::ostream &os, const Field &F, FileFormatTag format) const
-{
-	ConstRowIterator p;
-
-	if (format == FORMAT_SAGE)
-		os << "matrix(R,[" << std::endl;
-
-	for (p = rowBegin (); p != rowEnd (); ++p) {
-		typename ConstRow::const_iterator pe;
-
-		os << "  [ ";
-
-		for (pe = p->begin (); pe != p->end (); ++pe) {
-			if (F.isZero (*pe) && format == FORMAT_PRETTY)
-				os << '.';
-			else
-				F.write (os, *pe);
-
-			if (format == FORMAT_PRETTY)
-				os << " ";
-			else if (format == FORMAT_SAGE && pe + 1 != p->end ())
-				os << ", ";
-		}
-
-		if (format == FORMAT_PRETTY)
-			os << "]" << std::endl;
-		else if (format == FORMAT_SAGE) {
-			if (p + 1 != rowEnd ())
-				os << "]," << std::endl;
-			else
-				os << "] ])" << std::endl;
-		}
-	}
-
-	return os;
 }
 
 template <class Iterator, class ConstIterator, class Endianness>

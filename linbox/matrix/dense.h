@@ -138,20 +138,6 @@ class DenseMatrix
 		_rep.resize (m * n, val);
 	}
 
-	/** Read the matrix from an input stream
-	 * @param file Input stream from which to read
-	 * @param F Field over which to read
-	 */
-	template <class Field>
-	std::istream &read (std::istream &file, const Field &F);
-
-	/** Write the matrix to an output stream
-	 * @param os Output stream to which to write
-	 * @param F Field over which to write
-	 */
-	template <class Field>
-	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const;
-
 	/** Set the entry at the (i, j) position to a_ij.
 	 * @param i Row number, 0...rowdim () - 1
 	 * @param j Column number 0...coldim () - 1

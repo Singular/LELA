@@ -136,14 +136,14 @@ void testSparseGJ (const Field &F)
 	MatrixDomain<Field> MD (F);
 
 	std::cout << "A = " << std::endl;
-	A.write (std::cout, F, FORMAT_PRETTY);
+	MD.write (std::cout, A, FORMAT_PRETTY);
 
 	MD.copy (Aorig, A);
 
 	GJ.StandardRowEchelonForm (A, U, P, rank, det, true, true);
 
 	std::cout << "R = " << std::endl;
-	A.write (std::cout, F, FORMAT_PRETTY);
+	MD.write (std::cout, A, FORMAT_PRETTY);
 
 	std::cout << "U = " << std::endl;
 	MD.write (std::cout, U);
@@ -153,7 +153,7 @@ void testSparseGJ (const Field &F)
 
 	MD.permuteRows (Aorig, P.begin (), P.end ());
 	std::cout << "PA = " << std::endl;
-	Aorig.write (std::cout, F, FORMAT_PRETTY);
+	MD.write (std::cout, Aorig, FORMAT_PRETTY);
 
 	MD.gemm (one, U, Aorig, zero, UPA);
 	std::cout << "UPA = " << std::endl;

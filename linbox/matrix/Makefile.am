@@ -7,9 +7,12 @@ BASIC_HDRS =			\
 	archetype.h		\
 	matrix-category.h	\
 	matrix-traits.h		\
+	io.h			\
+	io.inl			\
+	raw-iterator.h		\
 	sparse.h		\
 	sparse.inl		\
-	transpose-matrix.h		\
+	transpose-matrix.h	\
 	dense.h  		\
 	dense.inl		\
 	dense-submatrix.h	\

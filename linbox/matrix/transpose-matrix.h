@@ -103,21 +103,6 @@ class TransposeMatrix
 	inline size_t coldim () const
 		{ return _A.rowdim (); }
 
-	/** @name Matrix I/O
-	 */
-
-	//@{
-
-	/** Write a matrix to an output stream
-	 * @param stream Stream to which to write the matrix
-	 * @return Reference to stream
-	 */
-	template <class Field>
-	inline std::ostream &write (std::ostream &stream, const Field &F, FileFormatTag format) const
-		{ return _A.write (stream, F, format); }
-
-	//@} Matrix I/O
-
 	/** @name Access to matrix elements
 	 */
 
@@ -241,10 +226,6 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
 	inline size_t rowdim () const { return _A.coldim (); }
 	inline size_t coldim () const { return _A.rowdim (); }
 
-	template <class Field>
-	inline std::ostream &write (std::ostream &stream, const Field &F, FileFormatTag format) const
-		{ return _A.write (stream, F, format) << "(transposed)" << std::endl; }
-
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
 	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
 	inline const Element &getEntry (size_t i, size_t j) const { return _A.getEntry (j, i); }
@@ -301,10 +282,6 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
 	inline size_t rowdim () const { return _A.coldim (); }
 	inline size_t coldim () const { return _A.rowdim (); }
 
-	template <class Field>
-	inline std::ostream &write (std::ostream &stream, const Field &F, FileFormatTag format) const
-		{ return _A.write (stream, F, format) << "(transposed)" << std::endl; }
-
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
 	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
 	inline const Element &getEntry (size_t i, size_t j) const { return _A.getEntry (j, i); }
@@ -353,10 +330,6 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
 
 	inline size_t rowdim () const { return _A.coldim (); }
 	inline size_t coldim () const { return _A.rowdim (); }
-
-	template <class Field>
-	inline std::ostream &write (std::ostream &stream, const Field &F, FileFormatTag format) const
-		{ return _A.write (stream, F, format) << "(transposed)" << std::endl; }
 
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
 	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }

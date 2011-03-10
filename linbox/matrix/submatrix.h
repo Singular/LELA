@@ -19,6 +19,7 @@
 
 #include "linbox/util/debug.h"
 #include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/raw-iterator.h"
 
 namespace LinBox
 {
@@ -241,13 +242,11 @@ class Submatrix
 	 * algorithm.
 	 */
 
-	class RawIterator;   
-	class ConstRawIterator;
-   
-	RawIterator rawBegin ();     
-	RawIterator rawEnd ();
-	ConstRawIterator rawBegin () const;       
-	ConstRawIterator rawEnd () const;  
+	typedef MatrixRawIterator<ConstRowIterator, typename VectorTraits<Row>::VectorCategory> RawIterator;
+	typedef RawIterator ConstRawIterator;
+
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
 
 	/** \brief
 	 *
@@ -258,13 +257,11 @@ class Submatrix
 	 * This is provided through it's rowIndex() and colIndex() functions.
 	 */
 
-        class RawIndexedIterator;
-        class ConstRawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, typename VectorTraits<Row>::VectorCategory, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-        RawIndexedIterator rawIndexedBegin();
-        RawIndexedIterator rawIndexedEnd();   
-	ConstRawIndexedIterator rawIndexedBegin() const;
-        ConstRawIndexedIterator rawIndexedEnd() const;   
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
 
 	/** Access to the parent matrix */
 	Matrix &parent () { return *_M; }
@@ -362,6 +359,17 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	inline RowIterator rowEnd ();
 	inline ConstRowIterator rowBegin () const;
 	inline ConstRowIterator rowEnd () const;
+
+	typedef MatrixRawIterator<ConstRowIterator, typename VectorTraits<Row>::VectorCategory> RawIterator;
+	typedef RawIterator ConstRawIterator;
+   
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+
+	typedef MatrixRawIndexedIterator<ConstRowIterator, typename VectorTraits<Row>::VectorCategory, false> ConstRawIndexedIterator;
+
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
 
 	Matrix &parent () { return *_M; }
 	const Matrix &parent () const { return *_M; }
@@ -462,6 +470,17 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 	inline ColIterator colEnd ();
 	inline ConstColIterator colBegin () const;
 	inline ConstColIterator colEnd () const;
+
+	typedef MatrixRawIterator<ConstColIterator, typename VectorTraits<Column>::VectorCategory> RawIterator;
+	typedef RawIterator ConstRawIterator;
+   
+	ConstRawIterator rawBegin () const { return ConstRawIterator (colBegin (), 0); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (colEnd (), 0); }
+
+	typedef MatrixRawIndexedIterator<ConstColIterator, typename VectorTraits<Column>::VectorCategory, true> ConstRawIndexedIterator;
+
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (colBegin (), 0, colEnd ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (colEnd (), coldim (), colEnd ()); }
 
 	Matrix &parent () { return *_M; }
 	const Matrix &parent () const { return *_M; }

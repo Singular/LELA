@@ -18,50 +18,6 @@
 
 namespace LinBox {
 
-template <class _Element, class Row>
-class SparseMatrixWriteHelper<_Element, Row, VectorCategories::SparseZeroOneVectorTag >
-{
-    public:
-	typedef _Element Element;
-
-	// Dummy class to avoid code duplication
-	class NoField 
-	{
-	    public:
-		typedef _Element Element;
-
-		std::istream &read (std::istream &stream, Element &elt) const
-			{ return stream >> elt; }
-		std::ostream &write (std::ostream &stream, const Element &elt) const
-			{ return stream << elt; }
-	};
-
-	template <class Field, class Trait>
-	static std::ostream &write (const SparseMatrix<Element, Row, Trait> &A, std::ostream &os, const Field &F, FileFormatTag format);
-};
-
-template <class _Element, class Row>
-class SparseMatrixWriteHelper<_Element, Row, VectorCategories::HybridZeroOneVectorTag >
-{
-    public:
-	typedef _Element Element;
-
-	// Dummy class to avoid code duplication
-	class NoField 
-	{
-	    public:
-		typedef _Element Element;
-
-		std::istream &read (std::istream &stream, Element &elt) const
-			{ return stream >> elt; }
-		std::ostream &write (std::ostream &stream, const Element &elt) const
-			{ return stream << elt; }
-	};
-
-	template <class Field, class Trait>
-	static std::ostream &write (const SparseMatrix<Element, Row, Trait> &A, std::ostream &os, const Field &F, FileFormatTag format);
-};
-
 /* Specialization for sparse zero-one vectors */
 
 template <class _Element, class _Row>
@@ -111,26 +67,9 @@ public:
             return s;
         }
 
-	template <class Field>
-	std::istream &read (std::istream &is, const Field &F, FileFormatTag format = FORMAT_DETECT)
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::read
-			  (*this, is, F, format); }
-	std::istream &read (std::istream &is, FileFormatTag format = FORMAT_DETECT)
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::read
-			  (*this, is, typename SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::NoField (),
-			   format); }
-	template <class Field>
-	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::write
-			  (*this, os, F, format); }
-	std::ostream &write (std::ostream &os, FileFormatTag format = FORMAT_PRETTY) const
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::write
-			  (*this, os, SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::NoField (),
-			   format); }
-
 	void           setEntry (size_t i, size_t j, const Element &value);
 	Element       &refEntry (size_t i, size_t j);
-	const Element &getEntry (size_t i, size_t j) const;
+	bool           getEntry (size_t i, size_t j) const;
 	Element       &getEntry (Element &x, size_t i, size_t j) const
 			{ return x = getEntry (i, j); }
 
@@ -150,13 +89,22 @@ public:
 	Row &operator [] (size_t i) { return _A[i]; }
 	ConstRow &operator [] (size_t i) const { return _A[i]; }
 
+	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag> RawIterator;
+	typedef RawIterator ConstRawIterator;
+    
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
+
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+
 	template <class Vector> Vector &columnDensity (Vector &v) const;
 	SparseMatrix &transpose (SparseMatrix &AT) const;
 
     protected:
-
-	friend class SparseMatrixWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag >;
-	friend class SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag >;
 
 	Rep               _A;
 	size_t            _m;
@@ -211,26 +159,9 @@ public:
 		return s;
 	}
 
-	template <class Field>
-	std::istream &read (std::istream &is, const Field &F, FileFormatTag format = FORMAT_DETECT)
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::read
-				(*this, is, F, format); }
-	std::istream &read (std::istream &is, FileFormatTag format = FORMAT_DETECT)
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag>::read
-				(*this, is, typename SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::NoField (),
-				 format); }
-	template <class Field>
-	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::write
-				(*this, os, F, format); }
-	std::ostream &write (std::ostream &os, FileFormatTag format = FORMAT_PRETTY) const
-		{ return SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::write
-				(*this, os, typename SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag>::NoField (),
-				 format); }
-
 	void           setEntry (size_t i, size_t j, const Element &value);
 	Element       &refEntry (size_t i, size_t j);
-	const Element &getEntry (size_t i, size_t j) const;
+	bool           getEntry (size_t i, size_t j) const;
 	Element       &getEntry (Element &x, size_t i, size_t j) const
 		{ return x = getEntry (i, j); }
 
@@ -250,13 +181,22 @@ public:
 	Row &operator [] (size_t i) { return _A[i]; }
 	ConstRow &operator [] (size_t i) const { return _A[i]; }
 
+	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag> RawIterator;
+	typedef RawIterator ConstRawIterator;
+    
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
+
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+
 	template <class Vector> Vector &columnDensity (Vector &v) const;
 	SparseMatrix &transpose (SparseMatrix &AT) const;
 
 protected:
-
-	friend class SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag >;
-	friend class SparseMatrixReadWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag >;
 
 	Rep               _A;
 	size_t            _m;
@@ -266,427 +206,31 @@ protected:
 };
 
 template <class Element, class Row>
-template <class Field, class Trait>
-std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::SparseZeroOneVectorTag >
-	::write (const SparseMatrix<Element, Row, Trait> &A, std::ostream &os, const Field &F, 
-		FileFormatTag format)
+bool SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::getEntry (size_t i, size_t j) const
 {
-	typename SparseMatrix<Element, Row, Trait>::Rep::const_iterator i;
-	typename Row::const_iterator j_idx;
-	typename Field::Element zero;
-	size_t i_idx, j_idx_1, col_idx;
-	//int col_width;
-	integer c;
-        bool firstrow;
-        
-	// Avoid massive unneeded overhead in the case that this
-	// printing is disabled
-	if (commentator.isNullStream (os))
-		return os;
+	const Row &v = (*this)[i];
 
-	typename Field::Element one;
-	F.init (one, 1);
+	typename Row::const_iterator idx = std::lower_bound (v.begin (), v.end (), j);
 
-	switch (format) {
-	    case FORMAT_DETECT:
-		throw PreconditionFailed (__FUNCTION__, __LINE__, "format != FORMAT_DETECT");
-		break;
-
-	    case FORMAT_TURNER:
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			for (j_idx = i->begin ();
-			     j_idx != i->end ();
-			     ++j_idx)
-			{
-				os << i_idx << ' ' << *j_idx << ' ';
-				F.write (os, one) << std::endl;
-			}
-		}
-
-		break;
-
-	    case FORMAT_ONE_BASED:
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			for (j_idx = i->begin (); j_idx != i->end (); ++j_idx) {
-				os << i_idx + 1 << ' ' << *j_idx + 1 << ' ';
-				F.write (os, one) << std::endl;
-			}
-		}
-
-		break;
-
-	    case FORMAT_GUILLAUME:
-		os << A._m << ' ' << A._n << " M" << std::endl;
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			for (j_idx = i->begin (); j_idx != i->end (); ++j_idx) {
-				os << i_idx + 1 << ' ' << *j_idx + 1 << ' ';
-				F.write (os, one) << std::endl;
-			}
-		}
-
-		os << "0 0 0" << std::endl;
-
-		break;
-
-	    case FORMAT_MAPLE:
-		F.init (zero, 0);
-                firstrow=true;
-
-		os << "[";
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			if (firstrow) {
-                            os << "[";
-                            firstrow =false;
-                        } else 
-                             os << ", [";
-                           
-			j_idx = i->begin ();
-
-			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
-				if (j_idx == i->end () || j_idx_1 != *j_idx)
-					F.write (os, zero);
-				else {
-					F.write (os, one);
-					++j_idx;
-				}
-
-				if (j_idx_1 < A._n - 1)
-					os << ", ";
-			}
-
-			os << "]";
-		}
-
-		os << "]";
-
-		break;
-
-	    case FORMAT_MATLAB:
-		F.init (zero, 0);
-
-		os << "[";
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			j_idx = i->begin ();
-
-			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
-				if (j_idx == i->end () || j_idx_1 != *j_idx)
-					F.write (os, zero);
-				else {
-					F.write (os, one);
-					++j_idx;
-				}
-
-				if (j_idx_1 < A._n - 1)
-					os << ", ";
-			}
-
-			os << "; ";
-		}
-
-		os << "]";
-
-		break;
-
-	    case FORMAT_PRETTY:
-		//F.characteristic (c);
-		//col_width = (int) ceil (log ((double) c) / M_LN10);
-		F.init (zero, 0);
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			os << "  [ ";
-
-			j_idx = i->begin ();
-
-			for (col_idx = 0; col_idx < A._n; col_idx++) {
-				//os.width (col_width);
-
-				if (j_idx == i->end () || col_idx != *j_idx)
-//					F.write (os, zero);
-					os << '.';
-				else {
-					F.write (os, one);
-					++j_idx;
-				}
-
-				os << ' ';
-			}
-
-			os << ']' << std::endl;
-		}
-
-		break;
-	    case FORMAT_MAGMACPT:
-		os << "sparse matrix written in MagmaCpt form is not implemented" << std::endl;
-		break;
-	}
-
-	return os;
+	return idx != v.end () && *idx == j;
 }
 
 template <class Element, class Row>
-template <class Field, class Trait>
-std::ostream &SparseMatrixWriteHelper<Element, Row, VectorCategories::HybridZeroOneVectorTag >
-	::write (const SparseMatrix<Element, Row, Trait> &A, std::ostream &os, const Field &F, 
-		 FileFormatTag format)
+bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEntry (size_t i, size_t j) const
 {
+	typedef typename Row::second_type::Endianness Endianness;
 	typedef typename std::iterator_traits<typename Row::second_type::const_word_iterator>::value_type word_type;
 
-	typename SparseMatrix<Element, Row, Trait>::Rep::const_iterator i;
-	typename Row::first_type::const_iterator j_idx;
-	typename Row::second_type::const_word_iterator j_elt;
-	typename Field::Element zero;
-	typedef typename Row::second_type::Endianness Endianness;
-	size_t i_idx, j_idx_1, col_idx;
-	//int col_width;
-	integer c;
-        bool firstrow;
+	const Row &v = (*this)[i];
 
-	word_type mask;
-	size_t t;
-        
-	// Avoid massive unneeded overhead in the case that this
-	// printing is disabled
-	if (commentator.isNullStream (os))
-		return os;
+	typename Row::first_type::const_iterator idx;
 
-	typename Field::Element one;
-	F.init (one, 1);
+	idx = std::lower_bound (v.first.begin (), v.first.end (), j >> WordTraits<word_type>::logof_size);
 
-	switch (format) {
-	    case FORMAT_DETECT:
-		throw PreconditionFailed (__FUNCTION__, __LINE__, "format != FORMAT_DETECT");
-		break;
-
-	    case FORMAT_TURNER:
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			for (j_idx = i->first.begin (), j_elt = i->second.wordBegin ();
-			     j_idx != i->first.end ();
-			     ++j_idx, ++j_elt)
-			{
-				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
-					if (*j_elt & mask) {
-						os << i_idx << ' ' << (static_cast<size_t> (*j_idx) << WordTraits<word_type>::logof_size) + t << ' ';
-						F.write (os, one) << std::endl;
-					}
-				}
-			}
-		}
-
-		break;
-
-	    case FORMAT_ONE_BASED:
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			for (j_idx = i->first.begin (), j_elt = i->second.wordBegin ();
-			     j_idx != i->first.end ();
-			     ++j_idx, ++j_elt)
-			{
-				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
-					if (*j_elt & mask) {
-						os << i_idx + 1 << ' ' << (static_cast<size_t> (*j_idx) << WordTraits<word_type>::logof_size) + t + 1 << ' ';
-						F.write (os, one) << std::endl;
-					}
-				}
-			}
-		}
-
-		break;
-
-	    case FORMAT_GUILLAUME:
-		os << A._m << ' ' << A._n << " M" << std::endl;
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			for (j_idx = i->first.begin (), j_elt = i->second.wordBegin ();
-			     j_idx != i->first.end ();
-			     ++j_idx, ++j_elt)
-			{
-				for (t = 0, mask = Endianness::e_0; mask != 0; mask = Endianness::shift_right (mask, 1), ++t) {
-					if (*j_elt & mask) {
-						os << i_idx + 1 << ' ' << (static_cast<size_t> (*j_idx) << WordTraits<word_type>::logof_size) + t + 1 << ' ';
-						F.write (os, one) << std::endl;
-					}
-				}
-			}
-		}
-
-		os << "0 0 0" << std::endl;
-
-		break;
-
-	    case FORMAT_MAPLE:
-		F.init (zero, 0);
-                firstrow=true;
-
-		os << "[";
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			if (firstrow) {
-                            os << "[";
-                            firstrow =false;
-                        } else 
-                             os << ", [";
-                           
-			j_idx = i->first.begin ();
-			j_elt = i->second.wordBegin ();
-
-			mask = Endianness::e_0;
-			t = 0;
-
-			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
-				if (mask == 0 && j_idx != i->first.end ()) {
-					mask = Endianness::e_0;
-					++t;
-
-					if (*j_idx < t) {
-						++j_idx;
-						++j_elt;
-					}
-				}
-
-				if (j_idx == i->first.end () || t != *j_idx || !(*j_elt & mask))
-					F.write (os, zero);
-				else
-					F.write (os, one);
-
-				if (j_idx_1 < A._n - 1)
-					os << ", ";
-
-				mask = Endianness::shift_right (mask, 1);
-			}
-
-			os << "]";
-		}
-
-		os << "]";
-
-		break;
-
-	    case FORMAT_MATLAB:
-		F.init (zero, 0);
-
-		os << "[";
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			j_idx = i->first.begin ();
-			j_elt = i->second.wordBegin ();
-
-			mask = Endianness::e_0;
-			t = 0;
-
-			for (j_idx_1 = 0; j_idx_1 < A._n; j_idx_1++) {
-				if (mask == 0 && j_idx != i->first.end ()) {
-					mask = Endianness::e_0;
-					++t;
-
-					if (*j_idx < t) {
-						++j_idx;
-						++j_elt;
-					}
-				}
-
-				if (j_idx == i->first.end () || t != *j_idx || !(*j_elt & mask))
-					F.write (os, zero);
-				else
-					F.write (os, one);
-
-				if (j_idx_1 < A._n - 1)
-					os << ", ";
-
-				mask = Endianness::shift_right (mask, 1);
-			}
-
-			os << "; ";
-		}
-
-		os << "]";
-
-		break;
-
-	    case FORMAT_PRETTY:
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			os << "  [ ";
-
-			j_idx = i->first.begin ();
-			j_elt = i->second.wordBegin ();
-
-			mask = Endianness::e_0;
-			t = 0;
-
-			for (col_idx = 0; col_idx < A._n; col_idx++) {
-				if (mask == 0 && j_idx != i->first.end ()) {
-					mask = Endianness::e_0;
-					++t;
-
-					if (*j_idx < t) {
-						++j_idx;
-						++j_elt;
-					}
-				}
-
-				if (j_idx == i->first.end () || t != *j_idx || !(*j_elt & mask))
-					os << '.';
-				else
-					F.write (os, one);
-
-				os << ' ';
-
-				mask = Endianness::shift_right (mask, 1);
-			}
-
-			os << ']' << std::endl;
-		}
-
-		break;
-
-	    case FORMAT_SAGE:
-	        os << "matrix(R,[" << std::endl;
-
-		for (i = A._A.begin (), i_idx = 0; i != A._A.end (); i++, i_idx++) {
-			os << "  [ ";
-
-			j_idx = i->first.begin ();
-			j_elt = i->second.wordBegin ();
-
-			mask = Endianness::e_0;
-			t = 0;
-
-			for (col_idx = 0; col_idx < A._n; col_idx++) {
-				if (mask == 0 && j_idx != i->first.end ()) {
-					mask = Endianness::e_0;
-					++t;
-
-					if (*j_idx < t) {
-						++j_idx;
-						++j_elt;
-					}
-				}
-
-				if (j_idx == i->first.end () || t != *j_idx || !(*j_elt & mask))
-					os << '.';
-				else
-					F.write (os, one);
-
-				if (col_idx < A._n - 1)
-					os << ", ";
-
-				mask = Endianness::shift_right (mask, 1);
-			}
-
-			if (i_idx < A._m - 1)
-				os << "]," << std::endl;
-			else
-				os << "] ])" << std::endl;
-		}
-
-		break;
-	    case FORMAT_MAGMACPT:
-		os << "sparse matrix written in MagmaCpt form is not implemented" << std::endl;
-		break;
-	}
-
-	return os;
+	if (idx != v.first.end () && *idx == j >> WordTraits<word_type>::logof_size)
+		return *(v.second.wordBegin () + (idx - v.first.begin ())) & Endianness::e_j (j & WordTraits<word_type>::pos_mask);
+	else
+		return false;
 }
 
 template <class Element, class Row>
