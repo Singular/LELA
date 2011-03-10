@@ -475,7 +475,7 @@ std::ostream &MatrixWriter<Field>::writePretty (std::ostream &os, const Matrix &
 			a = A.getEntry (i, j);
 
 			if (_F.isZero (a)) {
-				for (int t = 0; t < col_width - 1; ++t)
+				for (unsigned t = 0; t < col_width - 1; ++t)
 					os << ' ';
 
 				os << ". ";

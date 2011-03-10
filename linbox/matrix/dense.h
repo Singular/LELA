@@ -42,6 +42,7 @@
 #include "linbox/vector/subvector.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/matrix-domain.h"
+#include "linbox/matrix/raw-iterator.h"
 #include "linbox/linbox-config.h"
 #include "linbox/util/matrix-stream.h"
 
@@ -234,13 +235,11 @@ class DenseMatrix
 	 * This is provided through it's rowIndex() and colIndex() functions.
 	 */
 
-        class RawIndexedIterator;
-        class ConstRawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseVectorTag, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-        RawIndexedIterator rawIndexedBegin();
-        RawIndexedIterator rawIndexedEnd();   
-	ConstRawIndexedIterator rawIndexedBegin() const;
-        ConstRawIndexedIterator rawIndexedEnd() const;   
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
     
 	/** Retrieve a reference to a row.
 	 * Since rows may also be indexed, this allows A[i][j] notation

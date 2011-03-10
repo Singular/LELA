@@ -11,6 +11,8 @@
 #ifndef __MATRIX_RAW_ITERATOR_H
 #define __MATRIX_RAW_ITERATOR_H
 
+#include <utility>
+
 namespace LinBox
 {
 
@@ -93,7 +95,7 @@ class MatrixRawIterator<Iterator, VectorCategories::SparseParallelVectorTag>
     public:
 	typedef typename Iterator::value_type Vector;
 
-	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::const_reference const_reference;
+	typedef const typename std::iterator_traits<typename Vector::second_type::const_iterator>::reference const_reference;
 	typedef const_reference reference;
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::value_type value_type;
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::difference_type difference_type;
@@ -414,7 +416,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseParallelVectorT
 		return tmp;
 	}
 
-	const value_type *operator -> () const
+	const value_type *operator -> ()
 		{ update_iter (); return &_pos; }
 
 	value_type operator * () const

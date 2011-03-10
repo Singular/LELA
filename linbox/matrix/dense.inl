@@ -38,6 +38,8 @@ template <class Element>
 class DenseMatrix<Element>::ConstRowIterator
 {
     public:
+	typedef typename std::iterator_traits<typename Rep::const_iterator>::difference_type difference_type;
+
 	ConstRowIterator (const typename Rep::const_iterator& p, size_t len, size_t d)
 		: _row (p, p + len), _dis (d) {}
     
@@ -110,6 +112,8 @@ template <class Element>
 class DenseMatrix<Element>::RowIterator
 {
     public:
+	typedef typename std::iterator_traits<typename Rep::iterator>::difference_type difference_type;
+
 	RowIterator (const typename Rep::iterator& p, size_t len, size_t d)
 		: _row (p, p + len), _dis (d){}
 
@@ -185,6 +189,8 @@ template <class Element>
 class DenseMatrix<Element>::ConstColIterator
 {
     public:
+	typedef typename std::iterator_traits<typename Rep::const_iterator>::difference_type difference_type;
+
 	ConstColIterator (typename Rep::const_iterator p, size_t stride, size_t len)
 		: _col (Subiterator<typename Rep::const_iterator> (p, stride),
 			Subiterator<typename Rep::const_iterator> (p + len * stride, stride)), _stride (stride)
@@ -251,6 +257,8 @@ template <class Element>
 class DenseMatrix<Element>::ColIterator
 {
     public:
+	typedef typename std::iterator_traits<typename Rep::iterator>::difference_type difference_type;
+
 	ColIterator (typename Rep::iterator p, size_t stride, size_t len)
 		: _col (Subiterator<typename Rep::iterator> (p, stride),
 			Subiterator<typename Rep::iterator> (p + len * stride, stride)), _stride (stride)
@@ -380,238 +388,6 @@ typename DenseMatrix<Element>::ConstColIterator DenseMatrix<Element>::colBegin (
 template <class Element>
 typename DenseMatrix<Element>::ConstColIterator DenseMatrix<Element>::colEnd () const
 	{ return  typename DenseMatrix<Element>::ConstColIterator (_rep.begin ()+_cols, _cols, _rows); }
-
-template <class Element>
-class DenseMatrix<Element>::RawIndexedIterator
-{
-        size_t _r_index;
-	size_t _c_index;
-	size_t _dim;
-	typename Rep::iterator _begin;
-
-public:
-	RawIndexedIterator (const size_t  &dim,
-			    const size_t  &r_index,
-			    const size_t  &c_index,
-			    const typename Rep::iterator &begin)
-		: _r_index (r_index), _c_index (c_index), _dim (dim), _begin (begin)
-	{}
-	
-	RawIndexedIterator ():_r_index (0), _c_index (0), _dim (1), _begin (0){}
-
-	RawIndexedIterator (const RawIndexedIterator& r)
-		: _r_index (r._r_index), _c_index (r._c_index), _dim (r._dim), _begin (r._begin)
-	{}
-
-	RawIndexedIterator& operator = (const RawIndexedIterator &iter)
-	{
-		_r_index = iter._r_index;
-		_c_index = iter._c_index;
-		_dim = iter._dim;
-		_begin = iter._begin;
-		return *this;
-	}
-	
-	bool operator == (const RawIndexedIterator &iter) const
-		{ return (_r_index == iter._r_index) &&
-			  (_c_index == iter._c_index) &&
-			  (_dim == iter._dim) &&
-			  (_begin==iter._begin); }
-
-	bool operator != (const RawIndexedIterator& iter) const
-		{ return (_r_index != iter._r_index) ||
-			  (_c_index != iter._c_index) ||
-			  (_dim != iter._dim) ||
-			  (_begin!=iter._begin); }
-	
-	RawIndexedIterator &operator ++ ()
-	{
-		++_c_index;
-
-		if (_c_index == _dim) {
-			_c_index = 0;
-			++_r_index;
-		}
-
-		return *this;
-	}
-
-	
-	RawIndexedIterator operator ++ (int)
-	{
-		RawIndexedIterator tmp = *this;
-		++(*this);
-		return tmp;
-	}
-
-	RawIndexedIterator &operator -- ()
-	{ 
-		if (_c_index)
-			--_c_index;
-		else {
-			--_r_index;
-			_c_index = _dim - 1;
-		}
-
-		return *this;
-	}
-
-
-	RawIndexedIterator operator -- (int) 
-	{
-		RawIndexedIterator tmp = *this;
-		--(*this);
-		return tmp;
-	}	
-
-	Element &operator * () const
-		{ return *(_begin + (_r_index * _dim + _c_index)); }
-
-	
-	Element* operator -> () const
-		{ return _begin + (_r_index * _dim + _c_index); }
-	
-
-	size_t rowIndex () const
-		{ return _r_index; }
-
-	size_t colIndex () const
-	{ return _c_index; }
-
-	const Element &value () const
-        { return *(_begin + (_r_index * _dim + _c_index)); }
-
-	
-};
-
-template <class Element>
-typename DenseMatrix<Element>::RawIndexedIterator DenseMatrix<Element>::rawIndexedBegin () 
-{
-	return RawIndexedIterator (coldim (), 0, 0, _rep.begin ());
-}
-
-template <class Element>
-typename DenseMatrix<Element>::RawIndexedIterator DenseMatrix<Element>::rawIndexedEnd ()
-{
-	return RawIndexedIterator (coldim (), rowdim (), 0, _rep.begin ());
-}
-
-
-
-template <class Element>
-class DenseMatrix<Element>::ConstRawIndexedIterator
-{
-	size_t _r_index;
-	size_t _c_index;
-	size_t _dim;
-    	typedef Element value_type;
-	typename Rep::const_iterator _begin;
-
-    public:
-	ConstRawIndexedIterator (const size_t  &dim,
-			    const size_t  &r_index,
-			    const size_t  &c_index,
-			    const typename Rep::const_iterator &begin)
-		: _r_index (r_index), _c_index (c_index), _dim (dim), _begin (begin)
-	{}
-	
-	ConstRawIndexedIterator ():_r_index (0), _c_index (0), _dim (1), _begin (0){}
-
-	ConstRawIndexedIterator (const ConstRawIndexedIterator& r)
-		: _r_index (r._r_index), _c_index (r._c_index), _dim (r._dim), _begin (r._begin)
-	{}
-
-	ConstRawIndexedIterator& operator = (const ConstRawIndexedIterator &iter)
-	{
-		_r_index = iter._r_index;
-		_c_index = iter._c_index;
-		_dim = iter._dim;
-		_begin = iter._begin;
-		return *this;
-	}
-	
-	bool operator == (const ConstRawIndexedIterator &iter) const
-		{ return (_r_index == iter._r_index) &&
-			  (_c_index == iter._c_index) &&
-			  (_dim == iter._dim) &&
-			  (_begin==iter._begin); }
-
-	bool operator != (const ConstRawIndexedIterator& iter) const
-		{ return (_r_index != iter._r_index) ||
-			  (_c_index != iter._c_index) ||
-			  (_dim != iter._dim) ||
-			  (_begin!=iter._begin); }
-	
-	ConstRawIndexedIterator &operator ++ ()
-	{
-		++_c_index;
-
-		if (_c_index == _dim) {
-			_c_index = 0;
-			++_r_index;
-		}
-
-		return *this;
-	}
-
-	
-	ConstRawIndexedIterator operator ++ (int) 
-	{
-		ConstRawIndexedIterator tmp = *this;
-		++(*this);
-		return tmp;
-	}
-
-	ConstRawIndexedIterator &operator -- ()
-	{ 
-		if (_c_index)
-			--_c_index;
-		else {
-			--_r_index;
-			_c_index = _dim - 1;
-		}
-
-		return *this;
-	}
-
-
-
-	ConstRawIndexedIterator operator -- (int) 
-	{
-		ConstRawIndexedIterator tmp = *this;
-		--(*this);
-		return tmp;
-	}	
-
-	const Element &operator * () const
-		{ return *(_begin + (_r_index * _dim + _c_index)); }
-
-	const Element *operator -> () const
-		{ return _begin + (_r_index * _dim + _c_index); }
-
-	size_t rowIndex () const
-		{ return _r_index; }
-
-	size_t colIndex () const
-		{ return _c_index; }
-	
-    	const Element &value() const
-		{ return *(_begin + (_r_index * _dim + _c_index)); }
-};
-
-
-
-template <class Element>
-typename DenseMatrix<Element>::ConstRawIndexedIterator DenseMatrix<Element>::rawIndexedBegin () const
-{
-	return ConstRawIndexedIterator (coldim (), 0, 0, _rep.begin ());
-}
-
-template <class Element>
-typename DenseMatrix<Element>::ConstRawIndexedIterator DenseMatrix<Element>::rawIndexedEnd () const
-{
-	return ConstRawIndexedIterator (coldim (), rowdim (), 0, _rep.begin ());
-}
 
 } // namespace LinBox
 
