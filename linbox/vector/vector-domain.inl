@@ -2150,9 +2150,9 @@ inline typename Field::Element &VectorDomain<Field>::dotSpecialized
 template <class Field>
 template <class Vector1, class Vector2>
 inline typename Field::Element &VectorDomain<Field>::dotSpecialized
-	(Element                                              &res,
-	 const Vector1                                        &v1,
-	 const Vector2                                        &v2,
+	(Element       &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
 	 VectorCategories::SparseAssociativeVectorTag,
 	 VectorCategories::SparseSequenceVectorTag) const
 {
@@ -2173,9 +2173,9 @@ inline typename Field::Element &VectorDomain<Field>::dotSpecialized
 template <class Field>
 template <class Vector1, class Vector2>
 inline typename Field::Element &VectorDomain<Field>::dotSpecialized
-	(Element                                              &res,
-	 const Vector1                                        &v1,
-	 const Vector2                                        &v2,
+	(Element       &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
 	 VectorCategories::SparseParallelVectorTag,
 	 VectorCategories::SparseSequenceVectorTag) const
 {
@@ -2197,9 +2197,9 @@ inline typename Field::Element &VectorDomain<Field>::dotSpecialized
 template <class Field>
 template <class Vector1, class Vector2>
 inline typename Field::Element &VectorDomain<Field>::dotSpecialized
-	(Element                                              &res,
-	 const Vector1                                        &v1,
-	 const Vector2                                        &v2,
+	(Element       &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
 	 VectorCategories::SparseAssociativeVectorTag,
 	 VectorCategories::SparseAssociativeVectorTag) const
 {
@@ -2220,9 +2220,9 @@ inline typename Field::Element &VectorDomain<Field>::dotSpecialized
 template <class Field>
 template <class Vector1, class Vector2>
 inline typename Field::Element &VectorDomain<Field>::dotSpecialized
-	(Element                                              &res,
-	 const Vector1                                        &v1,
-	 const Vector2                                        &v2,
+	(Element       &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
 	 VectorCategories::SparseParallelVectorTag,
 	 VectorCategories::SparseAssociativeVectorTag) const
 {
@@ -2244,11 +2244,11 @@ inline typename Field::Element &VectorDomain<Field>::dotSpecialized
 template <class Field>
 template <class Vector1, class Vector2>
 inline typename Field::Element &VectorDomain<Field>::dotSpecialized
-	(Element                                              &res,
-	 const Vector1                                        &v1,
-	 const Vector2                                        &v2,
-	 VectorCategories::SparseParallelVectorTag     ,
-	 VectorCategories::SparseParallelVectorTag     ) const
+	(Element       &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
+	 VectorCategories::SparseParallelVectorTag,
+	 VectorCategories::SparseParallelVectorTag) const
 {
 	typename Vector1::first_type::const_iterator i_idx = v1.first.begin ();
 	typename Vector1::second_type::const_iterator i_elt = v1.second.begin ();
