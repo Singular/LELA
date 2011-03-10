@@ -22,6 +22,7 @@
 
 #include "linbox/vector/vector-domain.h"
 #include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/io.h"
 
 // For some specialisations
 #include "linbox/matrix/transpose-matrix.h"
@@ -592,12 +593,15 @@ class MatrixDomainSupport : public MatrixDomainSupportGeneric<Field>
 template <class Field>
 class MatrixDomain : public MatrixDomainSupport<Field>
 {
+	MatrixReader<Field> reader;
+	MatrixWriter<Field> writer;
+
     public:
 	typedef std::pair<unsigned int, unsigned int> Transposition;
 	typedef std::vector<Transposition> Permutation;
 
 	///
-	MatrixDomain (const Field &F) : MatrixDomainSupport<Field> (F) {}
+	MatrixDomain (const Field &F) : MatrixDomainSupport<Field> (F), reader (F), writer (F) {}
 
 	/** Retrieve the underlying field
 	 * Return a reference to the field that this matrix domain
@@ -618,20 +622,22 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 	/** Print matrix.
 	 * @param  os  Output stream to which matrix is written.
 	 * @param  A   Matrix.
+	 * @param  format Output-format
 	 * @returns reference to os.
 	 */
 	template <class Matrix>
 	inline std::ostream &write (std::ostream &os, const Matrix &A, FileFormatTag format = FORMAT_PRETTY) const
-		{ return A.write (os, MatrixDomainSupport<Field>::_F, format); }
+		{ return writer.write (os, A, format); }
 
 	/** Read matrix
 	 * @param  is  Input stream from which matrix is read.
 	 * @param  A   Matrix.
+	 * @param  format Format of input matrix
 	 * @returns reference to is.
 	 */
 	template <class Matrix>
-	inline std::istream &read (std::istream &is, Matrix &A) const
-		{ return A.read (is, MatrixDomainSupport<Field>::_F); }
+	inline std::istream &read (std::istream &is, Matrix &A, FileFormatTag format = FORMAT_DETECT) const
+		{ return reader.read (is, A, format); }
 };
 
 } // namespace LinBox

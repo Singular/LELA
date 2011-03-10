@@ -88,27 +88,6 @@ class MatrixArchetype
 	 */
 	void resize (size_t m, size_t n);
 
-	/** @name Input and output
-	 */
-
-	//@{
-
-	/** Read the matrix from an input stream
-	 * @param file Input stream from which to read
-	 * @param F Field over which to read
-	 */
-	template <class Field>
-	std::istream &read (std::istream &file, const Field &F);
-
-	/** Write the matrix to an output stream
-	 * @param os Output stream to which to write
-	 * @param F Field over which to write
-	 */
-	template <class Field>
-	std::ostream &write (std::ostream &os, const Field &F) const;
-
-	//@}
-
 	/** @name Access to matrix elements
 	 */
 

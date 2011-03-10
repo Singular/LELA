@@ -123,19 +123,19 @@ void testGEMMSubmatrixHybrid ()
 		B_stream >> *B_iter;
 
 	std::ofstream A_output ("A.out");
-	A.write (A_output, F, FORMAT_GUILLAUME);
+	MD.write (A_output, A, FORMAT_GUILLAUME);
 	A_output.close ();
 
 	std::ofstream B_output ("B.out");
-	B.write (B_output, F, FORMAT_GUILLAUME);
+	MD.write (B_output, B, FORMAT_GUILLAUME);
 	B_output.close ();
 #else // 0
 	std::ifstream A_input ("A.out");
-	A.read (A_input, F, FORMAT_GUILLAUME);
+	MD.read (A_input, A, FORMAT_GUILLAUME);
 	A_input.close ();
 
 	std::ifstream B_input ("B.out");
-	B.read (B_input, F, FORMAT_GUILLAUME);
+	MD.read (B_input, B, FORMAT_GUILLAUME);
 	B_input.close ();
 #endif // 0
 
