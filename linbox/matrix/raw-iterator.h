@@ -45,7 +45,7 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseVectorTag>
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos)
-		: _rowcol (rowcol), _pos (rowcol->begin () + pos) {}
+		: _rowcol (rowcol), _pos (rowcol->begin ()) {}
 
 	MatrixRawIterator () {}
 
@@ -90,6 +90,62 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseVectorTag>
 };
 
 template <class Iterator>
+class MatrixRawIterator<Iterator, VectorCategories::SparseSequenceVectorTag>
+{
+    public:
+	typedef typename Iterator::value_type Vector;
+
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::second_type value_type;
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
+	typedef value_type &reference;
+	typedef const reference const_reference;
+
+	MatrixRawIterator (Iterator rowcol, size_t pos)
+		: _rowcol (rowcol), _pos (rowcol->begin ()) {}
+
+	MatrixRawIterator () {}
+
+	MatrixRawIterator& operator = (const MatrixRawIterator &p)
+	{
+		_rowcol = p._rowcol;
+		_pos = p._pos;
+		return *this;
+	}
+	
+	MatrixRawIterator& operator ++ ()
+	{
+		++_pos;
+
+		if (_pos == _rowcol->end ()) {
+			++_rowcol;
+			_pos = _rowcol->begin ();
+		}
+
+		return *this;
+	}
+    
+	MatrixRawIterator  operator ++ (int)
+	{
+		MatrixRawIterator tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	const_reference operator* () const
+		{ return (const_reference) _pos->second; }
+ 
+	bool operator == (const MatrixRawIterator &c) const
+		{ return (_rowcol == c._rowcol) && (_pos == c._pos); }
+
+	bool operator != (const MatrixRawIterator &c) const
+		{ return (_rowcol != c._rowcol) || (_pos != c._pos); }
+
+    private:
+	Iterator _rowcol;
+	typename Vector::const_iterator _pos;
+};
+
+template <class Iterator>
 class MatrixRawIterator<Iterator, VectorCategories::SparseParallelVectorTag>
 {
     public:
@@ -101,7 +157,7 @@ class MatrixRawIterator<Iterator, VectorCategories::SparseParallelVectorTag>
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::difference_type difference_type;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos)
-		: _rowcol (rowcol), _pos (rowcol->second.begin () + pos) {}
+		: _rowcol (rowcol), _pos (rowcol->second.begin ()) {}
 
 	MatrixRawIterator () {}
 
@@ -157,7 +213,7 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseZeroOneVectorTag>
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos)
-		: _rowcol (rowcol), _pos (rowcol->begin () + pos) {}
+		: _rowcol (rowcol), _pos (rowcol->begin ()) {}
 
 	MatrixRawIterator () {}
 
@@ -213,7 +269,7 @@ class MatrixRawIterator<Iterator, VectorCategories::SparseZeroOneVectorTag>
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos)
-		: _rowcol (rowcol), _pos (rowcol->begin () + pos) {}
+		: _rowcol (rowcol), _pos (rowcol->begin ()) {}
 
 	MatrixRawIterator () {}
 
@@ -269,7 +325,7 @@ class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::difference_type difference_type;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos)
-		: _rowcol (rowcol), _pos (rowcol->second.begin () + pos) {}
+		: _rowcol (rowcol), _pos (rowcol->second.begin ()) {}
 
 	MatrixRawIterator () {}
 
@@ -368,6 +424,83 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseVectorTag, false
     private:
 	std::pair<size_t, size_t> _pos;
 	Iterator _rowcol;
+};
+
+template <class Iterator>
+class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseSequenceVectorTag, false>
+{
+    public:
+	typedef typename Iterator::value_type Vector;
+
+	typedef std::pair<size_t, size_t> value_type;
+	typedef value_type &reference;
+	typedef const value_type &const_reference;
+	typedef typename Iterator::difference_type difference_type;
+
+	MatrixRawIndexedIterator (Iterator rowcol, size_t i, Iterator rowcol_end)
+		: _pos (i, 0), _rowcol (rowcol), _rowcol_end (rowcol_end), _iter_valid (false) {}
+
+	MatrixRawIndexedIterator () {}
+
+	MatrixRawIndexedIterator& operator = (const MatrixRawIndexedIterator &p)
+	{
+		_pos = p._pos;
+		_rowcol = p._rowcol;
+		_iter = p._iter;
+		_iter_valid = p._iter_valid;
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator& operator ++ ()
+	{
+		++_iter;
+
+		if (_iter == _rowcol->end ()) {
+			++_pos.first;
+			++_rowcol;
+			_iter_valid = false;
+		} else
+			_pos.second = _iter->first;
+
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator operator ++ (int)
+	{
+		MatrixRawIndexedIterator tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	const value_type *operator -> ()
+		{ update_iter (); return &_pos; }
+
+	value_type operator * () const
+		{ update_iter (); return _pos; }
+ 
+	bool operator == (const MatrixRawIndexedIterator &c) const
+		{ return (_rowcol == c._rowcol) && (_iter == c._iter); }
+
+	bool operator != (const MatrixRawIndexedIterator &c) const
+		{ return (_rowcol != c._rowcol) || (!_iter_valid && !c._iter_valid) || (_iter != c._iter); }
+
+    private:
+	std::pair<size_t, size_t> _pos;
+	Iterator _rowcol, _rowcol_end;
+	typename Vector::const_iterator _iter;
+	bool _iter_valid;
+
+	void update_iter ()
+	{
+		if (!_iter_valid) {
+			while (_rowcol != _rowcol_end && _rowcol->empty ())
+				++_rowcol;
+
+			_iter = _rowcol->begin ();
+			_pos.first = _iter->first;
+			_iter_valid = true;
+		}
+	}
 };
 
 template <class Iterator>

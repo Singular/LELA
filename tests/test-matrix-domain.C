@@ -31,6 +31,7 @@
 #include "linbox/vector/vector-domain.h"
 #include "linbox/matrix/matrix-domain.h"
 #include "linbox/vector/stream.h"
+#include "linbox/vector/sparse.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
 #include "linbox/matrix/dense-submatrix.h"
@@ -1597,6 +1598,29 @@ int main (int argc, char **argv)
 
 	if (!testMatrixDomain (F, "sparse column-wise", M7, M8, M9, iterations,
 			       MatrixTraits<TransposeMatrix<SparseMatrix<Element> > >::MatrixCategory ()))
+		pass = false;
+
+	typedef SparseVector<Element> Row;
+
+	SparseMatrix<Element, Row> M10 (n, m);
+	SparseMatrix<Element, Row> M11 (n, m);
+	SparseMatrix<Element, Row> M12 (m, m);
+
+	RandomSparseStream<Field, Row> stream3 (F, (double) k / (double) n, m);
+
+	SparseMatrix<Element, Row>::RowIterator i3;
+
+	for (i3 = M10.rowBegin (); i3 != M10.rowEnd (); ++i3)
+		stream3 >> *i3;
+
+	for (i3 = M11.rowBegin (); i3 != M11.rowEnd (); ++i3)
+		stream3 >> *i3;
+
+	for (i3 = M12.rowBegin (); i3 != M12.rowEnd (); ++i3)
+		stream3 >> *i3;
+
+	if (!testMatrixDomain (F, "sparse row-wise (new rows)", M10, M11, M12, iterations,
+			       MatrixTraits<SparseMatrix<Element, Row> >::MatrixCategory ()))
 		pass = false;
 
 	commentator.stop("Matrix domain test suite");
