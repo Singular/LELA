@@ -1145,10 +1145,7 @@ protected:
 	template<class _Vector> // BB : nvcc not happy with class Vector (and I agree :))
 	inline void swapSpecialized (_Vector &v1, _Vector &v2,
 				     VectorCategories::SparseSequenceVectorTag) const
-	{
-		typename LinBox::Vector<Field>::SparseSeq t;
-		t = v1; v1 = v2; v2 = t;
-	}
+		{ std::swap_ranges (v1.begin (), v1.end (), v2.begin ()); }
 
 	template <class _Vector>
 	inline void swapSpecialized (_Vector &v1, _Vector &v2,
