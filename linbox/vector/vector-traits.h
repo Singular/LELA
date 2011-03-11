@@ -34,6 +34,7 @@
 
 #include "linbox/field/archetype.h"
 #include "linbox/field/rebind.h"
+#include "linbox/vector/sparse.h"
 
 namespace LinBox
 {
@@ -164,6 +165,22 @@ struct VectorTraits< std::vector<Element> >
 { 
 	typedef std::vector<Element> VectorType;
 	typedef typename VectorCategories::DenseVectorTag VectorCategory; 
+};
+
+// Specialisation for ConstSparseVector
+template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
+struct VectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
+{ 
+	typedef ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
+	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+};
+
+// Specialisation for SparseVector
+template <class Element, class IndexVector, class ElementVector>
+struct VectorTraits< SparseVector<Element, IndexVector, ElementVector> >
+{ 
+	typedef SparseVector<Element, IndexVector, ElementVector> VectorType;
+	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
 };
 
 // Specialization for STL vectors of pairs of size_t and elements
@@ -376,10 +393,6 @@ namespace VectorWrapper
 
 // Now we create some "canonical" vector types, so that users don't 
 // always have to typedef everything
-
-/// Forward declaration
-template <class Element, class IndexVector = std::vector<size_t>, class ElementVector = std::vector<Element> >
-class SparseVector;
 
 /** Canonical vector types
  *

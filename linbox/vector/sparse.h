@@ -9,8 +9,6 @@
 
 #include <vector>
 
-#include <linbox/vector/vector-traits.h>
-
 namespace LinBox
 {
 
@@ -143,6 +141,10 @@ public:
 private:
 	reference _ref;
 };
+
+/// Forward declaration
+template <class Element, class IndexVector = std::vector<size_t>, class ElementVector = std::vector<Element> >
+class SparseVector;
 
 /** Sparse vector wrapper
  *
@@ -338,20 +340,6 @@ public:
 private:
 	IndexVector _idx;
 	ElementVector _elt;
-};
-
-template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
-struct VectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
-{ 
-	typedef ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
-};
-
-template <class Element, class IndexVector, class ElementVector>
-struct VectorTraits< SparseVector<Element, IndexVector, ElementVector> >
-{ 
-	typedef SparseVector<Element, IndexVector, ElementVector> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
 };
 
 } // namespace LinBox
