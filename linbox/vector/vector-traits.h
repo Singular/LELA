@@ -375,6 +375,10 @@ namespace LinBox
 	// Now we create some "canonical" vector types, so that users don't 
 	// always have to typedef everything
 
+	/// Forward declaration
+	template <class Element, class IndexVector = std::vector<size_t>, class ElementVector = std::vector<Element> >
+	class SparseVector;
+
 	/** Canonical vector types
 	 *
 	 * This class includes some typedefs that avoid the necessity to typedef
@@ -387,8 +391,8 @@ namespace LinBox
 	struct RawVector 
 	{
             typedef std::vector<Element> Dense;
-            typedef std::pair<std::vector<size_t>, std::vector<Element> > Sparse;
-            typedef std::vector<std::pair<size_t, Element> > SparseSeq;
+            typedef SparseVector<Element> Sparse;
+	    typedef std::vector<std::pair<size_t, Element> > SparseSeq;
             typedef std::map<size_t, Element> SparseMap;
             typedef std::pair<std::vector<size_t>, std::vector<Element> > SparsePar;
             

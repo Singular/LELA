@@ -144,10 +144,6 @@ private:
 	reference _ref;
 };
 
-/// Forward declaration
-template <class Element, class IndexVector = std::vector<size_t>, class ElementVector = std::vector<Element> >
-class SparseVector;
-
 /** Sparse vector wrapper
  *
  * This class acts as a wrapper around a pair of vectors -- the first
