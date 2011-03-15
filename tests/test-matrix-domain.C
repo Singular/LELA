@@ -1623,7 +1623,7 @@ int main (int argc, char **argv)
 			       MatrixTraits<SparseMatrix<Element, Row> >::MatrixCategory ()))
 		pass = false;
 
-	commentator.stop("Matrix domain test suite");
+	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
 }
 /* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */

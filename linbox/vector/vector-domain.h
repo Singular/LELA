@@ -1163,6 +1163,9 @@ protected:
 		t = v1; v1 = v2; v2 = t;
 	}
 	
+	template <class Iterator>
+	typename Iterator::value_type::first_type permutationImage (typename Iterator::value_type::first_type x, Iterator P_start, Iterator P_end) const;
+
 	template <class Vector, class Iterator>
 	inline Vector &permuteSpecialized (Vector   &v,
 					   Iterator  P_start,

@@ -174,12 +174,19 @@ public:
 	bool operator == (const SparseVectorIterator &c) const 
 		{ return (_ref.first._i == c._ref.first._i); }
 
+	bool operator < (const SparseVectorIterator &c) const 
+		{ return (_ref.first._i < c._ref.first._i); }
+
 	bool operator != (const SparseVectorIterator &c) const 
 		{ return (_ref.first._i != c._ref.first._i); }
 
 	template <class IIt, class EIt, class CIIt, class CEIt>
 	bool operator == (const SparseVectorIterator<IIt, EIt, CIIt, CEIt> &c) const 
 		{ return (_ref.first._i == c._ref.first._i); }
+
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	bool operator < (const SparseVectorIterator<IIt, EIt, CIIt, CEIt> &c) const 
+		{ return (_ref.first._i < c._ref.first._i); }
 
 	template <class IIt, class EIt, class CIIt, class CEIt>
 	bool operator != (const SparseVectorIterator<IIt, EIt, CIIt, CEIt> &c) const 
