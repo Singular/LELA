@@ -29,6 +29,7 @@
 #include "linbox/field/modular.h"
 #include "linbox/vector/vector-domain.h"
 #include "linbox/vector/stream.h"
+#include "linbox/vector/sparse.h"
 
 #include "test-vector-domain.h"
 
@@ -39,7 +40,7 @@ template <class Field>
 bool testVectorDomain (const Field &F, const char *text, size_t n, unsigned int iterations) 
 {
 	typedef std::vector<typename Field::Element> DenseVector;
-	typedef std::vector<typename Field::Element> SparseSeqVector;
+	typedef SparseVector<typename Field::Element> SparseSeqVector;
 	typedef std::vector<typename Field::Element> SparseMapVector;
 	typedef std::vector<typename Field::Element> SparseParVector;
 

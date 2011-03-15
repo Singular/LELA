@@ -12,48 +12,79 @@
 namespace LinBox
 {
 
+/// Class to mimic a C#-style property
+template <class Iterator>
+class SparseVectorProperty {
+	Iterator _i;
+
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	friend class SparseVectorIterator;
+
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	friend class SparseVectorReference;
+
+public:
+	typedef typename std::iterator_traits<Iterator>::value_type T;
+
+	SparseVectorProperty () {}
+	SparseVectorProperty (Iterator i) : _i (i) {}
+
+	T &operator = (const T &v)
+		{ return *_i = v; }
+
+	operator typename std::iterator_traits<Iterator>::reference ()
+		{ return *_i; }
+
+	operator const typename std::iterator_traits<Iterator>::reference () const
+		{ return *_i; }
+};
+
+/// Reference to an (index, entry)-pair
+template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
+class SparseVectorReference {
+public:
+	typedef typename std::iterator_traits<IndexIterator>::value_type first_type;
+	typedef typename std::iterator_traits<ElementIterator>::value_type second_type;
+
+	SparseVectorProperty<IndexIterator> first;
+	SparseVectorProperty<ElementIterator> second;
+
+	SparseVectorReference () {}
+	SparseVectorReference (IndexIterator idx, ElementIterator elt) : first (idx), second (elt) {}
+
+	SparseVectorReference &operator = (const SparseVectorReference &r)
+		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
+
+	SparseVectorReference &operator = (const SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> &r)
+		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
+};
+
+/// Specialisation of above for const references
+template <class ConstIndexIterator, class ConstElementIterator>
+class SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> {
+public:
+	typedef typename std::iterator_traits<ConstIndexIterator>::value_type first_type;
+	typedef typename std::iterator_traits<ConstElementIterator>::value_type second_type;
+
+	SparseVectorProperty<ConstIndexIterator> first;
+	SparseVectorProperty<ConstElementIterator> second;
+
+	SparseVectorReference () {}
+	SparseVectorReference (ConstIndexIterator idx, ConstElementIterator elt) : first (idx), second (elt) {}
+
+	SparseVectorReference &operator = (const SparseVectorReference &r)
+		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
+};
+
 /// Iterator for sparse vectors
 template <class IndexIterator, class ElementIterator, class ConstIndexIterator = IndexIterator, class ConstElementIterator = ElementIterator>
 class SparseVectorIterator
 {
-	template <class Iterator>
-	class Property {
-		Iterator _i;
-
-		friend class SparseVectorIterator;
-
-	public:
-		typedef typename std::iterator_traits<Iterator>::value_type T;
-
-		Property () {}
-		Property (Iterator i) : _i (i) {}
-
-		T &operator = (const T &v)
-			{ return *_i = v; }
-
-		operator typename std::iterator_traits<Iterator>::reference ()
-			{ return *_i; }
-
-		operator const typename std::iterator_traits<Iterator>::reference () const
-			{ return *_i; }
-	};
-
 public:
-	class reference {
-	public:
-		typedef typename std::iterator_traits<IndexIterator>::value_type first_type;
-		typedef typename std::iterator_traits<ElementIterator>::value_type second_type;
-
-		Property<IndexIterator> first;
-		Property<ElementIterator> second;
-
-		reference () {}
-		reference (IndexIterator idx, ElementIterator elt) : first (idx), second (elt) {}
-	};
-
 	typedef std::random_access_iterator_tag iterator_category;
+	typedef SparseVectorReference<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> reference;
 	typedef reference value_type;
-	typedef const reference const_reference;
+	typedef const SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_reference;
 	typedef value_type *pointer;
 	typedef const value_type *const_pointer;
 	typedef long difference_type;
@@ -64,6 +95,14 @@ public:
 	SparseVectorIterator (const SparseVectorIterator &i) : _ref (i._ref) {}
 
 	SparseVectorIterator &operator = (const SparseVectorIterator &i)
+	{
+		_ref.first._i = i._ref.first._i;
+		_ref.second._i = i._ref.second._i;
+		return *this;
+	}
+
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	SparseVectorIterator &operator = (const SparseVectorIterator<IIt, EIt, CIIt, CEIt> &i)
 	{
 		_ref.first._i = i._ref.first._i;
 		_ref.second._i = i._ref.second._i;
@@ -138,8 +177,19 @@ public:
 	bool operator != (const SparseVectorIterator &c) const 
 		{ return (_ref.first._i != c._ref.first._i); }
 
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	bool operator == (const SparseVectorIterator<IIt, EIt, CIIt, CEIt> &c) const 
+		{ return (_ref.first._i == c._ref.first._i); }
+
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	bool operator != (const SparseVectorIterator<IIt, EIt, CIIt, CEIt> &c) const 
+		{ return (_ref.first._i != c._ref.first._i); }
+
 private:
-	reference _ref;
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	friend class SparseVectorIterator;
+
+	value_type _ref;
 };
 
 /// Forward declaration
@@ -321,18 +371,19 @@ public:
 			return (*this)[n];
 	}
 
-	inline reference       front     ()           { return *(begin ()); }
-	inline const_reference front     () const     { return *(begin ()); }
-	inline reference       back      ()           { return *(end () - 1); }
-	inline const_reference back      () const     { return *(end () - 1); }
+	inline reference       front     ()            { return *(begin ()); }
+	inline const_reference front     () const      { return *(begin ()); }
+	inline reference       back      ()            { return *(end () - 1); }
+	inline const_reference back      () const      { return *(end () - 1); }
 
 	template <class T>
-	inline void            push_back (const T &v) { _idx.push_back (v.first); _elt.push_back (v.second); }
-	inline void            clear     ()           { _idx.clear (); _elt.clear (); }
+	inline void            push_back (const T &v)  { _idx.push_back (v.first); _elt.push_back (v.second); }
+	inline void            clear     ()            { _idx.clear (); _elt.clear (); }
+	inline void            resize    (size_type s) { _idx.resize (s); _elt.resize (s); }
 
-	inline size_type       size      () const     { return _idx.size ();  }
-	inline bool            empty     () const     { return _idx.empty (); }
-	inline size_type       max_size  () const     { return std::min (_idx.max_size (), _elt.max_size ());  }
+	inline size_type       size      () const      { return _idx.size ();  }
+	inline bool            empty     () const      { return _idx.empty (); }
+	inline size_type       max_size  () const      { return std::min (_idx.max_size (), _elt.max_size ());  }
 
 	inline bool operator == (const SparseVector &v) const
 		{ return (_idx == v._idx) && (_elt == v._elt); }
