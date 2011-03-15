@@ -1537,7 +1537,6 @@ int main (int argc, char **argv)
 	commentator.start("Matrix domain test suite", "MatrixDomain");
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
-	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (2);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
