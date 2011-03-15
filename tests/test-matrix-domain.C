@@ -1060,7 +1060,7 @@ static bool testMVMulSub (Field &F, const char *text, const Matrix &M)
 	typename Field::Element zero, one, neg_one;
 	F.init (zero, 0);
 	F.init (one, 1);
-	F.init (neg_one, 1);
+	F.init (neg_one, -1);
 
 	str << "Testing " << text << " matrix-vector mul" << ends;
 	commentator.start (str.str ().c_str (), "testMVMulSub");
@@ -1113,7 +1113,7 @@ static bool testMVAxpy (Field &F, const char *text, const Matrix &M)
 	typename Field::Element zero, one, neg_one;
 	F.init (zero, 0);
 	F.init (one, 1);
-	F.init (neg_one, 1);
+	F.init (neg_one, -1);
 
 	str << "Testing " << text << " matrix-vector axpy" << ends;
 	commentator.start (str.str ().c_str (), "testMVAxpy");
