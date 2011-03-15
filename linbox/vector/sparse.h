@@ -52,11 +52,17 @@ public:
 	SparseVectorReference () {}
 	SparseVectorReference (IndexIterator idx, ElementIterator elt) : first (idx), second (elt) {}
 
+	SparseVectorReference &operator = (const std::pair<first_type, second_type> &r)
+		{ *first._i = r.first; *second._i = r.second; return *this; }
+
 	SparseVectorReference &operator = (const SparseVectorReference &r)
 		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
 
 	SparseVectorReference &operator = (const SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> &r)
 		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
+
+	operator std::pair<first_type, second_type> () const
+		{ return std::pair<first_type, second_type> (*first._i, *second._i); }
 };
 
 /// Specialisation of above for const references
@@ -83,10 +89,10 @@ class SparseVectorIterator
 public:
 	typedef std::random_access_iterator_tag iterator_category;
 	typedef SparseVectorReference<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> reference;
-	typedef reference value_type;
+	typedef std::pair<typename IndexIterator::value_type, typename ElementIterator::value_type> value_type;
 	typedef const SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_reference;
-	typedef value_type *pointer;
-	typedef const value_type *const_pointer;
+	typedef reference *pointer;
+	typedef const_reference *const_pointer;
 	typedef long difference_type;
 	typedef size_t size_type;
 
@@ -196,7 +202,7 @@ private:
 	template <class IIt, class EIt, class CIIt, class CEIt>
 	friend class SparseVectorIterator;
 
-	value_type _ref;
+	reference _ref;
 };
 
 /// Forward declaration

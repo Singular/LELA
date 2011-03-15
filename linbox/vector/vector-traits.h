@@ -249,8 +249,8 @@ namespace VectorWrapper
 		inline bool operator () (const PairType &i, const size_t j) const
 			{ return i.first < j; }
 
-		template<typename PairType>
-		inline bool operator () (const PairType &i, const PairType &j) const
+		template<typename PairType1, typename PairType2>
+		inline bool operator () (const PairType1 &i, const PairType2 &j) const
 			{ return i.first < j.first; }
 	};
 

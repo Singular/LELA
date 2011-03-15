@@ -1145,7 +1145,20 @@ protected:
 	template<class _Vector> // BB : nvcc not happy with class Vector (and I agree :))
 	inline void swapSpecialized (_Vector &v1, _Vector &v2,
 				     VectorCategories::SparseSequenceVectorTag) const
-		{ std::swap_ranges (v1.begin (), v1.end (), v2.begin ()); }
+	{
+		size_t v1_size = v1.size (), v2_size = v2.size ();
+		
+		v1.resize (std::max (v1_size, v2_size));
+		v2.resize (std::max (v1_size, v2_size));
+
+		if (v1_size > v2_size)
+			std::swap_ranges (v1.begin (), v1.end (), v2.begin ());
+		else
+			std::swap_ranges (v2.begin (), v2.end (), v1.begin ());
+
+		v1.resize (v2_size);
+		v2.resize (v1_size);
+	}
 
 	template <class _Vector>
 	inline void swapSpecialized (_Vector &v1, _Vector &v2,
