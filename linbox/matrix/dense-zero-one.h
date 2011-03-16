@@ -193,8 +193,8 @@ class DenseZeroOneMatrix
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	/** \brief
 	 *

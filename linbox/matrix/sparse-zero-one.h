@@ -99,8 +99,8 @@ public:
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
@@ -198,8 +198,8 @@ public:
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
