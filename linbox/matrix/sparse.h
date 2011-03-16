@@ -98,7 +98,19 @@ class SparseMatrix
 	 */
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
-    
+
+
+	/** Constructor from a VectorStream
+	 *
+	 * Fills the row-vectors of the matrix with vectors from the
+	 * stream. Stream must have finite size.
+	 */
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
 
 	/** Copy constructor.
 	 */
@@ -267,6 +279,13 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
 
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
+
 	SparseMatrix (const SparseMatrix &A)
 		: _A (A._A), _m (A._m), _n (A._n) {}
 
@@ -370,6 +389,14 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 	 */
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
+
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
+
 	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
@@ -460,6 +487,13 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
 	 */
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
+
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
 
 	~SparseMatrix () {}
 

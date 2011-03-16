@@ -1541,51 +1541,23 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 
-	DenseMatrix<Element> M1 (n, m);
-	DenseMatrix<Element> M2 (n, m);
-	DenseMatrix<Element> M3 (m, m);
-//	MatrixBlackbox<Field, DenseMatrix<Field::Element> > A1 (F, n, m);
+	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream1 (F, m, n);
+	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream1p (F, m, m);
 
-	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream1 (F, m);
-
-	DenseMatrix<Element>::RowIterator i;
-
-	for (i = M1.rowBegin (); i != M1.rowEnd (); ++i)
-		stream1 >> *i;
-
-	for (i = M2.rowBegin (); i != M2.rowEnd (); ++i)
-		stream1 >> *i;
-
-	for (i = M3.rowBegin (); i != M3.rowEnd (); ++i)
-		stream1 >> *i;
-
-//	for (i = A1.rep ().rowBegin (); i != A1.rep ().rowEnd (); ++i)
-//		stream1 >> *i;
+	DenseMatrix<Element> M1 (stream1); stream1.reset ();
+	DenseMatrix<Element> M2 (stream1);
+	DenseMatrix<Element> M3 (stream1p);
 
 	if (!testMatrixDomain (F, "dense", M1, M2, M3, iterations,
 			       MatrixTraits<DenseMatrix<Element> >::MatrixCategory ()))
 		pass = false;
 
-	SparseMatrix<Element> M4 (n, m);
-	SparseMatrix<Element> M5 (n, m);
-	SparseMatrix<Element> M6 (m, m);
-//	MatrixBlackbox<Field, SparseMatrix<Field::Element> > A2 (F, n, m);
+	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream2 (F, (double) k / (double) n, m, n);
+	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream2p (F, (double) k / (double) n, m, m);
 
-	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream2 (F, (double) k / (double) n, m);
-
-	SparseMatrix<Element>::RowIterator i2;
-
-	for (i2 = M4.rowBegin (); i2 != M4.rowEnd (); ++i2)
-		stream2 >> *i2;
-
-	for (i2 = M5.rowBegin (); i2 != M5.rowEnd (); ++i2)
-		stream2 >> *i2;
-
-	for (i2 = M6.rowBegin (); i2 != M6.rowEnd (); ++i2)
-		stream2 >> *i2;
-
-//	for (i2 = A2.rep ().rowBegin (); i2 != A2.rep ().rowEnd (); ++i2)
-//		stream2 >> *i2;
+	SparseMatrix<Element> M4 (stream2); stream2.reset ();
+	SparseMatrix<Element> M5 (stream2);
+	SparseMatrix<Element> M6 (stream2p);
 
 	if (!testMatrixDomain (F, "sparse row-wise", M4, M5, M6, iterations,
 			       MatrixTraits<SparseMatrix<Element> >::MatrixCategory ()))
@@ -1601,22 +1573,12 @@ int main (int argc, char **argv)
 
 	typedef SparseVector<Element> Row;
 
-	SparseMatrix<Element, Row> M10 (n, m);
-	SparseMatrix<Element, Row> M11 (n, m);
-	SparseMatrix<Element, Row> M12 (m, m);
+	RandomSparseStream<Field, Row> stream3 (F, (double) k / (double) n, m, n);
+	RandomSparseStream<Field, Row> stream3p (F, (double) k / (double) n, m, m);
 
-	RandomSparseStream<Field, Row> stream3 (F, (double) k / (double) n, m);
-
-	SparseMatrix<Element, Row>::RowIterator i3;
-
-	for (i3 = M10.rowBegin (); i3 != M10.rowEnd (); ++i3)
-		stream3 >> *i3;
-
-	for (i3 = M11.rowBegin (); i3 != M11.rowEnd (); ++i3)
-		stream3 >> *i3;
-
-	for (i3 = M12.rowBegin (); i3 != M12.rowEnd (); ++i3)
-		stream3 >> *i3;
+	SparseMatrix<Element, Row> M10 (stream3); stream3.reset ();
+	SparseMatrix<Element, Row> M11 (stream3);
+	SparseMatrix<Element, Row> M12 (stream3p);
 
 	if (!testMatrixDomain (F, "sparse row-wise (new rows)", M10, M11, M12, iterations,
 			       MatrixTraits<SparseMatrix<Element, Row> >::MatrixCategory ()))

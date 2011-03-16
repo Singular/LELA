@@ -340,6 +340,14 @@ DenseMatrix<_Element>::DenseMatrix( MatrixStream<Field>& ms )
 	_ptr = &_rep[0];
 }
 
+template <class _Element>
+DenseMatrix<_Element>::DenseMatrix (VectorStream<DenseMatrix<_Element>::Row> &vs)
+	: _rep (vs.size () * vs.dim ()), _rows (vs.size ()), _cols (vs.dim ()), _ptr (&_rep[0])
+{
+	for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+		vs >> *i;
+}
+
 /// entry access raw view.  Size m*n vector in C (row major) order.
 template <class Element>
 typename DenseMatrix<Element>::RawIterator DenseMatrix<Element>::rawBegin ()
