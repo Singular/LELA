@@ -446,6 +446,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseSequenceVectorT
 	{
 		_pos = p._pos;
 		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
 		_iter = p._iter;
 		_iter_valid = p._iter_valid;
 		return *this;
@@ -456,8 +457,11 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseSequenceVectorT
 		++_iter;
 
 		if (_iter == _rowcol->end ()) {
-			++_pos.first;
-			++_rowcol;
+			do {
+				++_rowcol;
+				++_pos.first;
+			} while (_rowcol != _rowcol_end && _rowcol->empty ());
+
 			_iter_valid = false;
 		} else
 			_pos.second = _iter->first;
@@ -479,10 +483,10 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseSequenceVectorT
 		{ update_iter (); return _pos; }
  
 	bool operator == (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol == c._rowcol) && (_iter == c._iter); }
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_iter == c._iter))); }
 
 	bool operator != (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol != c._rowcol) || (!_iter_valid && !c._iter_valid) || (_iter != c._iter); }
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_iter != c._iter))); }
 
     private:
 	std::pair<size_t, size_t> _pos;
@@ -493,11 +497,8 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseSequenceVectorT
 	void update_iter ()
 	{
 		if (!_iter_valid) {
-			while (_rowcol != _rowcol_end && _rowcol->empty ())
-				++_rowcol;
-
 			_iter = _rowcol->begin ();
-			_pos.first = _iter->first;
+			_pos.second = _iter->first;
 			_iter_valid = true;
 		}
 	}
@@ -523,6 +524,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseParallelVectorT
 	{
 		_pos = p._pos;
 		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
 		_iter = p._iter;
 		_iter_valid = p._iter_valid;
 		return *this;
@@ -533,8 +535,11 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseParallelVectorT
 		++_iter;
 
 		if (_iter == _rowcol->first.end ()) {
-			++_pos.first;
-			++_rowcol;
+			do {
+				++_rowcol;
+				++_pos.first;
+			} while (_rowcol != _rowcol_end && _rowcol->first.empty ());
+
 			_iter_valid = false;
 		} else
 			_pos.second = *_iter;
@@ -556,10 +561,10 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseParallelVectorT
 		{ update_iter (); return _pos; }
  
 	bool operator == (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol == c._rowcol) && (_iter == c._iter); }
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_iter == c._iter))); }
 
 	bool operator != (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol != c._rowcol) || (!_iter_valid && !c._iter_valid) || (_iter != c._iter); }
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_iter != c._iter))); }
 
     private:
 	std::pair<size_t, size_t> _pos;
@@ -570,11 +575,8 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseParallelVectorT
 	void update_iter ()
 	{
 		if (!_iter_valid) {
-			while (_rowcol != _rowcol_end && _rowcol->first.empty ())
-				++_rowcol;
-
 			_iter = _rowcol->first.begin ();
-			_pos.first = *_iter;
+			_pos.second = *_iter;
 			_iter_valid = true;
 		}
 	}
@@ -657,6 +659,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseZeroOneVectorTa
 	{
 		_pos = p._pos;
 		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
 		_iter = p._iter;
 		_iter_valid = p._iter_valid;
 		return *this;
@@ -667,8 +670,11 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseZeroOneVectorTa
 		++_iter;
 
 		if (_iter == _rowcol->end ()) {
-			++_pos.first;
-			++_rowcol;
+			do {
+				++_rowcol;
+				++_pos.first;
+			} while (_rowcol != _rowcol_end && _rowcol->empty ());
+
 			_iter_valid = false;
 		} else
 			_pos.second = *_iter;
@@ -690,10 +696,10 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseZeroOneVectorTa
 		{ update_iter (); return _pos; }
  
 	bool operator == (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol == c._rowcol) && (_iter == c._iter); }
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_iter == c._iter))); }
 
 	bool operator != (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol != c._rowcol) || (!_iter_valid && !c._iter_valid) || (_iter != c._iter); }
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_iter != c._iter))); }
 
     private:
 	std::pair<size_t, size_t> _pos;
@@ -704,11 +710,8 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseZeroOneVectorTa
 	void update_iter ()
 	{
 		if (!_iter_valid) {
-			while (_rowcol != _rowcol_end && _rowcol->empty ())
-				++_rowcol;
-
 			_iter = _rowcol->begin ();
-			_pos.first = *_iter;
+			_pos.second = *_iter;
 			_iter_valid = true;
 		}
 	}
@@ -737,6 +740,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
 	{
 		_pos = p._pos;
 		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
 		_iter = p._iter;
 		_iter_valid = p._iter_valid;
 		_t = p._t;
@@ -752,8 +756,11 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
 			++_iter;
 
 			if (_iter == _rowcol->first.end ()) {
-				++_pos.first;
-				++_rowcol;
+				do {
+					++_rowcol;
+					++_pos.first;
+				} while (_rowcol != _rowcol_end && _rowcol->first.empty ());
+
 				_iter_valid = false;
 			} else
 				_pos.second = *_iter;
@@ -776,10 +783,10 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
 		{ update_iter (); return _pos; }
  
 	bool operator == (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol == c._rowcol) && (_iter == c._iter); }
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_iter == c._iter) && (_t == c._t))); }
 
 	bool operator != (const MatrixRawIndexedIterator &c) const
-		{ return (_rowcol != c._rowcol) || (!_iter_valid && !c._iter_valid) || (_iter != c._iter) || (_t != c._t); }
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_iter != c._iter) || (_t != c._t))); }
 
     private:
 	std::pair<size_t, size_t> _pos;
@@ -791,11 +798,8 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
 	void update_iter ()
 	{
 		if (!_iter_valid) {
-			while (_rowcol != _rowcol_end && _rowcol->first.empty ())
-				++_rowcol;
-
 			_iter = _rowcol->first.begin ();
-			_pos.first = *_iter << WordTraits<word_type>::logof_size;
+			_pos.second = *_iter << WordTraits<word_type>::logof_size;
 			_iter_valid = true;
 		}
 	}
