@@ -41,7 +41,7 @@ class DenseZeroOneMatrix
 	typedef typename std::iterator_traits<Iterator>::value_type word_type;
 
 	typedef DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness> RowIterator;
-	typedef DenseZeroOneMatrixConstRowIterator<Iterator, ConstIterator, Endianness> ConstRowIterator;
+	typedef DenseZeroOneMatrixRowIterator<ConstIterator, ConstIterator, Endianness> ConstRowIterator;
 
 	typedef typename RowIterator::value_type Row;  
 	typedef typename ConstRowIterator::value_type ConstRow;
