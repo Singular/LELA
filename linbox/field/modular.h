@@ -218,7 +218,7 @@ public:
 	 * @param  x   field base element.
 	 */
 	std::ostream &write (std::ostream &os, const Element &x) const
-		{ return os << (int) x; }
+		{ return os << x; }
  
 
 	/*- Read field base element.
@@ -624,33 +624,35 @@ class Modular<uint8> : public FieldInterface, public ModularBase<uint8>
     public:
 
 	typedef uint8 Element;
-	const Element zero,one;
+	const Element zero, one;
 	Element mone;
 
 	Modular () : zero(0),one(1),_k (0) {}
 	Modular (uint32 modulus)
 		: ModularBase<uint8> (modulus),
-		zero(0),one(1),mone(modulus-1),
-		_k (((uint64) -1LL) / ((modulus - 1) * (modulus - 1))),
-		_pinv (1.0 / (double) ((uint8) modulus)) {}
+		  zero (0), one (1), mone (modulus - 1),
+		  _k (((uint64) -1LL) / ((modulus - 1) * (modulus - 1))),
+		  _pinv (1.0 / (double) ((uint8) modulus))
+		{}
 	Modular (const integer &modulus)
-		: ModularBase<uint8> ((long) modulus),
-		zero(0),one(1),mone(modulus-1),
-		_k (((uint64) -1LL) / (((uint8)modulus - 1) * ((uint8)modulus - 1))),
-		_pinv (1.0 / (double) ((uint8) modulus)) {}
+		: ModularBase<uint8> (modulus.get_ui ()),
+		  zero (0), one (1), mone (modulus.get_ui () - 1),
+		  _k (((uint64) -1LL) / (((uint8) modulus.get_ui () - 1) * ((uint8) modulus.get_ui () - 1))),
+		  _pinv (1.0 / (double) (modulus.get_ui ()))
+		{}
 
 	const Modular &operator=(const Modular &F) 
-		{
-			ModularBase<uint8>::_modulus = F._modulus;
-			_k = F._k;
-			_pinv = F._pinv;
-                        mone = F.mone;
-			return *this;
-		}
+	{
+		ModularBase<uint8>::_modulus = F._modulus;
+		_k = F._k;
+		_pinv = F._pinv;
+		mone = F.mone;
+		return *this;
+	}
 
 	Element &init (Element &x, const integer &y = 0) const
 	{
-		x = (unsigned short) (abs (y) % integer (ModularBase<Element>::_modulus));
+		x = abs (y.get_ui ()) % ModularBase<Element>::_modulus;
 		if (y < 0) x = ModularBase<Element>::_modulus - x;
 		return x;
 	}
@@ -792,14 +794,16 @@ class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
 	Modular () : zero(0),one(1),_k (0) {}
 	Modular (uint32 modulus)
 		: ModularBase<uint16> (modulus),
-		zero(0),one(1),mone(modulus-1),
-		_k (((uint64) -1LL) / ((ModularBase<Element>::_modulus - 1) * (ModularBase<Element>::_modulus - 1))),
-		_pinv (1.0 / (double) ((uint16) ModularBase<Element>::_modulus)) {}
+		  zero(0),one(1),mone(modulus-1),
+		  _k (((uint64) -1LL) / ((ModularBase<Element>::_modulus - 1) * (ModularBase<Element>::_modulus - 1))),
+		  _pinv (1.0 / (double) ((uint16) ModularBase<Element>::_modulus))
+		{}
 	Modular (const integer &modulus)
-		: ModularBase<uint16> ((long) modulus),
-		zero(0),one(1),mone(modulus-1),
-		_k (((uint64) -1LL) / ((ModularBase<Element>::_modulus - 1) * (ModularBase<Element>::_modulus - 1))),
-		_pinv (1.0 / (double) ((uint16) ModularBase<Element>::_modulus)) {}
+		: ModularBase<uint16> (modulus.get_ui ()),
+		  zero (0), one (1), mone (modulus.get_ui () - 1),
+		  _k (((uint64) -1LL) / ((ModularBase<Element>::_modulus - 1) * (ModularBase<Element>::_modulus - 1))),
+		  _pinv (1.0 / (double) ((uint16) ModularBase<Element>::_modulus))
+		{}
 
 	const Modular &operator=(const Modular &F) 
 	{
@@ -811,7 +815,7 @@ class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
 
 	Element &init (Element &x, const integer &y = 0) const
 	{
-		x = abs (y) % integer (ModularBase<Element>::_modulus);
+		x = abs (y.get_ui ()) % ModularBase<Element>::_modulus;
 		if (y < 0) x = ModularBase<Element>::_modulus - x;
 		return x;
 	}
@@ -952,7 +956,9 @@ class Modular<uint32> : public FieldInterface, public ModularBase<uint32>
 
 	Modular () :  zero(0),one(1) {}
 	Modular (uint32 modulus)  : ModularBase<uint32> (modulus),zero(0),one(1),mone(modulus-1)  { init_two_64 (); }
-	Modular (const integer &modulus) : ModularBase<uint32> (modulus),zero(0),one(1),mone(modulus-1)  { init_two_64 (); }
+	Modular (const integer &modulus)
+		: ModularBase<uint32> (modulus.get_ui ()), zero (0), one (1), mone (modulus.get_ui () - 1)
+		{ init_two_64 (); }
 
 	const Modular &operator=(const Modular &F) 
 	{
@@ -964,7 +970,7 @@ class Modular<uint32> : public FieldInterface, public ModularBase<uint32>
 
 	Element &init (Element &x, const integer &y = 0) const
 	{
-		x = abs (y) % integer (ModularBase<Element>::_modulus);
+		x = abs (y.get_ui ()) % ModularBase<Element>::_modulus;
 		if (y < 0) x = ModularBase<Element>::_modulus - x;
 		return x;
 	}
@@ -1490,7 +1496,7 @@ class MVProductDomain<Modular<uint32> >
 };
 
 template <>
-inline std::ostream& ModularBase<Integer>::write (std::ostream &os) const 
+inline std::ostream& ModularBase<integer>::write (std::ostream &os) const 
 	{ return os << "GMP integers mod " << _modulus; }
 
 template <>

@@ -17,7 +17,7 @@
 
 #include "linbox/linbox-config.h"
 
-#include "gmp++/gmp++.h"
+#include <gmpxx.h>
 
 namespace LinBox
 {
@@ -30,7 +30,7 @@ C++ infix operator forms (eg. a*b) . It is for ``casual'' uses such as character
 cardinalities and when initializing field elements.  The integers are also represented as a 
 LinBox ring for use in integer matrix computation, see pid-integers.h or ntl-ZZ.h.
 	 */ 
-	typedef Integer integer;
+	typedef mpz_class integer;
 
 	typedef signed __LINBOX_INT8 int8;
 	typedef signed __LINBOX_INT16 int16;
@@ -59,30 +59,6 @@ LinBox ring for use in integer matrix computation, see pid-integers.h or ntl-ZZ.
 	// Huh? -bds
 	template< class T >
 	T abs( const T& a ) { return( a <= 0 ? a * -1 : a ); }
-
-
-
-        // SPy to have access to protected members of integer
-	struct SpyInteger {
-
-	    struct InHeritsInteger : public integer {
-	    protected:
-	        friend struct SpyInteger;
-	    };        
-    
-	    static const InHeritsInteger::Rep* get_rep(const integer& i) {
-        	return static_cast<const InHeritsInteger&>(i).get_rep();
-	    }
-
-	    static mpz_ptr get_mpz(integer& i) {
-	        return static_cast<InHeritsInteger&>(i).get_mpz();
-	    }
-	    static mpz_ptr get_mpz(const integer& i) {
-	        return const_cast<InHeritsInteger&>(static_cast<const InHeritsInteger&>(i)).get_mpz();
-	    }
-        };
-
-
 }
 
 #endif // __LINBOX_integer_H

@@ -117,8 +117,8 @@ class GMPRationalElement
 	GMPRationalElement (const integer &num, const integer &den) 
 	{
 		mpq_init (rep);
-		mpz_set (mpq_numref (rep), SpyInteger::get_rep(num));
-		mpz_set (mpq_denref (rep), SpyInteger::get_rep(den));
+		mpz_set (mpq_numref (rep), num.get_mpz_t ());
+		mpz_set (mpq_denref (rep), den.get_mpz_t ());
 	}
 	
 	// Added by Rich Seagraves to take care of some headaches
@@ -134,7 +134,7 @@ class GMPRationalElement
 		mpz_set_si (mpq_numref(rep), num);
 		mpz_set_si (mpq_denref(rep), integer(1));
 		*/
-		mpq_set_z(rep, SpyInteger::get_rep(num));
+		mpq_set_z(rep, num.get_mpz_t ());
 	}
 
 	mpq_ptr get_rep() {return rep;}
@@ -165,5 +165,12 @@ class GMPRationalElement
 
 #endif // __LINBOX_element_gmp_rational_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+

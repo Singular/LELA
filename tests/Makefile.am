@@ -30,10 +30,8 @@ BASIC_TESTS =  \
         test-gmp-rational       \
         test-matrix-domain      \
         test-modular            \
-        test-modular-balanced-int\
         test-modular-byte       \
         test-modular-double     \
-        test-modular-int        \
         test-modular-short      \
         test-randiter-nonzero   \
         test-subiterator        \
@@ -47,6 +45,8 @@ BENCHMARKS =                    \
         benchmark-blas-domain
 
 NON_COMPILING_TESTS = \
+        test-modular-balanced-int \
+        test-modular-int        \
         test-blas-domain        
 
 EXTRA_PROGRAMS = $(NON_COMPILING_TESTS)

@@ -118,7 +118,7 @@ class GMPRationalField : public FieldInterface
 	 */
 	Element &init (Element &x, const integer &y = 0) const
 	{
-		mpq_set_z (x. rep, SpyInteger::get_mpz(const_cast<integer&>(y)));
+		mpq_set_z (x.rep, y.get_mpz_t ());
 		//mpq_set_si (x.rep, (signed long) y, 1L);
 		//mpq_canonicalize (x.rep);
 		return x;
@@ -157,7 +157,7 @@ class GMPRationalField : public FieldInterface
 		mpq_get_num (n, y.rep);
 		mpq_get_den (d, y.rep);
 
-		mpz_divexact (x.get_mpz(), n, d);
+		mpz_divexact (x.get_mpz_t (), n, d);
 
 		/* Shouldn't there be something like this? We'll assume integer is gmp integers.
 		x.set_mpz(n);
@@ -669,26 +669,26 @@ class GMPRationalField : public FieldInterface
 	
 	// x = numerator of y
 	integer& get_num (integer& x, const Element& y)  const{
-		mpq_get_num (SpyInteger::get_mpz(x), y. rep);
+		mpq_get_num (x.get_mpz_t (), y.rep);
 		return x;
 
 	}
 
 	// x = denominator of y
 	integer& get_den (integer& x, const Element& y) const {
-		mpq_get_den (SpyInteger::get_mpz(x), y. rep);
+		mpq_get_den (x.get_mpz_t (), y.rep);
 		return x;
 	}
 
 	int sign (const Element& x) const {
-		return mpq_sgn (x. rep);
+		return mpq_sgn (x.rep);
 	}
 	
 	//bitsize as sum of bitsizes of numerator and denominator
         integer& bitsize(integer& bs, const Element q) const {
-                integer y; get_den(y,q);
-                integer x; get_num(x,q);
-                bs = x.bitsize() + y.bitsize();
+                integer y; get_den (y, q);
+                integer x; get_num (x, q);
+                bs = mpz_sizeinbase (x.get_mpz_t (), 2) + mpz_sizeinbase (y.get_mpz_t (), 2);
                 return bs;
         }
 
@@ -719,6 +719,12 @@ std::istream &operator >> (std::istream &is, GMPRationalElement &elt)
 
 #endif // __LINBOX_field_gmp_rational_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
 
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+

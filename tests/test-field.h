@@ -33,7 +33,7 @@ typename Field::Element& expt (const Field &F, typename Field::Element &res, con
 	else if (n == 1) {
 		F.assign (res, a);
 	}
-	else if (n[0] & 1) {
+	else if (n.get_ui () & 1) {
 		n -= 1;
 		expt (F, res, a, n);
 		F.mulin (res, a);
@@ -1160,19 +1160,20 @@ bool testRandomIteratorStep (const Field &F,
 	// C++ ints. Otherwise, I don't know how to place the numbers into
 	// categories in any well-defined manner.
 	for (i = 0; i < num_trials; ++i) {
-		integer ix, id;
+		integer ix, id, ixmodn;
 		F.convert(ix, iter.random (x));
 
-   
-		categories1[ix % num_categories]++;
-		categories2[(unsigned int) (double (ix) / double (card) * num_categories)]++;
+		ixmodn = ix % num_categories;
+		categories1[ixmodn.get_ui ()]++;
+		categories2[(unsigned int) (ix.get_d () / card.get_d () * num_categories)]++;
 
 		typename std::list<typename Field::Element>::iterator x_queue_iter = x_queue.begin ();
 		diff_cat_iter = diff_categories.begin ();
 
 		for (; x_queue_iter != x_queue.end (); ++x_queue_iter, ++diff_cat_iter) {
 			F.convert(id, F.sub (d, *x_queue_iter, x));
-			(*diff_cat_iter)[id % num_categories]++;
+			ixmodn = id % num_categories;
+			(*diff_cat_iter)[ixmodn.get_ui ()]++;
 		}
 
 		x_queue.push_front (x);
@@ -1237,5 +1238,12 @@ bool testRandomIteratorStep (const Field &F,
 }
 //@}
 #endif // __LINBOX_test_field_H
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

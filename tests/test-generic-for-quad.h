@@ -1,5 +1,5 @@
 /* linbox/tests/test-generic-for-quad.h
- * Copyright (C) LinBox
+ * Copyright LinBox
  *
  * Evolved from test-generic.h by Hui Wang, spring/summer 2006
  * The test-blackbox is substantially different.  
@@ -39,7 +39,7 @@ typename Field::Element expt (const Field &F, typename Field::Element &res, cons
 	else if (n == 1) {
 		F.assign (res, a);
 	}
-	else if (n[0] & 1) {
+	else if (n.get_ui () & 1) {
 		n -= 1;
 		expt (F, res, a, n);
 		F.mulin (res, a);
@@ -1510,7 +1510,7 @@ bool testRandomIteratorStep (const Field &F,
 		iter.random (x);
 
 		categories1[x % num_categories]++;
-		categories2[(unsigned int) (double (x) / double (card) * num_categories)]++;
+		categories2[(unsigned int) (double (x) / card.get_d () * num_categories)]++;
 
 		typename std::list<typename Field::Element>::iterator x_queue_iter = x_queue.begin ();
 		diff_cat_iter = diff_categories.begin ();
@@ -2039,5 +2039,12 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 //@}
 
 #endif // __LINBOX_test_generic_quad_H
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

@@ -94,13 +94,12 @@ namespace LinBox
 
 #ifdef TRACE
 			cout << "created random generator with size " << _size 
-	   << " and seed " << _seed << endl;
+			     << " and seed " << _seed << endl;
 #endif // TRACE
 			
 			// Seed random number generator
-			srand(static_cast<long>(_seed));
-
-		} // UnparametricRandIter(const UnparametricField<K>&, const integer&, const integer&)
+			srand(_seed.get_si ());
+		}
 
 		/** Copy constructor.
 		 * Constructs UnparametricRandIter object by copying the random field
@@ -149,9 +148,8 @@ namespace LinBox
 			if (_size == 0)
 				return x = rand();
 			else
-				return x = static_cast<integer>((double(rand())/RAND_MAX)*double(_size));
-		
-		} // element& operator() (void)
+				return x = static_cast<Element> ((double (rand ()) / RAND_MAX) * _size.get_d ());
+		}
 
 		//@} Common Object Iterface
 	 
