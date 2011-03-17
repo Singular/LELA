@@ -1,5 +1,5 @@
 /* linbox/randiter/gf2.h
- * Copyright (C) 2003 Bradford Hovinen
+ * Copyright 2003 Bradford Hovinen
  *
  * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
  *

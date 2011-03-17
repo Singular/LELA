@@ -1,12 +1,14 @@
 /* linbox/util/timer.C
- * Copyright (C) 1994-1997 Givaro Team
+ * Copyright 1994-1997 Givaro Team
  *
  * Written by T. Gautier
  *
  * See COPYING for license information.
  */
+
 #ifndef __LINBOX_timer_INL
 #define __LINBOX_timer_INL
+
 // Description:
 // - various timer objects
 // - to be rewritten to be more efficient
@@ -198,8 +200,16 @@ const Timer Timer::operator + (const Timer & T)  const
 	return Tmp ;
 }
  
-}
+} // namespace LinBox
+
 #endif //__LINBOX_timer_INL
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+

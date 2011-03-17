@@ -33,7 +33,6 @@ namespace LinBox
 class GMPRationalField;
 class GMPRationalRandIter;
 
-
 /** \brief elements of GMP_Rationals.
 \ingroup element
  */

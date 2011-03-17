@@ -1,7 +1,7 @@
 /* linbox/util/debug.h
  *
- * Copyright (C) 2001,2010 LinBox
- * Copyright (C) 2001 Bradford Hovinen
+ * Copyright 2001,2010 LinBox
+ * Copyright 2001 Bradford Hovinen
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>
  * 
  *
@@ -45,40 +45,42 @@
 
 namespace LinBox
 {
-	class PreconditionFailed //: public LinboxError BB: otherwise,  error.h:39 segfaults
-	{
-		static std::ostream *_errorStream;
 
-	    public:
-		PreconditionFailed (const char *function, int line, const char *check) { //BB : not so useful, is it ?
-			if (_errorStream == (std::ostream *) 0)
-				_errorStream = &std::cerr;
+class PreconditionFailed //: public LinboxError BB: otherwise,  error.h:39 segfaults
+{
+	static std::ostream *_errorStream;
 
-			(*_errorStream) << std::endl << std::endl;
-			(*_errorStream) << "ERROR (" << function << ":" << line << "): ";
-			(*_errorStream) << "Precondition not met:" << check << std::endl;
-		}
+public:
+	PreconditionFailed (const char *function, int line, const char *check) { //BB : not so useful, is it ?
+		if (_errorStream == (std::ostream *) 0)
+			_errorStream = &std::cerr;
 
-		PreconditionFailed (const char* function, const char *file, int line, const char *check) {
-			if (_errorStream == (std::ostream *) 0)
-				_errorStream = &std::cerr;
+		(*_errorStream) << std::endl << std::endl;
+		(*_errorStream) << "ERROR (" << function << ":" << line << "): ";
+		(*_errorStream) << "Precondition not met:" << check << std::endl;
+	}
 
-			(*_errorStream) << std::endl << std::endl;
-			(*_errorStream) << "ERROR (at " << function << " in " << file << ':' <<  line << "): " << std::endl;
-			(*_errorStream) << "Precondition not met:" << check << std::endl;
-		}
+	PreconditionFailed (const char* function, const char *file, int line, const char *check) {
+		if (_errorStream == (std::ostream *) 0)
+			_errorStream = &std::cerr;
 
-		static void setErrorStream (std::ostream &stream);
+		(*_errorStream) << std::endl << std::endl;
+		(*_errorStream) << "ERROR (at " << function << " in " << file << ':' <<  line << "): " << std::endl;
+		(*_errorStream) << "Precondition not met:" << check << std::endl;
+	}
 
-		// -- overload the virtual print of LinboxError
-		std::ostream &print (std::ostream &o) const { 
-			if (std::ostringstream * str = dynamic_cast<std::ostringstream*>(_errorStream))
-				return o << str->str() ; 
-			else
-				throw LinboxError("LinBox ERROR: PreconditionFailed exception is not initialized correctly");
-		}
-	};
-}
+	static void setErrorStream (std::ostream &stream);
+
+	// -- overload the virtual print of LinboxError
+	std::ostream &print (std::ostream &o) const { 
+		if (std::ostringstream * str = dynamic_cast<std::ostringstream*>(_errorStream))
+			return o << str->str() ; 
+		else
+			throw LinboxError("LinBox ERROR: PreconditionFailed exception is not initialized correctly");
+	}
+};
+
+} // namespace LinBox
 
 #ifdef LinBoxSrcOnly
 // for all-source compilation
@@ -87,5 +89,12 @@ namespace LinBox
 
 #endif // __LINBOX_util_debug_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+
