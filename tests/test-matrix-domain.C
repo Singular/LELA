@@ -180,17 +180,16 @@ static bool testCopyEqual (Field &F, const char *text, const Matrix &M)
  */
 
 template <class Field, class Matrix>
-static bool testSubinIsZero (Field &F, const char *text, const Matrix &M) 
+static bool testScalAxpyIsZero (Field &F, const char *text, const Matrix &M) 
 {
 	ostringstream str;
 
-	typename Field::Element zero, one, neg_one;
-	F.init (zero, 0);
-	F.init (one, 1);
-	F.init (neg_one, -1);
+	str << "Testing " << text << " matrix scal, axpy, isZero" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	str << "Testing " << text << " matrix subin, isZero" << ends;
-	commentator.start (str.str ().c_str (), "testSubinIsZero");
+	typename Field::Element a, nega;
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
 	bool ret = true;
 
@@ -202,8 +201,15 @@ static bool testSubinIsZero (Field &F, const char *text, const Matrix &M)
 	report << "Input matrix M:" << endl;
 	MD.write (report, M);
 
+	r.random (a);
+	F.neg (nega, a);
+
+	report << "Coefficient: ";
+	F.write (report, a) << std::endl;
+
 	MD.copy (M1, M);
-	MD.axpy (neg_one, M, M1);
+	MD.scal (M1, a);
+	MD.axpy (nega, M, M1);
 
 	report << "Output matrix M1:" << endl;
 	MD.write (report, M1);
@@ -214,127 +220,74 @@ static bool testSubinIsZero (Field &F, const char *text, const Matrix &M)
 		ret = false;
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testSubinIsZero");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
 
 	return ret;
 }
 
-/* Test 3: add-neg and sub
+/* Test 3: gemm, scal
  *
  * Return true on success and false on failure
  */
 
 template <class Field, class Matrix>
-static bool testAddNegSub (Field &F, const char *text, const Matrix &M1, const Matrix &M2) 
+static bool testGemm (Field &F, const char *text, const Matrix &A, const Matrix &B)
 {
 	ostringstream str;
 
-	typename Field::Element zero, one, neg_one;
-	F.init (zero, 0);
-	F.init (one, 1);
-	F.init (neg_one, -1);
+	str << "Testing " << text << " matrix gemm" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	str << "Testing " << text << " matrix add-neg, sub" << ends;
-	commentator.start (str.str ().c_str (), "testAddNegSub");
+	typename Field::Element a, b, zero, negainvb;
+
+	F.init (zero, 0);
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
 	bool ret = true;
 
 	MatrixDomain<Field> MD (F);
 
-	DenseMatrix<typename Field::Element> M3 (M1.rowdim (), M1.coldim ());
-	DenseMatrix<typename Field::Element> M4 (M1.rowdim (), M1.coldim ());
-	DenseMatrix<typename Field::Element> M5 (M1.rowdim (), M1.coldim ());
+	DenseMatrix<typename Field::Element> C (A.rowdim (), B.coldim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M1:" << endl;
-	MD.write (report, M1);
+	report << "Input matrix A:" << endl;
+	MD.write (report, A);
 
-	report << "Input matrix M2:" << endl;
-	MD.write (report, M2);
+	report << "Input matrix B:" << endl;
+	MD.write (report, B);
 
-	MD.copy (M3, M2);
-	MD.scal (M3, neg_one);
-	MD.copy (M4, M1);
-	MD.axpy (one, M3, M4);
-	MD.copy (M5, M1);
-	MD.axpy (neg_one, M2, M5);
+	r.random (a);
+	r.random (b);
 
-	report << "Output matrix M3 = -M2:" << endl;
-	MD.write (report, M3);
+	report << "Coefficients: a = ";
+	F.write (report, a) << ", b = ";
+	F.write (report, b) << std::endl;
 
-	report << "Output matrix M4 = M1 + -M2:" << endl;
-	MD.write (report, M4);
+	MD.gemm (a, A, B, zero, C);
 
-	report << "Output matrix M5 = M1 - M2:" << endl;
-	MD.write (report, M5);
+	report << "Output matrix C := a * A * B:" << endl;
+	MD.write (report, C);
 
-	if (!MD.areEqual (M4, M5)) {
+	F.inv (negainvb, a);
+	F.mulin (negainvb, b);
+	F.negin (negainvb);
+
+	report << "Coefficient: -a^-1 b = ";
+	F.write (report, negainvb) << std::endl;
+
+	MD.gemm (b, A, B, negainvb, C);
+
+	report << "Output matrix D := b * A * B - b * a^-1 * C:" << endl;
+	MD.write (report, C);
+
+	if (!MD.isZero (C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrices M4 and M5 are not equal" << endl;
+			<< "ERROR: MatrixDomain reported matrix D is not zero" << endl;
 		ret = false;
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testAddNegSub");
-
-	return ret;
-}
-
-/* Test 4: addin-negin and sub
- *
- * Return true on success and false on failure
- */
-
-template <class Field, class Matrix>
-static bool testAddinNeginSub (Field &F, const char *text, const Matrix &M1, const Matrix &M2) 
-{
-	ostringstream str;
-
-	typename Field::Element zero, one, neg_one;
-	F.init (zero, 0);
-	F.init (one, 1);
-	F.init (neg_one, 1);
-
-	str << "Testing " << text << " matrix addin-negin, sub" << ends;
-	commentator.start (str.str ().c_str (), "testAddinNeginSub");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> M3 (M1.rowdim (), M1.coldim ());
-	DenseMatrix<typename Field::Element> M4 (M1.rowdim (), M1.coldim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M1:" << endl;
-	MD.write (report, M1);
-
-	report << "Input matrix M2:" << endl;
-	MD.write (report, M2);
-
-	MD.copy (M3, M2);
-	MD.scal (M3, neg_one);
-
-	report << "Output matrix M3 = -M2:" << endl;
-	MD.write (report, M3);
-
-	MD.axpy (one, M1, M3);
-
-	report << "Output matrix M3 = M1 + -M2:" << endl;
-	MD.write (report, M3);
-
-	MD.copy (M4, M1);
-	MD.axpy (neg_one, M2, M4);
-
-	report << "Output matrix M4 = M1 - M2:" << endl;
-	MD.write (report, M4);
-
-	if (!MD.areEqual (M3, M4)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrices M3 and M4 are not equal" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testAddinNeginSub");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
 
 	return ret;
 }
@@ -588,465 +541,6 @@ static bool testInvMulUnder (Field &F, const char *text, Matrix &M)
 	return ret;
 }
 
-#if 0
-
-/* Test 6: inv and leftMulin
- *
- * Return true on success and false on failure
- */
-
-// Version for square matrices
-
-template <class Field, class Matrix>
-static bool testInvLeftMulinSquare (Field &F, const char *text, const Matrix &M) 
-{
-	linbox_check (M.rowdim () == M.coldim ());
-
-	ostringstream str;
-
-	str << "Testing " << text << " left in-place matrix multiplication (square)" << ends;
-	commentator.start (str.str ().c_str (), "testInvLeftMulinSquare");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> Minv (M.rowdim (), M.rowdim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M:" << endl;
-	MD.write (report, M);
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (F, M.rowdim ());
-
-	DenseMatrix<typename Field::Element> I (M.rowdim (), M.rowdim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i = I.rowBegin ();
-
-	while (i != I.rowEnd ())
-		stream >> *i++;
-
-	try {
-		inv (MD, Minv, M);
-	}
-	catch (SingularMatrix) {
-		commentator.stop ("ok", (const char *) 0, "testInvLeftMulin");
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
-			<< "WARNING: Matrix was found singular" << endl;
-		return false;
-	}
-
-	report << "Computed inverse Minv:" << endl;
-	MD.write (report, Minv);
-
-	MD.leftMulin (M, Minv);
-
-	report << "Computed product M Minv:" << endl;
-	MD.write (report, Minv);
-
-	if (!MD.areEqual (Minv, I)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix Minv M is not the identity" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testInvLeftMulinSquare");
-
-	return ret;
-}
-
-// Version for over-determined matrices
-
-template <class Field, class Matrix>
-static bool testInvLeftMulinOver (Field &F, const char *text, Matrix &M) 
-{
-	linbox_check (M.coldim () <= M.rowdim ());
-
-	typename Field::Element zero, one;
-	F.init (zero, 0);
-	F.init (one, 1);
-
-	ostringstream str;
-
-	str << "Testing " << text << " left in-place matrix multiplication (over-determined)" << ends;
-	commentator.start (str.str ().c_str (), "testInvLeftMulinOver");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> Minv (M.coldim (), M.coldim ());
-	DenseMatrix<typename Field::Element> MTM (M.coldim (), M.coldim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M:" << endl;
-	MD.write (report, M);
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (F, M.coldim ());
-
-	DenseMatrix<typename Field::Element> I (M.coldim (), M.coldim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i = I.rowBegin ();
-
-	while (i != I.rowEnd ())
-		stream >> *i++;
-
-	MD.gemm (one, transpose (M), M, zero, MTM);
-
-	try {
-		inv (MD, Minv, MTM);
-	}
-	catch (SingularMatrix) {
-		commentator.stop ("ok", (const char *) 0, "testInvLeftMulin");
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
-			<< "WARNING: Matrix was found singular" << endl;
-		return false;
-	}
-
-	report << "Computed inverse Minv:" << endl;
-	MD.write (report, Minv);
-
-	MD.leftMulin (Minv, MTM);
-
-	report << "Computed product Minv M^T M:" << endl;
-	MD.write (report, MTM);
-
-	if (!MD.areEqual (MTM, I)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix Minv M^T M is not the identity" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testInvLeftMulinOver");
-
-	return ret;
-}
-
-// Version for under-determined matrices
-
-template <class Field, class Matrix>
-static bool testInvLeftMulinUnder (Field &F, const char *text, Matrix &M) 
-{
-	linbox_check (M.rowdim () <= M.coldim ());
-
-	typename Field::Element zero, one;
-	F.init (zero, 0);
-	F.init (one, 1);
-
-	ostringstream str;
-
-	str << "Testing " << text << " left in-place matrix multiplication (under-determined)" << ends;
-	commentator.start (str.str ().c_str (), "testInvLeftMulinUnder");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> Minv (M.rowdim (), M.rowdim ());
-	DenseMatrix<typename Field::Element> MMT (M.rowdim (), M.rowdim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M:" << endl;
-	MD.write (report, M);
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (F, M.rowdim ());
-
-	DenseMatrix<typename Field::Element> I (M.rowdim (), M.rowdim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i = I.rowBegin ();
-
-	while (i != I.rowEnd ())
-		stream >> *i++;
-
-	MD.gemm (one, M, transpose (M), zero, MMT);
-
-	try {
-		inv (MD, Minv, MMT);
-	}
-	catch (SingularMatrix) {
-		commentator.stop ("ok", (const char *) 0, "testInvLeftMulin");
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
-			<< "WARNING: Matrix was found singular" << endl;
-		return false;
-	}
-
-	report << "Computed inverse Minv:" << endl;
-	MD.write (report, Minv);
-
-	MD.leftMulin (Minv, MMT);
-
-	report << "Computed product Minv M M^T:" << endl;
-	MD.write (report, MMT);
-
-	if (!MD.areEqual (MMT, I)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix Minv M M^T is not the identity" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testInvLeftMulinUnder");
-
-	return ret;
-}
-
-/* Test 7: inv and rightMulin
- *
- * Return true on success and false on failure
- */
-
-// Version for square matrices
-
-template <class Field, class Matrix>
-static bool testInvRightMulinSquare (Field &F, const char *text, const Matrix &M) 
-{
-	linbox_check (M.rowdim () == M.coldim ());
-
-	typename Field::Element zero, one;
-	F.init (zero, 0);
-	F.init (one, 1);
-
-	ostringstream str;
-
-	str << "Testing " << text << " right in-place matrix multiplication (square)" << ends;
-	commentator.start (str.str ().c_str (), "testInvRightMulinSquare");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> Minv (M.rowdim (), M.rowdim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M:" << endl;
-	MD.write (report, M);
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (F, M.rowdim ());
-
-	DenseMatrix<typename Field::Element> I (M.rowdim (), M.rowdim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i = I.rowBegin ();
-
-	while (i != I.rowEnd ())
-		stream >> *i++;
-
-	try {
-		inv (MD, Minv, M);
-	}
-	catch (SingularMatrix) {
-		commentator.stop ("ok", (const char *) 0, "testInvRightMulin");
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
-			<< "WARNING: Matrix was found singular" << endl;
-		return true;
-	}
-
-	report << "Computed inverse Minv:" << endl;
-	MD.write (report, Minv);
-
-	MD.rightMulin (Minv, M);
-
-	report << "Computed product Minv M:" << endl;
-	MD.write (report, Minv);
-
-	if (!MD.areEqual (Minv, I)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix Minv M is not the identity" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testInvRightMulinSquare");
-
-	return ret;
-}
-
-// Version for over-determined matrices
-
-template <class Field, class Matrix>
-static bool testInvRightMulinOver (Field &F, const char *text, Matrix &M) 
-{
-	linbox_check (M.coldim () <= M.rowdim ());
-
-	typename Field::Element zero, one;
-	F.init (zero, 0);
-	F.init (one, 1);
-
-	ostringstream str;
-
-	str << "Testing " << text << " right in-place matrix multiplication (over-determined)" << ends;
-	commentator.start (str.str ().c_str (), "testInvRightMulinOver");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> Minv (M.coldim (), M.coldim ());
-	DenseMatrix<typename Field::Element> MTM (M.coldim (), M.coldim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M:" << endl;
-	MD.write (report, M);
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (F, M.coldim ());
-
-	DenseMatrix<typename Field::Element> I (M.coldim (), M.coldim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i = I.rowBegin ();
-
-	while (i != I.rowEnd ())
-		stream >> *i++;
-
-	MD.gemm (one, transpose (M), M, zero, MTM);
-
-	try {
-		inv (MD, Minv, MTM);
-	}
-	catch (SingularMatrix) {
-		commentator.stop ("ok", (const char *) 0, "testInvRightMulin");
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
-			<< "WARNING: Matrix was found singular" << endl;
-		return true;
-	}
-
-	report << "Computed inverse Minv:" << endl;
-	MD.write (report, Minv);
-
-	MD.rightMulin (MTM, Minv);
-
-	report << "Computed product M^T M Minv:" << endl;
-	MD.write (report, MTM);
-
-	if (!MD.areEqual (MTM, I)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix M^T M Minv is not the identity" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testInvRightMulinOver");
-
-	return ret;
-}
-
-// Version for under-determined matrices
-
-template <class Field, class Matrix>
-static bool testInvRightMulinUnder (Field &F, const char *text, Matrix &M) 
-{
-	linbox_check (M.rowdim () <= M.coldim ());
-
-	typename Field::Element zero, one;
-	F.init (zero, 0);
-	F.init (one, 1);
-
-	ostringstream str;
-
-	str << "Testing " << text << " right in-place matrix multiplication (under-determined)" << ends;
-	commentator.start (str.str ().c_str (), "testInvRightMulinUnder");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> Minv (M.rowdim (), M.rowdim ());
-	DenseMatrix<typename Field::Element> MMT (M.rowdim (), M.rowdim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M:" << endl;
-	MD.write (report, M);
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (F, M.rowdim ());
-
-	DenseMatrix<typename Field::Element> I (M.rowdim (), M.rowdim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i = I.rowBegin ();
-
-	while (i != I.rowEnd ())
-		stream >> *i++;
-
-	MD.gemm (one, M, transpose (M), zero, MMT);
-
-	try {
-		inv (MD, Minv, MMT);
-	}
-	catch (SingularMatrix) {
-		commentator.stop ("ok", (const char *) 0, "testInvRightMulin");
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
-			<< "WARNING: Matrix was found singular" << endl;
-		return true;
-	}
-
-	report << "Computed inverse Minv:" << endl;
-	MD.write (report, Minv);
-
-	MD.rightMulin (MMT, Minv);
-
-	report << "Computed product M M^T Minv:" << endl;
-	MD.write (report, MMT);
-
-	if (!MD.areEqual (MMT, I)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix M M^T Minv is not the identity" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testInvRightMulinUnder");
-
-	return ret;
-}
-
-/* Test 8: add-mul and axpyin
- *
- * Return true on success and false on failure
- */
-
-template <class Field, class Matrix>
-static bool testAddMulAxpyin (Field &F, const char *text, Matrix &M1, Matrix &M2, Matrix &M3) 
-{
-	ostringstream str;
-
-	typename Field::Element zero, one;
-	F.init (zero, 0);
-	F.init (one, 1);
-
-	str << "Testing " << text << " matrix add-mul, axpyin" << ends;
-	commentator.start (str.str ().c_str (), "testAddMulAxpyin");
-
-	bool ret = true;
-
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> M4 (M2.rowdim (), M3.coldim ());
-	DenseMatrix<typename Field::Element> M5 (M1.rowdim (), M1.coldim ());
-	DenseMatrix<typename Field::Element> M6 (M1.rowdim (), M1.coldim ());
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M1:" << endl;
-	MD.write (report, M1);
-
-	report << "Input matrix M2:" << endl;
-	MD.write (report, M2);
-
-	report << "Input matrix M3:" << endl;
-	MD.write (report, M3);
-
-	MD.gemm (one, M2, M3, zero, M4);
-	MD.copy (M5, M1);
-	MD.axpy (one, M4, M5);
-
-	report << "Computed matrix M5 = M1 + M2 * M3 (add-mul):" << endl;
-	MD.write (report, M5);
-
-	MD.copy (M6, M1);
-	MD.axpyin (M6, M2, M3);
-
-	report << "Computed matrix M6 = M1 + M2 * M3 (axpyin):" << endl;
-	MD.write (report, M6);
-
-	if (!MD.areEqual (M5, M6)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrices M5 and M6 are not equal" << endl;
-		ret = false;
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testAddMulAxpyin");
-
-	return ret;
-}
-
-#endif // 0
-
 /* Test 9: m-v mul by e_i and sub
  *
  * Return true on success and false on failure
@@ -1160,118 +654,6 @@ static bool testMVAxpy (Field &F, const char *text, const Matrix &M)
 
 	return ret;
 }
-
-#if 0
-
-/* Test 11: black box multiply by I on the left, test on random vectors
- *
- * Return true on success and false on failure
- */
-
-template <class Field, class Vector, class Blackbox>
-static bool testLeftBlackboxMul (Field &F, const char *text, const Blackbox &A,
-				 VectorStream<Vector> &stream) 
-{
-	ostringstream str;
-
-	str << "Testing " << text << " matrix-black box left mul" << ends;
-	commentator.start (str.str ().c_str (), "testLeftBlackboxMul");
-
-	bool ret = true;
-
-	VectorDomain<Field> VD (F);
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> I (A.coldim (), A.coldim ());
-	DenseMatrix<typename Field::Element> AI (A.rowdim (), A.coldim ());
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> Istream (F, A.coldim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i;
-
-	for (i = I.rowBegin (); i != I.rowEnd (); ++i)
-		Istream >> *i;
-
-	MD.blackboxMulLeft (AI, A, I);
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Output matrix AI:" << endl;
-	MD.write (report, AI);
-
-	typename LinBox::Vector<Field>::Dense v (A.coldim ()), w1 (A.rowdim ()), w2 (A.rowdim ());
-
-	while (stream) {
-		stream >> v;
-
-		A.apply (w1, v);
-		MD.vectorMul (w2, AI, v);
-
-		if (!VD.areEqual (w1, w2)) {
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: Av != AIv" << endl;
-			ret = false;
-		}
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testLeftBlackboxMul");
-
-	return ret;
-}
-
-/* Test 12: black box multiply by I on the right, test on random vectors
- *
- * Return true on success and false on failure
- */
-
-template <class Field, class Vector, class Blackbox>
-static bool testRightBlackboxMul (Field &F, const char *text, const Blackbox &A,
-				  VectorStream<Vector> &stream) 
-{
-	ostringstream str;
-
-	str << "Testing " << text << " matrix-black box right mul" << ends;
-	commentator.start (str.str ().c_str (), "testRightBlackboxMul");
-
-	bool ret = true;
-
-	VectorDomain<Field> VD (F);
-	MatrixDomain<Field> MD (F);
-
-	DenseMatrix<typename Field::Element> I (A.rowdim (), A.rowdim ());
-	DenseMatrix<typename Field::Element> IA (A.rowdim (), A.coldim ());
-
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> Istream (F, A.rowdim ());
-	typename DenseMatrix<typename Field::Element>::RowIterator i;
-
-	for (i = I.rowBegin (); i != I.rowEnd (); ++i)
-		Istream >> *i;
-
-	MD.blackboxMulRight (IA, I, A);
-
-	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Output matrix IA:" << endl;
-	MD.write (report, IA);
-
-	typename LinBox::Vector<Field>::Dense v (A.coldim ()), w1 (A.rowdim ()), w2 (A.rowdim ());
-
-	while (stream) {
-		stream >> v;
-
-		A.apply (w1, v);
-		MD.vectorMul (w2, IA, v);
-
-		if (!VD.areEqual (w1, w2)) {
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: Av != IAv" << endl;
-			ret = false;
-		}
-	}
-
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRightBlackboxMul");
-
-	return ret;
-}
-
-#endif // 0
 
 std::ostream &reportPermutation
 	(std::ostream &out,
@@ -1396,34 +778,22 @@ bool testMatrixDomain (const Field &F, const char *text,
 
 	bool pass = true;
 
-	// RandomDenseStream<Field, typename LinBox::Vector<Field>::Dense> stream (F, A.coldim (), iterations);
-	
 	if (!testCopyEqual (F, text, M1)) pass = false;
-	if (!testSubinIsZero (F, text, M1)) pass = false;
-	if (!testAddNegSub (F, text, M1, M2)) pass = false;
-	if (!testAddinNeginSub (F, text, M1, M2)) pass = false;
+	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
+	if (!testGemm (F, text, M1, M2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
 		if (!testInvMulSquare (F, text, M1)) pass = false;
-		// if (!testInvLeftMulinSquare (F, text, M1)) pass = false;
-		// if (!testInvRightMulinSquare (F, text, M1)) pass = false;
 	}
 	else if (M1.coldim () < M1.rowdim ()) {
 		if (!testInvMulOver (F, text, M1)) pass = false;
-		// if (!testInvLeftMulinOver (F, text, M1)) pass = false;
-		// if (!testInvRightMulinOver (F, text, M1)) pass = false;
 	}
 	else if (M1.rowdim () < M1.coldim ()) {
 		if (!testInvMulUnder (F, text, M1)) pass = false;
-		// if (!testInvLeftMulinUnder (F, text, M1)) pass = false;
-		// if (!testInvRightMulinUnder (F, text, M1)) pass = false;
 	}
 
-	// if (!testAddMulAxpyin (F, text, M1, M2, M3)) pass = false;
 	if (!testMVMulSub (F, text, M1)) pass = false;
 	if (!testMVAxpy (F, text, M1)) pass = false;
-	// if (!testLeftBlackboxMul (F, text, A, stream)) pass = false;
-	// if (!testRightBlackboxMul (F, text, A, stream)) pass = false;
 	if (!testPermutation (F, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
@@ -1443,26 +813,19 @@ bool testMatrixDomain (const Field &F, const char *text,
 
 	bool pass = true;
 
-	// RandomDenseStream<Field, typename LinBox::Vector<Field>::Dense> stream (F, A.coldim (), iterations);
-
 	if (!testCopyEqual (F, text, M1)) pass = false;
-	if (!testSubinIsZero (F, text, M1)) pass = false;
-	if (!testAddNegSub (F, text, M1, M2)) pass = false;
-	if (!testAddinNeginSub (F, text, M1, M2)) pass = false;
+	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
+	if (!testGemm (F, text, M1, M2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
 		if (!testInvMulSquare (F, text, M1)) pass = false;
-		// if (!testInvLeftMulinSquare (F, text, M1)) pass = false;
 	}
 	else if (M1.rowdim () < M1.coldim ()) {
 		if (!testInvMulUnder (F, text, M1)) pass = false;
-		// if (!testInvLeftMulinUnder (F, text, M1)) pass = false;
 	}
 
-	// if (!testAddMulAxpyin (F, text, M1, M2, M3)) pass = false;
 	if (!testMVMulSub (F, text, M1)) pass = false;
 	if (!testMVAxpy (F, text, M1)) pass = false;
-	// if (!testLeftBlackboxMul (F, text, A, stream)) pass = false;
 	if (!testPermutation (F, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
@@ -1482,26 +845,19 @@ bool testMatrixDomain (const Field &F, const char *text,
 
 	bool pass = true;
 
-	// RandomDenseStream<Field, typename LinBox::Vector<Field>::Dense> stream (F, A.coldim (), iterations);
-
 	if (!testCopyEqual (F, text, M1)) pass = false;
-	if (!testSubinIsZero (F, text, M1)) pass = false;
-	if (!testAddNegSub (F, text, M1, M2)) pass = false;
-	if (!testAddinNeginSub (F, text, M1, M2)) pass = false;
+	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
+	if (!testGemm (F, text, M1, M2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
 		if (!testInvMulSquare (F, text, M1)) pass = false;
-		// if (!testInvRightMulinSquare (F, text, M1)) pass = false;
 	}
 	else if (M1.coldim () < M1.rowdim ()) {
 		if (!testInvMulOver (F, text, M1)) pass = false;
-		// if (!testInvRightMulinOver (F, text, M1)) pass = false;
 	}
 
-	// if (!testAddMulAxpyin (F, text, M1, M2, M3)) pass = false;
 	if (!testMVMulSub (F, text, M1)) pass = false;
 	if (!testMVAxpy (F, text, M1)) pass = false;
-	// if (!testRightBlackboxMul (F, text, A, stream)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
