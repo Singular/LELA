@@ -282,7 +282,7 @@ Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vec
 	linbox_check (A.rowdim () == x.size ());
 
 	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
-	int i = A.rowdim () - 1;
+	int i = A.rowdim ();
 
 	while (--i >= 0) {
 		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
