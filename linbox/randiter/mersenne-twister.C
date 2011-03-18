@@ -27,6 +27,8 @@
 
 #include "linbox/linbox-config.h"
 
+#include <fcntl.h>
+
 #include "linbox/randiter/mersenne-twister.h"
 #include "linbox/util/debug.h"
 
@@ -52,7 +54,10 @@ static inline uint32 mixBits (uint32 u, uint32 v)   // move hi bit of u to hi bi
 MersenneTwister::MersenneTwister (uint32 seed)
 	: _state (N + 1), _left (-1)
 {
-	setSeed (seed);
+	if (seed == 0)
+		setSeed (getSeed ());
+	else
+		setSeed (seed);
 }
 
 uint32 MersenneTwister::reload ()
@@ -206,6 +211,31 @@ void MersenneTwister::setSeed (uint32 seed)
 	for (_left = 0, *s++ = x, j = N; --j; *s++ = (x *= 69069U) & 0xFFFFFFFFU) ;
 }
 
+// Function to use /dev/urandom to get a seed or just time (NULL) if /dev/urandom isn't available
+
+int MersenneTwister::getSeed ()
+{
+	int x, f = open ("/dev/urandom", O_RDONLY);
+
+	if (f < 0)
+		return time (NULL);
+
+	if (read (f, &x, sizeof (x)) != sizeof (x))
+		x = time (NULL);
+
+	close (f);
+
+	return x;
 }
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+} // namespace LinBox
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+

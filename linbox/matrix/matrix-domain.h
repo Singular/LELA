@@ -325,7 +325,7 @@ private:
 		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector2>::VectorCategory ()); }
 
 	template <class Matrix, class Vector>
-	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag);
+	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag) const;
 
 	template <class Matrix1, class Matrix2> Matrix1 &copyRow (Matrix1 &B, const Matrix2 &A) const;
 	template <class Matrix1, class Matrix2> Matrix1 &copyCol (Matrix1 &B, const Matrix2 &A) const;
@@ -486,10 +486,18 @@ private:
 		{ return gemmColColCol (a, A, B, b, C); }
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag);
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const;
+
+	template <class Matrix1, class Matrix2>
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag) const
+		{ return trsmSpecialized (a, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::ColMatrixTag ()); }
+
+	template <class Matrix1, class Matrix2>
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowColMatrixTag) const
+		{ return trsmSpecialized (a, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::ColMatrixTag ()); }
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRowsByRow (Matrix   &A,

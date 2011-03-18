@@ -276,13 +276,13 @@ template <class Field>
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vector &x,
 							    MatrixCategories::RowMatrixTag,
-							    VectorCategories::DenseVectorTag)
+							    VectorCategories::DenseVectorTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == x.size ());
 
 	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
-	int i = A.rowdim () - 1;
+	int i = A.rowdim ();
 
 	while (--i >= 0) {
 		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
@@ -580,7 +580,7 @@ template <class Field>
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B,
 							     MatrixCategories::RowMatrixTag,
-							     MatrixCategories::RowMatrixTag)
+							     MatrixCategories::RowMatrixTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -608,7 +608,7 @@ template <class Field>
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B,
 							     MatrixCategories::RowMatrixTag,
-							     MatrixCategories::ColMatrixTag)
+							     MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix2::ColIterator i_B;
 

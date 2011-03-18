@@ -457,7 +457,7 @@ std::ostream &MatrixWriter<Field>::writePretty (std::ostream &os, const Matrix &
 	integer c;
 
 	_F.characteristic (c);
-	unsigned col_width = (int) ceil (log ((double) c) / M_LN10);
+	unsigned col_width = (int) ceil (log (c.get_d ()) / M_LN10);
 
 	typename Field::Element a;
 

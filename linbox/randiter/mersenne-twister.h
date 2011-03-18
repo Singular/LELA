@@ -40,22 +40,24 @@ class MersenneTwister
 	uint32 reload ();
 	uint32 randomInt ();
 	uint32 randomInt () const
-	{ return const_cast<MersenneTwister&>(*this).randomInt();}
+		{ return const_cast<MersenneTwister&>(*this).randomInt();}
 
 	uint32 randomIntRange (uint32 start, uint32 end);
 	uint32 randomIntRange (uint32 start, uint32 end) const
-	{ return const_cast<MersenneTwister&>(*this).randomIntRange(start,end); }
+		{ return const_cast<MersenneTwister&>(*this).randomIntRange(start,end); }
 
 	double randomDouble ();
 	double randomDouble ()  const
-	{ return const_cast<MersenneTwister&>(*this).randomDouble(); }
+		{ return const_cast<MersenneTwister&>(*this).randomDouble(); }
 
 	double randomDoubleRange (double start, double end)
 		{ return randomDouble () * (end - start) + start; }
 	double randomDoubleRange (double start, double end) const
-	{ return const_cast<MersenneTwister&>(*this).randomDoubleRange(start,end); }
+		{ return const_cast<MersenneTwister&>(*this).randomDoubleRange(start,end); }
 
 	void setSeed (uint32 seed);
+
+	static int getSeed ();
 
     private:
 	std::vector<uint32>           _state;
@@ -63,12 +65,19 @@ class MersenneTwister
 	int                           _left;
 };
  
-}
+} // namespace LinBox
 
 #ifdef LinBoxSrcOnly
 #include <linbox/randiter/mersenne-twister.C>
 #endif
 #endif // __LINBOX_mersenne_twister_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+

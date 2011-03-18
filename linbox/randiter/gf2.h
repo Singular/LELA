@@ -1,5 +1,5 @@
 /* linbox/randiter/gf2.h
- * Copyright (C) 2003 Bradford Hovinen
+ * Copyright 2003 Bradford Hovinen
  *
  * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
  *
@@ -59,7 +59,7 @@ class GF2RandIter
 		     const integer &  = 0 , 
 		     const integer &seed = 0)
 	{
-		long _seed = seed;
+		long _seed = seed.get_si ();
 
 		if (_seed == 0) _seed = time (NULL);
 		MT.setSeed (_seed);

@@ -29,84 +29,91 @@
 #include "linbox/element/abstract.h"
 
 namespace LinBox 
-{ 
-	// Forward declarations
-	template <class Field> class RingEnvelope;
-	template <class Field> class FieldEnvelope;
-	template <class Field> class RandIterEnvelope;
+{
 
-	/** \brief Adaptor from archetypical interface to abstract interface, a technicality.
+// Forward declarations
+template <class Field> class RingEnvelope;
+template <class Field> class FieldEnvelope;
+template <class Field> class RandIterEnvelope;
 
-	 * A class meeting the interface specified in ElementArchetype is adapted
-	 * to be a child class of ElementAbstract.
-	 * A concrete instance of ElementArchetype representing
-	 * the adapted class can then be constructed.
-	 * 
-	 * All this is in support of the FieldArchetype system.
-\ingroup element
+/** \brief Adaptor from archetypical interface to abstract interface, a technicality.
 
+ * A class meeting the interface specified in ElementArchetype is adapted
+ * to be a child class of ElementAbstract.
+ * A concrete instance of ElementArchetype representing
+ * the adapted class can then be constructed.
+ * 
+ * All this is in support of the FieldArchetype system.
+ \ingroup element
+
+*/
+template <class Field>
+class ElementEnvelope : public ElementAbstract
+{
+public:
+
+	/** Default Constructor.
 	 */
-	template <class Field>
-	class ElementEnvelope : public ElementAbstract
-	{
-	    public:
+	ElementEnvelope () {}
 
-		/** Default Constructor.
-		 */
-		ElementEnvelope () {}
+	/** Constructor from the Field element to be wrapped.
+	 * @param elem Field element object to be wrapped.
+	 */
+	ElementEnvelope (const typename Field::Element &elem) : _elem (elem) {}
 
-		/** Constructor from the Field element to be wrapped.
-		 * @param elem Field element object to be wrapped.
-		 */
-		ElementEnvelope (const typename Field::Element &elem) : _elem (elem) {}
-
-		/** Copy constructor.
-		 * Constructs ElementEnvelope object by copying the element
-		 * it wraps.
-		 * This is required to allow element objects to be passed by value
-		 * into functions.
-		 * In this implementation, this means copying the element {\tt E.\_elem}.
-		 * @param  E FieldEnvelope object.
-		 */
-		ElementEnvelope (const ElementAbstract &E)
-			: _elem (static_cast<const ElementEnvelope&>(E)._elem) {}
+	/** Copy constructor.
+	 * Constructs ElementEnvelope object by copying the element
+	 * it wraps.
+	 * This is required to allow element objects to be passed by value
+	 * into functions.
+	 * In this implementation, this means copying the element {\tt E.\_elem}.
+	 * @param  E FieldEnvelope object.
+	 */
+	ElementEnvelope (const ElementAbstract &E)
+		: _elem (static_cast<const ElementEnvelope&>(E)._elem) {}
   
-		/** Virtual copy constructor.
-		 * Required because constructors cannot be virtual.
-		 * Passes construction on to derived classes.
-		 * @return pointer to new element object in dynamic memory.
-		 */
-		ElementAbstract* clone (void) const { return new ElementEnvelope (*this); }
+	/** Virtual copy constructor.
+	 * Required because constructors cannot be virtual.
+	 * Passes construction on to derived classes.
+	 * @return pointer to new element object in dynamic memory.
+	 */
+	ElementAbstract* clone (void) const { return new ElementEnvelope (*this); }
 
-		/** Assignment operator.
-		 * @return reference to self
-		 * @param  x parameterized field base element
-		 */
-		ElementAbstract &operator= (const ElementAbstract &E)
-		{
-			if (this != &E) // guard against self-assignment
-				_elem = static_cast<const ElementEnvelope&>(E)._elem;
-			return *this;
-		}
+	/** Assignment operator.
+	 * @return reference to self
+	 * @param  x parameterized field base element
+	 */
+	ElementAbstract &operator= (const ElementAbstract &E)
+	{
+		if (this != &E) // guard against self-assignment
+			_elem = static_cast<const ElementEnvelope&>(E)._elem;
+		return *this;
+	}
 
-		/** Destructor.
-		 */
-		~ElementEnvelope () {}
+	/** Destructor.
+	 */
+	~ElementEnvelope () {}
 
-	    private:
+private:
 
-		// Friend declarations
-		friend class RingEnvelope<Field>;
-		friend class FieldEnvelope<Field>;
-		friend class RandIterEnvelope<Field>;
+	// Friend declarations
+	friend class RingEnvelope<Field>;
+	friend class FieldEnvelope<Field>;
+	friend class RandIterEnvelope<Field>;
 
-		typename Field::Element _elem;
+	typename Field::Element _elem;
 
-	}; // class ElementEnvelope
+}; // class ElementEnvelope
 
 } // namespace LinBox
 
 #endif // __LINBOX_element_envelope_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

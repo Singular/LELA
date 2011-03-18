@@ -1,5 +1,5 @@
 /* linbox/util/timer.h
- * Copyright (C) 1994-1997 Givaro Team
+ * Copyright 1994-1997 Givaro Team
  *
  * Written by T. Gautier
  *
@@ -171,14 +171,22 @@ inline std::ostream &operator << (std::ostream &o, const Timer &T)
 { 
 	double ut = T.usertime();
 	if (ut < 0.0000000001) ut = 0;
-	return o << T.realtime() << "s (" << ut << " cpu) [" << T.count() << "]"; }
+	return o << T.realtime() << "s (" << ut << " cpu) [" << T.count() << "]";
+}
  
-} // LinBox
+} // namespace LinBox
 
 #ifdef LinBoxSrcOnly  // for all-source compilation
 #    include <linbox/util/timer.C>
 #endif
 
 #endif  //__LINBOX_timer_H
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

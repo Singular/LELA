@@ -1,7 +1,5 @@
-/* Copyright (C) 2005 LinBox
+/* Copyright 2005 LinBox
  * Written by Dan Roche
- *
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -41,7 +39,8 @@
 #include <vector>
 
 namespace LinBox 
-{ 
+{
+
 // namespace in which all LinBox code resides
 //  Error codes enumeration
 enum MatrixStreamError {
@@ -320,5 +319,12 @@ class MatrixStream {
 
 #endif // __LINBOX_matrix_stream_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+

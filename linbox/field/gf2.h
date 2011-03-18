@@ -122,14 +122,14 @@ class GF2 : public FieldInterface
 		{ return x = static_cast<unsigned char>(y) & 1; }
 
 	Element &init (Element &x, const integer &y) const
-		{ return x = static_cast<long>(y) & 1; }
+		{ return x = y.get_si () & 1; }
 
 	template <class Iterator, class Endianness>
 	BitVectorReference<Iterator, Endianness> init (BitVectorReference<Iterator, Endianness> x, const integer &y = 0) const
 		{ return x = long (y) & 1; }
 
 	std::_Bit_reference init (std::_Bit_reference x, const integer &y = 0) const
-		{ return x = long (y) & 1; }
+		{ return x = y.get_si () & 1; }
 
 	/** Conversion of field base element to a template class T.
 	 * This function assumes the output field base element x has already been

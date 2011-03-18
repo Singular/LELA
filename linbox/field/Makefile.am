@@ -14,13 +14,11 @@ BASIC_HDRS =			\
 	gmp-rational.h		\
 	modular.h		\
 	modular.inl		\
-	modular-int.h		\
 	modular-int32.h		\
 	modular-short.h		\
 	modular-byte.h		\
 	modular-balanced-double.h	\
 	modular-balanced-float.h	\
-	modular-balanced-int.h		\
 	modular-balanced-int32.h	\
 	modular-double.h	\
 	modular-float.h		\

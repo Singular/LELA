@@ -1,5 +1,5 @@
 /* linbox/vector/subvector.h
- * Copyright (C) 2002 William J. Turner
+ * Copyright 2002 William J. Turner
  *
  * ------------------------------------
  *
@@ -19,7 +19,9 @@
 #include <linbox/vector/vector-traits.h>
 #include <stdexcept>
 
-namespace LinBox 	{
+namespace LinBox
+{
+
 //wrapper Iterator to get a const Iterator
 
 /** \brief Dense subvector 
@@ -217,5 +219,12 @@ namespace std {
 	
 #endif //__LINBOX_subvector_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
+

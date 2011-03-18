@@ -1,6 +1,5 @@
-
 /* fflas/fflas_bounds.inl
- * Copyright (C) 2008 Clement Pernet
+ * Copyright 2008 Clement Pernet
  *
  * Written by Clement Pernet <Clement.Pernet@imag.fr>
  *
@@ -8,7 +7,7 @@
  */
 
 #ifdef _LINBOX_LINBOX_CONFIG_H
-#define FFLAS_INT_TYPE Integer
+#define FFLAS_INT_TYPE integer
 #else
 #define FFLAS_INT_TYPE long unsigned int
 #endif
@@ -103,7 +102,7 @@ inline size_t FFLAS::DotProdBound (const Field& F,
 	} else {
 		////// A fixer: (p-1)/2 si balanced
 
-		double c = p-1;
+		double c = p.get_d () - 1;
 		double cplt=0;
 		if (!F.isZero (beta)){
 			if (F.isOne (beta) || F.areEqual (beta, mone)) cplt = c;
@@ -127,7 +126,7 @@ inline double FFLAS::computeFactor (const Field& F, const size_t w){
 	F.characteristic(p);
 	size_t ex=1;
 	for (size_t i=0; i < w; ++i) 	ex *= 3;
-	return double(p - 1) * (1 + ex) / 2;
+	return (p.get_d () - 1) * (1 + ex) / 2;
 }
 
 /**
@@ -237,8 +236,8 @@ template<>
 inline size_t FFLAS::TRSMBound (const Modular<double>& F){
 
 	FFLAS_INT_TYPE pi;
-	F.characteristic(pi);
-	unsigned long p(pi);
+	F.characteristic (pi);
+	unsigned long p (pi.get_ui ());
         unsigned long long p1(1UL), p2(1UL);
 	size_t nmax = 0;
 	unsigned long long max = ( (1ULL << (DOUBLE_MANTISSA + 1) ) / ((unsigned long long)(p - 1)));
@@ -261,7 +260,7 @@ inline size_t FFLAS::TRSMBound (const Modular<float>& F){
 
 	FFLAS_INT_TYPE pi;
 	F.characteristic(pi);
-	unsigned long p(pi);
+	unsigned long p (pi.get_ui ());
         unsigned long long p1(1UL), p2(1UL);
 	size_t nmax = 0;
 	unsigned long long max = ( (1ULL << (FLOAT_MANTISSA + 1) ) / ((unsigned long long)(p - 1)));
@@ -283,7 +282,7 @@ inline size_t FFLAS::TRSMBound (const ModularBalanced<double>& F){
 
 	FFLAS_INT_TYPE pi;
 	F.characteristic (pi);
-	unsigned long p= (pi + 1) / 2;
+	unsigned long p = (pi.get_ui () + 1) / 2;
         unsigned long long p1(1UL);
 	size_t nmax = 0;
 	unsigned long long max = ((1ULL << (DOUBLE_MANTISSA + 1)) / ((unsigned long long)(p - 1)));
@@ -304,7 +303,7 @@ inline size_t FFLAS::TRSMBound (const ModularBalanced<float>& F){
 
 	FFLAS_INT_TYPE pi;
 	F.characteristic (pi);
-	unsigned long p = (pi + 1) / 2;
+	unsigned long p = (pi.get_ui () + 1) / 2;
         unsigned long long p1(1UL);
 	size_t nmax = 0;
 	unsigned long long max = ((1ULL << (FLOAT_MANTISSA + 1)) / ((unsigned long long) (p - 1)));
@@ -316,5 +315,11 @@ inline size_t FFLAS::TRSMBound (const ModularBalanced<float>& F){
 
 }
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

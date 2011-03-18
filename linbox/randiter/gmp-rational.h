@@ -1,5 +1,5 @@
 /* linbox/randiter/gmp-rational.h
- * Copyright (C) 2001-2002 Bradford Hovinen
+ * Copyright 2001-2002 Bradford Hovinen
  *
  * Written by William J Turner <wjturner@acm.org>,
  *            Bradford Hovinen <hovinen@cis.udel.edu>
@@ -90,7 +90,7 @@ class GMPRationalRandIter
 		int value = 0;
 
 		if (_size == 0) {
-			s = _seed;
+			s = _seed.get_ui ();
 
 			value = rand_r (&s);
 
@@ -107,11 +107,11 @@ class GMPRationalRandIter
 			unsigned int s;
 			int num, den;
 
-			s = _seed;
+			s = _seed.get_ui ();
 			num = rand_r (&s);
 
 			if (_size > 0) {
-				unsigned long tmp = _size;
+				unsigned long tmp = _size.get_ui ();
 				num %= tmp;
 				den = 1L;
 			} else {
@@ -156,5 +156,11 @@ class GMPRationalRandIter
 
 #endif // __LINBOX_randiter_gmp_random_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

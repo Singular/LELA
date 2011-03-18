@@ -197,6 +197,15 @@ class Submatrix
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _M->setEntry (_beg_row + i, _beg_col + j, a_ij); }
 
+	/** Erase an individual entry from the matrix.
+	 * If the entry doesn't exist, then takes no action. If the underlying
+	 * matrix is dense, then takes no action.
+	 * @param i Row index of entry
+	 * @param j Column index of entry
+	 */
+	void eraseEntry (size_t i, size_t j)
+		{ _M->eraseEntry (_beg_row + i, _beg_col + j); }
+
 	/** Get a writeable reference to an entry in the matrix
 	 * @param i Row index of entry
 	 * @param j Column index of entry
@@ -346,6 +355,9 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _M->setEntry (_beg_row + i, _beg_col + j, a_ij); }
 
+	void eraseEntry (size_t i, size_t j)
+		{ _M->eraseEntry (_beg_row + i, _beg_col + j); }
+
 	Element &refEntry (size_t i, size_t j)
 		{ return _M->refEntry (i + _beg_row, j + _beg_col); } 
 
@@ -456,6 +468,9 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 	
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _M->setEntry (_beg_row + i, _beg_col + j, a_ij); }
+
+	void eraseEntry (size_t i, size_t j)
+		{ _M->eraseEntry (_beg_row + i, _beg_col + j); }
 
 	Element &refEntry (size_t i, size_t j)
 		{ return _M->refEntry (i + _beg_row, j + _beg_col); } 

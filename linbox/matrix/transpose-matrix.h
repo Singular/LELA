@@ -116,6 +116,15 @@ class TransposeMatrix
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _A.setEntry (j, i, a_ij); }
 
+	/** Erase an individual entry from the matrix.
+	 * If the entry doesn't exist, then takes no action. If the underlying
+	 * matrix is dense, then takes no action.
+	 * @param i Row index of entry
+	 * @param j Column index of entry
+	 */
+	void eraseEntry (size_t i, size_t j)
+		{ _A.eraseEntry (j, i); }
+
 	/** Get a writeable reference to the entry in the (i, j) position.
 	 * @param i Row index of entry
 	 * @param j Column index of entry
