@@ -40,6 +40,12 @@ class DenseZeroOneMatrix
         typedef DenseZeroOneMatrix Self_t;
 	typedef typename std::iterator_traits<Iterator>::value_type word_type;
 
+	typedef DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness> RowIterator;
+	typedef DenseZeroOneMatrixRowIterator<ConstIterator, ConstIterator, Endianness> ConstRowIterator;
+
+	typedef typename RowIterator::value_type Row;  
+	typedef typename ConstRowIterator::value_type ConstRow;
+
 	template <class It1, class It2, class End>
 	friend class DenseZeroOneMatrix;
 
@@ -53,10 +59,8 @@ class DenseZeroOneMatrix
 	 * @param  n  column dimension
 	 */
 	DenseZeroOneMatrix (size_t m, size_t n)
-		: _rows (m), _cols (n),
-		  _disp ((!(n & WordTraits<word_type>::pos_mask)) ? (n >> WordTraits<word_type>::logof_size) : ((n >> WordTraits<word_type>::logof_size) + 1)),
-		  _rep (m * ((!(n & WordTraits<word_type>::pos_mask)) ? (n >> WordTraits<word_type>::logof_size) : ((n >> WordTraits<word_type>::logof_size) + 1)) * WordTraits<word_type>::bits)
-		{ _begin = _rep.wordBegin (); }
+		: _rows (m), _cols (n)
+		{ init_disp_rep (m, n); _begin = _rep.wordBegin (); }
 
 	/** Construct a word-aligned dense submatrix of a given dense matrix
 	 */
@@ -65,6 +69,19 @@ class DenseZeroOneMatrix
 		: _rows (m), _cols (n), _disp (M._disp)
 	{
 		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
+	}
+
+	/** Construct a dense matrix, filling the rows in from a VectorStream. The stream's size must be finite
+	 */
+	DenseZeroOneMatrix (VectorStream<Row> &vs)
+		: _rows (vs.size ()), _cols (vs.dim ())
+	{
+		init_disp_rep (vs.size (), vs.dim ());
+
+		_begin = _rep.wordBegin ();
+
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
 	}
 
 	/** Version of above for const matrices
@@ -160,12 +177,6 @@ class DenseZeroOneMatrix
 	 * a row vector in dense format
 	 */
 
-	typedef DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness> RowIterator;
-	typedef DenseZeroOneMatrixConstRowIterator<Iterator, ConstIterator, Endianness> ConstRowIterator;
-
-	typedef typename RowIterator::value_type Row;  
-	typedef typename ConstRowIterator::value_type ConstRow;
-
 	RowIterator rowBegin ();
 	RowIterator rowEnd ();
 	ConstRowIterator rowBegin () const;
@@ -182,8 +193,8 @@ class DenseZeroOneMatrix
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	/** \brief
 	 *
@@ -224,6 +235,18 @@ class DenseZeroOneMatrix
 	size_t _rows, _cols;
 	size_t _disp;
 	Iterator _begin;
+
+    private:
+
+	void init_disp_rep (size_t m, size_t n)
+	{
+		_disp = n >> WordTraits<word_type>::logof_size;
+
+		if (n & WordTraits<word_type>::pos_mask)
+			++_disp;
+
+		_rep.resize (m * _disp * WordTraits<word_type>::bits);
+	}
 };
 
 template <class Iterator, class ConstIterator, class Endianness>

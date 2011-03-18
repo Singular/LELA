@@ -30,6 +30,9 @@ public:
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 
+	typedef typename Rep::iterator RowIterator;
+	typedef typename Rep::const_iterator ConstRowIterator;
+
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
         { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseZeroOneVectorTag> other; };
@@ -56,7 +59,14 @@ public:
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
 
-	~SparseMatrix () {}
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
+
+ 	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
@@ -72,9 +82,6 @@ public:
 	bool           getEntry (size_t i, size_t j) const;
 	Element       &getEntry (Element &x, size_t i, size_t j) const
 			{ return x = getEntry (i, j); }
-
-	typedef typename Rep::iterator RowIterator;
-	typedef typename Rep::const_iterator ConstRowIterator;
 
 	ConstRowIterator rowBegin () const 
 		{ return _A.begin (); }
@@ -92,8 +99,8 @@ public:
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
@@ -148,6 +155,13 @@ public:
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
 
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
+
 	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
@@ -184,8 +198,8 @@ public:
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;

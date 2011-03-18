@@ -70,6 +70,9 @@ class DenseMatrix
 	typedef typename RawVector<Element>::Dense Rep;
         typedef DenseMatrix<_Element> Self_t;
 
+	typedef Subvector<typename Rep::iterator, typename Rep::const_iterator> Row;  
+	typedef Subvector<typename Rep::const_iterator> ConstRow;  
+
 	template<typename _Tp1>
         struct rebind
         { 
@@ -97,6 +100,8 @@ class DenseMatrix
 	DenseMatrix (const DenseMatrix &M)
 		: _rep (M._rep),_rows (M._rows), _cols (M._cols), _ptr(&_rep[0])
 	{}
+
+	DenseMatrix (VectorStream<Row> &vs);
 
 	~DenseMatrix(){}
 	///
@@ -179,9 +184,6 @@ class DenseMatrix
 	 * matrix in ascending order. Dereferencing the iterator yields
 	 * a row vector in dense format
 	 */
-
-	typedef Subvector<typename Rep::iterator, typename Rep::const_iterator> Row;  
-	typedef Subvector<typename Rep::const_iterator> ConstRow;  
 
 	class RowIterator;    
 	class ConstRowIterator;

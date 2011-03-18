@@ -66,6 +66,10 @@ class BitSubvectorWordAligned
 	BitSubvectorWordAligned (const BitSubvectorWordAligned &v) 
 		: _begin (v._begin), _end (v._end), _bit_len (v._bit_len) {}
 
+	template <class It, class CIt>
+	BitSubvectorWordAligned (const BitSubvectorWordAligned<It, CIt, Endianness> &v) 
+		: _begin (v._begin), _end (v._end), _bit_len (v._bit_len) {}
+
 	~BitSubvectorWordAligned () {}
 
 	inline iterator                    begin      (void)       { return iterator (_begin, 0); }
@@ -150,6 +154,9 @@ class BitSubvectorWordAligned
 	Iterator     _begin;
 	Iterator     _end;
 	size_t       _bit_len;
+
+	template <class It, class CIt, class E>
+	friend class BitSubvectorWordAligned;
 
 }; // template <class Iterator> class BitSubvectorWordAligned
 

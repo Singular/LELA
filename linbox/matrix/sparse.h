@@ -98,7 +98,19 @@ class SparseMatrix
 	 */
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
-    
+
+
+	/** Constructor from a VectorStream
+	 *
+	 * Fills the row-vectors of the matrix with vectors from the
+	 * stream. Stream must have finite size.
+	 */
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
 
 	/** Copy constructor.
 	 */
@@ -190,10 +202,10 @@ class SparseMatrix
 	typedef MatrixRawIterator<RowIterator, VectorCategories::SparseSequenceVectorTag> RawIterator;
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseSequenceVectorTag> ConstRawIterator;
     
-	RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0); }
-	RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0); }
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd ()); }
+	RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	/** @name Index iterator
 	 * The index iterator gives the row, column indices of all matrix
@@ -267,6 +279,13 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
 
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
+
 	SparseMatrix (const SparseMatrix &A)
 		: _A (A._A), _m (A._m), _n (A._n) {}
 
@@ -311,8 +330,8 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseSequenceVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseSequenceVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
@@ -370,6 +389,14 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 	 */
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
+
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
+
 	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
@@ -401,8 +428,8 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseAssociativeVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseAssociativeVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
@@ -461,6 +488,13 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
 
+	SparseMatrix (VectorStream<Row> &vs)
+		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
+
 	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
@@ -493,8 +527,8 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseParallelVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseParallelVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;

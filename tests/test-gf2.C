@@ -241,12 +241,10 @@ int main (int argc, char **argv)
 
 	GF2 F;
 
-	uint32 seed = time (NULL);
-
-	RandomDenseStreamGF2 stream1 (F, seed, n, iterations), stream2 (F, seed ^ 0xdeadbeef, n, iterations);
-	RandomSparseStreamGF2<Vector<GF2>::Sparse>
-		stream3 (F, seed + 2, 0.1, n, iterations),
-		stream4 (F, seed + 3, 0.1, n, iterations);
+	RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (F, n, iterations), stream2 (F, n, iterations);
+	RandomSparseStream<GF2, Vector<GF2>::Sparse, GF2RandIter, VectorCategories::SparseZeroOneVectorTag>
+		stream3 (F, 0.1, n, iterations),
+		stream4 (F, 0.1, n, iterations);
 
 	// Make sure some more detailed messages get printed
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);

@@ -24,7 +24,6 @@ test-common.C
 # Note that among the available groups are NONCOMPILING_TESTS and FAILING_TESTS, which
 # will be ignored by "make check" and can be temporary storage for problematic tests.
 BASIC_TESTS =  \
-        test-blas-domain        \
         test-commentator        \
         test-ffpack             \
         test-gf2                \
@@ -46,6 +45,11 @@ BASIC_TESTS =  \
 BENCHMARKS =                    \
         benchmark-fields        \
         benchmark-blas-domain
+
+NON_COMPILING_TESTS = \
+        test-blas-domain        
+
+EXTRA_PROGRAMS = $(NON_COMPILING_TESTS)
 
 TESTS =                               \
         $(BASIC_TESTS)

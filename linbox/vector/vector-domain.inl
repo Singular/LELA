@@ -2083,7 +2083,7 @@ inline typename Field::Element &VectorDomain<Field>::dotSpecialized
 		
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (); i != v1.end (); i++)
+	for (i = v1.begin (); i != v1.end (); ++i)
 		VectorDomainBase<Field>::accu.mulacc (i->second, v2[i->first]);
 
 	return VectorDomainBase<Field>::accu.get (res);
@@ -2101,7 +2101,7 @@ inline typename Field::Element &VectorDomain<Field>::dotSpecialized
 	typename Vector1::const_iterator i;
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (); i != v1.end (); i++)
+	for (i = v1.begin (); i != v1.end (); ++i)
 		VectorDomainBase<Field>::accu.mulacc (i->second, v2[i->first]);
 
 	return VectorDomainBase<Field>::accu.get (res);
@@ -2295,21 +2295,32 @@ inline Vector &VectorDomain<Field>::permuteSpecialized
 }
 
 template <class Field>
+template <class Iterator>
+typename Iterator::value_type::first_type VectorDomain<Field>::permutationImage (typename Iterator::value_type::first_type x, Iterator P_start, Iterator P_end) const
+{
+	for (Iterator i = P_start; i != P_end; ++i) {
+		if (i->first == x)
+			x = i->second;
+		else if (i->second == x)
+			x = i->first;
+	}
+
+	return x;
+}
+
+template <class Field>
 template <class _Vector, class Iterator>
 inline _Vector &VectorDomain<Field>::permuteSpecialized
 	(_Vector &v, Iterator P_start, Iterator P_end,
 	 VectorCategories::SparseSequenceVectorTag) const 
 {
-	unsigned int max = 0;
+	typename _Vector::iterator j;
 
-	for (Iterator i = P_start; i != P_end; ++i)
-		max = std::max (max, std::max (i->first, i->second));
+	for (j = v.begin (); j != v.end (); ++j)
+		j->first = permutationImage (j->first, P_start, P_end);
 
-	typename LinBox::Vector<Field>::Dense t (max + 1);
+	std::sort (v.begin (), v.end (), VectorWrapper::CompareSparseEntries<typename Field::Element> ());
 
-	copy (t, v);
-	permute (t, P_start, P_end);
-	copy (v, t);
 	return v;
 }
 

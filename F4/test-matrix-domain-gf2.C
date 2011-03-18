@@ -43,10 +43,10 @@ void testGEMMSubmatrixDense ()
 	size_t l = 96;
 	size_t k = 20;
 
-	RandomDenseStream<Field, DenseMatrix::Row> A_stream (F, n);
-	RandomDenseStream<Field, DenseMatrix::Row> B_stream (F, m);
+	RandomDenseStream<Field, DenseMatrix::Row> A_stream (F, m, n);
+	RandomDenseStream<Field, DenseMatrix::Row> B_stream (F, l, m);
 
-	DenseMatrix A (n, m), B (m, l), C (n, l), Cp (n, k);
+	DenseMatrix A (A_stream), B (B_stream), C (n, l), Cp (n, k);
 
 	DenseMatrix::RowIterator iter;
 
@@ -105,22 +105,13 @@ void testGEMMSubmatrixHybrid ()
 	size_t k = 20;
 	double p = 0.1;
 
-	SparseMatrix A (n, m);
-	HybridMatrix B (m, l);
-	DenseMatrix C (n, l), Cp (n, k);
-
 #if 1
-	RandomSparseStream<Field, SparseMatrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> A_stream (F, p, n, m);
-	RandomSparseStream<Field, HybridMatrix::Row, Field::RandIter, VectorCategories::HybridZeroOneVectorTag> B_stream (F, p, n, m);
+	RandomSparseStream<Field, SparseMatrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> A_stream (F, p, m, n);
+	RandomSparseStream<Field, HybridMatrix::Row, Field::RandIter, VectorCategories::HybridZeroOneVectorTag> B_stream (F, p, l, m);
 
-	SparseMatrix::RowIterator A_iter;
-	HybridMatrix::RowIterator B_iter;
-
-	for (A_iter = A.rowBegin (); A_iter != A.rowEnd (); ++A_iter)
-		A_stream >> *A_iter;
-	
-	for (B_iter = B.rowBegin (); B_iter != B.rowEnd (); ++B_iter)
-		B_stream >> *B_iter;
+	SparseMatrix A (A_stream);
+	HybridMatrix B (B_stream);
+	DenseMatrix C (n, l), Cp (n, k);
 
 	std::ofstream A_output ("A.out");
 	MD.write (A_output, A, FORMAT_GUILLAUME);
@@ -130,6 +121,10 @@ void testGEMMSubmatrixHybrid ()
 	MD.write (B_output, B, FORMAT_GUILLAUME);
 	B_output.close ();
 #else // 0
+	SparseMatrix A (n, m);
+	HybridMatrix B (m, l);
+	DenseMatrix C (n, l), Cp (n, k);
+
 	std::ifstream A_input ("A.out");
 	MD.read (A_input, A, FORMAT_GUILLAUME);
 	A_input.close ();
