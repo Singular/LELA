@@ -29,6 +29,7 @@
 
 /* Modular exponentiation */
 using namespace std;
+using namespace LinBox;
 
 template <class Field>
 typename Field::Element expt (const Field &F, typename Field::Element &res, const typename Field::Element &a, LinBox::integer &n) 

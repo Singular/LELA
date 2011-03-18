@@ -10,6 +10,7 @@
 #define __LINBOX_MATRIX_IO_INL
 
 #include <sstream>
+#include <cmath>
 
 #include "linbox/util/commentator.h"
 #include "linbox/matrix/io.h"
