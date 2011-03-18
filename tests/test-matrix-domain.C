@@ -773,16 +773,20 @@ static Matrix &makeUpperTriangular (Field &F, Matrix &A)
 
 	size_t i, j;
 
-	for (i = 0; i < A.rowdim (); ++i)
-		for (j = 0; j < std::min (i, A.coldim ()); ++j)
-			if (!F.isZero (A.getEntry (i, j)))
+	for (i = 0; i < A.rowdim (); ++i) {
+		for (j = 0; j < std::min (i, A.coldim ()); ++j) {
+			if (!F.isZero (A.getEntry (i, j))) {
 				A.setEntry (i, j, zero);
+				A.eraseEntry (i, j);
+			}
+		}
+	}
 
 	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
 	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i)
-		if (F.isZero (A.getEntry (i, j)))
-			r.random (A.refEntry (i, j));
+		if (F.isZero (A.getEntry (i, i)))
+			r.random (A.refEntry (i, i));
 
 	return A;
 }
