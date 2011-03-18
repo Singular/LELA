@@ -176,10 +176,6 @@ inline std::ostream &operator << (std::ostream &o, const Timer &T)
  
 } // namespace LinBox
 
-#ifdef LinBoxSrcOnly  // for all-source compilation
-#    include <linbox/util/timer.C>
-#endif
-
 #endif  //__LINBOX_timer_H
 
 // Local Variables:

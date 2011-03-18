@@ -26,8 +26,7 @@ echo   " #define __LINBOX_INT8  $LINBOX_INT8
 " > linbox/linbox-config.h 
 
 
-AC_TRY_RUN([	#define LinBoxSrcOnly
-		#include <iostream>
+AC_TRY_RUN([	#include <iostream>
 		#include <fstream>
 		#define _LINBOX_LINBOX_CONFIG_H
 		#define __LINBOX_CONFIGURATION

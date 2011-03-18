@@ -82,11 +82,6 @@ public:
 
 } // namespace LinBox
 
-#ifdef LinBoxSrcOnly
-// for all-source compilation
-#include <linbox/util/debug.C>
-#endif
-
 #endif // __LINBOX_util_debug_H
 
 // Local Variables:

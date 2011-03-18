@@ -716,10 +716,6 @@ extern Commentator commentator;
 
 } // namespace LinBox
 
-#ifdef LinBoxSrcOnly
-#include <linbox/util/commentator.C>
-#endif
-
 #else //DISABLE_COMMENTATOR
 //#  define Commentator CommentatorDisabled
 //#  define MessageClass MessageClassDisabled
