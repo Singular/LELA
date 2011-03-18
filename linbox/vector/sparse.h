@@ -23,6 +23,9 @@ class SparseVectorProperty {
 	template <class IIt, class EIt, class CIIt, class CEIt>
 	friend class SparseVectorReference;
 
+	template <class Element, class IV, class EV>
+	friend class SparseVector;
+
 public:
 	typedef typename std::iterator_traits<Iterator>::value_type T;
 
@@ -80,6 +83,10 @@ public:
 
 	SparseVectorReference &operator = (const SparseVectorReference &r)
 		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
+
+private:
+	template <class Element, class IV, class EV>
+	friend class SparseVector;
 };
 
 /// Iterator for sparse vectors
@@ -201,6 +208,9 @@ public:
 private:
 	template <class IIt, class EIt, class CIIt, class CEIt>
 	friend class SparseVectorIterator;
+
+	template <class Element, class IV, class EV>
+	friend class SparseVector;
 
 	reference _ref;
 };
@@ -393,6 +403,18 @@ public:
 	inline void            push_back (const T &v)  { _idx.push_back (v.first); _elt.push_back (v.second); }
 	inline void            clear     ()            { _idx.clear (); _elt.clear (); }
 	inline void            resize    (size_type s) { _idx.resize (s); _elt.resize (s); }
+
+	template <class T>
+	inline iterator insert (iterator pos, const T &x)
+	{
+		typename IndexVector::iterator i_idx;
+		typename ElementVector::iterator i_elt;
+
+		i_idx = _idx.insert (pos._ref.first._i, x.first); 
+		i_elt = _elt.insert (pos._ref.second._i, x.second);
+
+		return iterator (i_idx, i_elt);
+	}
 
 	inline size_type       size      () const      { return _idx.size ();  }
 	inline bool            empty     () const      { return _idx.empty (); }
