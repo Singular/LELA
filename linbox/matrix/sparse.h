@@ -144,12 +144,18 @@ class SparseMatrix
         }
 
 	/** Set an individual entry
-	 * Setting the entry to 0 will remove it from the matrix
 	 * @param i Row index of entry
 	 * @param j Column index of entry
 	 * @value Value of the new entry
 	 */
 	void setEntry (size_t i, size_t j, const Element &value);
+
+	/** Erase an individual entry from the matrix.
+	 * If the entry doesn't exist, then takes no action.
+	 * @param i Row index of entry
+	 * @param j Column index of entry
+	 */
+	void eraseEntry (size_t i, size_t j);
 
 	/** Get a writeable reference to an entry in the matrix
 	 * If there is no entry at the position (i, j), then a new entry
@@ -310,6 +316,7 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
         }
 
 	void           setEntry (size_t i, size_t j, const Element &value);
+	void           eraseEntry (size_t i, size_t j);
 	Element       &refEntry (size_t i, size_t j);
 	const Element &getEntry (size_t i, size_t j) const;
 	Element       &getEntry (Element &x, size_t i, size_t j) const

@@ -416,6 +416,17 @@ public:
 		return iterator (i_idx, i_elt);
 	}
 
+	inline iterator erase (iterator pos)
+	{
+		typename IndexVector::iterator i_idx;
+		typename ElementVector::iterator i_elt;
+
+		i_idx = _idx.erase (pos._ref.first._i); 
+		i_elt = _elt.erase (pos._ref.second._i);
+
+		return iterator (i_idx, i_elt);
+	}
+
 	inline size_type       size      () const      { return _idx.size ();  }
 	inline bool            empty     () const      { return _idx.empty (); }
 	inline size_type       max_size  () const      { return std::min (_idx.max_size (), _elt.max_size ());  }

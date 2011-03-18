@@ -152,6 +152,12 @@ class DenseMatrix
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _rep[i * _cols + j] = a_ij; }
 
+	/** Does nothing. Provided for compatibility
+	 * @param i
+	 * @param j
+	 */
+	void eraseEntry (size_t i, size_t j) {}
+
 	/** Get a writeable reference to the entry in the (i, j) position.
 	 * @param i Row index of entry
 	 * @param j Column index of entry

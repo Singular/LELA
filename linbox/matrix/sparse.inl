@@ -167,6 +167,19 @@ void SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag >
 }
 
 template <class Element, class Row>
+void SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag >
+	::eraseEntry (size_t i, size_t j) 
+{
+	Row &v = _A[i];
+	typename Row::iterator iter;
+	
+	iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries<Element> ());
+
+	if (iter != v.end () && iter->first == j)
+		v.erase (iter);
+}
+
+template <class Element, class Row>
 Element &SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag >
 	::refEntry (size_t i, size_t j) 
 {
