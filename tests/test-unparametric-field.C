@@ -40,8 +40,7 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	cout << endl << "Unparametrix<double> field test suite" << endl;
-	cout.flush ();
+	commentator.start("Unparametric field test suite", "Unparametric");
 	bool pass = true;
 
 	UnparametricField<double> F;
@@ -56,6 +55,9 @@ int main (int argc, char **argv)
 
 	if (!testField<FieldArchetype> (K, "Testing archetype with envelope of UnField field"))
 		pass = false;
+
+	commentator.stop (MSG_STATUS (pass));
+
 	// We're going to allow failed tests here because the floating-point
 	// approximation tends to screw things up anyway
 	return 0;

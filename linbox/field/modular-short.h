@@ -182,21 +182,28 @@ public:
 		return x;
 	}
 
-	inline Element& init(Element& x, int y =0) const
+	inline Element &init(Element &x, int y = 0) const
 	{
 		x = y % modulus;
 		if ( x < 0 ) x += modulus;
 		return x;
 	}
 
-	inline Element& init(Element& x, long y) const
+	inline Element &init(Element &x, unsigned int y = 0) const
 	{
 		x = y % modulus;
 		if ( x < 0 ) x += modulus;
 		return x;
 	}
 
-	inline Element &init (Element & x, const double &y) const
+	inline Element &init(Element &x, long y) const
+	{
+		x = y % modulus;
+		if ( x < 0 ) x += modulus;
+		return x;
+	}
+
+	inline Element &init (Element &x, const double &y) const
 	{
 		double z = fmod (y, (double) modulus);
 		if (z < 0) z += (double) modulus;

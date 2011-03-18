@@ -335,7 +335,14 @@ class Modular : public ModularBase<_Element>
 		return x;
 	}
 
-	Element &init (Element &x, const int y ) const
+	Element &init (Element &x, const int y) const
+	{ 
+		x = y % ModularBase<Element>::_modulus;
+		if (x < 0) x += ModularBase<Element>::_modulus;
+		return x;
+	}
+
+	Element &init (Element &x, const unsigned int y) const
 	{ 
 		x = y % ModularBase<Element>::_modulus;
 		if (x < 0) x += ModularBase<Element>::_modulus;

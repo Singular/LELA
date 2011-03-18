@@ -7,8 +7,6 @@ EXTRA_DIST=			\
 	vector.doxy
 
 pkgincludesub_HEADERS=		\
-	pair.h			\
-	light_container.h			\
 	sparse.h		\
 	vector-traits.h		\
 	subvector.h		\

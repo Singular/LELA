@@ -183,35 +183,42 @@ public:
 	Element &init (Element &x, const integer &y) const
 		{ return x = (Element) (y.get_ui () % lmodulus); }
 
-	inline Element &init(Element &x, float y = 0.0) const
+	inline Element &init (Element &x, float y = 0.0) const
 	{
 		x = fmod (y, modulus);
 		if (x < 0) x += modulus;
 		return x;
 	}
 
-	inline Element &init(Element &x, double y) const
+	inline Element &init (Element &x, double y) const
 	{
 		x = fmod (y, double (modulus));
 		if (x < 0) x += modulus;
 		return x;
 	}
 
-	inline Element &init(Element &x, unsigned long y) const
+	inline Element &init (Element &x, unsigned long y) const
 	{
 		x = fmod (float (y), modulus);
 		if (x < 0) x += modulus;
 		return x;
 	}
 
-	inline Element &init(Element &x, int y) const
+	inline Element &init (Element &x, int y) const
+	{
+		x = fmod (float (y), modulus);
+		if (x < 0) x += modulus;
+		return x;
+	}
+
+	inline Element &init (Element &x, unsigned int y) const
 	{
 		x = fmod (float (y), modulus);
 		if (x < 0) x += modulus;
 		return x;
 	}
 		
-	inline Element &assign(Element &x, const Element &y) const
+	inline Element &assign (Element &x, const Element &y) const
 		{ return x = y; }
 
 	inline bool areEqual (const Element &x, const Element &y) const

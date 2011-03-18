@@ -197,6 +197,13 @@ public:
 		return x;
 	}
 
+	inline Element &init (Element &x, unsigned int y = 0) const
+	{
+		x = y % modulus;
+		if (x < 0) x += modulus;
+		return x;
+	}
+
 	inline Element &init (Element &x, long y) const
 	{
 		x = y % modulus;
