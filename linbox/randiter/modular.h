@@ -77,7 +77,7 @@ public:
 	ModularRandIter (const Modular<Element> &F, 
 			 const integer &size = 0, 
 			 const integer &seed = 0)
-		: _F (F), _size (size), _seed (seed.get_ui ()), _MT (seed.get_ui ())
+		: _MT (seed.get_ui ()), _F (F), _size (size), _seed (seed.get_ui ())
 	{
 		integer cardinality;
 

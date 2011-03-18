@@ -54,11 +54,11 @@ tests/test-matrix-domain
 tests/test-matrix-stream
 tests/test-minpoly
 tests/test-modular
-tests/test-modular-balanced-int
 tests/test-modular-byte
 tests/test-modular-double
-tests/test-modular-int
 tests/test-modular-short
+tests/test-modular-int32
+tests/test-modular-balanced-int32
 tests/test-block-ring
 tests/test-moore-penrose
 tests/test-randiter-nonzero

@@ -21,8 +21,8 @@
 #ifndef __LINBOX_modular_int32_H
 #define __LINBOX_modular_int32_H
 
-
 #include <math.h>
+
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/vector/vector-domain.h"
@@ -221,14 +221,6 @@ public:
 	inline Element &init (Element & x, const float &y) const
 		{ return init (x, (double) y); }
 
-	template<class Element1>
-	inline Element &init (Element & x, const Element1 &y) const
-	{
-		x = y % modulus;
-		if (x < 0) x += modulus;
-		return x;
-	}
-
 	inline Element &init (Element &x, const integer &y) const
 	{
 		x = y.get_ui () % modulus;
@@ -236,24 +228,30 @@ public:
 		return x;
 	}
 
-	inline Element& init(Element& x, int y = 0) const
+	inline Element &init (Element &x, int y = 0) const
 	{
 		x = y % modulus;
 		if ( x < 0 ) x += modulus;
 		return x;
 	}
 
-	inline Element& init(Element& x, long y) const
+	inline Element &init (Element &x, unsigned int y = 0) const
+	{
+		x = y % modulus;
+		if ( x < 0 ) x += modulus;
+		return x;
+	}
+
+	inline Element &init (Element &x, long y) const
 	{
 		x = y % modulus;
 		if ( x < 0 ) x += modulus;
 		return x;
 	}
 		
-	inline Element& assign(Element& x, const Element& y) const
+	inline Element &assign(Element &x, const Element &y) const
 		{ return x = y; }
-									
-		
+
 	inline bool areEqual (const Element &x, const Element &y) const
 		{ return x == y; }
 

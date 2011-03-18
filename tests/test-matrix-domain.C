@@ -1297,4 +1297,3 @@ int main (int argc, char **argv)
 // End:
 
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
-

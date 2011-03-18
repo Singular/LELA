@@ -1,21 +1,18 @@
-/* Copyright (C) LinBox
+/* tests/test-modular-int32.C
+ * Copyright 2001, 2002 Bradford Hovinen,
+ * Copyright 2002 Dave Saunders
  *
+ * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
+ *            Dave Saunders <saunders@cis.udel.edu>
  *
+ * ------------------------------------
+ * 2002-04-10 Bradford Hovinen <hovinen@cis.udel.edu>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * Rename from test-large-modular.C to test-modular.C; made other updates in
+ * accordance with changes to Modular interace.
+ * ------------------------------------
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * See COPYING for license information.
  */
 
 #include "linbox/linbox-config.h"
@@ -26,7 +23,7 @@
 #include <vector>
 #include <queue>
 
-#include "linbox/field/modular-balanced-int.h"
+#include "linbox/field/modular-int32.h"
 
 #include "test-common.h"
 #include "test-generic.h"
@@ -39,7 +36,7 @@ int main (int argc, char **argv)
 	static integer q2 = 2147483647;
 	static integer q3 = 65521U;
 	static int q4 = 101;
-	static size_t n = 1000;
+	static size_t n = 10000;
 	static int iterations = 1;
 	static int trials = 100000;
 	static int categories = 100;
@@ -60,20 +57,27 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start("ModularBalanced<int> field test suite", "ModularBalanced<int>");
+	commentator.start("Modular<int32> field test suite", "Modular<int32>");
 	bool pass = true;
 
-	ModularBalanced<int> F_int (1073741789);//(2147483629);//(2147483647);
+	Modular<int32> F_int (1073741789);//(2147483629);//(2147483647);
 
 	// Make sure some more detailed messages get printed
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	if (!runFieldTests (F_int,  "ModularBalanced<int>",  iterations, n, false)) pass = false;
-	//if (!testRandomIterator (F_int,  "ModularBalanced<int>", trials, categories, hist_level)) pass = false;
+	if (!runFieldTests (F_int,  "Modular<int32>",  iterations, n, false)) pass = false;
+	if (!testRandomIterator (F_int,  "Modular<int32>", trials, categories, hist_level)) pass = false;
 
-	commentator.stop("ModularBalanced<int> field test suite");
+	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
 }
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

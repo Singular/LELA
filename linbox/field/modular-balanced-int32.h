@@ -32,6 +32,7 @@
 #include "linbox/util/field-axpy.h"
 #include "linbox/util/debug.h"
 #include "linbox/field/field-traits.h"
+#include "linbox/field/modular-int32.h"
 
 #ifndef LINBOX_MAX_INT
 #  define LINBOX_MAX_INT 2147483647
@@ -39,29 +40,17 @@
 
 // Namespace in which all LinBox code resides
 namespace LinBox 
-{ 
-
-template <class Element>
-class Modular;
-
-template <class Element>
-class ModularRandIter;
-	
-template <class Ring>
-struct ClassifyRing;
-
-template <class Element>
-struct ClassifyRing<Modular<Element> >;
-
-template <class Element>
-struct ClassifyRing<Modular<int32> >
 {
-	typedef RingCategories::ModularTag categoryTag;
-};
+
+template <class Element>
+class ModularBalanced;
+
+template <class Element>
+class ModularBalancedRandIter;
 
 /// \ingroup field
 template <>
-class Modular<int32> : public FieldInterface
+class ModularBalanced<int32> : public FieldInterface
 {
 protected:
 	int32 modulus;
@@ -71,14 +60,14 @@ protected:
 
 public:	       
 
-	friend class FieldAXPY<Modular<int32> >;
-	friend class DotProductDomain<Modular<int32> >;
+	friend class FieldAXPY<ModularBalanced<int32> >;
+	friend class DotProductDomain<ModularBalanced<int32> >;
 			       
 	typedef int32 Element;
-	typedef ModularRandIter<int32> RandIter;
+	typedef ModularBalancedRandIter<int32> RandIter;
 
 	//default modular field,taking 65521 as default modulus
-	Modular ()
+	ModularBalanced ()
 		: modulus(65521)
 	{
 		modulusinv = 1 / (double) 65521;
@@ -86,7 +75,7 @@ public:
 		nhalfmodulus = -halfmodulus;
 	}
 
-	Modular (int32 value, int exp = 1)
+	ModularBalanced (int32 value, int exp = 1)
 		: modulus(value)
 	{
 		halfmodulus = (modulus >> 1);
@@ -108,14 +97,14 @@ public:
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be odd");
 	}
 
-	Modular (const Modular<int32> &mf)
+	ModularBalanced (const ModularBalanced<int32> &mf)
 		: modulus (mf.modulus),
 		  halfmodulus (mf.halfmodulus),
 		  nhalfmodulus (mf.nhalfmodulus),
 		  modulusinv (mf.modulusinv)
 		{}
 
-	const Modular &operator = (const Modular<int32> &F)
+	const ModularBalanced &operator = (const ModularBalanced<int32> &F)
 	{
 		modulus = F.modulus;
 		halfmodulus = F.halfmodulus;
@@ -154,7 +143,7 @@ public:
 
 		integer max;
 
-		if (modulus > FieldTraits<Modular<int32> >::maxModulus (max).get_si ())
+		if (modulus > FieldTraits<ModularBalanced<int32> >::maxModulus (max).get_si ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 
 		if (!(modulus % 2))
@@ -179,7 +168,7 @@ public:
 
 	Element &init (Element &x, const integer &y) const 
 	{
-		x = y % integer (modulus);
+		x = y.get_ui () % modulus;
 
 		if (x < nhalfmodulus)
 			x += modulus;
@@ -189,7 +178,7 @@ public:
 		return x;
 	}
 
-	inline Element &init(Element &x, int y = 0) const
+	inline Element &init (Element &x, int y = 0) const
 	{
 		x = y % modulus;
 
@@ -201,7 +190,7 @@ public:
 		return x;
 	}
 
-	inline Element &init(Element &x, long y) const
+	inline Element &init (Element &x, long y) const
 	{
 		x = y % modulus;
 
@@ -359,6 +348,9 @@ public:
 		return r;
 	}
 
+	static inline int32 getMaxModulus()
+		{ return 1073741824; } // 2^30
+
 private:
 
 	inline static void XGCD(int32& d, int32& s, int32& t, int32 a, int32 b)
@@ -413,12 +405,12 @@ private:
 };
 
 template <>
-class FieldAXPY<Modular<int32> >
+class FieldAXPY<ModularBalanced<int32> >
 {
 public:
 	  
 	typedef int32 Element;
-	typedef Modular<int32> Field;
+	typedef ModularBalanced<int32> Field;
 	  
 	FieldAXPY (const Field &F)
 		: _F (F),
@@ -432,7 +424,7 @@ public:
 		  _times(0)
 		{}
 
-	FieldAXPY<Modular<int32> > &operator = (const FieldAXPY &faxpy)
+	FieldAXPY<ModularBalanced<int32> > &operator = (const FieldAXPY &faxpy)
 	{
 		_F = faxpy._F; 
 		_y = faxpy._y; 
@@ -501,15 +493,15 @@ private:
 };
 
 template <>
-class DotProductDomain<Modular<int32> > : private virtual VectorDomainBase<Modular<int32> >
+class DotProductDomain<ModularBalanced<int32> > : private virtual VectorDomainBase<ModularBalanced<int32> >
 {
 private:
 	const int32 blocksize;
 		
 public:	  
 	typedef int32 Element;	  
-	DotProductDomain (const Modular<int32> &F)
-		: VectorDomainBase<Modular<int32> > (F), blocksize (32)
+	DotProductDomain (const ModularBalanced<int32> &F)
+		: VectorDomainBase<ModularBalanced<int32> > (F), blocksize (32)
 		{}
 
 protected:
@@ -597,7 +589,7 @@ protected:
 
 } // namespace LinBox
 
-#include "linbox/randiter/modular.h"
+#include "linbox/randiter/modular-balanced.h"
 
 #endif //__LINBOX_modular_balanced_int_H
 

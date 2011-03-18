@@ -33,6 +33,8 @@ BASIC_TESTS =  \
         test-modular-byte       \
         test-modular-double     \
         test-modular-short      \
+        test-modular-int32      \
+        test-modular-balanced-int32 \
         test-randiter-nonzero   \
         test-subiterator        \
         test-subvector          \
@@ -45,8 +47,6 @@ BENCHMARKS =                    \
         benchmark-blas-domain
 
 NON_COMPILING_TESTS = \
-        test-modular-balanced-int \
-        test-modular-int        \
         test-blas-domain        
 
 EXTRA_PROGRAMS = $(NON_COMPILING_TESTS)
@@ -102,8 +102,8 @@ test_matrix_domain_SOURCES =                 \
         test-matrix-domain.C                \
         test-common.h
 
-test_modular_int_SOURCES =                \
-        test-modular-int.C                 \
+test_modular_int32_SOURCES =                \
+        test-modular-int32.C                 \
         test-common.h        
 
 test_modular_short_SOURCES =                \
@@ -121,8 +121,8 @@ test_modular_byte_SOURCES =                \
         test-generic.h                        \
         test-common.h
 
-test_modular_balanced_int_SOURCES =             \
-        test-modular-balanced-int.C             \
+test_modular_balanced_int32_SOURCES =             \
+        test-modular-balanced-int32.C             \
         test-generic.h                  \
         test-common.h
 

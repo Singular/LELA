@@ -80,7 +80,7 @@ public:
 	ModularBalancedRandIter (const ModularBalanced<Element> &F, 
 				 const integer &size = 0, 
 				 const integer &seed = 0)
-		: _F (F), _size (size), _seed (seed)
+		: _F (F), _size (size), _seed (seed.get_si ())
 	{
 		if (_seed == 0) _seed = time (NULL);
 
