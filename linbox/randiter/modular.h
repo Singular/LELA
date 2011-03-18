@@ -33,7 +33,6 @@
 #include <iostream>
 #include <vector>
 
-#include "time.h"
 #include "linbox/integer.h"
 #include "linbox/field/modular.h"
 #include "linbox/element/abstract.h"
@@ -78,10 +77,8 @@ public:
 	ModularRandIter (const Modular<Element> &F, 
 			 const integer &size = 0, 
 			 const integer &seed = 0)
-		: _F (F), _size (size), _seed (seed.get_ui ())
+		: _F (F), _size (size), _seed (seed.get_ui ()), _MT (seed.get_ui ())
 	{
-		if (_seed == 0) _seed = time (NULL);
-
 		integer cardinality;
 
 		F.cardinality (cardinality);
@@ -92,9 +89,6 @@ public:
 		commentator.report (10, INTERNAL_DESCRIPTION)
 			<< "Created random generator with size " << _size 
 			<< " and seed " << _seed << std::endl;
-
-		// Seed random number generator
-		srand (_seed);
 	}
 
 	/** Copy constructor.
@@ -116,11 +110,12 @@ public:
 	 * Assigns ModularRandIter object R to generator.
 	 * @param  R ModularRandIter object.
 	 */
-	ModularRandIter<Element> &operator=(const ModularRandIter<Element> &R)
+	ModularRandIter<Element> &operator = (const ModularRandIter<Element> &R)
 	{
 		if (this != &R) { // guard against self-assignment
 			_size = R._size;
 			_seed = R._seed;
+			_MT.setSeed (_seed);
 		}
 
 		return *this;
@@ -133,7 +128,7 @@ public:
 	 * @return reference to random field element
 	 */
 	Element &random (Element &a) const
-		{ return _F.init(a,rand()); }
+		{ return _F.init (a, _MT.randomIntRange (0, _size.get_ui ())); }
 
 	/** Random field element creator.
 	 * This returns a random field element from the information supplied
@@ -162,6 +157,7 @@ public:
 	}
 
 private:
+	MersenneTwister _MT;
 
 	/// Field in which arithmetic is done
 	Modular<Element> _F;
@@ -207,12 +203,8 @@ public:
 	typedef uint16 Element;
 
 	RandIter (const Modular<Element> &F, const integer &size = 0, const integer &seed = 0)
+		: _r (seed.get_ui ()), _size (size.get_ui ()), _seed (seed.get_ui ())
 	{
-		_seed = seed.get_ui ();
-		_size = size.get_ui ();
-
-		if (_seed == 0) _seed = time (NULL);
-
 		integer c;
 
 		F.cardinality (c);
@@ -221,8 +213,6 @@ public:
 
 		if ((_size == 0) || (_size > c.get_d ()))
 			_size = c.get_ui ();
-
-		_r.setSeed (_seed);
 	}
 
 	RandIter (const ModularBase<Element>::RandIter &r)
@@ -251,12 +241,8 @@ public:
 	typedef uint32 Element;
 
 	RandIter (const Modular<Element> &F, const integer &size = 0, const integer &seed = 0)
+		: _r (seed.get_ui ()), _size (size.get_ui ()), _seed (seed.get_ui ())
 	{
-		_seed = seed.get_ui ();
-		_size = size.get_ui ();
-
-		if (_seed == 0) _seed = time (NULL);
-
 		integer c;
 
 		F.cardinality (c);
@@ -265,8 +251,6 @@ public:
 
 		if ((_size == 0) || (_size > c.get_d ()))
 			_size = c.get_ui ();
-
-		_r.setSeed (_seed);
 	}
 
 	RandIter (const ModularBase<Element>::RandIter &r)
