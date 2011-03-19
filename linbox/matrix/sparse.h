@@ -1,6 +1,6 @@
 /* linbox/matrix/sparse.h
- * Copyright (C) 2001-2002 Bradford Hovinen
- *               1999-2001 William J Turner,
+ * Copyright 2001-2002 Bradford Hovinen
+ *           1999-2001 William J Turner,
  *
  * Written by William J Turner <wjturner@math.ncsu.edu>,
  *            Bradford Hovinen <hovinen@cis.udel.edu>
@@ -42,8 +42,8 @@
 #define __LINBOX_matrix_sparse_H
 
 #ifndef _SP_BB_VECTOR_
-#include <vector>
-#define _SP_BB_VECTOR_ std::vector
+#  include <vector>
+#  define _SP_BB_VECTOR_ std::vector
 #endif
 
 #include <utility>
@@ -93,12 +93,10 @@ class SparseMatrix
 	 */
         SparseMatrix (size_t m, size_t n): _A(m), _m(m), _n(n) {};
 
-
 	/** Constructor from a MatrixStream
 	 */
 	template <class Field>
 	SparseMatrix ( MatrixStream<Field>& ms );
-
 
 	/** Constructor from a VectorStream
 	 *
@@ -120,6 +118,7 @@ class SparseMatrix
 	 */
     	template<class VectorType>
 	SparseMatrix (const SparseMatrix<Element, VectorType, Trait> &A);
+
 	/** Destructor. */
 	~SparseMatrix () {}
 
@@ -136,11 +135,14 @@ class SparseMatrix
 	/** Retreive number of elements in the matrix.
 	 * @return integer number of elements of SparseMatrix matrix.
 	 */
-	size_t size () const { 
-            size_t s(0);
-            for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
-                s+= LinBox::RawVector<_Element>::size(*it);
-            return s;
+	size_t size () const
+	{
+		size_t s = 0;
+
+		for (typename Rep::const_iterator it = _A.begin (); it != _A.end (); ++it)
+			s += LinBox::RawVector<_Element>::size (*it);
+
+		return s;
         }
 
 	/** Set an individual entry
@@ -273,9 +275,11 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 
-	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
+	template <typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other>
         struct rebind
-        { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseSequenceVectorTag> other; };
+	{
+		typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseSequenceVectorTag> other;
+	};
 
 	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
@@ -297,22 +301,26 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 
     	template<class VectorType>
 	SparseMatrix (const SparseMatrix<Element, VectorType, VectorCategories::SparseSequenceVectorTag> &A)
-		: _A(A._m), _m (A._m), _n (A._n) {
-            typename Rep::iterator meit = this->_A.begin();
-            typename SparseMatrix<Element, VectorType, VectorCategories::SparseSequenceVectorTag>::Rep::const_iterator copit = A._A.begin();
-            for( ; meit != this->_A.end(); ++meit, ++copit)
-                LinBox::RawVector<Element>::convert(*meit, *copit);
+		: _A (A._m), _m (A._m), _n (A._n)
+	{
+		typename Rep::iterator meit = this->_A.begin ();
+		typename SparseMatrix<Element, VectorType, VectorCategories::SparseSequenceVectorTag>::Rep::const_iterator copit = A._A.begin();
+		for (; meit != this->_A.end (); ++meit, ++copit)
+			LinBox::RawVector<Element>::convert (*meit, *copit);
         }
 
 	~SparseMatrix () {}
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
-	size_t size () const { 
-            size_t s(0);
-            for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
-                s+= LinBox::RawVector<_Element>::size(*it);
-            return s;
+	size_t size () const
+	{ 
+		size_t s = 0;
+
+		for (typename Rep::const_iterator it = _A.begin (); it != _A.end (); ++it)
+			s+= LinBox::RawVector<_Element>::size (*it);
+
+		return s;
         }
 
 	void           setEntry (size_t i, size_t j, const Element &value);
@@ -325,14 +333,10 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
 
-	ConstRowIterator rowBegin () const 
-		{ return _A.begin (); }
-	ConstRowIterator rowEnd () const
-		{ return _A.end (); }
-	RowIterator rowBegin ()
-		{ return _A.begin (); }
-	RowIterator rowEnd ()
-		{ return _A.end (); }
+	RowIterator      rowBegin ()       { return _A.begin (); }
+	ConstRowIterator rowBegin () const { return _A.begin (); }
+	RowIterator      rowEnd ()         { return _A.end (); }
+	ConstRowIterator rowEnd () const   { return _A.end (); }
 
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseSequenceVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
@@ -374,22 +378,26 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 
-	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
+	template <typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
-        { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseAssociativeVectorTag> other; };
+	{
+		typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseAssociativeVectorTag> other;
+	};
 
 	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
 	SparseMatrix (const SparseMatrix &A)
 		: _A (A._A), _m (A._m), _n (A._n) {}
 
-    	template<class VectorType>
+    	template <class VectorType>
 	SparseMatrix (const SparseMatrix<Element, VectorType, VectorCategories::SparseAssociativeVectorTag> &A)
-		: _A(A.m), _m (A._m), _n (A._n) {
-            typename Rep::iterator meit = this->_A.begin();
-            typename SparseMatrix<Element, VectorType, VectorCategories::SparseAssociativeVectorTag>::Rep::const_iterator copit = A._A.begin();
-            for( ; meit != this->_A.end(); ++meit, ++copit)
-                LinBox::RawVector<Element>::convert(*meit, *copit);
+		: _A(A.m), _m (A._m), _n (A._n)
+	{
+		typename Rep::iterator meit = this->_A.begin ();
+		typename SparseMatrix<Element, VectorType, VectorCategories::SparseAssociativeVectorTag>::Rep::const_iterator copit = A._A.begin ();
+
+		for (; meit != this->_A.end (); ++meit, ++copit)
+			LinBox::RawVector<Element>::convert (*meit, *copit);
         }
 
 	/** Constructor from a MatrixStream
@@ -408,11 +416,14 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
-	size_t size () const { 
-            size_t s(0);
-            for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
-                s+= LinBox::RawVector<_Element>::size(*it);
-            return s;
+	size_t size () const
+	{ 
+		size_t s = 0;
+
+		for (typename Rep::const_iterator it = _A.begin (); it != _A.end (); ++it)
+			s += LinBox::RawVector<_Element>::size (*it);
+
+		return s;
         }
 
 	void           setEntry (size_t i, size_t j, const Element &value) { _A[i][j] = value; }
@@ -423,14 +434,10 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
 
-	ConstRowIterator rowBegin () const 
-		{ return _A.begin (); }
-	ConstRowIterator rowEnd () const
-		{ return _A.end (); }
-	RowIterator rowBegin ()
-		{ return _A.begin (); }
-	RowIterator rowEnd ()
-		{ return _A.end (); }
+	RowIterator      rowBegin ()       { return _A.begin (); }
+	ConstRowIterator rowBegin () const { return _A.begin (); }
+	RowIterator      rowEnd ()         { return _A.end (); }
+	ConstRowIterator rowEnd () const   { return _A.end (); }
 
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseAssociativeVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
@@ -483,11 +490,13 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
     
     	template<class VectorType>
 	SparseMatrix (const SparseMatrix<Element, VectorType, VectorCategories::SparseParallelVectorTag> &A)
-		: _A(A._m), _m (A._m), _n (A._n) {
-            typename Rep::iterator meit = this->_A.begin();
-            typename SparseMatrix<Element, VectorType, VectorCategories::SparseParallelVectorTag>::Rep::const_iterator copit = A._A.begin();
-            for( ; meit != this->_A.end(); ++meit, ++copit)
-                LinBox::RawVector<Element>::convert(*meit, *copit);
+		: _A(A._m), _m (A._m), _n (A._n)
+	{
+		typename Rep::iterator meit = this->_A.begin ();
+		typename SparseMatrix<Element, VectorType, VectorCategories::SparseParallelVectorTag>::Rep::const_iterator copit = A._A.begin ();
+
+		for (; meit != this->_A.end (); ++meit, ++copit)
+			LinBox::RawVector<Element>::convert (*meit, *copit);
         }
 
 	/** Constructor from a MatrixStream
@@ -506,30 +515,29 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
-	size_t size () const { 
-            size_t s(0);
-            for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
-                s+= LinBox::RawVector<_Element>::size(*it);
-            return s;
+	size_t size () const
+	{ 
+		size_t s = 0;
+
+		for (typename Rep::const_iterator it = _A.begin (); it != _A.end (); ++it)
+			s+= LinBox::RawVector<_Element>::size (*it);
+
+		return s;
         }
 
 	void           setEntry (size_t i, size_t j, const Element &value);
 	Element       &refEntry (size_t i, size_t j);
 	const Element &getEntry (size_t i, size_t j) const;
 	Element       &getEntry (Element &x, size_t i, size_t j) const
-			{ return x = getEntry (i, j); }
+		{ return x = getEntry (i, j); }
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
 
-	ConstRowIterator rowBegin () const 
-		{ return _A.begin (); }
-	ConstRowIterator rowEnd () const
-		{ return _A.end (); }
-	RowIterator rowBegin ()
-		{ return _A.begin (); }
-	RowIterator rowEnd ()
-		{ return _A.end (); }
+	RowIterator      rowBegin ()       { return _A.begin (); }
+	ConstRowIterator rowBegin () const { return _A.begin (); }
+	RowIterator      rowEnd ()         { return _A.end (); }
+	ConstRowIterator rowEnd () const   { return _A.end (); }
 
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseParallelVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
