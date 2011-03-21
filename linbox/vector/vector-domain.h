@@ -1132,6 +1132,7 @@ protected:
 		typename LinBox::Vector<Field>::Sparse w;
 
 		copy (v, x);
+		copy (w, y);
 		axpyin (w, a, v);
 		copy (y, w);
 

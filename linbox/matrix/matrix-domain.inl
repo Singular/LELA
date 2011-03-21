@@ -273,6 +273,80 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 }
 
 template <class Field>
+template <class Vector1, class Vector2, class Matrix>
+inline Matrix &MatrixDomainSupportGeneric<Field>::gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+								     VectorCategories::DenseVectorTag) const
+{
+	linbox_check (A.rowdim () == x.size ());
+
+	typename Matrix::RowIterator i_A;
+	typename Vector1::const_iterator i_x;
+
+	typename Field::Element axi;
+
+	for (i_A = A.rowBegin (), i_x = x.begin (); i_A != A.rowEnd (); ++i_A, ++i_x) {
+		_F.mul (axi, a, *i_x);
+		_VD.axpyin (*i_A, axi, y);
+	}
+
+	return A;
+}
+
+template <class Field>
+template <class Vector1, class Vector2, class Matrix>
+inline Matrix &MatrixDomainSupportGeneric<Field>::gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+								     VectorCategories::SparseSequenceVectorTag) const
+{
+	typename Vector1::const_iterator i_x;
+
+	typename Field::Element axi;
+
+	for (i_x = x.begin (); i_x != x.end (); ++i_x) {
+		_F.mul (axi, a, i_x->second);
+		_VD.axpyin (*(A.rowBegin () + i_x->first), axi, y);
+	}
+
+	return A;
+}
+
+template <class Field>
+template <class Vector1, class Vector2, class Matrix>
+inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+								     VectorCategories::DenseVectorTag) const
+{
+	linbox_check (A.coldim () == y.size ());
+
+	typename Matrix::ColIterator i_A;
+	typename Vector2::const_iterator i_y;
+
+	typename Field::Element ayi;
+
+	for (i_A = A.colBegin (), i_y = y.begin (); i_A != A.colEnd (); ++i_A, ++i_y) {
+		_F.mul (ayi, a, *i_y);
+		_VD.axpyin (*i_A, ayi, x);
+	}
+
+	return A;
+}
+
+template <class Field>
+template <class Vector1, class Vector2, class Matrix>
+inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+								     VectorCategories::SparseSequenceVectorTag) const
+{
+	typename Vector2::const_iterator i_y;
+
+	typename Field::Element ayi;
+
+	for (i_y = y.begin (); i_y != y.end (); ++i_y) {
+		_F.mul (ayi, a, i_y->second);
+		_VD.axpyin (*(A.colBegin () + i_y->first), ayi, x);
+	}
+
+	return A;
+}
+
+template <class Field>
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vector &x,
 							    MatrixCategories::RowMatrixTag,

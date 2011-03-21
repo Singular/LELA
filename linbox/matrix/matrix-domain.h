@@ -96,9 +96,9 @@ public:
 	 */
 
 	/** General matrix-vector multiplication
-	 * y <- alpha A x + b y
+	 * y <- a A x + b y
 	 *
-	 * @param alpha Input scalar alpha
+	 * @param a Input scalar a
 	 * @param A Input matrix A
 	 * @param x Input vector x
 	 * @param b Input scalar b
@@ -108,6 +108,19 @@ public:
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector2 &gemv (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y) const
 		{ return gemvSpecialized (a, A, x, b, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+
+	/** Rank-1 update
+	 * A <- a x y^T + A
+	 *
+	 * @param a Input scalar a
+	 * @param x Input vector x
+	 * @param y Input vector y
+	 * @param A Output matrix A
+	 * @returns Reference to A
+	 */
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &ger (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A) const
+		{ return gerSpecialised (a, x, y, A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
 	/** Triangular solve with vector
 	 * x <- A^{-1} x
@@ -323,6 +336,28 @@ private:
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				 MatrixCategories::RowColMatrixTag) const
 		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector2>::VectorCategory ()); }
+
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::DenseVectorTag) const;
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::SparseSequenceVectorTag) const;
+
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::DenseVectorTag) const;
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::SparseSequenceVectorTag) const;
+
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &gerSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, MatrixCategories::RowMatrixTag) const
+		{ return gerRowSpecialised (a, x, y, A, typename VectorTraits<Vector1>::VectorCategory ()); }
+
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &gerSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, MatrixCategories::ColMatrixTag) const
+		{ return gerColSpecialised (a, x, y, A, typename VectorTraits<Vector2>::VectorCategory ()); }
+
+	template <class Vector1, class Vector2, class Matrix>
+	inline Matrix &gerSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, MatrixCategories::RowColMatrixTag) const
+		{ return gerRowSpecialised (a, x, y, A, typename VectorTraits<Vector1>::VectorCategory ()); }
 
 	template <class Matrix, class Vector>
 	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag) const;

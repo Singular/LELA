@@ -300,7 +300,7 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 
 	typename Field::Element one, zero;
 
-	F.init (one, 0);
+	F.init (one, 1);
 	F.init (zero, 0);
 
 	bool ret = true;
@@ -310,7 +310,7 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 	DenseMatrix<typename Field::Element> AI (A.rowdim (), A.coldim ());
 	DenseMatrix<typename Field::Element> IA (A.rowdim (), A.coldim ());
 
-	StandardBasisStream<Field, typename Matrix::Row> I_l_stream (F, A.rowdim ()), I_r_stream (F, A.coldim ());
+	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> I_l_stream (F, A.rowdim ()), I_r_stream (F, A.coldim ());
 
 	DenseMatrix<typename Field::Element> I_l (I_l_stream);
 	DenseMatrix<typename Field::Element> I_r (I_r_stream);
@@ -352,7 +352,79 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 	return ret;
 }
 
-/* Test 6: Row-echelon and gemm
+/* Test 6: ger and gemm
+ *
+ * Return true on success and false on failure
+ */
+
+template <class Field, class Matrix, class Vector1, class Vector2>
+static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vector1 &u, const Vector2 &v)
+{
+	ostringstream str;
+
+	str << "Testing " << text << " ger (consistency with gemm)" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	typename Field::Element a, one;
+
+	F.init (one, 1);
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+	bool ret = true;
+
+	VectorDomain<Field> VD (F);
+	MatrixDomain<Field> MD (F);
+
+	DenseMatrix<typename Field::Element> A2 (A.rowdim (), A.coldim ());
+
+	Matrix A1 (A);
+
+	MD.copy (A2, A);
+
+	DenseMatrix<typename Field::Element> U (A.rowdim (), 1);
+	DenseMatrix<typename Field::Element> V (1, A.coldim ());
+
+	VD.copy (*U.colBegin (), u);
+	VD.copy (*V.rowBegin (), v);
+
+	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+	report << "Input matrix A:" << endl;
+	MD.write (report, A1);
+
+	report << "Input vector u: ";
+	VD.write (report, u) << endl;
+
+	report << "Input vector v: ";
+	VD.write (report, v) << endl;
+
+	r.random (a);
+
+	report << "Coefficient a = ";
+	F.write (report, a) << std::endl;
+
+	MD.ger (a, u, v, A1);
+
+	report << "Output matrix a * u * v^T + A: " << std::endl;
+	MD.write (report, A1);
+
+	MD.gemm (a, U, V, one, A2);
+
+	report << "Output matrix a * U * V + A: " << std::endl;
+	MD.write (report, A2);
+
+	if (!MD.areEqual (A1, A2)) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: MatrixDomain reported a * u * v^T + A != a * U * V + A" << endl;
+		ret = false;
+	}
+
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
+
+	return ret;
+}
+
+/* Test 7: Row-echelon and gemm
  *
  * Return true on success and false on failure
  */
@@ -363,20 +435,13 @@ template <class Field, class Matrix1, class Matrix2>
 void eliminate (MatrixDomain<Field> &MD, Matrix1 &M, Matrix2 &pivotRow,
 		size_t row, size_t col, size_t rowdim, size_t coldim) 
 {
-	typename Field::Element zero, one, neg_one;
-	MD.field ().init (one, 1);
+	typename Field::Element neg_one;
 	MD.field ().init (neg_one, -1);
 
-	DenseMatrix<typename Matrix1::Element> pivotCol (rowdim, 1);
-	DenseSubmatrix<typename Matrix1::Element> realPivotCol (M, row, col, rowdim, 1);
+	DenseSubmatrix<typename Matrix1::Element> pivotCol (M, row, col, rowdim, 1);
 	DenseSubmatrix<typename Matrix1::Element> block (M, row, col, rowdim, coldim);
 
-	DenseMatrix<typename Matrix1::Element> update (rowdim, coldim);
-
-	MD.copy (pivotCol, realPivotCol);
-	MD.scal (pivotCol, neg_one);
-	MD.gemm (one, pivotCol, pivotRow, zero, update);
-	MD.axpy (one, update, block);
+	MD.ger (neg_one, *pivotCol.colBegin (), *pivotRow.rowBegin (), block);
 }
 
 /* Dumb elimination code
@@ -538,7 +603,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 	return ret;
 }
 
-/* Test 7: gemv and gemm
+/* Test 8: gemv and gemm
  *
  * Return true on success and false on failure
  */
@@ -689,7 +754,7 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
 					typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ());
 }
 
-/* Test 8: gemv with coefficients
+/* Test 9: gemv with coefficients
  *
  * Return true on success and false on failure
  */
@@ -757,7 +822,7 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 	return ret;
 }
 
-/* Test 9: trsv
+/* Test 10: trsv
  *
  * Return true on success and false on failure
  */
@@ -845,7 +910,7 @@ static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector 
 	return ret;
 }
 
-/* Test 10: trsm and trsv
+/* Test 11: trsm and trsv
  *
  * B must be iterable by columns
  *
@@ -912,7 +977,7 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
 	return ret;
 }
 
-/* Test 11: trsm with coefficient
+/* Test 12: trsm with coefficient
  *
  * B must be iterable by columns
  *
@@ -986,6 +1051,11 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 	return ret;
 }
 
+/* Test 13: permuteRows, permuteColumns
+ *
+ * Return true on success and false on failure
+ */
+
 std::ostream &reportPermutation
 	(std::ostream &out,
 	 const std::vector<std::pair<unsigned int, unsigned int> > &P) 
@@ -1004,7 +1074,7 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 	ostringstream str;
 
 	str << "Testing " << text << " permutations" << ends;
-	commentator.start (str.str ().c_str (), "testPermutation");
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
 
@@ -1092,7 +1162,7 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 		ret = false;
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testPermutation");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
 
 	return ret;
 }
@@ -1100,7 +1170,7 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 template <class Field, class Matrix, class Vector>
 bool testMatrixDomain (const Field &F, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
-		       Vector &v,
+		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
 		       MatrixCategories::RowColMatrixTag)
 {
@@ -1114,12 +1184,14 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
 	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (F, text, M1)) pass = false;
+	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
 	if (!testGemmRowEchelon (F, text, M1)) pass = false;
 	if (!testGemvGemm (F, text, M1, M2)) pass = false;
-	if (!testGemvCoeff (F, text, M1, v)) pass = false;
+	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsv (F, text, M1, v)) pass = false;
+		if (!testTrsv (F, text, M1, v2)) pass = false;
 		if (!testTrsmTrsv (F, text, M1, M2)) pass = false;
 		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
 	} else {
@@ -1137,7 +1209,7 @@ bool testMatrixDomain (const Field &F, const char *text,
 template <class Field, class Matrix, class Vector>
 bool testMatrixDomain (const Field &F, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
-		       Vector &v,
+		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
 		       MatrixCategories::RowMatrixTag) 
 {
@@ -1151,12 +1223,14 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
 	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (F, text, M1)) pass = false;
+	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
 	if (!testGemmRowEchelon (F, text, M1)) pass = false;
 	if (!testGemvGemm (F, text, M1, M2)) pass = false;
-	if (!testGemvCoeff (F, text, M1, v)) pass = false;
+	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsv (F, text, M1, v)) pass = false;
+		if (!testTrsv (F, text, M1, v2)) pass = false;
 		if (!testTrsmTrsv (F, text, M1, M2)) pass = false;
 		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
 	} else {
@@ -1174,7 +1248,7 @@ bool testMatrixDomain (const Field &F, const char *text,
 template <class Field, class Matrix, class Vector>
 bool testMatrixDomain (const Field &F, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
-		       Vector &v,
+		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
 		       MatrixCategories::ColMatrixTag) 
 {
@@ -1188,13 +1262,15 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
 	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (F, text, M1)) pass = false;
+	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
 	if (!testGemmRowEchelon (F, text, M1)) pass = false;
 //	if (!testGemvGemm (F, text, M1, M2)) pass = false;    Not compiling because the compiler won't instantiate with TransposeMatrix. Hmmm....
-	if (!testGemvCoeff (F, text, M1, v)) pass = false;
+	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
 
 #if 0 // disabled because of TransposeMatrix-issues
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsv (F, text, M1, v)) pass = false;
+		if (!testTrsv (F, text, M1, v2)) pass = false;
 
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
 			<< "Input matrix M2 is not iterable by columns, so skipping tests of trsm" << std::endl;
@@ -1246,12 +1322,14 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 
-	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1 (F, m, 1);
-	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2 (F, n, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1 (F, l, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2 (F, m, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v3 (F, n, 1);
 
-	Vector<Field>::Dense v1 (m), v2 (n);
+	Vector<Field>::Dense v1 (l), v2 (m), v3 (n);
 	stream_v1 >> v1;
 	stream_v2 >> v2;
+	stream_v3 >> v3;
 
 	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream11 (F, m, l);
 	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream12 (F, n, m);
@@ -1261,7 +1339,7 @@ int main (int argc, char **argv)
 	DenseMatrix<Element> M2 (stream12);
 	DenseMatrix<Element> M3 (stream13);
 
-	if (!testMatrixDomain (F, "dense", M1, M2, M3, v1, iterations,
+	if (!testMatrixDomain (F, "dense", M1, M2, M3, v1, v2, iterations,
 			       MatrixTraits<DenseMatrix<Element> >::MatrixCategory ()))
 		pass = false;
 
@@ -1273,7 +1351,7 @@ int main (int argc, char **argv)
 	SparseMatrix<Element> M5 (stream22);
 	SparseMatrix<Element> M6 (stream23);
 
-	if (!testMatrixDomain (F, "sparse row-wise", M4, M5, M6, v1, iterations,
+	if (!testMatrixDomain (F, "sparse row-wise", M4, M5, M6, v1, v2, iterations,
 			       MatrixTraits<SparseMatrix<Element> >::MatrixCategory ()))
 		pass = false;
 
@@ -1281,7 +1359,7 @@ int main (int argc, char **argv)
 	TransposeMatrix<SparseMatrix<Element> > M8 (M5);
 	TransposeMatrix<SparseMatrix<Element> > M9 (M4);
 
-	if (!testMatrixDomain (F, "sparse column-wise", M7, M8, M9, v2, iterations,
+	if (!testMatrixDomain (F, "sparse column-wise", M7, M8, M9, v3, v2, iterations,
 			       MatrixTraits<TransposeMatrix<SparseMatrix<Element> > >::MatrixCategory ()))
 		pass = false;
 
