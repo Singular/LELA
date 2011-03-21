@@ -256,19 +256,19 @@ protected:
  *                     twice the length of the maximal modulus used.
  *
  * The primality of the modulus will not be checked, so it is the
- * programmer's responsibility to supply a prime modulus.  This class
- * implements a field of unparameterized integers modulo a prime integer.
- * Field has (non-static) member to contain modulus of field.
+ * programmer's responsibility to supply a prime modulus. This class
+ * implements a field of unparameterized integers modulo a prime
+ * integer. Field has (non-static) member to contain modulus of field.
  */
 
 /** @brief Prime fields of positive characteristic implemented directly in LinBox.
  * 
  * This parameterized field can be used to construct prime
  * fields. Typical use would be Modular<integer> for integers modulo a
- * large prime, Modular<uint32>, modular<int>, or modular<double>
- for integers modulo a wordsize * prime.  Each of those has specialized performance features
- suitable to certain applications.
-*/
+ * large prime, Modular<uint32>, modular<int>, or modular<double> for
+ * integers modulo a wordsize prime.  Each of those has specialized
+ * performance features suitable to certain applications.
+ */
 template <class _Element>
 class Modular : public ModularBase<_Element>
 {
@@ -293,14 +293,14 @@ class Modular : public ModularBase<_Element>
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
-	Modular (unsigned long modulus) : ModularBase<_Element> (modulus),zero(0),one(1) {}
+	Modular (unsigned long modulus) : ModularBase<_Element> (modulus), zero (0), one (1) {}
 
 	/*- Constructor from an integer
 	 * Sets the modulus of the field throug the static member of the 
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
-	Modular (const integer &modulus) : ModularBase<_Element> (modulus),zero(0),one(1) {}
+	Modular (const integer &modulus) : ModularBase<_Element> (modulus), zero (0), one (1) {}
 
 	/* Assignment operator
 	 * Required by the archetype
@@ -812,7 +812,7 @@ class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
 		  _pinv (1.0 / (double) ((uint16) ModularBase<Element>::_modulus))
 		{}
 
-	const Modular &operator=(const Modular &F) 
+	const Modular &operator = (const Modular &F) 
 	{
 		ModularBase<Element>::_modulus = F._modulus;
 		_k = F._k;
