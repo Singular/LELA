@@ -49,6 +49,12 @@
 namespace LinBox
 {
 
+template <class Iterator, class ConstIterator>
+class DenseMatrixRowIterator;
+
+template <class Iterator, class ConstIterator>
+class DenseMatrixColIterator;
+
 /** Blackbox dense matrix template. This is a class of dense matrices
  * templatized by the entry type, the Element type of some {@link Fields field}.
  * The matrix is stored as a one dimensional STL vector of the elements, by rows. 
@@ -70,8 +76,19 @@ class DenseMatrix
 	typedef typename RawVector<Element>::Dense Rep;
         typedef DenseMatrix<_Element> Self_t;
 
-	typedef Subvector<typename Rep::iterator, typename Rep::const_iterator> Row;  
+	typedef DenseMatrixRowIterator<typename Rep::iterator, typename Rep::const_iterator> RowIterator;
+	typedef DenseMatrixRowIterator<typename Rep::const_iterator, typename Rep::const_iterator> ConstRowIterator;
+
+	typedef Subvector<typename Rep::iterator, typename Rep::const_iterator> Row;
 	typedef Subvector<typename Rep::const_iterator> ConstRow;  
+
+	typedef DenseMatrixColIterator<typename Rep::iterator, typename Rep::const_iterator> ColIterator;
+	typedef DenseMatrixColIterator<typename Rep::const_iterator, typename Rep::const_iterator> ConstColIterator;
+
+	typedef Subvector<Subiterator<typename Rep::iterator> > Col;
+	typedef Subvector<Subiterator<typename Rep::const_iterator> > ConstCol;
+	typedef Col Column;
+	typedef ConstCol ConstColumn;
 
 	template<typename _Tp1>
         struct rebind
@@ -191,9 +208,6 @@ class DenseMatrix
 	 * a row vector in dense format
 	 */
 
-	class RowIterator;    
-	class ConstRowIterator;
-
 	RowIterator rowBegin ();  
 	RowIterator rowEnd ();
 	ConstRowIterator rowBegin () const;        
@@ -205,14 +219,6 @@ class DenseMatrix
 	 * a column vector in dense format
 	 */
 
-	typedef Subvector<Subiterator<typename Rep::iterator> > Col;
-	typedef Subvector<Subiterator<typename Rep::const_iterator> > ConstCol;
-	typedef Col Column;
-	typedef ConstCol ConstColumn;
-
-	class ColIterator;
-	class ConstColIterator;
-    
 	ColIterator colBegin ();
 	ColIterator colEnd ();
 	ConstColIterator colBegin () const;    

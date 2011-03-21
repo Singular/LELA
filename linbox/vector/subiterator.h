@@ -136,6 +136,9 @@ class Subiterator
 	Iterator	_iter;		// wrapped iterator
 	difference_type	_stride;	// length between iterations
 
+	template <typename It>
+	friend class Subiterator;
+
 }; // template <class Iterator> class Subiterator
 
 } // namespace LinBox

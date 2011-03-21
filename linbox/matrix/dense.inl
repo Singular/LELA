@@ -34,309 +34,193 @@
 namespace LinBox
 {
 
-template <class Element>
-class DenseMatrix<Element>::ConstRowIterator
+template <class Iterator, class ConstIterator>
+class DenseMatrixRowIterator
 {
     public:
-	typedef typename std::iterator_traits<typename Rep::const_iterator>::difference_type difference_type;
+	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
-	ConstRowIterator (const typename Rep::const_iterator& p, size_t len, size_t d)
+	typedef Subvector<Iterator, ConstIterator> Row;
+	typedef Subvector<ConstIterator, ConstIterator> ConstRow;
+
+	DenseMatrixRowIterator (const Iterator &p, size_t len, size_t d)
 		: _row (p, p + len), _dis (d) {}
-    
-	ConstRowIterator () {}
-    
-	ConstRowIterator (const ConstRowIterator& colp)
+
+	DenseMatrixRowIterator () {}
+
+	DenseMatrixRowIterator (const DenseMatrixRowIterator &colp)
 		: _row (colp._row), _dis (colp._dis) {}
-    
-	ConstRowIterator& operator = (const ConstRowIterator& colp)
-	{
-		_row = colp._row;
-		_dis = colp._dis;
-		return *this;
-	}
 
-	ConstRowIterator& operator --()
-	{
-		_row = ConstRow (_row.begin () - _dis, _row.end () - _dis);
-		return *this;
-	}
-
-	ConstRowIterator  operator-- (int)
-        {
-                ConstRowIterator tmp (*this);
-                --*this;
-                return tmp;
-	}
-
-	
-	ConstRowIterator& operator++ ()
-	{
-		_row = ConstRow (_row.begin () + _dis, _row.end () + _dis);
-		return *this;
-	}
-
-	ConstRowIterator  operator++ (int)
-	{
-		ConstRowIterator tmp (*this);
-		++*this;
-		return tmp;
-	}
-
-	ConstRowIterator operator+ (int i)
-		{ return ConstRowIterator (_row.begin () + _dis * i, _row.size (), _dis); }
-
-	ConstRowIterator& operator += (int i)
-	{
-		_row = ConstRow (_row.begin () + _dis * i, _row.end () + _dis * i);
-		return *this;
-	}
-
-	ConstRow operator[] (int i) const
-		{ return ConstRow (_row.begin () + _dis * i, _row.end () + _dis * i); }
-
-	ConstRow* operator-> ()
-		{ return &_row; }
-
-	ConstRow& operator* ()
-		{ return _row; }
-    
-	bool operator!= (const ConstRowIterator& c) const
-		{ return (_row.begin () != c._row.begin ()) || (_row.end () != c._row.end ()) || (_dis != c._dis); }
-
-    private:
-	ConstRow _row;
-	size_t _dis;
-};
-
-template <class Element>
-class DenseMatrix<Element>::RowIterator
-{
-    public:
-	typedef typename std::iterator_traits<typename Rep::iterator>::difference_type difference_type;
-
-	RowIterator (const typename Rep::iterator& p, size_t len, size_t d)
-		: _row (p, p + len), _dis (d){}
-
-	RowIterator () {}
-
-	RowIterator (const RowIterator& colp)
-		: _row (colp._row), _dis (colp._dis) {}
-    
-	RowIterator& operator = (const RowIterator& colp)
+	DenseMatrixRowIterator &operator = (const DenseMatrixRowIterator &colp)
 	{
 		_row = colp._row;
 		_dis = colp._dis;
 		return *this;
 	}
     
-	RowIterator& operator ++ ()
+	DenseMatrixRowIterator &operator ++ ()
 	{
 		_row = Row (_row.begin () + _dis, _row.end () + _dis);
 		return *this;
 	}
     
-	RowIterator  operator ++ (int)
+	DenseMatrixRowIterator operator ++ (int)
 	{
-		RowIterator tmp (*this);
+		DenseMatrixRowIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
     
-        RowIterator& operator -- ()
+        DenseMatrixRowIterator &operator -- ()
         {
                 _row = Row (_row.begin () - _dis, _row.end () - _dis);
                 return *this;
         }
 
-        RowIterator  operator -- (int)
+        DenseMatrixRowIterator operator -- (int)
         {
-                RowIterator tmp (*this);
+                DenseMatrixRowIterator tmp (*this);
                 --*this;
                 return tmp;
         }
 
-	RowIterator operator + (int i)
-		{ return RowIterator (_row.begin () + _dis * i, _row.size (), _dis); }
+	DenseMatrixRowIterator operator + (int i)
+		{ return DenseMatrixRowIterator (_row.begin () + _dis * i, _row.size (), _dis); }
 
-	RowIterator& operator += (int i)
+	DenseMatrixRowIterator &operator += (int i)
 	{
 		_row = Row (_row.begin () + _dis * i, _row.end () + _dis * i);
 		return *this;
 	}
 
-	Row operator[] (int i) const
+	Row operator [] (int i) const
 		{ return Row (const_cast<Row&> (_row).begin () + _dis * i,
 			      const_cast<Row&> (_row).end () + _dis * i); }
 
-	Row* operator-> ()
+	Row *operator -> ()
 		{ return &_row; }
-    
-	Row& operator* ()
+
+	Row &operator * ()
 		{ return _row; }
- 
-	bool operator!= (const RowIterator& c) const
+
+	bool operator == (const DenseMatrixRowIterator &c) const
+		{ return (_row.begin () == c._row.begin ()) && (_row.end () == c._row.end ()) && (_dis == c._dis); }
+
+	template <class It, class CIt>
+	bool operator == (const DenseMatrixRowIterator<It, CIt> &c) const
+		{ return (_row.begin () == c._row.begin ()) && (_row.end () == c._row.end ()) && (_dis == c._dis); }
+
+	bool operator != (const DenseMatrixRowIterator &c) const
 		{ return (_row.begin () != c._row.begin ()) || (_row.end () != c._row.end ()) || (_dis != c._dis); }
 
-	operator ConstRowIterator ()
-		{ return ConstRowIterator (_row.begin (), _row.size (), _dis); }
+	template <class It, class CIt>
+	bool operator != (const DenseMatrixRowIterator<It, CIt> &c) const
+		{ return (_row.begin () != c._row.begin ()) || (_row.end () != c._row.end ()) || (_dis != c._dis); }
 
     private:
 	Row _row;
 	size_t _dis;
+
+	template <class It, class CIt>
+	friend class DenseMatrixRowIterator;
 };
 
-template <class Element>
-class DenseMatrix<Element>::ConstColIterator
+template <class Iterator, class ConstIterator>
+class DenseMatrixColIterator
 {
     public:
-	typedef typename std::iterator_traits<typename Rep::const_iterator>::difference_type difference_type;
+	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
-	ConstColIterator (typename Rep::const_iterator p, size_t stride, size_t len)
-		: _col (Subiterator<typename Rep::const_iterator> (p, stride),
-			Subiterator<typename Rep::const_iterator> (p + len * stride, stride)), _stride (stride)
+	typedef Subvector<Subiterator<Iterator>, Subiterator<ConstIterator> > Col;
+	typedef Subvector<Subiterator<ConstIterator> > ConstCol;
+
+	DenseMatrixColIterator (Iterator p, size_t stride, size_t len)
+		: _col (Subiterator<Iterator> (p, stride),
+			Subiterator<Iterator> (p + len * stride, stride)), _stride (stride)
 	{}
     
-	ConstColIterator (const ConstCol& col, size_t stride)
-		:_col (col), _stride (stride){}
-
-	ConstColIterator () {}
+	DenseMatrixColIterator () {}
     
-	ConstColIterator (const ConstColIterator& rowp)
-		:_col (rowp._col){}
-
-	ConstColIterator& operator= (const ConstColIterator& rowp)
-	{
-		_col = rowp._col;
-		_stride = rowp._stride;
-		return *this;
-	}
-
-	ConstColIterator& operator++ ()
-	{
-		_col = ConstCol (Subiterator<typename Rep::const_iterator> (_col.begin ().operator-> () + 1, _stride),
-				 Subiterator<typename Rep::const_iterator> (_col.end ().operator-> () + 1, _stride));
-		return *this;
-	}
-
-	ConstColIterator  operator++ (int)
-	{
-		ConstColIterator old(*this);
-		this->operator++ ();
-		return old;
-	}
-
-	ConstColIterator operator + (int i)
-		{ return ConstColIterator (_col.begin ().operator-> () + i, _stride, _col.size ()); }
-
-	ConstColIterator& operator += (int i)
-	{
-		_col = ConstCol (Subiterator<typename Rep::const_iterator> (_col.begin ().operator-> () + i, _stride),
-				 Subiterator<typename Rep::const_iterator> (_col.end ().operator-> () + i, _stride));
-		return *this;
-	}
-
-	ConstCol operator[] (int i) const
-		{ return ConstCol (Subiterator<typename Rep::const_iterator> (_col.begin ().operator-> () + i, _stride), 
-				   Subiterator<typename Rep::const_iterator> (_col.end ().operator-> () + i, _stride)); }
-
-	ConstCol* operator-> ()
-		{ return &_col; }
- 
-	ConstCol& operator* ()
-		{ return _col; }
-    
-	bool operator!= (const ConstColIterator& c) const
-		{ return (_col.begin () != c._col.begin ()) || (_col.end () != c._col.end ()); }
-    
-    private:
-	ConstCol _col;
-	size_t _stride;
-};
-
-template <class Element>
-class DenseMatrix<Element>::ColIterator
-{
-    public:
-	typedef typename std::iterator_traits<typename Rep::iterator>::difference_type difference_type;
-
-	ColIterator (typename Rep::iterator p, size_t stride, size_t len)
-		: _col (Subiterator<typename Rep::iterator> (p, stride),
-			Subiterator<typename Rep::iterator> (p + len * stride, stride)), _stride (stride)
-	{}
-    
-	ColIterator () {}
-    
-	ColIterator (const ColIterator& rowp)
+	DenseMatrixColIterator (const DenseMatrixColIterator &rowp)
 		:_col (rowp._col){}
     
-	ColIterator& operator= (const ColIterator& rowp)
+	DenseMatrixColIterator &operator = (const DenseMatrixColIterator &rowp)
 	{
 		_col = rowp._col;
 		_stride = rowp._stride;
 		return *this;
 	}
     
-	const ColIterator& operator= (const ColIterator& rowp) const
+	const DenseMatrixColIterator &operator = (const DenseMatrixColIterator &rowp) const
 	{
-		const_cast<ColIterator*> (this)->_col = rowp._col;
+		const_cast<DenseMatrixColIterator*> (this)->_col = rowp._col;
 		return *this;
 	}
     
-	ColIterator& operator++ ()
+	DenseMatrixColIterator &operator++ ()
 	{
-		_col = Col (Subiterator<typename Rep::iterator> (_col.begin ().operator-> () + 1, _stride),
-			    Subiterator<typename Rep::iterator> (_col.end ().operator-> () + 1, _stride));
+		_col = Col (Subiterator<Iterator> (_col.begin ().operator-> () + 1, _stride),
+			    Subiterator<Iterator> (_col.end ().operator-> () + 1, _stride));
 		return *this;
 	}
     
-	ColIterator  operator++ (int)
+	DenseMatrixColIterator operator++ (int)
 	{
 		Col tmp (_col);
 		this->operator++ ();
 		return tmp;
 	}
         
-	ColIterator operator + (int i)
-		{ return ColIterator (_col.begin ().operator-> () + i, _stride, _col.size ()); }
+	DenseMatrixColIterator operator + (int i)
+		{ return DenseMatrixColIterator (_col.begin ().operator-> () + i, _stride, _col.size ()); }
 
-	ColIterator& operator += (int i)
+	DenseMatrixColIterator &operator += (int i)
 	{
-		_col = Col (Subiterator<typename Rep::iterator> (_col.begin ().operator-> () + i, _stride),
-			    Subiterator<typename Rep::iterator> (_col.end ().operator-> () + i, _stride));
+		_col = Col (Subiterator<Iterator> (_col.begin ().operator-> () + i, _stride),
+			    Subiterator<Iterator> (_col.end ().operator-> () + i, _stride));
 		return *this;
 	}
 
-	Col operator[] (int i) const
-		{ return Col (Subiterator<typename Rep::iterator> (const_cast<Col&> (_col).begin ().operator-> () + i, _stride), 
-			      Subiterator<typename Rep::iterator> (const_cast<Col&> (_col).end ().operator-> () + i, _stride)); }
+	Col operator [] (int i) const
+		{ return Col (Subiterator<Iterator> (const_cast<Col&> (_col).begin ().operator-> () + i, _stride), 
+			      Subiterator<Iterator> (const_cast<Col&> (_col).end ().operator-> () + i, _stride)); }
 
-	Col* operator-> ()
+	Col *operator -> ()
 		{ return &_col; }
 
-	Col& operator* ()
+	Col &operator * ()
 		{ return _col; }
 
-	bool operator!= (const ColIterator& c) const
+	bool operator == (const DenseMatrixColIterator &c) const
+		{ return (_col.begin () == c._col.begin ()) && (_col.end () == c._col.end ()); }
+
+	template <class It, class CIt>
+	bool operator == (const DenseMatrixColIterator<It, CIt> &c) const
+		{ return (_col.begin () == c._col.begin ()) && (_col.end () == c._col.end ()); }
+
+	bool operator != (const DenseMatrixColIterator &c) const
 		{ return (_col.begin () != c._col.begin ()) || (_col.end () != c._col.end ()); }
-   
-	operator ConstColIterator ()
-	{
-            return ConstColIterator (reinterpret_cast<ConstCol&> (_col) , _stride);
-	}
+
+	template <class It, class CIt>
+	bool operator != (const DenseMatrixColIterator<It, CIt> &c) const
+		{ return (_col.begin () != c._col.begin ()) || (_col.end () != c._col.end ()); }
 
     private:
 
 	Col _col;
 	size_t _stride;
+
+	template <class It, class CIt>
+	friend class DenseMatrixColIterator;
 };
 
 template <class _Element>
 template <class Field>
-DenseMatrix<_Element>::DenseMatrix( MatrixStream<Field>& ms )
-	:_rep(0), _rows(0), _cols(0), _ptr(NULL)
+DenseMatrix<_Element>::DenseMatrix (MatrixStream<Field> &ms)
+	:_rep (0), _rows (0), _cols (0), _ptr (NULL)
 {
-	if( !ms.getArray(_rep) || !ms.getRows(_rows) || !ms.getColumns(_cols) )
-		throw ms.reportError(__FUNCTION__,__LINE__);
+	if (!ms.getArray (_rep) || !ms.getRows (_rows) || !ms.getColumns (_cols) )
+		throw ms.reportError (__FUNCTION__, __LINE__);
 	_ptr = &_rep[0];
 }
 
