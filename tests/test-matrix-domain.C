@@ -157,10 +157,6 @@ static bool testGemmCoeff (Field &F, const char *text, const Matrix &A, const Ma
 	str << "Testing " << text << " gemm (coefficients)" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	typename Field::Element zero;
-
-	F.init (zero, 0);
-
 	bool ret = true;
 
 	MatrixDomain<Field> MD (F);
@@ -184,7 +180,7 @@ static bool testGemmCoeff (Field &F, const char *text, const Matrix &A, const Ma
 	F.write (report, a) << ", b = ";
 	F.write (report, b) << std::endl;
 
-	MD.gemm (a, A, B, zero, C);
+	MD.gemm (a, A, B, F.zero (), C);
 
 	report << "Output matrix C := a * A * B:" << endl;
 	MD.write (report, C);
@@ -230,11 +226,6 @@ static bool testGemmAssoc (Field &F, const char *text, const Matrix &A, const Ma
 	str << "Testing " << text << " gemm (associativity)" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	typename Field::Element one, zero;
-
-	F.init (one, 1);
-	F.init (zero, 0);
-
 	bool ret = true;
 
 	MatrixDomain<Field> MD (F);
@@ -254,22 +245,22 @@ static bool testGemmAssoc (Field &F, const char *text, const Matrix &A, const Ma
 	report << "Input matrix C:" << endl;
 	MD.write (report, C);
 
-	MD.gemm (one, A, B, zero, AB);
+	MD.gemm (F.one (), A, B, F.zero (), AB);
 
 	report << "Output matrix A * B:" << endl;
 	MD.write (report, AB);
 
-	MD.gemm (one, AB, C, zero, ABpC);
+	MD.gemm (F.one (), AB, C, F.zero (), ABpC);
 
 	report << "Output matrix (A * B) * C:" << endl;
 	MD.write (report, ABpC);
 
-	MD.gemm (one, B, C, zero, BC);
+	MD.gemm (F.one (), B, C, F.zero (), BC);
 
 	report << "Output matrix B * C:" << endl;
 	MD.write (report, AB);
 
-	MD.gemm (one, A, BC, zero, ApBC);
+	MD.gemm (F.one (), A, BC, F.zero (), ApBC);
 
 	report << "Output matrix A * (B * C):" << endl;
 	MD.write (report, ApBC);
@@ -298,11 +289,6 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 	str << "Testing " << text << " gemm (identity)" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	typename Field::Element one, zero;
-
-	F.init (one, 1);
-	F.init (zero, 0);
-
 	bool ret = true;
 
 	MatrixDomain<Field> MD (F);
@@ -325,7 +311,7 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 	report << "Identity matrix I_r:" << endl;
 	MD.write (report, I_r);
 
-	MD.gemm (one, I_l, A, zero, IA);
+	MD.gemm (F.one (), I_l, A, F.zero (), IA);
 
 	report << "Output matrix I * A:" << endl;
 	MD.write (report, IA);
@@ -336,7 +322,7 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 		ret = false;
 	}
 
-	MD.gemm (one, A, I_r, zero, AI);
+	MD.gemm (F.one (), A, I_r, F.zero (), AI);
 
 	report << "Output matrix A * I:" << endl;
 	MD.write (report, AI);
@@ -435,13 +421,10 @@ template <class Field, class Matrix1, class Matrix2>
 void eliminate (MatrixDomain<Field> &MD, Matrix1 &M, Matrix2 &pivotRow,
 		size_t row, size_t col, size_t rowdim, size_t coldim) 
 {
-	typename Field::Element neg_one;
-	MD.field ().init (neg_one, -1);
-
 	DenseSubmatrix<typename Matrix1::Element> pivotCol (M, row, col, rowdim, 1);
 	DenseSubmatrix<typename Matrix1::Element> block (M, row, col, rowdim, coldim);
 
-	MD.ger (neg_one, *pivotCol.colBegin (), *pivotRow.rowBegin (), block);
+	MD.ger (MD.field ().minusOne (), *pivotCol.colBegin (), *pivotRow.rowBegin (), block);
 }
 
 /* Dumb elimination code
@@ -521,10 +504,6 @@ void rowEchelon (MatrixDomain<Field> &MD, Matrix1 &U, Matrix1 &R, const Matrix2 
 template <class Field, class Matrix>
 static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M) 
 {
-	typename Field::Element zero, one;
-	F.init (zero, 0);
-	F.init (one, 1);
-
 	ostringstream str;
 
 	str << "Testing " << text << " gemm (row-echelon)" << ends;
@@ -562,7 +541,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 
 	report << "Computed rank = " << rank << std::endl;
 
-	MD.gemm (one, U, M, zero, UM);
+	MD.gemm (F.one (), U, M, F.zero (), UM);
 
 	report << "Computed product UM:" << endl;
 	MD.write (report, UM);
@@ -584,7 +563,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 
 		report << "Checking whether U is inverse..." << std::endl;
 
-		MD.gemm (one, M, U, zero, UM);
+		MD.gemm (F.one (), M, U, F.zero (), UM);
 
 		report << "Computed product MU:" << endl;
 		MD.write (report, UM);
@@ -632,9 +611,7 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
 	report << "Input matrix B:" << endl;
 	MD.write (report, B);
 
-	typename Field::Element a, zero;
-
-	F.init (zero, 0);
+	typename Field::Element a;
 
 	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
@@ -647,12 +624,12 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
 	typename Matrix2::ColIterator i_B = B.colBegin ();
 
 	for (; i_AB != ABgemv.colEnd (); ++i_B, ++i_AB)
-		MD.gemv (a, A, *i_B, zero, *i_AB);
+		MD.gemv (a, A, *i_B, F.zero (), *i_AB);
 
 	report << "Output matrix AB (from gemv):" << endl;
 	MD.write (report, ABgemv);
 
-	MD.gemm (a, A, B, zero, ABgemm);
+	MD.gemm (a, A, B, F.zero (), ABgemm);
 
 	report << "Output matrix AB (from gemm):" << endl;
 	MD.write (report, ABgemm);
@@ -692,9 +669,7 @@ static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &
 	report << "Input matrix B:" << endl;
 	MD.write (report, B);
 
-	typename Field::Element a, zero;
-
-	F.init (zero, 0);
+	typename Field::Element a;
 
 	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
@@ -707,12 +682,12 @@ static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &
 	typename Matrix1::ConstRowIterator i_A = A.rowBegin ();
 
 	for (; i_AB != ABgemv.rowEnd (); ++i_A, ++i_AB)
-		MD.gemv (a, transpose (B), *i_A, zero, *i_AB);
+		MD.gemv (a, transpose (B), *i_A, F.zero (), *i_AB);
 
 	report << "Output matrix AB (from gemv):" << endl;
 	MD.write (report, ABgemv);
 
-	MD.gemm (a, A, B, zero, ABgemm);
+	MD.gemm (a, A, B, F.zero (), ABgemm);
 
 	report << "Output matrix AB (from gemm):" << endl;
 	MD.write (report, ABgemm);
@@ -767,9 +742,7 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 	str << "Testing " << text << " gemv (coefficients)" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	typename Field::Element a, b, zero, negainvb;
-
-	F.init (zero, 0);
+	typename Field::Element a, b, negainvb;
 
 	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
@@ -794,7 +767,7 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 	F.write (report, a) << ", b = ";
 	F.write (report, b) << std::endl;
 
-	MD.gemv (a, A, v, zero, aAv);
+	MD.gemv (a, A, v, F.zero (), aAv);
 
 	report << "Output vector a * A * v: ";
 	VD.write (report, aAv) << std::endl;
@@ -832,16 +805,12 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 template <class Field, class Matrix>
 static Matrix &makeUpperTriangular (Field &F, Matrix &A)
 {
-	typename Field::Element zero;
-
-	F.init (zero, 0);
-
 	size_t i, j;
 
 	for (i = 0; i < A.rowdim (); ++i) {
 		for (j = 0; j < std::min (i, A.coldim ()); ++j) {
 			if (!F.isZero (A.getEntry (i, j))) {
-				A.setEntry (i, j, zero);
+				A.setEntry (i, j, F.zero ());
 				A.eraseEntry (i, j);
 			}
 		}
@@ -869,11 +838,6 @@ static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector 
 	VectorDomain<Field> VD (F);
 	MatrixDomain<Field> MD (F);
 
-	typename Field::Element zero, one;
-
-	F.init (zero, 0);
-	F.init (one, 1);
-
 	Matrix U (A.rowdim (), A.coldim ());
 
 	MD.copy (U, A);
@@ -894,7 +858,7 @@ static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector 
 	report << "Output vector U^-1 * v: ";
 	VD.write (report, Uinv_v) << std::endl;
 
-	MD.gemv (one, U, Uinv_v, zero, UUinv_v);
+	MD.gemv (F.one (), U, Uinv_v, F.zero (), UUinv_v);
 
 	report << "Output vector U U^-1 * v: ";
 	VD.write (report, UUinv_v) << std::endl;

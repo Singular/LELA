@@ -351,6 +351,10 @@ public:
 	static inline int32 getMaxModulus()
 		{ return 1073741824; } // 2^30
 
+	int32 zero () const { return 0; }
+	int32 one () const { return 1; }
+	int32 minusOne () const { return -1; }
+
 private:
 
 	inline static void XGCD(int32& d, int32& s, int32& t, int32 a, int32 b)

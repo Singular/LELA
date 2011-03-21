@@ -342,6 +342,10 @@ public:
 
 	static inline double getMaxModulus()
 		{ return 67108864.0; } // 2^26 
+
+	double zero () const { return 0.0; }
+	double one () const { return 1.0; }
+	double minusOne () const { return -1.0; }
 };
 
 template <>

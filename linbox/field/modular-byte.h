@@ -357,6 +357,11 @@ public:
 	static inline int8 getMaxModulus()
 		{ return 127; } // 2^7-1
 
+
+	int8 zero () const { return 0; }
+	int8 one () const { return 1; }
+	int8 minusOne () const { return modulus - 1; }
+
 private:
 
 	static void XGCD (int8 &d, int8 &s, int8 &t, int8 a, int8 b)

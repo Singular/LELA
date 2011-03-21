@@ -349,6 +349,10 @@ public:
 
 	static inline float getMaxModulus()
 		{ return 2048.; } // 2^11
+
+	float zero () const { return 0.0; }
+	float one () const { return 1.0; }
+	float minusOne () const { return -1.0; }
 };
 
 template <>

@@ -71,19 +71,11 @@ template <class Field>
 class MatrixDomainSupportGeneric : public MVProductDomain<Field>
 {
 protected:
-	typename Field::Element _zero;
-	typename Field::Element _one;
-	typename Field::Element _neg_one;
-
 	const Field &_F;
 	const VectorDomain<Field> _VD;
 
 	///
-	MatrixDomainSupportGeneric (const Field &F) : _F (F), _VD (F) {
-		F.init (_zero, 0);
-		F.init (_one, 1);
-		F.init (_neg_one, -1);
-	}
+	MatrixDomainSupportGeneric (const Field &F) : _F (F), _VD (F) {}
 
 public:
 

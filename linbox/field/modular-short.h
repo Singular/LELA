@@ -172,7 +172,7 @@ public:
 	}
 		
 	template<class T>
-	inline Element &init (Element &x, const T& y) const
+	inline Element &init (Element &x, const T &y) const
 		{ return init (x, static_cast<integer> (y)); }
 
 	inline Element &init (Element &x, const integer &y) const
@@ -360,9 +360,13 @@ public:
 	static inline int16 getMaxModulus()
 		{ return 32767; } // 2^15 - 1
 
+	int16 zero () const { return 0; }
+	int16 one () const { return 1; }
+	int16 minusOne () const { return modulus - 1; }
+
 private:
 
-	static void XGCD(int16& d, int16& s, int16& t, int16 a, int16 b)
+	static void XGCD(int16 &d, int16 &s, int16 &t, int16 a, int16 b)
 	{
 		int16  u, v, u0, v0, u1, v1, u2, v2, q, r;
 			

@@ -364,7 +364,7 @@ Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vec
 
 		_VD.dot (d, *(A.rowBegin () + i), x);
 
-		_F.add (ai_p_1, ai, _one);
+		_F.add (ai_p_1, ai, _F.one ());
 		_F.mulin (x[i], ai_p_1);
 		_F.inv (neg_ai_inv, ai);
 		_F.negin (neg_ai_inv);
@@ -668,7 +668,7 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
 			continue;
 
-		_F.add (ai_p_1, ai, _one);
+		_F.add (ai_p_1, ai, _F.one ());
 		_F.inv (neg_ai_inv, ai);
 		_F.negin (neg_ai_inv);
 

@@ -591,6 +591,20 @@ public:
 		{ return _field_ptr->read (is, *x._elem_ptr); }
     
 	//@} Input/Output Operations
+	/** @name Standard elements
+	 */
+	//@{
+	
+	/// Return a reference to the zero-element of the field
+	const Element &zero () const;
+
+	/// Return a reference to the one-element of the field
+	const Element &one () const;
+
+	/// Return a reference to the negative of the one-element of the field
+	const Element &minusOne () const;
+
+	//@}
 	//@} Common Object Interface
     
 	/** @name Implementation-Specific Methods.

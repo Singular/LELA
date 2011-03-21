@@ -393,9 +393,18 @@ public:
 	static inline int32 getMaxModulus()
 		{ return 1073741824; } // 2^30
 
+	/// Return the zero-element of the field
+	int32 zero () const { return 0; }
+
+	/// Return the one-element of the field
+	int32 one () const { return 1; }
+
+	/// Return the negative of the one-element of the field
+	int32 minusOne () const { return modulus - 1; }
+
 private:
 
-	static void XGCD(int32& d, int32& s, int32& t, int32 a, int32 b)
+	static void XGCD(int32 &d, int32 &s, int32 &t, int32 a, int32 b)
 	{
 		int32 u, v, u0, v0, u1, v1, u2, v2, q, r;
 			

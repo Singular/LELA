@@ -116,11 +116,11 @@ public:
 	integer &convert (integer &x, const Element &y) const
 		{ return x = y; }
 
-	double &convert (double& x, const Element &y) const
-		{return  x= (double) y;}
+	double &convert (double &x, const Element &y) const
+		{return  x = (double) y;}
  
-	float &convert (float& x, const Element &y) const
-		{return  x= (float) y;}
+	float &convert (float &x, const Element &y) const
+		{return  x = (float) y;}
 	
 	/*- Assignment of one field base element to another.
 	 * This function assumes both field base elements have already been
@@ -242,6 +242,15 @@ public:
 
 	//@}
 
+	/// Return the zero-element of the field
+	Element zero () const { return 0; }
+
+	/// Return the one-element of the field
+	Element one () const { return 1; }
+
+	/// Return the negative of the one-element of the field
+	Element minusOne () const { return _modulus - 1; }
+
 protected:
 
 	/// Private (non-static) element for modulus
@@ -275,8 +284,6 @@ class Modular : public ModularBase<_Element>
     public:
 	typedef _Element Element;
 	typedef typename ModularBase<_Element>::RandIter RandIter;
-	const Element zero, one;
-	Element mone;
 
 	/*- @name Object Management
 	 * @brief see \ref{FieldArchetype} for member specs.
@@ -286,21 +293,21 @@ class Modular : public ModularBase<_Element>
 	//private:
 	/*- Default constructor.
 	 */
-	Modular () : zero (0), one (1) {}
+	Modular () {}
 
 	/*- Constructor from an element type
 	 * Sets the modulus of the field throug the static member of the 
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
-	Modular (unsigned long modulus) : ModularBase<_Element> (modulus), zero (0), one (1) {}
+	Modular (unsigned long modulus) : ModularBase<_Element> (modulus) {}
 
 	/*- Constructor from an integer
 	 * Sets the modulus of the field throug the static member of the 
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
-	Modular (const integer &modulus) : ModularBase<_Element> (modulus), zero (0), one (1) {}
+	Modular (const integer &modulus) : ModularBase<_Element> (modulus) {}
 
 	/* Assignment operator
 	 * Required by the archetype
@@ -631,19 +638,15 @@ class Modular<uint8> : public FieldInterface, public ModularBase<uint8>
     public:
 
 	typedef uint8 Element;
-	const Element zero, one;
-	Element mone;
 
-	Modular () : zero(0),one(1),_k (0) {}
+	Modular () : _k (0) {}
 	Modular (uint32 modulus)
 		: ModularBase<uint8> (modulus),
-		  zero (0), one (1), mone (modulus - 1),
 		  _k (((uint64) -1LL) / ((modulus - 1) * (modulus - 1))),
 		  _pinv (1.0 / (double) ((uint8) modulus))
 		{}
 	Modular (const integer &modulus)
 		: ModularBase<uint8> (modulus.get_ui ()),
-		  zero (0), one (1), mone (modulus.get_ui () - 1),
 		  _k (((uint64) -1LL) / (((uint8) modulus.get_ui () - 1) * ((uint8) modulus.get_ui () - 1))),
 		  _pinv (1.0 / (double) (modulus.get_ui ()))
 		{}
@@ -653,7 +656,6 @@ class Modular<uint8> : public FieldInterface, public ModularBase<uint8>
 		ModularBase<uint8>::_modulus = F._modulus;
 		_k = F._k;
 		_pinv = F._pinv;
-		mone = F.mone;
 		return *this;
 	}
 
@@ -795,19 +797,14 @@ class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
 
 	typedef uint16 Element;
 
-	const Element zero,one;
-	Element mone;
-
-	Modular () : zero(0),one(1),_k (0) {}
+	Modular () : _k (0) {}
 	Modular (uint32 modulus)
 		: ModularBase<uint16> (modulus),
-		  zero(0),one(1),mone(modulus-1),
 		  _k (((uint64) -1LL) / ((ModularBase<Element>::_modulus - 1) * (ModularBase<Element>::_modulus - 1))),
 		  _pinv (1.0 / (double) ((uint16) ModularBase<Element>::_modulus))
 		{}
 	Modular (const integer &modulus)
 		: ModularBase<uint16> (modulus.get_ui ()),
-		  zero (0), one (1), mone (modulus.get_ui () - 1),
 		  _k (((uint64) -1LL) / ((ModularBase<Element>::_modulus - 1) * (ModularBase<Element>::_modulus - 1))),
 		  _pinv (1.0 / (double) ((uint16) ModularBase<Element>::_modulus))
 		{}
@@ -958,20 +955,16 @@ class Modular<uint32> : public FieldInterface, public ModularBase<uint32>
 
 	typedef uint32 Element;
 
-	const Element zero,one;
-	Element mone;
-
-	Modular () :  zero(0),one(1) {}
-	Modular (uint32 modulus)  : ModularBase<uint32> (modulus),zero(0),one(1),mone(modulus-1)  { init_two_64 (); }
+	Modular () {}
+	Modular (uint32 modulus)  : ModularBase<uint32> (modulus) { init_two_64 (); }
 	Modular (const integer &modulus)
-		: ModularBase<uint32> (modulus.get_ui ()), zero (0), one (1), mone (modulus.get_ui () - 1)
+		: ModularBase<uint32> (modulus.get_ui ())
 		{ init_two_64 (); }
 
 	const Modular &operator=(const Modular &F) 
 	{
 		ModularBase<Element>::_modulus = F._modulus;
 		_two_64 = F._two_64;
-		mone = F.mone;
 		return *this;
 	}
 

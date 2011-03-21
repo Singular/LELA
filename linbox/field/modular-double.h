@@ -69,25 +69,17 @@ public:
 	typedef double Element;
 
 public:	       
-	const Element zero,one;
-	Element mone;
-
 	typedef ModularRandIter<double> RandIter;
 	typedef NonzeroRandIter<Modular<double>, ModularRandIter<double> > NonZeroRandIter;
 
 	static ClassifyRing<Modular<double> >::categoryTag getCategory ()
 		{ return ClassifyRing<Modular<double> >::categoryTag (); }
 
-	Modular ()
-		: zero (0.0), one (0.0), mone (0.0)
-		{}
+	Modular () {}
 
 	Modular (int32 p, int exp = 1)
 		: modulus ((double) p),
-		  lmodulus (p),
-		  zero (0.0),
-		  one (1.0),
-		  mone (modulus - 1.0)
+		  lmodulus (p)
 	{
 		if (modulus <= 1)
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be > 1");
@@ -103,10 +95,7 @@ public:
 
 	Modular (double p)
 		: modulus (p),
-		  lmodulus ((unsigned long) p),
-		  zero (0.0),
-		  one (1.0),
-		  mone (modulus - 1.0)
+		  lmodulus ((unsigned long) p)
 	{
 		if (modulus <= 1)
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be > 1");
@@ -119,10 +108,7 @@ public:
 
 	Modular (long int p)
 		: modulus ((double) p),
-		  lmodulus (p),
-		  zero (0.0),
-		  one (1.0),
-		  mone (modulus - 1.0)
+		  lmodulus (p)
 	{
 		if ((double) modulus <= 1)
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be > 1");
@@ -135,10 +121,7 @@ public:
 
 	Modular (const integer &p)
 		: modulus (p.get_d ()),
-		  lmodulus (p.get_d ()),
-		  zero (0.0),
-		  one (1.0),
-		  mone (p.get_d () - 1.0)
+		  lmodulus (p.get_d ())
 	{
 		if (modulus <= 1)
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be > 1");
@@ -148,17 +131,13 @@ public:
 
 	Modular (const Modular<double> &mf)
 		: modulus (mf.modulus),
-		  lmodulus (mf.lmodulus),
-		  zero (mf.zero),
-		  one (mf.one),
-		  mone (mf.mone)
+		  lmodulus (mf.lmodulus)
 		{}
 
 	const Modular &operator = (const Modular<double> &F)
 	{
 		modulus = F.modulus;
 		lmodulus = F.lmodulus;
-		mone = F.mone;
 		return *this;
 	}
 
@@ -341,6 +320,10 @@ public:
 
 	static inline double getMaxModulus()
 		{ return 67108864.0; } // 2^26 
+
+	double zero () const { return 0.0; }
+	double one () const { return 1.0; }
+	double minusOne () const { return modulus - 1.0; }
 };
 
 template <>

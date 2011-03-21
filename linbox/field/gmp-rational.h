@@ -55,10 +55,6 @@ class GMPRationalField : public FieldInterface
 	const integer _cardinality;
 	const integer _characteristic;
 
-	const integer _zero;
-	const integer _one;
-	const integer _neg_one;
-
     public:
 
 	/** @name Common Object Interface for a LinBox Field.
@@ -72,10 +68,6 @@ class GMPRationalField : public FieldInterface
 	/// Random iterator generator type.
 	typedef GMPRationalRandIter RandIter;
     
-	const Element zero;
-	const Element one;
-	const Element neg_one;
-
 	/** @name Object Management
 	 * x <- convert (y)
 	 */
@@ -88,23 +80,21 @@ class GMPRationalField : public FieldInterface
 	 */
 
 	GMPRationalField (const GMPRationalField &) 
-		: _cardinality (0), _characteristic (0), _zero (0), _one (1), _neg_one (-1),
-		  zero (_zero, _one), one (_one, _one), neg_one (_neg_one, _one)
-	{}
+		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
+		{}
 
 	/** Destructor.
 	 * 
 	 * Also vacuous, since there is no de-initialization system
 	 */
-	~GMPRationalField (void) 
-	{}
+	~GMPRationalField (void) {}
     
 	/** Assignment operator.
 	 * 
 	 * Also vacuous
 	 */
 	GMPRationalField &operator= (const GMPRationalField &)
-	{ return *this; }
+		{ return *this; }
     
 	/** Initialization of field element from an integer.
 	 * Behaves like C++ allocator construct.
@@ -658,11 +648,13 @@ class GMPRationalField : public FieldInterface
 	//@} Common Object Interface
 
 	GMPRationalField (int p = 0, int exp = 1)
-		: _cardinality (0), _characteristic (0), _zero (0), _one (1), _neg_one (-1),
-		  zero (_zero, _one), one (_one, _one), neg_one (_neg_one, _one)
+		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 	{
-		if(p != 0) throw PreconditionFailed(__FUNCTION__,__LINE__,"modulus must be 0 (no modulus)");
-		if(exp != 1) throw PreconditionFailed(__FUNCTION__,__LINE__,"exponent must be 1");
+		if (p != 0)
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be 0 (no modulus)");
+
+		if (exp != 1)
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "exponent must be 1");
 	}
     
 	static inline int getMaxModulus() { return 0; } // no modulus
@@ -692,26 +684,20 @@ class GMPRationalField : public FieldInterface
                 return bs;
         }
 
+	/// Return a reference to the zero-element of the field
+	const Element &zero () const { return _zero; }
+
+	/// Return a reference to the one-element of the field
+	const Element &one () const { return _one; }
+
+	/// Return a reference to the negative of the one-element of the field
+	const Element &minusOne () const { return _minus_one; }
+
+private:
+
+	Element _zero, _one, _minus_one;
 
 }; // class GMPRationalField
-
-/*  use GMPRationalField::read() and GMPRationalField::write(), not these operators.
-std::ostream &operator << (std::ostream &os, GMPRationalElement &elt)
-{
-	GMPRationalField field;
-
-	field.write (os, elt);
-	return os;
-}
-
-std::istream &operator >> (std::istream &is, GMPRationalElement &elt)
-{
-	GMPRationalField field;
-
-	field.read (is, elt);
-	return is;
-}
-*/
 
 } // namespace LinBox
 
