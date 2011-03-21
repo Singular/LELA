@@ -19,13 +19,14 @@
 #ifndef __LINBOX_modular__int8_H
 #define __LINBOX_modular__int8_H
 
+#include <cmath>
+
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/vector/vector-domain.h"
 #include "linbox/field/field-interface.h"
 #include "linbox/field/field-traits.h"
 #include "linbox/util/debug.h"
-#include <linbox/field/field-traits.h>
 
 #ifndef LINBOX_MAX_INT8
 #  define LINBOX_MAX_INT8 127
@@ -67,6 +68,21 @@ struct ClassifyRing<Modular<int8> >
 	typedef RingCategories::ModularTag categoryTag;
 };
 
+template <class Element>
+struct ModularFieldTraits;
+
+template <>
+struct ModularFieldTraits<int8>
+{
+	typedef int8 Element;
+	typedef uint8 UnsignedElement;
+	typedef uint16 DoubleSizedElement;
+
+	static const int8 defaultModulus = 13;
+	static const int8 maxModulus = 127;  // 2^8 - 1
+	static const int8 maxInt = 127;
+};
+
 /** \brief Specialization of Modular to signed 8 bit element type with efficient dot product.
  * 
  * Efficient element operations for dot product, mul, axpy, by using floating point
@@ -79,24 +95,42 @@ struct ClassifyRing<Modular<int8> >
 template <>
 class Modular<int8> : public FieldInterface
 {
-protected:
-	int8 modulus;
-	double modulusinv;
-
 public:	       
-	friend class FieldAXPY<Modular<int8> >;
-	friend class DotProductDomain<Modular<int8> >;
-	friend class MVProductDomain<Modular<int8> >;
 
 	typedef int8 Element;
+
+protected:
+
+	Element modulus;
+	double modulusinv;
+
+	Element _two64;
+
+	void init_two64 (Element modulus)
+	{
+		_two64 = (Element) ((uint64) (-1) % (uint64) modulus);
+		_two64 += 1;
+
+		if (_two64 >= modulus)
+			_two64 -= modulus;
+	}
+
+public:	       
+
+	friend class FieldAXPY<Modular<Element> >;
+	friend class DotProductDomain<Modular<Element> >;
+	friend class MVProductDomain<Modular<Element> >;
+
 	typedef ModularRandIter<Element> RandIter;
 
-	//default modular field,taking 65521 as default modulus
 	Modular ()
-		: modulus (13)
-		{ modulusinv = 1 / (double) 13; }
+		: modulus (ModularFieldTraits<Element>::defaultModulus)
+	{
+		modulusinv = 1 / (double) modulus;
+		init_two64 (modulus);
+	}
 
-	Modular (int value, int exp = 1)
+	Modular (Element value, int exp = 1)
 		: modulus (value)
 	{
 		modulusinv = 1 / ((double) value); 
@@ -108,14 +142,16 @@ public:
 
 		integer max;
 
-		if (value > FieldTraits< Modular<int8> >::maxModulus (max))
+		if (value > FieldTraits< Modular<Element> >::maxModulus (max))
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
+
+		init_two64 (value);
 	}
 
-	Modular (integer &value, int exp = 1)
+	Modular (integer value, int exp = 1)
 		: modulus (value.get_si ())
 	{
-		modulusinv = 1 / (value.get_d ()); 
+		modulusinv = 1 / value.get_d ();
 
 		if (exp != 1)
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "exponent must be 1");
@@ -124,18 +160,21 @@ public:
 
 		integer max;
 
-		if (value > FieldTraits< Modular<int8> >::maxModulus (max))
+		if (value > FieldTraits< Modular<Element> >::maxModulus (max))
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
+
+		init_two64 (value.get_si ());
 	}
 
-	Modular (const Modular<int8> &mf)
-		: modulus (mf.modulus), modulusinv (mf.modulusinv)
+	Modular (const Modular<Element> &mf)
+		: modulus (mf.modulus), modulusinv (mf.modulusinv), _two64 (mf._two64)
 		{}
 
-	Modular &operator = (const Modular<int8> &F)
+	const Modular &operator = (const Modular<Element> &F)
 	{
 		modulus = F.modulus;
 		modulusinv = F.modulusinv;
+		_two64 = F._two64;
 		return *this;
 	}
 
@@ -147,26 +186,37 @@ public:
 
 	inline integer &convert (integer &x, const Element &y) const
 		{ return x = y; }
+
+	inline Element &convert (Element &x, const Element &y) const
+		{ return x = y; }
+
+	inline double &convert (double &x, const Element &y) const
+		{ return x = (double) y; }
+
+	inline float &convert (float &x, const Element &y) const
+		{ return x = (float) y; }
 		
 	inline std::ostream &write (std::ostream &os) const
-		{ return os << "int8 mod " << (int) modulus; }
+		{ return os << "int8 mod " << modulus; }
 		
 	inline std::istream &read (std::istream &is)
 	{
 		int prime;
 
-		is >> prime; 
+		is >> prime;
 		modulus = prime;
-		modulusinv = 1 / ((double) modulus );
+		modulusinv = 1 / ((double) modulus);
 
-		if (prime <= 1)
+		if (modulus <= 1)
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be > 1");
 
 		integer max;
 
-		if (prime > FieldTraits< Modular<int8> >::maxModulus (max))
+		if (prime > FieldTraits< Modular<Element> >::maxModulus (max))
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
-		
+
+		init_two64 (modulus);
+
 		return is;
 	}
 		
@@ -178,14 +228,14 @@ public:
 		integer tmp;
 
 		is >> tmp;
-		init (x, tmp); 
+		init (x, tmp);
 
 		return is;
 	}
-
+		
 	inline Element &init (Element &x, const integer &y) const
 	{
-		x = (int8) ((int16) (y.get_ui () % modulus));
+		x = y.get_ui () % modulus;
 		if (x < 0) x += modulus;
 		return x;
 	}
@@ -193,31 +243,46 @@ public:
 	inline Element &init (Element &x, int y = 0) const
 	{
 		x = y % modulus;
-		if (x < 0) x += modulus;
+		if ( x < 0 ) x += modulus;
 		return x;
 	}
 
 	inline Element &init (Element &x, unsigned int y = 0) const
 	{
 		x = y % modulus;
-		if (x < 0) x += modulus;
+		if ( x < 0 ) x += modulus;
 		return x;
 	}
 
 	inline Element &init (Element &x, long y) const
 	{
 		x = y % modulus;
-		if (x < 0) x += modulus;
+		if ( x < 0 ) x += modulus;
 		return x;
 	}
 
-	inline Element &assign (Element& x, const Element& y) const
+	inline Element &init (Element &x, const float &y) const
+		{ return init (x, (double) y); }
+
+	inline Element &init (Element &x, const double &y) const
+	{
+		double z = fmod (y, (double) modulus);
+
+		if (z < 0)
+			z += (double) modulus;
+
+		//z += 0.5; // C Pernet Sounds nasty and not necessary
+
+		return x = static_cast<long> (z); //rounds towards 0
+	}
+
+	inline Element &assign (Element &x, const Element &y) const
 		{ return x = y; }
-		
+
 	inline bool areEqual (const Element &x, const Element &y) const
 		{ return x == y; }
 
-	inline bool isZero (const Element &x) const
+	inline  bool isZero (const Element &x) const
 		{ return x == 0; }
 		
 	inline bool isOne (const Element &x) const
@@ -227,8 +292,8 @@ public:
 	{
 		x = y + z;
 
-		if ((uint8) x >= modulus)
-			x = ((uint8) x) - modulus;
+		if ((ModularFieldTraits<Element>::UnsignedElement) x >= (ModularFieldTraits<Element>::UnsignedElement) modulus)
+			x = ((ModularFieldTraits<Element>::UnsignedElement) x) - modulus;
 
 		return x;
 	}
@@ -244,7 +309,7 @@ public:
 	{
 		Element q;
 
-		double ab = ((double) y) * ((double) z);		
+		double ab = ((double) y) * ((double) z);
 		q = (Element) (ab * modulusinv);  // q could be off by (+/-) 1
 		x = (Element) (ab - ((double) q) * ((double) modulus));
 
@@ -267,7 +332,7 @@ public:
 	{
 		if (y == 0)
 			return x = 0;
-		else 
+		else
 			return x = modulus - y;
 	}
  
@@ -278,7 +343,8 @@ public:
 		XGCD (d, x, t, y, modulus);
 
 		if (d != 1)
-			throw PreconditionFailed (__FUNCTION__, __LINE__, "InvMod: inverse undefined");
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "InvMod: Input is not invertible");
+
 		if (x < 0)
 			return x += modulus;
 		else
@@ -287,29 +353,29 @@ public:
 
 	inline Element &axpy (Element &r, 
 			      const Element &a, 
-			      const Element &x,
+			      const Element &x, 
 			      const Element &y) const
 	{
 		Element q;
 
-		double ab = ((double) a) * ((double) x) + y;		
+		double ab = ((double) a) * ((double) x) + (double) y;		
 		q = (Element) (ab * modulusinv);  // q could be off by (+/-) 1
 		r = (Element) (ab - ((double) q) * ((double) modulus));
 
 		if (r >= modulus)
 			r -= modulus;
-		else if (x < 0)
+		else if (r < 0)
 			r += modulus;
 
-		return r;	
+		return r;
 	}
 
 	inline Element &addin (Element &x, const Element &y) const
 	{
 		x += y;
 
-		if (((uint8) x) >= modulus)
-			x = ((uint8) x) - modulus;
+		if (((ModularFieldTraits<Element>::UnsignedElement) x) >= (ModularFieldTraits<Element>::UnsignedElement) modulus)
+			x = ((ModularFieldTraits<Element>::UnsignedElement) x) - modulus;
 
 		return x;
 	}
@@ -342,50 +408,49 @@ public:
 	{
 		Element q;
 
-		double ab = ((double) a) * ((double) x) + r;		
+		double ab = ((double) a) * ((double) x) + (double) r;
 		q = (Element) (ab * modulusinv);  // q could be off by (+/-) 1
 		r = (Element) (ab - ((double) q) * ((double) modulus));
 
 		if (r >= modulus)
 			r -= modulus;
-		else if (x < 0)
+		else if (r < 0)
 			r += modulus;
 
-		return r;	
+		return r;
 	}
 
-	static inline int8 getMaxModulus()
-		{ return 127; } // 2^7-1
+	static inline Element getMaxModulus()
+		{ return ModularFieldTraits<Element>::maxModulus; }
 
-
-	int8 zero () const { return 0; }
-	int8 one () const { return 1; }
-	int8 minusOne () const { return modulus - 1; }
+	Element zero () const { return 0; }
+	Element one () const { return 1; }
+	Element minusOne () const { return modulus - 1; }
 
 private:
 
-	static void XGCD (int8 &d, int8 &s, int8 &t, int8 a, int8 b)
+	static void XGCD (Element &d, Element &s, Element &t, Element a, Element b)
 	{
-		int8 u, v, u0, v0, u1, v1, u2, v2, q, r;
-
-		int8 aneg = 0, bneg = 0;
+		Element u, v, u0, v0, u1, v1, u2, v2, q, r;
+			
+		Element aneg = 0, bneg = 0;
 			
 		if (a < 0) {
-			if (a < -LINBOX_MAX_INT8)
+			if (a < -ModularFieldTraits<Element>::maxInt)
 				throw PreconditionFailed (__FUNCTION__, __LINE__, "XGCD: integer overflow");
 
 			a = -a;
 			aneg = 1;
 		}
-			
+
 		if (b < 0) {
-			if (b < -LINBOX_MAX_INT8)
+			if (b < -ModularFieldTraits<Element>::maxInt)
 				throw PreconditionFailed (__FUNCTION__, __LINE__, "XGCD: integer overflow");
 
 			b = -b;
 			bneg = 1;
 		}
-			
+
 		u1 = 1; v1 = 0;
 		u2 = 0; v2 = 1;
 		u = a; v = b;
@@ -397,8 +462,8 @@ private:
 			v = r;
 			u0 = u2;
 			v0 = v2;
-			u2 =  u1 - q*u2;
-			v2 = v1- q*v2;
+			u2 = u1 - q*u2;
+			v2 = v1 - q*v2;
 			u1 = u0;
 			v1 = v0;
 		}

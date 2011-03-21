@@ -87,7 +87,7 @@ bool testField (Field &F, const char *title, bool fieldp = true)
 	LinBox::integer n, m;
 	bool pass = true, part_pass = true;
 
-	commentator.start ("\t--Testing characteristic/cardinality match");
+	commentator.start ("Testing characteristic/cardinality match");
 
 	F.characteristic (n); 
 	F.cardinality (m);
@@ -100,7 +100,7 @@ bool testField (Field &F, const char *title, bool fieldp = true)
 	/* tests for presence of members with minimal check of semantics */
 	// these checks need improvement 
 
-	commentator.start ("\t--Testing correctness of 0 and 1");
+	commentator.start ("Testing correctness of 0 and 1");
 	part_pass = true;
 
 	if (!F.isZero (zero)) {
@@ -116,7 +116,7 @@ bool testField (Field &F, const char *title, bool fieldp = true)
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
 
-	commentator.start ("\t--Testing init/convert");
+	commentator.start ("Testing init/convert");
 	part_pass = true;
 
 	if (F.cardinality (m) <= 0)
@@ -136,7 +136,7 @@ bool testField (Field &F, const char *title, bool fieldp = true)
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
 
-	commentator.start ("\t--Testing field arithmetic");
+	commentator.start ("Testing field arithmetic");
 	part_pass = true;
 
 	F.init (b, n-2);
@@ -199,7 +199,7 @@ bool testField (Field &F, const char *title, bool fieldp = true)
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
 
-	commentator.start ("\t--Testing summation of powers of 2");
+	commentator.start ("Testing summation of powers of 2");
 
 	//,..
 	// 2^101 - 1 vs 1 + 2 + 4 + ... + 2^100
@@ -257,7 +257,7 @@ template <class Field>
 bool testFieldNegation (const Field &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " negation" << ends;
+	str << "Testing " << name << " negation" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testFieldNegation", iterations);
@@ -307,7 +307,7 @@ template <class Field>
 bool testFieldInversion (const Field &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " inversion" << ends;
+	str << "Testing " << name << " inversion" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testFieldInversion", iterations);
@@ -359,7 +359,7 @@ template <class Field>
 bool testFieldDistributivity(const Field &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " distributivity" << ends;
+	str << "Testing " << name << " distributivity" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testFieldDistributivity", iterations);
@@ -433,7 +433,7 @@ template <class Field>
 bool testFieldCommutativity (const Field &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " commutativity," << ends;
+	str << "Testing " << name << " commutativity," << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testFieldCommutativity", iterations);
@@ -506,7 +506,7 @@ template <class Field>
 bool testFieldAssociativity (const Field &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " associativity" << ends;
+	str << "Testing " << name << " associativity" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testFieldAssociativity", iterations);
@@ -577,7 +577,7 @@ template <class Field>
 bool testGeometricSummation (const Field &F, const char *name, unsigned int iterations, unsigned int n) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " geometric summation" << ends;
+	str << "Testing " << name << " geometric summation" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testGeometricSummation", iterations);
@@ -652,7 +652,7 @@ template <class Field>
 bool testFieldCharacteristic (const Field &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " characteristic" << ends;
+	str << "Testing " << name << " characteristic" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (string(str.str()).c_str(), "testFieldCharacteristic", iterations);
@@ -710,7 +710,7 @@ template <class Field>
 bool testFreshmansDream (const Field &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " Freshman's Dream" << ends;
+	str << "Testing " << name << " Freshman's Dream" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testFreshmansDream", iterations);
@@ -799,7 +799,7 @@ template <class Field>
 bool testRingArithmeticConsistency (const Field &F, const char *name, unsigned int iterations)
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " in-place/out-of-place arithmetic consistency" << ends;
+	str << "Testing " << name << " in-place/out-of-place arithmetic consistency" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testRingArithmeticConsistency", iterations);
@@ -878,7 +878,7 @@ template <class Field>
 bool testInvDivConsistency (const Field &F, const char *name, unsigned int iterations)
 {
     std::ostringstream str;
-    str << "\t--Testing " << name << " in-place/out-of-place inv and div consistency" << ends;
+    str << "Testing " << name << " in-place/out-of-place inv and div consistency" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testInvDivConsistency", iterations);
@@ -945,7 +945,7 @@ template <class Field>
 bool testAxpyConsistency (const Field &F, const char *name, unsigned int iterations)
 {
 	std::ostringstream str;
-	str << "\t--Testing " << name << " axpy/add-mul consistency" << ends;
+	str << "Testing " << name << " axpy/add-mul consistency" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testAxpyConsistency", iterations);
@@ -1002,7 +1002,7 @@ bool testRanditerBasic(const Field &F, const char *name, unsigned int iterations
 {
 	bool ret=false;
 	std::ostringstream str;
-	str << "\t--Testing " << name << " randiter basic operation " << ends;
+	str << "Testing " << name << " randiter basic operation " << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testRanditerBasic", iterations);
@@ -1031,7 +1031,7 @@ bool testRanditerBasic(const Field &F, const char *name, unsigned int iterations
  // n is not used.
  {	ostringstream str;
 
-	 str << "\t--Testing " << desc << " field" << ends;
+	 str << "Testing " << desc << " field" << ends;
 	 char * st = new char[str.str().size()];
 	 strcpy (st, str.str().c_str());
 	 commentator.start (st, "runFieldTests");
@@ -1052,7 +1052,7 @@ bool runBasicRingTests (const Field &F, const char *desc, unsigned int iteration
 	bool pass = true;
 	ostringstream str;
 
-	str << "\t--Testing " << desc << " ring" << ends;
+	str << "Testing " << desc << " ring" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 
@@ -1097,7 +1097,7 @@ bool testRandomIterator (const Field &F, const char *text,
 {
 	std::ostringstream str;
 
-	str << "\t--Testing " << text << "::RandIter" << std::ends;
+	str << "Testing " << text << "::RandIter" << std::ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 
@@ -1134,7 +1134,7 @@ bool testRandomIteratorStep (const Field &F,
 {
 	//std::ostringstream str;
 
-	//str << "\t--Testing " << text << "::RandIter" << std::ends;
+	//str << "Testing " << text << "::RandIter" << std::ends;
 
 	//LinBox::commentator.start (str.str ().c_str (), "testRandomIteratorStep");
 	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);

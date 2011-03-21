@@ -21,7 +21,7 @@
 #ifndef __LINBOX_modular_int32_H
 #define __LINBOX_modular_int32_H
 
-#include <math.h>
+#include <cmath>
 
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
@@ -29,7 +29,6 @@
 #include "linbox/field/field-interface.h"
 #include "linbox/field/field-traits.h"
 #include "linbox/util/debug.h"
-#include <linbox/field/field-traits.h>
 
 #ifndef LINBOX_MAX_INT
 #define LINBOX_MAX_INT 2147483647
@@ -71,6 +70,21 @@ struct ClassifyRing<Modular<int32> >
 	typedef RingCategories::ModularTag categoryTag;
 };
 
+template <class Element>
+struct ModularFieldTraits;
+
+template <>
+struct ModularFieldTraits<int32>
+{
+	typedef int32 Element;
+	typedef uint32 UnsignedElement;
+	typedef uint64 DoubleSizedElement;
+
+	static const int32 defaultModulus = 65521;
+	static const int32 maxModulus = 1073741824;  // 2^30
+	static const int32 maxInt = 2147483647;
+};
+
 /** \brief Specialization of Modular to int32 element type with efficient dot product.
  * 
  * Efficient element operations for dot product, mul, axpy, by using floating point
@@ -86,37 +100,43 @@ struct ClassifyRing<Modular<int32> >
 template <>
 class Modular<int32> : public FieldInterface
 {
+public:	       
+
+	typedef int32 Element;
 
 protected:
 
-	int32 modulus;
-
+	Element modulus;
 	double modulusinv;
-		
-	int32 _two64;
+
+	Element _two64;
+
+	void init_two64 (Element modulus)
+	{
+		_two64 = (Element) ((uint64) (-1) % (uint64) modulus);
+		_two64 += 1;
+
+		if (_two64 >= modulus)
+			_two64 -= modulus;
+	}
 
 public:	       
 
-	friend class FieldAXPY<Modular<int32> >;
-	friend class DotProductDomain<Modular<int32> >;
-	friend class MVProductDomain<Modular<int32> >;
-	       
-	typedef int32 Element;
-	typedef ModularRandIter<int32> RandIter;
+	friend class FieldAXPY<Modular<Element> >;
+	friend class DotProductDomain<Modular<Element> >;
+	friend class MVProductDomain<Modular<Element> >;
 
-	//default modular field,taking 65521 as default modulus
+	typedef ModularRandIter<Element> RandIter;
+
 	Modular ()
-		: modulus(65521)
+		: modulus (ModularFieldTraits<Element>::defaultModulus)
 	{
-		modulusinv = 1 / (double) 65521;
-			
-		_two64 = (int32) ((uint64) (-1) % (uint64) 65521);
-		_two64 += 1;
-		if (_two64 >= 65521) _two64 -= 65521;
+		modulusinv = 1 / (double) modulus;
+		init_two64 (modulus);
 	}
 
-	Modular (int32 value, int32 exp = 1)
-		: modulus(value)
+	Modular (Element value, int exp = 1)
+		: modulus (value)
 	{
 		modulusinv = 1 / ((double) value); 
 
@@ -127,21 +147,35 @@ public:
 
 		integer max;
 
-		if (value > FieldTraits< Modular<int32> >::maxModulus (max))
+		if (value > FieldTraits< Modular<Element> >::maxModulus (max))
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 
-		_two64 = (int32) ((uint64) (-1) % (uint64) value);
-		_two64 += 1;
-
-		if (_two64 >= value)
-			_two64 -= value;
+		init_two64 (value);
 	}
 
-	Modular (const Modular<int32>& mf)
+	Modular (integer value, int exp = 1)
+		: modulus (value.get_si ())
+	{
+		modulusinv = 1 / value.get_d ();
+
+		if (exp != 1)
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "exponent must be 1");
+		if (value <= 1)
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be > 1");
+
+		integer max;
+
+		if (value > FieldTraits< Modular<Element> >::maxModulus (max))
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
+
+		init_two64 (value.get_si ());
+	}
+
+	Modular (const Modular<Element> &mf)
 		: modulus (mf.modulus), modulusinv (mf.modulusinv), _two64 (mf._two64)
 		{}
 
-	const Modular &operator=(const Modular<int32> &F)
+	const Modular &operator = (const Modular<Element> &F)
 	{
 		modulus = F.modulus;
 		modulusinv = F.modulusinv;
@@ -149,7 +183,6 @@ public:
 		return *this;
 	}
 
-	
 	inline integer &cardinality (integer &c) const
 		{ return c = modulus; }
 
@@ -158,8 +191,8 @@ public:
 
 	inline integer &convert (integer &x, const Element &y) const
 		{ return x = y; }
-		
-	inline int32 &convert (int32 &x, const Element &y) const
+
+	inline Element &convert (Element &x, const Element &y) const
 		{ return x = y; }
 
 	inline double &convert (double &x, const Element &y) const
@@ -173,7 +206,10 @@ public:
 		
 	inline std::istream &read (std::istream &is)
 	{
-		is >> modulus; 
+		int prime;
+
+		is >> prime;
+		modulus = prime;
 		modulusinv = 1 / ((double) modulus);
 
 		if (modulus <= 1)
@@ -181,15 +217,11 @@ public:
 
 		integer max;
 
-		if (modulus > FieldTraits< Modular<int32> >::maxModulus (max))
+		if (prime > FieldTraits< Modular<Element> >::maxModulus (max))
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 
-		_two64 = (int32) ((uint64) (-1) % (uint64) modulus);
-		_two64 += 1;
+		init_two64 (modulus);
 
-		if (_two64 >= modulus)
-			_two64 -= modulus;
-			
 		return is;
 	}
 		
@@ -201,26 +233,11 @@ public:
 		integer tmp;
 
 		is >> tmp;
-		init (x,tmp);
+		init (x, tmp);
 
 		return is;
 	}
 		
-	inline Element &init (Element & x, const double &y) const
-	{
-		double z = fmod (y, (double) modulus);
-
-		if (z < 0)
-			z += (double) modulus;
-
-		//z += 0.5; // C Pernet Sounds nasty and not necessary
-
-		return x = static_cast<long> (z); //rounds towards 0
-	}
-
-	inline Element &init (Element & x, const float &y) const
-		{ return init (x, (double) y); }
-
 	inline Element &init (Element &x, const integer &y) const
 	{
 		x = y.get_ui () % modulus;
@@ -248,8 +265,23 @@ public:
 		if ( x < 0 ) x += modulus;
 		return x;
 	}
-		
-	inline Element &assign(Element &x, const Element &y) const
+
+	inline Element &init (Element &x, const float &y) const
+		{ return init (x, (double) y); }
+
+	inline Element &init (Element &x, const double &y) const
+	{
+		double z = fmod (y, (double) modulus);
+
+		if (z < 0)
+			z += (double) modulus;
+
+		//z += 0.5; // C Pernet Sounds nasty and not necessary
+
+		return x = static_cast<long> (z); //rounds towards 0
+	}
+
+	inline Element &assign (Element &x, const Element &y) const
 		{ return x = y; }
 
 	inline bool areEqual (const Element &x, const Element &y) const
@@ -264,7 +296,10 @@ public:
 	inline Element &add (Element &x, const Element &y, const Element &z) const
 	{
 		x = y + z;
-		if (x >= modulus) x -= modulus;
+
+		if ((ModularFieldTraits<Element>::UnsignedElement) x >= (ModularFieldTraits<Element>::UnsignedElement) modulus)
+			x = ((ModularFieldTraits<Element>::UnsignedElement) x) - modulus;
+
 		return x;
 	}
  
@@ -277,10 +312,11 @@ public:
 		
 	inline Element &mul (Element &x, const Element &y, const Element &z) const
 	{
-		int32 q;
+		Element q;
 
-		q = (int32) ((((double) y) * ((double) z)) * modulusinv);  // q could be off by (+/-) 1
-		x = (int32) (y * z - q * modulus);
+		double ab = ((double) y) * ((double) z);
+		q = (Element) (ab * modulusinv);  // q could be off by (+/-) 1
+		x = (Element) (y * z - q * modulus);
 
 		if (x >= modulus)
 			x -= modulus;
@@ -307,17 +343,17 @@ public:
  
 	inline Element &inv (Element &x, const Element &y) const
 	{
-		int32 d, t;
+		Element d, t;
 
 		XGCD (d, x, t, y, modulus);
 
 		if (d != 1)
-			throw PreconditionFailed (__FUNCTION__, __LINE__, "InvMod: Input is not invertible ");
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "InvMod: Input is not invertible");
 
 		if (x < 0)
-			x += modulus;
-
-		return x;		
+			return x += modulus;
+		else
+			return x;
 	}
 
 	inline Element &axpy (Element &r, 
@@ -325,10 +361,11 @@ public:
 			      const Element &x, 
 			      const Element &y) const
 	{
-		int32 q;
-			
-		q = (int32) (((((double) a) * ((double) x)) + (double) y) * modulusinv);  // q could be off by (+/-) 1
-		r = (int32) (a * x + y - q * modulus);
+		Element q;
+
+		double ab = ((double) a) * ((double) x) + (double) y;		
+		q = (Element) (ab * modulusinv);  // q could be off by (+/-) 1
+		r = (Element) (a * x + y - q * modulus);
 
 		if (r >= modulus)
 			r -= modulus;
@@ -342,8 +379,8 @@ public:
 	{
 		x += y;
 
-		if (x >= modulus)
-			x -= modulus;
+		if (((ModularFieldTraits<Element>::UnsignedElement) x) >= (ModularFieldTraits<Element>::UnsignedElement) modulus)
+			x = ((ModularFieldTraits<Element>::UnsignedElement) x) - modulus;
 
 		return x;
 	}
@@ -351,10 +388,7 @@ public:
 	inline Element &subin (Element &x, const Element &y) const
 	{
 		x -= y;
-
-		if (x < 0)
-			x += modulus;
-
+		if (x < 0) x += modulus;
 		return x;
 	}
  
@@ -377,10 +411,11 @@ public:
 
 	inline Element &axpyin (Element &r, const Element &a, const Element &x) const
 	{
-		int32 q;
-			
-		q = (int32) (((((double) a) * ((double) x)) + (double) r) * modulusinv);  // q could be off by (+/-) 1
-		r = (int32) (a * x + r - q * modulus);
+		Element q;
+
+		double ab = ((double) a) * ((double) x) + (double) r;
+		q = (Element) (ab * modulusinv);  // q could be off by (+/-) 1
+		r = (Element) (a * x + r - q * modulus);
 
 		if (r >= modulus)
 			r -= modulus;
@@ -390,42 +425,37 @@ public:
 		return r;
 	}
 
-	static inline int32 getMaxModulus()
-		{ return 1073741824; } // 2^30
+	static inline Element getMaxModulus()
+		{ return ModularFieldTraits<Element>::maxModulus; }
 
-	/// Return the zero-element of the field
-	int32 zero () const { return 0; }
-
-	/// Return the one-element of the field
-	int32 one () const { return 1; }
-
-	/// Return the negative of the one-element of the field
-	int32 minusOne () const { return modulus - 1; }
+	Element zero () const { return 0; }
+	Element one () const { return 1; }
+	Element minusOne () const { return modulus - 1; }
 
 private:
 
-	static void XGCD(int32 &d, int32 &s, int32 &t, int32 a, int32 b)
+	static void XGCD (Element &d, Element &s, Element &t, Element a, Element b)
 	{
-		int32 u, v, u0, v0, u1, v1, u2, v2, q, r;
+		Element u, v, u0, v0, u1, v1, u2, v2, q, r;
 			
-		int32 aneg = 0, bneg = 0;
+		Element aneg = 0, bneg = 0;
 			
 		if (a < 0) {
-			if (a < -LINBOX_MAX_INT)
+			if (a < -ModularFieldTraits<Element>::maxInt)
 				throw PreconditionFailed (__FUNCTION__, __LINE__, "XGCD: integer overflow");
 
 			a = -a;
 			aneg = 1;
 		}
-			
+
 		if (b < 0) {
-			if (b < -LINBOX_MAX_INT)
+			if (b < -ModularFieldTraits<Element>::maxInt)
 				throw PreconditionFailed (__FUNCTION__, __LINE__, "XGCD: integer overflow");
 
 			b = -b;
 			bneg = 1;
 		}
-			
+
 		u1 = 1; v1 = 0;
 		u2 = 0; v2 = 1;
 		u = a; v = b;
@@ -471,14 +501,14 @@ public:
 		: _F (faxpy._F), _y (0)
 		{}
 	  
-	FieldAXPY<Modular<int32> > &operator = (const FieldAXPY &faxpy)
+	FieldAXPY<Modular<Element> > &operator = (const FieldAXPY &faxpy)
 	{
-		_F = faxpy._F; 
-		_y = faxpy._y; 		       
+		_F = faxpy._F;
+		_y = faxpy._y;
 		return *this; 
 	}
 	  
-	inline uint64& mulacc (const Element &a, const Element &x)
+	inline uint64 &mulacc (const Element &a, const Element &x)
 	{
 		uint64 t = (uint64) a * (uint64) x;
 
@@ -490,7 +520,7 @@ public:
 			return _y;
 	}
 
-	inline uint64& accumulate (const Element &t)
+	inline uint64 &accumulate (const Element &t)
 	{
 		_y += t;
 
@@ -500,9 +530,9 @@ public:
 			return _y;
 	}
 
-	inline Element& get (Element &y)
+	inline Element &get (Element &y)
 	{
-		y =_y % (uint64) _F.modulus;
+		y = _y % (uint64) _F.modulus;
 		return y;
 	}
 
@@ -516,8 +546,9 @@ public:
 		{ _y = 0; }
 
 protected:
+
 	Field _F;
-	uint64 _y;		
+	uint64 _y;
 };
 
 template <>
@@ -525,10 +556,10 @@ class DotProductDomain<Modular<int32> > : private virtual VectorDomainBase<Modul
 {
 
 public:	  
-	typedef int32 Element;	  
-	DotProductDomain (const Modular<int32> &F)
-		: VectorDomainBase<Modular<int32> > (F) {}
-	  
+	typedef int32 Element;
+
+	DotProductDomain (const Modular<Element> &F)
+		: VectorDomainBase<Modular<Element> > (F) {}
 	  
 protected:
 	template <class Vector1, class Vector2>
@@ -547,8 +578,9 @@ protected:
 			if (y < t)
 				y += _F._two64;
 		}
-		  
-		y %= (uint64) _F.modulus; 
+
+		y %= (uint64) _F.modulus;
+
 		return res = y;
 	}
 	  
@@ -574,7 +606,7 @@ protected:
 		return res = y;
 	}
 };
-	  
+
 // Specialization of MVProductDomain for int32 modular field	
 
 template <>
@@ -587,7 +619,7 @@ public:
 protected:
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector1 &mulColDense
-		(const VectorDomain<Modular<int32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const
+		(const VectorDomain<Modular<Element> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const
 	{
 		return mulColDenseSpecialized
 			(VD, w, A, v, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
@@ -596,19 +628,19 @@ protected:
 private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector1 &mulColDenseSpecialized
-		(const VectorDomain<Modular<int32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		(const VectorDomain<Modular<Element> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
 		 VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector1 &mulColDenseSpecialized
-		(const VectorDomain<Modular<int32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		(const VectorDomain<Modular<Element> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
 		 VectorCategories::SparseSequenceVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector1 &mulColDenseSpecialized
-		(const VectorDomain<Modular<int32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		(const VectorDomain<Modular<Element> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
 		 VectorCategories::SparseAssociativeVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector1 &mulColDenseSpecialized
-		(const VectorDomain<Modular<int32> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
+		(const VectorDomain<Modular<Element> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
 		 VectorCategories::SparseParallelVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
@@ -636,7 +668,7 @@ Vector1 &MVProductDomain<Modular<int32> >::mulColDenseSpecialized
 		
 	for (j = v.begin (); j != v.end (); ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
-			t = ((uint64) *k) * ((uint64) *j);
+			t = ((ModularFieldTraits<Element>::DoubleSizedElement) *k) * ((ModularFieldTraits<Element>::DoubleSizedElement) *j);
 
 			*l += t;
 				
@@ -675,7 +707,7 @@ Vector1 &MVProductDomain<Modular<int32> >::mulColDenseSpecialized
 			
 	for (j = v.begin (); j != v.end (); ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
-			t = ((uint64) k->second) * ((uint64) *j);
+			t = ((ModularFieldTraits<Element>::DoubleSizedElement) k->second) * ((ModularFieldTraits<Element>::DoubleSizedElement) *j);
 
 			_tmp[k->first] += t;
 					
@@ -714,7 +746,7 @@ Vector1 &MVProductDomain<Modular<int32> >::mulColDenseSpecialized
 		
 	for (j = v.begin (); j != v.end (); ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
-			t = ((uint64) k->second) * ((uint64) *j);
+			t = ((ModularFieldTraits<Element>::DoubleSizedElement) k->second) * ((ModularFieldTraits<Element>::DoubleSizedElement) *j);
 				
 			_tmp[k->first] += t;
 				
@@ -757,7 +789,7 @@ Vector1 &MVProductDomain<Modular<int32> >::mulColDenseSpecialized
 		     k_idx != i->first.end ();
 		     ++k_idx, ++k_elt, ++l)
 		{
-			t = ((uint64) *k_elt) * ((uint64) *j);
+			t = ((ModularFieldTraits<Element>::DoubleSizedElement) *k_elt) * ((ModularFieldTraits<Element>::DoubleSizedElement) *j);
 
 			_tmp[*k_idx] += t;
 
