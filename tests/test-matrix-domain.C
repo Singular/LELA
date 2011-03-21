@@ -1325,11 +1325,13 @@ int main (int argc, char **argv)
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1 (F, l, 1);
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2 (F, m, 1);
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v3 (F, n, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v4 (F, p, 1);
 
-	Vector<Field>::Dense v1 (l), v2 (m), v3 (n);
+	Vector<Field>::Dense v1 (l), v2 (m), v3 (n), v4 (p);
 	stream_v1 >> v1;
 	stream_v2 >> v2;
 	stream_v3 >> v3;
+	stream_v4 >> v4;
 
 	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream11 (F, m, l);
 	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream12 (F, n, m);
@@ -1359,7 +1361,7 @@ int main (int argc, char **argv)
 	TransposeMatrix<SparseMatrix<Element> > M8 (M5);
 	TransposeMatrix<SparseMatrix<Element> > M9 (M4);
 
-	if (!testMatrixDomain (F, "sparse column-wise", M7, M8, M9, v3, v2, iterations,
+	if (!testMatrixDomain (F, "sparse column-wise", M7, M8, M9, v4, v3, iterations,
 			       MatrixTraits<TransposeMatrix<SparseMatrix<Element> > >::MatrixCategory ()))
 		pass = false;
 
