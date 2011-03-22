@@ -673,6 +673,22 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 	template <class Matrix>
 	inline std::istream &read (std::istream &is, Matrix &A, FileFormatTag format = FORMAT_DETECT) const
 		{ return reader.read (is, A, format); }
+
+	/** Write a string-representation of a permutation
+	 * Permutation should be in same format as with permuteRows and permuteColumns
+	 * @param os Output-stream to which to write
+	 * @param P_start Start-iterator of permutation
+	 * @param P_end End-iterator of permutation
+	 * @returns reference to os
+	 */
+	template <class Iterator>
+	std::ostream &writePermutation (std::ostream &os, Iterator P_start, Iterator P_end) 
+	{
+		for (; P_start != P_end; ++P_start)
+			os << "(" << P_start->first << " " << P_start->second << ")";
+
+		return os;
+	}
 };
 
 } // namespace LinBox

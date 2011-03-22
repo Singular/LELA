@@ -234,7 +234,7 @@ public:
 
 		is >> tmp;
 
-		x = abs (tmp) % integer (_modulus);
+		x = abs (tmp.get_si ()) % _modulus;
 		if (tmp < 0) x = _modulus - x;
 
 		return is; 

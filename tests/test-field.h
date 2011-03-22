@@ -1,5 +1,6 @@
 /* linbox/tests/test-field.h
- * Copyright (C) 2001, 2002 Bradford Hovinen
+ * Copyright 2001, 2002 Bradford Hovinen
+ *
  * See COPYING for license information.
  *
  * Extracted by bds from test-generic.h, written by Bradford Hovinen <hovinen@cis.udel.edu>
@@ -1238,7 +1239,9 @@ bool testRandomIteratorStep (const Field &F,
 	//LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRandomIteratorStep");
 	return ret;
 }
+
 //@}
+
 #endif // __LINBOX_test_field_H
 
 // Local Variables:

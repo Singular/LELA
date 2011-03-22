@@ -13,8 +13,6 @@
 
 /* ERRORS:
  *
- * X- Ambiguous specializations with RolColMatrixTag
- *  - Can't use leftMulin or rightMulin on some tests
  *  - VectorDomain needs subin, addin, etc. with multiple vector representations
  */
 
@@ -1020,18 +1018,6 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
  * Return true on success and false on failure
  */
 
-std::ostream &reportPermutation
-	(std::ostream &out,
-	 const std::vector<std::pair<unsigned int, unsigned int> > &P) 
-{
-	std::vector<std::pair<unsigned int, unsigned int> >::const_iterator i;
-
-	for (i = P.begin (); i != P.end (); ++i)
-		out << "(" << i->first << " " << i->second << ")";
-
-	return out;
-}
-
 template <class Field, class Matrix>
 bool testPermutation (const Field &F, const char *text, const Matrix &M) 
 {
@@ -1066,9 +1052,9 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Permutation P:    ";
-	reportPermutation (report, P) << endl;
+	MD.writePermutation (report, P.begin (), P.end ()) << endl;
 	report << "Permutation P^-1: ";
-	reportPermutation (report, Pinv) << endl;
+	MD.writePermutation (report, Pinv.begin (), Pinv.end ()) << endl;
 
 	// Apply the permutation and then its inverse to a copy of M
 	Matrix M1 (M);
@@ -1108,9 +1094,9 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 	std::reverse (Pinv.begin (), Pinv.end ());
 
 	report << "Permutation P:    ";
-	reportPermutation (report, P) << endl;
+	MD.writePermutation (report, P.begin (), P.end ()) << endl;
 	report << "Permutation P^-1: ";
-	reportPermutation (report, Pinv) << endl;
+	MD.writePermutation (report, Pinv.begin (), Pinv.end ()) << endl;
 
 	// Apply the permutation and then its inverse to a copy of M
 	MD.permuteColumns (M1, P.begin (), P.end ());
@@ -1129,6 +1115,76 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
 
 	return ret;
+}
+
+/* Test 14: read and write
+ *
+ * Return true on success and false on failure
+ */
+
+template <class Field, class Matrix>
+bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, FileFormatTag format)
+{
+	static const char *format_names[] = 
+		{ "detect", "unknown", "Turner", "one-based", "Guillaume", "Maple", "Matlab", "Sage", "pretty" };
+
+	ostringstream str;
+	str << "Testing " << text << " read/write (format " << format_names[format] << ")" << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	bool pass = true;
+
+	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	MatrixDomain<Field> MD (F);
+
+	Matrix M1 (M.rowdim (), M.coldim ());
+
+	ostringstream output;
+	MD.write (output, M, format);
+
+	istringstream input (output.str ());
+	MD.read (input, M1, format);
+
+	report << "Matrix-output as string:" << std::endl << output.str ();
+
+	report << "Matrix as read from " << format_names[format] << " format" << std::endl;
+	MD.write (output, M1);
+
+	if (!MD.areEqual (M, M1)) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: Matrix as read does not equal original" << endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass), (const char *) 0, __FUNCTION__);
+
+	return pass;
+}
+
+template <class Field, class Matrix>
+bool testReadWrite (const Field &F, const char *text, const Matrix &M)
+{
+	ostringstream str;
+	str << "Testing " << text << " read/write" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	bool pass = true;
+
+	MatrixDomain<Field> MD (F);
+
+	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+	report << "Input matrix M:" << std::endl;
+	MD.write (report, M);
+
+	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY };
+
+	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)
+		pass = testReadWriteFormat (F, text, M, formats[i]) && pass;
+
+	commentator.stop (MSG_STATUS (pass), (const char *) 0, __FUNCTION__);
+
+	return pass;
 }
 
 template <class Field, class Matrix, class Vector>
@@ -1164,6 +1220,7 @@ bool testMatrixDomain (const Field &F, const char *text,
 	}
 
 	if (!testPermutation (F, text, M1)) pass = false;
+	if (!testReadWrite (F, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
@@ -1203,6 +1260,7 @@ bool testMatrixDomain (const Field &F, const char *text,
 	}
 
 	if (!testPermutation (F, text, M1)) pass = false;
+	if (!testReadWrite (F, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 

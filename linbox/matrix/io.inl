@@ -65,6 +65,12 @@ std::istream &MatrixReader<Field>::read (std::istream &is, Matrix &A, FileFormat
 }
 
 template <class Field>
+FileFormatTag MatrixReader<Field>::detectFormat (std::istream &is) const
+{
+	throw NotImplemented ();
+}
+
+template <class Field>
 template <class Matrix>
 std::istream &MatrixReader<Field>::readTurner (std::istream &is, Matrix &A) const
 {

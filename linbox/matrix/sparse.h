@@ -145,6 +145,21 @@ class SparseMatrix
 		return s;
         }
 
+	/** Resize the matrix.
+	 *
+	 * Does not touch the existing row-vectors, so if the new
+	 * column-dimension is less than the existing one, then the
+	 * row-vectors may no longer be valid.
+	 *
+	 * @param m New row-dimension
+	 * @param n New column-dimension
+	 */
+	void resize (size_t m, size_t n)
+	{
+		_m = m; _n = n;
+		_A.resize (m);
+	}
+
 	/** Set an individual entry
 	 * @param i Row index of entry
 	 * @param j Column index of entry
@@ -323,6 +338,12 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 		return s;
         }
 
+	void resize (size_t m, size_t n)
+	{
+		_m = m; _n = n;
+		_A.resize (m);
+	}
+
 	void           setEntry (size_t i, size_t j, const Element &value);
 	void           eraseEntry (size_t i, size_t j);
 	Element       &refEntry (size_t i, size_t j);
@@ -426,6 +447,12 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 		return s;
         }
 
+	void resize (size_t m, size_t n)
+	{
+		_m = m; _n = n;
+		_A.resize (m);
+	}
+
 	void           setEntry (size_t i, size_t j, const Element &value) { _A[i][j] = value; }
 	Element       &refEntry (size_t i, size_t j)                       { return _A[i][j]; }
 	const Element &getEntry (size_t i, size_t j) const;
@@ -524,6 +551,12 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
 
 		return s;
         }
+
+	void resize (size_t m, size_t n)
+	{
+		_m = m; _n = n;
+		_A.resize (m);
+	}
 
 	void           setEntry (size_t i, size_t j, const Element &value);
 	Element       &refEntry (size_t i, size_t j);
