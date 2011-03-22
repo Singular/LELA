@@ -349,9 +349,7 @@ static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vect
 	str << "Testing " << text << " ger (consistency with gemm)" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	typename Field::Element a, one;
-
-	F.init (one, 1);
+	typename Field::Element a;
 
 	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
@@ -392,7 +390,7 @@ static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vect
 	report << "Output matrix a * u * v^T + A: " << std::endl;
 	MD.write (report, A1);
 
-	MD.gemm (a, U, V, one, A2);
+	MD.gemm (a, U, V, F.one (), A2);
 
 	report << "Output matrix a * U * V + A: " << std::endl;
 	MD.write (report, A2);
