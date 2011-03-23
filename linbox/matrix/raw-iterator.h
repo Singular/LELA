@@ -439,20 +439,20 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseVectorTag, false
 
 	MatrixRawIndexedIterator () {}
 
-	MatrixRawIndexedIterator& operator = (const MatrixRawIndexedIterator &p)
+	MatrixRawIndexedIterator &operator = (const MatrixRawIndexedIterator &p)
 	{
 		_pos = p._pos;
 		_rowcol = p._rowcol;
 		return *this;
 	}
     
-	MatrixRawIndexedIterator& operator ++ ()
+	MatrixRawIndexedIterator &operator ++ ()
 	{
-		++_pos.first;
+		++_pos.second;
 
-		if (_pos.first == _rowcol->size ()) {
-			++_pos.second;
-			_pos.first = 0;
+		if (_pos.second == _rowcol->size ()) {
+			++_pos.first;
+			_pos.second = 0;
 		}
 
 		return *this;
@@ -661,11 +661,11 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseZeroOneVectorTag
     
 	MatrixRawIndexedIterator& operator ++ ()
 	{
-		++_pos.first;
+		++_pos.second;
 
-		if (_pos.first == _rowcol->size ()) {
-			++_pos.second;
-			_pos.first = 0;
+		if (_pos.second == _rowcol->size ()) {
+			++_pos.first;
+			_pos.second = 0;
 		}
 
 		return *this;

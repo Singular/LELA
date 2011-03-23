@@ -143,18 +143,12 @@ class DenseMatrixColIterator
 	DenseMatrixColIterator () {}
     
 	DenseMatrixColIterator (const DenseMatrixColIterator &rowp)
-		:_col (rowp._col){}
+		: _col (rowp._col) {}
     
 	DenseMatrixColIterator &operator = (const DenseMatrixColIterator &rowp)
 	{
 		_col = rowp._col;
 		_stride = rowp._stride;
-		return *this;
-	}
-    
-	const DenseMatrixColIterator &operator = (const DenseMatrixColIterator &rowp) const
-	{
-		const_cast<DenseMatrixColIterator*> (this)->_col = rowp._col;
 		return *this;
 	}
     
@@ -302,11 +296,11 @@ class SubvectorFactory<DenseMatrix<Element> >
 	ColSubvector MakeColSubvector (Submatrix<DenseMatrix<Element> > &M,
 				       typename DenseMatrix<Element>::ColIterator &pos)
 		{ return ColSubvector (Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-				       Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.endRow ()); }
+				       Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
 	ConstColSubvector MakeConstColSubvector (const Submatrix<DenseMatrix<Element> > &M,
 						 typename DenseMatrix<Element>::ConstColIterator &pos)
 		{ return ConstColSubvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-					    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.endRow ()); }
+					    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
 };
 
 template <class Element>
@@ -324,7 +318,7 @@ class SubvectorFactory<const DenseMatrix<Element> >
 	ConstColSubvector MakeConstColSubvector (const Submatrix<const DenseMatrix<Element> > &M,
 						 typename DenseMatrix<Element>::ConstColIterator &pos)
 		{ return ConstColSubvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-					    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.coldim ())); }
+					    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
 };
 
 } // namespace LinBox
