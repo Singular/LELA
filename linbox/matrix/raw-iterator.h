@@ -39,8 +39,8 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseVectorTag>
     public:
 	typedef typename Iterator::value_type Vector;
 
-	typedef typename std::iterator_traits<typename Vector::const_iterator>::const_reference const_reference;
-	typedef const_reference reference;
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::reference reference;
+	typedef const reference const_reference;
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type value_type;
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 
@@ -165,8 +165,8 @@ class MatrixRawIterator<Iterator, VectorCategories::SparseParallelVectorTag>
     public:
 	typedef typename Iterator::value_type Vector;
 
-	typedef const typename std::iterator_traits<typename Vector::second_type::const_iterator>::reference const_reference;
-	typedef const_reference reference;
+	typedef const typename std::iterator_traits<typename Vector::second_type::const_iterator>::reference reference;
+	typedef const reference const_reference;
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::value_type value_type;
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::difference_type difference_type;
 
@@ -235,8 +235,8 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseZeroOneVectorTag>
     public:
 	typedef typename Iterator::value_type Vector;
 
-	typedef typename std::iterator_traits<typename Vector::const_iterator>::const_reference const_reference;
-	typedef const_reference reference;
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::reference reference;
+	typedef const reference const_reference;
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type value_type;
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 
@@ -361,8 +361,8 @@ class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
     public:
 	typedef typename Iterator::value_type Vector;
 
-	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::const_reference const_reference;
-	typedef const_reference reference;
+	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::reference reference;
+	typedef const reference const_reference;
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::value_type value_type;
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::difference_type difference_type;
 

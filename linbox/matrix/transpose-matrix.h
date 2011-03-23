@@ -125,31 +125,15 @@ class TransposeMatrix
 	void eraseEntry (size_t i, size_t j)
 		{ _A.eraseEntry (j, i); }
 
-	/** Get a writeable reference to the entry in the (i, j) position.
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 * @return Reference to matrix entry
-	 */
-	Element &refEntry (size_t i, size_t j)
-		{ return _A.refEntry (j, i); }
-
-	/** Get a read-only reference to the entry in the (i, j) position.
-	 * @param i Row index
-	 * @param j Column index
-	 * @return Const reference to matrix entry
-	 */
-	inline const Element &getEntry (size_t i, size_t j) const
-		{ return _A.getEntry (j, i); }
-
-	/** Copy the (i, j) entry into x, and return a reference to x.
-	 * This form is more in the Linbox style and is provided for interface
-	 * compatibility with other parts of the library
+	/** Copy the (i, j) entry into x
+	 * If the entry does not exist in the matrix, x is left unchanged and false is returned.
+	 *
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
-	 * @return Reference to x
+	 * @return true if entry exists in matrix, false otherwise
 	 */
-	inline Element &getEntry (Element &x, size_t i, size_t j) const
+	inline bool getEntry (Element &x, size_t i, size_t j) const
 		{ return _A.getEntry (x, j, i); }
 
 	/** @name Column of rows iterator
@@ -236,9 +220,7 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
 	inline size_t coldim () const { return _A.rowdim (); }
 
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
-	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
-	inline const Element &getEntry (size_t i, size_t j) const { return _A.getEntry (j, i); }
-	inline Element &getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
 
 	inline RowIterator rowBegin () { return _A.colBegin (); }
 	inline RowIterator rowEnd () { return _A.colEnd (); }
@@ -292,9 +274,7 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
 	inline size_t coldim () const { return _A.rowdim (); }
 
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
-	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
-	inline const Element &getEntry (size_t i, size_t j) const { return _A.getEntry (j, i); }
-	inline Element &getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
 
 	inline ColIterator colBegin () { return _A.rowBegin (); }
 	inline ColIterator colEnd () { return _A.rowEnd (); }
@@ -341,9 +321,7 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
 	inline size_t coldim () const { return _A.rowdim (); }
 
 	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
-	inline Element &refEntry (size_t i, size_t j) { return _A.refEntry (j, i); }
-	inline const Element &getEntry (size_t i, size_t j) const { return _A.getEntry (j, i); }
-	inline Element &getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
 
 	inline RowIterator rowBegin () { return _A.colBegin (); }
 	inline RowIterator rowEnd () { return _A.colEnd (); }

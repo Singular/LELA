@@ -77,11 +77,9 @@ public:
             return s;
         }
 
-	void           setEntry (size_t i, size_t j, const Element &value);
-	Element       &refEntry (size_t i, size_t j);
-	bool           getEntry (size_t i, size_t j) const;
-	Element       &getEntry (Element &x, size_t i, size_t j) const
-			{ return x = getEntry (i, j); }
+	void setEntry (size_t i, size_t j, const Element &value);
+	void eraseEntry (size_t i, size_t j);
+	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	ConstRowIterator rowBegin () const 
 		{ return _A.begin (); }
@@ -173,11 +171,9 @@ public:
 		return s;
 	}
 
-	void           setEntry (size_t i, size_t j, const Element &value);
-	Element       &refEntry (size_t i, size_t j);
-	bool           getEntry (size_t i, size_t j) const;
-	Element       &getEntry (Element &x, size_t i, size_t j) const
-		{ return x = getEntry (i, j); }
+	void setEntry (size_t i, size_t j, const Element &value);
+	void eraseEntry (size_t i, size_t j);
+	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
@@ -220,17 +216,21 @@ protected:
 };
 
 template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::getEntry (size_t i, size_t j) const
+bool SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::getEntry (Element &x, size_t i, size_t j) const
 {
 	const Row &v = (*this)[i];
 
 	typename Row::const_iterator idx = std::lower_bound (v.begin (), v.end (), j);
 
-	return idx != v.end () && *idx == j;
+	if (idx != v.end () && *idx == j) {
+		x = true;
+		return true;
+	} else
+		return false;
 }
 
 template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEntry (size_t i, size_t j) const
+bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEntry (Element &x, size_t i, size_t j) const
 {
 	typedef typename Row::second_type::Endianness Endianness;
 	typedef typename std::iterator_traits<typename Row::second_type::const_word_iterator>::value_type word_type;
@@ -241,10 +241,47 @@ bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEn
 
 	idx = std::lower_bound (v.first.begin (), v.first.end (), j >> WordTraits<word_type>::logof_size);
 
-	if (idx != v.first.end () && *idx == j >> WordTraits<word_type>::logof_size)
-		return *(v.second.wordBegin () + (idx - v.first.begin ())) & Endianness::e_j (j & WordTraits<word_type>::pos_mask);
-	else
+	if (idx != v.first.end () && *idx == j >> WordTraits<word_type>::logof_size) {
+		x = *(v.second.wordBegin () + (idx - v.first.begin ())) & Endianness::e_j (j & WordTraits<word_type>::pos_mask);
+		return x;
+	} else
 		return false;
+}
+
+template <class Element, class Row>
+void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::eraseEntry (size_t i, size_t j)
+{
+	Row &v = (*this)[i];
+
+	typename Row::iterator idx = std::lower_bound (v.begin (), v.end (), j);
+
+	if (idx != v.end () && *idx == j)
+		v.erase (idx);
+}
+
+template <class Element, class Row>
+void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::eraseEntry (size_t i, size_t j)
+{
+	typedef typename Row::second_type::Endianness Endianness;
+	typedef typename std::iterator_traits<typename Row::second_type::word_iterator>::value_type word_type;
+
+	Row &v = (*this)[i];
+
+	typename Row::first_type::iterator idx;
+	typename Row::second_type::word_iterator elt;
+
+	idx = std::lower_bound (v.first.begin (), v.first.end (), j >> WordTraits<word_type>::logof_size);
+
+	if (idx != v.first.end () && *idx == j >> WordTraits<word_type>::logof_size) {
+		elt = v.second.wordBegin () + (idx - v.first.begin ());
+
+		*elt &= ~Endianness::e_j (j & WordTraits<word_type>::pos_mask);
+
+		if (!*elt) {
+			v.first.erase (idx);
+			v.second.eraseWord (elt);
+		}
+	}
 }
 
 template <class Element, class Row>
@@ -293,7 +330,7 @@ void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 	} else {
 		it_idx = std::lower_bound (v.first.begin (), v.first.end (), j & ~WordTraits<word_type>::pos_mask);
 
-		if (it_idx == v.first.end () || *it_idx != j & ~WordTraits<word_type>::pos_mask) {
+		if (it_idx == v.first.end () || *it_idx != (j & ~WordTraits<word_type>::pos_mask)) {
 			if (value) {
 				it_idx = v.first.insert (it_idx, j & ~WordTraits<word_type>::pos_mask);
 				v.second.insertWord (v.second.wordBegin () + (it_idx - v.first.begin ()), m);

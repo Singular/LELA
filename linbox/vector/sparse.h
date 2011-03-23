@@ -9,6 +9,8 @@
 
 #include <vector>
 
+#include "linbox/vector/vector-traits.h"
+
 namespace LinBox
 {
 
@@ -215,9 +217,9 @@ private:
 	reference _ref;
 };
 
-/// Forward declaration
-template <class Element, class IndexVector = std::vector<size_t>, class ElementVector = std::vector<Element> >
-class SparseVector;
+/// Forward declarations
+template <class Vector, class Trait = typename VectorTraits<Vector>::VectorCategory>
+class SparseSubvector;
 
 /** Sparse vector wrapper
  *
@@ -231,6 +233,11 @@ class ConstSparseVector
 public:
 	typedef SparseVectorIterator<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> iterator;
 	typedef SparseVectorIterator<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_iterator;
+
+	typedef IndexIterator index_iterator;
+	typedef ElementIterator element_iterator;
+	typedef ConstIndexIterator const_index_iterator;
+	typedef ConstElementIterator const_element_iterator;
 
 	typedef typename iterator::reference reference;
 	typedef typename iterator::const_reference const_reference;
@@ -248,7 +255,10 @@ public:
 	ConstSparseVector (IndexIterator &idx_begin, IndexIterator &idx_end, ElementIterator &elt_begin)
 		: _idx_begin (idx_begin), _idx_end (idx_end), _elt_begin (elt_begin) {}
 
-	inline ConstSparseVector &operator = (const ConstSparseVector &v)
+	ConstSparseVector () {}
+
+	template <class IIt, class EIt, class CIIt, class CEIt>
+	inline ConstSparseVector &operator = (const ConstSparseVector<IIt, EIt, CIIt, CEIt> &v)
 	{
 		_idx_begin = v._idx_begin;
 		_idx_end = v._idx_end;
@@ -297,9 +307,16 @@ public:
 	inline bool operator == (const ConstSparseVector &v) const
 		{ return (_idx_begin == v._idx_begin) && (_idx_end == v._idx_end) && (_elt_begin == v._elt_begin); }
 
-private:
+protected:
+	template <class V, class T>
+	friend class SparseSubvector;
+
 	template <class Element, class IndexVector, class ElementVector>
 	friend class SparseVector;
+
+	ConstIndexIterator index_begin () const { return _idx_begin; }
+	ConstIndexIterator index_end () const { return _idx_end; }
+	ConstElementIterator element_begin () const { return _elt_begin; }
 
 	IndexIterator _idx_begin, _idx_end;
 	ElementIterator _elt_begin;
@@ -310,7 +327,7 @@ private:
  * This class represents a sparse vector (stored as a pair of vectors)
  * as a vector of (column-index, entry)-pairs.
  */
-template <class Element, class IndexVector, class ElementVector>
+template <class Element, class IndexVector, class ElementVector> // N.B. default argument in forward-declaration in vector-traits.h
 class SparseVector
 {
 public:
@@ -318,6 +335,11 @@ public:
 	typedef typename IndexVector::const_iterator ConstIndexIterator;
 	typedef typename ElementVector::iterator ElementIterator;
 	typedef typename ElementVector::const_iterator ConstElementIterator;
+
+	typedef IndexIterator index_iterator;
+	typedef ElementIterator element_iterator;
+	typedef ConstIndexIterator const_index_iterator;
+	typedef ConstElementIterator const_element_iterator;
 
 	typedef SparseVectorIterator<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> iterator;
 	typedef SparseVectorIterator<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_iterator;
@@ -435,8 +457,43 @@ public:
 		{ return (_idx == v._idx) && (_elt == v._elt); }
 
 private:
+	template <class V, class T>
+	friend class SparseSubvector;
+
+	ConstIndexIterator index_begin () const { return _idx.begin (); }
+	ConstIndexIterator index_end () const { return _idx.end (); }
+	ConstElementIterator element_begin () const { return _elt.begin (); }
+
 	IndexVector _idx;
 	ElementVector _elt;
+};
+
+template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
+struct VectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
+{ 
+	typedef ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
+	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+};
+
+template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
+struct VectorTraits<const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
+{ 
+	typedef const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
+	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+};
+
+template <class Element, class IndexVector, class ElementVector>
+struct VectorTraits< SparseVector<Element, IndexVector, ElementVector> >
+{ 
+	typedef SparseVector<Element, IndexVector, ElementVector> VectorType;
+	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+};
+
+template <class Element, class IndexVector, class ElementVector>
+struct VectorTraits<const SparseVector<Element, IndexVector, ElementVector> >
+{ 
+	typedef const SparseVector<Element, IndexVector, ElementVector> VectorType;
+	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
 };
 
 } // namespace LinBox

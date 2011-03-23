@@ -175,32 +175,15 @@ class DenseMatrix
 	 */
 	void eraseEntry (size_t i, size_t j) {}
 
-	/** Get a writeable reference to the entry in the (i, j) position.
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 * @returns Reference to matrix entry
-	 */
-	Element &refEntry (size_t i, size_t j)
-		{ return _rep[i * _cols + j]; }
-
-	/** Get a read-only reference to the entry in the (i, j) position.
-	 * @param i Row index
-	 * @param j Column index
-	 * @returns Const reference to matrix entry
-	 */
-	const Element &getEntry (size_t i, size_t j) const
-		{ return _rep[i * _cols + j]; }
-
 	/** Copy the (i, j) entry into x, and return a reference to x.
-	 * This form is more in the Linbox style and is provided for interface
-	 * compatibility with other parts of the library
+	 *
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
-	 * @returns Reference to x
+	 * @returns true
 	 */
-	Element &getEntry (Element &x, size_t i, size_t j) const
-		{ x = _rep[i * _cols + j]; return x; }
+	bool getEntry (Element &x, size_t i, size_t j) const
+		{ x = _rep[i * _cols + j]; return true; }
 
 	/** @name Column of rows iterator
 	 * The column of rows iterator traverses the rows of the

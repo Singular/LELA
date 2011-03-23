@@ -497,6 +497,30 @@ inline typename Submatrix<Matrix, Trait>::ConstRowIterator Submatrix<Matrix, Tra
 	return ConstRowIterator (this, _M->rowBegin () + _end_row);
 }
 
+template <class Matrix, class Trait>
+inline typename Submatrix<Matrix, Trait>::ColIterator Submatrix<Matrix, Trait>::colBegin ()
+{
+	return ColIterator (this, _M->colBegin () + _beg_col);
+}
+
+template <class Matrix, class Trait>
+inline typename Submatrix<Matrix, Trait>::ColIterator Submatrix<Matrix, Trait>::colEnd ()
+{
+	return ColIterator (this, _M->colBegin () + _end_col);
+}
+
+template <class Matrix, class Trait>
+inline typename Submatrix<Matrix, Trait>::ConstColIterator Submatrix<Matrix, Trait>::colBegin () const
+{
+	return ConstColIterator (this, _M->colBegin () + _beg_col);
+}
+
+template <class Matrix, class Trait>
+inline typename Submatrix<Matrix, Trait>::ConstColIterator Submatrix<Matrix, Trait>::colEnd () const
+{
+	return ConstColIterator (this, _M->colBegin () + _end_col);
+}
+
 template <class Matrix>
 inline typename Submatrix<Matrix, MatrixCategories::RowMatrixTag>::RowIterator Submatrix<Matrix, MatrixCategories::RowMatrixTag>::rowBegin ()
 {

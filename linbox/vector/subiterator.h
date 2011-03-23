@@ -53,19 +53,19 @@ class Subiterator
 	 *  underlying container.  It is up to the user to dereference the 
 	 *  iterator only when it has a valid reference.
 	 */
-	Subiterator (const Iterator &iter, const difference_type& stride = 1)
+	Subiterator (Iterator iter, difference_type stride = 1)
 		: _iter (iter), _stride (stride) {}
 
 	template<class Iterator2>
-	Subiterator (const Subiterator<Iterator2>& iter)
+	Subiterator (const Subiterator<Iterator2> &iter)
 		: _iter (iter._iter), _stride (iter._stride) {}
 
 	
 	template<class Iterator2>
-	Subiterator& operator = (const Subiterator<Iterator2>& sub)
+	Subiterator &operator = (const Subiterator<Iterator2> &sub)
 	{
-		_iter=sub._iter;
-		_stride=sub._stride;
+		_iter = sub._iter;
+		_stride = sub._stride;
 		return *this;
 	}
 
@@ -81,13 +81,13 @@ class Subiterator
 
 	// Iteration operations
     	
-	Subiterator& operator ++ () 
+	Subiterator &operator ++ () 
 		{ _iter += _stride; return *this; }
     	
 	Subiterator operator ++ (int) 
 		{ Subiterator tmp = *this; _iter += _stride; return tmp; }
     	
-	Subiterator& operator -- () 
+	Subiterator &operator -- () 
 		{ _iter -= _stride; return *this; }
     	
 	Subiterator operator -- (int) 
@@ -96,7 +96,7 @@ class Subiterator
 	Subiterator operator + (difference_type n) const 
 		{ return Subiterator (_iter + (n * _stride), _stride); }
     	
-	Subiterator& operator += (difference_type n) 
+	Subiterator &operator += (difference_type n) 
 		{ _iter += (n * _stride); return *this; }
     	
 	Subiterator operator - (difference_type n) const 
@@ -105,7 +105,7 @@ class Subiterator
 	difference_type operator - (const Subiterator& x) const 
 		{ return (_iter - x._iter)/_stride; }
     	
-	Subiterator& operator -= (difference_type n) 
+	Subiterator &operator -= (difference_type n) 
 		{ _iter -= (n * _stride); return *this; }
 
 	// Comparison operations

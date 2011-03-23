@@ -366,6 +366,8 @@ std::ostream &MatrixWriter<Field>::writeMaple (std::ostream &os, const Matrix &A
 {
 	size_t i, j;
 
+	typename Field::Element a;
+
 	if (A.rowdim () == 0) {
 		os << "[]";
 		return os;
@@ -377,7 +379,10 @@ std::ostream &MatrixWriter<Field>::writeMaple (std::ostream &os, const Matrix &A
 		os << "[";
 
 		for (j = 0; j < A.coldim (); ++j) {
-			_F.write (os, A.getEntry (i, j));
+			if (A.getEntry (a, i, j))
+				_F.write (os, a);
+			else
+				os << "0";
 
 			if (j < A.coldim () - 1)
 				os << ", ";
@@ -398,6 +403,8 @@ std::ostream &MatrixWriter<Field>::writeMatlab (std::ostream &os, const Matrix &
 {
 	size_t i, j;
 
+	typename Field::Element a;
+
 	if (A.rowdim () == 0) {
 		os << "[]";
 		return os;
@@ -407,7 +414,10 @@ std::ostream &MatrixWriter<Field>::writeMatlab (std::ostream &os, const Matrix &
 
 	for (i = 0; i < A.rowdim (); ++i) {
 		for (j = 0; j < A.coldim (); ++j) {
-			_F.write (os, A.getEntry (i, j));
+			if (A.getEntry (a, i, j))
+				_F.write (os, a);
+			else
+				os << "0";
 
 			if (j < A.coldim () - 1)
 				os << ", ";
@@ -435,6 +445,8 @@ std::ostream &MatrixWriter<Field>::writeSage (std::ostream &os, const Matrix &A)
 
 	os << "matrix([ ";
 
+	typename Field::Element a;
+
 	for (i = 0; i < A.rowdim (); ++i) {
 		if (i == 0)
 			os << "[ ";
@@ -442,7 +454,10 @@ std::ostream &MatrixWriter<Field>::writeSage (std::ostream &os, const Matrix &A)
 			os << "         [ ";
 
 		for (j = 0; j < A.coldim (); ++j) {
-			_F.write (os, A.getEntry (i, j));
+			if (A.getEntry (a, i, j))
+				_F.write (os, a);
+			else
+				os << "0";
 
 			if (j < A.coldim () - 1)
 				os << ", ";
@@ -479,9 +494,7 @@ std::ostream &MatrixWriter<Field>::writePretty (std::ostream &os, const Matrix &
 		os << "  [ ";
 
 		for (j = 0; j < A.coldim (); ++j) {
-			a = A.getEntry (i, j);
-
-			if (_F.isZero (a)) {
+			if (!A.getEntry (a, i, j) || _F.isZero (a)) {
 				for (unsigned t = 0; t < col_width - 1; ++t)
 					os << ' ';
 

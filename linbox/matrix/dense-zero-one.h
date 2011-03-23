@@ -144,32 +144,21 @@ class DenseZeroOneMatrix
 	void setEntry (size_t i, size_t j, bool a_ij)
 		{ *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)) = a_ij; }
 
-	/** Get a writeable reference to the entry in the (i, j) position.
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 * @returns Reference to matrix entry
+	/** Does nothing. Provided for compatibility
+	 * @param i
+	 * @param j
 	 */
-	BitVectorReference<Iterator, Endianness> refEntry (size_t i, size_t j)
-		{ return *(BitVectorIterator<Iterator, ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)); }
-
-	/** Get a read-only reference to the entry in the (i, j) position.
-	 * @param i Row index
-	 * @param j Column index
-	 * @returns Const reference to matrix entry
-	 */
-	bool getEntry (size_t i, size_t j) const
-		{ return *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)); }
+	void eraseEntry (size_t i, size_t j) {}
 
 	/** Copy the (i, j) entry into x, and return a reference to x.
-	 * This form is more in the Linbox style and is provided for interface
-	 * compatibility with other parts of the library
+	 *
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
-	 * @returns Reference to x
+	 * @returns true
 	 */
-	Element &getEntry (Element &x, size_t i, size_t j) const
-		{ x = *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)); return x; }
+	bool getEntry (Element &x, size_t i, size_t j) const
+		{ x = *(BitVectorConstIterator<ConstIterator, Endianness> (_begin, 0) + (i * _disp * WordTraits<word_type>::bits + j)); return true; }
 
 	/** @name Column of rows iterator
 	 * The column of rows iterator traverses the rows of the

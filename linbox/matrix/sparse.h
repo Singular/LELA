@@ -174,32 +174,15 @@ class SparseMatrix
 	 */
 	void eraseEntry (size_t i, size_t j);
 
-	/** Get a writeable reference to an entry in the matrix
-	 * If there is no entry at the position (i, j), then a new entry
-	 * with a value of zero is inserted and a reference  to it is
-	 * returned.
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 * @return Reference to matrix entry
-	 */
-	Element &refEntry (size_t i, size_t j);
-
-	/** Get a read-only individual entry from the matrix
-	 * @param i Row index
-	 * @param j Column index
-	 * @return Const reference to matrix entry
-	 */
-	const Element &getEntry (size_t i, size_t j) const;
-
 	/** Get an entry and store it in the given value
-	 * This form is more in the Linbox style and is provided for interface
-	 * compatibility with other parts of the library
+	 * If the entry does not exist, then x is left unchanged
+	 *
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
-	 * @return Reference to x
+	 * @return true if entry exists in matrix, false if not
 	 */
-	Element &getEntry (Element &x, size_t i, size_t j) const;
+	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	/** @name Columns of rows iterator
 	 * The columns of row iterator gives each of the rows of the
@@ -344,12 +327,9 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 		_A.resize (m);
 	}
 
-	void           setEntry (size_t i, size_t j, const Element &value);
-	void           eraseEntry (size_t i, size_t j);
-	Element       &refEntry (size_t i, size_t j);
-	const Element &getEntry (size_t i, size_t j) const;
-	Element       &getEntry (Element &x, size_t i, size_t j) const
-			{ return x = getEntry (i, j); }
+	void setEntry (size_t i, size_t j, const Element &value);
+	void eraseEntry (size_t i, size_t j);
+	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
@@ -453,10 +433,8 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseAssociativeVectorTag 
 		_A.resize (m);
 	}
 
-	void           setEntry (size_t i, size_t j, const Element &value) { _A[i][j] = value; }
-	Element       &refEntry (size_t i, size_t j)                       { return _A[i][j]; }
-	const Element &getEntry (size_t i, size_t j) const;
-	Element       &getEntry (Element &x, size_t i, size_t j) const     { return x = _A[i][j];}
+	void setEntry (size_t i, size_t j, const Element &value) { _A[i][j] = value; }
+	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
@@ -558,11 +536,8 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseParallelVectorTag >
 		_A.resize (m);
 	}
 
-	void           setEntry (size_t i, size_t j, const Element &value);
-	Element       &refEntry (size_t i, size_t j);
-	const Element &getEntry (size_t i, size_t j) const;
-	Element       &getEntry (Element &x, size_t i, size_t j) const
-		{ return x = getEntry (i, j); }
+	void setEntry (size_t i, size_t j, const Element &value);
+	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;

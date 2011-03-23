@@ -76,9 +76,6 @@ class Submatrix
 {
     public:
  
-	class RawIterator;
-	class ConstRawIterator;
-
 	typedef _Matrix Matrix;
         typedef Submatrix<Matrix, Trait> Self_t;
     
@@ -206,31 +203,15 @@ class Submatrix
 	void eraseEntry (size_t i, size_t j)
 		{ _M->eraseEntry (_beg_row + i, _beg_col + j); }
 
-	/** Get a writeable reference to an entry in the matrix
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 * @return Reference to matrix entry
-	 */
-	Element &refEntry (size_t i, size_t j)
-		{ return _M->refEntry (i + _beg_row, j + _beg_col); } 
-
-	/** Get a read-only individual entry from the matrix
-	 * @param i Row index
-	 * @param j Column index
-	 * @return Const reference to matrix entry
-	 */
-	const Element &getEntry (size_t i, size_t j) const
-		{ return _M->getEntry (i + _beg_row, j + _beg_col); } 
-
 	/** Get an entry and store it in the given value
-	 * This form is more in the Linbox style and is provided for interface
-	 * compatibility with other parts of the library
+	 * If entry does not exist in matrix, x is left unchanged and false is returned
+	 *
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
-	 * @return Reference to x
+	 * @return true if entry exists in matrix, false otherwise
 	 */
-	Element &getEntry (Element &x, size_t i, size_t j)
+	bool getEntry (Element &x, size_t i, size_t j) const
 		{ return _M->getEntry (x, i + _beg_row, j + _beg_col); } 
 
 	RowIterator rowBegin ();
@@ -254,8 +235,8 @@ class Submatrix
 	typedef MatrixRawIterator<ConstRowIterator, typename VectorTraits<Row>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
 
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	/** \brief
 	 *
@@ -358,13 +339,7 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	void eraseEntry (size_t i, size_t j)
 		{ _M->eraseEntry (_beg_row + i, _beg_col + j); }
 
-	Element &refEntry (size_t i, size_t j)
-		{ return _M->refEntry (i + _beg_row, j + _beg_col); } 
-
-	const Element getEntry (size_t i, size_t j) const
-		{ return _M->getEntry (i + _beg_row, j + _beg_col); } 
-
-	Element &getEntry (Element &x, size_t i, size_t j)
+	bool getEntry (Element &x, size_t i, size_t j) const
 		{ return _M->getEntry (x, i + _beg_row, j + _beg_col); } 
 
 	inline RowIterator rowBegin ();
@@ -375,8 +350,8 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	typedef MatrixRawIterator<ConstRowIterator, typename VectorTraits<Row>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
    
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, typename VectorTraits<Row>::VectorCategory, false> ConstRawIndexedIterator;
 
@@ -472,13 +447,7 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 	void eraseEntry (size_t i, size_t j)
 		{ _M->eraseEntry (_beg_row + i, _beg_col + j); }
 
-	Element &refEntry (size_t i, size_t j)
-		{ return _M->refEntry (i + _beg_row, j + _beg_col); } 
-
-	const Element getEntry (size_t i, size_t j) const
-		{ return _M->getEntry (i + _beg_row, j + _beg_col); } 
-
-	Element &getEntry (Element &x, size_t i, size_t j)
+	bool getEntry (Element &x, size_t i, size_t j) const
 		{ return _M->getEntry (x, i + _beg_row, j + _beg_col); } 
 
 	inline ColIterator colBegin ();
@@ -489,8 +458,8 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 	typedef MatrixRawIterator<ConstColIterator, typename VectorTraits<Column>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
    
-	ConstRawIterator rawBegin () const { return ConstRawIterator (colBegin (), 0); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (colEnd (), 0); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (colBegin (), 0, colEnd ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (colEnd (), 0, colEnd ()); }
 
 	typedef MatrixRawIndexedIterator<ConstColIterator, typename VectorTraits<Column>::VectorCategory, true> ConstRawIndexedIterator;
 

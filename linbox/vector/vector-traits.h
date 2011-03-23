@@ -34,7 +34,7 @@
 
 #include "linbox/field/archetype.h"
 #include "linbox/field/rebind.h"
-#include "linbox/vector/sparse.h"
+#include "linbox/vector/bit-iterator.h"
 
 namespace LinBox
 {
@@ -165,22 +165,6 @@ struct VectorTraits< std::vector<Element> >
 { 
 	typedef std::vector<Element> VectorType;
 	typedef typename VectorCategories::DenseVectorTag VectorCategory; 
-};
-
-// Specialisation for ConstSparseVector
-template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
-struct VectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
-{ 
-	typedef ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
-};
-
-// Specialisation for SparseVector
-template <class Element, class IndexVector, class ElementVector>
-struct VectorTraits< SparseVector<Element, IndexVector, ElementVector> >
-{ 
-	typedef SparseVector<Element, IndexVector, ElementVector> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
 };
 
 // Specialization for STL vectors of pairs of size_t and elements
@@ -362,6 +346,67 @@ namespace VectorWrapper
 		}
 	}
 
+	template <class Element, class Vector>
+	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::DenseVectorTag)
+		{ a = v[i]; return true; }
+
+	template <class Element, class Vector>
+	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::SparseSequenceVectorTag)
+	{
+		typename Vector::const_iterator j;
+
+		if (v.size () == 0)
+			return false;
+
+		j = std::lower_bound (v.begin (), v.end (), i, CompareSparseEntries<Element> ());
+
+		if (j == v.end () || j->first != i)
+			return false;
+		else {
+			a = j->second;
+			return true;
+		}
+	}
+
+	template <class Element, class Vector>
+	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::SparseZeroOneVectorTag)
+	{
+		typename Vector::const_iterator j;
+
+		if (v.size () == 0)
+			return false;
+
+		j = std::lower_bound (v.begin (), v.end (), i);
+
+		if (j == v.end () || *j != i)
+			return false;
+		else {
+			a = true;
+			return true;
+		}
+	}
+
+	template <class Element, class Vector>
+	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::HybridZeroOneVectorTag)
+	{
+		typedef typename Vector::second_type::Endianness Endianness;
+		typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
+
+		typename Vector::first_type::const_iterator idx;
+
+		idx = std::lower_bound (v.first.begin (), v.first.end (), i >> WordTraits<word_type>::logof_size);
+
+		if (idx != v.first.end () && *idx == i >> WordTraits<word_type>::logof_size) {
+			a = *(v.second.wordBegin () + (idx - v.first.begin ())) & Endianness::e_j (i & WordTraits<word_type>::pos_mask);
+			return a;
+		} else
+			return false;
+	}
+
+	template <class Element, class Vector>
+	inline bool getEntry (const Vector &v, Element &a, size_t i) 
+		{ return getEntrySpecialised<Element, Vector> (v, a, i, typename VectorTraits<Vector>::VectorCategory()); }
+
 	template <class Vector>
 	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::DenseZeroOneVectorTag)
 		{ v.resize (n); }
@@ -397,6 +442,10 @@ namespace VectorWrapper
 
 // Now we create some "canonical" vector types, so that users don't 
 // always have to typedef everything
+
+// Forward-declaration
+template <class Element, class IndexVector = std::vector<size_t>, class ElementVector = std::vector<Element> >
+class SparseVector;
 
 /** Canonical vector types
  *

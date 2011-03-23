@@ -28,6 +28,7 @@ BASIC_TESTS =  \
         test-ffpack             \
         test-gf2                \
         test-gmp-rational       \
+	test-matrix		\
         test-matrix-domain      \
         test-modular            \
         test-modular-byte       \
@@ -126,6 +127,11 @@ test_modular_balanced_int32_SOURCES =             \
         test-modular-balanced-int32.C             \
         test-generic.h                  \
         test-common.C
+
+test_matrix_SOURCES = \
+	test-matrix.C \
+	test-common.C \
+	test-matrix.h
 
 test_blas_domain_SOURCES=                \
         test-common.C   \

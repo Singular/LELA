@@ -50,6 +50,7 @@ tests/test-hom
 tests/test-inverse
 tests/test-isposdef
 tests/test-ispossemidef
+tests/test-matrix
 tests/test-matrix-domain
 tests/test-matrix-stream
 tests/test-minpoly
