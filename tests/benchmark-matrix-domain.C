@@ -43,6 +43,14 @@ void runBenchmarks (const Field &F)
 {
 	typedef typename Field::Element Element;
 
+	MatrixDomain<Field> MD (F);
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	typename Field::Element a;
+	r.random (a);
+
+	DenseMatrix<Element> C (l, n);
+
 	if (enable_dense) {
 		RandomDenseStream<Field, typename DenseMatrix<Element>::Row> stream1 (F, m, l);
 		RandomDenseStream<Field, typename DenseMatrix<Element>::Row> stream2 (F, n, m);
@@ -50,7 +58,9 @@ void runBenchmarks (const Field &F)
 		DenseMatrix<Element> M1 (stream1);
 		DenseMatrix<Element> M2 (stream2);
 
-		testGemmCoeff (F, "dense", M1, M2);
+		commentator.start ("gemm (dense)", "gemm");
+		MD.gemm (a, M1, M2, F.zero (), C);
+		commentator.stop ("done");
 	}
 
 	if (enable_sparse) {
@@ -60,7 +70,15 @@ void runBenchmarks (const Field &F)
 		SparseMatrix<Element> M1 (stream1);
 		SparseMatrix<Element> M2 (stream2);
 
-		testGemmCoeff (F, "sparse (SparseVector)", M1, M2);
+		commentator.start ("gemm (SparseVector)", "gemm");
+		MD.gemm (a, M1, M2, F.zero (), C);
+		commentator.stop ("done");
+
+		TransposeMatrix<SparseMatrix<Element> > M2T (M2);
+
+		commentator.start ("gemm (SparseVector transpose)", "gemm");
+		MD.gemm (a, M1, M2T, F.zero (), C);
+		commentator.stop ("done");
 	}
 
 	if (enable_sparse_parallel) {
@@ -70,7 +88,15 @@ void runBenchmarks (const Field &F)
 		SparseMatrix<Element, typename Vector<Field>::SparsePar> M1 (stream1);
 		SparseMatrix<Element, typename Vector<Field>::SparsePar> M2 (stream2);
 
-		testGemmCoeff (F, "sparse (parallel)", M1, M2);
+		commentator.start ("gemm (sparse parallel)", "gemm");
+		MD.gemm (a, M1, M2, F.zero (), C);
+		commentator.stop ("done");
+
+		TransposeMatrix<SparseMatrix<Element, typename Vector<Field>::SparsePar> > M2T (M2);
+
+		commentator.start ("gemm (sparse parallel transpose)", "gemm");
+		MD.gemm (a, M1, M2T, F.zero (), C);
+		commentator.stop ("done");
 	}
 }
 

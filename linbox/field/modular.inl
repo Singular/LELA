@@ -96,6 +96,68 @@ inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDSP
 }
 
 template <class Vector1, class Vector2>
+inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDS
+	(uint8 &res, const Vector1 &v1, const Vector2 &v2) const
+{
+	typename Vector1::const_iterator i = v1.begin ();
+
+	uint64 y = 0;
+
+	if (v1.size () < _F._k) {
+		for (; i != v1.end (); ++i)
+			y += (uint64) i->second * (uint64) v2[i->first];
+
+		return res = y % (uint64) _F._modulus;
+	} else {
+		typename Vector1::const_iterator iterend = v1.begin () + v1.size() % _F._k;
+
+		for (; i != iterend; ++i)
+			y += (uint64) i->second * (uint64) v2[i->first];
+
+		y %= (uint64) _F._modulus;
+
+		while (iterend != v1.end ()) {
+			typename Vector1::const_iterator iter_i = iterend;
+
+			iterend += _F._k;
+			i += _F._k;
+
+			for (; iter_i != iterend; ++iter_i)
+				y += (uint64) iter_i->second * (uint64) v2[iter_i->first];
+
+			y %= (uint64) _F._modulus;
+		}
+
+		return res = y;
+	}
+}
+
+template <class Vector1, class Vector2>
+inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedSS
+	(uint8 &res, const Vector1 &v1, const Vector2 &v2) const
+{
+	typename Vector1::const_iterator i = v1.begin ();
+	typename Vector2::const_iterator j = v2.begin ();
+
+	uint64 y = 0, count;
+
+	while (i != v1.end () && j != v2.end ()) {
+		for (count = 0; count < _F._k && i != v1.end () && j != v2.end (); ++i) {
+			while (j != v2.end () && j->first < i->first) ++j;
+
+			if (j != v2.end () && i->first == j->first) {
+				y += (uint64) i->second * (uint64) j->second;
+				++count;
+			}
+		}
+
+		y %= (uint64) _F._modulus;
+	}
+
+	return res = y;
+}
+
+template <class Vector1, class Vector2>
 inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDD
 	(uint16 &res, const Vector1 &v1, const Vector2 &v2) const
 {
@@ -209,6 +271,51 @@ inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDSP
 	y %= (uint64) _F._modulus;
 
 	return res = y;
+}
+
+template <class Vector1, class Vector2>
+inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDS
+	(uint32 &res, const Vector1 &v1, const Vector2 &v2) const
+{
+	typename Vector1::const_iterator i = v1.begin ();
+
+	uint64 y = 0, t;
+
+	for (i; i != v1.end (); ++i) {
+		t = (uint64) i->second * (uint64) v2[i->first];
+		y += t;
+
+		if (y < t)
+			y += _F._two_64;
+	}
+  
+	y %= (uint64) _F._modulus;
+
+	return res = y;
+}
+
+template <class Vector1, class Vector2>
+inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedSS
+	(uint32 &res, const Vector1 &v1, const Vector2 &v2) const
+{
+	typename Vector1::const_iterator i = v1.begin ();
+	typename Vector2::const_iterator j = v2.begin ();
+
+	uint64 y = 0, t;
+
+	for (; i != v1.end () && j != v2.end (); ++i) {
+		while (j != v2.end () && j->first < i->first) ++j;
+
+		if (j != v2.end () && i->first == j->first) {
+			t = (uint64) i->second * (uint64) j->second;
+			y += t;
+
+			if (y < t)
+				y += _F._two_64;
+		}
+	}
+
+	return res = y % (uint64) _F._modulus;
 }
 
 template <class Vector1, class Matrix, class Vector2>

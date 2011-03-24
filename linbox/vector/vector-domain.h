@@ -102,6 +102,11 @@ protected:
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
+	template <class Vector1, class Vector2>
+	inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Vector1, class Vector2>
+	inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 };
 
 
@@ -665,7 +670,8 @@ protected:
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::SparseSequenceVectorTag,
-					VectorCategories::DenseVectorTag) const;
+					VectorCategories::DenseVectorTag) const
+		{ return DotProductDomain<Field>::dotSpecializedDS (res, v1, v2); }
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::SparseAssociativeVectorTag,
@@ -684,7 +690,8 @@ protected:
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::SparseSequenceVectorTag,
-					VectorCategories::SparseSequenceVectorTag) const;
+					VectorCategories::SparseSequenceVectorTag) const
+		{ return DotProductDomain<Field>::dotSpecializedSS (res, v1, v2); }
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
 					VectorCategories::SparseAssociativeVectorTag,

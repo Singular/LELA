@@ -137,8 +137,8 @@ static bool testScalAxpyIsZero (Field &F, const char *text, const Matrix &M)
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-static bool testGemmCoeff (Field &F, const char *text, const Matrix &A, const Matrix &B)
+template <class Field, class Matrix1, class Matrix2>
+static bool testGemmCoeff (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 

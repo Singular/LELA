@@ -169,9 +169,9 @@ struct VectorTraits< std::vector<Element> >
 
 // Specialization for STL vectors of pairs of size_t and elements
 template <class Element> 
-struct VectorTraits< std::vector< std::pair<size_t, Element> > >
+struct VectorTraits< std::vector< std::pair<uint32, Element> > >
 { 
-	typedef std::vector< std::pair<size_t, Element> > VectorType;
+	typedef std::vector< std::pair<uint32, Element> > VectorType;
 	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
 
 	static void sort (VectorType& v) { std::stable_sort(v.begin(), v.end(), SparseSequenceVectorPairLessThan<Element>()); }
@@ -207,9 +207,9 @@ struct VectorTraits< std::map<size_t, Element> >
 
 // Specialization for an STL pair of an STL vector of size_t's and an STL vector of elements
 template <class Element> 
-struct VectorTraits< std::pair<std::vector<size_t>, std::vector<Element> > >
+struct VectorTraits< std::pair<std::vector<uint32>, std::vector<Element> > >
 { 
-	typedef std::pair<std::vector<size_t>, std::vector<Element> > VectorType;
+	typedef std::pair<std::vector<uint32>, std::vector<Element> > VectorType;
 	typedef typename VectorCategories::SparseParallelVectorTag VectorCategory; 
 };
 
@@ -444,7 +444,7 @@ namespace VectorWrapper
 // always have to typedef everything
 
 // Forward-declaration
-template <class Element, class IndexVector = std::vector<size_t>, class ElementVector = std::vector<Element> >
+template <class Element, class IndexVector = std::vector<uint32>, class ElementVector = std::vector<Element> >
 class SparseVector;
 
 /** Canonical vector types
@@ -460,9 +460,9 @@ struct RawVector
 {
 	typedef std::vector<Element> Dense;
 	typedef SparseVector<Element> Sparse;
-	typedef std::vector<std::pair<size_t, Element> > SparseSeq;
-	typedef std::map<size_t, Element> SparseMap;
-	typedef std::pair<std::vector<size_t>, std::vector<Element> > SparsePar;
+	typedef std::vector<std::pair<uint32, Element> > SparseSeq;
+	typedef std::map<uint32, Element> SparseMap;
+	typedef std::pair<std::vector<uint32>, std::vector<Element> > SparsePar;
 };
 
 template <class Field>

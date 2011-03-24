@@ -1333,6 +1333,12 @@ class DotProductDomain<Modular<uint8> > : private virtual VectorDomainBase<Modul
 
 	template <class Vector1, class Vector2>
 		inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Vector1, class Vector2>
+		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Vector1, class Vector2>
+		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 };
 
 // Specialization of DotProductDomain for unsigned short modular field
@@ -1354,6 +1360,12 @@ class DotProductDomain<Modular<uint16> > : private virtual VectorDomainBase<Modu
 
 	template <class Vector1, class Vector2>
 		inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Vector1, class Vector2>
+		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Vector1, class Vector2>
+		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 };
 
 // Specialization of DotProductDomain for uint32 modular field
@@ -1375,6 +1387,12 @@ class DotProductDomain<Modular<uint32> > : private virtual VectorDomainBase<Modu
 
 	template <class Vector1, class Vector2>
 		inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Vector1, class Vector2>
+		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Vector1, class Vector2>
+		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 };
 
 // Specialization of MVProductDomain for uint8 modular field

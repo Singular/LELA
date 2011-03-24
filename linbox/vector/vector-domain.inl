@@ -2072,12 +2072,10 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDD
 
 template <class Field>
 template <class Vector1, class Vector2>
-inline typename Field::Element &VectorDomain<Field>::dotSpecialized
+inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDS
 	(Element       &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 VectorCategories::SparseSequenceVectorTag,
-	 VectorCategories::DenseVectorTag) const
+	 const Vector2 &v2) const
 {
 	typename Vector1::const_iterator i;
 		
@@ -2126,19 +2124,17 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDSP
 
 template <class Field>
 template <class Vector1, class Vector2>
-inline typename Field::Element &VectorDomain<Field>::dotSpecialized
+inline typename Field::Element &DotProductDomain<Field>::dotSpecializedSS
 	(Element       &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 VectorCategories::SparseSequenceVectorTag,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 const Vector2 &v2) const
 {
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (), j = v2.begin (); i != v1.end () && j != v2.end (); i++) {
-		while (j != v2.end () && j->first < i->first) j++;
+	for (i = v1.begin (), j = v2.begin (); i != v1.end () && j != v2.end (); ++i) {
+		while (j != v2.end () && j->first < i->first) ++j;
 
 		if (j != v2.end () && j->first == i->first)
 			VectorDomainBase<Field>::accu.mulacc (i->second, j->second);
