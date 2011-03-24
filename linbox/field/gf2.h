@@ -1,5 +1,5 @@
 /* linbox/field/gf2.h
- * Copyright (C) 2003-2007 The LinBox group
+ * Copyright 2003-2007 The LinBox group
  *
  * Authors : B. Hovinen, JG Dumas, C. Pernet
  *
@@ -51,8 +51,6 @@ struct ClassifyRing<GF2> {
 class GF2 : public FieldInterface
 {
     public:
-    const bool zero,one,mone;
-    
 
 	/** Element type
 	 */
@@ -70,10 +68,14 @@ class GF2 : public FieldInterface
  
 	/** Default constructor.
 	 */
-	GF2 () : zero(false),one(true),mone(true) {}
-	GF2 (int p, int exp = 1) : zero(false),one(true),mone(true) {
-		if(p != 2) throw PreconditionFailed(__FUNCTION__,__LINE__,"modulus must be 2");
-		if(exp != 1) throw PreconditionFailed(__FUNCTION__,__LINE__,"exponent must be 1");
+	GF2 () {}
+	GF2 (int p, int exp = 1)
+	{
+		if (p != 2)
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus must be 2");
+
+		if (exp != 1)
+			throw PreconditionFailed (__FUNCTION__, __LINE__, "exponent must be 1");
 	}
 
 	/** Copy constructor.
@@ -82,7 +84,7 @@ class GF2 : public FieldInterface
 	 * into functions.
 	 * @param  F Modular object.
 	 */
-	GF2 (const GF2 &) : zero(false),one(true),mone(true) {}
+	GF2 (const GF2 &) {}
 
 	/** Assignment operator
 	 * Required by the archetype
@@ -592,6 +594,15 @@ class GF2 : public FieldInterface
 	//@} Inplace Arithmetic Operations
 
 	static inline int getMaxModulus() { return 2; }
+
+	/// Return the zero-element of the field
+	Element zero () const { return false; }
+
+	/// Return the one-element of the field
+	Element one () const { return true; }
+
+	/// Return the negative of the one-element of the field
+	Element minusOne () const { return true; }
 
 }; // class GF2
 

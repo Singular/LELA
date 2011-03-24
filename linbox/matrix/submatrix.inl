@@ -67,8 +67,11 @@ class SubmatrixConstRowIterator {
 	typedef typename std::iterator_traits<SubmatrixConstRowIterator<Matrix, Trait> >::difference_type difference_type;
 
 	SubmatrixConstRowIterator () {}
-	SubmatrixConstRowIterator (const Submatrix<Matrix, Trait> *M, typename Matrix::ConstRowIterator pos)
+
+	template <class It>
+	SubmatrixConstRowIterator (const Submatrix<Matrix, Trait> *M, It pos)
 		: _M (M), _pos (pos), _row_valid (false) {}
+
 	SubmatrixConstRowIterator (const SubmatrixConstRowIterator &i) : _M (i._M), _pos (i._pos), _row (i._row), _row_valid (i._row_valid) {}
 
 	SubmatrixConstRowIterator &operator = (const SubmatrixConstRowIterator &i) {

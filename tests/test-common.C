@@ -1,26 +1,13 @@
 /* linbox/tests/test-common.C
- * Copyright (C) 2001, 2002 Bradford Hovinen
+ * Copyright 2001, 2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Written by Bradford Hovinen <hovinen@gmail.com>
+ * 
+ * See COPYING for license information.
  */
+
 #ifndef __LINBOX_test_common_C
 #define __LINBOX_test_common_C
-
 
 #include "linbox/linbox-config.h"
 
@@ -41,7 +28,7 @@ using namespace LinBox;
 
 /* Display a help message on command usage */
 
-void printHelpMessage (const char *program, Argument *args, bool printDefaults = false) 
+void printHelpMessage (const char *program, Argument *args, bool printDefaults) 
 {
 	int i, l;
 
@@ -181,13 +168,16 @@ void parseArguments (int argc, char **argv, Argument *args, bool printDefaults)
 	}
 }
 
-std::ostream& writeCommandString (std::ostream& os, Argument *args, char* programName) {
+std::ostream& writeCommandString (std::ostream& os, Argument *args, char* programName)
+{
 	os << programName;
+
 	for (int i = 0; args[i].c != '\0'; i++) {
 		cout << " -" << args[i].c;
+
 		switch (args[i].type) {
 		case TYPE_NONE:
-			if (! (*(bool *)args[i].data)) os << " N";
+			if (! (*(bool *) args[i].data)) os << " N";
 			break;
 		case TYPE_INT:
 			os << ' ' << *(int *) args[i].data;
@@ -200,6 +190,7 @@ std::ostream& writeCommandString (std::ostream& os, Argument *args, char* progra
 			break;
 		}
 	}
+
 	return os << std::endl;
 }
 
@@ -233,7 +224,14 @@ double chiSquaredCDF (double chi_sqr, double df)
 {
 	return incompleteGamma (df / 2.0, chi_sqr / 2.0, 1e-10) / exp (gamma (df / 2.0));
 }
+
 #endif // __LINBOX_test_common_C
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

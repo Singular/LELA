@@ -45,12 +45,13 @@ BASIC_TESTS =  \
 # a benchmarker, not to be included in check.
 BENCHMARKS =                    \
         benchmark-fields        \
+	benchmark-matrix-domain	\
         benchmark-blas-domain
 
 NON_COMPILING_TESTS = \
         test-blas-domain        
 
-EXTRA_PROGRAMS = $(NON_COMPILING_TESTS)
+EXTRA_PROGRAMS = $(NON_COMPILING_TESTS) $(BENCHMARKS)
 
 TESTS =                               \
         $(BASIC_TESTS)
@@ -102,6 +103,7 @@ test_vector_domain_SOURCES =                 \
 
 test_matrix_domain_SOURCES =                 \
         test-matrix-domain.C                \
+        test-matrix-domain.h                \
         test-common.C
 
 test_modular_int32_SOURCES =                \
@@ -140,3 +142,8 @@ test_blas_domain_SOURCES=                \
 test_ffpack_SOURCES=                \
         test-common.C   \
         test-ffpack.C
+
+benchmark_matrix_domain_SOURCES = \
+	benchmark-matrix-domain.C \
+	test-common.C		\
+	test-matrix-domain.h

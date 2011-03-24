@@ -59,21 +59,28 @@ class Subvector //: public Vector // for types
 	typedef std::reverse_iterator<iterator>	                    reverse_iterator;
 	typedef std::reverse_iterator<const_iterator>               const_reverse_iterator;
    	
-	Subvector() : _begin(Iterator ()), _end(Iterator ()) {}
+	Subvector () : _begin (Iterator ()), _end (Iterator ()) {}
    	
 	template<class Vector>
-	Subvector (Vector& v, size_type start, size_type stride, size_type length)
-	: _begin (iterator (v.begin() + start, stride)),
-	  _end   (iterator (v.begin() + start + (stride * length), stride)) {}
+	Subvector (Vector &v, size_type start, size_type stride, size_type length)
+		: _begin (iterator (v.begin() + start, stride)),
+		  _end   (iterator (v.begin() + start + (stride * length), stride)) {}
 	
-	Subvector(iterator begin, iterator end) : _begin(begin), _end(end) {}
+	Subvector (iterator begin, iterator end)
+		: _begin (begin), _end (end) {}
 	
-	Subvector(iterator begin, size_type length) : _begin(begin), _end(begin + length) {}
+	Subvector (iterator begin, size_type length)
+		: _begin (begin), _end (begin + length) {}
 	
 	//copy constructor
-	Subvector(const Subvector& x) : _begin(x._begin), _end(x._end) {}
+	Subvector (const Subvector &x)
+		: _begin (x._begin), _end (x._end) {}
+
+	template <class It, class CIt>
+	Subvector (const Subvector<It, CIt> &x)
+		: _begin (x._begin), _end (x._end) {}
 	
-	~Subvector() {}
+	~Subvector () {}
 	
 	// Iterators
 	
@@ -168,6 +175,8 @@ class Subvector //: public Vector // for types
 	
 	
     protected:
+	template <class It, class CIt>
+	friend class Subvector;
 	
 	iterator _begin; // a subiterator of wrapped vector
 	iterator _end;	 // a subiterator of wrapped vector

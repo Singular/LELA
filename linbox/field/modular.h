@@ -218,8 +218,7 @@ public:
 	 * @param  x   field base element.
 	 */
 	std::ostream &write (std::ostream &os, const Element &x) const
-		{ return os << x; }
- 
+		{ return os << (long) x; }
 
 	/*- Read field base element.
 	 * This function assumes the field base element has already been

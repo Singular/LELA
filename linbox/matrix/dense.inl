@@ -52,6 +52,10 @@ class DenseMatrixRowIterator
 	DenseMatrixRowIterator (const DenseMatrixRowIterator &colp)
 		: _row (colp._row), _dis (colp._dis) {}
 
+	template <class It, class CIt>
+	DenseMatrixRowIterator (const DenseMatrixRowIterator<It, CIt> &colp)
+		: _row (colp._row), _dis (colp._dis) {}
+
 	DenseMatrixRowIterator &operator = (const DenseMatrixRowIterator &colp)
 	{
 		_row = colp._row;
@@ -287,11 +291,11 @@ class SubvectorFactory<DenseMatrix<Element> >
 
 	RowSubvector MakeRowSubvector (Submatrix<DenseMatrix<Element> > &M,
 				       typename DenseMatrix<Element>::RowIterator &pos)
-		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + M.endCol ()); }
+		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 
 	ConstRowSubvector MakeConstRowSubvector (const Submatrix<DenseMatrix<Element> > &M,
 						 typename DenseMatrix<Element>::ConstRowIterator &pos)
-		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + M.endCol ()); }
+		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 
 	ColSubvector MakeColSubvector (Submatrix<DenseMatrix<Element> > &M,
 				       typename DenseMatrix<Element>::ColIterator &pos)
