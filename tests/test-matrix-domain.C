@@ -52,12 +52,12 @@ int main (int argc, char **argv)
 
 	Field F (q);
 
-	commentator.start ("Matrix domain test suite", "MatrixDomain");
-
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
+
+	commentator.start ("Matrix domain test suite", "MatrixDomain");
 
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1 (F, l, 1);
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2 (F, m, 1);

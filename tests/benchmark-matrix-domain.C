@@ -140,9 +140,11 @@ int main (int argc, char **argv)
 	}
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, true, false, false);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (3);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_IMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
+	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (2);
+	commentator.getMessageClass (BRIEF_REPORT).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 
 	commentator.start ("Matrix domain benchmark suite", "MatrixDomain");
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2010 the LinBox group
+# Copyright 2010 the LinBox group
 # This file is part of LinBox
 # see COPYING for licence
 
@@ -8,6 +8,8 @@ INCLUDES=-I$(top_srcdir) -I$(top_builddir)
 AM_CXXFLAGS = -g -Wall -DDEBUG -O0
 #AM_CXXFLAGS = -g -Wall -D__LINBOX_HAVE_DGETRF -D__LINBOX_HAVE_DGETRI 
 #AM_CFLAGS = -g -Wall
+
+BENCHMARK_CXXFLAGS = -O2
 
 SUBDIRS = data
 
@@ -146,4 +148,6 @@ test_ffpack_SOURCES=                \
 benchmark_matrix_domain_SOURCES = \
 	benchmark-matrix-domain.C \
 	test-common.C		\
-	test-matrix-domain.h
+	test-matrix-domain.h>
+
+benchmark_matrix_domain_CXXFLAGS = ${BENCHMARK_CXXFLAGS}
