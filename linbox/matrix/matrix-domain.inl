@@ -359,15 +359,15 @@ Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vec
 	int i = A.rowdim ();
 
 	while (--i >= 0) {
-		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
+		if (!VectorWrapper::getEntry (*(A.rowBegin () + i), ai, i))
 			continue;
 
 		_VD.dot (d, *(A.rowBegin () + i), x);
 
+		_F.invin (ai);
 		_F.add (ai_p_1, ai, _F.one ());
 		_F.mulin (x[i], ai_p_1);
-		_F.inv (neg_ai_inv, ai);
-		_F.negin (neg_ai_inv);
+		_F.neg (neg_ai_inv, ai);
 		_F.axpyin (x[i], neg_ai_inv, d);
 	}
 
