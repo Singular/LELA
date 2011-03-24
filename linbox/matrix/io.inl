@@ -80,6 +80,8 @@ std::istream &MatrixReader<Field>::readTurner (std::istream &is, Matrix &A) cons
 
 	char buf[BUF_SIZE];
 
+	is.getline (buf, 80);
+
 	do {
 		std::istringstream str (buf);
 
@@ -105,21 +107,16 @@ template <class Matrix>
 std::istream &MatrixReader<Field>::readGuillaume (std::istream &is, Matrix &A) const
 {
 	size_t m, n, i, j;
-
-	char buf[BUF_SIZE];
-
-	std::istringstream str (buf);
-	str >> m >> n;
-	A.resize (m, n);
-		
-	typename Field::Element x;
-
 	char c;
 
-	is >> i >> j >> c;
+	is >> m >> n >> c;
 
 	if (c != 'M')
 		throw InvalidMatrixInput ();
+
+	A.resize (m, n);
+
+	typename Field::Element x;
 
 	while (is >> i) {
 		if (i == 0 || i == (size_t) -1) {
@@ -212,12 +209,14 @@ std::istream &MatrixReader<Field>::readPretty (std::istream &is, Matrix &A) cons
 
 	char buf[BUF_SIZE];
 
+	is.getline (buf, 80);
+
 	i = 0;
 
 	do {
 		std::istringstream str (buf);
 
-		do str >> c; while (isspace (c));
+		str >> c;
 
 		if (c != '[')
 			throw InvalidMatrixInput ();
@@ -225,19 +224,29 @@ std::istream &MatrixReader<Field>::readPretty (std::istream &is, Matrix &A) cons
 		j = 0;
 
 		while (str) {
-			do
-				str >> c;
-			while (isspace (c));
+			while (isspace (str.peek ()))
+				str.ignore (1);
 
-			if (!str || c == ']')
+			c = str.peek ();
+
+			switch (c) {
+			case ']':
+				str >> c;
 				break;
 
-			_F.read (str, a_ij);
+			case '.':
+				str >> c;
+				j++;
+				continue;
 
-			j++;
+			default:
+				_F.read (str, a_ij);
 
-			if (!_F.isZero(a_ij))
-				A.setEntry (i, j, a_ij);
+				if (!_F.isZero (a_ij))
+					A.setEntry (i, j, a_ij);
+
+				j++;
+			}
 		}
 
 		is.getline (buf, 80);
@@ -331,6 +340,8 @@ std::ostream &MatrixWriter<Field>::writeTurner (std::ostream &os, const Matrix &
 		os << i_idx->first << ' ' << i_idx->second << ' ';
 		_F.write (os, *i_elt) << std::endl;
 	}
+
+	os << "-1" << std::endl;
 
 	return os;
 }

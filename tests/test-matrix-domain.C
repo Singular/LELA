@@ -1147,13 +1147,13 @@ bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, Fil
 	ostringstream output;
 	MD.write (output, M, format);
 
+	report << "Matrix-output as string:" << std::endl << output.str ();
+
 	istringstream input (output.str ());
 	MD.read (input, M1, format);
 
-	report << "Matrix-output as string:" << std::endl << output.str ();
-
 	report << "Matrix as read from " << format_names[format] << " format" << std::endl;
-	MD.write (output, M1);
+	MD.write (report, M1);
 
 	if (!MD.areEqual (M, M1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -1344,7 +1344,7 @@ int main (int argc, char **argv)
 	commentator.start("Matrix domain test suite", "MatrixDomain");
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 
