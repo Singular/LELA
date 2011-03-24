@@ -332,10 +332,8 @@ bool testRawIterator (const Field &F, const Matrix &M)
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: M_(" << i_idx->first << "," << i_idx->second << ") listed in RawIndexedIterator but not present in matrix according to getEntry";
 			pass = false;
-			continue;
 		}
-
-		if (!F.areEqual (a, *i_elt)) {
+		else if (!F.areEqual (a, *i_elt)) {
 			std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 			error << "ERROR: M_(" << i_idx->first << "," << i_idx->second << ") = ";
 			F.write (error, a) << " (from getEntry) and ";
@@ -425,24 +423,21 @@ bool testSubmatrixDim (const Field &F, Matrix &M, size_t row_begin, size_t col_b
 					commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 						<< "ERROR: M'_(" << i << "," << j << ") exists, but M_(" << i + row_begin << "," << j + col_begin << ") does not" << std::endl;
 					pass1 = false;
-					continue;
+				}
+				else if (!F.areEqual (a, b)) {
+					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+					error << "ERROR: M'_(" << i << "," << j << ") != M_(" << i + row_begin << "," << j + col_begin << ")" << std::endl
+					      << "M'_(" << i << "," << j << "): ";
+					F.write (error, a) << std::endl << "M_(" << i + row_begin << "," << j + col_begin << "): ";
+					F.write (error, b) << std::endl;
+					pass1 = false;
 				}
 			} else {
 				if (M.getEntry (b, i + row_begin, j + col_begin)) {
 					commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 						<< "ERROR: M'_(" << i << "," << j << ") does not exist, but M_(" << i + row_begin << "," << j + col_begin << ") does" << std::endl;
 					pass1 = false;
-					continue;
 				}
-			}
-
-			if (!F.areEqual (a, b)) {
-				std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
-				error << "ERROR: M'_(" << i << "," << j << ") != M_(" << i + row_begin << "," << j + col_begin << ")" << std::endl
-				      << "M'_(" << i << "," << j << "): ";
-				F.write (error, a) << std::endl << "M_(" << i + row_begin << "," << j + col_begin << "): ";
-				F.write (error, b) << std::endl;
-				pass1 = false;
 			}
 		}
 	}
@@ -502,24 +497,21 @@ bool testTransposeMatrix (const Field &F, Matrix &M)
 					commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 						<< "ERROR: M_(" << i << "," << j << ") exists, but M^T_(" << j << "," << i << ") does not" << std::endl;
 					pass = false;
-					continue;
+				}
+				else if (!F.areEqual (a, b)) {
+					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+					error << "ERROR: M_(" << i << "," << j << ") != M^T_(" << j << "," << i << ")" << std::endl
+					      << "M_(" << i << "," << j << "): ";
+					F.write (error, a) << std::endl << "M^T_(" << j << "," << i << "): ";
+					F.write (error, b) << std::endl;
+					pass = false;
 				}
 			} else {
 				if (MT.getEntry (b, j, i)) {
 					commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 						<< "ERROR: M_(" << i << "," << j << ") does not exist, but M^T_(" << j << "," << i << ") does" << std::endl;
 					pass = false;
-					continue;
 				}
-			}
-
-			if (!F.areEqual (a, b)) {
-				std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
-				error << "ERROR: M_(" << i << "," << j << ") != M^T_(" << j << "," << i << ")" << std::endl
-				      << "M_(" << i << "," << j << "): ";
-				F.write (error, a) << std::endl << "M^T_(" << j << "," << i << "): ";
-				F.write (error, b) << std::endl;
-				pass = false;
 			}
 		}
 	}

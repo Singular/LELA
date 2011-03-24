@@ -143,7 +143,7 @@ class DenseMatrixColIterator
 	DenseMatrixColIterator () {}
     
 	DenseMatrixColIterator (const DenseMatrixColIterator &rowp)
-		: _col (rowp._col) {}
+		: _col (rowp._col), _stride (rowp._stride) {}
     
 	DenseMatrixColIterator &operator = (const DenseMatrixColIterator &rowp)
 	{

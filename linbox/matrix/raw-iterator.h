@@ -97,7 +97,7 @@ class MatrixRawIterator<Iterator, VectorCategories::SparseSequenceVectorTag>
 
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::second_type value_type;
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
-	typedef value_type &reference;
+	typedef value_type reference;
 	typedef const reference const_reference;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos, Iterator rowcol_end)
