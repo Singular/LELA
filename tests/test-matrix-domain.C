@@ -451,12 +451,12 @@ void rowEchelon (MatrixDomain<Field> &MD, Matrix1 &U, Matrix1 &R, const Matrix2 
 	MD.copy (M1, A);
 
 	unsigned int idx;
-	typename Field::Element Mjj_inv;
+	typename Field::Element Mjj_inv, a;
 
 	rank = 0;
 
 	for (idx = 0; idx < M.rowdim (); ++idx) {
-		if (MD.field ().isZero (M.getEntry (idx, idx))) {
+		if (!M.getEntry (a, idx, idx) || MD.field ().isZero (a)) {
 			typename DenseMatrix<typename Matrix1::Element>::ColIterator col;
 			typename DenseMatrix<typename Matrix1::Element>::Col::iterator i;
 			unsigned int c_idx = idx + 1;
@@ -479,7 +479,8 @@ void rowEchelon (MatrixDomain<Field> &MD, Matrix1 &U, Matrix1 &R, const Matrix2 
 			}
 		}
 
-		MD.field ().inv (Mjj_inv, M.getEntry (idx, idx));
+		M.getEntry (Mjj_inv, idx, idx);
+		MD.field ().invin (Mjj_inv);
 		DenseSubmatrix<typename Matrix1::Element> realPivotRow (M, idx, idx, 1, M.coldim () - idx);
 		MD.scal (realPivotRow, Mjj_inv);
 
@@ -803,9 +804,11 @@ static Matrix &makeUpperTriangular (Field &F, Matrix &A)
 {
 	size_t i, j;
 
+	typename Field::Element a;
+
 	for (i = 0; i < A.rowdim (); ++i) {
 		for (j = 0; j < std::min (i, A.coldim ()); ++j) {
-			if (!F.isZero (A.getEntry (i, j))) {
+			if (A.getEntry (a, i, j) && !F.isZero (a)) {
 				A.setEntry (i, j, F.zero ());
 				A.eraseEntry (i, j);
 			}
@@ -814,9 +817,12 @@ static Matrix &makeUpperTriangular (Field &F, Matrix &A)
 
 	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
-	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i)
-		if (F.isZero (A.getEntry (i, i)))
-			r.random (A.refEntry (i, i));
+	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
+		if (!A.getEntry (a, i, i) || F.isZero (a)) {
+			r.random (a);
+			A.setEntry (i, i, a);
+		}
+	}
 
 	return A;
 }

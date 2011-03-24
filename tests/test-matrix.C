@@ -83,9 +83,9 @@ int main (int argc, char **argv)
 {
 	bool pass = true;
 
-	static long m = 50;
-	static long n = 50;
-	static long k = 10;
+	static long m = 10;
+	static long n = 10;
+	static long k = 3;
 	static integer q = 2147483647U;
 	static int iterations = 1;
 
