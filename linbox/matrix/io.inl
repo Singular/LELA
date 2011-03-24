@@ -207,40 +207,40 @@ std::istream &MatrixReader<Field>::readPretty (std::istream &is, Matrix &A) cons
 	typename Field::Element a_ij;
 	char c;
 
-	char buf[BUF_SIZE];
-
-	is.getline (buf, 80);
-
 	i = 0;
 
-	do {
-		std::istringstream str (buf);
+	while (!is.eof ()) {
+		while (isspace (is.peek ()))
+			is.ignore (1);
 
-		str >> c;
+		if (is.eof ())
+			break;
+
+		is >> c;
 
 		if (c != '[')
 			throw InvalidMatrixInput ();
 
 		j = 0;
 
-		while (str) {
-			while (isspace (str.peek ()))
-				str.ignore (1);
+		while (!is.eof ()) {
+			while (isspace (is.peek ()))
+				is.ignore (1);
 
-			c = str.peek ();
+			c = is.peek ();
 
 			switch (c) {
 			case ']':
-				str >> c;
-				break;
+				is >> c;
+				goto end_of_line;
 
 			case '.':
-				str >> c;
+				is >> c;
 				j++;
 				continue;
 
 			default:
-				_F.read (str, a_ij);
+				_F.read (is, a_ij);
 
 				if (!_F.isZero (a_ij))
 					A.setEntry (i, j, a_ij);
@@ -249,10 +249,10 @@ std::istream &MatrixReader<Field>::readPretty (std::istream &is, Matrix &A) cons
 			}
 		}
 
-		is.getline (buf, 80);
+	end_of_line:
 
 		i++;
-	} while (is);
+	}
 
 	return is;
 }
