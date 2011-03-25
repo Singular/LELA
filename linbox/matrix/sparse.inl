@@ -111,7 +111,7 @@ void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	if (v.size () == 0) {
 		v.push_back (value_type (j, value));
 	} else {
-		iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries<Element> ());
+		iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries ());
 
 		if (iter == v.end () || iter->first != j)
 			iter = v.insert (iter, value_type (j, value));
@@ -127,7 +127,7 @@ void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	Row &v = _A[i];
 	typename Row::iterator iter;
 	
-	iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries<Element> ());
+	iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries ());
 
 	if (iter != v.end () && iter->first == j)
 		v.erase (iter);
@@ -143,7 +143,7 @@ bool SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	if (v.size () == 0)
 		return false;
 	else {
-		iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries<Element> ());
+		iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries ());
 
 		if (iter == v.end () || iter->first != j)
 			return false;

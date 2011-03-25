@@ -1641,10 +1641,16 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 		stream1.next (v1);
 		stream2.next (v2);
 
-		for (j = 0; j < stream1.n (); j++)
-			F.axpyin (sigma,
-				  LinBox::VectorWrapper::constRef<Field> (v1, j),
-				  LinBox::VectorWrapper::constRef<Field> (v2, j));
+		for (j = 0; j < stream1.n (); j++) {
+			typename Field::Element a, b;
+
+			if (!LinBox::VectorWrapper::getEntry (v1, a, j))
+				a = F.zero ();
+			if (!LinBox::VectorWrapper::getEntry (v2, b, j))
+				b = F.zero ();
+
+			F.axpyin (sigma, a, b);
+		}
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1:  ";

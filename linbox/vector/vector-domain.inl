@@ -316,14 +316,14 @@ Vector1 &VectorDomain<Field>::copySpecialized (Vector1 &res, const Vector2 &v, s
 		part_end = res_part.end ();
 	else
 		part_end = std::lower_bound (res_part.begin (), res_part.end (), len,
-					     VectorWrapper::CompareSparseEntries<Element> ());
+					     VectorWrapper::CompareSparseEntries ());
 
 	for (iter = res_part.begin (); iter != part_end; iter++)
 		iter->first += i;
 
-	r_begin = std::lower_bound (res.begin (), res.end (), i, VectorWrapper::CompareSparseEntries<Element> ());
+	r_begin = std::lower_bound (res.begin (), res.end (), i, VectorWrapper::CompareSparseEntries ());
 	r_end = (len == 0) ? res.end () : std::lower_bound (r_begin, res.end (), i + len,
-							    VectorWrapper::CompareSparseEntries<Element> ());
+							    VectorWrapper::CompareSparseEntries ());
 	r_begin = res.erase (r_begin, r_end);
 	res.insert (r_begin, res_part.begin (), part_end);
 
@@ -352,11 +352,11 @@ Vector &VectorDomain<Field>::copySpecialized (Vector &res, const Vector &v, size
 		v_end = v.end ();
 	else
 		v_end = std::lower_bound (v.begin (), v.end (), len,
-					  VectorWrapper::CompareSparseEntries<Element> ());
+					  VectorWrapper::CompareSparseEntries ());
 
-	r_begin = std::lower_bound (res.begin (), res.end (), i, VectorWrapper::CompareSparseEntries<Element> ());
+	r_begin = std::lower_bound (res.begin (), res.end (), i, VectorWrapper::CompareSparseEntries ());
 	r_end = (len == 0) ? res.end () : std::lower_bound (r_begin, res.end (), i + len,
-							    VectorWrapper::CompareSparseEntries<Element> ());
+							    VectorWrapper::CompareSparseEntries ());
 	r_begin = res.erase (r_begin, r_end);
 	offset = r_begin - res.begin ();
 	res.insert (r_begin, v.begin (), v_end);
@@ -939,7 +939,7 @@ inline _Vector &VectorDomain<Field>::permuteSpecialized
 	for (j = v.begin (); j != v.end (); ++j)
 		j->first = permutationImage (j->first, P_start, P_end);
 
-	std::sort (v.begin (), v.end (), VectorWrapper::CompareSparseEntries<typename Field::Element> ());
+	std::sort (v.begin (), v.end (), VectorWrapper::CompareSparseEntries ());
 
 	return v;
 }
