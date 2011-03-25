@@ -21,7 +21,6 @@ pkgincludesub_HEADERS=\
 	debug.h				\
 	error.h				\
 	commentator.h 			\
-	contracts.h 			\
 	timer.h				\
 	field-axpy.h			\
 	matrix-stream.h			\
