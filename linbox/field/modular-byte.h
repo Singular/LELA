@@ -565,15 +565,14 @@ protected:
 	}
 	  
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const
+	inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const
 	{
-		typename Vector1::first_type::const_iterator i_idx;
-		typename Vector1::second_type::const_iterator i_elt;
+		typename Vector1::const_iterator i;
 		  
 		uint64 y = 0;
 		  
-		for (i_idx = v1.first.begin (), i_elt = v1.second.begin (); i_idx != v1.first.end (); ++i_idx, ++i_elt) {
-			y += ((uint16) *i_elt) * ((uint16) v2[*i_idx]);
+		for (i = v1.begin (); i != v1.end (); ++i) {
+			y += ((uint16) i->second) * ((uint16) v2[i->first]);
 		}
 
 		y %= (uint64) _F.modulus;
@@ -607,14 +606,6 @@ private:
 	Vector1 &mulColDenseSpecialized
 		(const VectorDomain<Modular<int8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
 		 VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulColDenseSpecialized
-		(const VectorDomain<Modular<int8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
-		 VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector1 &mulColDenseSpecialized
-		(const VectorDomain<Modular<int8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
-		 VectorCategories::SparseParallelVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
 };
@@ -690,84 +681,6 @@ Vector1 &MVProductDomain<Modular<int8> >::mulColDenseSpecialized
 	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
 		*w_j = *l % VD.field ().modulus;
 			
-	return w;
-}
-	
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<int8> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<int8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
-	 VectorCategories::SparseAssociativeVectorTag) const
-{
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
-		
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j;
-	typename Matrix::Column::const_iterator k;
-	std::vector<uint64>::iterator l;
-		
-	uint64 t;
-		
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
-		
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
-		
-	for (j = v.begin (); j != v.end (); ++j, ++i) {
-		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
-			t = ((uint16) k->second) * ((uint16) *j);
-				
-			_tmp[k->first] += t;
-				
-		}
-	}
-		
-	typename Vector1::iterator w_j;
-		
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l % VD.field ().modulus;
-		
-	return w;
-}
-
-template <class Vector1, class Matrix, class Vector2>
-Vector1 &MVProductDomain<Modular<int8> >::mulColDenseSpecialized
-	(const VectorDomain<Modular<int8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
-	 VectorCategories::SparseParallelVectorTag) const
-{
-	linbox_check (A.coldim () == v.size ());
-	linbox_check (A.rowdim () == w.size ());
-		
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j;
-	typename Matrix::Column::first_type::const_iterator k_idx;
-	typename Matrix::Column::second_type::const_iterator k_elt;
-	std::vector<uint64>::iterator l;
-		
-	uint64 t;
-		
-	if (_tmp.size () < w.size ())
-		_tmp.resize (w.size ());
-		
-	std::fill (_tmp.begin (), _tmp.begin () + w.size (), 0);
-		
-	for (j = v.begin (); j != v.end (); ++j, ++i) {
-		for (k_idx = i->first.begin (), k_elt = i->second.begin (), l = _tmp.begin ();
-		     k_idx != i->first.end ();
-		     ++k_idx, ++k_elt, ++l)
-		{
-			t = ((uint16) *k_elt) * ((uint16) *j);
-
-			_tmp[*k_idx] += t;
-
-		}
-	}
-
-	typename Vector1::iterator w_j;
-
-	for (w_j = w.begin (), l = _tmp.begin (); w_j != w.end (); ++w_j, ++l)
-		*w_j = *l % VD.field ().modulus;
-
 	return w;
 }
   	  

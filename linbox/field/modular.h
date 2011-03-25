@@ -1332,9 +1332,6 @@ class DotProductDomain<Modular<uint8> > : private virtual VectorDomainBase<Modul
 		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
-
-	template <class Vector1, class Vector2>
 		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
 	template <class Vector1, class Vector2>
@@ -1359,9 +1356,6 @@ class DotProductDomain<Modular<uint16> > : private virtual VectorDomainBase<Modu
 		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
-
-	template <class Vector1, class Vector2>
 		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
 	template <class Vector1, class Vector2>
@@ -1384,9 +1378,6 @@ class DotProductDomain<Modular<uint32> > : private virtual VectorDomainBase<Modu
     protected:
 	template <class Vector1, class Vector2>
 		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2) const;
-
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
 	template <class Vector1, class Vector2>
 		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
@@ -1422,14 +1413,6 @@ class MVProductDomain<Modular<uint8> >
 		Vector2 &gemvColDenseSpecialized
 		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 		 VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseParallelVectorTag) const;
 
 	mutable std::vector<uint32> _tmp;
 };
@@ -1461,14 +1444,6 @@ class MVProductDomain<Modular<uint16> >
 		Vector2 &gemvColDenseSpecialized
 		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 		 VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseParallelVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
 };
@@ -1500,14 +1475,6 @@ class MVProductDomain<Modular<uint32> >
 		Vector2 &gemvColDenseSpecialized
 		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
 		 VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseParallelVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
 };

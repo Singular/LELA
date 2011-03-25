@@ -285,12 +285,6 @@ private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				     VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseParallelVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
@@ -299,12 +293,6 @@ private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				     VectorCategories::SparseSequenceVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseAssociativeVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseParallelVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,

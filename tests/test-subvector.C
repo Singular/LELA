@@ -87,10 +87,12 @@ static bool testSubvector(Field &F, size_t n)
 	typedef typename Subvect::reverse_iterator	ReverseIterator;
 	typedef typename Subvect::reverse_iterator	ReverseSubiterator;
 
+	VectorDomain<Field> VD (F);
+
 	Vector v(n);
 	for (size_t z = 0; z < n; z++) v[z] = z;
 
-	printVector(F, report, v);
+	VD.write (report, v);
 
 	int start = 1;
 	int stride = 2;
@@ -254,7 +256,7 @@ static bool testSubvector(Field &F, size_t n)
 	report << "w.empty() = false = " << w.empty() << endl;
 	ret = ret && !w.empty();
 
-	printVector(F, report, w);
+	VD.write (report, w);
 
 	report << "Printing using operator[]: (";
 	for (unsigned long i = 0; i < w.size(); i++)
@@ -279,11 +281,11 @@ static bool testSubvector(Field &F, size_t n)
 	Subvect ww(vv, 0, 1, 3);
 	//vector<int> ww(3, 77);
 	w = ww;
-	printVector(F, report, ww);
+	VD.write (report, ww);
 #if 0
 	report << "Constructing subvector from iterators: ";
 	Subvect www(w.begin(), w.end());
-	printVector(F, report, www);
+	VD.write (report, www);
 #endif
 
 	// finish

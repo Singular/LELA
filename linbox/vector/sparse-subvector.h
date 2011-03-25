@@ -87,44 +87,7 @@ class SparseSubvector<Vector, VectorCategories::SparseSequenceVectorTag>
 
 	ShiftedVector<typename Vector::const_index_iterator> _idx;
 
-}; // template <class Vector> class SparseSubvector<Vector, SparseParallelVectorTag>
-
-// Specialisation of SparseSubvector to sparse parallel format
-
-template <class Vector>
-class SparseSubvector<Vector, VectorCategories::SparseParallelVectorTag>
-{
-    public:
-	typedef const ShiftedVector<typename Vector::first_type> first_type;
-	typedef const Subvector<typename Vector::second_type::const_iterator> second_type;
-
-	SparseSubvector () {}
-	SparseSubvector (Vector &v, typename Vector::first_type::value_type start, typename Vector::first_type::value_type finish)
-	{
-		typename Vector::const_index_iterator begin = std::lower_bound (v.first.begin (), v.first.end (), start);
-		typename Vector::const_index_iterator end = std::lower_bound (v.first.begin (), v.first.end (), finish);
-		
-		first = first_type (begin, end, start);
-		second = second_type (v.second.begin () + (begin - v.first.begin ()), v.second.begin () + (end - v.first.begin ()));
-	}
-
-	SparseSubvector (SparseSubvector &v, typename Vector::first_type::value_type start, typename Vector::first_type::value_type finish)
-	{
-		typename Vector::const_index_iterator begin = std::lower_bound (v.first._v.begin (), v.first._v.end (), start + v.first._shift);
-		typename Vector::const_index_iterator end = std::lower_bound (v.first._v.begin (), v.first._v.end (), finish + v.first._shift);
-		
-		first = first_type (begin, end, start + v.first._shift);
-		second = second_type (v.second.begin () + (begin - v.first.begin ()), v.second.begin () + (end - v.first.begin ()));
-	}
-
-	~SparseSubvector () {}
-
-	SparseSubvector &operator = (const SparseSubvector &v)
-		{ first = v.first; second = v.second; return *this; }
-
-	first_type first;
-	second_type second;
-}; // template <class Vector> class SparseSubvector<Vector, SparseParallelVectorTag>
+}; // template <class Vector> class SparseSubvector<Vector, SparseSequenceVectorTag>
 
 // Specialisation of SparseSubvector to sparse zero-one format
 

@@ -549,30 +549,28 @@ protected:
 	}
 	  
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const
+	inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const
 	{
-		typename Vector1::first_type::const_iterator i_idx, i_idxe;
-		typename Vector1::second_type::const_iterator i_elt;
+		typename Vector1::const_iterator i, ie;
 		  
 		int64 y = 0;
 		int64 t;
 
-		i_idx = i_idxe = v1.first.begin();
-		i_elt = v1.second.begin();
+		i = ie = v1.begin();
 
-		for (int i = 0; i < v1.first.size() / blocksize; ++i) {
-			i_idxe = i_idxe + blocksize;
+		for (int j = 0; j < v1.size() / blocksize; ++j) {
+			ie = ie + blocksize;
 
-			for(; i_idx != i_idxe; ++i_idx, ++i_elt) {
-				t = ((int64) * i_elt) * ((int64) v2[*i_idx]);
+			for(; i != ie; ++i) {
+				t = ((int64) * i->second) * ((int64) v2[i->first]);
 				y += t;
 			}
 
 			normalize (y);
 		}
 
-		for(; i_idx != v1.first.end(); ++i_idx, ++i_elt) {
-			t = ((int64) *i_elt) * ((int64) v2[*i_idx]);
+		for(; i != v1.end(); ++i) {
+			t = ((int64) i->second) * ((int64) v2[i->first]);
 			y += t;
 		}
 

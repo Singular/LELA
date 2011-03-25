@@ -486,29 +486,29 @@ protected:
 	}
 
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const
+	inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const
 	{
 		float y = 0.;
 		float t = 0.;
 
 		if (v1.first.size() < _nmax) {
-			for (size_t i = 0; i < v1.first.size(); ++i)
-				y += v1.second[i] * v2[v1.first[i]];
+			for (size_t i = 0; i < v1.size(); ++i)
+				y += v1[i].second * v2[v1[i].first];
 
 			y = fmod (y, _F.modulus);
 		} else {			
 			size_t i = 0;
 
-			for (; i < v1.first.size() - _nmax; i = i + _nmax) {
+			for (; i < v1.size() - _nmax; i = i + _nmax) {
 				for (size_t j = i; j < i + _nmax; ++j)
-					y += v1.second[j] * v2[v1.first[j]];
+					y += v1[j].second * v2[v1[j].first];
 
 				t += fmod (y, _F.modulus);
 				y = 0.;
 			}
 
-			for (; i < v1.first.size (); ++i)
-				y += v1.second[i] * v2[v1.first[i]];
+			for (; i < v1.size (); ++i)
+				y += v1[i].second * v2[v1[i].first];
 
 			t += fmod (y, _F.modulus);
 			y = fmod (t, _F.modulus);

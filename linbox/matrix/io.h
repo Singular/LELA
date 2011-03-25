@@ -77,10 +77,6 @@ private:
 		{ if (!_F.isZero (a)) v.push_back (typename std::iterator_traits<typename Vector::iterator>::value_type (index, a)); }
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::SparseParallelVectorTag) const
-		{ if (!_F.isZero (a)) { v.first.push_back (index); v.second.push_back (a); } }
-
-	template <class Vector>
 	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Vector>

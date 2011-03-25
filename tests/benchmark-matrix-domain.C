@@ -33,7 +33,6 @@ static integer q_uint32 = 2147483647U;
 static int iterations = 1;
 static bool enable_dense = false;
 static bool enable_sparse = false;
-static bool enable_sparse_parallel = false;
 static bool enable_gf2 = false;
 static bool enable_uint8 = false;
 static bool enable_uint32 = false;
@@ -102,24 +101,6 @@ void runBenchmarks (const Field &F)
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "Products are not equal!" << std::endl;
 	}
-
-	if (enable_sparse_parallel) {
-		RandomSparseStream<Field, typename Vector<Field>::SparsePar> stream1 (F, (double) k / (double) m, m, l);
-		RandomSparseStream<Field, typename Vector<Field>::SparsePar> stream2 (F, (double) k / (double) n, n, m);
-
-		SparseMatrix<Element, typename Vector<Field>::SparsePar> M1 (stream1);
-		SparseMatrix<Element, typename Vector<Field>::SparsePar> M2 (stream2);
-
-		commentator.start ("gemm (sparse parallel)", "gemm");
-		MD.gemm (a, M1, M2, F.zero (), C);
-		commentator.stop ("done");
-
-		TransposeMatrix<SparseMatrix<Element, typename Vector<Field>::SparsePar> > M2T (M2);
-
-		commentator.start ("gemm (sparse parallel transpose)", "gemm");
-		MD.gemm (a, M1, M2T, F.zero (), C);
-		commentator.stop ("done");
-	}
 }
 
 #if 0
@@ -168,7 +149,6 @@ int main (int argc, char **argv)
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT, &iterations },
 		{ 'd', "-d", "Enable dense tests", TYPE_NONE, &enable_dense },
 		{ 's', "-s", "Enable sparse tests (SparseVector)", TYPE_NONE, &enable_sparse },
-		{ 'S', "-S", "Enable sparse tests (parallel)", TYPE_NONE, &enable_sparse_parallel },
 		{ '2', "-2", "Enable tests for GF(2)", TYPE_NONE, &enable_gf2 },
 		{ 'b', "-b", "Enable tests for integers mod uint8", TYPE_NONE, &enable_uint8 },
 		{ 'w', "-w", "Enable tests for integers mod uint32", TYPE_NONE, &enable_uint32 },
@@ -177,7 +157,7 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	if (!(enable_dense || enable_sparse || enable_sparse_parallel)) {
+	if (!(enable_dense || enable_sparse)) {
 		printHelpMessage (argv[0], args);
 		return 0;
 	}

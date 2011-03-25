@@ -78,70 +78,6 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
-Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename Field::Element &alpha,
-								const Matrix                  &A,
-								const Vector1                 &x,
-								const typename Field::Element &beta,
-								Vector2                       &y,
-								VectorCategories::SparseAssociativeVectorTag) const
-{
-	typename Matrix::ConstRowIterator i = A.rowBegin ();
-	typename Field::Element t;
-	unsigned int idx = 0;
-
-	if (_F.isZero (beta))
-		y.clear ();
-	else
-		_VD.mulin (y, beta);
-
-	for (; i != A.rowEnd (); ++i, ++idx) {
-		_VD.dot (t, x, *i);
-		_F.mulin (t, alpha);
-
-		if (!_F.isZero (t))
-			y[idx] += t;
-	}
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename Field::Element &alpha,
-								const Matrix                  &A,
-								const Vector1                 &x,
-								const typename Field::Element &beta,
-								Vector2                       &y,
-								VectorCategories::SparseParallelVectorTag) const
-{
-	typename Matrix::ConstRowIterator i = A.rowBegin ();
-	typename Field::Element t;
-	unsigned int idx = 0;
-
-	std::pair<std::vector<size_t>, std::vector<typename Field::Element> > yp;
-
-	if (_F.isZero (beta)) {
-		y.first.clear ();
-		y.second.clear ();
-	}
-	else
-		_VD.mulin (y, beta);
-
-	for (; i != A.rowEnd (); ++i, ++idx) {
-		_VD.dot (t, x, *i);
-		_F.mulin (t, alpha);
-
-		if (!_F.isZero (t)) {
-			yp.first.push_back (idx);
-			yp.second.push_back (t);
-		}
-	}
-
-	return _VD.addin (y, yp);
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Field>::gemvColDense (const VectorDomain<Field>     &VD,
 					       const typename Field::Element &alpha,
 					       const Matrix                  &A,
@@ -185,57 +121,6 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 	for (; j != x.end (); ++j) {
 		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
 		_F.mul (d, alpha, j->second);
-		_VD.axpyin (y, d, *i);
-	}
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename Field::Element &alpha,
-								const Matrix                  &A,
-								const Vector1                 &x,
-								const typename Field::Element &beta, 
-								Vector2                       &y,
-								VectorCategories::SparseAssociativeVectorTag) const
-{
-	linbox_check (A.rowdim () == y.size ());
-
-	typename Vector1::const_iterator j = x.begin ();
-	typename Field::Element d;
-
-	_VD.mulin (y, beta);
-
-	for (; j != x.end (); ++j) {
-		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
-		_F.mul (d, alpha, j->second);
-		_VD.axpyin (y, d, *i);
-	}
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename Field::Element &alpha,
-								const Matrix                  &A,
-								const Vector1                 &x,
-								const typename Field::Element &beta,
-								Vector2                       &y,
-								VectorCategories::SparseParallelVectorTag) const
-{
-	linbox_check (A.rowdim () == y.size ());
-
-	typename Vector1::first_type::const_iterator j_idx = x.first.begin ();
-	typename Vector1::second_type::const_iterator j_elt = x.second.begin ();
-	typename Field::Element d;
-
-	_VD.mulin (y, beta);
-
-	for (; j_idx != x.first.end (); ++j_idx, ++j_elt) {
-		typename Matrix::ConstColIterator i = A.colBegin () + *j_idx;
-		_F.mul (d, alpha, *j_elt);
 		_VD.axpyin (y, d, *i);
 	}
 

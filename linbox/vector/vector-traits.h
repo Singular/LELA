@@ -98,20 +98,6 @@ struct VectorCategories
 			{ return o << "SparseSequenceVectorTag"; } 
 	};
 
-	struct SparseAssociativeVectorTag : public SparseVectorTag
-	{
-                friend std::ostream &operator << (std::ostream &o, 
-						  const SparseAssociativeVectorTag &)
-			{ return o << "SparseAssociativeVectorTag"; } 
-	};
-
-	struct SparseParallelVectorTag : public SparseVectorTag
-	{
-                friend std::ostream &operator << (std::ostream &o, 
-						  const SparseParallelVectorTag &)
-			{ return o << "SparseParallelVectorTag"; } 
-	};
-
 	struct DenseZeroOneVectorTag : public DenseVectorTag
 	{
                 friend std::ostream &operator << (std::ostream &o, 
@@ -197,22 +183,6 @@ struct VectorTraits< std::deque< std::pair<size_t, Element> > >
 	static void sort (VectorType& v) { std::stable_sort(v.begin, v.end(), SparseSequenceVectorPairLessThan<Element>()); }
 };
   
-// Specialization for STL maps of size_t and elements
-template <class Element> 
-struct VectorTraits< std::map<size_t, Element> >
-{ 
-	typedef std::map<size_t, Element> VectorType;
-	typedef typename VectorCategories::SparseAssociativeVectorTag VectorCategory; 
-};
-
-// Specialization for an STL pair of an STL vector of size_t's and an STL vector of elements
-template <class Element> 
-struct VectorTraits< std::pair<std::vector<uint32>, std::vector<Element> > >
-{ 
-	typedef std::pair<std::vector<uint32>, std::vector<Element> > VectorType;
-	typedef typename VectorCategories::SparseParallelVectorTag VectorCategory; 
-};
-
 // Specialization for a const STL vector of size_t's
 template <> 
 struct VectorTraits< const std::vector<size_t> >
@@ -264,36 +234,6 @@ namespace VectorWrapper
 	}
 
 	template <class Field, class Vector>
-	inline typename Field::Element &refSpecialized
-		(Vector &v, size_t i, VectorCategories::SparseAssociativeVectorTag)
-		{ return v[i]; }
-
-	template <class Field, class Vector>
-	inline typename Field::Element &refSpecialized
-		(Vector &v, size_t i, VectorCategories::SparseParallelVectorTag)
-	{
-		static typename Field::Element zero;
-		typename Vector::first_type::iterator j_idx;
-		typename Vector::second_type::iterator j_elt;
-
-		if (v.first.size () == 0) {
-			v.first.push_back (i);
-			v.second.push_back (zero);
-			return v.second.front ();
-		}
-
-		j_idx = std::lower_bound (v.first.begin (), v.first.end (), i);
-		j_elt = v.second.begin () + (j_idx - v.first.begin ());
-
-		if (j_idx == v.first.end () || *j_idx != i) {
-			v.first.insert (j_idx, i);
-			j_elt = v.second.insert (j_elt, zero);
-		}
-		
-		return *j_elt;
-	}
-
-	template <class Field, class Vector>
 	inline typename Field::Element &ref (Vector &v, size_t i) 
 		{ return refSpecialized<Field, Vector> (v, i, typename VectorTraits<Vector>::VectorCategory()); }
 
@@ -318,32 +258,6 @@ namespace VectorWrapper
 			return zero;
 		else
 			return j->second;
-	}
-
-	template <class Field, class Vector>
-	inline const typename Field::Element &constRefSpecialized
-		(Vector &v, size_t i, VectorCategories::SparseAssociativeVectorTag)
-		{ return v[i]; }
-
-	template <class Field, class Vector>
-	inline typename Field::Element &constRefSpecialized
-		(Vector &v, size_t i, VectorCategories::SparseParallelVectorTag)
-	{
-		static typename Field::Element zero;
-		typename Vector::first_type::iterator j_idx;
-		typename Vector::second_type::iterator j_elt;
-
-		if (v.first.size () == 0)
-			return zero;
-
-		j_idx = std::lower_bound (v.first.begin (), v.first.end (), i);
-
-		if (j_idx == v.first.end () || *j_idx != i)
-			return zero;
-		else {
-			j_elt = v.second.begin () + (j_idx - v.first.begin ());
-			return *j_elt;
-		}
 	}
 
 	template <class Element, class Vector>
@@ -428,14 +342,6 @@ namespace VectorWrapper
 		{}
 
 	template <class Vector>
-	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::SparseAssociativeVectorTag)
-		{}
-
-	template <class Vector>
-	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::SparseParallelVectorTag)
-		{}
-
-	template <class Vector>
 	inline void ensureDim (Vector &v, size_t n) 
 		{ ensureDimSpecialized (v, n, typename VectorTraits<Vector>::VectorCategory()); }
 } // Namespace VectorWrapper
@@ -461,8 +367,6 @@ struct RawVector
 	typedef std::vector<Element> Dense;
 	typedef SparseVector<Element> Sparse;
 	typedef std::vector<std::pair<uint32, Element> > SparseSeq;
-	typedef std::map<uint32, Element> SparseMap;
-	typedef std::pair<std::vector<uint32>, std::vector<Element> > SparsePar;
 };
 
 template <class Field>

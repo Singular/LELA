@@ -101,58 +101,6 @@ SparseMatrix<Element,Row,VectorCategories::SparseSequenceVectorTag>
 }
 
 template <class Element, class Row>
-template <class Field>
-SparseMatrix<Element,Row,VectorCategories::SparseAssociativeVectorTag>
-	::SparseMatrix( MatrixStream<Field>& ms )
-	:_A(0), _m(0), _n(0)
-{
-	Element val;
-	size_t i, j;
-	while( ms.nextTriple(i,j,val) ) {
-		if( i >= _m ) {
-			_m = i + 1;
-			_A.resize( _m );
-		}
-		if( j >= _n ) _n = j + 1;
-		setEntry(i,j,val);
-	}
-	if( ms.getError() > END_OF_MATRIX )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-	if( !ms.getDimensions( i, _n ) )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-	if( i > _m ) {
-		_m = i;
-		_A.resize(_m);
-	}
-}
-
-template <class Element, class Row>
-template <class Field>
-SparseMatrix<Element,Row,VectorCategories::SparseParallelVectorTag>
-	::SparseMatrix( MatrixStream<Field>& ms )
-	:_A(0), _m(0), _n(0)
-{
-	Element val;
-	size_t i, j;
-	while( ms.nextTriple(i,j,val) ) {
-		if( i >= _m ) {
-			_m = i + 1;
-			_A.resize( _m );
-		}
-		if( j >= _n ) _n = j + 1;
-		setEntry(i,j,val);
-	}
-	if( ms.getError() > END_OF_MATRIX )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-	if( !ms.getDimensions( i, _n ) )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-	if( i > _m ) {
-		_m = i;
-		_A.resize(_m);
-	}
-}
-
-template <class Element, class Row>
 void SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 	::setEntry (size_t i, size_t j, const Element &value) 
 {
@@ -207,108 +155,8 @@ bool SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 }
 
 template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::SparseAssociativeVectorTag>
-	::getEntry (Element &x, size_t i, size_t j) const
-{
-	const Row &v = _A[i];
-	typename Row::const_iterator iter;
-
-	if (v.size () == 0)
-		return false;
-	else {
-		iter = v.find (j);
-
-		if (iter == v.end () || iter->first != j)
-			return false;
-		else {
-			x = iter->second;
-			return true;
-		}
-	}
-}
-
-template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseParallelVectorTag>
-	::setEntry (size_t i, size_t j, const Element &value)
-{
-	while (_A.size() < i + 1) _A.push_back(Row());
-	_m = _A.size(); 
-
-	Row &v = _A[i];
-	typename Row::first_type::iterator iter;
-
-	if (v.first.size () == 0) {
-		v.first.push_back (j);
-		v.second.push_back (value);
-	} else {
-		iter = std::lower_bound (v.first.begin (), v.first.end (), j);
-
-		if (iter == v.first.end () || *iter != j) {
-			iter = v.first.insert (iter, j);
-			v.second.insert (v.second.begin () + (iter - v.first.begin ()), value);
-		} else
-                    	*(v.second.begin () + (iter - v.first.begin ())) = value;
-	}
-}
-
-template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::SparseParallelVectorTag>
-	::getEntry (Element &x, size_t i, size_t j) const
-{
-	const Row &v = _A[i];
-	typename Row::first_type::const_iterator iter;
-
-	if (v.first.size () == 0)
-		return false;
-	else {
-		iter = std::lower_bound (v.first.begin (), v.first.end (), j);
-
-		if (iter == v.first.end () || *iter != j)
-			return false;
-		else {
-			x = *(v.second.begin () + (iter - v.first.begin ()));
-			return true;
-		}
-	}
-}
-
-template <class Element, class Row>
 template <class Vector>
 Vector &SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
-	::columnDensity (Vector &v) const
-{
-	unsigned int row = 0;
-
-	for (ConstRowIterator i = rowBegin (); i != rowEnd (); ++i, ++row) {
-		typename Row::const_iterator j = i.begin ();
-
-		for (; j != i->begin (); ++j)
-			++v[j->first];
-	}
-
-	return v;
-}
-
-template <class Element, class Row>
-template <class Vector>
-Vector &SparseMatrix<Element, Row, VectorCategories::SparseParallelVectorTag>
-	::columnDensity (Vector &v) const
-{
-	unsigned int row = 0;
-
-	for (ConstRowIterator i = rowBegin (); i != rowEnd (); ++i, ++row) {
-		typename Row::first_type::const_iterator j_idx = i->first.begin ();
-
-		for (; j_idx != i->first.end (); ++j_idx)
-			++v[*j_idx];
-	}
-
-	return v;
-}
-
-template <class Element, class Row>
-template <class Vector>
-Vector &SparseMatrix<Element, Row, VectorCategories::SparseAssociativeVectorTag>
 	::columnDensity (Vector &v) const
 {
 	unsigned int row = 0;
@@ -334,41 +182,6 @@ SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 	for (ConstRowIterator i = rowBegin (); i != rowEnd (); ++i, ++row)
 		for (j = i->begin (); j != i->end (); ++j)
 			AT._A[j->first].push_back (std::pair<size_t, Element> (row, j->second));
-
-	return AT;
-}
-
-template <class Element, class Row>
-SparseMatrix<Element, Row, VectorCategories::SparseAssociativeVectorTag>
-	&SparseMatrix<Element, Row, VectorCategories::SparseAssociativeVectorTag>::transpose (SparseMatrix &AT) const
-{
-	unsigned int row = 0;
-
-	for (ConstRowIterator i = rowBegin (); i != rowEnd (); ++i, ++row) {
-		typename Row::const_iterator j = i.begin ();
-
-		for (; j != i->begin (); ++j)
-			AT._A[j->first][row] = j->second;
-	}
-
-	return AT;
-}
-
-template <class Element, class Row>
-SparseMatrix<Element, Row, VectorCategories::SparseParallelVectorTag>
-	&SparseMatrix<Element, Row, VectorCategories::SparseParallelVectorTag>::transpose (SparseMatrix &AT) const
-{
-	unsigned int row = 0;
-
-	for (ConstRowIterator i = rowBegin (); i != rowEnd (); ++i, ++row) {
-		typename Row::first_type::const_iterator j_idx = i->first.begin ();
-		typename Row::second_type::const_iterator j_elt = i->second.begin ();
-
-		for (; j_idx != i->first.end (); ++j_idx, ++j_elt) {
-			AT._A[*j_idx].first.push_back (row);
-			AT._A[*j_idx].second.push_back (*j_elt);
-		}
-	}
 
 	return AT;
 }
