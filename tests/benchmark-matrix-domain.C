@@ -93,10 +93,10 @@ void runBenchmarks (const Field &F)
 		MD.write (report, M2Tp);
 
 		report << "Original product:" << std::endl;
-		MD.write (report, D);
+		MD.write (report, D1);
 
 		report << "Check product:" << std::endl;
-		MD.write (report, D1);
+		MD.write (report, D);
 
 		if (!MD.areEqual (D, D1))
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
