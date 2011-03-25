@@ -90,7 +90,7 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseVectorTag>
 };
 
 template <class Iterator>
-class MatrixRawIterator<Iterator, VectorCategories::SparseSequenceVectorTag>
+class MatrixRawIterator<Iterator, VectorCategories::SparseVectorTag>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -413,7 +413,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseVectorTag, false
 };
 
 template <class Iterator>
-class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseSequenceVectorTag, false>
+class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseVectorTag, false>
 {
     public:
 	typedef typename Iterator::value_type Vector;

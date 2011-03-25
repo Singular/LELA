@@ -45,7 +45,7 @@ class SparseSubvector
 // Specialisation of SparseSubvector to sparse sequence format
 
 template <class Vector>
-class SparseSubvector<Vector, VectorCategories::SparseSequenceVectorTag>
+class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 	: public ConstSparseVector<typename ShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator>
 {
     public:
@@ -87,7 +87,7 @@ class SparseSubvector<Vector, VectorCategories::SparseSequenceVectorTag>
 
 	ShiftedVector<typename Vector::const_index_iterator> _idx;
 
-}; // template <class Vector> class SparseSubvector<Vector, SparseSequenceVectorTag>
+}; // template <class Vector> class SparseSubvector<Vector, SparseVectorTag>
 
 // Specialisation of SparseSubvector to sparse zero-one format
 

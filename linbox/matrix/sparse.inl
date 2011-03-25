@@ -76,7 +76,7 @@ SparseMatrix<Element, Row, Tag>::SparseMatrix (MatrixStream<Field> &ms)
 
 template <class Element, class Row>
 template <class Field>
-SparseMatrix<Element,Row,VectorCategories::SparseSequenceVectorTag>
+SparseMatrix<Element,Row,VectorCategories::SparseVectorTag>
 	::SparseMatrix( MatrixStream<Field>& ms )
 	: _A(0), _m(0), _n(0)
 {
@@ -101,7 +101,7 @@ SparseMatrix<Element,Row,VectorCategories::SparseSequenceVectorTag>
 }
 
 template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
+void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	::setEntry (size_t i, size_t j, const Element &value) 
 {
         typedef typename Row::value_type value_type;
@@ -121,7 +121,7 @@ void SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 }
 
 template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
+void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	::eraseEntry (size_t i, size_t j) 
 {
 	Row &v = _A[i];
@@ -134,7 +134,7 @@ void SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 }
 
 template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
+bool SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	::getEntry (Element &x, size_t i, size_t j) const
 {
 	const Row &v = _A[i];
@@ -156,7 +156,7 @@ bool SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 
 template <class Element, class Row>
 template <class Vector>
-Vector &SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
+Vector &SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	::columnDensity (Vector &v) const
 {
 	unsigned int row = 0;
@@ -172,8 +172,8 @@ Vector &SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 }
 
 template <class Element, class Row>
-SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
-	&SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>::transpose (SparseMatrix &AT) const
+SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
+	&SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>::transpose (SparseMatrix &AT) const
 {
 	typename Row::const_iterator j;
 

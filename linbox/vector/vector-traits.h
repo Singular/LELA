@@ -91,13 +91,6 @@ struct VectorCategories
 			{ return o << "SparseVectorTag"; } 
 	};
             
-	struct SparseSequenceVectorTag : public SparseVectorTag
-	{
-                friend std::ostream &operator << (std::ostream &o, 
-						  const SparseSequenceVectorTag &)
-			{ return o << "SparseSequenceVectorTag"; } 
-	};
-
 	struct DenseZeroOneVectorTag : public DenseVectorTag
 	{
                 friend std::ostream &operator << (std::ostream &o, 
@@ -123,7 +116,7 @@ struct VectorCategories
 // Helper structure used for various STL's sorts (std::list::sort and std::stable_sort) 
 // for comparison of two pairs of elements (by their first elements)
 template<class Element>
-struct SparseSequenceVectorPairLessThan :
+struct SparseVectorPairLessThan :
 	public std::binary_function<const std::pair<size_t, Element>&, const std::pair<size_t, Element>&, bool >
 {
 	bool operator() (const std::pair<size_t, Element>& p1, const std::pair<size_t, Element>& p2)
@@ -158,9 +151,9 @@ template <class Element>
 struct VectorTraits< std::vector< std::pair<uint32, Element> > >
 { 
 	typedef std::vector< std::pair<uint32, Element> > VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 
-	static void sort (VectorType& v) { std::stable_sort(v.begin(), v.end(), SparseSequenceVectorPairLessThan<Element>()); }
+	static void sort (VectorType& v) { std::stable_sort(v.begin(), v.end(), SparseVectorPairLessThan<Element> ()); }
 };
 
 // Specialization for STL lists of pairs of size_t and elements
@@ -168,9 +161,9 @@ template <class Element>
 struct VectorTraits< std::list< std::pair<size_t, Element> > >
 { 
 	typedef std::list< std::pair<size_t, Element> > VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 
-	static void sort (VectorType& v) { v.sort(SparseSequenceVectorPairLessThan<Element>()); }
+	static void sort (VectorType& v) { v.sort (SparseVectorPairLessThan<Element> ()); }
 };
 
 // Specialization for STL singly linked lists of pairs of size_t and elements
@@ -178,9 +171,9 @@ template <class Element>
 struct VectorTraits< std::deque< std::pair<size_t, Element> > >
 { 
 	typedef std::deque< std::pair<size_t, Element> > VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 
-	static void sort (VectorType& v) { std::stable_sort(v.begin, v.end(), SparseSequenceVectorPairLessThan<Element>()); }
+	static void sort (VectorType& v) { std::stable_sort(v.begin, v.end(), SparseVectorPairLessThan<Element> ()); }
 };
   
 // Specialization for a const STL vector of size_t's
@@ -215,7 +208,7 @@ namespace VectorWrapper
 
 	template <class Field, class Vector>
 	inline typename Field::Element &refSpecialized
-		(Vector &v, size_t i, VectorCategories::SparseSequenceVectorTag)
+		(Vector &v, size_t i, VectorCategories::SparseVectorTag)
 	{
 		static typename Field::Element zero;
 		typename Vector::iterator j;
@@ -244,7 +237,7 @@ namespace VectorWrapper
 
 	template <class Field, class Vector>
 	inline const typename Field::Element &constRefSpecialized
-		(Vector &v, size_t i, VectorCategories::SparseSequenceVectorTag)
+		(Vector &v, size_t i, VectorCategories::SparseVectorTag)
 	{
 		static typename Field::Element zero;
 		typename Vector::const_iterator j;
@@ -265,7 +258,7 @@ namespace VectorWrapper
 		{ a = v[i]; return true; }
 
 	template <class Element, class Vector>
-	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::SparseSequenceVectorTag)
+	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::SparseVectorTag)
 	{
 		typename Vector::const_iterator j;
 
@@ -338,7 +331,7 @@ namespace VectorWrapper
 		{ v.resize (n); }
 
 	template <class Vector>
-	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::SparseSequenceVectorTag)
+	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::SparseVectorTag)
 		{}
 
 	template <class Vector>
@@ -366,7 +359,6 @@ struct RawVector
 {
 	typedef std::vector<Element> Dense;
 	typedef SparseVector<Element> Sparse;
-	typedef std::vector<std::pair<uint32, Element> > SparseSeq;
 };
 
 template <class Field>

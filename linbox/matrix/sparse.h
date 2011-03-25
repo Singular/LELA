@@ -205,8 +205,8 @@ class SparseMatrix
 	 * passing the matrix into an algorithm.
 	 */
 
-	typedef MatrixRawIterator<RowIterator, VectorCategories::SparseSequenceVectorTag> RawIterator;
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseSequenceVectorTag> ConstRawIterator;
+	typedef MatrixRawIterator<RowIterator, VectorCategories::SparseVectorTag> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseVectorTag> ConstRawIterator;
     
 	RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd ()); }
 	RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd ()); }
@@ -264,7 +264,7 @@ class SparseMatrix
 /* Specialization for sparse sequence vectors */
 
 template <class _Element, class _Row>
-class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
+class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
 {
     public:
 
@@ -276,7 +276,7 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 	template <typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other>
         struct rebind
 	{
-		typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseSequenceVectorTag> other;
+		typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseVectorTag> other;
 	};
 
 	SparseMatrix (size_t m, size_t n)
@@ -298,11 +298,11 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 		: _A (A._A), _m (A._m), _n (A._n) {}
 
     	template<class VectorType>
-	SparseMatrix (const SparseMatrix<Element, VectorType, VectorCategories::SparseSequenceVectorTag> &A)
+	SparseMatrix (const SparseMatrix<Element, VectorType, VectorCategories::SparseVectorTag> &A)
 		: _A (A._m), _m (A._m), _n (A._n)
 	{
 		typename Rep::iterator meit = this->_A.begin ();
-		typename SparseMatrix<Element, VectorType, VectorCategories::SparseSequenceVectorTag>::Rep::const_iterator copit = A._A.begin();
+		typename SparseMatrix<Element, VectorType, VectorCategories::SparseVectorTag>::Rep::const_iterator copit = A._A.begin();
 		for (; meit != this->_A.end (); ++meit, ++copit)
 			LinBox::RawVector<Element>::convert (*meit, *copit);
         }
@@ -339,13 +339,13 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseSequenceVectorTag >
 	RowIterator      rowEnd ()         { return _A.end (); }
 	ConstRowIterator rowEnd () const   { return _A.end (); }
 
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseSequenceVectorTag> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
 	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
 	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseSequenceVectorTag, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }

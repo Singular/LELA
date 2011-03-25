@@ -1412,7 +1412,7 @@ class MVProductDomain<Modular<uint8> >
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
 		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseSequenceVectorTag) const;
+		 VectorCategories::SparseVectorTag) const;
 
 	mutable std::vector<uint32> _tmp;
 };
@@ -1443,7 +1443,7 @@ class MVProductDomain<Modular<uint16> >
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
 		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseSequenceVectorTag) const;
+		 VectorCategories::SparseVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
 };
@@ -1474,7 +1474,7 @@ class MVProductDomain<Modular<uint32> >
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
 		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-		 VectorCategories::SparseSequenceVectorTag) const;
+		 VectorCategories::SparseVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
 };

@@ -64,7 +64,7 @@ std::ostream &VectorDomain<Field>::writeSpecialized (std::ostream &os, const Vec
 template <class Field>
 template <class Vector>
 std::ostream &VectorDomain<Field>::writeSpecialized (std::ostream &os, const Vector &x,
-						     VectorCategories::SparseSequenceVectorTag) const
+						     VectorCategories::SparseVectorTag) const
 {
 	typename Vector::const_iterator i;
 	size_t idx;
@@ -115,7 +115,7 @@ std::istream &VectorDomain<Field>::readSpecialized (std::istream &is, Vector &x,
 template <class Field>
 template <class Vector>
 std::istream &VectorDomain<Field>::readSpecialized (std::istream &is, Vector &x,
-						    VectorCategories::SparseSequenceVectorTag) const
+						    VectorCategories::SparseVectorTag) const
 {
 	typename Field::Element tmp;
 	char c;
@@ -162,7 +162,7 @@ bool VectorDomain<Field>::areEqualSpecialized (const Vector1 &v1, const Vector2 
 template <class Field>
 template <class Vector1, class Vector2>
 bool VectorDomain<Field>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
-					       VectorCategories::SparseSequenceVectorTag,
+					       VectorCategories::SparseVectorTag,
 					       VectorCategories::DenseVectorTag) const
 {
 	typename Vector1::const_iterator i;
@@ -185,8 +185,8 @@ bool VectorDomain<Field>::areEqualSpecialized (const Vector1 &v1, const Vector2 
 template <class Field>
 template <class Vector1, class Vector2>
 bool VectorDomain<Field>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
-					       VectorCategories::SparseSequenceVectorTag,
-					       VectorCategories::SparseSequenceVectorTag) const
+					       VectorCategories::SparseVectorTag,
+					       VectorCategories::SparseVectorTag) const
 {
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
@@ -230,7 +230,7 @@ bool VectorDomain<Field>::isZeroSpecialized (const Vector &v, VectorCategories::
 
 template <class Field>
 template <class Vector>
-bool VectorDomain<Field>::isZeroSpecialized (const Vector &v, VectorCategories::SparseSequenceVectorTag) const
+bool VectorDomain<Field>::isZeroSpecialized (const Vector &v, VectorCategories::SparseVectorTag) const
 {
 	typename Vector::const_iterator i;
 
@@ -244,7 +244,7 @@ bool VectorDomain<Field>::isZeroSpecialized (const Vector &v, VectorCategories::
 template <class Field>
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<Field>::copySpecialized (Vector1 &res, const Vector2 &v,
-					       VectorCategories::SparseSequenceVectorTag,
+					       VectorCategories::SparseVectorTag,
 					       VectorCategories::DenseVectorTag) const
 {
 	typename Vector2::const_iterator i;
@@ -263,7 +263,7 @@ template <class Field>
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<Field>::copySpecialized (Vector1 &res, const Vector2 &v,
 					       VectorCategories::DenseVectorTag,
-					       VectorCategories::SparseSequenceVectorTag) const
+					       VectorCategories::SparseVectorTag) const
 {
 	typename Vector1::iterator i;
 	typename Vector2::const_iterator j;
@@ -302,7 +302,7 @@ Vector1 &VectorDomain<Field>::copySpecialized (Vector1 &res, const Vector2 &v, s
 template <class Field>
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<Field>::copySpecialized (Vector1 &res, const Vector2 &v, size_t i, size_t len,
-					       VectorCategories::SparseSequenceVectorTag) const
+					       VectorCategories::SparseVectorTag) const
 {
 	if (i == 0 && len == 0)
 		return copy (res, v);
@@ -342,7 +342,7 @@ Vector &VectorDomain<Field>::copySpecialized (Vector &res, const Vector &v, size
 template <class Field>
 template <class Vector>
 Vector &VectorDomain<Field>::copySpecialized (Vector &res, const Vector &v, size_t i, size_t len,
-					      VectorCategories::SparseSequenceVectorTag) const
+					      VectorCategories::SparseVectorTag) const
 {
 	typename Vector::const_iterator v_end;
 	typename Vector::iterator r_begin, r_end, iter;
@@ -392,9 +392,9 @@ Vector1 &VectorDomain<Field>::addSpecialized (Vector1 &res, const Vector2 &y, co
 template <class Field>
 template <class Vector1, class Vector2, class Vector3>
 Vector1 &VectorDomain<Field>::addSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,
-					      VectorCategories::SparseSequenceVectorTag,
-					      VectorCategories::SparseSequenceVectorTag,
-					      VectorCategories::SparseSequenceVectorTag) const
+					      VectorCategories::SparseVectorTag,
+					      VectorCategories::SparseVectorTag,
+					      VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator i;
 	typename Vector3::const_iterator j;
@@ -446,8 +446,8 @@ Vector1 &VectorDomain<Field>::addinSpecialized (Vector1 &y, const Vector2 &x,
 template <class Field>
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<Field>::addinSpecialized (Vector1 &y, const Vector2 &x,
-						VectorCategories::SparseSequenceVectorTag,
-						VectorCategories::SparseSequenceVectorTag) const
+						VectorCategories::SparseVectorTag,
+						VectorCategories::SparseVectorTag) const
 {
 	Vector1 res;
 
@@ -479,9 +479,9 @@ Vector1 &VectorDomain<Field>::subSpecialized (Vector1 &res, const Vector2 &y, co
 template <class Field>
 template <class Vector1, class Vector2, class Vector3>
 Vector1 &VectorDomain<Field>::subSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,
-					      VectorCategories::SparseSequenceVectorTag,
-					      VectorCategories::SparseSequenceVectorTag,
-					      VectorCategories::SparseSequenceVectorTag) const
+					      VectorCategories::SparseVectorTag,
+					      VectorCategories::SparseVectorTag,
+					      VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator i;
 	typename Vector3::const_iterator j;
@@ -533,8 +533,8 @@ Vector1 &VectorDomain<Field>::subinSpecialized (Vector1 &y, const Vector2 &x,
 template <class Field>
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<Field>::subinSpecialized (Vector1 &y, const Vector2 &x,
-						VectorCategories::SparseSequenceVectorTag,
-						VectorCategories::SparseSequenceVectorTag) const
+						VectorCategories::SparseVectorTag,
+						VectorCategories::SparseVectorTag) const
 {
 	Vector1 res;
 
@@ -563,8 +563,8 @@ Vector1 &VectorDomain<Field>::negSpecialized (Vector1 &res, const Vector2 &x,
 template <class Field>
 template <class Vector1, class Vector2>
 Vector1 &VectorDomain<Field>::negSpecialized (Vector1 &res, const Vector2 &x,
-					      VectorCategories::SparseSequenceVectorTag,
-					      VectorCategories::SparseSequenceVectorTag) const
+					      VectorCategories::SparseVectorTag,
+					      VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator j;
 	Element tmp;
@@ -593,7 +593,7 @@ Vector &VectorDomain<Field>::neginSpecialized (Vector &y,
 template <class Field>
 template <class Vector>
 Vector &VectorDomain<Field>::neginSpecialized (Vector &y,
-					       VectorCategories::SparseSequenceVectorTag) const
+					       VectorCategories::SparseVectorTag) const
 {
 	typename Vector::iterator i;
 
@@ -628,7 +628,7 @@ Vector1 &VectorDomain<Field>::mulSpecialized
 	(Vector1                       &res,
 	 const Vector2                 &x,
 	 const typename Field::Element &a,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator i;
 	Element tmp;
@@ -664,7 +664,7 @@ template <class Vector>
 Vector &VectorDomain<Field>::mulinSpecialized
 	(Vector                        &x,
 	 const typename Field::Element &a,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag) const
 {
 	typename Vector::iterator i;
 
@@ -710,9 +710,9 @@ Vector1 &VectorDomain<Field>::axpySpecialized
 	 const Vector2                 &y,
 	 const typename Field::Element &a,
 	 const Vector3                 &x,
-	 VectorCategories::SparseSequenceVectorTag,
-	 VectorCategories::SparseSequenceVectorTag,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag,
+	 VectorCategories::SparseVectorTag,
+	 VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator i;
 	typename Vector3::const_iterator j;
@@ -753,7 +753,7 @@ Vector1 &VectorDomain<Field>::axpySpecialized
 	 const typename Field::Element &a,
 	 const Vector3                 &x,
 	 VectorCategories::DenseVectorTag,
-	 VectorCategories::SparseSequenceVectorTag,
+	 VectorCategories::SparseVectorTag,
 	 VectorCategories::DenseVectorTag) const
 {
 	copy (res, y);
@@ -787,7 +787,7 @@ Vector1 &VectorDomain<Field>::axpyinSpecialized
 	(Vector1                       &y,
 	 const typename Field::Element &a,
 	 const Vector2                 &x,
-	 VectorCategories::SparseSequenceVectorTag,
+	 VectorCategories::SparseVectorTag,
 	 VectorCategories::DenseVectorTag) const
 {
 	Vector2 res (x.size ());
@@ -805,7 +805,7 @@ Vector1 &VectorDomain<Field>::axpyinSpecialized
 	 const typename Field::Element &a,
 	 const Vector2                 &x,
 	 VectorCategories::DenseVectorTag,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator j;
 
@@ -821,8 +821,8 @@ Vector1 &VectorDomain<Field>::axpyinSpecialized
 	(Vector1                       &y,
 	 const typename Field::Element &a,
 	 const Vector2                 &x,
-	 VectorCategories::SparseSequenceVectorTag,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag,
+	 VectorCategories::SparseVectorTag) const
 {
 	Vector1 res;
 
@@ -932,7 +932,7 @@ template <class Field>
 template <class _Vector, class Iterator>
 inline _Vector &VectorDomain<Field>::permuteSpecialized
 	(_Vector &v, Iterator P_start, Iterator P_end,
-	 VectorCategories::SparseSequenceVectorTag) const 
+	 VectorCategories::SparseVectorTag) const 
 {
 	typename _Vector::iterator j;
 
@@ -964,7 +964,7 @@ inline int VectorDomain<Field>::firstNonzeroEntrySpecialized (typename Field::El
 template <class Field>
 template <class Vector>
 inline int VectorDomain<Field>::firstNonzeroEntrySpecialized (typename Field::Element &a, const Vector &v,
-							      VectorCategories::SparseSequenceVectorTag) const
+							      VectorCategories::SparseVectorTag) const
 {
 	if (v.empty ())
 		return -1;

@@ -140,7 +140,7 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	VectorDomain<Modular<uint16> > MF_VD (MF);
 
 	LinBox::Vector<Modular<uint16> >::Dense w1 (stream1.dim ());
-	LinBox::Vector<Modular<uint16> >::SparseSeq w2;
+	LinBox::Vector<Modular<uint16> >::Sparse w2;
 
 	uint16 sigma;
 	bool rho;

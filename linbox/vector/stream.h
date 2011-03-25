@@ -410,11 +410,11 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVector
 // Specialization of RandomSparseStream for sparse sequence vectors
 
 template <class Field, class _Vector, class RandIter>
-class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseSequenceVectorTag > : public VectorStream<_Vector>
+class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseVectorTag > : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseSequenceVectorTag > Self_t;
+        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseVectorTag > Self_t;
 
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1), _n (n), _m (m), _j (0),
@@ -802,11 +802,11 @@ class StandardBasisStream<Field, _Vector, VectorCategories::DenseVectorTag > : p
 // Specialization of standard basis stream for sparse sequence vectors
 
 template <class Field, class _Vector>
-class StandardBasisStream<Field, _Vector, VectorCategories::SparseSequenceVectorTag > : public VectorStream<_Vector>
+class StandardBasisStream<Field, _Vector, VectorCategories::SparseVectorTag > : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Field, Vector, VectorCategories::SparseSequenceVectorTag > Self_t;
+        typedef StandardBasisStream<Field, Vector, VectorCategories::SparseVectorTag > Self_t;
 
 	StandardBasisStream (Field &F, size_t n)
 		: _F (F), _n (n), _j (0)

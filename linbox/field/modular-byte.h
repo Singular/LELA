@@ -605,7 +605,7 @@ private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector1 &mulColDenseSpecialized
 		(const VectorDomain<Modular<int8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
-		 VectorCategories::SparseSequenceVectorTag) const;
+		 VectorCategories::SparseVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
 };
@@ -650,7 +650,7 @@ Vector1 &MVProductDomain<Modular<int8> >::mulColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector1 &MVProductDomain<Modular<int8> >::mulColDenseSpecialized
 	(const VectorDomain<Modular<int8> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.coldim () == v.size ());
 	linbox_check (A.rowdim () == w.size ());

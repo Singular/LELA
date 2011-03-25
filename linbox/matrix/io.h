@@ -73,7 +73,7 @@ private:
 	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::DenseVectorTag) const;
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::SparseSequenceVectorTag) const
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::SparseVectorTag) const
 		{ if (!_F.isZero (a)) v.push_back (typename std::iterator_traits<typename Vector::iterator>::value_type (index, a)); }
 
 	template <class Vector>

@@ -52,7 +52,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta,
 								Vector2                       &y,
-								VectorCategories::SparseSequenceVectorTag) const
+								VectorCategories::SparseVectorTag) const
 {
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Field::Element t;
@@ -109,7 +109,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta,
 								Vector2                       &y,
-								VectorCategories::SparseSequenceVectorTag) const
+								VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.rowdim () == y.size ());
 
@@ -150,7 +150,7 @@ inline Matrix &MatrixDomainSupportGeneric<Field>::gerRowSpecialised (const typen
 template <class Field>
 template <class Vector1, class Vector2, class Matrix>
 inline Matrix &MatrixDomainSupportGeneric<Field>::gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
-								     VectorCategories::SparseSequenceVectorTag) const
+								     VectorCategories::SparseVectorTag) const
 {
 	typename Vector1::const_iterator i_x;
 
@@ -187,7 +187,7 @@ inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typen
 template <class Field>
 template <class Vector1, class Vector2, class Matrix>
 inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
-								     VectorCategories::SparseSequenceVectorTag) const
+								     VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator i_y;
 

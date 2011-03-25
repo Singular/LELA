@@ -284,7 +284,7 @@ private:
 				     VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseSequenceVectorTag) const;
+				     VectorCategories::SparseVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
@@ -292,7 +292,7 @@ private:
 		{ return gemvColDense (_VD, a, A, x, b, y); } 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseSequenceVectorTag) const;
+				     VectorCategories::SparseVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
@@ -310,12 +310,12 @@ private:
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Vector2, class Matrix>
-	inline Matrix &gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::SparseSequenceVectorTag) const;
+	inline Matrix &gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::SparseVectorTag) const;
 
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Vector2, class Matrix>
-	inline Matrix &gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::SparseSequenceVectorTag) const;
+	inline Matrix &gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::SparseVectorTag) const;
 
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, MatrixCategories::RowMatrixTag) const

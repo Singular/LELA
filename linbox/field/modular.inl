@@ -325,7 +325,7 @@ Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
@@ -413,7 +413,7 @@ Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
@@ -497,7 +497,7 @@ Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
-	 VectorCategories::SparseSequenceVectorTag) const
+	 VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());

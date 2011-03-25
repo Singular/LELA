@@ -472,28 +472,28 @@ template <class IndexIterator, class ElementIterator, class ConstIndexIterator, 
 struct VectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
 { 
 	typedef ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 };
 
 template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
 struct VectorTraits<const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
 { 
 	typedef const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 };
 
 template <class Element, class IndexVector, class ElementVector>
 struct VectorTraits< SparseVector<Element, IndexVector, ElementVector> >
 { 
 	typedef SparseVector<Element, IndexVector, ElementVector> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 };
 
 template <class Element, class IndexVector, class ElementVector>
 struct VectorTraits<const SparseVector<Element, IndexVector, ElementVector> >
 { 
 	typedef const SparseVector<Element, IndexVector, ElementVector> VectorType;
-	typedef typename VectorCategories::SparseSequenceVectorTag VectorCategory; 
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 };
 
 } // namespace LinBox
