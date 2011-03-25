@@ -44,7 +44,6 @@
 #include "linbox/matrix/matrix-domain.h"
 #include "linbox/matrix/raw-iterator.h"
 #include "linbox/linbox-config.h"
-#include "linbox/util/matrix-stream.h"
 
 namespace LinBox
 {
@@ -108,10 +107,6 @@ class DenseMatrix
 	DenseMatrix (size_t m, size_t n)
 		: _rep (m * n), _rows (m), _cols (n), _ptr(&_rep[0])
 	{}
-
-	/** Constructor from a matrix stream */
-	template< class Field >
-	DenseMatrix( MatrixStream<Field>& ms );
 
 	///
 	DenseMatrix (const DenseMatrix &M)

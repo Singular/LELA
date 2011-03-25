@@ -22,6 +22,4 @@ pkgincludesub_HEADERS=\
 	error.h				\
 	commentator.h 			\
 	timer.h				\
-	field-axpy.h			\
-	matrix-stream.h			\
-	matrix-stream.inl
+	field-axpy.h

@@ -214,16 +214,6 @@ class DenseMatrixColIterator
 };
 
 template <class _Element>
-template <class Field>
-DenseMatrix<_Element>::DenseMatrix (MatrixStream<Field> &ms)
-	:_rep (0), _rows (0), _cols (0), _ptr (NULL)
-{
-	if (!ms.getArray (_rep) || !ms.getRows (_rows) || !ms.getColumns (_cols) )
-		throw ms.reportError (__FUNCTION__, __LINE__);
-	_ptr = &_rep[0];
-}
-
-template <class _Element>
 DenseMatrix<_Element>::DenseMatrix (VectorStream<DenseMatrix<_Element>::Row> &vs)
 	: _rep (vs.size () * vs.dim ()), _rows (vs.size ()), _cols (vs.dim ()), _ptr (&_rep[0])
 {

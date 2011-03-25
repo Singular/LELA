@@ -54,11 +54,6 @@ public:
 			}
 		}
 
-	/** Constructor from a MatrixStream
-	 */
-	template <class Field>
-	SparseMatrix ( MatrixStream<Field>& ms );
-
 	SparseMatrix (VectorStream<Row> &vs)
 		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
 	{
@@ -147,11 +142,6 @@ public:
 		for( ; meit != this->_A.end(); ++meit, ++copit)
 			LinBox::RawVector<Element>::convert(*meit, *copit);
 	}
-
-	/** Constructor from a MatrixStream
-	 */
-	template <class Field>
-	SparseMatrix ( MatrixStream<Field>& ms );
 
 	SparseMatrix (VectorStream<Row> &vs)
 		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())

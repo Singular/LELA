@@ -42,64 +42,6 @@
 namespace LinBox
 {
 
-template <class Element, class Row, class Tag>
-template <class Field>
-SparseMatrix<Element, Row, Tag>::SparseMatrix (MatrixStream<Field> &ms)
-	: _A(0), _m(0), _n(0)
-{
-	Element val;
-	size_t i, j;
-
-	while (ms.nextTriple(i, j, val)) {
-		if (i >= _m) {
-			_m = i + 1;
-			_A.resize (_m);
-		}
-
-		if (j >= _n)
-			_n = j + 1;
-
-		setEntry (i, j, val);
-	}
-
-	if( ms.getError() > END_OF_MATRIX )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-
-	if( !ms.getDimensions( i, _n ) )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-
-	if( i > _m ) {
-		_m = i;
-		_A.resize(_m);
-	}
-}
-
-template <class Element, class Row>
-template <class Field>
-SparseMatrix<Element,Row,VectorCategories::SparseVectorTag>
-	::SparseMatrix( MatrixStream<Field>& ms )
-	: _A(0), _m(0), _n(0)
-{
-	Element val;
-	size_t i, j;
-	while( ms.nextTriple(i,j,val) ) {
-		if( i >= _m ) {
-			_m = i + 1;
-			_A.resize( _m );
-		}
-		if( j >= _n ) _n = j + 1;
-		setEntry(i,j,val);
-	}
-	if( ms.getError() > END_OF_MATRIX )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-	if( !ms.getDimensions( i, _n ) )
-		throw ms.reportError(__FUNCTION__,__LINE__);
-	if( i > _m ) {
-		_m = i;
-		_A.resize(_m);
-	}
-}
-
 template <class Element, class Row>
 void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	::setEntry (size_t i, size_t j, const Element &value) 

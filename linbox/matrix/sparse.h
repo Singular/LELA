@@ -55,7 +55,6 @@
 #include "linbox/matrix/matrix-traits.h"
 #include "linbox/util/debug.h"
 #include "linbox/matrix/matrix-domain.h"
-#include "linbox/util/matrix-stream.h"
 
 namespace LinBox
 {
@@ -92,11 +91,6 @@ class SparseMatrix
 	 * @param  n  column dimension
 	 */
         SparseMatrix (size_t m, size_t n): _A(m), _m(m), _n(n) {};
-
-	/** Constructor from a MatrixStream
-	 */
-	template <class Field>
-	SparseMatrix ( MatrixStream<Field>& ms );
 
 	/** Constructor from a VectorStream
 	 *
@@ -281,11 +275,6 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
 
 	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
-
-	/** Constructor from a MatrixStream
-	 */
-	template <class Field>
-	SparseMatrix ( MatrixStream<Field>& ms );
 
 	SparseMatrix (VectorStream<Row> &vs)
 		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
