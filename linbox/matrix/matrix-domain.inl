@@ -173,8 +173,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta,
 								Vector2                       &y,
-								VectorCategories::SparseSequenceVectorTag,
-								VectorCategories::DenseVectorTag) const
+								VectorCategories::SparseSequenceVectorTag) const
 {
 	linbox_check (A.rowdim () == y.size ());
 
@@ -199,8 +198,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta, 
 								Vector2                       &y,
-								VectorCategories::SparseAssociativeVectorTag,
-								VectorCategories::DenseVectorTag) const
+								VectorCategories::SparseAssociativeVectorTag) const
 {
 	linbox_check (A.rowdim () == y.size ());
 
@@ -225,34 +223,6 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta,
 								Vector2                       &y,
-								VectorCategories::SparseParallelVectorTag,
-								VectorCategories::DenseVectorTag) const
-{
-	linbox_check (A.rowdim () == y.size ());
-
-	typename Vector1::first_type::const_iterator j_idx = x.first.begin ();
-	typename Vector1::second_type::const_iterator j_elt = x.second.begin ();
-	typename Field::Element d;
-
-	_VD.mulin (y, beta);
-
-	for (; j_idx != x.first.end (); ++j_idx, ++j_elt) {
-		typename Matrix::ConstColIterator i = A.colBegin () + *j_idx;
-		_F.mul (d, alpha, *j_elt);
-		_VD.axpyin (y, d, *i);
-	}
-
-	return y;
-}
-
-template <class Field>
-template <class Vector1, class Matrix, class Vector2>
-Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename Field::Element &alpha,
-								const Matrix                  &A,
-								const Vector1                 &x,
-								const typename Field::Element &beta,
-								Vector2                       &y,
-								VectorCategories::SparseParallelVectorTag,
 								VectorCategories::SparseParallelVectorTag) const
 {
 	linbox_check (A.rowdim () == y.size ());

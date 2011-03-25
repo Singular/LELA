@@ -294,24 +294,16 @@ private:
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::DenseVectorTag,
 				     VectorCategories::DenseVectorTag) const
 		{ return gemvColDense (_VD, a, A, x, b, y); } 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseSequenceVectorTag,
-				     VectorCategories::DenseVectorTag) const;
+				     VectorCategories::SparseSequenceVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseAssociativeVectorTag,
-				     VectorCategories::DenseVectorTag) const;
+				     VectorCategories::SparseAssociativeVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseParallelVectorTag,
-				     VectorCategories::DenseVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				     VectorCategories::SparseParallelVectorTag,
 				     VectorCategories::SparseParallelVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
@@ -321,9 +313,7 @@ private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				 MatrixCategories::ColMatrixTag) const
-		{ return gemvColSpecialized (a, A, x, b, y,
-					    typename VectorTraits<Vector1>::VectorCategory (),
-					    typename VectorTraits<Vector2>::VectorCategory ()); }
+		{ return gemvColSpecialized (a, A, x, b, y, typename VectorTraits<Vector1>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				 MatrixCategories::RowColMatrixTag) const

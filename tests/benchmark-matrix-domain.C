@@ -49,7 +49,7 @@ void runBenchmarks (const Field &F)
 	typename Field::Element a;
 	r.random (a);
 
-	DenseMatrix<Element> C (l, n);
+	DenseMatrix<Element> C (l, n), D (l, m), D1 (l, m);
 
 	if (enable_dense) {
 		RandomDenseStream<Field, typename DenseMatrix<Element>::Row> stream1 (F, m, l);
@@ -64,21 +64,43 @@ void runBenchmarks (const Field &F)
 	}
 
 	if (enable_sparse) {
+		ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
 		RandomSparseStream<Field, typename SparseMatrix<Element>::Row> stream1 (F, (double) k / (double) m, m, l);
 		RandomSparseStream<Field, typename SparseMatrix<Element>::Row> stream2 (F, (double) k / (double) n, n, m);
 
 		SparseMatrix<Element> M1 (stream1);
 		SparseMatrix<Element> M2 (stream2);
 
-		commentator.start ("gemm (SparseVector)", "gemm");
-		MD.gemm (a, M1, M2, F.zero (), C);
-		commentator.stop ("done");
-
 		TransposeMatrix<SparseMatrix<Element> > M2T (M2);
 
-		commentator.start ("gemm (SparseVector transpose)", "gemm");
-		MD.gemm (a, M1, M2T, F.zero (), C);
+		SparseMatrix<Element> M2Tp (M2.coldim (), M2.rowdim ());
+
+		M2.transpose (M2Tp);
+
+		commentator.start ("gemm (SparseVector)", "gemm");
+		MD.gemm (a, M1, M2Tp, F.zero (), D1);
 		commentator.stop ("done");
+
+		commentator.start ("gemm (SparseVector transpose)", "gemm");
+		MD.gemm (a, M1, M2T, F.zero (), D);
+		commentator.stop ("done");
+
+		report << "Origial M2^T:" << std::endl;
+		MD.write (report, M2T);
+
+		report << "Copy of M2^T:" << std::endl;
+		MD.write (report, M2Tp);
+
+		report << "Original product:" << std::endl;
+		MD.write (report, D);
+
+		report << "Check product:" << std::endl;
+		MD.write (report, D1);
+
+		if (!MD.areEqual (D, D1))
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "Products are not equal!" << std::endl;
 	}
 
 	if (enable_sparse_parallel) {

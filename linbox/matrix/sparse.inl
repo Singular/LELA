@@ -327,14 +327,13 @@ template <class Element, class Row>
 SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>
 	&SparseMatrix<Element, Row, VectorCategories::SparseSequenceVectorTag>::transpose (SparseMatrix &AT) const
 {
+	typename Row::const_iterator j;
+
 	unsigned int row = 0;
 
-	for (ConstRowIterator i = rowBegin (); i != rowEnd (); ++i, ++row) {
-		typename Row::const_iterator j = i.begin ();
-
-		for (; j != i->begin (); ++j)
+	for (ConstRowIterator i = rowBegin (); i != rowEnd (); ++i, ++row)
+		for (j = i->begin (); j != i->end (); ++j)
 			AT._A[j->first].push_back (std::pair<size_t, Element> (row, j->second));
-	}
 
 	return AT;
 }
