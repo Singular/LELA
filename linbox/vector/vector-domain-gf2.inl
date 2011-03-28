@@ -473,6 +473,57 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 	return res;
 }
 
+template <class Vector1, class Vector2>
+Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
+					     VectorCategories::SparseZeroOneVectorTag,
+					     VectorCategories::HybridZeroOneVectorTag) const
+{
+	typedef typename Vector2::second_type::Endianness Endianness;
+
+	typedef typename std::iterator_traits<typename Vector1::const_iterator>::value_type index_type;
+	typedef typename std::iterator_traits<typename Vector2::second_type::const_word_iterator>::value_type word_type;
+
+	typename Vector2::first_type::const_iterator i_idx;
+	typename Vector2::second_type::const_word_iterator i_elt;
+	index_type idx = 0;
+	word_type t;
+
+	res.clear ();
+
+	for (i_idx = v.first.begin (), i_elt = v.second.wordBegin (); i_idx != v.first.end (); ++i_idx, ++i_elt)
+		for (t = Endianness::e_0, idx = *i_idx << WordTraits<word_type>::logof_size; t != 0; t = Endianness::shift_right (t, 1), ++idx)
+			if (*i_elt & t) res.push_back (idx);
+
+	return res;
+}
+
+template <class Vector1, class Vector2>
+Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
+					     VectorCategories::HybridZeroOneVectorTag,
+					     VectorCategories::SparseZeroOneVectorTag) const
+{
+	typedef typename Vector1::second_type::Endianness Endianness;
+
+	typedef typename std::iterator_traits<typename Vector2::const_iterator>::value_type index_type;
+	typedef typename std::iterator_traits<typename Vector1::second_type::const_word_iterator>::value_type word_type;
+
+	typename Vector2::const_iterator i;
+
+	res.first.clear ();
+	res.second.clear ();
+
+	for (i = v.begin (); i != v.end (); ++i) {
+		if (res.first.empty () || res.first.back () != *i >> WordTraits<word_type>::logof_size) {
+			res.first.push_back (*i >> WordTraits<word_type>::logof_size);
+			res.second.push_word_back (0);
+		}
+
+		res.second.back_word () |= Endianness::e_j (*i & WordTraits<word_type>::pos_mask);
+	}
+
+	return res;
+}
+
 template <class Vector, class Iterator>
 inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
 						      VectorCategories::DenseZeroOneVectorTag) const 
@@ -507,7 +558,13 @@ template <class Vector, class Iterator>
 inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
 						      VectorCategories::HybridZeroOneVectorTag) const 
 {
-	throw NotImplemented ();
+	::LinBox::Vector<GF2>::Sparse w;
+
+	copy (w, v);
+	permute (w, P_start, P_end);
+	copy (v, w);
+
+	return v;
 }
 
 template <class Vector1, class Vector2>

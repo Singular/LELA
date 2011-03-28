@@ -287,6 +287,14 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 					 VectorCategories::SparseZeroOneVectorTag) const
 		{ res = v; return res; }
 	template <class Vector1, class Vector2>
+	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
+				  VectorCategories::HybridZeroOneVectorTag,
+				  VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
+				  VectorCategories::SparseZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
 	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
 					 VectorCategories::HybridZeroOneVectorTag,
 					 VectorCategories::HybridZeroOneVectorTag) const
