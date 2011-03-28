@@ -239,6 +239,23 @@ namespace VectorWrapper
 	}
 
 	template <class Element, class Vector>
+	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::HybridZeroOneSequenceVectorTag)
+	{
+		typedef typename Vector::Endianness Endianness;
+		typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::second_type word_type;
+
+		typename Vector::const_iterator idx;
+
+		idx = std::lower_bound (v.begin (), v.end (), i >> WordTraits<word_type>::logof_size, CompareSparseEntries ());
+
+		if (idx != v.end () && idx->first == i >> WordTraits<word_type>::logof_size) {
+			a = idx->second & Endianness::e_j (i & WordTraits<word_type>::pos_mask);
+			return a;
+		} else
+			return false;
+	}
+
+	template <class Element, class Vector>
 	inline bool getEntry (const Vector &v, Element &a, size_t i) 
 		{ return getEntrySpecialised<Element, Vector> (v, a, i, typename ElementVectorTraits<Element, Vector>::VectorCategory()); }
 

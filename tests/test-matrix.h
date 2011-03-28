@@ -183,7 +183,7 @@ bool testGetSetEntry (const Field &F, const Matrix &M)
 
 			if (!M1.getEntry (b, i, j)) {
 				commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-					<< "ERROR: Entry M_(" << i << "," << j << ") does not exist after setEntry to nonzero value";
+					<< "ERROR: Entry M_(" << i << "," << j << ") does not exist after setEntry to nonzero value" << std::endl;
 				pass = false;
 				continue;
 			}
@@ -330,7 +330,7 @@ bool testRawIterator (const Field &F, const Matrix &M)
 
 		if (!M.getEntry (a, i_idx->first, i_idx->second)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: M_(" << i_idx->first << "," << i_idx->second << ") listed in RawIndexedIterator but not present in matrix according to getEntry";
+				<< "ERROR: M_(" << i_idx->first << "," << i_idx->second << ") listed in RawIndexedIterator but not present in matrix according to getEntry" << std::endl;
 			pass = false;
 		}
 		else if (!F.areEqual (a, *i_elt)) {

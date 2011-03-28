@@ -290,14 +290,16 @@ class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
 {
     public:
 	typedef typename Iterator::value_type Vector;
+	typedef typename Vector::second_type::Endianness Endianness;
+	typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
 
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::reference reference;
 	typedef const reference const_reference;
-	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::value_type value_type;
+	typedef bool value_type;
 	typedef typename std::iterator_traits<typename Vector::second_type::const_iterator>::difference_type difference_type;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos, Iterator rowcol_end)
-		: _rowcol (rowcol), _rowcol_end (rowcol_end), _iter_valid (false) {}
+		: _rowcol (rowcol), _rowcol_end (rowcol_end), _t (Endianness::e_0), _iter_valid (false) {}
 
 	MatrixRawIterator () {}
 
@@ -307,19 +309,26 @@ class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
 		_rowcol_end = p._rowcol_end;
 		_pos = p._pos;
 		_iter_valid = p._iter_valid;
+		_t = p._t;
 		return *this;
 	}
     
 	MatrixRawIterator& operator ++ ()
 	{
-		++_pos;
+		_t = Endianness::shift_right (_t, 1);
 
-		if (_pos == _rowcol->second.end ()) {
-			do {
-				++_rowcol;
-			} while (_rowcol != _rowcol_end && _rowcol->second.empty ());
+		if (!_t) {
+			++_pos;
 
-			_iter_valid = false;
+			if (_pos == _rowcol->second.wordEnd ()) {
+				do {
+					++_rowcol;
+				} while (_rowcol != _rowcol_end && _rowcol->second.empty ());
+
+				_iter_valid = false;
+			}
+
+			_t = Endianness::e_0;
 		}
 
 		return *this;
@@ -332,24 +341,105 @@ class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
 		return tmp;
 	}
 
-	const_reference operator* ()
-		{ update_iter (); return *_pos; }
+	value_type operator* ()
+		{ update_iter (); return *_pos & _t; }
  
 	bool operator == (const MatrixRawIterator &c) const
-		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_pos == c._pos))); }
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_pos == c._pos) && (_t == c._t))); }
 
 	bool operator != (const MatrixRawIterator &c) const
-		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_pos != c._pos))); }
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_pos != c._pos) || (_t != c._t))); }
 
     private:
 	Iterator _rowcol, _rowcol_end;
-	typename Vector::second_type::const_iterator _pos;
+	typename Vector::second_type::const_word_iterator _pos;
+	word_type _t;
 	bool _iter_valid;
 
 	void update_iter ()
 	{
 		if (!_iter_valid) {
-			_pos = _rowcol->second.begin ();
+			_pos = _rowcol->second.wordBegin ();
+			_iter_valid = true;
+		}
+	}
+};
+
+template <class Iterator>
+class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneSequenceVectorTag>
+{
+    public:
+	typedef typename Iterator::value_type Vector;
+	typedef typename Vector::Endianness Endianness;
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::second_type word_type;
+
+	typedef bool value_type;
+	typedef value_type reference;
+	typedef const reference const_reference;
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
+
+	MatrixRawIterator (Iterator rowcol, size_t pos, Iterator rowcol_end)
+		: _rowcol (rowcol), _rowcol_end (rowcol_end), _t (Endianness::e_0), _iter_valid (false) {}
+
+	MatrixRawIterator () {}
+
+	MatrixRawIterator& operator = (const MatrixRawIterator &p)
+	{
+		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
+		_pos = p._pos;
+		_iter_valid = p._iter_valid;
+		_t = p._t;
+		return *this;
+	}
+    
+	MatrixRawIterator& operator ++ ()
+	{
+		_t = Endianness::shift_right (_t, 1);
+
+		if (!_t) {
+			++_pos;
+
+			if (_pos == _rowcol->end ()) {
+				do {
+					++_rowcol;
+				} while (_rowcol != _rowcol_end && _rowcol->empty ());
+
+				_iter_valid = false;
+			}
+
+			_t = Endianness::e_0;
+		}
+
+		return *this;
+	}
+    
+	MatrixRawIterator  operator ++ (int)
+	{
+		MatrixRawIterator tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	value_type operator* ()
+		{ update_iter (); return _pos->second & _t; }
+ 
+	bool operator == (const MatrixRawIterator &c) const
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_pos == c._pos) && (_t == c._t))); }
+
+	bool operator != (const MatrixRawIterator &c) const
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_pos != c._pos) || (_t != c._t))); }
+
+    private:
+	Iterator _rowcol, _rowcol_end;
+	typename Vector::const_iterator _pos;
+	word_type _t;
+	bool _iter_valid;
+
+	void update_iter ()
+	{
+		if (!_iter_valid) {
+			_pos = _rowcol->begin ();
 			_iter_valid = true;
 		}
 	}
@@ -657,6 +747,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
     
 	MatrixRawIndexedIterator& operator ++ ()
 	{
+		++_pos.second;
 		_t = Endianness::shift_right (_t, 1);
 
 		if (_t == 0) {
@@ -671,7 +762,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
 
 				_iter_valid = false;
 			} else
-				_pos.second = *_iter;
+				_pos.second = *_iter << WordTraits<word_type>::logof_size;
 		}
 
 		return *this;
@@ -708,6 +799,94 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
 		if (!_iter_valid) {
 			_iter = _rowcol->first.begin ();
 			_pos.second = *_iter << WordTraits<word_type>::logof_size;
+			_iter_valid = true;
+		}
+	}
+};
+
+template <class Iterator>
+class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneSequenceVectorTag, false>
+{
+    public:
+	typedef typename Iterator::value_type Vector;
+
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::first_type index_type;
+	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::second_type word_type;
+	typedef typename Vector::Endianness Endianness;
+	typedef std::pair<size_t, size_t> value_type;
+	typedef value_type &reference;
+	typedef const value_type &const_reference;
+	typedef typename Iterator::difference_type difference_type;
+
+	MatrixRawIndexedIterator (Iterator rowcol, size_t i, Iterator rowcol_end)
+		: _pos (i, 0), _rowcol (rowcol), _rowcol_end (rowcol_end), _iter_valid (false), _t (Endianness::e_0) {}
+
+	MatrixRawIndexedIterator () {}
+
+	MatrixRawIndexedIterator& operator = (const MatrixRawIndexedIterator &p)
+	{
+		_pos = p._pos;
+		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
+		_iter = p._iter;
+		_iter_valid = p._iter_valid;
+		_t = p._t;
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator& operator ++ ()
+	{
+		_t = Endianness::shift_right (_t, 1);
+
+		if (_t == 0) {
+			_t = Endianness::e_0;
+			++_iter;
+
+			if (_iter == _rowcol->end ()) {
+				do {
+					++_rowcol;
+					++_pos.first;
+				} while (_rowcol != _rowcol_end && _rowcol->empty ());
+
+				_iter_valid = false;
+			} else
+				_pos.second = _iter->first << WordTraits<word_type>::logof_size;
+		}
+
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator operator ++ (int)
+	{
+		MatrixRawIndexedIterator tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	const value_type *operator -> ()
+		{ update_iter (); return &_pos; }
+
+	value_type operator * () const
+		{ update_iter (); return _pos; }
+ 
+	bool operator == (const MatrixRawIndexedIterator &c) const
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_iter == c._iter) && (_t == c._t))); }
+
+	bool operator != (const MatrixRawIndexedIterator &c)
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_iter != c._iter) || (_t != c._t))); }
+
+    private:
+	std::pair<size_t, size_t> _pos;
+	Iterator _rowcol, _rowcol_end;
+	typename Vector::const_iterator _iter;
+	bool _iter_valid;
+	word_type _t;
+
+	void update_iter ()
+	{
+		if (!_iter_valid) {
+			_iter = _rowcol->begin ();
+			_pos.second = _iter->first << WordTraits<word_type>::logof_size;
 			_iter_valid = true;
 		}
 	}

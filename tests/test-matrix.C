@@ -133,7 +133,7 @@ int main (int argc, char **argv)
 
 	pass = runDenseTests (gf2, "dense GF(2)", M3, m, n) && pass;
 	pass = runAllTests (gf2, "sparse row-wise GF(2)", M4, m, n) && pass;
-//	pass = runAllTests (gf2, "hybrid row-wise GF(2)", M5, m, n) && pass;
+	pass = runAllTests (gf2, "hybrid row-wise GF(2)", M5, m, n) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 
