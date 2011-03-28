@@ -44,7 +44,7 @@ class BitSubvectorWordAligned
 	typedef typename BitVectorIterator<word_iterator, const_word_iterator>::difference_type difference_type;
 	typedef typename BitVectorIterator<word_iterator, const_word_iterator>::size_type	   size_type;
 
-	typedef typename std::iterator_traits<word_iterator>::value_type word;
+	typedef typename std::iterator_traits<word_iterator>::value_type word_type;
 
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
@@ -58,7 +58,7 @@ class BitSubvectorWordAligned
 		: _begin (begin), _end (end)
 	{
 		if (bit_len == 0)
-			_bit_len = (end - begin) * WordTraits<word>::bits;
+			_bit_len = (end - begin) * WordTraits<word_type>::bits;
 		else
 			_bit_len = bit_len;
 	}
@@ -76,17 +76,17 @@ class BitSubvectorWordAligned
 	inline const_iterator              begin      (void) const { return const_iterator (_begin, 0); }
 	inline iterator                    end        (void)
 	{
-		if (!(_bit_len & WordTraits<word>::pos_mask))
+		if (!(_bit_len & WordTraits<word_type>::pos_mask))
 			return iterator (_end, 0);
 		else
-			return iterator (_end - 1, _bit_len & WordTraits<word>::pos_mask);
+			return iterator (_end - 1, _bit_len & WordTraits<word_type>::pos_mask);
 	}
 	inline const_iterator              end        (void) const
 	{
-		if (!(_bit_len & WordTraits<word>::pos_mask))
+		if (!(_bit_len & WordTraits<word_type>::pos_mask))
 			return const_iterator (_end, 0);
 		else
-			return const_iterator (_end - 1, _bit_len & WordTraits<word>::pos_mask);
+			return const_iterator (_end - 1, _bit_len & WordTraits<word_type>::pos_mask);
 	}
 
 	inline reverse_iterator            rbegin     (void)       { return reverse_iterator (_end); }
@@ -106,13 +106,13 @@ class BitSubvectorWordAligned
 
 	// Element access
 
-	inline reference       operator[] (size_type n)       { return *(iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask)); }
-	inline const_reference operator[] (size_type n) const { return *(const_iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask)); }
+	inline reference       operator[] (size_type n)       { return *(iterator (_begin + n / WordTraits<word_type>::bits, n & WordTraits<word_type>::pos_mask)); }
+	inline const_reference operator[] (size_type n) const { return *(const_iterator (_begin + n / WordTraits<word_type>::bits, n & WordTraits<word_type>::pos_mask)); }
 
 	inline reference at (size_type n)
 	{
 		if (n < _bit_len)
-			return *iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask);
+			return *iterator (_begin + n / WordTraits<word_type>::bits, n & WordTraits<word_type>::pos_mask);
 		else 
 			throw std::out_of_range(); //out of range error message.
 	}
@@ -120,7 +120,7 @@ class BitSubvectorWordAligned
 	inline const_reference at (size_type n) const
 	{
 		if (n < _bit_len)
-			return *const_iterator (_begin + n / WordTraits<word>::bits, n & WordTraits<word>::pos_mask);
+			return *const_iterator (_begin + n / WordTraits<word_type>::bits, n & WordTraits<word_type>::pos_mask);
 		else 
 			throw std::out_of_range(); //out of range error message
 	}
@@ -130,13 +130,13 @@ class BitSubvectorWordAligned
 
 	inline reference       front (void)       { return *iterator (_begin, 0); }
 	inline const_reference front (void) const { return *const_iterator (_begin, 0); }
-	inline reference       back  (void)       { return *iterator (_end, _bit_len & WordTraits<word>::pos_mask); }
-	inline const_reference back  (void) const { return *const_iterator (_end, _bit_len & WordTraits<word>::pos_mask); }
+	inline reference       back  (void)       { return *iterator (_end, _bit_len & WordTraits<word_type>::pos_mask); }
+	inline const_reference back  (void) const { return *const_iterator (_end, _bit_len & WordTraits<word_type>::pos_mask); }
 
-	inline word       &front_word (void)       { return *_begin; }
-	inline const word &front_word (void) const { return *_begin; }
-	inline word       &back_word  (void)       { return *_end; }
-	inline const word &back_word  (void) const { return *_end; }
+	inline word_type       &front_word (void)       { return *_begin; }
+	inline const word_type &front_word (void) const { return *_begin; }
+	inline word_type       &back_word  (void)       { return *_end; }
+	inline const word_type &back_word  (void) const { return *_end; }
 
 	inline size_type size      (void) const { return _bit_len; }
 	inline bool      empty     (void) const { return _bit_len == 0; }
@@ -162,14 +162,14 @@ class BitSubvectorWordAligned
 
 // Vector traits for BitVector wrapper
 template <class Iterator, class ConstIterator, class Endianness>
-struct VectorTraits<BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> >
+struct GF2VectorTraits<BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> >
 { 
 	typedef BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
 };
 
 template <class Iterator, class ConstIterator, class Endianness>
-struct VectorTraits< std::pair<std::vector<size_t>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+struct GF2VectorTraits< std::pair<std::vector<size_t>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
 { 
 	typedef std::pair<std::vector<size_t>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 

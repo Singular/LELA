@@ -158,7 +158,7 @@ class BitSubvector
 
 // Vector traits for BitSubvector
 template <class Iterator, class ConstIterator>
-struct VectorTraits<BitSubvector<Iterator, ConstIterator> >
+struct GF2VectorTraits<BitSubvector<Iterator, ConstIterator> >
 { 
 	typedef BitSubvector<Iterator, ConstIterator> VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
@@ -166,7 +166,7 @@ struct VectorTraits<BitSubvector<Iterator, ConstIterator> >
 
 // Vector traits for BitSubvector
 template <class Iterator, class ConstIterator>
-struct VectorTraits<const BitSubvector<Iterator, ConstIterator> >
+struct GF2VectorTraits<const BitSubvector<Iterator, ConstIterator> >
 { 
 	typedef BitSubvector<Iterator, ConstIterator> VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 

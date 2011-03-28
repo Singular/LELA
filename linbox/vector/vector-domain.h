@@ -176,7 +176,7 @@ public:
 	 */
 	template <class Vector>
 	inline std::ostream &write (std::ostream &os, const Vector &x) const
-		{ return writeSpecialized (os, x, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return writeSpecialized (os, x, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/** Read vector of field elements.
 	 * This function assumes the field element has already been 
@@ -187,7 +187,7 @@ public:
 	 */
 	template <class Vector>
 	inline std::istream &read (std::istream &is, Vector &x) const
-		{ return readSpecialized (is, x, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return readSpecialized (is, x, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	//@} Input/Output Operations
 
@@ -209,8 +209,8 @@ public:
 	template <class Vector1, class Vector2>
 	inline Vector1 &copy (Vector1 &res, const Vector2 &v) const
 		{ return copySpecialized (res, v,
-					  typename VectorTraits<Vector1>::VectorCategory (),
-					  typename VectorTraits<Vector2>::VectorCategory ()); }
+					  typename VectorTraits<Field, Vector1>::VectorCategory (),
+					  typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	/** Vector copy
 	 * Copy a vector to a portion of another vector, possibly
@@ -225,7 +225,7 @@ public:
 	template <class Vector1, class Vector2>
 	inline Vector1 &copy (Vector1 &res, const Vector2 &v, size_t i, size_t len = 0) const
 		{ return copySpecialized (res, v, i, len,
-					  typename VectorTraits<Vector1>::VectorCategory ()); }
+					  typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 
 	/** Vector equality
 	 * @param v1 Input vector
@@ -235,8 +235,8 @@ public:
 	template <class Vector1, class Vector2>
 	inline bool areEqual (const Vector1 &v1, const Vector2 &v2) const
 		{ return areEqualSpecialized (v1, v2,
-					      typename VectorTraits<Vector1>::VectorCategory (),
-					      typename VectorTraits<Vector2>::VectorCategory ()); }
+					      typename VectorTraits<Field, Vector1>::VectorCategory (),
+					      typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	/** Vector equality with zero
 	 * @param v Input vector
@@ -244,7 +244,7 @@ public:
 	 */
 	template <class Vector>
 	inline bool isZero (const Vector &v) const
-		{ return isZeroSpecialized (v, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return isZeroSpecialized (v, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/** Vector-vector dot product
 	 * @param res element into which to store result
@@ -254,8 +254,8 @@ public:
 	template <class Vector1, class Vector2>
 	inline Element &dot (Element &res, const Vector1 &v1, const Vector2 &v2) const
 		{ return dotSpecialized (res, v1, v2,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory ()); }
+					 typename VectorTraits<Field, Vector1>::VectorCategory (),
+					 typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	/* Alias for the above, to avoid source incompatibility */
 	template <class Vector1, class Vector2>
@@ -271,9 +271,9 @@ public:
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &add (Vector1 &res, const Vector2 &y, const Vector3 &x) const
 		{ return addSpecialized (res, y, x,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory (),
-					 typename VectorTraits<Vector3>::VectorCategory ()); }
+					 typename VectorTraits<Field, Vector1>::VectorCategory (),
+					 typename VectorTraits<Field, Vector2>::VectorCategory (),
+					 typename VectorTraits<Field, Vector3>::VectorCategory ()); }
 
 	/** Vector in-place add
 	 * y <- y + x
@@ -283,8 +283,8 @@ public:
 	template <class Vector1, class Vector2>
 	inline Vector1 &addin (Vector1 &y, const Vector2 &x) const
 		{ return addinSpecialized (y, x,
-					   typename VectorTraits<Vector1>::VectorCategory (),
-					   typename VectorTraits<Vector2>::VectorCategory ()); }
+					   typename VectorTraits<Field, Vector1>::VectorCategory (),
+					   typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	/** Vector subtract
 	 * res <- y - x
@@ -295,9 +295,9 @@ public:
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &sub (Vector1 &res, const Vector2 &y, const Vector3 &x) const
 		{ return subSpecialized (res, y, x,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory (),
-					 typename VectorTraits<Vector3>::VectorCategory ()); }
+					 typename VectorTraits<Field, Vector1>::VectorCategory (),
+					 typename VectorTraits<Field, Vector2>::VectorCategory (),
+					 typename VectorTraits<Field, Vector3>::VectorCategory ()); }
 
 	/** Vector in-place subtract
 	 * y <- y - x
@@ -307,8 +307,8 @@ public:
 	template <class Vector1, class Vector2>
 	inline Vector1 &subin (Vector1 &y, const Vector2 &x) const
 		{ return subinSpecialized (y, x,
-					   typename VectorTraits<Vector1>::VectorCategory (),
-					   typename VectorTraits<Vector2>::VectorCategory ()); }
+					   typename VectorTraits<Field, Vector1>::VectorCategory (),
+					   typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	/** Vector negate
 	 * res <- -x
@@ -318,8 +318,8 @@ public:
 	template <class Vector1, class Vector2>
 	inline Vector1 &neg (Vector1 &res, const Vector2 &x) const
 		{ return negSpecialized (res, x,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory ()); }
+					 typename VectorTraits<Field, Vector1>::VectorCategory (),
+					 typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	/** Vector in-place negate
 	 * y <- -y
@@ -327,7 +327,7 @@ public:
 	 */
 	template <class Vector>
 	inline Vector &negin (Vector &y) const
-		{ return neginSpecialized (y, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return neginSpecialized (y, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/** Scalar-vector multiplication
 	 * res <- a * x
@@ -337,7 +337,7 @@ public:
 	 */
 	template <class Vector1, class Vector2>
 	inline Vector1 &mul (Vector1 &res, const Vector2 &x, const Element &a) const
-		{ return mulSpecialized (res, x, a, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return mulSpecialized (res, x, a, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 
 	/** In-place scalar-vector multiplication
 	 * x <- a * x
@@ -347,7 +347,7 @@ public:
 	 */
 	template <class Vector>
 	inline Vector &mulin (Vector &x, const Element &a) const
-		{ return mulinSpecialized (x, a, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return mulinSpecialized (x, a, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/** Vector axpy
 	 * res <- y + a*x
@@ -359,9 +359,9 @@ public:
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &axpy (Vector1 &res, const Element &a, const Vector2 &x, const Vector3 &y) const
 		{ return axpySpecialized (res, y, a, x,
-					  typename VectorTraits<Vector1>::VectorCategory (),
-					  typename VectorTraits<Vector3>::VectorCategory (),
-					  typename VectorTraits<Vector2>::VectorCategory ()); }
+					  typename VectorTraits<Field, Vector1>::VectorCategory (),
+					  typename VectorTraits<Field, Vector3>::VectorCategory (),
+					  typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	/** Vector in-place axpy
 	 * y <- y + a*x
@@ -372,8 +372,8 @@ public:
 	template <class Vector1, class Vector2>
 	inline Vector1 &axpyin (Vector1 &y, const Element &a, const Vector2 &x) const
 		{ return axpyinSpecialized (y, a, x,
-					    typename VectorTraits<Vector1>::VectorCategory (),
-					    typename VectorTraits<Vector2>::VectorCategory ()); }
+					    typename VectorTraits<Field, Vector1>::VectorCategory (),
+					    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	//@} Vector arithmetic operations
 
@@ -399,7 +399,7 @@ public:
 	 */
 	template <class Vector>
 	inline void swap (Vector &v1, Vector &v2) const
-		{ swapSpecialized (v1, v2, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ swapSpecialized (v1, v2, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/** Obtain the first nonzero entry in the given vector
 	 *
@@ -409,7 +409,7 @@ public:
 	 */
 	template <class Vector>
 	inline int firstNonzeroEntry (typename Field::Element &a, const Vector &v) const
-		{ return firstNonzeroEntrySpecialized (a, v, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return firstNonzeroEntrySpecialized (a, v, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/** Permute the entries of a given vector using the given
 	 * permutation
@@ -424,7 +424,7 @@ public:
 				Iterator  P_start,
 				Iterator  P_end) const
 		{ return permuteSpecialized (v, P_start, P_end,
-					     typename VectorTraits<Vector>::VectorCategory ()); }
+					     typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	//@}
 

@@ -80,7 +80,7 @@ class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 		{ _idx = v._idx; this->parent_type::operator = (v); return *this; }
 
 	template <class V>
-	SparseSubvector &operator = (const SparseSubvector<V> &v)
+	SparseSubvector &operator = (const SparseSubvector<V, VectorCategories::SparseVectorTag> &v)
 		{ _idx = v._idx; this->parent_type::operator = (v); return *this; }
 
     private:
@@ -116,14 +116,28 @@ class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public
 
 // Vector traits for SparseVector wrapper
 template <class Vector, class Trait>
-struct VectorTraits<SparseSubvector<Vector, Trait> >
+struct DefaultVectorTraits<SparseSubvector<Vector, Trait> >
 { 
 	typedef SparseSubvector<Vector, Trait> VectorType;
 	typedef Trait VectorCategory; 
 };
 
 template <class Vector, class Trait>
-struct VectorTraits<const SparseSubvector<Vector, Trait> >
+struct DefaultVectorTraits<const SparseSubvector<Vector, Trait> >
+{ 
+	typedef const SparseSubvector<Vector, Trait> VectorType;
+	typedef Trait VectorCategory; 
+};
+
+template <class Vector, class Trait>
+struct GF2VectorTraits<SparseSubvector<Vector, Trait> >
+{ 
+	typedef SparseSubvector<Vector, Trait> VectorType;
+	typedef Trait VectorCategory; 
+};
+
+template <class Vector, class Trait>
+struct GF2VectorTraits<const SparseSubvector<Vector, Trait> >
 { 
 	typedef const SparseSubvector<Vector, Trait> VectorType;
 	typedef Trait VectorCategory; 

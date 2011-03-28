@@ -123,7 +123,7 @@ public:
 	 */
 	template <class Matrix, class Vector>
 	inline Vector &trsv (const Matrix &A, Vector &x) const
-		{ return trsvSpecialized (A, x, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return trsvSpecialized (A, x, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/*? @name Matrix-matrix arithmetic operations
 	 *
@@ -297,15 +297,15 @@ private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				  MatrixCategories::RowMatrixTag) const
-		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector2>::VectorCategory ()); }
+		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				 MatrixCategories::ColMatrixTag) const
-		{ return gemvColSpecialized (a, A, x, b, y, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return gemvColSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				 MatrixCategories::RowColMatrixTag) const
-		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector2>::VectorCategory ()); }
+		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::DenseVectorTag) const;
@@ -319,15 +319,15 @@ private:
 
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, MatrixCategories::RowMatrixTag) const
-		{ return gerRowSpecialised (a, x, y, A, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return gerRowSpecialised (a, x, y, A, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, MatrixCategories::ColMatrixTag) const
-		{ return gerColSpecialised (a, x, y, A, typename VectorTraits<Vector2>::VectorCategory ()); }
+		{ return gerColSpecialised (a, x, y, A, typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, MatrixCategories::RowColMatrixTag) const
-		{ return gerRowSpecialised (a, x, y, A, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return gerRowSpecialised (a, x, y, A, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 
 	template <class Matrix, class Vector>
 	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag) const;

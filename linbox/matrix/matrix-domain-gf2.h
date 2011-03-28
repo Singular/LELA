@@ -52,7 +52,7 @@ public:
 
 	template <class Matrix, class Vector>
 	inline Vector &trsv (const Matrix &A, Vector &x) const
-		{ return trsvSpecialized (A, x, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return trsvSpecialized (A, x, typename MatrixTraits<Matrix>::MatrixCategory (), typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Matrix1, class Matrix2>
 	inline Matrix1 &copy (Matrix1 &B, const Matrix2 &A) const
@@ -140,24 +140,32 @@ private:
 	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 				     VectorCategories::DenseZeroOneVectorTag,
 				     VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+				     VectorCategories::SparseZeroOneVectorTag,
+				     VectorCategories::DenseZeroOneVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+				     VectorCategories::HybridZeroOneVectorTag,
+				     VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 				  MatrixCategories::RowMatrixTag) const
-		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return gemvRowSpecialized (a, A, x, b, y, typename GF2VectorTraits<Vector1>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 				  MatrixCategories::ColMatrixTag) const
 		{ return gemvColSpecialized (a, A, x, b, y,
-					    typename VectorTraits<Vector1>::VectorCategory (),
-					    typename VectorTraits<Vector2>::VectorCategory ()); }
+					    typename GF2VectorTraits<Vector1>::VectorCategory (),
+					    typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 				  MatrixCategories::ZeroOneRowMatrixTag) const
-		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return gemvRowSpecialized (a, A, x, b, y, typename GF2VectorTraits<Vector1>::VectorCategory ()); }
 
 	template <class Matrix, class Vector>
-	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseZeroOneVectorTag);
+	Vector &trsvSpecialized (const Matrix &A, Vector &x, MatrixCategories::RowMatrixTag, VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Matrix1, class Matrix2> Matrix1 &copyRow (Matrix1 &B, const Matrix2 &A) const;
 	template <class Matrix1, class Matrix2> Matrix1 &copyCol (Matrix1 &B, const Matrix2 &A) const;
@@ -255,7 +263,7 @@ private:
 	Matrix3 &gemmColRowCol (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C) const;
 	template <class Matrix1, class Matrix2, class Matrix3>
 	Matrix3 &gemmRowRowRow (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C) const
-		{ return gemmRowRowRowSpecialised (a, A, B, b, C, typename VectorTraits<typename Matrix1::ConstRow>::VectorCategory ()); }
+		{ return gemmRowRowRowSpecialised (a, A, B, b, C, typename GF2VectorTraits<typename Matrix1::ConstRow>::VectorCategory ()); }
 	template <class Matrix1, class Matrix2, class Matrix3>
 	Matrix3 &gemmColColCol (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C) const;
 
@@ -315,10 +323,10 @@ private:
 		{ return gemmRowRowRow (a, A, B, b, C); }
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag);
+	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const;
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRowsByRow (Matrix   &A,
@@ -403,9 +411,23 @@ class MatrixDomainSupport<GF2> : public MatrixDomainM4RI
     public:
 	MatrixDomainSupport (const GF2 &F) : MatrixDomainM4RI (F) {}
 };
+
+template <>
+class MatrixDomainSupport<const GF2> : public MatrixDomainM4RI
+{
+    public:
+	MatrixDomainSupport (const GF2 &F) : MatrixDomainM4RI (F) {}
+};
 #else // !__LINBOX_HAVE_M4RI
 template <>
 class MatrixDomainSupport<GF2> : public MatrixDomainSupportGF2
+{
+    public:
+	MatrixDomainSupport (const GF2 &F) : MatrixDomainSupportGF2 (F) {}
+};
+
+template <>
+class MatrixDomainSupport<const GF2> : public MatrixDomainSupportGF2
 {
     public:
 	MatrixDomainSupport (const GF2 &F) : MatrixDomainSupportGF2 (F) {}

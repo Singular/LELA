@@ -31,13 +31,14 @@ BASIC_TESTS =  \
         test-gf2                \
         test-gmp-rational       \
 	test-matrix		\
-        test-matrix-domain      \
         test-modular            \
         test-modular-byte       \
         test-modular-double     \
         test-modular-short      \
         test-modular-int32      \
         test-modular-balanced-int32 \
+        test-matrix-domain      \
+	test-matrix-domain-gf2	\
         test-randiter-nonzero   \
         test-subiterator        \
         test-subvector          \
@@ -105,6 +106,11 @@ test_vector_domain_SOURCES =                 \
 
 test_matrix_domain_SOURCES =                 \
         test-matrix-domain.C                \
+        test-matrix-domain.h                \
+        test-common.C
+
+test_matrix_domain_gf2_SOURCES =                 \
+        test-matrix-domain-gf2.C                \
         test-matrix-domain.h                \
         test-common.C
 

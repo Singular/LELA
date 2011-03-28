@@ -247,7 +247,7 @@ int main (int argc, char **argv)
 		stream4 (F, 0.1, n, iterations);
 
 	// Make sure some more detailed messages get printed
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (6);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
 	commentator.start ("Testing GF2", "main", 10);
@@ -294,8 +294,16 @@ int main (int argc, char **argv)
 		pass = false;
 #endif
 
-	commentator.stop("GF2 field test suite");
+	commentator.stop (MSG_STATUS (pass));
+
 	return pass ? 0 : -1;
 }
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

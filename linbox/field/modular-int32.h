@@ -621,7 +621,7 @@ protected:
 		(const VectorDomain<Modular<Element> > &VD, Vector1 &w, const Matrix &A, const Vector2 &v) const
 	{
 		return mulColDenseSpecialized
-			(VD, w, A, v, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
+			(VD, w, A, v, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
 	}
 
 private:

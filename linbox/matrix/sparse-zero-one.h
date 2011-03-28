@@ -65,12 +65,21 @@ public:
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
-	size_t size () const { 
-            size_t s(0);
-            for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
-                s+= LinBox::RawVector<_Element>::size(*it);
-            return s;
+	size_t size () const
+	{ 
+		size_t s = 0;
+
+		for (typename Rep::const_iterator it = _A.begin (); it != _A.end (); ++it)
+			s += LinBox::RawVector<_Element>::size (*it);
+
+		return s;
         }
+
+	void resize (size_t m, size_t n)
+	{
+		_m = m; _n = n;
+		_A.resize (m);
+	}
 
 	void setEntry (size_t i, size_t j, const Element &value);
 	void eraseEntry (size_t i, size_t j);
@@ -154,11 +163,21 @@ public:
 
 	size_t rowdim () const { return _m; }
 	size_t coldim () const { return _n; }
-	size_t size () const { 
-		size_t s(0);
-		for(typename Rep::const_iterator it = _A.begin(); it != _A.end(); ++it)
-			s+= LinBox::RawVector<_Element>::size(*it);
+
+	size_t size () const
+	{
+		size_t s = 0;
+
+		for (typename Rep::const_iterator it = _A.begin (); it != _A.end (); ++it)
+			s+= LinBox::RawVector<_Element>::size (*it);
+
 		return s;
+	}
+
+	void resize (size_t m, size_t n)
+	{
+		_m = m; _n = n;
+		_A.resize (m);
 	}
 
 	void setEntry (size_t i, size_t j, const Element &value);

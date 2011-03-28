@@ -82,14 +82,14 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 
 // Vector traits for SparseVector wrapper
 template <class Vector>
-struct VectorTraits<SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag> >
+struct GF2VectorTraits<SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag> >
 { 
 	typedef SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag> VectorType;
 	typedef VectorCategories::HybridZeroOneSequenceVectorTag VectorCategory; 
 };
 
 template <class Vector>
-struct VectorTraits<const SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag> >
+struct GF2VectorTraits<const SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag> >
 { 
 	typedef SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag> VectorType;
 	typedef VectorCategories::HybridZeroOneSequenceVectorTag VectorCategory; 

@@ -120,12 +120,49 @@ struct VectorCategories
  * template specialization.
  * @param Vector \Ref{LinBox} dense or sparse vector.
  */
-template <class Vector> struct VectorTraits
+template <class Vector> struct DefaultVectorTraits
 {
 	typedef typename Vector::VectorCategory VectorCategory;
 	typedef Vector VectorType;
+};
 
-	// These are defined for all STL vectors and sequence containers.
+/** Version of the above for vectors over GF2
+ *
+ * This is required because sparse vectors over GF2 and dense vectors
+ * over a field with element-type unsigned int have the same type
+ */
+template <class Vector>
+struct GF2VectorTraits
+{
+	typedef typename Vector::VectorCategory VectorCategory;
+	typedef Vector VectorType;
+};
+
+/** Version which takes the field-element as a hint as to which
+ * version of the above to use (useful when the field is not available)
+ */
+template <class Element, class Vector>
+struct ElementVectorTraits
+{
+	typedef typename DefaultVectorTraits<Vector>::VectorCategory VectorCategory;
+	typedef Vector VectorType;
+};
+
+/** Version using the field rather than its element-type
+ */
+template <class Field, class Vector>
+struct VectorTraits
+{
+	typedef typename ElementVectorTraits<typename Field::Element, Vector>::VectorCategory VectorCategory;
+	typedef Vector VectorType;
+};
+
+/** Specialisation of ElementVectorTraits for vectors over GF2 */
+template <class Vector>
+struct ElementVectorTraits<bool, Vector>
+{
+	typedef typename GF2VectorTraits<Vector>::VectorCategory VectorCategory;
+	typedef Vector VectorType;
 };
 
 // Namespace containing some useful generic functions
@@ -203,7 +240,7 @@ namespace VectorWrapper
 
 	template <class Element, class Vector>
 	inline bool getEntry (const Vector &v, Element &a, size_t i) 
-		{ return getEntrySpecialised<Element, Vector> (v, a, i, typename VectorTraits<Vector>::VectorCategory()); }
+		{ return getEntrySpecialised<Element, Vector> (v, a, i, typename ElementVectorTraits<Element, Vector>::VectorCategory()); }
 
 	template <class Vector>
 	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::DenseVectorTag)
@@ -221,14 +258,14 @@ namespace VectorWrapper
 	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::SparseZeroOneVectorTag)
 		{}
 
-	template <class Vector>
+	template <class Field, class Vector>
 	inline void ensureDim (Vector &v, size_t n) 
-		{ ensureDimSpecialized (v, n, typename VectorTraits<Vector>::VectorCategory()); }
+		{ ensureDimSpecialized (v, n, typename VectorTraits<Field, Vector>::VectorCategory()); }
 } // Namespace VectorWrapper
 
 // Specialization for STL vectors
 template <class Element>
-struct VectorTraits< std::vector<Element> >
+struct DefaultVectorTraits< std::vector<Element> >
 { 
 	typedef std::vector<Element> VectorType;
 	typedef typename VectorCategories::DenseVectorTag VectorCategory; 
@@ -236,7 +273,7 @@ struct VectorTraits< std::vector<Element> >
 
 // Specialization for STL vectors of pairs of size_t and elements
 template <class Element> 
-struct VectorTraits< std::vector< std::pair<uint32, Element> > >
+struct DefaultVectorTraits< std::vector< std::pair<uint32, Element> > >
 { 
 	typedef std::vector< std::pair<uint32, Element> > VectorType;
 	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
@@ -246,7 +283,7 @@ struct VectorTraits< std::vector< std::pair<uint32, Element> > >
 
 // Specialization for STL lists of pairs of size_t and elements
 template <class Element> 
-struct VectorTraits< std::list< std::pair<size_t, Element> > >
+struct DefaultVectorTraits< std::list< std::pair<size_t, Element> > >
 { 
 	typedef std::list< std::pair<size_t, Element> > VectorType;
 	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
@@ -256,7 +293,7 @@ struct VectorTraits< std::list< std::pair<size_t, Element> > >
 
 // Specialization for STL singly linked lists of pairs of size_t and elements
 template <class Element> 
-struct VectorTraits< std::deque< std::pair<size_t, Element> > >
+struct DefaultVectorTraits< std::deque< std::pair<size_t, Element> > >
 { 
 	typedef std::deque< std::pair<size_t, Element> > VectorType;
 	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
@@ -264,9 +301,30 @@ struct VectorTraits< std::deque< std::pair<size_t, Element> > >
 	static void sort (VectorType& v) { std::stable_sort (v.begin (), v.end (), VectorWrapper::CompareSparseEntries ()); }
 };
   
-// Specialization for a const STL vector of size_t's
+// GF2-specialisations
 template <> 
-struct VectorTraits< const std::vector<size_t> >
+struct GF2VectorTraits<std::vector<uint32> >
+{ 
+	typedef std::vector<uint32> VectorType;
+	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
+};
+
+template <> 
+struct GF2VectorTraits<const std::vector<uint32> >
+{ 
+	typedef std::vector<uint32> VectorType;
+	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
+};
+
+template <> 
+struct GF2VectorTraits<std::vector<size_t> >
+{ 
+	typedef std::vector<size_t> VectorType;
+	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
+};
+
+template <> 
+struct GF2VectorTraits<const std::vector<size_t> >
 { 
 	typedef std::vector<size_t> VectorType;
 	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
@@ -319,6 +377,20 @@ struct Rebind< std::pair<std::vector<size_t>, std::vector<T> >,U >
 };
 
 //@} Vector traits
+
+/// Compute the image of an index under a permutation
+template <class Iterator>
+typename Iterator::value_type::first_type permutationImage (typename Iterator::value_type::first_type x, Iterator P_start, Iterator P_end)
+{
+	for (Iterator i = P_start; i != P_end; ++i) {
+		if (i->first == x)
+			x = i->second;
+		else if (i->second == x)
+			x = i->first;
+	}
+
+	return x;
+}
 
 } // namespace LinBox
 

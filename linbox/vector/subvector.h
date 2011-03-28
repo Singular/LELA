@@ -185,7 +185,7 @@ class Subvector //: public Vector // for types
   
 // Vector traits for Subvector wrapper
 template <typename Iterator, typename ConstIterator> 
-struct VectorTraits<Subvector<Iterator, ConstIterator> >
+struct DefaultVectorTraits<Subvector<Iterator, ConstIterator> >
 { 
 	typedef VectorCategories::DenseVectorTag VectorCategory; 
 };

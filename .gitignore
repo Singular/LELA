@@ -52,6 +52,7 @@ tests/test-isposdef
 tests/test-ispossemidef
 tests/test-matrix
 tests/test-matrix-domain
+tests/test-matrix-domain-gf2
 tests/test-matrix-stream
 tests/test-minpoly
 tests/test-modular

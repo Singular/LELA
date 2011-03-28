@@ -67,7 +67,7 @@ private:
 
 	template <class Vector>
 	void appendEntry (Vector &v, size_t index, const typename Field::Element &a) const
-		{ appendEntrySpecialised (v, index, a, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ appendEntrySpecialised (v, index, a, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	template <class Vector>
 	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::DenseVectorTag) const;

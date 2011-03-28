@@ -54,14 +54,32 @@ inline bool &DotProductDomain<GF2>::dotSpecializedDSP
 	return res;
 }
 
+template <class Vector1, class Vector2>
+inline bool &DotProductDomain<GF2>::dotSpecializedDH
+	(bool          &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2) const
+{
+	typename Vector1::word_type t = 0;
+	typename Vector1::const_word_iterator i = v1.wordBegin ();
+	typename Vector2::first_type::const_iterator j_idx = v2.first.begin ();
+	typename Vector2::second_type::const_word_iterator j_elt = v2.second.wordBegin ();
+
+	for (; j_idx != v2.first.end (); ++j_idx, ++j_elt)
+		t ^= *(i + *j_idx) & *j_elt;
+        
+        return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
+}
+
 template <class Iterator, class Endianness, class Vector1, class Vector2>
 inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDD
 	(BitVectorReference<Iterator, Endianness> res,
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {
-    bool tmp;
-    return res = dotSpecializedDD(tmp, v1, v2);
+	bool tmp;
+
+	return res = dotSpecializedDD (tmp, v1, v2);
 }
 
 template <class Iterator, class Endianness, class Vector1, class Vector2>
@@ -80,15 +98,21 @@ inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecia
 	return res;
 }
 
+template <class Iterator, class Endianness, class Vector1, class Vector2>
+inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDH
+	(BitVectorReference<Iterator, Endianness> res,
+	 const Vector1 &v1,
+	 const Vector2 &v2) const
+{
+	bool tmp;
+
+	return res = dotSpecializedDH (tmp, v1, v2);
+}
+
 template <class Vector>
 std::ostream &VectorDomain<GF2>::writeSpecialized (std::ostream &os, const Vector &x,
 						   VectorCategories::DenseZeroOneVectorTag) const
 {
-	
-
-// TO BE REMOVED
-	os << "writeSpec DenseZO, of size " << x.size() << ' ';
-
 	os << "[ ";
 
 	for (typename Vector::const_iterator i = x.begin (); i != x.end (); ++i)
@@ -96,12 +120,14 @@ std::ostream &VectorDomain<GF2>::writeSpecialized (std::ostream &os, const Vecto
 
 	os << ']';
 
+#if 0
 	os << "( ";
 
 	for (typename Vector::const_word_iterator i = x.wordBegin (); i != x.wordEnd (); ++i)
 		os << *i << ' ';
 
 	os << ')';
+#endif
 
 	return os;
 }
@@ -115,8 +141,6 @@ std::ostream &VectorDomain<GF2>::writeSpecialized (std::ostream &os, const Vecto
 	typename Vector::const_iterator i;
 	index_type idx = 0;
 
-// TO BE REMOVED
-	os << "writeSpec SparseZO, of size " << x.size() << ' ';
 	os << "[ ";
 
 	for (i = x.begin (); i != x.end (); ++i) {
@@ -297,7 +321,6 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 	typename Vector2::first_type::const_iterator j_idx = v2.first.begin ();
 	typename Vector2::second_type::const_word_iterator j_elt = v2.second.wordBegin ();
 	index_type idx = 0;
-	int t;
 
 	for (; j_idx != v2.first.end (); ++j_idx, ++j_elt) {
 		while (idx < *j_idx) {
@@ -407,12 +430,9 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::SparseZeroOneVectorTag) const
 {
-	// FIXME
-    	size_t sparsesize = *(v.rbegin());
-    	if (sparsesize > res.size()) res.resize( *(v.rbegin()) );
-	std::fill (res.wordBegin (), res.wordEnd (), 0);
-
 	typename Vector2::const_iterator i;
+
+	std::fill (res.wordBegin (), res.wordEnd (), 0);
 
 	for (i = v.begin (); i != v.end (); ++i)
         	res[*i] = true;
@@ -467,6 +487,27 @@ inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_star
 	}
 
 	return v;
+}
+
+template <class Vector, class Iterator>
+inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
+						      VectorCategories::SparseZeroOneVectorTag) const 
+{
+	typename Vector::iterator j;
+
+	for (j = v.begin (); j != v.end (); ++j)
+		*j = permutationImage (*j, P_start, P_end);
+
+	std::sort (v.begin (), v.end ());
+
+	return v;
+}
+
+template <class Vector, class Iterator>
+inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
+						      VectorCategories::HybridZeroOneVectorTag) const 
+{
+	throw NotImplemented ();
 }
 
 template <class Vector1, class Vector2>

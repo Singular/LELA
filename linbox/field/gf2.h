@@ -128,7 +128,7 @@ class GF2 : public FieldInterface
 
 	template <class Iterator, class Endianness>
 	BitVectorReference<Iterator, Endianness> init (BitVectorReference<Iterator, Endianness> x, const integer &y = 0) const
-		{ return x = long (y) & 1; }
+		{ return x = y.get_si () & 1; }
 
 	std::_Bit_reference init (std::_Bit_reference x, const integer &y = 0) const
 		{ return x = y.get_si () & 1; }
@@ -498,8 +498,8 @@ class GF2 : public FieldInterface
 	BitVectorReference<Iterator, Endianness> mulin (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x &= y; }
     
-	Element& mulin (std::_Bit_reference& x, Element y) const
-		{ return mulin((bool&)x,y); }
+	Element &mulin (std::_Bit_reference &x, Element y) const
+		{ return mulin ((bool &) x, y); }
  
 	/** Inplace Division.
 	 * x /= y

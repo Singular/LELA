@@ -72,14 +72,14 @@ bool MatrixDomainSupportGF2::isZeroRow (const Matrix &A) const
 template <class Matrix>
 Matrix &MatrixDomainSupportGF2::scalRow (Matrix &A, const bool &a) const
 {
-	if (a)
-		return A;
-	else {
+	if (!a) {
 		typename Matrix::RowIterator i;
 
 		for (i = A.rowBegin (); i != A.rowEnd (); ++i)
 			_VD.mulin (*i, a);
 	}
+
+	return A;
 }
 
 template <class Matrix1, class Matrix2>
@@ -103,7 +103,7 @@ Matrix2 &MatrixDomainSupportGF2::axpyRow (const bool &a, const Matrix1 &A, Matri
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvColDense (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y) const
 {
-	typename Matrix::ColIterator i_A;
+	typename Matrix::ConstColIterator i_A;
 	typename Vector1::const_iterator i_x;
 
 	if (!b)
@@ -115,6 +115,54 @@ Vector2 &MatrixDomainSupportGF2::gemvColDense (const bool &a, const Matrix &A, c
 	for (i_x = x.begin (), i_A = A.colBegin (); i_x != x.end (); ++i_x, ++i_A)
 		if (*i_x)
 			_VD.addin (y, *i_A);
+
+	return y;
+}
+
+template <class Vector1, class Matrix, class Vector2>
+Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     VectorCategories::SparseZeroOneVectorTag,
+						     VectorCategories::DenseZeroOneVectorTag) const
+{
+	typename Vector1::const_iterator i_x;
+
+	if (!b)
+		_VD.subin (y, y);
+
+	if (!a)
+		return y;
+
+	for (i_x = x.begin (); i_x != x.end (); ++i_x)
+		_VD.addin (y, *(A.colBegin () + *i_x));
+
+	return y;
+}
+
+template <class Vector1, class Matrix, class Vector2>
+Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     VectorCategories::HybridZeroOneVectorTag,
+						     VectorCategories::DenseZeroOneVectorTag) const
+{
+	typedef typename Vector1::second_type::Endianness Endianness;
+	typedef typename std::iterator_traits<typename Vector1::first_type::const_iterator>::value_type index_type;
+	typedef typename std::iterator_traits<typename Vector1::second_type::const_word_iterator>::value_type word_type;
+
+	typename Matrix::ConstColIterator i_A;
+	typename Vector1::first_type::const_iterator i_x_idx;
+	typename Vector1::second_type::const_word_iterator i_x_elt;
+
+	word_type t;
+
+	if (!b)
+		_VD.subin (y, y);
+
+	if (!a)
+		return y;
+
+	for (i_x_idx = x.first.begin (), i_x_elt = x.second.wordBegin (), i_A = A.colBegin (); i_x_idx != x.first.end (); ++i_x_idx, ++i_x_elt)
+		for (t = Endianness::e_0, i_A = A.colBegin () + *i_x_idx; t != 0; t = Endianness::shift_right (t, 1), ++i_A)
+			if (*i_x_elt & t)
+				_VD.addin (y, *i_A);
 
 	return y;
 }
@@ -214,7 +262,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
 						 MatrixCategories::RowMatrixTag,
-						 VectorCategories::DenseZeroOneVectorTag)
+						 VectorCategories::DenseZeroOneVectorTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == x.size ());
@@ -432,7 +480,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
-						  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+						  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -454,7 +502,7 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
-						  MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag)
+						  MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix2::ColIterator i_B;
 

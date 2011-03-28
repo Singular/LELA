@@ -1,5 +1,5 @@
 /* linbox/matrix/matrix-domain.inl
- * Copyright (C) 2002 Bradford Hovinen
+ * Copyright 2002 Bradford Hovinen
  *
  * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
  *
@@ -32,10 +32,6 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 
 	typename Field::Element d;
 
-            // JGD 02.09.2008 : when sizes differ
-            // A must decide if dot is possible, not w 
-// 	for (; j != w.end (); ++j, ++i)
-// 		_VD.dot (*j, v, *i);
 	for (; i != A.rowEnd (); ++j, ++i) {
 		_VD.dot (d, x, *i);
 		_F.mulin (*j, beta);
@@ -514,7 +510,7 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
-	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
+	typename Field::Element ai, ai_p_1, neg_ai_inv;
 	int i = A.rowdim () - 1;
 
 	TransposeMatrix<const Matrix1> AT (A);

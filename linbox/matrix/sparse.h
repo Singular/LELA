@@ -70,7 +70,7 @@ namespace LinBox
  * @param Row     LinBox sparse vector type to use for rows of matrix
 \ingroup matrix
  */
-template <class _Element, class _Row = typename RawVector<_Element>::Sparse, class Trait = typename VectorTraits<_Row>::VectorCategory>
+template <class _Element, class _Row = typename RawVector<_Element>::Sparse, class Trait = typename ElementVectorTraits<_Element, _Row>::VectorCategory>
 class SparseMatrix
 {
     public:

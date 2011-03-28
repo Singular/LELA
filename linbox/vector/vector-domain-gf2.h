@@ -37,11 +37,17 @@ class DotProductDomain<GF2> : private virtual VectorDomainBase<GF2>
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
 
+	template <class Vector1, class Vector2>
+	inline Element &dotSpecializedDH (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecializedDD (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2) const;
 
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecializedDSP (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2) const;
+
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecializedDH (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2) const;
 };
 
 // Specialization of vector domain
@@ -62,60 +68,60 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
     
 	template <class Vector>
 	inline std::ostream &write (std::ostream &os, const Vector &x) const
-		{ return writeSpecialized (os, x, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return writeSpecialized (os, x, typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector>
 	inline std::istream &read (std::istream &is, Vector &x) const
-		{ return readSpecialized (is, x, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return readSpecialized (is, x, typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &copy (Vector1 &res, const Vector2 &v) const
 		{ return copySpecialized (res, v,
-					  typename VectorTraits<Vector1>::VectorCategory (),
-					  typename VectorTraits<Vector2>::VectorCategory ()); }
+					  typename GF2VectorTraits<Vector1>::VectorCategory (),
+					  typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 
 	template <class Vector>
 	inline void swap (Vector &v1, Vector &v2) const
 		{ swapSpecialised (v1, v2,
-				   typename VectorTraits<Vector>::VectorCategory ()); }
+				   typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector>
 	inline int firstNonzeroEntry (bool &a, const Vector &v) const
-		{ return firstNonzeroEntrySpecialized (a, v, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return firstNonzeroEntrySpecialized (a, v, typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &copy (Vector1 &res, const Vector2 &v, size_t i, size_t len = 0) const
 		{ return copySpecialized (res, v, i, len,
-					  typename VectorTraits<Vector1>::VectorCategory ()); }
+					  typename GF2VectorTraits<Vector1>::VectorCategory ()); }
 
 	template <class Vector, class Iterator>
 	inline Vector &permute (Vector   &v,
 				Iterator  P_start,
 				Iterator  P_end) const
 		{ return permuteSpecialized (v, P_start, P_end,
-					     typename VectorTraits<Vector>::VectorCategory ()); }
+					     typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline bool areEqual (const Vector1 &v1, const Vector2 &v2) const
 		{ return areEqualSpecialized (v1, v2,
-					      typename VectorTraits<Vector1>::VectorCategory (),
-					      typename VectorTraits<Vector2>::VectorCategory ()); }
+					      typename GF2VectorTraits<Vector1>::VectorCategory (),
+					      typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 
 	template <class Vector>
 	inline bool isZero (const Vector &v) const
-		{ return isZeroSpecialized (v, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return isZeroSpecialized (v, typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline Element &dot (Element &res, const Vector1 &v1, const Vector2 &v2) const
 		{ return dotSpecialized (res, v1, v2,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory ()); }
+					 typename GF2VectorTraits<Vector1>::VectorCategory (),
+					 typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dot (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2) const
 		{ return dotSpecialized (res, v1, v2,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory ()); }
+					 typename GF2VectorTraits<Vector1>::VectorCategory (),
+					 typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline Element &dotprod (Element &res, const Vector1 &v1, const Vector2 &v2) const
@@ -124,28 +130,28 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &add (Vector1 &res, const Vector2 &y, const Vector3 &x) const
 		{ return addSpecialized (res, y, x,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory (),
-					 typename VectorTraits<Vector3>::VectorCategory ()); }
+					 typename GF2VectorTraits<Vector1>::VectorCategory (),
+					 typename GF2VectorTraits<Vector2>::VectorCategory (),
+					 typename GF2VectorTraits<Vector3>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &addin (Vector1 &y, const Vector2 &x) const
 		{ return addinSpecialized (y, x,
-					   typename VectorTraits<Vector1>::VectorCategory (),
-					   typename VectorTraits<Vector2>::VectorCategory ()); }
+					   typename GF2VectorTraits<Vector1>::VectorCategory (),
+					   typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &sub (Vector1 &res, const Vector2 &y, const Vector3 &x) const
 		{ return addSpecialized (res, y, x,
-					 typename VectorTraits<Vector1>::VectorCategory (),
-					 typename VectorTraits<Vector2>::VectorCategory (),
-					 typename VectorTraits<Vector3>::VectorCategory ()); }
+					 typename GF2VectorTraits<Vector1>::VectorCategory (),
+					 typename GF2VectorTraits<Vector2>::VectorCategory (),
+					 typename GF2VectorTraits<Vector3>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &subin (Vector1 &y, const Vector2 &x) const
 		{ return addinSpecialized (y, x,
-					   typename VectorTraits<Vector1>::VectorCategory (),
-					   typename VectorTraits<Vector2>::VectorCategory ()); }
+					   typename GF2VectorTraits<Vector1>::VectorCategory (),
+					   typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &neg (Vector1 &res, const Vector2 &x) const
@@ -157,11 +163,11 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &mul (Vector1 &res, const Vector2 &x, const Element a) const
-		{ return mulSpecialized (res, x, a, typename VectorTraits<Vector1>::VectorCategory ()); }
+		{ return mulSpecialized (res, x, a, typename GF2VectorTraits<Vector1>::VectorCategory ()); }
 
 	template <class Vector>
 	inline Vector &mulin (Vector &x, const Element a) const
-		{ return mulinSpecialized (x, a, typename VectorTraits<Vector>::VectorCategory ()); }
+		{ return mulinSpecialized (x, a, typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &axpy (Vector1 &res, const Element a, const Vector2 &x, const Vector3 &y) const
@@ -304,6 +310,12 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	template <class Vector, class Iterator>
 	inline Vector &permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
 					   VectorCategories::DenseZeroOneVectorTag) const;
+	template <class Vector, class Iterator>
+	inline Vector &permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
+					   VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector, class Iterator>
+	inline Vector &permuteSpecialized (Vector &v, Iterator P_start, Iterator P_end,
+					   VectorCategories::HybridZeroOneVectorTag) const;
 
 	template <class Vector1, class Vector2>
 	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
@@ -320,6 +332,16 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 					VectorCategories::SparseZeroOneVectorTag,
 					VectorCategories::DenseZeroOneVectorTag) const
 		{ return DotProductDomain<GF2>::dotSpecializedDSP (res, v2, v1); }
+	template <class Vector1, class Vector2>
+	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+					VectorCategories::DenseZeroOneVectorTag,
+					VectorCategories::HybridZeroOneVectorTag) const
+		{ return DotProductDomain<GF2>::dotSpecializedDH (res, v1, v2); }
+	template <class Vector1, class Vector2>
+	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+					VectorCategories::HybridZeroOneVectorTag,
+					VectorCategories::DenseZeroOneVectorTag) const
+		{ return DotProductDomain<GF2>::dotSpecializedDH (res, v2, v1); }
 	template <class Vector1, class Vector2>
 	Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
 				 VectorCategories::SparseZeroOneVectorTag,
@@ -340,6 +362,16 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 					VectorCategories::SparseZeroOneVectorTag,
 					VectorCategories::DenseZeroOneVectorTag) const
 		{ return DotProductDomain<GF2>::dotSpecializedDSP (res, v2, v1); }
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
+					VectorCategories::DenseZeroOneVectorTag,
+					VectorCategories::HybridZeroOneVectorTag) const
+		{ return DotProductDomain<GF2>::dotSpecializedDH (res, v1, v2); }
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
+					VectorCategories::HybridZeroOneVectorTag,
+					VectorCategories::DenseZeroOneVectorTag) const
+		{ return DotProductDomain<GF2>::dotSpecializedDH (res, v2, v1); }
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
 				 VectorCategories::SparseZeroOneVectorTag,

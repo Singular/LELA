@@ -1,0 +1,125 @@
+/* tests/test-matrix-domain-gf2.C
+ * Copyright 2011 Bradford Hovinen
+ *
+ * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
+ * Based on test-matrix-domain.C by same author
+ *
+ * ---------------------------------------------------------
+ *
+ * See COPYING for license information.
+ *
+ * Test suite for MatrixDomain
+ */
+
+#include "linbox/util/commentator.h"
+#include "linbox/field/gf2.h"
+#include "linbox/matrix/dense-zero-one.h"
+#include "linbox/matrix/sparse-zero-one.h"
+#include "linbox/vector/stream.h"
+
+#include "test-common.h"
+#include "test-matrix-domain.h"
+
+using namespace LinBox;
+
+typedef GF2 Field;
+typedef __LINBOX_BITVECTOR_WORD_TYPE Word;
+typedef BigEndian<Word> Endianness;
+typedef std::vector<size_t> Sparse01Vector;
+typedef std::pair<std::vector<uint16>, BitVector<Endianness> > Hybrid01Vector;
+typedef LinBox::SparseMatrix<bool, Sparse01Vector, VectorCategories::SparseZeroOneVectorTag> Sparse01Matrix;
+typedef LinBox::SparseMatrix<bool, Hybrid01Vector, VectorCategories::HybridZeroOneVectorTag> Hybrid01Matrix;
+typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> Dense01Matrix;
+
+int main (int argc, char **argv)
+{
+	bool pass = true;
+
+	static long l = 100;
+	static long n = 100;
+	static long m = 80;
+	static long p = 60;
+	static long k = 10;
+	static int iterations = 1;
+
+	static Argument args[] = {
+		{ 'l', "-l L", "Set row-dimension of matrix A to L.", TYPE_INT, &l },
+		{ 'm', "-m M", "Set row-dimension of matrix B and column-dimension of A to M.", TYPE_INT, &m },
+		{ 'n', "-n N", "Set row-dimension of matrix C and column-dimension of B to N.", TYPE_INT, &n },
+		{ 'p', "-p P", "Set column-dimension of matrix C to P.", TYPE_INT, &p },
+		{ 'k', "-k K", "K nonzero elements per row/column in sparse matrices.", TYPE_INT, &k },
+		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT, &iterations },
+		{ '\0' }
+	};
+
+	parseArguments (argc, argv, args);
+
+	Field F;
+
+	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
+	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
+
+	commentator.start ("Matrix domain GF2 test suite", "MatrixDomainGF2");
+
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1 (F, l, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2 (F, m, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v3 (F, n, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v4 (F, p, 1);
+
+	Vector<Field>::Dense v1 (l), v2 (m), v3 (n), v4 (p);
+	stream_v1 >> v1;
+	stream_v2 >> v2;
+	stream_v3 >> v3;
+	stream_v4 >> v4;
+
+	RandomDenseStream<Field, Dense01Matrix::Row> stream11 (F, m, l);
+	RandomDenseStream<Field, Dense01Matrix::Row> stream12 (F, n, m);
+	RandomDenseStream<Field, Dense01Matrix::Row> stream13 (F, p, n);
+
+	Dense01Matrix M1 (stream11);
+	Dense01Matrix M2 (stream12);
+	Dense01Matrix M3 (stream13);
+
+	if (!testMatrixDomain (F, "dense", M1, M2, M3, v1, v2, iterations,
+			       MatrixTraits<Dense01Matrix>::MatrixCategory ()))
+		pass = false;
+
+	RandomSparseStream<Field, Sparse01Matrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> stream21 (F, (double) k / (double) m, m, l);
+	RandomSparseStream<Field, Sparse01Matrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> stream22 (F, (double) k / (double) n, n, m);
+	RandomSparseStream<Field, Sparse01Matrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> stream23 (F, (double) k / (double) p, p, n);
+
+	Sparse01Matrix M4 (stream21);
+	Sparse01Matrix M5 (stream22);
+	Sparse01Matrix M6 (stream23);
+
+	if (!testMatrixDomain (F, "sparse", M4, M5, M6, v1, v2, iterations,
+			       MatrixTraits<Sparse01Matrix>::MatrixCategory ()))
+		pass = false;
+
+	RandomSparseStream<Field, Hybrid01Matrix::Row> stream31 (F, (double) k / (double) m, m, l);
+	RandomSparseStream<Field, Hybrid01Matrix::Row> stream32 (F, (double) k / (double) n, n, m);
+	RandomSparseStream<Field, Hybrid01Matrix::Row> stream33 (F, (double) k / (double) p, p, n);
+
+	Hybrid01Matrix M7 (stream31);
+	Hybrid01Matrix M8 (stream32);
+	Hybrid01Matrix M9 (stream33);
+
+	if (!testMatrixDomain (F, "hybrid", M7, M8, M9, v1, v2, iterations,
+			       MatrixTraits<Hybrid01Matrix>::MatrixCategory ()))
+		pass = false;
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass ? 0 : -1;
+}
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

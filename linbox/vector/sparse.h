@@ -218,7 +218,7 @@ private:
 };
 
 /// Forward declarations
-template <class Vector, class Trait = typename VectorTraits<Vector>::VectorCategory>
+template <class Vector, class Trait>
 class SparseSubvector;
 
 /** Sparse vector wrapper
@@ -469,28 +469,28 @@ private:
 };
 
 template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
-struct VectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
+struct DefaultVectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
 { 
 	typedef ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
 	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 };
 
 template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
-struct VectorTraits<const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
+struct DefaultVectorTraits<const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
 { 
 	typedef const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
 	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 };
 
 template <class Element, class IndexVector, class ElementVector>
-struct VectorTraits< SparseVector<Element, IndexVector, ElementVector> >
+struct DefaultVectorTraits< SparseVector<Element, IndexVector, ElementVector> >
 { 
 	typedef SparseVector<Element, IndexVector, ElementVector> VectorType;
 	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
 };
 
 template <class Element, class IndexVector, class ElementVector>
-struct VectorTraits<const SparseVector<Element, IndexVector, ElementVector> >
+struct DefaultVectorTraits<const SparseVector<Element, IndexVector, ElementVector> >
 { 
 	typedef const SparseVector<Element, IndexVector, ElementVector> VectorType;
 	typedef typename VectorCategories::SparseVectorTag VectorCategory; 

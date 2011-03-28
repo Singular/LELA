@@ -1401,7 +1401,7 @@ class MVProductDomain<Modular<uint8> >
 		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
 	{
 		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
+			(VD, alpha, A, x, beta, y, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
 	}
 
     private:
@@ -1432,7 +1432,7 @@ class MVProductDomain<Modular<uint16> >
 		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
 	{
 		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, VectorTraits<typename Matrix::Column>::VectorCategory ());
+			(VD, alpha, A, x, beta, y, DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
 	}
 
     private:
@@ -1463,7 +1463,7 @@ class MVProductDomain<Modular<uint32> >
 		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
 	{
 		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, typename VectorTraits<typename Matrix::Column>::VectorCategory ());
+			(VD, alpha, A, x, beta, y, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
 	}
 
     private:

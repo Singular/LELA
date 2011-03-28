@@ -740,7 +740,7 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 	VectorDomain<Field> VD (F);
 	MatrixDomain<Field> MD (F);
 
-	std::vector<typename Field::Element> aAv (A.rowdim ());
+	typename LinBox::Vector<Field>::Dense aAv (A.rowdim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
@@ -1241,14 +1241,13 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (F, text, M1)) pass = false;
-	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
-	if (!testGemmRowEchelon (F, text, M1)) pass = false;
+//	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
+//	if (!testGemmRowEchelon (F, text, M1)) pass = false;
 	if (!testGemvGemm (F, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
 		if (!testTrsv (F, text, M1, v2)) pass = false;
-		if (!testTrsmTrsv (F, text, M1, M2)) pass = false;
 		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
 	} else {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)

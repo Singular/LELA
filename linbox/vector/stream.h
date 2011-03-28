@@ -180,7 +180,7 @@ class ConstantVectorStream : public VectorStream<_Vector>
 /** Random dense vector stream
  * Generates a sequence of random dense vectors over a given field
  */
-template <class Field, class _Vector = typename LinBox::Vector<Field>::Dense, class RandIter = typename Field::RandIter, class Trait = typename VectorTraits<_Vector>::VectorCategory>
+template <class Field, class _Vector = typename LinBox::Vector<Field>::Dense, class RandIter = typename Field::RandIter, class Trait = typename VectorTraits<Field, _Vector>::VectorCategory>
 class RandomDenseStream : public VectorStream<_Vector>
 {
     public:
@@ -285,7 +285,7 @@ class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseVectorT
 /** Random sparse vector stream
  * Generates a sequence of random sparse vectors over a given field
  */
-template <class Field, class _Vector = typename LinBox::Vector<Field>::Sparse, class RandIter = typename Field::RandIter, class Trait = typename VectorTraits<_Vector>::VectorCategory>
+template <class Field, class _Vector = typename LinBox::Vector<Field>::Sparse, class RandIter = typename Field::RandIter, class Trait = typename VectorTraits<Field, _Vector>::VectorCategory>
 class RandomSparseStream : public VectorStream<_Vector>
 {
     public:
@@ -702,7 +702,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
  * representation.
  */
 
-template <class Field, class _Vector, class Trait = typename VectorTraits<_Vector>::VectorCategory>
+template <class Field, class _Vector, class Trait = typename VectorTraits<Field, _Vector>::VectorCategory>
 class StandardBasisStream : public VectorStream<_Vector>
 {
     public:
@@ -837,6 +837,47 @@ class StandardBasisStream<Field, _Vector, VectorCategories::SparseVectorTag > : 
 	size_t                    _n;
 	size_t                    _j;
 	typename Field::Element   _one;
+};
+
+template <class Field, class _Vector>
+class StandardBasisStream<Field, _Vector, VectorCategories::DenseZeroOneVectorTag > : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef StandardBasisStream<Field, Vector, VectorCategories::DenseZeroOneVectorTag > Self_t;
+
+	StandardBasisStream (const Field &F, size_t n)
+		: _F (F), _n (n), _j (0)
+	{}
+
+	Vector &get (Vector &v) 
+	{
+		typename Vector::word_iterator i;
+
+		for (i = v.wordBegin (); i != v.wordEnd (); ++i)
+			*i = 0;
+
+		v[_j] = true;
+
+		_j++;
+
+		return v;
+	}
+
+	/** Extraction operator form
+	 */
+	Self_t &operator >> (Vector &v)
+		{ get (v); return *this; }
+	size_t size () const { return _n; }
+	size_t pos () const { return _j; }
+	size_t dim () const { return _n; }
+	operator bool () const { return _j < _n; }
+	void reset () { _j = 0; }
+
+    private:
+	const Field              &_F;
+	size_t                    _n;
+	size_t                    _j;
 };
 
 } // namespace LinBox

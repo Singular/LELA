@@ -164,14 +164,14 @@ class BitVector
 
 // Vector traits for BitVector wrapper
 template <class Endianness>
-struct VectorTraits<BitVector<Endianness> >
+struct GF2VectorTraits<BitVector<Endianness> >
 { 
 	typedef BitVector<Endianness> VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
 };
 
 template <class Endianness>
-struct VectorTraits<const BitVector<Endianness> >
+struct GF2VectorTraits<const BitVector<Endianness> >
 { 
 	typedef BitVector<Endianness> VectorType;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
@@ -179,42 +179,42 @@ struct VectorTraits<const BitVector<Endianness> >
 
 // Vector traits for hybrid sparse-dense format
 template <class Endianness> 
-struct VectorTraits< std::pair<std::vector<uint64>, BitVector<Endianness> > >
+struct GF2VectorTraits< std::pair<std::vector<uint64>, BitVector<Endianness> > >
 { 
 	typedef std::pair<std::vector<uint64>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 template <class Endianness> 
-struct VectorTraits< const std::pair<std::vector<uint64>, BitVector<Endianness> > >
+struct GF2VectorTraits< const std::pair<std::vector<uint64>, BitVector<Endianness> > >
 { 
 	typedef std::pair<std::vector<uint64>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 template <class Endianness> 
-struct VectorTraits< std::pair<std::vector<uint32>, BitVector<Endianness> > >
+struct GF2VectorTraits< std::pair<std::vector<uint32>, BitVector<Endianness> > >
 { 
 	typedef std::pair<std::vector<uint32>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 template <class Endianness> 
-struct VectorTraits< const std::pair<std::vector<uint32>, BitVector<Endianness> > >
+struct GF2VectorTraits< const std::pair<std::vector<uint32>, BitVector<Endianness> > >
 { 
 	typedef std::pair<std::vector<uint32>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 template <class Endianness> 
-struct VectorTraits< std::pair<std::vector<uint16>, BitVector<Endianness> > >
+struct GF2VectorTraits< std::pair<std::vector<uint16>, BitVector<Endianness> > >
 { 
 	typedef std::pair<std::vector<uint16>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 template <class Endianness> 
-struct VectorTraits< const std::pair<std::vector<uint16>, BitVector<Endianness> > >
+struct GF2VectorTraits< const std::pair<std::vector<uint16>, BitVector<Endianness> > >
 { 
 	typedef std::pair<std::vector<uint16>, BitVector<Endianness> > VectorType;
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
