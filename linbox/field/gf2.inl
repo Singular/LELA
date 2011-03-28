@@ -24,16 +24,6 @@
 
 #include <cctype> //isdigit
 
-template<typename Vector>
-std::ostream& afficheVector (std::ostream& o, const Vector& C) {
-          for(typename Vector::const_iterator refs =  C.begin();
-                                refs != C.end() ;
-                                      ++refs )
-                          o << (*refs) << " " ;
-            return o;
-}
-
-
 namespace LinBox 
 { 
 
