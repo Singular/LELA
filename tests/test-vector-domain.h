@@ -54,8 +54,8 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 
 	size_t j;
 
-	LinBox::VectorWrapper::ensureDim (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim (v2, stream2.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v1, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector2> (v2, stream2.n ());
 
 	LinBox::Timer timer;
 	double totaltime = 0.0;
@@ -149,10 +149,10 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	typename Field::Element aneg;
 	typename Field::RandIter r (F);
 
-	LinBox::VectorWrapper::ensureDim (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim (v2, stream2.n ());
-	LinBox::VectorWrapper::ensureDim (v3, stream1.n ());
-	LinBox::VectorWrapper::ensureDim (v4, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.n ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
@@ -252,10 +252,10 @@ static bool testSubMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	typename Field::Element aneg;
 	typename Field::RandIter r (F);
 
-	LinBox::VectorWrapper::ensureDim (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim (v2, stream2.n ());
-	LinBox::VectorWrapper::ensureDim (v3, stream1.n ());
-	LinBox::VectorWrapper::ensureDim (v4, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.n ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
@@ -353,10 +353,10 @@ static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &
 	typename Field::Element aneg;
 	typename Field::RandIter r (F);
 
-	LinBox::VectorWrapper::ensureDim (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim (v2, stream2.n ());
-	LinBox::VectorWrapper::ensureDim (v3, stream1.n ());
-	LinBox::VectorWrapper::ensureDim (v4, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.n ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
@@ -433,8 +433,8 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 	Vector1 v;
 	Vector2 w;
 
-	LinBox::VectorWrapper::ensureDim (v, stream.n ());
-	LinBox::VectorWrapper::ensureDim (w, stream.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v, stream.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector2> (w, stream.n ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
