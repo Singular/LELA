@@ -247,59 +247,6 @@ inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedBegin() const
 inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedEnd() const
 	{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
 
-template <class Field>
-std::istream& M4RIMatrix::read (std::istream &file, const Field& field)
-{
-	size_t i, j;
-
-	for (i = 0; i < rowdim (); ++i) {
-		for (j = 0; j < coldim (); ++j) {
-			file.ignore (1);
-			field.read (file, refEntry (i, j));
-		}
-	}
-
-	return file;
-}
-
-template <class Field>
-std::ostream& M4RIMatrix::write (std::ostream &os, const Field &F, FileFormatTag format) const
-{
-	ConstRowIterator p;
-
-	if (format == FORMAT_SAGE)
-		os << "matrix(R,[" << std::endl;
-
-	for (p = rowBegin (); p != rowEnd (); ++p) {
-		typename ConstRow::const_iterator pe;
-
-		os << "  [ ";
-
-		for (pe = p->begin (); pe != p->end (); ++pe) {
-			if (F.isZero (*pe) && format == FORMAT_PRETTY)
-				os << '.';
-			else
-				F.write (os, *pe);
-
-			if (format == FORMAT_PRETTY)
-				os << " ";
-			else if (format == FORMAT_SAGE && pe + 1 != p->end ())
-				os << ", ";
-		}
-
-		if (format == FORMAT_PRETTY)
-			os << "]" << std::endl;
-		else if (format == FORMAT_SAGE) {
-			if (p + 1 != rowEnd ())
-				os << "]," << std::endl;
-			else
-				os << "] ])" << std::endl;
-		}
-	}
-
-	return os;
-}
-
 }
 
 #endif // __LINBOX_MATRIX_M4RI_MATRIX_INL

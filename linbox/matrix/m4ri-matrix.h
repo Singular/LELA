@@ -122,20 +122,6 @@ class M4RIMatrix
 		_rep = mzd_init (m, n);
 	}
 
-	/** Read the matrix from an input stream
-	 * @param file Input stream from which to read
-	 * @param F Field over which to read
-	 */
-	template <class Field>
-	std::istream &read (std::istream &file, const Field &F);
-
-	/** Write the matrix to an output stream
-	 * @param os Output stream to which to write
-	 * @param F Field over which to write
-	 */
-	template <class Field>
-	std::ostream &write (std::ostream &os, const Field &F, FileFormatTag format = FORMAT_PRETTY) const;
-
 	/** Set the entry at the (i, j) position to a_ij.
 	 * @param i Row number, 0...rowdim () - 1
 	 * @param j Column number 0...coldim () - 1
@@ -144,32 +130,20 @@ class M4RIMatrix
 	void setEntry (size_t i, size_t j, bool a_ij)
 		{ if (a_ij) mzd_write_bit (_rep, i, j, TRUE); else mzd_write_bit (_rep, i, j, FALSE); }
 
-	/** Get a writeable reference to the entry in the (i, j) position.
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 * @returns Reference to matrix entry
+	/** Does nothing. Provided for compatibility
+	 * @param i
+	 * @param j
 	 */
-	BitVectorReference<word *, BigEndian<word> > refEntry (size_t i, size_t j)
-		{ return (*this)[i][j]; }
-
-	/** Get a read-only reference to the entry in the (i, j) position.
-	 * @param i Row index
-	 * @param j Column index
-	 * @returns Const reference to matrix entry
-	 */
-	bool getEntry (size_t i, size_t j) const
-		{ return (mzd_read_bit (_rep, i, j) == TRUE) ? true : false; }
+	void eraseEntry (size_t i, size_t j) {}
 
 	/** Copy the (i, j) entry into x, and return a reference to x.
-	 * This form is more in the Linbox style and is provided for interface
-	 * compatibility with other parts of the library
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
-	 * @returns Reference to x
+	 * @returns true
 	 */
-	Element &getEntry (Element &x, size_t i, size_t j) const
-		{ x = (mzd_read_bit (_rep, i, j) == TRUE) ? true : false; return x; }
+	bool getEntry (Element &x, size_t i, size_t j) const
+		{ x = (mzd_read_bit (_rep, i, j) == TRUE) ? true : false; return true; }
 
 	/** @name Column of rows iterator
 	 * The column of rows iterator traverses the rows of the
