@@ -189,6 +189,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 				    Iterator  P_end) const
 		{ return MatrixDomainSupportGF2::permuteRows (A, P_start, P_end); }
 
+#if 0 // Not working, disabled
 	template <class Iterator>
 	inline M4RIMatrix &permuteRows (M4RIMatrix &A,
 					Iterator    P_start,
@@ -205,6 +206,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 						   Iterator    P_start,
 						   Iterator    P_end) const
 		{ permuteRows ((M4RIMatrix &) A, P_start, P_end); return A; }
+#endif // Not working, disabled
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteColumns (Matrix   &A,
@@ -212,6 +214,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 				       Iterator  P_end) const
 		{ return MatrixDomainSupportGF2::permuteColumns (A, P_start, P_end); }
 
+#if 0 // Not working, disabled
 	template <class Iterator>
 	inline M4RIMatrix &permuteColumns (M4RIMatrix &A,
 					   Iterator    P_start,
@@ -228,6 +231,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 						      Iterator    P_start,
 						      Iterator    P_end) const
 		{ permuteColumns ((M4RIMatrix &) A, P_start, P_end); return A; }
+#endif // Not working, disabled
 
     private:
 	// Convert a partition in MatrixDomain-format to LAPACK-format for use in libm4ri
@@ -238,8 +242,11 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 		P = mzp_init (len);
 
-		for (i_P = P_start; i_P != P_end; ++i_P)
+		for (i_P = P_start; i_P != P_end; ++i_P) {
+			linbox_check (i_P->first < len);
+			linbox_check (i_P->second < len);
 			P->values[i_P->first] = P->values[i_P->second];
+		}
 
 		return P;
 	}
