@@ -173,6 +173,10 @@ _Vector &RandomSparseStreamGF2<_Vector>::get (_Vector &v)
 #include "linbox/vector/vector-domain-gf2.h"
 #include "linbox/matrix/matrix-domain-gf2.h"
 
+#ifdef __LINBOX_HAVE_M4RI
+#  include "linbox/matrix/m4ri-matrix.h"
+#endif
+
 #endif // __LINBOX_field_gf2_INL
 
 // Local Variables:

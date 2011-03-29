@@ -1142,14 +1142,21 @@ bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, Fil
 	report << "Matrix-output as string:" << std::endl << output.str ();
 
 	istringstream input (output.str ());
-	MD.read (input, M1, format);
 
-	report << "Matrix as read from " << format_names[format] << " format" << std::endl;
-	MD.write (report, M1);
+	try {
+		MD.read (input, M1, format);
+		report << "Matrix as read from " << format_names[format] << " format" << std::endl;
+		MD.write (report, M1);
 
-	if (!MD.areEqual (M, M1)) {
+		if (!MD.areEqual (M, M1)) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "ERROR: Matrix as read does not equal original" << endl;
+			pass = false;
+		}
+	}
+	catch (InvalidMatrixInput) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: Matrix as read does not equal original" << endl;
+			<< "ERROR: Caught InvalidMatrixInput while trying to read the matrix" << endl;
 		pass = false;
 	}
 
@@ -1241,8 +1248,8 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (F, text, M1)) pass = false;
-//	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
-//	if (!testGemmRowEchelon (F, text, M1)) pass = false;
+//	if (!testGerGemm (F, text, M1, v1, v2)) pass = false; // Needs ColIterator
+//	if (!testGemmRowEchelon (F, text, M1)) pass = false;  // Needs ColIterator
 	if (!testGemvGemm (F, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
 

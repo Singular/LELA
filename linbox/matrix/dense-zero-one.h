@@ -336,6 +336,8 @@ class DenseZeroOneMatrix
 	}
 };
 
+#ifndef __LINBOX_HAVE_M4RI
+
 template <>
 class DenseMatrix<bool> : public DenseZeroOneMatrix<>
 {
@@ -361,9 +363,11 @@ public:
 	{}
 };
 
+#endif // !__LINBOX_HAVE_M4RI
+
 template <class Iterator, class ConstIterator, class Endianness>
 struct MatrixTraits< DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> >
-{ 
+{
 	typedef DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> MatrixType;
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
 };

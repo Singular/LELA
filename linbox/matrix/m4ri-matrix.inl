@@ -21,6 +21,8 @@ namespace LinBox
 class M4RIMatrix::ConstRowIterator
 {
     public:
+	typedef ConstRow value_type;
+	typedef ConstRow &reference;
 	typedef int difference_type;
 
 	ConstRowIterator (const M4RIMatrix &M, size_t idx)
@@ -208,6 +210,13 @@ class M4RIMatrix::RowIterator
 	Row _row;
 };
 
+M4RIMatrix::M4RIMatrix (VectorStream<Row> &vs)
+	: _rep (mzd_init (vs.size (), vs.dim ()))
+{
+	for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+		vs >> *i;
+}
+
 inline M4RIMatrix::RowIterator M4RIMatrix::rowBegin ()
 {
 	return RowIterator (*this, 0);
@@ -227,6 +236,16 @@ inline M4RIMatrix::ConstRowIterator M4RIMatrix::rowEnd () const
 {
 	return ConstRowIterator (*this, rowdim ());
 }
+
+inline M4RIMatrix::ConstRawIterator M4RIMatrix::rawBegin () const
+	{ return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+inline M4RIMatrix::ConstRawIterator M4RIMatrix::rawEnd () const
+	{ return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+
+inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedBegin() const
+	{ return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedEnd() const
+	{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
 
 template <class Field>
 std::istream& M4RIMatrix::read (std::istream &file, const Field& field)
@@ -280,31 +299,6 @@ std::ostream& M4RIMatrix::write (std::ostream &os, const Field &F, FileFormatTag
 
 	return os;
 }
-
-template <>
-class SubvectorFactory<M4RIMatrix>
-{
-    public:
-	typedef BitSubvector<BitVectorIterator<word *, const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > RowSubvector;
-	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> > > ConstRowSubvector;
-
-	RowSubvector MakeRowSubvector (Submatrix<M4RIMatrix> &M, M4RIMatrix::RowIterator &pos)
-		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<M4RIMatrix> &M, M4RIMatrix::ConstRowIterator &pos)
-		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
-
-template <>
-class SubvectorFactory<const M4RIMatrix>
-{
-    public:
-	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> > > RowSubvector;
-	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> > > ConstRowSubvector;
-
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const M4RIMatrix> &M, M4RIMatrix::ConstRowIterator &pos)
-		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
 
 }
 

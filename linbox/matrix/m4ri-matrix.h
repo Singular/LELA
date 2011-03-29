@@ -22,6 +22,8 @@
 #include "linbox/matrix/matrix-domain-gf2.h"
 #include "linbox/vector/bit-subvector-word-aligned.h"
 #include "linbox/matrix/submatrix.h"
+#include "linbox/matrix/dense.h"
+#include "linbox/matrix/raw-iterator.h"
 
 namespace LinBox
 {
@@ -57,6 +59,12 @@ class M4RIMatrix
 	typedef mzd_t *Rep;
         typedef M4RIMatrix Self_t;
 
+	typedef BitSubvectorWordAligned<word *, const word *, BigEndian<word> > Row;  
+	typedef BitSubvectorWordAligned<const word *, const word *, BigEndian<word> > ConstRow;
+
+	class RowIterator;
+	class ConstRowIterator;
+
 	///
 	M4RIMatrix ()
 	{}
@@ -80,7 +88,9 @@ class M4RIMatrix
 		: _rep (M._rep)
 	{}
 
-	~M4RIMatrix () { mzd_free (_rep); }
+	M4RIMatrix (VectorStream<Row> &vs);
+
+	virtual ~M4RIMatrix () { mzd_free (_rep); }
 
 	///
 	M4RIMatrix &operator = (const M4RIMatrix &M)
@@ -167,12 +177,6 @@ class M4RIMatrix
 	 * a row vector in dense format
 	 */
 
-	typedef BitSubvectorWordAligned<word *, const word *, BigEndian<word> > Row;  
-	typedef BitSubvectorWordAligned<const word *, const word *, BigEndian<word> > ConstRow;
-
-	class RowIterator;
-	class ConstRowIterator;
-
 	inline RowIterator rowBegin ();
 	inline RowIterator rowEnd ();
 	inline ConstRowIterator rowBegin () const;
@@ -196,11 +200,78 @@ class M4RIMatrix
 	Vector &columnDensity (Vector &v) const
 		{ std::fill (v.begin (), v.end (), _rep->nrows); return v; }
 
+	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
+	typedef RawIterator ConstRawIterator;
+    
+	ConstRawIterator rawBegin () const;
+	ConstRawIterator rawEnd () const;
+
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
+
+	ConstRawIndexedIterator rawIndexedBegin() const;
+        ConstRawIndexedIterator rawIndexedEnd() const;
+
     protected:
 
 	friend class MatrixDomainM4RI;
+	friend class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag>;
+
+	M4RIMatrix (Rep rep) : _rep (rep) {}
 
 	Rep    _rep;
+};
+
+/* Specialisation of Submatrix to M4RIMatrix using facilities in M4RI */
+
+template<>
+class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> : public M4RIMatrix
+{
+    public:
+	typedef M4RIMatrix Matrix;
+	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
+ 
+	Submatrix () {}
+	Submatrix (Matrix &M,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: M4RIMatrix (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim))
+		{}
+
+	Submatrix (const Submatrix &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: M4RIMatrix (mzd_init_window (SM._rep, row, col, row + rowdim, col + coldim))
+		{}
+};
+
+template <>
+class DenseMatrix<bool> : public M4RIMatrix
+{
+public:
+	DenseMatrix ()
+	{}
+
+	/** Constructor.
+	 * @param  m  row dimension
+	 * @param  n  column dimension
+	 */
+	DenseMatrix (size_t m, size_t n)
+		: M4RIMatrix (m, n)
+	{}
+
+	///
+	DenseMatrix (const DenseMatrix &M)
+		: M4RIMatrix (M)
+	{}
+
+	DenseMatrix (VectorStream<Row> &vs)
+		: M4RIMatrix (vs)
+	{}
 };
 
 template <>
