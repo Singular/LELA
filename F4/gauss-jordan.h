@@ -49,21 +49,21 @@
 
 namespace LinBox {
 	template <class Iterator, class ConstIterator, class Endianness>
-	struct VectorTraits<std::pair<Subvector<std::vector<uint16>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+	struct GF2VectorTraits<std::pair<Subvector<std::vector<uint16>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
 	{ 
 		typedef std::pair<Subvector<std::vector<uint16>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
 		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 	};
 
 	template <class Iterator, class ConstIterator, class Endianness>
-	struct VectorTraits<std::pair<Subvector<std::vector<uint32>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+	struct GF2VectorTraits<std::pair<Subvector<std::vector<uint32>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
 	{ 
 		typedef std::pair<Subvector<std::vector<uint32>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
 		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 	};
 
 	template <class Iterator, class ConstIterator, class Endianness>
-	struct VectorTraits<std::pair<Subvector<std::vector<uint64>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+	struct GF2VectorTraits<std::pair<Subvector<std::vector<uint64>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
 	{ 
 		typedef std::pair<Subvector<std::vector<uint64>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
 		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
@@ -76,8 +76,8 @@ namespace F4 {
 	template <class Field>
 	class Adaptor {
 	public:
-		typedef typename RawVector<typename Field::Element>::Sparse SparseVector;
-		typedef LinBox::SparseMatrix<typename Field::Element, typename RawVector<typename Field::Element>::Sparse> SparseMatrix;
+		typedef typename Vector<Field>::Sparse SparseVector;
+		typedef LinBox::SparseMatrix<typename Field::Element, SparseVector> SparseMatrix;
 		typedef LinBox::DenseMatrix<typename Field::Element> DenseMatrix;
 		static const size_t cutoff = 1;
 	};
@@ -87,9 +87,9 @@ namespace F4 {
 	public:
 		typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
 		typedef std::pair<std::vector<uint16>, BitVector<Endianness> > SparseVector;
-		typedef LinBox::SparseMatrix<bool, std::pair<std::vector<uint16>, BitVector<Endianness> >, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
-//		typedef LinBox::M4RIMatrix DenseMatrix;
-		typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
+		typedef LinBox::SparseMatrix<bool, SparseVector, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
+		typedef LinBox::M4RIMatrix DenseMatrix;
+//		typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
 		static const size_t cutoff = WordTraits<BitVector<Endianness>::word_type>::bits;
 	};
 
@@ -123,8 +123,6 @@ namespace F4 {
 		const VectorDomain<Field> VD;
 		const MatrixDomain<Field> MD;
 
-		Element zero, one;
-
 		const size_t _cutoff;
 
 		// Find a suitable pivot from the matrix A starting at
@@ -133,7 +131,7 @@ namespace F4 {
 		// -1. Otherwise fill in col with the pivot-column.
 		template <class Matrix>
 		int GetPivot (Matrix &A, int start_row, int &col) const
-			{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<typename Matrix::Row>::VectorCategory ()); }
+			{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Field, typename Matrix::Row>::VectorCategory ()); }
 
 		// Find the first nonzero element in the given column
 		// starting at the row of the same index. Return -1 if
@@ -155,7 +153,7 @@ namespace F4 {
 		}
 
 		template <class Matrix>
-		int GetPivotSpecialised (Matrix &A, int start_row, int &col, VectorCategories::SparseParallelVectorTag) const
+		int GetPivotSpecialised (Matrix &A, int start_row, int &col, VectorCategories::SparseVectorTag) const
 		{
 			typename SparseMatrix::RowIterator i;
 
@@ -258,7 +256,7 @@ namespace F4 {
 			// MD.write (std::cout, U);
 
 			for (k = 0; k < U.coldim (); ++k)
-				U.setEntry (k + start_row, k, one);
+				U.setEntry (k + start_row, k, F.one ());
 
 			// DEBUG
 			// std::cout << __FUNCTION__ << ": U at end is " << std::endl;
@@ -287,16 +285,16 @@ namespace F4 {
 		// for Matrix Canonical Forms", Ph.D thesis by Arne
 		// Storjohann.
 		void GaussTransform (Submatrix<DenseMatrix> &A,
-				     int                         k,
-				     Element                    &d_0,
-				     DenseMatrix                &U,
-				     Permutation                &P,
+				     int                     k,
+				     Element                 d_0,
+				     DenseMatrix            &U,
+				     Permutation            &P,
 				     Submatrix<DenseMatrix> &R,
-				     size_t                     &r,
-				     int                        &h,
-				     Element                    &d,
-			             DenseMatrix                &T,
-			             DenseMatrix                &Up) const
+				     size_t                 &r,
+				     int                    &h,
+				     Element                &d,
+			             DenseMatrix            &T,
+			             DenseMatrix            &Up) const
 		{
 			// DEBUG
 			// std::cout << __FUNCTION__ << ": enter" << std::endl;
@@ -380,9 +378,9 @@ namespace F4 {
 
 				MD.copy (P_1A_2, A_2);
 				MD.permuteRows (P_1A_2, P.begin (), P.end ());
-				MD.gemm (one, U_2, P_1A_22, zero, R_2);
-				MD.axpy (one, P_1A_21, R_21);
-				MD.axpy (one, P_1A_23, R_23);
+				MD.gemm (F.one (), U_2, P_1A_22, F.zero (), R_2);
+				MD.axpy (F.one (), P_1A_21, R_21);
+				MD.axpy (F.one (), P_1A_23, R_23);
 				
 				Permutation P_2;
 
@@ -427,14 +425,14 @@ namespace F4 {
 				// std::cout << "U_3 =" << std::endl;;
 				// MD.write (std::cout, U_3);
 				
-				MD.gemm (one, U_3, P_2U_23, zero, U_3P_2U_23);
+				MD.gemm (F.one (), U_3, P_2U_23, F.zero (), U_3P_2U_23);
 
 				// DEBUG
 				// std::cout << "U_3P_2U_23 =" << std::endl;
 				// MD.write (std::cout, U_3P_2U_23);
 				
-				MD.axpy (one, U_212, U_312P_2U_23);
-				MD.axpy (one, P_2U_24, U_34P_2U_23);
+				MD.axpy (F.one (), U_212, U_312P_2U_23);
+				MD.axpy (F.one (), P_2U_24, U_34P_2U_23);
 				
 				MD.copy (U_2, U_3P_2U_23);
 				
@@ -459,7 +457,7 @@ namespace F4 {
 		// w start
 		template <class Vector>
 		Vector &FastAddin (Vector &v, const Vector &w, size_t idx) const
-			{ return FastAddinSpecialised (v, w, idx, typename VectorTraits<Vector>::VectorCategory ()); }
+			{ return FastAddinSpecialised (v, w, idx, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 		template <class Vector>
 		Vector &FastAddinSpecialised (Vector &v, const Vector &w, size_t idx,
@@ -586,7 +584,7 @@ namespace F4 {
 							bool           reduced,
 							bool           compute_L,
 							size_t         start_row,
-							VectorCategories::SparseParallelVectorTag) const
+							VectorCategories::SparseVectorTag) const
 		{
 			commentator.start ("Sparse row-echelon form", "GaussJordan::StandardRowEchelonForm", A.rowdim () / PROGRESS_STEP);
 
@@ -934,7 +932,7 @@ namespace F4 {
 
 		template <class Matrix1, class Matrix2>
 		Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-						     VectorCategories::SparseParallelVectorTag) const
+						     VectorCategories::SparseVectorTag) const
 		{
 			commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -1218,10 +1216,9 @@ namespace F4 {
 		 *
 		 * @param _F Field over which operations take place
 		 */
-		GaussJordan (const Field &_F) : F (_F), VD (_F), MD (_F), _cutoff (Adaptor<Field>::cutoff) {
-			F.init (zero, 0);
-			F.init (one, 1);
-		}
+		GaussJordan (const Field &_F)
+			: F (_F), VD (_F), MD (_F), _cutoff (Adaptor<Field>::cutoff)
+			{}
 
 		/**
 		 * \brief Convert the matrix A into reduced
@@ -1275,7 +1272,7 @@ namespace F4 {
 			Submatrix<DenseMatrix> Rp (R, 0, 0, R.rowdim (), R.coldim ());
 			Submatrix<DenseMatrix> Ap (A, 0, 0, A.rowdim (), A.coldim ());
 			
-			GaussTransform (Ap, 0, one, U, P, Rp, rank, h, det, T, Up);
+			GaussTransform (Ap, 0, F.one (), U, P, Rp, rank, h, det, T, Up);
 
 			commentator.stop (MSG_DONE, NULL, "GaussJordan::DenseRowEchelonForm");
 		}
@@ -1340,7 +1337,7 @@ namespace F4 {
 					     bool           compute_L = true,
 					     size_t         start_row = 0) const
 			{ StandardRowEchelonFormSpecialised (A, L, P, rank, det, reduced, compute_L, start_row,
-							     typename VectorTraits<typename Matrix1::Row>::VectorCategory ()); }
+							     typename VectorTraits<Field, typename Matrix1::Row>::VectorCategory ()); }
 
 		/** \brief Take a matrix of known rank in row-echelon
 		 * form and convert to reduced row-echelon form
@@ -1366,7 +1363,7 @@ namespace F4 {
 		template <class Matrix1, class Matrix2>
 		Matrix1 &ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row = 0) const
 			{ return ReduceRowEchelonSpecialised (A, L, compute_L, rank, start_row,
-							      typename VectorTraits<typename Matrix1::Row>::VectorCategory ()); }
+							      typename VectorTraits<Field, typename Matrix1::Row>::VectorCategory ()); }
 
 		/** Run internal tests
 		 */

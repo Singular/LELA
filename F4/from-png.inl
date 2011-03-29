@@ -22,17 +22,14 @@ namespace F4 {
 
 	template <class Field>
 	void SparseMatrixReader<Field>::readBlockSpecialised (typename SparseMatrixReader<Field>::SparseMatrix::Row &v, png_byte x, int start, int stop,
-							      VectorCategories::SparseParallelVectorTag)
+							      VectorCategories::SparseVectorTag)
 	{
 		int idx;
 		png_byte t;
 
-		for (idx = 0, t = ~(((png_byte) -1) & (((png_byte) -1) >> 1)); idx < stop; ++idx, t >>= 1) {
-			if (!(x & t)) {
-				v.first.push_back (start + idx);
-				v.second.push_back (one);
-			}
-		}
+		for (idx = 0, t = ~(((png_byte) -1) & (((png_byte) -1) >> 1)); idx < stop; ++idx, t >>= 1)
+			if (!(x & t))
+				v.push_back (std::pair<size_t, typename Field::Element> (start + idx, F.one ()));
 	}
 
 	template <class Field>

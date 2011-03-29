@@ -49,11 +49,11 @@ namespace F4 {
 		size_t total_nonzero;
 
 		void readBlock (typename SparseMatrix::Row &v, png_byte x, int start, int stop)
-			{ readBlockSpecialised (v, x, start, stop, typename VectorTraits<typename SparseMatrix::Row>::VectorCategory ()); }
+			{ readBlockSpecialised (v, x, start, stop, typename VectorTraits<Field, typename SparseMatrix::Row>::VectorCategory ()); }
 		void readRow (typename SparseMatrix::Row &v, png_bytep row, int width);
 
 		void readBlockSpecialised (typename SparseMatrix::Row &v, png_byte x, int start, int stop,
-					   VectorCategories::SparseParallelVectorTag);
+					   VectorCategories::SparseVectorTag);
 		void readBlockSpecialised (typename SparseMatrix::Row &v, png_byte x, int start, int stop,
 					   VectorCategories::SparseZeroOneVectorTag);
 		void readBlockSpecialised (typename SparseMatrix::Row &v, png_byte x, int start, int stop,
