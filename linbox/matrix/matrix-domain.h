@@ -671,8 +671,6 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 
 } // namespace LinBox
 
-#include "linbox/matrix/matrix-domain.inl"
-
 #endif // __LINBOX_matrix_domain_H
 
 // Local Variables:

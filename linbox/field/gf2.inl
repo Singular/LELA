@@ -35,9 +35,6 @@ class RawVector<bool>
     public:
 	typedef BitVector<> Dense;
 	typedef std::vector<size_t> Sparse;
-	typedef std::vector<size_t> SparseSeq;
-	typedef std::vector<size_t> SparseMap;
-	typedef std::vector<size_t> SparsePar;
 	typedef std::pair<std::vector<size_t>, BitVector<> > Hybrid;
 };
 

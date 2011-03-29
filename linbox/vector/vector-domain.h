@@ -1,34 +1,7 @@
 /* linbox/vector/vector-domain.h
  * Copyright 2001-2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * ------------------------------------
- * 2002-04-10 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * There are now two vector domain types: VectorDomainBase and
- * VectorDomain. VectorDomainBase, which in principle can be used independently,
- * contains all functions that require only one vector type (such as axpy, mul,
- * read, and write). VectorDomain inherits VectorDomainBase and implements
- * dotprod, which requires two vector types.
- * 
- * ------------------------------------
- * Modified by Dmitriy Morozov <linbox@foxcub.org>. May 27, 2002.
- *
- * Added the modifications for categories and vector traits that were designed
- * at the Rootbeer meeting. Added parametrization of VectorTags by VectorTraits.
- * 
- * ------------------------------------
- * 2002-06-04 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Reverted change of 2002-04-10, reintegrating VectorDomain and
- * VectorDomainBase. Now using template specialization on the functions, now
- * that I know how to do it.
- *
- * ------------------------------------
- * 2002-06-21 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Added methods add, addin, sub, subin, areEqual, isZero, and copy.
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
  *
@@ -836,8 +809,6 @@ protected:
 }; // class VectorDomain
 
 } // namespace LinBox
-
-#include "linbox/vector/vector-domain.inl"
 
 #endif // __LINBOX_field_vector_domain_H
 

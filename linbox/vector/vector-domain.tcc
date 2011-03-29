@@ -1,26 +1,8 @@
-/* linbox/vector/vector-domain.inl
+/* linbox/vector/vector-domain.tcc
  * Copyright 2001-2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ------------------------------------
- * 2002-07-24 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Added support for the new SparseParallel vector type; this involves quite a
- * few new specializations.
- *
- * ------------------------------------
- * Modified by Dmitriy Morozov <linbox@foxcub.org>
- *
- * Added the modifications for categories and vector traits that were designed 
- * at the Rootbeer meeting. Added parametrization of VectorTags by VectorTraits.
- * 
- * ------------------------------------
- * 2002-06-04 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Updated function definitions according to the new policy set in
- * vector-domain.h  This means the functions each take a parameter tag (or, for
- * dot product, tag1 and tag2) that allows specialization by vector type.
  * ------------------------------------
  * 
  * See COPYING for license information.

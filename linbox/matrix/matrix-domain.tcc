@@ -1,7 +1,7 @@
-/* linbox/matrix/matrix-domain.inl
+/* linbox/matrix/matrix-domain.tcc
  * Copyright 2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
  *

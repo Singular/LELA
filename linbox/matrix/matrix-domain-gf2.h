@@ -1,5 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* linbox/matrix/matrix-domain-gf2.h
  * Copyright 2010 Bradford Hovinen
  *
@@ -436,6 +434,13 @@ class MatrixDomainSupport<const GF2> : public MatrixDomainSupportGF2
 
 } // namespace LinBox
 
-#include "linbox/matrix/matrix-domain-gf2.inl"
-
 #endif // __MATRIX_MATRIX_DOMAIN_GF2_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

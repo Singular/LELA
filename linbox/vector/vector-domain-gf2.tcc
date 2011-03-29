@@ -1,4 +1,4 @@
-/* linbox/vector/vector-domain-gf2.h
+/* linbox/vector/vector-domain-gf2.tcc
  * Copyright 2003, 2011 Bradford Hovinen
  *
  * Written by Bradford Hovinen, Dumas, bds

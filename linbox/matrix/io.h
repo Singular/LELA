@@ -123,8 +123,6 @@ private:
 
 } // namespace LinBox
 
-#include "linbox/matrix/io.inl"
-
 #endif // __LINBOX_MATRIX_IO_H
 
 // Local Variables:

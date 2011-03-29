@@ -397,7 +397,7 @@ struct Rebind< std::pair<std::vector<size_t>, std::vector<T> >,U >
 
 /// Compute the image of an index under a permutation
 template <class Iterator>
-typename Iterator::value_type::first_type permutationImage (typename Iterator::value_type::first_type x, Iterator P_start, Iterator P_end)
+typename std::iterator_traits<Iterator>::value_type::first_type permutationImage (typename std::iterator_traits<Iterator>::value_type::first_type x, Iterator P_start, Iterator P_end)
 {
 	for (Iterator i = P_start; i != P_end; ++i) {
 		if (i->first == x)

@@ -46,6 +46,8 @@ class BitSubvector
 	typedef typename std::iterator_traits<iterator>::size_type	 size_type;
 	typedef typename std::iterator_traits<const_iterator>::const_reference const_reference;
 
+	typedef typename std::iterator_traits<typename Iterator::word_iterator>::value_type word_type;
+
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 

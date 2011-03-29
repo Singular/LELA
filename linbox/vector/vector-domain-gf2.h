@@ -181,6 +181,7 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 		: VectorDomainBase<GF2> (F), DotProductDomain<GF2> (F)
 	{}
 
+private:
 
 	// Specialized function implementations
 	template <class Vector> 
@@ -239,6 +240,15 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
 				  VectorCategories::DenseZeroOneVectorTag,
 				  VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::SparseZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::HybridZeroOneVectorTag,
+				  VectorCategories::SparseZeroOneVectorTag) const
+		{ return areEqual (v2, v1); }
 	template <class Vector1, class Vector2>
 	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
 				  VectorCategories::DenseZeroOneVectorTag,
@@ -354,36 +364,67 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
 				 VectorCategories::SparseZeroOneVectorTag,
 				 VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+				 VectorCategories::HybridZeroOneVectorTag,
+				 VectorCategories::SparseZeroOneVectorTag) const
+		{ throw NotImplemented (); }
+	template <class Vector1, class Vector2>
+	Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+				 VectorCategories::SparseZeroOneVectorTag,
+				 VectorCategories::HybridZeroOneVectorTag) const
+		{ return dot (res, v2, v1); }
+	template <class Vector1, class Vector2>
+	Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+				 VectorCategories::HybridZeroOneVectorTag,
+				 VectorCategories::HybridZeroOneVectorTag) const
+		{ throw NotImplemented (); }
 
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
-					VectorCategories::DenseZeroOneVectorTag,
-					VectorCategories::DenseZeroOneVectorTag) const
-		{ return DotProductDomain<GF2>::dotSpecializedDD (res, v1, v2); }
+									VectorCategories::DenseZeroOneVectorTag,
+									VectorCategories::DenseZeroOneVectorTag) const
+		{ bool a; return res = DotProductDomain<GF2>::dotSpecializedDD (a, v1, v2); }
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
-					VectorCategories::DenseZeroOneVectorTag,
-					VectorCategories::SparseZeroOneVectorTag) const
-		{ return DotProductDomain<GF2>::dotSpecializedDSP (res, v1, v2); }
+									VectorCategories::DenseZeroOneVectorTag,
+									VectorCategories::SparseZeroOneVectorTag) const
+		{ bool a; return res = DotProductDomain<GF2>::dotSpecializedDSP (a, v1, v2); }
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
-					VectorCategories::SparseZeroOneVectorTag,
-					VectorCategories::DenseZeroOneVectorTag) const
-		{ return DotProductDomain<GF2>::dotSpecializedDSP (res, v2, v1); }
+									VectorCategories::SparseZeroOneVectorTag,
+									VectorCategories::DenseZeroOneVectorTag) const
+		{ bool a; return res = DotProductDomain<GF2>::dotSpecializedDSP (a, v2, v1); }
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
-					VectorCategories::DenseZeroOneVectorTag,
-					VectorCategories::HybridZeroOneVectorTag) const
-		{ return DotProductDomain<GF2>::dotSpecializedDH (res, v1, v2); }
+									VectorCategories::DenseZeroOneVectorTag,
+									VectorCategories::HybridZeroOneVectorTag) const
+		{ bool a; return res = DotProductDomain<GF2>::dotSpecializedDH (a, v1, v2); }
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
-					VectorCategories::HybridZeroOneVectorTag,
-					VectorCategories::DenseZeroOneVectorTag) const
-		{ return DotProductDomain<GF2>::dotSpecializedDH (res, v2, v1); }
+									VectorCategories::HybridZeroOneVectorTag,
+									VectorCategories::DenseZeroOneVectorTag) const
+		{ bool a; return res = DotProductDomain<GF2>::dotSpecializedDH (a, v2, v1); }
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
-				 VectorCategories::SparseZeroOneVectorTag,
-				 VectorCategories::SparseZeroOneVectorTag) const;
+								 VectorCategories::SparseZeroOneVectorTag,
+								 VectorCategories::SparseZeroOneVectorTag) const
+		{ bool a; return res = dot (a, v1, v2); }
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
+								 VectorCategories::HybridZeroOneVectorTag,
+								 VectorCategories::SparseZeroOneVectorTag) const
+		{ bool a; return res = dot (a, v1, v2); }
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
+								 VectorCategories::SparseZeroOneVectorTag,
+								 VectorCategories::HybridZeroOneVectorTag) const
+		{ bool a; return res = dot (a, v1, v2); }
+	template <class Iterator, class Endianness, class Vector1, class Vector2>
+	BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
+								 VectorCategories::HybridZeroOneVectorTag,
+								 VectorCategories::HybridZeroOneVectorTag) const
+		{ bool a; return res = dot (a, v1, v2); }
 
 	template <class Vector1, class Vector2, class Vector3>
 	Vector1 &addSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,
@@ -438,6 +479,11 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 				   VectorCategories::HybridZeroOneVectorTag,
 				   VectorCategories::HybridZeroOneVectorTag) const
 		{ static Vector1 res; add (res, y, x); this->copy (y, res); return y; }
+	template <class Vector1, class Vector2>
+	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
+				   VectorCategories::GenericVectorTag,
+				   VectorCategories::GenericVectorTag) const
+		{ throw NotImplemented (); }
 
 	template <class Vector1, class Vector2>
 	Vector1 &mulSpecialized (Vector1 &res, const Vector2 &x, const Element a,
@@ -447,6 +493,10 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	Vector1 &mulSpecialized (Vector1 &res, const Vector2 &x, const Element a,
 				 VectorCategories::SparseZeroOneVectorTag tag) const
 		{ if (a) this->copy (res, x); else res.clear (); return res; }
+	template <class Vector1, class Vector2>
+	Vector1 &mulSpecialized (Vector1 &res, const Vector2 &x, const Element a,
+				 VectorCategories::HybridZeroOneVectorTag tag) const
+		{ if (a) this->copy (res, x); else { res.first.clear (); res.second.clear (); } return res; }
 
 	template <class Vector>
 	inline Vector &mulinSpecialized (Vector &x, const Element a,
@@ -477,7 +527,7 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 		add (u, w, v);
 		copy (res, u);
 
-		return u;
+		return res;
 	}
 
 	template <class Vector1, class Vector2, class Vector3>
@@ -518,8 +568,6 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 } // namespace LinBox
 
 #endif // __LINBOX_VECTOR_DOMAIN_GF2_H
-
-#include "linbox/vector/vector-domain-gf2.inl"
 
 // Local Variables:
 // mode: C++

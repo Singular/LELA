@@ -1,5 +1,5 @@
 /* linbox/vector/bit-vector.h
- * Copyright (C) 2003 Bradford Hovinen
+ * Copyright 2003 Bradford Hovinen
  *
  * -------------------------------------------------
  *
