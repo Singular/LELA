@@ -49,6 +49,9 @@ struct WordTraits<word> {
 	}
 };
 
+template <class Iterator, class ConstIterator, class MatrixPointer>
+class M4RIMatrixRowIterator;
+
 /** Wrapper for dense zero-one matrices in M4RI
  */
 class M4RIMatrix
@@ -62,8 +65,8 @@ class M4RIMatrix
 	typedef BitSubvectorWordAligned<word *, const word *, BigEndian<word> > Row;  
 	typedef BitSubvectorWordAligned<const word *, const word *, BigEndian<word> > ConstRow;
 
-	class RowIterator;
-	class ConstRowIterator;
+	typedef M4RIMatrixRowIterator<word *, const word *, M4RIMatrix *> RowIterator;
+	typedef M4RIMatrixRowIterator<const word *, const word *, const M4RIMatrix *> ConstRowIterator;
 
 	///
 	M4RIMatrix ()
@@ -190,6 +193,9 @@ class M4RIMatrix
 
 	friend class MatrixDomainM4RI;
 	friend class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag>;
+
+	friend class M4RIMatrixRowIterator<word *, const word *, M4RIMatrix *>;
+	friend class M4RIMatrixRowIterator<const word *, const word *, const M4RIMatrix *>;
 
 	M4RIMatrix (Rep rep) : _rep (rep) {}
 

@@ -32,7 +32,7 @@ class DenseZeroOneMatrixRowIterator
 
 	typedef Row value_type;
 
-	typedef typename Row::word_iterator::difference_type difference_type;
+	typedef typename std::iterator_traits<typename Row::word_iterator>::difference_type difference_type;
 
 	DenseZeroOneMatrixRowIterator (Iterator p, size_t words, size_t bit_len, size_t d)
 		: _row (p, p + words, bit_len), _disp (d) {}

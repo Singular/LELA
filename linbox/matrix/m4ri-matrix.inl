@@ -18,196 +18,112 @@
 namespace LinBox
 {
 
-class M4RIMatrix::ConstRowIterator
+template <class Iterator, class ConstIterator, class MatrixPointer>
+class M4RIMatrixRowIterator
 {
     public:
-	typedef ConstRow value_type;
-	typedef ConstRow &reference;
-	typedef int difference_type;
+	typedef BitSubvectorWordAligned<Iterator, ConstIterator, BigEndian<word> > Row;  
+	typedef BitSubvectorWordAligned<ConstIterator, ConstIterator, BigEndian<word> > ConstRow;
 
-	ConstRowIterator (const M4RIMatrix &M, size_t idx)
-		: _M (&M), _idx (idx) { make_row (); }
+	typedef Row value_type;
+
+	typedef typename std::iterator_traits<typename Row::word_iterator>::difference_type difference_type;
+
+	M4RIMatrixRowIterator (MatrixPointer M, size_t idx)
+		: _M (M), _idx (idx) { make_row (); }
     
-	ConstRowIterator () {}
+	M4RIMatrixRowIterator () {}
     
-	ConstRowIterator (const ConstRowIterator& colp)
+	M4RIMatrixRowIterator (const M4RIMatrixRowIterator &colp)
+		: _M (colp._M), _idx (colp._idx), _row (colp._row) {}
+
+	template <class It, class CIt, class MP>
+	M4RIMatrixRowIterator (const M4RIMatrixRowIterator<It, CIt, MP> &colp)
 		: _M (colp._M), _idx (colp._idx), _row (colp._row) {}
     
-	ConstRowIterator& operator = (const ConstRowIterator& colp)
+	template <class It, class CIt, class MP>
+	M4RIMatrixRowIterator &operator = (const M4RIMatrixRowIterator<It, CIt, MP> &colp)
 	{
 		_M = colp._M;
 		_idx = colp._idx;
 		_row = colp._row;
 		return *this;
 	}
-
-	ConstRowIterator& operator --()
-	{
-		--_idx;
-		make_row ();
-		return *this;
-	}
-
-	ConstRowIterator  operator-- (int)
-        {
-                ConstRowIterator tmp (*this);
-                --*this;
-                return tmp;
-	}
-
-	
-	ConstRowIterator& operator++ ()
+    
+	M4RIMatrixRowIterator &operator ++ ()
 	{
 		++_idx;
 		make_row ();
 		return *this;
 	}
-
-	ConstRowIterator  operator++ (int)
+    
+	M4RIMatrixRowIterator operator ++ (int)
 	{
-		ConstRowIterator tmp (*this);
+		M4RIMatrixRowIterator tmp (*this);
 		++*this;
 		return tmp;
 	}
+    
+        M4RIMatrixRowIterator &operator -- ()
+        {
+		--_idx;
+		make_row ();
+		return *this;
+        }
 
-	ConstRowIterator operator+ (int i) const
-		{ return ConstRowIterator (*_M, _idx + i); }
+        M4RIMatrixRowIterator operator -- (int)
+        {
+                M4RIMatrixRowIterator tmp (*this);
+                --*this;
+                return tmp;
+        }
 
-	difference_type operator- (const ConstRowIterator &c) const
+	M4RIMatrixRowIterator operator+ (int i) const
+		{ return M4RIMatrixRowIterator (_M, _idx + i); }
+
+	difference_type operator- (const M4RIMatrixRowIterator &c) const
 		{ return c._idx - _idx; }
 
-	ConstRowIterator& operator += (int i)
+	M4RIMatrixRowIterator &operator += (int i)
 	{
 		_idx += i;
 		make_row ();
 		return *this;
 	}
 
-	ConstRow operator[] (int i) const
-		{ return ConstRow (_M->_rep->rows[_idx + i], _M->_rep->rows[_idx + i] + _M->_rep->width, _M->_rep->ncols); }
-
-	const ConstRow* operator-> () const
-		{ return &_row; }
-
-	const ConstRow& operator* () const
-		{ return _row; }
-
-	bool operator == (const ConstRowIterator& c) const
-		{ return _row.wordBegin () == c._row.wordBegin (); }
-    
-	bool operator!= (const ConstRowIterator& c) const
-		{ return _row.wordBegin () != c._row.wordBegin (); }
-
-    private:
-	friend class M4RIMatrix::RowIterator;
-
-	inline void make_row ()
-	{
-		_row = ConstRow (_M->_rep->rows[_idx], _M->_rep->rows[_idx] + _M->_rep->width, _M->_rep->ncols);
-	}
-
-	const M4RIMatrix *_M;
-	size_t _idx;
-	ConstRow _row;
-};
-
-class M4RIMatrix::RowIterator
-{
-    public:
-	typedef int difference_type;
-
-	RowIterator (M4RIMatrix &M, size_t idx)
-		: _M (&M), _idx (idx) { make_row (); }
-    
-	RowIterator () {}
-    
-	RowIterator (const RowIterator& colp)
-		: _M (colp._M), _idx (colp._idx), _row (colp._row) {}
-    
-	RowIterator& operator = (const RowIterator& colp)
-	{
-		_M = colp._M;
-		_idx = colp._idx;
-		_row = colp._row;
-		return *this;
-	}
-
-	RowIterator& operator --()
-	{
-		--_idx;
-		make_row ();
-		return *this;
-	}
-
-	RowIterator  operator-- (int)
-        {
-                RowIterator tmp (*this);
-                --*this;
-                return tmp;
-	}
-
-	
-	RowIterator& operator++ ()
-	{
-		++_idx;
-		make_row ();
-		return *this;
-	}
-
-	RowIterator  operator++ (int)
-	{
-		RowIterator tmp (*this);
-		++*this;
-		return tmp;
-	}
-
-	RowIterator operator+ (int i) const
-		{ return RowIterator (*_M, _idx + i); }
-
-	difference_type operator- (const RowIterator &c) const
-		{ return c._idx - _idx; }
-
-	RowIterator& operator += (int i)
-	{
-		_idx += i;
-		make_row ();
-		return *this;
-	}
-
-	Row operator[] (int i) const
+	Row operator [] (int i) const
 		{ return Row (_M->_rep->rows[_idx + i], _M->_rep->rows[_idx + i] + _M->_rep->width, _M->_rep->ncols); }
 
-	Row* operator-> ()
+	Row *operator -> ()
 		{ return &_row; }
 
-	Row& operator* ()
+	Row &operator * ()
 		{ return _row; }
 
-	bool operator == (const RowIterator& c) const
+	bool operator == (const M4RIMatrixRowIterator& c) const
 		{ return _row.wordBegin () == c._row.wordBegin (); }
-    
-	bool operator == (const ConstRowIterator& c) const
-		{ return _row.wordBegin () == c._row.wordBegin (); }
-    
-	bool operator!= (const RowIterator& c) const
+
+	template <class It, class CIt, class MP>
+	bool operator == (const M4RIMatrixRowIterator<It, CIt, MP> &c) const
 		{ return _row.wordBegin () != c._row.wordBegin (); }
 
-	bool operator!= (const ConstRowIterator& c) const
+	bool operator != (const M4RIMatrixRowIterator& c) const
 		{ return _row.wordBegin () != c._row.wordBegin (); }
 
-	operator ConstRowIterator ()
-		{ return ConstRowIterator (*_M, _idx); }
+	template <class It, class CIt, class MP>
+	bool operator != (const M4RIMatrixRowIterator<It, CIt, MP> &c) const
+		{ return _row.wordBegin () != c._row.wordBegin (); }
 
     private:
-
 	inline void make_row ()
-	{
-		_row = Row (_M->_rep->rows[_idx], _M->_rep->rows[_idx] + _M->_rep->width, _M->_rep->ncols);
-	}
+		{ _row = Row (_M->_rep->rows[_idx], _M->_rep->rows[_idx] + _M->_rep->width, _M->_rep->ncols); }
 
-	M4RIMatrix *_M;
+	MatrixPointer _M;
 	size_t _idx;
 	Row _row;
+
+	template <class It, class CIt, class MP>
+	friend class M4RIMatrixRowIterator;
 };
 
 M4RIMatrix::M4RIMatrix (VectorStream<Row> &vs)
@@ -219,22 +135,22 @@ M4RIMatrix::M4RIMatrix (VectorStream<Row> &vs)
 
 inline M4RIMatrix::RowIterator M4RIMatrix::rowBegin ()
 {
-	return RowIterator (*this, 0);
+	return RowIterator (this, 0);
 }
 
 inline M4RIMatrix::RowIterator M4RIMatrix::rowEnd ()
 {
-	return RowIterator (*this, rowdim ());
+	return RowIterator (this, rowdim ());
 }
 
 inline M4RIMatrix::ConstRowIterator M4RIMatrix::rowBegin () const
 {
-	return ConstRowIterator (*this, 0);
+	return ConstRowIterator (this, 0);
 }
 
 inline M4RIMatrix::ConstRowIterator M4RIMatrix::rowEnd () const
 {
-	return ConstRowIterator (*this, rowdim ());
+	return ConstRowIterator (this, rowdim ());
 }
 
 inline M4RIMatrix::ConstRawIterator M4RIMatrix::rawBegin () const
