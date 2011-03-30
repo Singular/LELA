@@ -17,13 +17,6 @@
 #include "test-common.h"
 #include "test-matrix.h"
 
-typedef __LINBOX_BITVECTOR_WORD_TYPE Word;
-typedef BigEndian<Word> Endianness;
-typedef std::vector<size_t> Sparse01Vector;
-typedef std::pair<std::vector<uint16>, BitVector<Endianness> > Hybrid01Vector;
-typedef LinBox::SparseMatrix<bool, Sparse01Vector, VectorCategories::SparseZeroOneVectorTag> Sparse01Matrix;
-typedef LinBox::SparseMatrix<bool, Hybrid01Vector, VectorCategories::HybridZeroOneVectorTag> Hybrid01Matrix;
-
 template <class Field, class Matrix>
 bool runAllTests (const Field &F, const char *text, Matrix &M, size_t n, size_t m)
 {
@@ -123,13 +116,13 @@ int main (int argc, char **argv)
 
 	GF2 gf2;
 
-	RandomDenseStream<GF2, DenseZeroOneMatrix<>::Row> stream3 (gf2, n, m);
-	RandomSparseStream<GF2, Sparse01Matrix::Row, GF2::RandIter, VectorCategories::SparseZeroOneVectorTag> stream4 (gf2, (double) k / (double) m, m, n);
-	RandomSparseStream<GF2, Hybrid01Matrix::Row, GF2::RandIter, VectorCategories::HybridZeroOneVectorTag> stream5 (gf2, (double) k / (double) m, m, n);
+	RandomDenseStream<GF2, DenseMatrix<GF2::Element>::Row> stream3 (gf2, n, m);
+	RandomSparseStream<GF2, Vector<GF2>::Sparse> stream4 (gf2, (double) k / (double) m, m, n);
+	RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (gf2, (double) k / (double) m, m, n);
 
-	DenseZeroOneMatrix<> M3 (stream3);
-	Sparse01Matrix M4 (stream4);
-	Hybrid01Matrix M5 (stream5);
+	DenseMatrix<GF2::Element> M3 (stream3);
+	SparseMatrix<GF2::Element, Vector<GF2>::Sparse> M4 (stream4);
+	SparseMatrix<GF2::Element, Vector<GF2>::Hybrid> M5 (stream5);
 
 	pass = runDenseTests (gf2, "dense GF(2)", M3, m, n) && pass;
 	pass = runAllTests (gf2, "sparse row-wise GF(2)", M4, m, n) && pass;

@@ -281,9 +281,6 @@ private:
 	template <class Matrix1, class Matrix3>
 	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
 					   VectorCategories::HybridZeroOneVectorTag) const;
-	template <class Matrix1, class Matrix2, class Matrix3>
-	Matrix3 &gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
-					   VectorCategories::HybridZeroOneSequenceVectorTag) const;
 
 	template <class Matrix1, class Matrix2, class Matrix3>
 	Matrix3 &gemmSpecialized (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,

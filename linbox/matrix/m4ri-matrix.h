@@ -193,6 +193,7 @@ class M4RIMatrix
 
 	friend class MatrixDomainM4RI;
 	friend class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag>;
+	friend class Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag>;
 
 	friend class M4RIMatrixRowIterator<word *, const word *, M4RIMatrix *>;
 	friend class M4RIMatrixRowIterator<const word *, const word *, const M4RIMatrix *>;
@@ -217,7 +218,7 @@ class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> : public M4RIMatrix
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: M4RIMatrix (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim))
+		: M4RIMatrix (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim)), _M (&M), _startRow (row)
 		{}
 
 	Submatrix (const Submatrix &SM,
@@ -225,8 +226,54 @@ class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> : public M4RIMatrix
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: M4RIMatrix (mzd_init_window (SM._rep, row, col, row + rowdim, col + coldim))
+		: M4RIMatrix (mzd_init_window (SM._rep, row, col, row + rowdim, col + coldim)), _M (SM._M), _startRow (row + SM._startRow)
 		{}
+
+	Matrix &parent () { return *_M; }
+	const Matrix &parent () const { return *_M; }
+
+	inline size_t startRow () const { return _startRow; }
+	inline size_t startCol () const { return _rep->offset; }
+
+    private:
+
+	Matrix *_M;
+	size_t _startRow;
+};
+
+template<>
+class Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> : public M4RIMatrix
+{
+    public:
+	typedef const M4RIMatrix Matrix;
+	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
+ 
+	Submatrix () {}
+	Submatrix (const Matrix &M,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: M4RIMatrix (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim)), _M (&M), _startRow (row)
+		{}
+
+	Submatrix (const Submatrix &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: M4RIMatrix (mzd_init_window (SM._rep, row, col, row + rowdim, col + coldim)), _M (SM._M), _startRow (row + SM._startRow)
+		{}
+
+	const Matrix &parent () const { return *_M; }
+
+	inline size_t startRow () const { return _startRow; }
+	inline size_t startCol () const { return _rep->offset; }
+
+    private:
+
+	const Matrix *_M;
+	size_t _startRow;
 };
 
 template <>
@@ -253,6 +300,61 @@ public:
 		: M4RIMatrix (vs)
 	{}
 };
+
+template <>
+class Submatrix<DenseMatrix<bool> > : public Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag>
+{
+    public:
+	typedef DenseMatrix<bool> Matrix;
+	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
+ 
+	Submatrix () {}
+	Submatrix (Matrix &M,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> (M, row, col, rowdim, coldim)
+		{}
+
+	Submatrix (const Submatrix &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> (SM, row, col, rowdim, coldim)
+		{}
+};
+
+template <>
+class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag>
+{
+    public:
+	typedef DenseMatrix<bool> Matrix;
+	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
+ 
+	Submatrix () {}
+	Submatrix (const Matrix &M,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> (M, row, col, rowdim, coldim)
+		{}
+
+	Submatrix (const Submatrix &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> (SM, row, col, rowdim, coldim)
+		{}
+};
+
+template <>
+class SubvectorFactory<DenseMatrix<bool> > {};
+template <>
+class SubvectorFactory<const DenseMatrix<bool> > {};
 
 template <>
 struct MatrixTraits<M4RIMatrix>

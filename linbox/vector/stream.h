@@ -625,10 +625,6 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 
 	Vector &get (Vector &v) 
 	{
-		typedef typename std::iterator_traits<typename Vector::first_type::iterator>::value_type index_type;
-		typedef typename std::iterator_traits<typename Vector::second_type::word_iterator>::value_type word_type;
-		typedef typename Vector::second_type::Endianness Endianness;
-
 		size_t i = (size_t) -1;
 		double val;
 		int skip;
@@ -636,8 +632,7 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 		if (_m > 0 && _j++ >= _m)
 			return v;
 
-		v.first.clear ();
-		v.second.clear ();
+		v.clear ();
 
 		while (1) {
 			val = _MT.randomDouble ();
@@ -650,19 +645,14 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 
 			if (i >= _n) break;
 
-			index_type idx = i >> WordTraits<word_type>::logof_size;
-			word_type mask = Endianness::e_j (i & WordTraits<word_type>::pos_mask);
+			typename Vector::index_type idx = i >> WordTraits<typename Vector::word_type>::logof_size;
+			typename Vector::word_type mask = Vector::Endianness::e_j (i & WordTraits<typename Vector::word_type>::pos_mask);
 
-			if (!v.first.empty () && idx == v.first.back ()) {
-				v.second.back_word () |= mask;
-			}
-			else {
-				v.first.push_back (idx);
-				v.second.push_word_back (mask);
-			}
+			if (!v.empty () && idx == v.back ().first)
+				v.back ().second |= mask;
+			else
+				v.push_back (typename Vector::value_type (idx, mask));
 		}
-
-		v.second.fix_size (_n);
 
 		return v;
 	}

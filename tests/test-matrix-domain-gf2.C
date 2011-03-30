@@ -23,13 +23,6 @@
 using namespace LinBox;
 
 typedef GF2 Field;
-typedef __LINBOX_BITVECTOR_WORD_TYPE Word;
-typedef BigEndian<Word> Endianness;
-typedef std::vector<size_t> Sparse01Vector;
-typedef std::pair<std::vector<uint16>, BitVector<Endianness> > Hybrid01Vector;
-typedef LinBox::SparseMatrix<bool, Sparse01Vector, VectorCategories::SparseZeroOneVectorTag> Sparse01Matrix;
-typedef LinBox::SparseMatrix<bool, Hybrid01Vector, VectorCategories::HybridZeroOneVectorTag> Hybrid01Matrix;
-typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> Dense01Matrix;
 
 int main (int argc, char **argv)
 {
@@ -74,40 +67,40 @@ int main (int argc, char **argv)
 	stream_v3 >> v3;
 	stream_v4 >> v4;
 
-	RandomDenseStream<Field, Dense01Matrix::Row> stream11 (F, m, l);
-	RandomDenseStream<Field, Dense01Matrix::Row> stream12 (F, n, m);
-	RandomDenseStream<Field, Dense01Matrix::Row> stream13 (F, p, n);
+	RandomDenseStream<Field, DenseMatrix<Field::Element>::Row> stream11 (F, m, l);
+	RandomDenseStream<Field, DenseMatrix<Field::Element>::Row> stream12 (F, n, m);
+	RandomDenseStream<Field, DenseMatrix<Field::Element>::Row> stream13 (F, p, n);
 
-	Dense01Matrix M1 (stream11);
-	Dense01Matrix M2 (stream12);
-	Dense01Matrix M3 (stream13);
+	DenseMatrix<Field::Element> M1 (stream11);
+	DenseMatrix<Field::Element> M2 (stream12);
+	DenseMatrix<Field::Element> M3 (stream13);
 
 	if (!testMatrixDomain (F, "dense", M1, M2, M3, v1, v2, iterations,
-			       MatrixTraits<Dense01Matrix>::MatrixCategory ()))
+			       MatrixTraits<DenseMatrix<Field::Element> >::MatrixCategory ()))
 		pass = false;
 
-	RandomSparseStream<Field, Sparse01Matrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> stream21 (F, (double) k / (double) m, m, l);
-	RandomSparseStream<Field, Sparse01Matrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> stream22 (F, (double) k / (double) n, n, m);
-	RandomSparseStream<Field, Sparse01Matrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> stream23 (F, (double) k / (double) p, p, n);
+	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream21 (F, (double) k / (double) m, m, l);
+	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream22 (F, (double) k / (double) n, n, m);
+	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream23 (F, (double) k / (double) p, p, n);
 
-	Sparse01Matrix M4 (stream21);
-	Sparse01Matrix M5 (stream22);
-	Sparse01Matrix M6 (stream23);
+	SparseMatrix<Field::Element, Vector<Field>::Sparse> M4 (stream21);
+	SparseMatrix<Field::Element, Vector<Field>::Sparse> M5 (stream22);
+	SparseMatrix<Field::Element, Vector<Field>::Sparse> M6 (stream23);
 
 	if (!testMatrixDomain (F, "sparse", M4, M5, M6, v1, v2, iterations,
-			       MatrixTraits<Sparse01Matrix>::MatrixCategory ()))
+			       MatrixTraits<SparseMatrix<Field::Element, Vector<Field>::Sparse> >::MatrixCategory ()))
 		pass = false;
 
-	RandomSparseStream<Field, Hybrid01Matrix::Row> stream31 (F, (double) k / (double) m, m, l);
-	RandomSparseStream<Field, Hybrid01Matrix::Row> stream32 (F, (double) k / (double) n, n, m);
-	RandomSparseStream<Field, Hybrid01Matrix::Row> stream33 (F, (double) k / (double) p, p, n);
+	RandomSparseStream<Field, Vector<Field>::Hybrid> stream31 (F, (double) k / (double) m, m, l);
+	RandomSparseStream<Field, Vector<Field>::Hybrid> stream32 (F, (double) k / (double) n, n, m);
+	RandomSparseStream<Field, Vector<Field>::Hybrid> stream33 (F, (double) k / (double) p, p, n);
 
-	Hybrid01Matrix M7 (stream31);
-	Hybrid01Matrix M8 (stream32);
-	Hybrid01Matrix M9 (stream33);
+	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M7 (stream31);
+	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M8 (stream32);
+	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M9 (stream33);
 
 	if (!testMatrixDomain (F, "hybrid", M7, M8, M9, v1, v2, iterations,
-			       MatrixTraits<Hybrid01Matrix>::MatrixCategory ()))
+			       MatrixTraits<SparseMatrix<Field::Element, Vector<Field>::Hybrid> >::MatrixCategory ()))
 		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));

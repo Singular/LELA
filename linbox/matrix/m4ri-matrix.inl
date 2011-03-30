@@ -116,7 +116,7 @@ class M4RIMatrixRowIterator
 
     private:
 	inline void make_row ()
-		{ _row = Row (_M->_rep->rows[_idx], _M->_rep->rows[_idx] + _M->_rep->width, _M->_rep->ncols); }
+		{ if (_M->_rep->rows != NULL) _row = Row (_M->_rep->rows[_idx], _M->_rep->rows[_idx] + _M->_rep->width, _M->_rep->ncols); }
 
 	MatrixPointer _M;
 	size_t _idx;

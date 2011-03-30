@@ -191,10 +191,7 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 					VectorCategories::SparseZeroOneVectorTag) const;
 	template <class Vector>
 	std::ostream &writeSpecialized (std::ostream &os, const Vector &x,
-					VectorCategories::HybridZeroOneVectorTag) const
-		{ return writeHybridSpecialized (os, x, LittleEndian<typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type> ()); }
-	template <class Vector, class Endianness>
-	std::ostream &writeHybridSpecialized (std::ostream &os, const Vector &x, Endianness) const;
+					VectorCategories::HybridZeroOneVectorTag) const;
 
 	template <class Vector>
 	std::istream &readSpecialized (std::istream &is, const Vector &x,
@@ -232,17 +229,8 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 		{ return areEqual (v2, v1); }
 	template <class Vector1, class Vector2>
 	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
-				  VectorCategories::HybridZeroOneSequenceVectorTag,
-				  VectorCategories::DenseZeroOneVectorTag) const
-		{ return areEqual (v2, v1); }
-	template <class Vector1, class Vector2>
-	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
 				  VectorCategories::DenseZeroOneVectorTag,
 				  VectorCategories::HybridZeroOneVectorTag) const;
-	template <class Vector1, class Vector2>
-	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
-				  VectorCategories::DenseZeroOneVectorTag,
-				  VectorCategories::HybridZeroOneSequenceVectorTag) const;
     
 
 	template <class Vector>
@@ -254,7 +242,7 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	template <class Vector>
 	inline bool isZeroSpecialized (const Vector &v,
 				       VectorCategories::HybridZeroOneVectorTag) const
-		{ return v.first.empty (); }
+		{ return v.empty (); }
 
 	template <class Vector1, class Vector2>
 	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
@@ -278,10 +266,6 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 				  VectorCategories::DenseZeroOneVectorTag,
 				  VectorCategories::HybridZeroOneVectorTag) const;
 	template <class Vector1, class Vector2>
-	Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
-				  VectorCategories::DenseZeroOneVectorTag,
-				  VectorCategories::HybridZeroOneSequenceVectorTag) const;
-	template <class Vector1, class Vector2>
 	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
 					 VectorCategories::SparseZeroOneVectorTag,
 					 VectorCategories::SparseZeroOneVectorTag) const
@@ -298,11 +282,6 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
 					 VectorCategories::HybridZeroOneVectorTag,
 					 VectorCategories::HybridZeroOneVectorTag) const
-		{ res = v; return res; }
-	template <class Vector1, class Vector2>
-	inline Vector1 &copySpecialized (Vector1 &res, const Vector2 &v,
-					 VectorCategories::HybridZeroOneSequenceVectorTag,
-					 VectorCategories::HybridZeroOneSequenceVectorTag) const
 		{ res = v; return res; }
 
 	template <class Vector>
@@ -421,10 +400,6 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 				   VectorCategories::HybridZeroOneVectorTag) const;
 	template <class Vector1, class Vector2>
 	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
-				   VectorCategories::DenseZeroOneVectorTag,
-				   VectorCategories::HybridZeroOneSequenceVectorTag) const;
-	template <class Vector1, class Vector2>
-	Vector1 &addinSpecialized (Vector1 &y, const Vector2 &x,
 				   VectorCategories::SparseZeroOneVectorTag,
 				   VectorCategories::DenseZeroOneVectorTag) const
 		{ Vector1 xp, res; copy (xp, x); add (res, y, xp); copy (y, res); return y; }
@@ -510,9 +485,6 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	template <class Vector>
 	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
 						 VectorCategories::HybridZeroOneVectorTag) const;
-	template <class Vector>
-	inline int firstNonzeroEntrySpecialized (bool &a, const Vector &v,
-						 VectorCategories::HybridZeroOneSequenceVectorTag) const;
 };
 
 } // namespace LinBox

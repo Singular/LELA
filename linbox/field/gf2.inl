@@ -19,6 +19,7 @@
 #include "linbox/vector/vector-traits.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/stream.h"
+#include "linbox/vector/hybrid.h"
 #include "linbox/randiter/mersenne-twister.h"
 #include "linbox/matrix/matrix-domain.h"
 
@@ -33,30 +34,59 @@ template <>
 class RawVector<bool>
 {
     public:
-	typedef BitVector<> Dense;
+	typedef BitVector<BigEndian<uint64> > Dense;
 	typedef std::vector<size_t> Sparse;
-	typedef std::vector<size_t> SparseSeq;
-	typedef std::vector<size_t> SparseMap;
-	typedef std::vector<size_t> SparsePar;
-	typedef std::pair<std::vector<size_t>, BitVector<> > Hybrid;
+	typedef HybridVector<BigEndian<uint64>, uint16, uint64> Hybrid;
 };
 
+// Vector traits for hybrid sparse-dense format
+template <> 
+struct GF2VectorTraits<HybridVector<BigEndian<uint64>, uint16, uint64> >
+{ 
+	typedef HybridVector<BigEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <>
+struct GF2VectorTraits<const HybridVector<BigEndian<uint64>, uint16, uint64> >
+{ 
+	typedef const HybridVector<BigEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <> 
+struct GF2VectorTraits<HybridVector<LittleEndian<uint64>, uint16, uint64> >
+{ 
+	typedef HybridVector<LittleEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <>
+struct GF2VectorTraits<const HybridVector<LittleEndian<uint64>, uint16, uint64> >
+{ 
+	typedef const HybridVector<LittleEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
 
 // Specialization of RandomDenseStream
-template<size_t bitsize> struct MTrandomInt {
-    template<typename M32Twister>
-    unsigned __LINBOX_INT32 operator() (M32Twister& MT) const {
-        return MT.randomInt();
-    }
+template <size_t bitsize>
+struct MTrandomInt
+{
+	template <typename M32Twister>
+	unsigned __LINBOX_INT32 operator() (M32Twister &MT) const
+		{ return MT.randomInt (); }
 };    
 
-template<> struct MTrandomInt<64> {
-    template<typename M32Twister>
-    unsigned __LINBOX_INT64 operator() (M32Twister& MT) const {
-        unsigned __LINBOX_INT64 tmp = MT.randomInt();
-        tmp <<=32;
-        return tmp += MT.randomInt();
-    }
+template <>
+struct MTrandomInt<64>
+{
+	template <typename M32Twister>
+	unsigned __LINBOX_INT64 operator() (M32Twister &MT) const
+	{
+		unsigned __LINBOX_INT64 tmp = MT.randomInt();
+		tmp <<= 32;
+		return tmp += MT.randomInt ();
+	}
 };
 
 template <class Endianness>

@@ -145,9 +145,11 @@ public:
     
 	template<class VectorType>
 	SparseMatrix (const SparseMatrix<Element, VectorType> &A)
-		: _A(A._m), _m (A._m), _n (A._n) {
-		typename Rep::iterator meit = this->_A.begin();
-		typename SparseMatrix<Element, VectorType>::Rep::const_iterator copit = A._A.begin();
+		: _A(A._m), _m (A._m), _n (A._n)
+	{
+		typename Rep::iterator meit = this->_A.begin ();
+		typename SparseMatrix<Element, VectorType>::Rep::const_iterator copit = A._A.begin ();
+
 		for( ; meit != this->_A.end(); ++meit, ++copit)
 			LinBox::RawVector<Element>::convert(*meit, *copit);
 	}
@@ -241,17 +243,14 @@ bool SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::getEn
 template <class Element, class Row>
 bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEntry (Element &x, size_t i, size_t j) const
 {
-	typedef typename Row::second_type::Endianness Endianness;
-	typedef typename std::iterator_traits<typename Row::second_type::const_word_iterator>::value_type word_type;
-
 	const Row &v = (*this)[i];
 
-	typename Row::first_type::const_iterator idx;
+	typename Row::const_iterator idx;
 
-	idx = std::lower_bound (v.first.begin (), v.first.end (), j >> WordTraits<word_type>::logof_size);
+	idx = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
 
-	if (idx != v.first.end () && *idx == j >> WordTraits<word_type>::logof_size) {
-		x = *(v.second.wordBegin () + (idx - v.first.begin ())) & Endianness::e_j (j & WordTraits<word_type>::pos_mask);
+	if (idx != v.end () && idx->first == j >> WordTraits<typename Row::word_type>::logof_size) {
+		x = idx->second & Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
 		return x;
 	} else
 		return false;
@@ -271,25 +270,17 @@ void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::erase
 template <class Element, class Row>
 void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::eraseEntry (size_t i, size_t j)
 {
-	typedef typename Row::second_type::Endianness Endianness;
-	typedef typename std::iterator_traits<typename Row::second_type::word_iterator>::value_type word_type;
-
 	Row &v = (*this)[i];
 
-	typename Row::first_type::iterator idx;
-	typename Row::second_type::word_iterator elt;
+	typename Row::iterator iter;
 
-	idx = std::lower_bound (v.first.begin (), v.first.end (), j >> WordTraits<word_type>::logof_size);
+	iter = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
 
-	if (idx != v.first.end () && *idx == j >> WordTraits<word_type>::logof_size) {
-		elt = v.second.wordBegin () + (idx - v.first.begin ());
+	if (iter != v.end () && iter->first == j >> WordTraits<typename Row::word_type>::logof_size) {
+		iter->second &= ~Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
 
-		*elt &= ~Endianness::e_j (j & WordTraits<word_type>::pos_mask);
-
-		if (!*elt) {
-			v.first.erase (idx);
-			v.second.eraseWord (elt);
-		}
+		if (!iter->second)
+			v.erase (iter);
 	}
 }
 
@@ -327,35 +318,27 @@ void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 	_m = _A.size(); 
 
 	Row &v = _A[i];
-	typename Row::first_type::iterator it_idx;
-	typename Row::second_type::word_iterator it_elt;
-	typedef typename std::iterator_traits<typename Row::second_type::word_iterator>::value_type word_type;
+	typename Row::iterator it;
 
-	typename Row::second_type::word_iterator::value_type m = 1ULL << (j & WordTraits<word_type>::pos_mask);
+	typename Row::word_type m = 1ULL << (j & WordTraits<typename Row::word_type>::pos_mask);
 
-	if (value && v.first.size () == 0) {
-		v.first.push_back (j & ~WordTraits<word_type>::pos_mask);
-		v.second.push_word_back (m);
+	if (value && v.empty ()) {
+		v.push_back (typename Row::value_type (j >> WordTraits<typename Row::word_type>::logof_size, m));
 	} else {
-		it_idx = std::lower_bound (v.first.begin (), v.first.end (), j & ~WordTraits<word_type>::pos_mask);
+		it = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
 
-		if (it_idx == v.first.end () || *it_idx != (j & ~WordTraits<word_type>::pos_mask)) {
-			if (value) {
-				it_idx = v.first.insert (it_idx, j & ~WordTraits<word_type>::pos_mask);
-				v.second.insertWord (v.second.wordBegin () + (it_idx - v.first.begin ()), m);
-			}
+		if (it == v.end () || it->first != (j >> WordTraits<typename Row::word_type>::logof_size)) {
+			if (value)
+				it = v.insert (it, typename Row::value_type (j & ~WordTraits<typename Row::word_type>::pos_mask, m));
 		}
 		else {
 			if (value)
-				*(v.second.wordBegin () + (it_idx - v.first.begin ())) |= m;
+				it->second |= m;
 			else {
-				it_elt = v.second.wordBegin () + (it_idx - v.first.begin ());
-				*it_elt &= ~m;
+				it->second &= ~m;
 
-				if (!*it_elt) {
-					v.first.erase (it_idx);
-					v.second.eraseWord (it_elt);
-				}
+				if (!it->second)
+					v.erase (it);
 			}
 		}
 	}

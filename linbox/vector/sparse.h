@@ -86,6 +86,12 @@ public:
 	SparseVectorReference &operator = (const SparseVectorReference &r)
 		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
 
+	bool operator == (const SparseVectorReference &r) const
+		{ return (first == r.first) && (second == r.second); }
+
+	bool operator != (const SparseVectorReference &r) const
+		{ return (first != r.first) || (second != r.second); }
+
 private:
 	template <class Element, class IV, class EV>
 	friend class SparseVector;
@@ -363,7 +369,8 @@ public:
 		std::copy (ev.begin (), ev.end (), _elt.begin ());
 	}
 
-	SparseVector (IndexIterator &idx_begin, IndexIterator &idx_end, ElementIterator &elt_begin)
+	template <class IIt, class EIt>
+	SparseVector (IIt idx_begin, IIt idx_end, EIt elt_begin)
 		: _idx (idx_end - idx_begin), _elt (idx_end - idx_begin)
 	{
 		std::copy (idx_begin, idx_end, _idx.begin ());

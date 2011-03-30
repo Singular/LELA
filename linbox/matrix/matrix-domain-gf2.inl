@@ -143,15 +143,9 @@ Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix
 						     VectorCategories::HybridZeroOneVectorTag,
 						     VectorCategories::DenseZeroOneVectorTag) const
 {
-	typedef typename Vector1::second_type::Endianness Endianness;
-	typedef typename std::iterator_traits<typename Vector1::first_type::const_iterator>::value_type index_type;
-	typedef typename std::iterator_traits<typename Vector1::second_type::const_word_iterator>::value_type word_type;
-
 	typename Matrix::ConstColIterator i_A;
-	typename Vector1::first_type::const_iterator i_x_idx;
-	typename Vector1::second_type::const_word_iterator i_x_elt;
-
-	word_type t;
+	typename Vector1::const_iterator i_x;
+	typename Vector1::word_type t;
 
 	if (!b)
 		_VD.subin (y, y);
@@ -159,9 +153,9 @@ Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix
 	if (!a)
 		return y;
 
-	for (i_x_idx = x.first.begin (), i_x_elt = x.second.wordBegin (), i_A = A.colBegin (); i_x_idx != x.first.end (); ++i_x_idx, ++i_x_elt)
-		for (t = Endianness::e_0, i_A = A.colBegin () + *i_x_idx; t != 0; t = Endianness::shift_right (t, 1), ++i_A)
-			if (*i_x_elt & t)
+	for (i_x = x.begin (), i_A = A.colBegin (); i_x != x.end (); ++i_x)
+		for (t = Vector1::Endianness::e_0, i_A = A.colBegin () + i_x->first; t != 0; t = Vector1::Endianness::shift_right (t, 1), ++i_A)
+			if (i_x->second & t)
 				_VD.addin (y, *i_A);
 
 	return y;
@@ -223,8 +217,6 @@ template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 						     VectorCategories::HybridZeroOneVectorTag) const
 {
-	typedef typename std::iterator_traits<typename Vector2::second_type::const_word_iterator>::value_type word_type;
-	
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
 
@@ -233,8 +225,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 	Vector2 t;
 
 	if (!b) {
-		y.first.clear ();
-		y.second.clear ();
+		y.clear ();
 	}
 
 	if (!a)
@@ -244,13 +235,11 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 		_VD.dot (d, *i_A, x);
 
 		if (d) {
-			if (t.first.empty () || t.first.back () != idx & ~WordTraits<word_type>::pos_mask) {
-				t.first.push_back (idx >> WordTraits<word_type>::logof_size);
-				t.second.push_back (1ULL << (idx & WordTraits<word_type>::pos_mask));
-			}
-			else {
-				t.second.back () |= 1ULL << (idx & WordTraits<word_type>::pos_mask);
-			}
+			if (t.first.empty () || t.first.back () != idx & ~WordTraits<typename Vector2::word_type>::pos_mask)
+				t.push_back (typename Vector2::value_type (idx >> WordTraits<typename Vector2::word_type>::logof_size,
+									   1ULL << (idx & WordTraits<typename Vector2::word_type>::pos_mask)));
+			else
+				t.back ().second |= 1ULL << (idx & WordTraits<typename Vector2::word_type>::pos_mask);
 		}
 	}
 
@@ -367,32 +356,27 @@ template <class Matrix1, class Matrix2, class Matrix3>
 Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
 							   VectorCategories::HybridZeroOneVectorTag) const
 {
-	typedef typename std::iterator_traits<typename Matrix1::ConstRow::second_type::const_word_iterator>::value_type word_type;
-
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
 
-	typedef typename Matrix1::ConstRow::second_type::Endianness Endianness;
-
 	typename Matrix1::ConstRowIterator i;
 	typename Matrix2::ConstRowIterator j;
 	typename Matrix3::RowIterator k;
-	typename Matrix1::ConstRow::first_type::const_iterator ip_idx;
-	typename Matrix1::ConstRow::second_type::const_word_iterator ip_elt;
+	typename Matrix1::ConstRow::const_iterator ip;
 
-	word_type mask;
+	typename Matrix1::ConstRow::word_type mask;
 
 	for (i = A.rowBegin (), k = C.rowBegin (); i != A.rowEnd (); ++i, ++k) {
 		if (_F.isZero (b))
 			_VD.mulin (*k, false);
 
 		if (_F.isOne (a)) {
-			for (ip_idx = i->first.begin (), ip_elt = i->second.wordBegin (); ip_idx != i->first.end (); ++ip_idx, ++ip_elt) {
-				j = B.rowBegin () + (static_cast<size_t> (*ip_idx) << WordTraits<word_type>::logof_size);
+			for (ip = i->begin (); ip != i->end (); ++ip) {
+				j = B.rowBegin () + (static_cast<size_t> (ip->first) << WordTraits<typename Matrix1::ConstRow::word_type>::logof_size);
 
-				for (mask = Endianness::e_0; mask != 0 && j != B.rowEnd (); mask = Endianness::shift_right (mask, 1), ++j)
-					if (*ip_elt & mask)
+				for (mask = Matrix1::ConstRow::Endianness::e_0; mask != 0 && j != B.rowEnd (); mask = Matrix1::ConstRow::Endianness::shift_right (mask, 1), ++j)
+					if (ip->second & mask)
 						_VD.addin (*k, *j);
 			}
 		}
@@ -405,9 +389,6 @@ template <class Matrix1, class Matrix3>
 Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Submatrix<DenseZeroOneMatrix<> > &B, const bool &b, Matrix3 &C,
 							   VectorCategories::HybridZeroOneVectorTag) const
 {
-	typedef typename std::iterator_traits<typename Matrix1::ConstRow::second_type::const_word_iterator>::value_type word_type;
-	typedef typename Matrix1::ConstRow::second_type::Endianness Endianness;
-
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
@@ -415,49 +396,10 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 	typename Matrix1::ConstRowIterator i;
 	typename Submatrix<DenseZeroOneMatrix<> >::ConstRowIterator j;
 	typename Matrix3::RowIterator k;
-	typename Matrix1::ConstRow::first_type::const_iterator ip_idx;
-	typename Matrix1::ConstRow::second_type::const_word_iterator ip_elt;
-	size_t t;
-
-	word_type mask;
-
-	for (i = A.rowBegin (), k = C.rowBegin (); i != A.rowEnd (); ++i, ++k) {
-		if (_F.isZero (b))
-			_VD.mulin (*k, false);
-
-		if (_F.isOne (a)) {
-			for (ip_idx = i->first.begin (), ip_elt = i->second.wordBegin (); ip_idx != i->first.end (); ++ip_idx, ++ip_elt) {
-				t = static_cast<size_t> (*ip_idx) << WordTraits<word_type>::logof_size;
-				j = B.rowBegin () + t;
-
-				for (mask = Endianness::e_0; mask != 0 && t < B.rowdim (); mask = Endianness::shift_right (mask, 1), ++j, ++t)
-					if (*ip_elt & mask)
-						_VD.addin (*k, *j);
-			}
-		}
-	}
-
-	return C;
-}
-
-template <class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C,
-							   VectorCategories::HybridZeroOneSequenceVectorTag) const
-{
-	typedef typename std::iterator_traits<typename Matrix1::ConstRow::const_iterator>::value_type::second_type word_type;
-	typedef typename Matrix1::ConstRow::Endianness Endianness;
-
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	typename Matrix1::ConstRowIterator i;
-	typename Matrix2::ConstRowIterator j;
-	typename Matrix3::RowIterator k;
 	typename Matrix1::ConstRow::const_iterator ip;
 	size_t t;
 
-	typename Matrix1::ConstRow::const_iterator::value_type::second_type mask;
+	typename Matrix1::ConstRow::word_type mask;
 
 	for (i = A.rowBegin (), k = C.rowBegin (); i != A.rowEnd (); ++i, ++k) {
 		if (_F.isZero (b))
@@ -465,10 +407,10 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 
 		if (_F.isOne (a)) {
 			for (ip = i->begin (); ip != i->end (); ++ip) {
-				t = static_cast<size_t> (ip->first) << WordTraits<word_type>::logof_size;
+				t = static_cast<size_t> (ip->first) << WordTraits<typename Matrix1::ConstRow::word_type>::logof_size;
 				j = B.rowBegin () + t;
 
-				for (mask = Endianness::e_0; mask != 0 && t < B.rowdim (); mask = Endianness::shift_right (mask, 1), ++j, ++t)
+				for (mask = Matrix1::ConstRow::Endianness::e_0; mask != 0 && t < B.rowdim (); mask = Matrix1::ConstRow::Endianness::shift_right (mask, 1), ++j, ++t)
 					if (ip->second & mask)
 						_VD.addin (*k, *j);
 			}

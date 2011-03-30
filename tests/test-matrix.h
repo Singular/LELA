@@ -346,7 +346,7 @@ bool testRawIterator (const Field &F, const Matrix &M)
 		for (j = 0; j < M.coldim (); ++j) {
 			if (!occupied[i][j] && M.getEntry (a, i, j)) {
 				std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
-				error << "ERROR: M_(" << i_idx->first << "," << i_idx->second << ") = ";
+				error << "ERROR: M_(" << i << "," << j << ") = ";
 				F.write (error, a) << " but was not hit by RawIndexedIterator" << std::endl;
 				pass = false;
 			}

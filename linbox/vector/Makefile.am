@@ -7,10 +7,11 @@ EXTRA_DIST=			\
 	vector.doxy
 
 pkgincludesub_HEADERS=		\
-	sparse.h		\
 	vector-traits.h		\
 	subvector.h		\
 	subiterator.h		\
+	sparse.h		\
+	hybrid.h		\
 	reverse.h		\
 	random.h                \
 	stream.h		\

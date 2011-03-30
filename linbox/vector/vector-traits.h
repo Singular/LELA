@@ -104,13 +104,6 @@ struct VectorCategories
 						  const HybridZeroOneVectorTag &)
 			{ return o << "HybridZeroOneVectorTag"; } 
 	};
-
-	struct HybridZeroOneSequenceVectorTag : public GenericVectorTag
-	{ 
-                friend std::ostream &operator << (std::ostream &o, 
-						  const HybridZeroOneSequenceVectorTag &)
-			{ return o << "HybridZeroOneSequenceVectorTag"; } 
-	};
 };
 
 /** Vector traits template structure.
@@ -173,8 +166,12 @@ namespace VectorWrapper
 	{
 	public:
 		template<typename PairType>
-		inline bool operator () (const PairType &i, const size_t j) const
+		inline bool operator () (const PairType &i, size_t j) const
 			{ return i.first < j; }
+
+		template<typename PairType>
+		inline bool operator () (size_t i, const PairType &j) const
+			{ return i < j.first; }
 
 		template<typename PairType1, typename PairType2>
 		inline bool operator () (const PairType1 &i, const PairType2 &j) const
@@ -224,32 +221,12 @@ namespace VectorWrapper
 	template <class Element, class Vector>
 	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::HybridZeroOneVectorTag)
 	{
-		typedef typename Vector::second_type::Endianness Endianness;
-		typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
-
-		typename Vector::first_type::const_iterator idx;
-
-		idx = std::lower_bound (v.first.begin (), v.first.end (), i >> WordTraits<word_type>::logof_size);
-
-		if (idx != v.first.end () && *idx == i >> WordTraits<word_type>::logof_size) {
-			a = *(v.second.wordBegin () + (idx - v.first.begin ())) & Endianness::e_j (i & WordTraits<word_type>::pos_mask);
-			return a;
-		} else
-			return false;
-	}
-
-	template <class Element, class Vector>
-	inline bool getEntrySpecialised (const Vector &v, Element &a, size_t i, VectorCategories::HybridZeroOneSequenceVectorTag)
-	{
-		typedef typename Vector::Endianness Endianness;
-		typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type::second_type word_type;
-
 		typename Vector::const_iterator idx;
 
-		idx = std::lower_bound (v.begin (), v.end (), i >> WordTraits<word_type>::logof_size, CompareSparseEntries ());
+		idx = std::lower_bound (v.begin (), v.end (), i >> WordTraits<typename Vector::word_type>::logof_size, CompareSparseEntries ());
 
-		if (idx != v.end () && idx->first == i >> WordTraits<word_type>::logof_size) {
-			a = idx->second & Endianness::e_j (i & WordTraits<word_type>::pos_mask);
+		if (idx != v.end () && idx->first == i >> WordTraits<typename Vector::word_type>::logof_size) {
+			a = idx->second & Vector::Endianness::e_j (i & WordTraits<typename Vector::word_type>::pos_mask);
 			return a;
 		} else
 			return false;

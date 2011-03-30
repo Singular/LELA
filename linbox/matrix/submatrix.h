@@ -172,20 +172,6 @@ class Submatrix
 	size_t coldim () const
 		{ return _end_col - _beg_col; }
 
-	/** Read the matrix from an input stream
-	 * @param file Input stream from which to read
-	 * @param field 
-	 */
-	template<class Field>
-	std::istream& read (std::istream &file, const Field& field);
-    
-	/** Write the matrix to an output stream
-	 * @param os Output stream to which to write
-	 * @param field
-	 */
-	template<class Field>
-	std::ostream& write (std::ostream &os, const Field& field, FileFormatTag format = FORMAT_PRETTY) const;
-	
 	/** Set the entry at (i, j)
 	 * @param i Row number, 0...rowdim () - 1
 	 * @param j Column number 0...coldim () - 1
@@ -326,13 +312,6 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	size_t coldim () const
 		{ return _end_col - _beg_col; }
 
-	template<class Field>
-	std::istream& read (std::istream &file, const Field& field);
-    
-	template<class Field>
-	std::ostream& write (std::ostream &os, const Field& field, FileFormatTag format = FORMAT_PRETTY) const
-		{ return writeRowSpecialised (os, field, format, typename ElementVectorTraits<Element, typename ConstRowIterator::value_type>::VectorCategory ()); }
-	
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _M->setEntry (_beg_row + i, _beg_col + j, a_ij); }
 
@@ -373,12 +352,6 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	size_t _end_row;
 	size_t _beg_col;
 	size_t _end_col;
-
-	template<class Field>
-	std::ostream& writeRowSpecialised (std::ostream &os, const Field& field, FileFormatTag format, VectorCategories::DenseVectorTag) const;
-
-	template<class Field>
-	std::ostream& writeRowSpecialised (std::ostream &os, const Field& field, FileFormatTag format, VectorCategories::HybridZeroOneSequenceVectorTag) const;
 };
 
 /// Specialisation for matrices indexed only by columns
@@ -435,12 +408,6 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 	size_t coldim () const
 		{ return _end_col - _beg_col; }
 
-	template<class Field>
-	std::istream& read (std::istream &file, const Field& field);
-    
-	template<class Field>
-	std::ostream& write (std::ostream &os, const Field& field, bool mapleFormat = false) const;
-	
 	void setEntry (size_t i, size_t j, const Element &a_ij)
 		{ _M->setEntry (_beg_row + i, _beg_col + j, a_ij); }
 
