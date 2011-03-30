@@ -288,11 +288,6 @@ template <class Element, class Row>
 void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag >
 	::setEntry (size_t i, size_t j, const Element &value) 
 {
-	while (_A.size() < i + 1)
-		_A.push_back (Row());
-
-	_m = _A.size(); 
-
 	Row &v = _A[i];
 	typename Row::iterator iter;
 
@@ -312,15 +307,10 @@ template <class Element, class Row>
 void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 	::setEntry (size_t i, size_t j, const Element &value) 
 {
-	while (_A.size() < i + 1)
-		_A.push_back (Row());
-
-	_m = _A.size(); 
-
 	Row &v = _A[i];
 	typename Row::iterator it;
 
-	typename Row::word_type m = 1ULL << (j & WordTraits<typename Row::word_type>::pos_mask);
+	typename Row::word_type m = Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
 
 	if (value && v.empty ()) {
 		v.push_back (typename Row::value_type (j >> WordTraits<typename Row::word_type>::logof_size, m));
@@ -329,7 +319,7 @@ void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 
 		if (it == v.end () || it->first != (j >> WordTraits<typename Row::word_type>::logof_size)) {
 			if (value)
-				it = v.insert (it, typename Row::value_type (j & ~WordTraits<typename Row::word_type>::pos_mask, m));
+				it = v.insert (it, typename Row::value_type (j >> WordTraits<typename Row::word_type>::logof_size, m));
 		}
 		else {
 			if (value)

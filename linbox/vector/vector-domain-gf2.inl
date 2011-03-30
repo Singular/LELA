@@ -29,12 +29,8 @@ inline bool &DotProductDomain<GF2>::dotSpecializedDD
 	while (i != v1.wordEnd () - 1)
 		t ^= *i++ & *j++;
         
-        const size_t zeroing = WordTraits<typename Vector1::word_type>::bits - (v1.size() % WordTraits<typename Vector1::word_type>::bits);
-        typename Vector1::word_type lastdot = *i & *j;
-        lastdot <<= zeroing;
-        lastdot >>= zeroing;
-        
-        t ^= lastdot;
+        t ^= *i & *j & Vector1::Endianness::mask_left (v1.size() % WordTraits<typename Vector1::word_type>::bits);
+
         return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
 }
 

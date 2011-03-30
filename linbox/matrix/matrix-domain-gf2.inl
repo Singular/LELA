@@ -153,10 +153,13 @@ Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix
 	if (!a)
 		return y;
 
-	for (i_x = x.begin (), i_A = A.colBegin (); i_x != x.end (); ++i_x)
-		for (t = Vector1::Endianness::e_0, i_A = A.colBegin () + i_x->first; t != 0; t = Vector1::Endianness::shift_right (t, 1), ++i_A)
+	for (i_x = x.begin (); i_x != x.end (); ++i_x) {
+		i_A = A.colBegin () + (i_x->first << WordTraits<typename Vector1::word_type>::logof_size);
+
+		for (t = Vector1::Endianness::e_0; t != 0; t = Vector1::Endianness::shift_right (t, 1), ++i_A)
 			if (i_x->second & t)
 				_VD.addin (y, *i_A);
+	}
 
 	return y;
 }

@@ -1070,8 +1070,7 @@ bool runFieldTests (const Field &F, const char *desc, unsigned int iterations, s
  */
 
 template <class Field, class Blackbox, class Vector>
-static bool
-testTranspose (Field                             &F,
+static bool testTranspose (Field                             &F,
 			   Blackbox							 &A,
 			   LinBox::VectorStream<Vector>      &stream1,
 			   LinBox::VectorStream<Vector>      &stream2) 

@@ -29,12 +29,13 @@ namespace LinBox
  \ingroup vector
  */
 
-template <class Iterator, class ConstIterator, class Endianness>
+template <class Iterator, class ConstIterator, class _Endianness>
 class BitSubvectorWordAligned
 {
     public:
 	typedef Iterator word_iterator;
 	typedef ConstIterator const_word_iterator;
+	typedef _Endianness Endianness;
 
 	typedef BitVectorIterator<word_iterator, const_word_iterator, Endianness> iterator;
 	typedef BitVectorConstIterator<const_word_iterator, Endianness>           const_iterator;
