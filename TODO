@@ -1,23 +1,110 @@
-cvs rm field/matrix-domain.C (after verifying uselessness)
-cvs rm randiter/archetype.doxy
-file docs of examples fixed
-file docs of */archetype.h removed
-eliminate */archetype.doxy's ?
-eliminate randiter/randiters.doxy's ?
-resolve modular-balance-int32 vs modular-int32 wierdness (same ifndef, can't coexist?).
-------- older below -----------
- - Test suite for random iterators
- - Test suite for vector stream
- - Import commentator time estimate code
- - 
- - Everything in tests/TODO
+Todo on LinBox (current as of 30.11.2011)
 
-Before meeting:
- - Complete GF2 tests and get them working (BitVector tested implicitly)
- - Write tests for Compose, Permutation, Transpose
- - Add DenseRowsMatrix test to matrix-domain test suite
- - Fix filenames in CVS
- - Updates to Jean-Guillaume's gauss code?
- - Add solver, determinant to Jean-Guillaume's code?
- - Add more pivoting strategies?
- - New Compose implementation?
+In general:
+• Robustness/safety issues
+  ∘ Fix Commentator so that it passes valgrind
+  ∘ Valgrind everything else
+• Bugs
+  ∘ Compiler sometimes refusing to instantiate with TransposeMatrix
+  ∘ benchmark-matrix-domain doesn't print anything unless one gives -l -m -n -k???
+  ∘ RawIterator<Hybrid> and RawIndexedIterator<Hybrid> don't know when to stop a given row
+  ∘ M4RI-wrapper doesn't work properly with submatrices (possibly bug in M4RI)
+• API-changes
+  ∘ Change interface of inv and div: return bool; true if successful, false otherwise
+  ∘ trsv should fail if the input-matrix is not nonsingular upper triangular (or at least with nonzero entries along the diagonal)
+  ∘ Figure out archetype/abstract/envelope business
+    ‣ Do we need archetype at all (except for documentation)? Maybe merge with abstract
+    ‣ Do we need envelope at all?
+    ‣ Create matrix archetype to document interfaces
+    ‣ Remove redundant documentation from matrices
+• Candidates for review/removal
+  ∘ linbox/util/formats? (maybe incorporate into linbox/matrix/io.{h|inl}
+  ∘ RandomDenseStreamGF2, RandomSparseStreamGF2 <- Do we use these at all?
+  ∘ dense-submatrix.h, .inl
+• Missing specialisations, new wrappers
+  ∘ Incorporate FFLAS/FFPACK into the rest of LinBox
+    ‣ Some of FFLAS can go away -- it just duplicates functionality in MatrixDomain
+    ‣ Part of FFLAS should become a MatrixDomain-BLAS wrapper
+    ‣ Other important part of FFLAS is Straßen-Winograd implementation, which should go into another MatrixDomain-wrapper
+    ‣ Most of FFPACK should be put aside for the time being, but contents of ffpack.h are useful and should go into algorithms
+    ‣ Everything needs to be reindented and reformated, of course
+• Improvements to test-suite
+  ∘ Need tests for vectors
+  ∘ Improve MatrixDomain tests
+    ‣ Add tests for MatrixDomainM4RI, MatrixDomainBLAS, etc.
+  ∘ MatrixDomainBLAS-tests await work on FFLAS
+    ‣ More mixtures of matrix-, and vector-formats (need careful review of what is tested)
+  ∘ Incorporate tests in F4 to test-suite
+    ‣ test-matrix-domain-gf2 done
+    ‣ test-bit-subvector and test-hybrid-subvector to be subsumed by above general vector-tests
+    ‣ test-gauss-jordan depends on incorporation of Gauss-Jordan transform into LinBox
+    ‣ test-solver and test-from-png are F4-specific
+• Improvements to build-process:
+  ∘ Make the library compile standard instantiations for all non-inline functionality
+  ∘ Non-inline stuff goes into new files *.tcc while inline stuff goes into *.h
+    ‣ Implementations in vector-domain.inl, matrix-domain.inl, vector-domain-gf2.inl, matrix-domain-gf2.inl are ready to go
+    ‣ Iterators in vector, matrix implementations should be moved into header files
+    ‣ SubvectorFactory-specialisations should be moved to header files
+    ‣ Otherwise sparse.inl is ready to go
+    ‣ All of dense.inl should be placed in dense.h
+    ‣ Likewise dense-zero-one.inl
+    ‣ Functions in sparse-zero-one.h should be moved to sparse-zero-one.tcc
+    ‣ Implementations of Stream::get should go in stream.tcc
+    ‣ Contents of gf2.inl should go into gf2.h and (specialisations of streams) to vector/stream-gf2.h, with get-implementation in vector/stream-gf2.tcc
+    ‣ Short functions in bit-vector.inl should go in bit-vector.h, otherwise good to go
+    ‣ Pretty well all of bit-subvector.inl should go into .h file
+    ‣ Most of sparse-subvector-hybrid.inl should go into .h file, except long function-implementations
+    ‣ field/modular.inl is good to go
+    ‣ Contents m4ri-matrix.inl should go to .h file; read/write can be removed
+    ‣ Contents of submatrix.inl should go into .h file
+    ‣ io.inl is good to go
+• Sort out business with optional libraries, preferred matrix-type, etc.
+• Documentation-issues
+  ∘ Need to document vector-formats -- maybe in vector-traits.h
+
+Lower priority:
+• Output-improvements to Commentator?
+• Remove some matrix output-formats
+• Create mechanism for "preferred matrix-type" over a given field which can be changed according to available libraries
+• Replace "namespace LinBox" with macro to fix indentation-sillyness
+• Replace __LINBOX_BITVECTOR_WORD_TYPE with a typedef
+• Simplifications to BitSubvectorIterator: move mask-computation to BitSubvector, have iterator in BitSubvector which points to position at which mask is required
+• Move random GF2-streams to new vector/stream-gf2.h
+• Improvements to MatrixDomain
+  ∘ Function to read a permutation from stream
+  ∘ Move writePermutation to VectorDomain and add a call-through in MatrixDomain?
+• Merge FieldTraits and ModularFieldTraits
+• Rename MatrixTraits::BlackboxTag to something sensible
+• Reorganise MatrixTraits:
+  ∘ MatrixCategory (Sparse, Dense)
+  ∘ MatrixIteratorCategory (Row, Col, RowCol)
+  ∘ MatrixEntryCategory (Element, ZeroOne)
+
+Fuzzy/not sure what to do yet:
+• Merge gemvColDense into MatrixDomainSupport
+• Eliminate/merge FieldAXPY?
+• Simplify class-hierarchy surrounding MatrixDomain?
+• Move DotProductDomain into VectorDomain?
+• Try to consolidate the myriad field/modular-* files, since they are all almost identical
+
+For F4-backend:
+• Make hybrid zero-one matrix more memory-efficient by reducing space-requirements for index-vectors
+  ∘ Reuse existing index-vectors
+  ∘ Overlay index-vectors with small additional vectors to reflect small changes
+  ∘ Need an algorithm which does all of this efficiently
+• Improve matrix-multiplication with hybrid-matrices (!)
+  ∘ Way to incorporate M4RI?
+  ∘ Way to use Method of 4 Russians for Multiplication?
+• Improvements to GaussJordan:
+  ∘ Use GEMM in DenseRowEchelonForm (maybe reduce need for intermediate storage?)
+  ∘ Eliminate specialisations for StandardRowEchelonForm
+    ‣ Need a way to create a Submatrix of a Submatrix so that it just gets the original type
+  ∘ Make ReduceRowEchelonForm use trsm and block-decomposition -- then maybe also eliminate specialisations
+  ∘ Specialisation for M4RIMatrix which just calls M4RI-backend
+• Move implementations in GaussJordan and F4Solver to .inl-files
+• Use stream-based SetIdentity
+• GaussTransform should use word-aligned submatrices only
+• Move gauss-jordan to linbox/algorithms
+• Enhance tests for HybridVector: offset 0-related cases in SparseSubvector<Hybrid>
+• Word-aligned version of SparseSubvector<Hybrid>
+• Update elimination-code to use above version
