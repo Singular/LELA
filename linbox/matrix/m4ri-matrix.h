@@ -122,7 +122,8 @@ class M4RIMatrix
 	 * @param n Number of columns
 	 */
 	void resize (size_t m, size_t n)
-		{ if (_rep != NULL) mzd_free (_rep); _rep = mzd_init (m, n); }
+		// { if (_rep != NULL) mzd_free (_rep); _rep = mzd_init (m, n); }
+		{ _rep = mzd_init (m, n); }
 
 	/** Set the entry at the (i, j) position to a_ij.
 	 * @param i Row number, 0...rowdim () - 1
