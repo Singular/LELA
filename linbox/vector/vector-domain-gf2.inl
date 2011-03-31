@@ -555,7 +555,7 @@ Vector1 &VectorDomain<GF2>::addSpecialized (Vector1 &res, const Vector2 &y, cons
 
 	while (i != y.end () || j != x.end ()) {
 		while (i != y.end () && (j == x.end () || i->first < j->first)) {
-			res.push_back (typename Vector1::value_type (i->first));
+			res.push_back (typename Vector1::value_type (i->first, i->second));
 			++i;
 		}
 		while (j != x.end () && (i == y.end () || j->first < i->first)) {

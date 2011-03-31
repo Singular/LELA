@@ -35,26 +35,22 @@ typedef GaussJordan<Field>::SparseMatrix::Row SparseVector;
 
 void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, MersenneTwister &MT)
 {
-	typedef std::iterator_traits<SparseVector::first_type::iterator>::value_type index_type;
-	typedef std::iterator_traits<SparseVector::second_type::word_iterator>::value_type word_type;
-
 	size_t t;
-	index_type idx;
+	SparseVector::index_type idx;
 
-	word_type w;
-	word_type mask;
+	SparseVector::word_type w;
+	SparseVector::word_type mask;
 
-	index_type colstart = col >> WordTraits<word_type>::logof_size;
-	index_type colend = coldim >> WordTraits<word_type>::logof_size;
+	SparseVector::index_type colstart = col >> WordTraits<SparseVector::word_type>::logof_size;
+	SparseVector::index_type colend = coldim >> WordTraits<SparseVector::word_type>::logof_size;
 
-	v.first.clear ();
-	v.second.clear ();
+	v.clear ();
 
 	for (idx = colstart; idx <= colend; ++idx) {
 		w = 0ULL;
 
-		if (static_cast<size_t> (idx) << WordTraits<word_type>::logof_size <= col) {
-			t = col & WordTraits<word_type>::pos_mask;
+		if (static_cast<size_t> (idx) << WordTraits<SparseVector::word_type>::logof_size <= col) {
+			t = col & WordTraits<SparseVector::word_type>::pos_mask;
 			mask = Endianness::e_j (t);
 			w |= mask;  // Force leading entry to be one
 		} else {
@@ -62,13 +58,12 @@ void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, Mersenn
 			mask = Endianness::e_0;
 		}
 
-		for (; mask != 0 && (static_cast<size_t> (idx) << WordTraits<word_type>::logof_size) + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
+		for (; mask != 0 && (static_cast<size_t> (idx) << WordTraits<SparseVector::word_type>::logof_size) + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
 			if (MT.randomDoubleRange (0.0, 1.0) < nonzero_density)
 				w |= mask;
 
 		if (w != 0) {
-			v.first.push_back (idx);
-			v.second.push_word_back (w);
+			v.push_back (SparseVector::value_type (idx, w));
 		}
 	}
 }
@@ -165,7 +160,7 @@ size_t ComputeMemoryUsage (const SparseMatrix &A)
 	size_t total_len = 0;
 
 	for (i = A.rowBegin (); i != A.rowEnd (); ++i)
-		total_len += i->first.size ();
+		total_len += i->size ();
 
 	return total_len;
 }
@@ -174,21 +169,21 @@ size_t ComputeMemoryUsage (const SparseMatrix &A)
 
 bool CheckHybridVector (const SparseVector &v)
 {
-	if (v.first.empty ())
+	if (v.empty ())
 		return false;
 
-	SparseVector::first_type::const_iterator i = v.first.begin ();
-	SparseVector::first_type::value_type last = *i;
+	SparseVector::const_iterator i = v.begin ();
+	SparseVector::index_type last = i->first;
 
 	bool bad = false;
 
-	while (++i != v.first.end ()) {
-		if (last >= *i) {
-			std::cerr << __FUNCTION__ << ": Error at index " << i - v.first.begin () << ": last index is " << last << ", current is " << *i << std::endl;
+	while (++i != v.end ()) {
+		if (last >= i->first) {
+			std::cerr << __FUNCTION__ << ": Error at index " << i - v.begin () << ": last index is " << last << ", current is " << i->first << std::endl;
 			bad = true;
 		}
 
-		last = *i;
+		last = i->first;
 	}
 
 	return bad;

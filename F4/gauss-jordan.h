@@ -48,24 +48,10 @@
 #endif // PROGRESS_STEP
 
 namespace LinBox {
-	template <class Iterator, class ConstIterator, class Endianness>
-	struct GF2VectorTraits<std::pair<Subvector<std::vector<uint16>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
+	template <>
+	struct GF2VectorTraits<Subvector<Vector<GF2>::Hybrid::iterator> >
 	{ 
-		typedef std::pair<Subvector<std::vector<uint16>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
-		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-	};
-
-	template <class Iterator, class ConstIterator, class Endianness>
-	struct GF2VectorTraits<std::pair<Subvector<std::vector<uint32>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
-	{ 
-		typedef std::pair<Subvector<std::vector<uint32>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
-		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-	};
-
-	template <class Iterator, class ConstIterator, class Endianness>
-	struct GF2VectorTraits<std::pair<Subvector<std::vector<uint64>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
-	{ 
-		typedef std::pair<Subvector<std::vector<uint64>::iterator>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
+		typedef Subvector<Vector<GF2>::Hybrid::iterator> VectorType;
 		typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 	};
 }
@@ -85,12 +71,12 @@ namespace F4 {
 	template <>
 	class Adaptor<GF2> {
 	public:
-		typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
-		typedef std::pair<std::vector<uint16>, BitVector<Endianness> > SparseVector;
-		typedef LinBox::SparseMatrix<bool, SparseVector, VectorCategories::HybridZeroOneVectorTag> SparseMatrix;
-		typedef LinBox::M4RIMatrix DenseMatrix;
-//		typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
-		static const size_t cutoff = WordTraits<BitVector<Endianness>::word_type>::bits;
+		typedef BigEndian<uint64> Endianness;
+		typedef Vector<GF2>::Hybrid SparseVector;
+		typedef LinBox::SparseMatrix<bool, SparseVector> SparseMatrix;
+//		typedef LinBox::M4RIMatrix DenseMatrix;
+		typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
+		static const size_t cutoff = WordTraits<SparseVector::word_type>::bits;
 	};
 
 	/**
@@ -205,8 +191,6 @@ namespace F4 {
 		template <class Matrix>
 		int GetPivotSpecialised (Matrix &A, int start_row, int &col, VectorCategories::HybridZeroOneVectorTag) const
 		{
-			typedef typename std::iterator_traits<typename Matrix::Row::second_type::const_word_iterator>::value_type word_type;
-
 			typename SparseMatrix::RowIterator i;
 			typename Field::Element a;
 
@@ -214,14 +198,14 @@ namespace F4 {
 			col = A.coldim ();
 
 		        for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
-				if (!i->first.empty () && i->first.front () << WordTraits<word_type>::logof_size <= col) {
+				if (!i->empty () && i->front ().first << WordTraits<typename Matrix::Row::word_type>::logof_size <= col) {
 					int idx = VD.firstNonzeroEntry (a, *i);
 					if (idx < col) {
 						col = idx;
-						min_blocks = i->first.size ();
+						min_blocks = i->size ();
 						pivot = k;
 					}
-					else if (idx == col && (s = i->first.size ()) < min_blocks) {
+					else if (idx == col && (s = i->size ()) < min_blocks) {
 						min_blocks = s;
 						pivot = k;
 					}
@@ -475,98 +459,77 @@ namespace F4 {
 					      VectorCategories::HybridZeroOneVectorTag) const
 		{
 			static Vector tmp;
-			typedef BitSubvectorWordAligned<typename Vector::second_type::word_iterator, typename Vector::second_type::const_word_iterator, Endianness> elt_type;
-			typedef typename std::iterator_traits<typename Vector::second_type::const_word_iterator>::value_type word_type;
 
-			std::pair<Subvector<typename Vector::first_type::iterator>, elt_type>
-				t (Subvector<typename Vector::first_type::iterator> (v.first.begin () + idx, v.first.end ()),
-				   elt_type (v.second.wordBegin () + idx, v.second.wordEnd ()));
+			Subvector<typename Vector::iterator> t (v.begin () + idx, v.end ());
 
 			VD.add (tmp, t, w);
-			v.first.resize (idx + tmp.first.size ());
-			v.second.resize ((idx + tmp.second.word_size ()) << WordTraits<word_type>::logof_size);
-			std::copy (tmp.first.begin (), tmp.first.end (), v.first.begin () + idx);
-			std::copy (tmp.second.wordBegin (), tmp.second.wordEnd (), v.second.wordBegin () + idx);
+			v.resize (idx + tmp.size ());
+			std::copy (tmp.begin (), tmp.end (), v.begin () + idx);
 		}
 
 		void testFastAddinHybridVector () const
 		{
 			std::cout << "GaussJordan: Testing FastAddin" << std::endl;
 
-			RawVector<bool>::Hybrid v, w;
-			typedef std::iterator_traits<RawVector<bool>::Hybrid::second_type::const_word_iterator>::value_type word_type;
+			Vector<GF2>::Hybrid v, w;
 
 			std::cout << std::hex << std::setfill ('0');
 
-			v.first.push_back (0);
-			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (1);
-			v.second.push_word_back (0xffff0000ffff0000ULL);
+			v.push_back (Vector<GF2>::Hybrid::value_type (0, 0xffff0000ffff0000ULL));
+			v.push_back (Vector<GF2>::Hybrid::value_type (1, 0xffff0000ffff0000ULL));
 
-			w.first.push_back (1);
-			w.second.push_word_back (0x00ffff0000ffff00ULL);
+			w.push_back (Vector<GF2>::Hybrid::value_type (1, 0x00ffff0000ffff00ULL));
 
 			FastAddin (v, w, 1);
 
-			if (v.second.front_word () != 0xffff0000ffff0000ULL)
-				std::cout << "Test 1 not okay: first word is " << std::setw (WordTraits<word_type>::bits / 4) << v.second.front_word () << " but should be ffff0000ffff0000" << std::endl;
+			if (v.front ().second != 0xffff0000ffff0000ULL)
+				std::cout << "Test 1 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ffff0000ffff0000" << std::endl;
 			else
 				std::cout << "Test 1 okay" << std::endl;
 
-			if (*(v.second.wordBegin () + 1) != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 2 not okay: second word is " << std::setw (WordTraits<word_type>::bits / 4) << *(v.second.wordBegin () + 1) << " but should be ff00ff00ff00ff00" << std::endl;
+			if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL)
+				std::cout << "Test 2 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 2 okay" << std::endl;
 
-			v.first.clear ();
-			v.second.clear ();
-			w.first.clear ();
-			w.second.clear ();
+			v.clear ();
+			w.clear ();
 
-			v.first.push_back (0);
-			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (1);
-			v.second.push_word_back (0xffff0000ffff0000ULL);
+			v.push_back (Vector<GF2>::Hybrid::value_type (0, 0xffff0000ffff0000ULL));
+			v.push_back (Vector<GF2>::Hybrid::value_type (1, 0xffff0000ffff0000ULL));
 
-			w.first.push_back (0);
-			w.second.push_word_back (0x00ffff0000ffff00ULL);
+			w.push_back (Vector<GF2>::Hybrid::value_type (0, 0x00ffff0000ffff00ULL));
 
 			FastAddin (v, w, 0);
 
-			if (v.second.front_word () != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 3 not okay: first word is " << std::setw (WordTraits<word_type>::bits / 4) << v.second.front_word () << " but should be ff00ff00ff00ff00" << std::endl;
+			if (v.front ().second != 0xff00ff00ff00ff00ULL)
+				std::cout << "Test 3 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 3 okay" << std::endl;
 
-			if (*(v.second.wordBegin () + 1) != 0xffff0000ffff0000ULL)
-				std::cout << "Test 4 not okay: second word is " << std::setw (WordTraits<word_type>::bits / 4) << *(v.second.wordBegin () + 1) << " but should be ffff0000ffff0000" << std::endl;
+			if ((v.begin () + 1)->second != 0xffff0000ffff0000ULL)
+				std::cout << "Test 4 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ffff0000ffff0000" << std::endl;
 			else
 				std::cout << "Test 4 okay" << std::endl;
 
-			v.first.clear ();
-			v.second.clear ();
-			w.first.clear ();
-			w.second.clear ();
+			v.clear ();
+			w.clear ();
 
-			v.first.push_back (0);
-			v.second.push_word_back (0xffff0000ffff0000ULL);
-			v.first.push_back (1);
-			v.second.push_word_back (0xffff0000ffff0000ULL);
+			v.push_back (Vector<GF2>::Hybrid::value_type (0, 0xffff0000ffff0000ULL));
+			v.push_back (Vector<GF2>::Hybrid::value_type (1, 0xffff0000ffff0000ULL));
 
-			w.first.push_back (0);
-			w.second.push_word_back (0x00ffff0000ffff00ULL);
-			w.first.push_back (1);
-			w.second.push_word_back (0x00ffff0000ffff00ULL);
+			w.push_back (Vector<GF2>::Hybrid::value_type (0, 0x00ffff0000ffff00ULL));
+			w.push_back (Vector<GF2>::Hybrid::value_type (1, 0x00ffff0000ffff00ULL));
 
 			FastAddin (v, w, 0);
 
-			if (v.second.front_word () != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 5 not okay: first word is " << std::setw (WordTraits<word_type>::bits / 4) << v.second.front_word () << " but should be ff00ff00ff00ff00" << std::endl;
+			if (v.front ().second != 0xff00ff00ff00ff00ULL)
+				std::cout << "Test 5 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 5 okay" << std::endl;
 
-			if (*(v.second.wordBegin () + 1) != 0xff00ff00ff00ff00ULL)
-				std::cout << "Test 6 not okay: second word is " << std::setw (WordTraits<word_type>::bits / 4) << *(v.second.wordBegin () + 1) << " but should be ff00ff00ff00ff00" << std::endl;
+			if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL)
+				std::cout << "Test 6 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
 			else
 				std::cout << "Test 6 okay" << std::endl;
 
@@ -1049,11 +1012,11 @@ namespace F4 {
 		}
 
 		template <class Vector>
-		class PivotRowCompare {
+		class PivotRowCompare
+		{
 		public:
-			inline bool operator () (const typename Vector::first_type::value_type &x, const Vector &v1) const {
-				return x < v1.first.front ();
-			}
+			inline bool operator () (const typename Vector::index_type &x, const Vector &v1) const
+				{ return x < v1.front ().first; }
 		};
 
 		template <class Matrix1, class Matrix2>
@@ -1068,12 +1031,9 @@ namespace F4 {
 			typename Matrix1::RowIterator i_A, i_Ae, j_A;
 			typename Matrix2::RowIterator i_L;
 
-			typedef typename std::iterator_traits<typename SparseMatrix::Row::first_type::iterator>::value_type index_type;
-			typedef typename std::iterator_traits<typename SparseMatrix::Row::second_type::word_iterator>::value_type word_type;
+			typename Matrix1::Row::iterator i;
 
-			typename Matrix1::Row::first_type::iterator i_idx;
-
-			word_type v, v1, mask;
+			typename Matrix1::Row::word_type v, v1, mask;
 
 			if (compute_L)
 				i_L = L.rowBegin () + (rank - 1);
@@ -1090,26 +1050,26 @@ namespace F4 {
 				if (i_A - A.rowBegin () >= start_row)
 					i_Ae = i_A;
 
-				size_t prev_idx = i_A->first.size () - 1;
+				size_t prev_idx = i_A->size () - 1;
 				elim_row = rank - 1;
 
 				j_A = A.rowBegin () + elim_row;
 
 				while (elim_row > std::max (current_row, (int) start_row - 1)) {
-					if (prev_idx >= i_A->first.size ())
-						prev_idx = i_A->first.size () - 1;
+					if (prev_idx >= i_A->size ())
+						prev_idx = i_A->size () - 1;
 
-					index_type j_idx = j_A->first.front ();
+					typename Matrix1::Row::index_type j_idx = j_A->front ().first;
 
 					// Note: We don't need to test for validity because, if the input
 					// is valid, i_idx will *never* go past the beginning
-					for (i_idx = i_A->first.begin () + prev_idx; *i_idx > j_idx; --i_idx, --prev_idx);
+					for (i = i_A->begin () + prev_idx; i->first > j_idx; --i, --prev_idx);
 
-					if (*i_idx == j_A->first.front ()) {
-						v = j_A->second.front_word ();
+					if (i->first == j_A->front ().first) {
+						v = j_A->front ().second;
 						mask = Endianness::first_position (v);
 
-						if (*(i_A->second.wordBegin () + prev_idx) & mask) {
+						if ((i_A->begin () + prev_idx)->second & mask) {
 							// DEBUG
 							// std::cout << "ReduceRowEchelonSpecialised: eliminating row " << current_row << " from row " << elim_row << std::endl;
 
@@ -1120,15 +1080,15 @@ namespace F4 {
 						}
 					}
 
-					v1 = *(i_A->second.wordBegin () + prev_idx);
+					v1 = (i_A->begin () + prev_idx)->second;
 					mask = 0;
 
-					while (j_A->first.front () >= i_A->first[prev_idx] && !(v1 & mask)) {
+					while (j_A->front ().first >= (*i_A)[prev_idx].first && !(v1 & mask)) {
 						--j_A;
 						--elim_row;
 
-						if (j_A->first.front () > i_A->first[prev_idx]) {
-							j_A = std::upper_bound (A.rowBegin () + current_row + 1, A.rowBegin () + elim_row, i_A->first[prev_idx],
+						if (j_A->front ().first > (*i_A)[prev_idx].first) {
+							j_A = std::upper_bound (A.rowBegin () + current_row + 1, A.rowBegin () + elim_row, (*i_A)[prev_idx].first,
 										PivotRowCompare<typename SparseMatrix::Row> ());
 							--j_A;
 							elim_row = j_A - A.rowBegin ();
@@ -1137,7 +1097,7 @@ namespace F4 {
 								break;
 						}
 
-						v = j_A->second.front_word ();
+						v = j_A->front ().second;
 						mask = Endianness::first_position (v);
 					}
 				}

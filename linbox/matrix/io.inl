@@ -337,8 +337,10 @@ std::ostream &MatrixWriter<Field>::writeTurner (std::ostream &os, const Matrix &
 	typename Matrix::ConstRawIndexedIterator i_idx;
 
 	for (i_idx = A.rawIndexedBegin (), i_elt = A.rawBegin (); i_idx != A.rawIndexedEnd (); ++i_idx, ++i_elt) {
-		os << i_idx->first << ' ' << i_idx->second << ' ';
-		_F.write (os, *i_elt) << std::endl;
+		if (!_F.isZero (*i_elt)) {
+			os << i_idx->first << ' ' << i_idx->second << ' ';
+			_F.write (os, *i_elt) << std::endl;
+		}
 	}
 
 	os << "-1" << std::endl;
@@ -354,8 +356,10 @@ std::ostream &MatrixWriter<Field>::writeOneBased (std::ostream &os, const Matrix
 	typename Matrix::ConstRawIndexedIterator i_idx;
 
 	for (i_idx = A.rawIndexedBegin (), i_elt = A.rawBegin (); i_idx != A.rawIndexedEnd (); ++i_idx, ++i_elt) {
-		os << i_idx->first + 1 << ' ' << i_idx->second + 1 << ' ';
-		_F.write (os, *i_elt) << std::endl;
+		if (!_F.isZero (*i_elt)) {
+			os << i_idx->first + 1 << ' ' << i_idx->second + 1 << ' ';
+			_F.write (os, *i_elt) << std::endl;
+		}
 	}
 
 	return os;

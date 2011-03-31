@@ -51,31 +51,18 @@ namespace F4 {
 	void SparseMatrixReader<Field>::readBlockSpecialised (typename SparseMatrixReader<Field>::SparseMatrix::Row &v, png_byte x, int start, int stop,
 							      VectorCategories::HybridZeroOneVectorTag)
 	{
-		readBlockHybridSpecialised (v, x, start, stop, typename SparseMatrix::Row::second_type::Endianness ());
-	}
-
-	template <class Field>
-	template <class Endianness>
-	void SparseMatrixReader<Field>::readBlockHybridSpecialised (typename SparseMatrixReader<Field>::SparseMatrix::Row &v, png_byte x, int start, int stop, Endianness)
-	{
-		typedef typename std::iterator_traits<typename SparseMatrixReader<Field>::SparseMatrix::Row::first_type::iterator>::value_type index_type;
-		typedef typename std::iterator_traits<typename SparseMatrixReader<Field>::SparseMatrix::Row::second_type::word_iterator>::value_type word_type;
-
-		index_type idx = start >> WordTraits<word_type>::logof_size;
+		typename SparseMatrix::Row::index_type idx = start >> WordTraits<typename SparseMatrix::Row::word_type>::logof_size;
 		int count;
 		png_byte t;
 
-		word_type mask = Endianness::e_j (start & WordTraits<word_type>::pos_mask);
+		typename SparseMatrix::Row::word_type mask = SparseMatrix::Row::Endianness::e_j (start & WordTraits<typename SparseMatrix::Row::word_type>::pos_mask);
 
-		for (count = 0, t = ~(((png_byte) -1) & (((png_byte) -1) >> 1)); count < stop; t >>= 1, mask = Endianness::shift_right (mask, 1), ++count) {
+		for (count = 0, t = ~(((png_byte) -1) & (((png_byte) -1) >> 1)); count < stop; t >>= 1, mask = SparseMatrix::Row::Endianness::shift_right (mask, 1), ++count) {
 			if (!(x & t)) {
-				if (v.first.empty () || v.first.back () != idx) {
-					v.first.push_back (idx);
-					v.second.push_word_back (mask);
-				}
-				else {
-					v.second.back_word () |= mask;
-				}
+				if (v.empty () || v.back ().first != idx)
+					v.push_back (typename SparseMatrix::Row::value_type (idx, mask));
+				else
+					v.back ().second |= mask;
 
 				++total_nonzero;
 			}

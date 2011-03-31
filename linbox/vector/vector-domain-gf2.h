@@ -435,7 +435,7 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>, private DotProd
 	template <class Vector>
 	inline Vector &mulinSpecialized (Vector &x, const Element a,
 					 VectorCategories::HybridZeroOneVectorTag tag) const
-		{ if (!a) { x.first.clear (); x.second.clear (); } return x; }
+		{ if (!a) { x.clear (); } return x; }
 
 	template <class Vector1, class Vector2, class Vector3>
 	inline Vector1 &addSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,
