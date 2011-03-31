@@ -202,10 +202,10 @@ class SparseMatrix
 	typedef MatrixRawIterator<RowIterator, VectorCategories::SparseVectorTag> RawIterator;
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseVectorTag> ConstRawIterator;
     
-	RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd ()); }
-	RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd ()); }
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+	RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
+	RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 	/** @name Index iterator
 	 * The index iterator gives the row, column indices of all matrix
@@ -217,8 +217,8 @@ class SparseMatrix
 	typedef MatrixRawIndexedIterator<ConstRowIterator, Trait, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
-        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
 	/** Retrieve a row as a writeable reference
 	 * @param i Row index
@@ -331,14 +331,14 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
-        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
 	Row &getRow (size_t i) { return _A[i]; }
 	Row &operator [] (size_t i) { return _A[i]; }

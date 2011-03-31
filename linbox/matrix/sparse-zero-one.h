@@ -101,14 +101,14 @@ public:
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
-        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
 	template <class Vector> Vector &columnDensity (Vector &v) const;
 	SparseMatrix &transpose (SparseMatrix &AT) const;
@@ -183,7 +183,7 @@ public:
 	}
 
 	void setEntry (size_t i, size_t j, const Element &value);
-	void eraseEntry (size_t i, size_t j);
+	void eraseEntry (size_t i, size_t j) {}
 	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	typedef typename Rep::iterator RowIterator;
@@ -205,14 +205,14 @@ public:
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
-        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
 	template <class Vector> Vector &columnDensity (Vector &v) const;
 	SparseMatrix &transpose (SparseMatrix &AT) const;
@@ -265,23 +265,6 @@ void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::erase
 
 	if (idx != v.end () && *idx == j)
 		v.erase (idx);
-}
-
-template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::eraseEntry (size_t i, size_t j)
-{
-	Row &v = (*this)[i];
-
-	typename Row::iterator iter;
-
-	iter = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
-
-	if (iter != v.end () && iter->first == j >> WordTraits<typename Row::word_type>::logof_size) {
-		iter->second &= ~Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
-
-		if (!iter->second)
-			v.erase (iter);
-	}
 }
 
 template <class Element, class Row>

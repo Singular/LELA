@@ -154,14 +154,14 @@ inline M4RIMatrix::ConstRowIterator M4RIMatrix::rowEnd () const
 }
 
 inline M4RIMatrix::ConstRawIterator M4RIMatrix::rawBegin () const
-	{ return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
+	{ return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
 inline M4RIMatrix::ConstRawIterator M4RIMatrix::rawEnd () const
-	{ return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+	{ return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedBegin() const
-	{ return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
+	{ return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
 inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedEnd() const
-	{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+	{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
 }
 

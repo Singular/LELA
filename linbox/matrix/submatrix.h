@@ -221,8 +221,8 @@ class Submatrix
 	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
 
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 	/** \brief
 	 *
@@ -236,8 +236,8 @@ class Submatrix
 	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
-        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
 	/** Access to the parent matrix */
 	Matrix &parent () { return *_M; }
@@ -329,13 +329,13 @@ class Submatrix<_Matrix, MatrixCategories::RowMatrixTag>
 	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
    
-	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd ()); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory, false> ConstRawIndexedIterator;
 
-	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd ()); }
-        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd ()); }
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
 	Matrix &parent () { return *_M; }
 	const Matrix &parent () const { return *_M; }
@@ -425,13 +425,13 @@ class Submatrix<_Matrix, MatrixCategories::ColMatrixTag>
 	typedef MatrixRawIterator<ConstColIterator, typename ElementVectorTraits<Element, Column>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
    
-	ConstRawIterator rawBegin () const { return ConstRawIterator (colBegin (), 0, colEnd ()); }
-	ConstRawIterator rawEnd () const   { return ConstRawIterator (colEnd (), 0, colEnd ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (colBegin (), 0, colEnd (), rowdim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (colEnd (), 0, colEnd (), rowdim ()); }
 
 	typedef MatrixRawIndexedIterator<ConstColIterator, typename ElementVectorTraits<Element, Column>::VectorCategory, true> ConstRawIndexedIterator;
 
-	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (colBegin (), 0, colEnd ()); }
-        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (colEnd (), coldim (), colEnd ()); }
+	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (colBegin (), 0, colEnd (), rowdim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (colEnd (), coldim (), colEnd (), rowdim ()); }
 
 	Matrix &parent () { return *_M; }
 	const Matrix &parent () const { return *_M; }
