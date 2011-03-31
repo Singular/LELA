@@ -251,7 +251,7 @@ bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEn
 
 	if (idx != v.end () && idx->first == j >> WordTraits<typename Row::word_type>::logof_size) {
 		x = idx->second & Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
-		return x;
+		return true;
 	} else
 		return false;
 }

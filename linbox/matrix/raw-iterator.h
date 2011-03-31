@@ -354,7 +354,7 @@ class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
 	}
 
 	value_type operator * ()
-		{ update_iter (); return _pos->second & _t; }
+		{ update_iter (); return (_pos->second & _t) != 0; }
  
 	bool operator == (const MatrixRawIterator &c) const
 		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_pos == c._pos) && (_t == c._t))); }
@@ -448,8 +448,10 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseVectorTag, fals
 	MatrixRawIndexedIterator (Iterator rowcol, size_t i, Iterator rowcol_end)
 		: _pos (i, 0), _rowcol (rowcol), _rowcol_end (rowcol_end), _iter_valid (false)
 	{
-		while (_rowcol != _rowcol_end && _rowcol->empty ())
+		while (_rowcol != _rowcol_end && _rowcol->empty ()) {
 			++_rowcol;
+			++_pos.first;
+		}
 	}
 
 	MatrixRawIndexedIterator () {}
@@ -587,8 +589,10 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseZeroOneVectorTa
 	MatrixRawIndexedIterator (Iterator rowcol, size_t i, Iterator rowcol_end)
 		: _pos (i, 0), _rowcol (rowcol), _rowcol_end (rowcol_end), _iter_valid (false)
 	{
-		while (_rowcol != _rowcol_end && _rowcol->empty ())
+		while (_rowcol != _rowcol_end && _rowcol->empty ()) {
 			++_rowcol;
+			++_pos.first;
+		}
 	}
 
 	MatrixRawIndexedIterator () {}
@@ -672,8 +676,10 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTa
 	MatrixRawIndexedIterator (Iterator rowcol, size_t i, Iterator rowcol_end)
 		: _pos (i, 0), _rowcol (rowcol), _rowcol_end (rowcol_end), _iter_valid (false), _t (Endianness::e_0)
 	{
-		while (_rowcol != _rowcol_end && _rowcol->empty ())
+		while (_rowcol != _rowcol_end && _rowcol->empty ()) {
 			++_rowcol;
+			++_pos.first;
+		}
 	}
 
 	MatrixRawIndexedIterator () {}

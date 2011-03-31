@@ -101,18 +101,18 @@ class M4RIMatrixRowIterator
 		{ return _row; }
 
 	bool operator == (const M4RIMatrixRowIterator& c) const
-		{ return _row.wordBegin () == c._row.wordBegin (); }
+		{ return _idx == c._idx; }
 
 	template <class It, class CIt, class MP>
 	bool operator == (const M4RIMatrixRowIterator<It, CIt, MP> &c) const
-		{ return _row.wordBegin () != c._row.wordBegin (); }
+		{ return _idx == c._idx; }
 
 	bool operator != (const M4RIMatrixRowIterator& c) const
-		{ return _row.wordBegin () != c._row.wordBegin (); }
+		{ return _idx != c._idx; }
 
 	template <class It, class CIt, class MP>
 	bool operator != (const M4RIMatrixRowIterator<It, CIt, MP> &c) const
-		{ return _row.wordBegin () != c._row.wordBegin (); }
+		{ return _idx != c._idx; }
 
     private:
 	inline void make_row ()

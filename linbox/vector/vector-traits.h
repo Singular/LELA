@@ -227,7 +227,7 @@ namespace VectorWrapper
 
 		if (idx != v.end () && idx->first == i >> WordTraits<typename Vector::word_type>::logof_size) {
 			a = idx->second & Vector::Endianness::e_j (i & WordTraits<typename Vector::word_type>::pos_mask);
-			return a;
+			return true;
 		} else
 			return false;
 	}

@@ -49,7 +49,13 @@ bool testRowIterator (const Field &F, const Matrix &M)
 			if (M.getEntry (a, i, j)) {
 				typename Field::Element b;
 
-				if (!VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstRow> (*i_M, b, j) || !F.areEqual (a, b)) {
+				if (!VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstRow> (*i_M, b, j)) {
+					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+					error << "ERROR: Entry at position (" << i << "," << j << ") is not present in row-vector (should be ";
+					F.write (error, a) << ")" << std::endl;
+					pass = false;
+				}
+				else if (!F.areEqual (a, b)) {
 					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 					error << "ERROR: Entry at position (" << i << "," << j << ") is ";
 					F.write (error, b) << " (should be ";
@@ -100,7 +106,13 @@ bool testColIterator (const Field &F, const Matrix &M)
 			if (M.getEntry (a, i, j)) {
 				typename Field::Element b;
 
-				if (!VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstCol> (*j_M, b, i) || !F.areEqual (a, b)) {
+				if (!VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstCol> (*j_M, b, i)) {
+					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+					error << "ERROR: Entry at position (" << i << "," << j << ") is not present in column-vector (should be ";
+					F.write (error, a) << ")" << std::endl;
+					pass = false;
+				}
+				else if (!F.areEqual (a, b)) {
 					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 					error << "ERROR: Entry at position (" << i << "," << j << ") is ";
 					F.write (error, b) << " (should be ";
@@ -316,14 +328,14 @@ bool testRawIterator (const Field &F, const Matrix &M)
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: Row-index " << i_idx->first << " out of range (0.." << M.rowdim () << ")" << std::endl;
 			pass = false;
-			break;
+			continue;
 		}
 
 		if (i_idx->second > M.coldim ()) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: Column-index " << i_idx->second << " out of range (0.." << M.coldim () << ")" << std::endl;
 			pass = false;
-			break;
+			continue;
 		}
 
 		occupied[i_idx->first][i_idx->second] = true;
