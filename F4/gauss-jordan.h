@@ -257,10 +257,14 @@ namespace F4 {
 			return os;
 		}
 
-		class CompareSecond {
-		public:
+		struct CompareSecond {
 			bool operator () (const Transposition &t1, const Transposition &t2) const { return t1.second < t2.second; }
 		};
+
+		// Round n up to the nearest multiple of m
+		template <class T>
+		T round_up (T n, T m) const
+			{ return m * ((n + m - 1) / m); }
 
 		// Internal recursive procedure for the kth indexed
 		// Gauss-Jordan transform. Uses a divide and conquer
@@ -327,7 +331,7 @@ namespace F4 {
 				// DEBUG
 				// std::cout << __FUNCTION__ << ": A.coldim () > " << _cutoff << std::endl;
 
-				int m_1 = A.coldim () / 2, m_2 = A.coldim () - m_1;
+				int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
 				Submatrix<DenseMatrix> A_1 (A, 0, 0,   A.rowdim (), m_1);
 				Submatrix<DenseMatrix> A_2 (A, 0, m_1, A.rowdim (), m_2);
 				Submatrix<DenseMatrix> R_1 (R, 0, 0,   A.rowdim (), m_1);
