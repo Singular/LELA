@@ -272,18 +272,20 @@ namespace F4 {
 		// matrix-multiplication. See Chapter 2 of "Algorithms
 		// for Matrix Canonical Forms", Ph.D thesis by Arne
 		// Storjohann.
-		void GaussTransform (Submatrix<DenseMatrix> &A,
-				     int                     k,
-				     Element                 d_0,
-				     DenseMatrix            &U,
-				     Permutation            &P,
-				     Submatrix<DenseMatrix> &R,
-				     size_t                 &r,
-				     int                    &h,
-				     Element                &d,
-			             DenseMatrix            &T,
-			             DenseMatrix            &Up) const
+		void GaussTransform (DenseMatrix  &A,
+				     int           k,
+				     Element       d_0,
+				     DenseMatrix  &U,
+				     Permutation  &P,
+				     DenseMatrix  &R,
+				     size_t       &r,
+				     int          &h,
+				     Element      &d,
+			             DenseMatrix  &T,
+			             DenseMatrix  &Up) const
 		{
+			linbox_check (round_up (k, _cutoff) == k);
+
 			// DEBUG
 			// std::cout << __FUNCTION__ << ": enter" << std::endl;
 			// std::cout << __FUNCTION__ << ": A =" << std::endl;
@@ -292,7 +294,7 @@ namespace F4 {
 			// MD.write (std::cout, U);
 			// std::cout << __FUNCTION__ << ": k = " << k << ", d_0 = " << d_0 << std::endl;
 			
-			Submatrix<DenseMatrix> Aw (A, k, 0, A.rowdim () - k, A.coldim ());
+			DenseMatrix Aw (A, k, 0, A.rowdim () - k, A.coldim ());
 			
 			if (MD.isZero (Aw)) {
 				// DEBUG
@@ -314,7 +316,7 @@ namespace F4 {
 				// std::cout << __FUNCTION__ << ": U before elimination:" << std::endl;
 				// MD.write (std::cout, U);
 
-				Submatrix<DenseMatrix> Up (U, 0, k, U.rowdim (), U.coldim () - k);
+				DenseMatrix Up (U, 0, k, U.rowdim (), U.coldim () - k);
 
 				StandardRowEchelonForm (R, Up, P, r, d, true, true, k);
 
@@ -332,9 +334,9 @@ namespace F4 {
 				// std::cout << __FUNCTION__ << ": A.coldim () > " << _cutoff << std::endl;
 
 				int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
-				Submatrix<DenseMatrix> A_1 (A, 0, 0,   A.rowdim (), m_1);
-				Submatrix<DenseMatrix> A_2 (A, 0, m_1, A.rowdim (), m_2);
-				Submatrix<DenseMatrix> R_1 (R, 0, 0,   A.rowdim (), m_1);
+				DenseMatrix A_1 (A, 0, 0,   A.rowdim (), m_1);
+				DenseMatrix A_2 (A, 0, m_1, A.rowdim (), m_2);
+				DenseMatrix R_1 (R, 0, 0,   A.rowdim (), m_1);
 				
 				size_t r_1, r_2;
 				int h_1, h_2;
@@ -353,16 +355,16 @@ namespace F4 {
 				// std::cout << "r_1 = " << r_1 << std::endl;
 				// std::cout << "d_1 = " << d_1 << std::endl;
 				
-				Submatrix<DenseMatrix> U_2     (U, 0,       k,       U.rowdim (),           r_1);
+				DenseMatrix U_2     (U, 0,       k,       U.rowdim (),           r_1);
 				
-				Submatrix<DenseMatrix> P_1A_2  (T, 0,       k + m_1, T.rowdim (),           m_2);
-				Submatrix<DenseMatrix> P_1A_21 (T, 0,       k + m_1, k,                     m_2);
-				Submatrix<DenseMatrix> P_1A_22 (T, k,       k + m_1, r_1,                   m_2);
-				Submatrix<DenseMatrix> P_1A_23 (T, r_1 + k, k + m_1, T.rowdim () - r_1 - k, m_2);
+				DenseMatrix P_1A_2  (T, 0,       k + m_1, T.rowdim (),           m_2);
+				DenseMatrix P_1A_21 (T, 0,       k + m_1, k,                     m_2);
+				DenseMatrix P_1A_22 (T, k,       k + m_1, r_1,                   m_2);
+				DenseMatrix P_1A_23 (T, r_1 + k, k + m_1, T.rowdim () - r_1 - k, m_2);
 				
-				Submatrix<DenseMatrix> R_2     (R, 0,       m_1,     R.rowdim (),           m_2);
-				Submatrix<DenseMatrix> R_21    (R, 0,       m_1,     k,                     m_2);
-				Submatrix<DenseMatrix> R_23    (R, k + r_1, m_1,     R.rowdim () - r_1 - k, m_2);
+				DenseMatrix R_2     (R, 0,       m_1,     R.rowdim (),           m_2);
+				DenseMatrix R_21    (R, 0,       m_1,     k,                     m_2);
+				DenseMatrix R_23    (R, k + r_1, m_1,     R.rowdim () - r_1 - k, m_2);
 
 				MD.copy (P_1A_2, A_2);
 				MD.permuteRows (P_1A_2, P.begin (), P.end ());
@@ -388,14 +390,14 @@ namespace F4 {
 				// std::cout << "r_2 = " << r_2 << std::endl;
 				// std::cout << "d = " << d << std::endl;
 				
-				Submatrix<DenseMatrix> U_212        (U,  0,             k,       k + r_1,                      r_1);
-				Submatrix<DenseMatrix> U_3          (U,  0,             k + r_1, U.rowdim (),                  r_2);
-				Submatrix<DenseMatrix> P_2U_2       (U,  0,             k,       U.rowdim (),                  r_1);
-				Submatrix<DenseMatrix> P_2U_23      (U,  k + r_1,       k,       r_2,                          r_1);
-				Submatrix<DenseMatrix> P_2U_24      (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
-				Submatrix<DenseMatrix> U_3P_2U_23   (Up, 0,             k,       Up.rowdim (),                 r_1);
-				Submatrix<DenseMatrix> U_312P_2U_23 (Up, 0,             k,       k + r_1,                      r_1);
-				Submatrix<DenseMatrix> U_34P_2U_23  (Up, k + r_1 + r_2, k,       Up.rowdim () - k - r_1 - r_2, r_1);
+				DenseMatrix U_212        (U,  0,             k,       k + r_1,                      r_1);
+				DenseMatrix U_3          (U,  0,             k + r_1, U.rowdim (),                  r_2);
+				DenseMatrix P_2U_2       (U,  0,             k,       U.rowdim (),                  r_1);
+				DenseMatrix P_2U_23      (U,  k + r_1,       k,       r_2,                          r_1);
+				DenseMatrix P_2U_24      (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
+				DenseMatrix U_3P_2U_23   (Up, 0,             k,       Up.rowdim (),                 r_1);
+				DenseMatrix U_312P_2U_23 (Up, 0,             k,       k + r_1,                      r_1);
+				DenseMatrix U_34P_2U_23  (Up, k + r_1 + r_2, k,       Up.rowdim () - k - r_1 - r_2, r_1);
 
 				// DEBUG
 				// std::cout << "U_2 =" << std::endl;
@@ -1233,10 +1235,7 @@ namespace F4 {
 			DenseMatrix T (A.rowdim (), A.coldim ());
 			DenseMatrix Up (A.rowdim (), A.rowdim ());
 
-			Submatrix<DenseMatrix> Rp (R, 0, 0, R.rowdim (), R.coldim ());
-			Submatrix<DenseMatrix> Ap (A, 0, 0, A.rowdim (), A.coldim ());
-			
-			GaussTransform (Ap, 0, F.one (), U, P, Rp, rank, h, det, T, Up);
+			GaussTransform (A, 0, F.one (), U, P, R, rank, h, det, T, Up);
 
 			commentator.stop (MSG_DONE, NULL, "GaussJordan::DenseRowEchelonForm");
 		}

@@ -169,6 +169,12 @@ class DenseZeroOneMatrix
 		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
 	}
 
+	DenseZeroOneMatrix (DenseZeroOneMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+		: _rows (m), _cols (n), _disp (M._disp)
+	{
+		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
+	}
+
 	/** Construct a dense matrix, filling the rows in from a VectorStream. The stream's size must be finite
 	 */
 	DenseZeroOneMatrix (VectorStream<Row> &vs)
