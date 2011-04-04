@@ -166,12 +166,16 @@ class DenseZeroOneMatrix
 	DenseZeroOneMatrix (DenseZeroOneMatrix<It1, It2> &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: _rows (m), _cols (n), _disp (M._disp)
 	{
+		linbox_check (beg_col & WordTraits<word_type>::pos_mask == 0);
+
 		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
 	}
 
 	DenseZeroOneMatrix (DenseZeroOneMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: _rows (m), _cols (n), _disp (M._disp)
 	{
+		linbox_check ((beg_col & WordTraits<word_type>::pos_mask) == 0);
+
 		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
 	}
 

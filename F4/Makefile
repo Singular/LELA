@@ -1,5 +1,5 @@
 CXXFLAGS = -g -O2
-CPPFLAGS = -DDETAILED_PROFILE
+CPPFLAGS = -DDETAILED_PROFILE -DDEBUG
 INCLUDES = -I..
 LIBS = ../linbox/.libs/liblinbox.a -lgmp -lgivaro -lpng -lm4ri -Wl,-rpath,/usr/local/lib
 

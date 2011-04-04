@@ -284,8 +284,6 @@ namespace F4 {
 			             DenseMatrix  &T,
 			             DenseMatrix  &Up) const
 		{
-			linbox_check (round_up (k, _cutoff) == k);
-
 			// DEBUG
 			// std::cout << __FUNCTION__ << ": enter" << std::endl;
 			// std::cout << __FUNCTION__ << ": A =" << std::endl;
@@ -316,7 +314,7 @@ namespace F4 {
 				// std::cout << __FUNCTION__ << ": U before elimination:" << std::endl;
 				// MD.write (std::cout, U);
 
-				DenseMatrix Up (U, 0, k, U.rowdim (), U.coldim () - k);
+				Submatrix<DenseMatrix> Up (U, 0, k, U.rowdim (), U.coldim () - k); //
 
 				StandardRowEchelonForm (R, Up, P, r, d, true, true, k);
 
@@ -355,12 +353,12 @@ namespace F4 {
 				// std::cout << "r_1 = " << r_1 << std::endl;
 				// std::cout << "d_1 = " << d_1 << std::endl;
 				
-				DenseMatrix U_2     (U, 0,       k,       U.rowdim (),           r_1);
+				Submatrix<DenseMatrix> U_2     (U, 0,       k,       U.rowdim (),           r_1);
 				
-				DenseMatrix P_1A_2  (T, 0,       k + m_1, T.rowdim (),           m_2);
-				DenseMatrix P_1A_21 (T, 0,       k + m_1, k,                     m_2);
-				DenseMatrix P_1A_22 (T, k,       k + m_1, r_1,                   m_2);
-				DenseMatrix P_1A_23 (T, r_1 + k, k + m_1, T.rowdim () - r_1 - k, m_2);
+				DenseMatrix P_1A_2  (T, 0,       0, T.rowdim (),           m_2);
+				DenseMatrix P_1A_21 (T, 0,       0, k,                     m_2);
+				DenseMatrix P_1A_22 (T, k,       0, r_1,                   m_2);
+				DenseMatrix P_1A_23 (T, r_1 + k, 0, T.rowdim () - r_1 - k, m_2);
 				
 				DenseMatrix R_2     (R, 0,       m_1,     R.rowdim (),           m_2);
 				DenseMatrix R_21    (R, 0,       m_1,     k,                     m_2);
@@ -390,14 +388,14 @@ namespace F4 {
 				// std::cout << "r_2 = " << r_2 << std::endl;
 				// std::cout << "d = " << d << std::endl;
 				
-				DenseMatrix U_212        (U,  0,             k,       k + r_1,                      r_1);
-				DenseMatrix U_3          (U,  0,             k + r_1, U.rowdim (),                  r_2);
-				DenseMatrix P_2U_2       (U,  0,             k,       U.rowdim (),                  r_1);
-				DenseMatrix P_2U_23      (U,  k + r_1,       k,       r_2,                          r_1);
-				DenseMatrix P_2U_24      (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
-				DenseMatrix U_3P_2U_23   (Up, 0,             k,       Up.rowdim (),                 r_1);
-				DenseMatrix U_312P_2U_23 (Up, 0,             k,       k + r_1,                      r_1);
-				DenseMatrix U_34P_2U_23  (Up, k + r_1 + r_2, k,       Up.rowdim () - k - r_1 - r_2, r_1);
+				Submatrix<DenseMatrix> U_212        (U,  0,             k,       k + r_1,                      r_1);
+				Submatrix<DenseMatrix> U_3          (U,  0,             k + r_1, U.rowdim (),                  r_2);
+				Submatrix<DenseMatrix> P_2U_2       (U,  0,             k,       U.rowdim (),                  r_1);
+				Submatrix<DenseMatrix> P_2U_23      (U,  k + r_1,       k,       r_2,                          r_1);
+				Submatrix<DenseMatrix> P_2U_24      (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
+				DenseMatrix U_3P_2U_23   (Up, 0,             0,       Up.rowdim (),                 r_1);
+				DenseMatrix U_312P_2U_23 (Up, 0,             0,       k + r_1,                      r_1);
+				DenseMatrix U_34P_2U_23  (Up, k + r_1 + r_2, 0,       Up.rowdim () - k - r_1 - r_2, r_1);
 
 				// DEBUG
 				// std::cout << "U_2 =" << std::endl;
