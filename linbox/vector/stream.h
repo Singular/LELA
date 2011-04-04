@@ -848,8 +848,6 @@ class StandardBasisStream<Field, _Vector, VectorCategories::DenseZeroOneVectorTa
 
 	Vector &get (Vector &v) 
 	{
-		typename Vector::word_iterator i;
-
 		std::fill (v.wordBegin (), v.wordEnd (), 0);
 
 		v[_j] = true;

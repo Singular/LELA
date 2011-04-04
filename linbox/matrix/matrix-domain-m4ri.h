@@ -1,5 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* linbox/matrix/matrix-domain-m4ri.h
  * Copyright 2010 Bradford Hovinen
  *
@@ -48,14 +46,16 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline M4RIMatrix &copy (M4RIMatrix &B, const M4RIMatrix &A) const
 		{ mzd_copy (B._rep, A._rep); return B; }
 
+#if 0 // Disabled
 	inline Submatrix<M4RIMatrix> &copy (Submatrix<M4RIMatrix> &B, const M4RIMatrix &A) const
-		{ mzd_copy (B._rep, A._rep); return B; }
+		{ if (B.rowdim () > 0 && B.coldim () > 0) mzd_copy (B._rep._rep, A._rep); return B; }
 
 	inline M4RIMatrix &copy (M4RIMatrix &B, const Submatrix<M4RIMatrix> &A) const
-		{ mzd_copy (B._rep, A._rep); return B; }
+		{ if (A.rowdim () > 0 && A.coldim () > 0) mzd_copy (B._rep, A._rep._rep); return B; }
 
 	inline Submatrix<M4RIMatrix> &copy (Submatrix<M4RIMatrix> &B, const Submatrix<M4RIMatrix> &A) const
-		{ mzd_copy (B._rep, A._rep); return B; }
+		{ if (B.rowdim () > 0 && B.coldim () > 0) mzd_copy (B._rep._rep, A._rep._rep); return B; }
+#endif // Disabled
 
 	template <class Matrix1, class Matrix2>
 	inline bool areEqual (const Matrix1 &A, const Matrix2 &B) const
@@ -64,14 +64,16 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline bool areEqual (const M4RIMatrix &A, const M4RIMatrix &B) const
 		{ return mzd_equal (A._rep, B._rep); }
 
- 	inline bool areEqual (const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B) const
-		{ return mzd_equal (A._rep, B._rep); }
+#if 0 // Disabled
+	inline bool areEqual (const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B) const
+		{ return mzd_equal (A._rep._rep, B._rep); }
 
  	inline bool areEqual (const M4RIMatrix &A, const Submatrix<M4RIMatrix> &B) const
-		{ return mzd_equal (A._rep, B._rep); }
+		{ return mzd_equal (A._rep, B._rep._rep); }
 
  	inline bool areEqual (const Submatrix<M4RIMatrix> &A, const Submatrix<M4RIMatrix> &B) const
-		{ return mzd_equal (A._rep, B._rep); }
+		{ return mzd_equal (A._rep._rep, B._rep._rep); }
+#endif // Disabled
 
 	template <class Matrix>
 	inline bool isZero (const Matrix &A) const
@@ -80,8 +82,10 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline bool isZero (const M4RIMatrix &A) const
 		{ return mzd_is_zero (A._rep); }
 
+#if 0 // Disabled
 	inline bool isZero (const Submatrix<M4RIMatrix> &A) const
-		{ return mzd_is_zero (A._rep); }
+		{ return mzd_is_zero (A._rep._rep); }
+#endif // Disabled
 
 	template <class Matrix>
 	inline Matrix &scal (Matrix &A, const bool &a) const
@@ -97,8 +101,10 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return A;
 	}
 
+#if 0 // Disabled
 	inline Submatrix<M4RIMatrix> &scal (Submatrix<M4RIMatrix> &A, const bool &a) const
-		{ scal ((M4RIMatrix &) A, a); return A; }
+		{ scal (A._rep, a); return A; }
+#endif // Disabled
 
 	template <class Matrix1, class Matrix2>
 	inline Matrix2 &axpy (const bool &a, const Matrix1 &A, Matrix2 &B) const
@@ -112,14 +118,16 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return B;
 	}
 
+#if 0 // Disabled
 	inline M4RIMatrix &axpy (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B) const
-		{ axpy (a, (M4RIMatrix &) A, B); return B; }
+		{ axpy (a, A._rep, B); return B; }
 
-	inline M4RIMatrix &axpy (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B) const
-		{ axpy (a, A, (M4RIMatrix &) B); return B; }
+	inline Submatrix<M4RIMatrix> &axpy (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B) const
+		{ axpy (a, A, B._rep); return B; }
 
 	inline Submatrix<M4RIMatrix> &axpy (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B) const
-		{ axpy (a, (M4RIMatrix &) A, (M4RIMatrix &) B); return B; }
+		{ axpy (a, A._rep, B._rep); return B; }
+#endif // Disabled
 
 	template <class Matrix1, class Matrix2, class Matrix3>
 	inline Matrix3 &gemm (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C) const
@@ -139,26 +147,28 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return C;
 	}
 
+#if 0 // Disabled
 	inline M4RIMatrix &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B, const bool &b, M4RIMatrix &C) const
-		{ gemm (a, (const M4RIMatrix &) A, B, b, C); return C; }
+		{ gemm (a, A._rep, B, b, C); return C; }
 
 	inline M4RIMatrix &gemm (const bool &a, const M4RIMatrix &A, const Submatrix<M4RIMatrix> &B, const bool &b, M4RIMatrix &C) const
-		{ gemm (a, A, (const M4RIMatrix &) B, b, C); return C; }
+		{ gemm (a, A, B._rep, b, C); return C; }
 
 	inline M4RIMatrix &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const Submatrix<M4RIMatrix> &B, const bool &b, M4RIMatrix &C) const
-		{ gemm (a, (const M4RIMatrix &) A, (const M4RIMatrix &) B, b, C); return C; }
+		{ gemm (a, A._rep, B._rep, b, C); return C; }
 
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const M4RIMatrix &A, const M4RIMatrix &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, A, B, b, (M4RIMatrix &) C); return C; }
+		{ gemm (a, A, B, b, C._rep); return C; }
 
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, (const M4RIMatrix &) A, B, b, (M4RIMatrix &) C); return C; }
+		{ gemm (a, A._rep, B, b, C._rep); return C; }
 
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const M4RIMatrix &A, const Submatrix<M4RIMatrix> &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, A, (const M4RIMatrix &) B, b, (M4RIMatrix &) C); return C; }
+		{ gemm (a, A, B._rep, b, C._rep); return C; }
 
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const Submatrix<M4RIMatrix> &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, (const M4RIMatrix &) A, (const M4RIMatrix &) B, b, (M4RIMatrix &) C); return C; }
+		{ gemm (a, A._rep, B._rep, b, C._rep); return C; }
+#endif // Disabled
 
 	template <class Matrix1, class Matrix2>
 	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B) const
@@ -174,14 +184,16 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return B;
 	}
 
+#if 0 // Disabled
 	inline M4RIMatrix &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B) const
-		{ trsm (a, (const M4RIMatrix &) A, B); return B; }
+		{ trsm (a, A._rep, B); return B; }
 
 	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B) const
-		{ trsm (a, A, (M4RIMatrix &) B); return B; }
+		{ trsm (a, A, B._rep); return B; }
 
 	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B) const
-		{ trsm (a, (const M4RIMatrix &) A, (M4RIMatrix &) B); return B; }
+		{ trsm (a, A._rep, B._rep); return B; }
+#endif // Disabled
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRows (Matrix   &A,
@@ -205,7 +217,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline Submatrix<M4RIMatrix> &permuteRows (Submatrix<M4RIMatrix> &A,
 						   Iterator    P_start,
 						   Iterator    P_end) const
-		{ permuteRows ((M4RIMatrix &) A, P_start, P_end); return A; }
+		{ permuteRows (A._rep, P_start, P_end); return A; }
 #endif // Not working, disabled
 
 	template <class Matrix, class Iterator>
@@ -230,7 +242,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline Submatrix<M4RIMatrix> &permuteColumns (Submatrix<M4RIMatrix> &A,
 						      Iterator    P_start,
 						      Iterator    P_end) const
-		{ permuteColumns ((M4RIMatrix &) A, P_start, P_end); return A; }
+		{ permuteColumns (A._rep, P_start, P_end); return A; }
 #endif // Not working, disabled
 
     private:
@@ -255,3 +267,12 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 } // namespace LinBox
 
 #endif // __MATRIX_MATRIX_DOMAIN_M4RI_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

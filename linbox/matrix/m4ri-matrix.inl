@@ -127,41 +127,50 @@ class M4RIMatrixRowIterator
 };
 
 M4RIMatrix::M4RIMatrix (VectorStream<Row> &vs)
-	: _rep (mzd_init (vs.size (), vs.dim ()))
+	: M4RIMatrixBase (mzd_init (vs.size (), vs.dim ()))
 {
 	for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
 		vs >> *i;
 }
 
-inline M4RIMatrix::RowIterator M4RIMatrix::rowBegin ()
+inline M4RIMatrixBase::RowIterator M4RIMatrixBase::rowBegin ()
 {
 	return RowIterator (this, 0);
 }
 
-inline M4RIMatrix::RowIterator M4RIMatrix::rowEnd ()
+inline M4RIMatrixBase::RowIterator M4RIMatrixBase::rowEnd ()
 {
 	return RowIterator (this, rowdim ());
 }
 
-inline M4RIMatrix::ConstRowIterator M4RIMatrix::rowBegin () const
+inline M4RIMatrixBase::ConstRowIterator M4RIMatrixBase::rowBegin () const
 {
 	return ConstRowIterator (this, 0);
 }
 
-inline M4RIMatrix::ConstRowIterator M4RIMatrix::rowEnd () const
+inline M4RIMatrixBase::ConstRowIterator M4RIMatrixBase::rowEnd () const
 {
 	return ConstRowIterator (this, rowdim ());
 }
 
-inline M4RIMatrix::ConstRawIterator M4RIMatrix::rawBegin () const
+inline M4RIMatrixBase::ConstRawIterator M4RIMatrixBase::rawBegin () const
 	{ return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
-inline M4RIMatrix::ConstRawIterator M4RIMatrix::rawEnd () const
+inline M4RIMatrixBase::ConstRawIterator M4RIMatrixBase::rawEnd () const
 	{ return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedBegin() const
+inline M4RIMatrixBase::ConstRawIndexedIterator M4RIMatrixBase::rawIndexedBegin() const
 	{ return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
-inline M4RIMatrix::ConstRawIndexedIterator M4RIMatrix::rawIndexedEnd() const
+inline M4RIMatrixBase::ConstRawIndexedIterator M4RIMatrixBase::rawIndexedEnd() const
 	{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
+
+SubvectorFactory<M4RIMatrixBase>::RowSubvector SubvectorFactory<M4RIMatrixBase>::MakeRowSubvector (Submatrix<M4RIMatrixBase> &M, M4RIMatrixBase::RowIterator &pos)
+	{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
+
+SubvectorFactory<M4RIMatrixBase>::ConstRowSubvector SubvectorFactory<M4RIMatrixBase>::MakeConstRowSubvector (const Submatrix<M4RIMatrixBase> &M, M4RIMatrixBase::ConstRowIterator &pos)
+	{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
+
+SubvectorFactory<const M4RIMatrixBase>::ConstRowSubvector SubvectorFactory<const M4RIMatrixBase>::MakeConstRowSubvector (const Submatrix<const M4RIMatrixBase> &M, M4RIMatrixBase::ConstRowIterator &pos)
+	{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 
 }
 

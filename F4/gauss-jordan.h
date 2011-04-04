@@ -74,8 +74,8 @@ namespace F4 {
 		typedef BigEndian<uint64> Endianness;
 		typedef Vector<GF2>::Hybrid SparseVector;
 		typedef LinBox::SparseMatrix<bool, SparseVector> SparseMatrix;
-//		typedef LinBox::M4RIMatrix DenseMatrix;
-		typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
+		typedef LinBox::M4RIMatrix DenseMatrix;
+//		typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
 		static const size_t cutoff = WordTraits<SparseVector::word_type>::bits;
 	};
 
