@@ -22,33 +22,24 @@ namespace F4Tests {
 
 using namespace LinBox;
 
-typedef GF2 Field;
-typedef __LINBOX_BITVECTOR_WORD_TYPE Word;
-typedef BigEndian<Word> Endianness;
-typedef std::vector<size_t> SparseVector;
-typedef std::pair<std::vector<uint16>, BitVector<Endianness> > HybridVector;
-typedef LinBox::SparseMatrix<bool, SparseVector, VectorCategories::SparseZeroOneVectorTag> SparseMatrix;
-typedef LinBox::SparseMatrix<bool, HybridVector, VectorCategories::HybridZeroOneVectorTag> HybridMatrix;
-typedef LinBox::DenseZeroOneMatrix<BitVector<Endianness>::word_iterator, BitVector<Endianness>::const_word_iterator, Endianness> DenseMatrix;
-
 void testGEMMSubmatrixDense ()
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	Field F;
-	MatrixDomain<Field> MD (F);
+	GF2 F;
+	MatrixDomain<GF2> MD (F);
 
 	size_t n = 96;
 	size_t m = 96;
 	size_t l = 96;
 	size_t k = 20;
 
-	RandomDenseStream<Field, DenseMatrix::Row> A_stream (F, m, n);
-	RandomDenseStream<Field, DenseMatrix::Row> B_stream (F, l, m);
+	RandomDenseStream<GF2, DenseMatrix<GF2::Element>::Row> A_stream (F, m, n);
+	RandomDenseStream<GF2, DenseMatrix<GF2::Element>::Row> B_stream (F, l, m);
 
-	DenseMatrix A (A_stream), B (B_stream), C (n, l), Cp (n, k);
+	DenseMatrix<GF2::Element> A (A_stream), B (B_stream), C (n, l), Cp (n, k);
 
-	DenseMatrix::RowIterator iter;
+	DenseMatrix<GF2::Element>::RowIterator iter;
 
 	for (iter = A.rowBegin (); iter != A.rowEnd (); ++iter)
 		A_stream >> *iter;
@@ -71,10 +62,10 @@ void testGEMMSubmatrixDense ()
 		std::cout << __FUNCTION__ << ": Testing offset " << s << "...";
 		std::cout.flush ();
 
-		Submatrix<DenseMatrix > Bp (B, 0, s, B.rowdim (), k);
+		Submatrix<DenseMatrix<GF2::Element> > Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		Submatrix<DenseMatrix > Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseMatrix<GF2::Element> > Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;
@@ -96,8 +87,8 @@ void testGEMMSubmatrixHybrid ()
 {
 	std::cout << __FUNCTION__ << ": Enter" << std::endl;
 
-	Field F;
-	MatrixDomain<Field> MD (F);
+	GF2 F;
+	MatrixDomain<GF2> MD (F);
 
 	size_t n = 96;
 	size_t m = 96;
@@ -106,12 +97,12 @@ void testGEMMSubmatrixHybrid ()
 	double p = 0.1;
 
 #if 1
-	RandomSparseStream<Field, SparseMatrix::Row, Field::RandIter, VectorCategories::SparseZeroOneVectorTag> A_stream (F, p, m, n);
-	RandomSparseStream<Field, HybridMatrix::Row, Field::RandIter, VectorCategories::HybridZeroOneVectorTag> B_stream (F, p, l, m);
+	RandomSparseStream<GF2, Vector<GF2>::Sparse, GF2::RandIter, VectorCategories::SparseZeroOneVectorTag> A_stream (F, p, m, n);
+	RandomSparseStream<GF2, Vector<GF2>::Hybrid, GF2::RandIter, VectorCategories::HybridZeroOneVectorTag> B_stream (F, p, l, m);
 
-	SparseMatrix A (A_stream);
-	HybridMatrix B (B_stream);
-	DenseMatrix C (n, l), Cp (n, k);
+	SparseMatrix<GF2::Element, Vector<GF2>::Sparse> A (A_stream);
+	SparseMatrix<GF2::Element, Vector<GF2>::Hybrid> B (B_stream);
+	DenseMatrix<GF2::Element> C (n, l), Cp (n, k);
 
 	std::ofstream A_output ("A.out");
 	MD.write (A_output, A, FORMAT_GUILLAUME);
@@ -121,9 +112,9 @@ void testGEMMSubmatrixHybrid ()
 	MD.write (B_output, B, FORMAT_GUILLAUME);
 	B_output.close ();
 #else // 0
-	SparseMatrix A (n, m);
-	HybridMatrix B (m, l);
-	DenseMatrix C (n, l), Cp (n, k);
+	SparseMatrix<GF2::Element, Vector<GF2>::Sparse> A (n, m);
+	SparseMatrix<GF2::Element, Vector<GF2>::Hybrid> B (m, l);
+	DenseMatrix<GF2::Element> C (n, l), Cp (n, k);
 
 	std::ifstream A_input ("A.out");
 	MD.read (A_input, A, FORMAT_GUILLAUME);
@@ -149,10 +140,10 @@ void testGEMMSubmatrixHybrid ()
 		std::cout << __FUNCTION__ << ": Testing offset " << s << "...";
 		std::cout.flush ();
 
-		Submatrix<HybridMatrix> Bp (B, 0, s, B.rowdim (), k);
+		Submatrix<SparseMatrix<GF2::Element, Vector<GF2>::Hybrid> > Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		Submatrix<DenseMatrix> Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseMatrix<GF2::Element> > Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;
