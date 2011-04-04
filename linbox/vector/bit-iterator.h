@@ -159,7 +159,7 @@ public:
 	static inline word e_j (uint8 j) { return shift_right (e_0, j); }
 };
 
-typedef LittleEndian<__LINBOX_BITVECTOR_WORD_TYPE> DefaultEndianness;
+typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> DefaultEndianness;
 
 template <class word_iterator, class const_word_iterator, class Endianness>
 class BitVectorIterator;

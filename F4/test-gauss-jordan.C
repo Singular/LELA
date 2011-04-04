@@ -43,16 +43,13 @@ void testDenseGJ (const Field &F)
 	int m = 96;
 	int n = 96;
 
-	GaussJordan<Field>::DenseMatrix A (m, n);
 	GaussJordan<Field>::DenseMatrix R (m, n);
 	GaussJordan<Field>::DenseMatrix U (m, m);
 	GaussJordan<Field>::DenseMatrix UPA (m, n);
 
-	RandomDenseStream<Field, GaussJordan<Field>::DenseMatrix::Row> A_stream (F, n);
-	GaussJordan<Field>::DenseMatrix::RowIterator iter;
+	RandomDenseStream<Field, GaussJordan<Field>::DenseMatrix::Row> A_stream (F, n, m);
 
-	for (iter = A.rowBegin (); iter != A.rowEnd (); ++iter)
-		A_stream >> *iter;
+	GaussJordan<Field>::DenseMatrix A (A_stream);
 
 	std::cout << "Number of words per row: " << A.rowBegin ()->word_size () << std::endl;
 

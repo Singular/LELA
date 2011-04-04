@@ -8,8 +8,6 @@
  * License version 2.0 or greater
  */
 
-#define __LINBOX_BITVECTOR_WORD_TYPE uint8
-
 #include "linbox/field/gf2.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/dense-zero-one.h"
@@ -21,6 +19,9 @@
 namespace F4Tests {
 
 using namespace LinBox;
+
+typedef Vector<GF2>::Dense::Endianness Endianness;
+typedef DenseZeroOneMatrix<> DenseMatrix;
 
 void testGEMMSubmatrixDense ()
 {
@@ -34,18 +35,10 @@ void testGEMMSubmatrixDense ()
 	size_t l = 96;
 	size_t k = 20;
 
-	RandomDenseStream<GF2, DenseMatrix<GF2::Element>::Row> A_stream (F, m, n);
-	RandomDenseStream<GF2, DenseMatrix<GF2::Element>::Row> B_stream (F, l, m);
+	RandomDenseStream<GF2, DenseMatrix::Row> A_stream (F, m, n);
+	RandomDenseStream<GF2, DenseMatrix::Row> B_stream (F, l, m);
 
-	DenseMatrix<GF2::Element> A (A_stream), B (B_stream), C (n, l), Cp (n, k);
-
-	DenseMatrix<GF2::Element>::RowIterator iter;
-
-	for (iter = A.rowBegin (); iter != A.rowEnd (); ++iter)
-		A_stream >> *iter;
-	
-	for (iter = B.rowBegin (); iter != B.rowEnd (); ++iter)
-		B_stream >> *iter;
+	DenseMatrix A (A_stream), B (B_stream), C (n, l), Cp (n, k);
 
 	MD.gemm (true, A, B, false, C);
 
@@ -62,10 +55,10 @@ void testGEMMSubmatrixDense ()
 		std::cout << __FUNCTION__ << ": Testing offset " << s << "...";
 		std::cout.flush ();
 
-		Submatrix<DenseMatrix<GF2::Element> > Bp (B, 0, s, B.rowdim (), k);
+		Submatrix<DenseMatrix> Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		Submatrix<DenseMatrix<GF2::Element> > Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseMatrix> Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;
@@ -102,7 +95,7 @@ void testGEMMSubmatrixHybrid ()
 
 	SparseMatrix<GF2::Element, Vector<GF2>::Sparse> A (A_stream);
 	SparseMatrix<GF2::Element, Vector<GF2>::Hybrid> B (B_stream);
-	DenseMatrix<GF2::Element> C (n, l), Cp (n, k);
+	DenseMatrix C (n, l), Cp (n, k);
 
 	std::ofstream A_output ("A.out");
 	MD.write (A_output, A, FORMAT_GUILLAUME);
@@ -114,7 +107,7 @@ void testGEMMSubmatrixHybrid ()
 #else // 0
 	SparseMatrix<GF2::Element, Vector<GF2>::Sparse> A (n, m);
 	SparseMatrix<GF2::Element, Vector<GF2>::Hybrid> B (m, l);
-	DenseMatrix<GF2::Element> C (n, l), Cp (n, k);
+	DenseMatrix C (n, l), Cp (n, k);
 
 	std::ifstream A_input ("A.out");
 	MD.read (A_input, A, FORMAT_GUILLAUME);
@@ -143,7 +136,7 @@ void testGEMMSubmatrixHybrid ()
 		Submatrix<SparseMatrix<GF2::Element, Vector<GF2>::Hybrid> > Bp (B, 0, s, B.rowdim (), k);
 		MD.gemm (true, A, Bp, false, Cp);
 
-		Submatrix<DenseMatrix<GF2::Element> > Cpp (C, 0, s, C.rowdim (), k);
+		Submatrix<DenseMatrix> Cpp (C, 0, s, C.rowdim (), k);
 
 		if (MD.areEqual (Cp, Cpp))
 			std::cout << "okay" << std::endl;
