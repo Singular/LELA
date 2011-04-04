@@ -15,35 +15,24 @@
 using namespace LinBox;
 
 typedef GF2 Field;
-typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> Endianness;
-typedef std::pair<std::vector<uint16>, BitVector<Endianness> > HybridVector;
-typedef HybridVector::second_type::word_iterator::value_type word;
 
 bool testAdd ()
 {
 	Field F (2);
 	VectorDomain<Field> VD (F);
 
-	HybridVector u, v, w, t;
+	Vector<GF2>::Hybrid u, v, w, t;
 
 	std::cout << "Testing VD.add..." << std::endl;
 
 	// Test 1: Indices in same block
-	u.first.clear ();
-	u.second.clear ();
-	v.first.clear ();
-	v.second.clear ();
-	t.first.clear ();
-	t.second.clear ();
+	u.clear ();
+	v.clear ();
+	t.clear ();
 
-	u.first.push_back (0);
-	v.first.push_back (0);
-
-	u.second.push_word_back (1);
-	v.second.push_word_back (1 | (1 << 1));
-
-	t.first.push_back (0);
-	t.second.push_word_back (1 << 1);
+	u.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
+	v.push_back (Vector<GF2>::Hybrid::value_type (0, 1 | (1 << 1)));
+	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1 << 1));
 
 	VD.add (w, u, v);
 
@@ -63,23 +52,14 @@ bool testAdd ()
 		std::cout << "Test 1 NOT okay" << std::endl;
 
 	// Test 2: Indices in different blocks, u before v
-	u.first.clear ();
-	u.second.clear ();
-	v.first.clear ();
-	v.second.clear ();
-	t.first.clear ();
-	t.second.clear ();
+	u.clear ();
+	v.clear ();
+	t.clear ();
 
-	u.first.push_back (0);
-	v.first.push_back (1);
-
-	u.second.push_word_back (1);
-	v.second.push_word_back (1);
-
-	t.first.push_back (0);
-	t.second.push_word_back (1);
-	t.first.push_back (1);
-	t.second.push_word_back (1);
+	u.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
+	v.push_back (Vector<GF2>::Hybrid::value_type (1, 1));
+	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
+	t.push_back (Vector<GF2>::Hybrid::value_type (1, 1));
 
 	VD.add (w, u, v);
 
@@ -99,23 +79,14 @@ bool testAdd ()
 		std::cout << "Test 2 NOT okay" << std::endl;
 
 	// Test 3: Indices in different blocks, v before u
-	u.first.clear ();
-	u.second.clear ();
-	v.first.clear ();
-	v.second.clear ();
-	t.first.clear ();
-	t.second.clear ();
+	u.clear ();
+	v.clear ();
+	t.clear ();
 
-	u.first.push_back (1);
-	v.first.push_back (0);
-
-	u.second.push_word_back (1);
-	v.second.push_word_back (1);
-
-	t.first.push_back (0);
-	t.second.push_word_back (1);
-	t.first.push_back (1);
-	t.second.push_word_back (1);
+	u.push_back (Vector<GF2>::Hybrid::value_type (1, 1));
+	v.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
+	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
+	t.push_back (Vector<GF2>::Hybrid::value_type (1, 1));
 
 	VD.add (w, u, v);
 
@@ -135,18 +106,12 @@ bool testAdd ()
 		std::cout << "Test 3 NOT okay" << std::endl;
 
 	// Test 4: u = 0
-	u.first.clear ();
-	u.second.clear ();
-	v.first.clear ();
-	v.second.clear ();
-	t.first.clear ();
-	t.second.clear ();
+	u.clear ();
+	v.clear ();
+	t.clear ();
 
-	v.first.push_back (0);
-	v.second.push_word_back (1);
-
-	t.first.push_back (0);
-	t.second.push_word_back (1);
+	v.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
+	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 
 	VD.add (w, u, v);
 
@@ -166,18 +131,12 @@ bool testAdd ()
 		std::cout << "Test 4 NOT okay" << std::endl;
 
 	// Test 5: v = 0
-	u.first.clear ();
-	u.second.clear ();
-	v.first.clear ();
-	v.second.clear ();
-	t.first.clear ();
-	t.second.clear ();
+	u.clear ();
+	v.clear ();
+	t.clear ();
 
-	u.first.push_back (0);
-	u.second.push_word_back (1);
-
-	t.first.push_back (0);
-	t.second.push_word_back (1);
+	u.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
+	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 
 	VD.add (w, u, v);
 
@@ -197,27 +156,17 @@ bool testAdd ()
 		std::cout << "Test 5 NOT okay" << std::endl;
 
 	// Test 6: u, v have lengths longer than 1
-	u.first.clear ();
-	u.second.clear ();
-	v.first.clear ();
-	v.second.clear ();
-	t.first.clear ();
-	t.second.clear ();
+	u.clear ();
+	v.clear ();
+	t.clear ();
 
-	u.first.push_back (0);
-	u.second.push_word_back (2ULL);
-	u.first.push_back (1);
-	u.second.push_word_back (1ULL);
+	u.push_back (Vector<GF2>::Hybrid::value_type (0, 2ULL));
+	u.push_back (Vector<GF2>::Hybrid::value_type (1, 1ULL));
 
-	v.first.push_back (0);
-	v.second.push_word_back (4ULL);
-	v.first.push_back (1);
-	v.second.push_word_back (1ULL);
+	v.push_back (Vector<GF2>::Hybrid::value_type (0, 4ULL));
+	v.push_back (Vector<GF2>::Hybrid::value_type (1, 1ULL));
 
-	t.first.push_back (0);
-	t.second.push_word_back (2 | 4);
-//	t.first.push_back (8 * sizeof (word));
-//	t.second.push_word_back (0);
+	t.push_back (Vector<GF2>::Hybrid::value_type (0, 2 | 4));
 
 	VD.add (w, u, v);
 
@@ -248,84 +197,75 @@ void testFirstNonzeroEntry ()
 
 	bool a;
 
-	typedef HybridVector::second_type::word_iterator::value_type word;
-
-	HybridVector v;
+	Vector<GF2>::Hybrid v;
 
 	int idx;
 
-	v.first.push_back (2);
-	v.second.push_word_back (Endianness::e_0);
+	v.push_back (Vector<GF2>::Hybrid::value_type (2, Vector<GF2>::Hybrid::Endianness::e_0));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 2 * WordTraits<word>::bits)
+	if (idx == 2 * WordTraits<Vector<GF2>::Hybrid::word_type>::bits)
 		std::cout << "Test 1 okay" << std::endl;
 	else
 		std::cout << "Test 1 not okay: VD.firstNonzeroEntry (a, v) = " << idx
-			  << " (should be " << 2 * 8 * sizeof (word) << ")" << std::endl;
+			  << " (should be " << 2 * 8 * sizeof (Vector<GF2>::Hybrid::word_type) << ")" << std::endl;
 
-	v.first.clear ();
-	v.second.clear ();
+	v.clear ();
 
-	v.first.push_back (2);
-	v.second.push_word_back (Endianness::e_j (WordTraits<word>::bits / 2));
+	v.push_back (Vector<GF2>::Hybrid::value_type (2, Vector<GF2>::Hybrid::Endianness::e_j (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 2)));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 5 * WordTraits<word>::bits / 2)
+	if (idx == 5 * WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 2)
 		std::cout << "Test 2 okay" << std::endl;
 	else
 		std::cout << "Test 2 not okay: VD.firstNonzeroEntry (a, v) = " << idx
-			  << " (should be " << 2 * 8 * sizeof (word) + 16 << ")" << std::endl;
+			  << " (should be " << 2 * 8 * sizeof (Vector<GF2>::Hybrid::word_type) + 16 << ")" << std::endl;
 
-	v.first.clear ();
-	v.second.clear ();
+	v.clear ();
 
-	v.first.push_back (3);
-	v.second.push_word_back (Endianness::e_j (WordTraits<word>::bits - 1));
+	v.push_back (Vector<GF2>::Hybrid::value_type (3, Vector<GF2>::Hybrid::Endianness::e_j (WordTraits<Vector<GF2>::Hybrid::word_type>::bits - 1)));
 
 	idx = VD.firstNonzeroEntry (a, v);
 
-	if (idx == 3 * WordTraits<word>::bits + (WordTraits<word>::bits - 1))
+	if (idx == 3 * WordTraits<Vector<GF2>::Hybrid::word_type>::bits + (WordTraits<Vector<GF2>::Hybrid::word_type>::bits - 1))
 		std::cout << "Test 3 okay" << std::endl;
 	else
 		std::cout << "Test 3 not okay: VD.firstNonzeroEntry (a, v) = " << idx
-			  << " (should be " << 3 * 8 * sizeof (word) + (8 * sizeof (word) - 1) << ")" << std::endl;
+			  << " (should be " << 3 * 8 * sizeof (Vector<GF2>::Hybrid::word_type) + (8 * sizeof (Vector<GF2>::Hybrid::word_type) - 1) << ")" << std::endl;
 
 	std::cout << "Finished testing VD.firstNonzeroEntry" << std::endl;
 }
 
-word connect (word word1, word word2, int shift) 
+Vector<GF2>::Hybrid::word_type connect (Vector<GF2>::Hybrid::word_type word1, Vector<GF2>::Hybrid::word_type word2, int shift) 
 {
 	if (shift == 0)
 		return word1;
 	else
-		return Endianness::shift_left (word1, shift) | Endianness::shift_right (word2, WordTraits<word>::bits - shift);
+		return Vector<GF2>::Hybrid::Endianness::shift_left (word1, shift) | Vector<GF2>::Hybrid::Endianness::shift_right (word2, WordTraits<Vector<GF2>::Hybrid::word_type>::bits - shift);
 }
 
 void testSparseSubvectorHybrid ()
 {
 	std::cout << __FUNCTION__ << ": Testing SparseSubvector<Hybrid>..." << std::endl;
 
-	HybridVector v;
+	Vector<GF2>::Hybrid v;
 
-	word pattern[2] = { 0xf0f0f0f0f0f0f0f0ULL, 0xaaaaaaaaaaaaaaaaULL };
-	word check;
+	Vector<GF2>::Hybrid::word_type pattern[2] = { 0xf0f0f0f0f0f0f0f0ULL, 0xaaaaaaaaaaaaaaaaULL };
+	Vector<GF2>::Hybrid::word_type check;
 
 	uint16 offset = 5;
-	uint16 len = WordTraits<word>::bits + 4;
+	uint16 len = WordTraits<Vector<GF2>::Hybrid::word_type>::bits + 4;
 
 	std::cout << __FUNCTION__ << ": Test 1" << std::endl;
 
-	v.first.push_back (0);
-	v.second.push_word_back (pattern[0]);
-	v.first.push_back (1);
-	v.second.push_word_back (pattern[1]);
+	v.push_back (Vector<GF2>::Hybrid::value_type (0, pattern[0]));
+	v.push_back (Vector<GF2>::Hybrid::value_type (1, pattern[1]));
 
-	SparseSubvector<HybridVector> v1 (v, offset, offset + len);
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v1 (v, offset, offset + len);
 
-	SparseSubvector<HybridVector>::const_iterator i_v1 = v1.begin ();
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v1 = v1.begin ();
 
 	if (i_v1->first != 0)
 		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v1->first << std::endl;
@@ -340,7 +280,7 @@ void testSparseSubvectorHybrid ()
 	if (i_v1->first != 1)
 		std::cerr << __FUNCTION__ << ": ERROR: Second index should be 1, is " << std::dec << i_v1->first << std::endl;
 
-	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % WordTraits<word>::bits);
+	check = connect (pattern[1], 0ULL, offset) & Vector<GF2>::Hybrid::Endianness::mask_left (len % WordTraits<Vector<GF2>::Hybrid::word_type>::bits);
 
 	if (i_v1->second != check)
 		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v1->second) << std::endl;
@@ -350,17 +290,15 @@ void testSparseSubvectorHybrid ()
 	if (i_v1 != v1.end ())
 		std::cerr << __FUNCTION__ << ": ERROR: Did not hit end when expected." << std::endl;
 
-	v.first.clear ();
-	v.second.clear ();
+	v.clear ();
 
 	std::cout << __FUNCTION__ << ": Test 2" << std::endl;
 
-	v.first.push_back (1);
-	v.second.push_word_back (pattern[0]);
+	v.push_back (Vector<GF2>::Hybrid::value_type (1, pattern[0]));
 
-	SparseSubvector<HybridVector> v2 (v, offset, offset + len);
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v2 (v, offset, offset + len);
 
-	SparseSubvector<HybridVector>::const_iterator i_v2 = v2.begin ();
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v2 = v2.begin ();
 
 	if (i_v2->first != 0)
 		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v2->first << std::endl;
@@ -378,7 +316,7 @@ void testSparseSubvectorHybrid ()
 	if (i_v2->first != 1)
 		std::cerr << __FUNCTION__ << ": ERROR: Second index should be 1, is " << std::dec << i_v2->first << std::endl;
 
-	check = connect (pattern[0], 0ULL, offset) & Endianness::mask_left (len % WordTraits<word>::bits);
+	check = connect (pattern[0], 0ULL, offset) & Vector<GF2>::Hybrid::Endianness::mask_left (len % WordTraits<Vector<GF2>::Hybrid::word_type>::bits);
 
 	if (i_v2->second != check)
 		std::cerr << __FUNCTION__ << ": ERROR: Second word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v2->second) << std::endl;
@@ -390,17 +328,14 @@ void testSparseSubvectorHybrid ()
 
 	std::cout << __FUNCTION__ << ": Test 3" << std::endl;
 
-	v.first.clear ();
-	v.second.clear ();
+	v.clear ();
 
-	v.first.push_back (0);
-	v.second.push_word_back (pattern[0]);
-	v.first.push_back (2);
-	v.second.push_word_back (pattern[1]);
+	v.push_back (Vector<GF2>::Hybrid::value_type (0, pattern[0]));
+	v.push_back (Vector<GF2>::Hybrid::value_type (2, pattern[1]));
 
-	SparseSubvector<HybridVector> v3 (v, offset, WordTraits<word>::bits + offset + len);
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v3 (v, offset, WordTraits<Vector<GF2>::Hybrid::word_type>::bits + offset + len);
 
-	SparseSubvector<HybridVector>::const_iterator i_v3 = v3.begin ();
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v3 = v3.begin ();
 
 	if (i_v3->first != 0)
 		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v3->first << std::endl;
@@ -431,7 +366,7 @@ void testSparseSubvectorHybrid ()
 	if (i_v3->first != 2)
 		std::cerr << __FUNCTION__ << ": ERROR: Third index should be 2, is " << std::dec << i_v3->first << std::endl;
 
-	check = connect (pattern[1], 0ULL, offset) & Endianness::mask_left (len % WordTraits<word>::bits);
+	check = connect (pattern[1], 0ULL, offset) & Vector<GF2>::Hybrid::Endianness::mask_left (len % WordTraits<Vector<GF2>::Hybrid::word_type>::bits);
 
 	if (i_v3->second != check)
 		std::cerr << __FUNCTION__ << ": ERROR: Third word should be " << std::hex << static_cast<uint64> (check) << ", is " << std::hex << static_cast<uint64> (i_v3->second) << std::endl;
@@ -443,15 +378,13 @@ void testSparseSubvectorHybrid ()
 
 	std::cout << __FUNCTION__ << ": Test 4" << std::endl;
 
-	v.first.clear ();
-	v.second.clear ();
+	v.clear ();
 
-	v.first.push_back (0);
-	v.second.push_word_back (pattern[0]);
+	v.push_back (Vector<GF2>::Hybrid::value_type (0, pattern[0]));
 
-	SparseSubvector<HybridVector> v4 (v, offset, WordTraits<word>::bits + offset + len);
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v4 (v, offset, WordTraits<Vector<GF2>::Hybrid::word_type>::bits + offset + len);
 
-	SparseSubvector<HybridVector>::const_iterator i_v4 = v4.begin ();
+	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v4 = v4.begin ();
 
 	if (i_v4->first != 0)
 		std::cerr << __FUNCTION__ << ": ERROR: First index should be 0, is " << std::dec << i_v4->first << std::endl;
