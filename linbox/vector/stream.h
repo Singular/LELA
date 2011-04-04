@@ -732,6 +732,10 @@ class StandardBasisStream : public VectorStream<_Vector>
 	 */
 	operator bool () const;
 
+	/** Advance the stream k positions
+	 */
+	void advance (int k);
+
 	/** Reset the stream to start at the beginning
 	 */
 	void reset ();
@@ -781,6 +785,7 @@ class StandardBasisStream<Field, _Vector, VectorCategories::DenseVectorTag > : p
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
 	operator bool () const { return _j < _n; }
+	void advance (int k) { _j += k; }
 	void reset () { _j = 0; }
 
     private:
@@ -820,6 +825,7 @@ class StandardBasisStream<Field, _Vector, VectorCategories::SparseVectorTag > : 
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
 	operator bool () const { return _j < _n; }
+	void advance (int k) { _j += k; }
 	void reset () { _j = 0; }
 
     private:
@@ -844,8 +850,7 @@ class StandardBasisStream<Field, _Vector, VectorCategories::DenseZeroOneVectorTa
 	{
 		typename Vector::word_iterator i;
 
-		for (i = v.wordBegin (); i != v.wordEnd (); ++i)
-			*i = 0;
+		std::fill (v.wordBegin (), v.wordEnd (), 0);
 
 		v[_j] = true;
 
@@ -862,6 +867,42 @@ class StandardBasisStream<Field, _Vector, VectorCategories::DenseZeroOneVectorTa
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
 	operator bool () const { return _j < _n; }
+	void advance (int k) { _j += k; }
+	void reset () { _j = 0; }
+
+    private:
+	const Field              &_F;
+	size_t                    _n;
+	size_t                    _j;
+};
+
+template <class Field, class _Vector>
+class StandardBasisStream<Field, _Vector, VectorCategories::HybridZeroOneVectorTag > : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef StandardBasisStream<Field, Vector, VectorCategories::HybridZeroOneVectorTag > Self_t;
+
+	StandardBasisStream (const Field &F, size_t n)
+		: _F (F), _n (n), _j (0)
+	{}
+
+	Vector &get (Vector &v) 
+	{
+		v.clear ();
+		v.push_back (_j >> WordTraits<typename Vector::word_type>::logof_size, Vector::Endianness::e_j (_j & WordTraits<typename Vector::word_type>::pos_mask));
+		return v;
+	}
+
+	/** Extraction operator form
+	 */
+	Self_t &operator >> (Vector &v)
+		{ get (v); return *this; }
+	size_t size () const { return _n; }
+	size_t pos () const { return _j; }
+	size_t dim () const { return _n; }
+	operator bool () const { return _j < _n; }
+	void advance (int k) { _j += k; }
 	void reset () { _j = 0; }
 
     private:
