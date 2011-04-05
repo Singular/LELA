@@ -103,6 +103,21 @@ int main (int argc, char **argv)
 			       MatrixTraits<SparseMatrix<Field::Element, Vector<Field>::Hybrid> >::MatrixCategory ()))
 		pass = false;
 
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1p (F, l - 8, 1);
+	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2p (F, m - 8, 1);
+
+	Vector<Field>::Dense v1p (l - 8), v2p (m - 8);
+	stream_v1p >> v1p;
+	stream_v2p >> v2p;
+
+	Submatrix<DenseMatrix<Field::Element> > M10 (M1, 4, 4, l - 8, m - 8);
+	Submatrix<DenseMatrix<Field::Element> > M11 (M2, 4, 4, m - 8, n - 8);
+	Submatrix<DenseMatrix<Field::Element> > M12 (M3, 4, 4, n - 8, p - 8);
+
+	if (!testMatrixDomainSubmatrix (F, "dense (submatrix)", M10, M11, M12, v1p, v2p, iterations,
+					MatrixTraits<DenseMatrix<Field::Element> >::MatrixCategory ()))
+		pass = false;
+
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass ? 0 : -1;

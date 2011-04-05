@@ -1309,6 +1309,46 @@ bool testMatrixDomain (const Field &F, const char *text,
 	return pass;
 }
 
+template <class Field, class Matrix, class Vector>
+bool testMatrixDomainSubmatrix (const Field &F, const char *text,
+				const Matrix &M1, const Matrix &M2, const Matrix &M3,
+				Vector &v1, Vector &v2,
+				unsigned int iterations,
+				MatrixCategories::RowMatrixTag) 
+{
+	ostringstream str;
+	str << "Testing MatrixDomain with " << text << " matrices" << ends;
+	commentator.start (str.str ().c_str ());
+
+	bool pass = true;
+
+	if (!testCopyEqual (F, text, M1)) pass = false;
+	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
+	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
+	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (F, text, M1)) pass = false;
+//	if (!testGerGemm (F, text, M1, v1, v2)) pass = false; // Needs ColIterator
+//	if (!testGemmRowEchelon (F, text, M1)) pass = false;  // Needs ColIterator
+	if (!testGemvGemm (F, text, M1, M2)) pass = false;
+	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
+
+#if 0 // Disabled until we have a good candidate here
+	if (M1.rowdim () == M1.coldim ()) {
+		if (!testTrsv (F, text, M1, v2)) pass = false;
+		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
+	} else {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
+			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
+	}
+#endif
+
+	if (!testPermutation (F, text, M1)) pass = false;
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
 #endif // __LINBOX_TESTS_TEST_MATRIX_DOMAIN_H
 
 // Local Variables:
