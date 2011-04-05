@@ -60,6 +60,9 @@ class BitSubvector
 	friend class BitSubvectorConstWordIterator<Iterator, ConstIterator>;
 	friend class BitSubvectorWordIterator<Iterator, ConstIterator>;
 
+	typedef typename Iterator::Endianness Endianness;
+	typedef typename std::iterator_traits<word_iterator>::value_type word_type;
+
 	BitSubvector () {}
 
 	template <class Endianness>

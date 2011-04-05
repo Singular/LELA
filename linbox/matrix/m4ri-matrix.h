@@ -171,6 +171,10 @@ class M4RIMatrixBase
 	M4RIMatrixBase (Rep rep) : _rep (rep) {}
 
 	Rep    _rep;
+
+    private:
+
+	M4RIMatrixBase (const M4RIMatrixBase &M);
 };
 
 class M4RIMatrix : public M4RIMatrixBase
@@ -199,7 +203,7 @@ public:
 
 	///
 	M4RIMatrix (const M4RIMatrix &M)
-		: M4RIMatrixBase (M._rep)
+		: M4RIMatrixBase (mzd_init_window (M._rep, 0, 0, M.rowdim (), M.coldim ()))
 	{}
 
 	M4RIMatrix (VectorStream<Row> &vs);
