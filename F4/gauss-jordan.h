@@ -219,32 +219,11 @@ namespace F4 {
 		template <class Matrix>
 		void SetIdentity (Matrix &U, size_t start_row = 0) const
 		{
-#if 0
-			StandardBasisStream<Field, typename DenseSubmatrix<typename Matrix1::Element>::Row> stream (MD.field (), res.coldim ());
-			typename DenseSubmatrix<typename Matrix1::Element>::RowIterator ip = M2.rowBegin ();
+			StandardBasisStream<Field, typename Matrix::Row> stream (F, U.coldim ());
+			typename Matrix::RowIterator i = U.rowBegin () + start_row;
 
-			for (; ip != U.rowEnd (); ++ip)
-				stream >> *ip;
-#endif
-
-			int k;
-
-			// DEBUG
-			// std::cout << __FUNCTION__ << ": U at start is " << std::endl;
-			// MD.write (std::cout, U);
-
-			MD.scal (U, false);
-
-			// DEBUG
-			// std::cout << __FUNCTION__ << ": U after clear is " << std::endl;
-			// MD.write (std::cout, U);
-
-			for (k = 0; k < U.coldim (); ++k)
-				U.setEntry (k + start_row, k, F.one ());
-
-			// DEBUG
-			// std::cout << __FUNCTION__ << ": U at end is " << std::endl;
-			// MD.write (std::cout, U);
+			for (; i != U.rowEnd (); ++i)
+				stream >> *i;
 		}
 
 		std::ostream &writePermutation (std::ostream &os, const Permutation P) const
