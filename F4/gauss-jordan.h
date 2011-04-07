@@ -226,16 +226,6 @@ namespace F4 {
 				stream >> *i;
 		}
 
-		std::ostream &writePermutation (std::ostream &os, const Permutation P) const
-		{
-			typename Permutation::const_iterator i;
-
-			for (i = P.begin (); i != P.end (); ++i)
-				os << "(" << i->first << " " << i->second << ")";
-
-			return os;
-		}
-
 		struct CompareSecond {
 			bool operator () (const Transposition &t1, const Transposition &t2) const { return t1.second < t2.second; }
 		};
@@ -326,7 +316,7 @@ namespace F4 {
 				// std::cout << "U =" << std::endl;
 				// MD.write (std::cout, U);
 				// std::cout << "P = ";
-				// writePermutation (std::cout, P) << std::endl;
+				// MD.writePermutation (std::cout, P) << std::endl;
 				// std::cout << "R =" << std::endl;
 				// MD.write (std::cout, R);
 				// std::cout << "r_1 = " << r_1 << std::endl;
@@ -380,7 +370,7 @@ namespace F4 {
 				// std::cout << "U_2 =" << std::endl;
 				// MD.write (std::cout, U);
 				// std::cout << "P_2 = ";
-				// writePermutation (std::cout, P_2) << std::endl;
+				// MD.writePermutation (std::cout, P_2) << std::endl;
 
 				MD.permuteRows (P_2U_2, P_2.begin (), P_2.end ());
 				
@@ -413,7 +403,7 @@ namespace F4 {
 			// std::cout << "U =" << std::endl;
 			// MD.write (std::cout, U);
 			// std::cout << "P = ";
-			// writePermutation (std::cout, P) << std::endl;
+			// MD.writePermutation (std::cout, P) << std::endl;
 			// std::cout << "R =" << std::endl;
 			// MD.write (std::cout, R);
 			// std::cout << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
@@ -955,9 +945,9 @@ namespace F4 {
 				TIMER_START(Permute);
 				if (k != pivot) {
 					// DEBUG
-					report << "Permuting " << k << " and " << pivot << std::endl;
-					report << "L before permutation:" << std::endl;
-					MD.write (report, L);
+					// report << "Permuting " << k << " and " << pivot << std::endl;
+					// report << "L before permutation:" << std::endl;
+					// MD.write (report, L);
 
 					Transposition t (k, pivot);
 					P.push_back (t);
@@ -969,18 +959,17 @@ namespace F4 {
 					}
 
 					// DEBUG
-					report << "L after permutation:" << std::endl;
-					MD.write (report, L);
-
+					// report << "L after permutation:" << std::endl;
+					// MD.write (report, L);
 				}
 				TIMER_STOP(Permute);
 
 				// DEBUG
-				report << "Row " << k << ", pivot is " << pivot << std::endl;
-				report << "Current A:" << std::endl;
-				MD.write (report, A);
-				report << "Current L:" << std::endl;
-				MD.write (report, L);
+				// report << "Row " << k << ", pivot is " << pivot << std::endl;
+				// report << "Current A:" << std::endl;
+				// MD.write (report, A);
+				// report << "Current L:" << std::endl;
+				// MD.write (report, L);
 
 				VD.firstNonzeroEntry (x, *i_A);
 
@@ -996,7 +985,7 @@ namespace F4 {
 				for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L) {
 					if (VD.firstNonzeroEntry (a, *j_A) == col) {
 						// DEBUG
-						report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
+						// report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
 
 						F.mul (negaxinv, negxinv, a);
 						VD.axpyin (*j_A, negaxinv, *i_A);

@@ -61,7 +61,9 @@ void testDenseGJ (const Field &F)
 
 	MatrixDomain<Field> MD (F);
 
-	GJ.DenseRowEchelonForm (R, U, P, A, rank, det);
+	MD.copy (R, A);
+
+	GJ.StandardRowEchelonForm (R, U, P, rank, det, true, true);
 
 	std::cout << "A = " << std::endl;
 	MD.write (std::cout, A, FORMAT_SAGE);
@@ -98,6 +100,7 @@ void testDenseGJ (const Field &F)
 
 void testSparseGJ (const Field &F)
 {
+	MatrixDomain<Field> MD (F);
 	GaussJordan<Field> GJ (F);
 
 	GJ.RunTests ();
@@ -114,28 +117,21 @@ void testSparseGJ (const Field &F)
 	int m = 96;
 	int n = 96;
 
-	Matrix A (m, n), Aorig (m, n);
+	RandomSparseStream<Field, Matrix::Row, Field::RandIter, VectorCategories::HybridZeroOneVectorTag> A_stream (F, (double) k / (double) n, n, m);
+
+	Matrix A (A_stream), Aorig (m, n);
 	GaussJordan<Field>::DenseMatrix U (m, m);
 	GaussJordan<Field>::DenseMatrix UPA (m, n);
 
-	RandomSparseStream<Field, Matrix::Row, Field::RandIter, VectorCategories::HybridZeroOneVectorTag> A_stream (F, (double) k / (double) n, n, m);
-	// RandomDenseStream<Field, GaussJordan<Field>::DenseMatrix::Row> A_stream (F, n);
-	Matrix::RowIterator iter;
-
-	for (iter = A.rowBegin (); iter != A.rowEnd (); ++iter)
-		A_stream >> *iter;
+	MD.copy (Aorig, A);
 
 	GaussJordan<Field>::Permutation P;
 
 	size_t rank;
 	Field::Element det;
 
-	MatrixDomain<Field> MD (F);
-
 	std::cout << "A = " << std::endl;
 	MD.write (std::cout, A, FORMAT_PRETTY);
-
-	MD.copy (Aorig, A);
 
 	GJ.StandardRowEchelonForm (A, U, P, rank, det, true, true);
 
