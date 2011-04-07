@@ -637,9 +637,12 @@ inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vecto
 {
 	typename Vector::const_iterator i;
 
-	for (i = v.begin (); i != v.end (); ++i)
-		if (*i)
+	for (i = v.begin (); i != v.end (); ++i) {
+		if (*i) {
+			a = true;
 			return i - v.begin ();
+		}
+	}
 
 	return -1;
 }
@@ -650,8 +653,10 @@ inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vecto
 {
 	if (v.empty ())
 		return -1;
-	else
+	else {
+		a = true;
 		return v.front ();
+	}
 }
 
 template <class Vector>
@@ -660,9 +665,11 @@ inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vecto
 {
 	if (v.empty ())
 		return -1;
-	else
+	else {
+		a = true;
 		return firstNonzeroEntryInWord<typename Vector::word_type, typename Vector::Endianness> (v.front ().second)
 			+ (v.front ().first << WordTraits<typename Vector::word_type>::logof_size);
+	}
 }
 
 } // namespace LinBox

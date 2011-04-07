@@ -466,6 +466,18 @@ struct MatrixTraits< const Submatrix<Matrix, Trait> >
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
 };
 
+template <class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
+struct SubmatrixTypename
+{
+	typedef Submatrix<Matrix, Trait> Type;
+};
+
+template <class Matrix, class Trait>
+struct SubmatrixTypename<Submatrix<Matrix, Trait> >
+{
+	typedef Submatrix<Matrix, Trait> Type;
+};
+
 } // namespace LinBox
 
 #include "linbox/matrix/submatrix.inl"

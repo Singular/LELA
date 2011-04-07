@@ -522,361 +522,6 @@ namespace F4 {
 		}
 
 		template <class Matrix1, class Matrix2>
-		void StandardRowEchelonFormSpecialised (Matrix1       &A,
-							Matrix2       &L,
-							Permutation   &P,
-							size_t        &rank,
-							Element       &det,
-							bool           reduced,
-							bool           compute_L,
-							size_t         start_row,
-							VectorCategories::SparseVectorTag) const
-		{
-			commentator.start ("Sparse row-echelon form", "GaussJordan::StandardRowEchelonForm", A.rowdim () / PROGRESS_STEP);
-
-			TIMER_DECLARE(GetPivot);
-			TIMER_DECLARE(Permute);
-			TIMER_DECLARE(ElimBelow);
-
-			typename Matrix1::RowIterator i_A, j_A;
-
-			int col, k = start_row;
-			Element a, xinv, negxinv, negaxinv;
-
-			typename Matrix2::RowIterator i_L, j_L;
-
-			if (compute_L)
-				SetIdentity (L, start_row);
-
-			P.clear ();
-			rank = 0;
-			F.init (det, 1);
-
-			for (i_A = A.rowBegin () + k, i_L = L.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A, ++i_L) {
-				TIMER_START(GetPivot);
-				int pivot = GetPivot (A, k, col);
-				TIMER_STOP(GetPivot);
-
-				if (pivot == -1)
-					break;
-
-				TIMER_START(Permute);
-				if (k != pivot) {
-					Transposition t (k, pivot);
-					P.push_back (t);
-					MD.permuteRows (A, &t, &t + 1);
-
-					if (compute_L) {
-						Submatrix<Matrix2> Lp (L, 0, 0, L.rowdim (), k - start_row);
-						MD.permuteRows (Lp, &t, &t + 1);
-					}
-				}
-				TIMER_STOP(Permute);
-
-				F.inv (xinv, i_A->second.front ());
-				F.neg (negxinv, xinv);
-
-				F.mulin (det, i_A->second.front ());
-
-				TIMER_START(ElimBelow);
-				j_L = i_L;
-				++j_L;
-
-				for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L) {
-					if (VD.firstNonzeroEntry (a, *j_A) == col) {
-						F.mul (negaxinv, negxinv, a);
-						VD.axpyin (*j_A, negaxinv, *i_A);
-
-						if (compute_L)
-							VD.axpyin (*j_L, negaxinv, *i_L);
-					}
-				}
-				TIMER_STOP(ElimBelow);
-
-				++rank;
-
-				if ((i_A - A.rowBegin ()) % PROGRESS_STEP == PROGRESS_STEP - 1)
-					commentator.progress ();
-			}
-
-			if (reduced)
-				ReduceRowEchelon (A, L, compute_L, rank + start_row, start_row);
-
-			TIMER_REPORT(GetPivot);
-			TIMER_REPORT(Permute);
-			TIMER_REPORT(ElimBelow);
-
-			commentator.stop (MSG_DONE, NULL, "GaussJordan::StandardRowEchelonForm");
-		}
-
-		template <class Matrix1, class Matrix2>
-		void StandardRowEchelonFormSpecialised (Matrix1       &A,
-							Matrix2       &L,
-							Permutation   &P,
-							size_t        &rank,
-							Element       &det,
-							bool           reduced,
-							bool           compute_L,
-							size_t         start_row,
-							VectorCategories::SparseZeroOneVectorTag) const
-		{
-			commentator.start ("Sparse row-echelon form", "GaussJordan::StandardRowEchelonForm", A.rowdim () / PROGRESS_STEP);
-
-			TIMER_DECLARE(GetPivot);
-			TIMER_DECLARE(Permute);
-			TIMER_DECLARE(ElimBelow);
-
-			typename Matrix1::RowIterator i_A, j_A;
-
-			int col, k = start_row;
-			Element a;
-
-			typename Matrix2::RowIterator i_L, j_L;
-
-			if (compute_L)
-				SetIdentity (L, start_row);
-
-			P.clear ();
-			rank = 0;
-			F.init (det, 1);
-
-			for (i_A = A.rowBegin () + k, i_L = L.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A, ++i_L) {
-				TIMER_START(GetPivot);
-				int pivot = GetPivot (A, k, col);
-				TIMER_STOP(GetPivot);
-
-				if (pivot == -1)
-					break;
-
-				TIMER_START(Permute);
-				if (k != pivot) {
-					Transposition t (k, pivot);
-					P.push_back (t);
-					MD.permuteRows (A, &t, &t + 1);
-
-					if (compute_L) {
-						Submatrix<Matrix2> Lp (L, 0, 0, L.rowdim (), k - start_row);
-						MD.permuteRows (Lp, &t, &t + 1);
-					}
-				}
-				TIMER_STOP(Permute);
-
-				TIMER_START(ElimBelow);
-				j_L = i_L;
-				++j_L;
-
-				for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L) {
-					if (VD.firstNonzeroEntry (a, *j_A) == col) {
-						VD.addin (*j_A, *i_A);
-
-						if (compute_L)
-							VD.addin (*j_L, *i_L);
-					}
-				}
-				TIMER_STOP(ElimBelow);
-
-				++rank;
-
-				if ((i_A - A.rowBegin ()) % PROGRESS_STEP == PROGRESS_STEP - 1)
-					commentator.progress ();
-			}
-
-			if (reduced)
-				ReduceRowEchelon (A, L, compute_L, rank + start_row, start_row);
-
-			TIMER_REPORT(GetPivot);
-			TIMER_REPORT(Permute);
-			TIMER_REPORT(ElimBelow);
-
-			commentator.stop (MSG_DONE, NULL, "GaussJordan::StandardRowEchelonForm");
-		}
-
-		template <class Matrix1, class Matrix2>
-		void StandardRowEchelonFormSpecialised (Matrix1       &A,
-							Matrix2       &L,
-							Permutation   &P,
-							size_t        &rank,
-							Element       &det,
-							bool           reduced,
-							bool           compute_L,
-							size_t         start_row,
-							VectorCategories::HybridZeroOneVectorTag) const
-		{
-			commentator.start ("Sparse row-echelon form", "GaussJordan::StandardRowEchelonForm", A.rowdim () / PROGRESS_STEP);
-
-			TIMER_DECLARE(GetPivot);
-			TIMER_DECLARE(Permute);
-			TIMER_DECLARE(ElimBelow);
-
-			typename Matrix1::RowIterator i_A, j_A;
-
-			int col, k = start_row;
-			Element a;
-
-			typename Matrix2::RowIterator i_L, j_L;
-
-			if (compute_L)
-				SetIdentity (L, start_row);
-
-			P.clear ();
-			rank = 0;
-			F.init (det, 1);
-
-			for (i_A = A.rowBegin () + k, i_L = L.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A, ++i_L) {
-				TIMER_START(GetPivot);
-				int pivot = GetPivot (A, k, col);
-				TIMER_STOP(GetPivot);
-
-				if (pivot == -1)
-					break;
-
-				TIMER_START(Permute);
-				if (k != pivot) {
-					Transposition t (k, pivot);
-					P.push_back (t);
-					MD.permuteRows (A, &t, &t + 1);
-
-					if (compute_L) {
-						Submatrix<Matrix2> Lp (L, 0, 0, L.rowdim (), k - start_row);
-						MD.permuteRows (Lp, &t, &t + 1);
-					}
-				}
-				TIMER_STOP(Permute);
-
-				TIMER_START(ElimBelow);
-				j_L = i_L;
-				++j_L;
-
-				for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L) {
-					if (VD.firstNonzeroEntry (a, *j_A) == col) {
-						VD.addin (*j_A, *i_A);
-
-						if (compute_L)
-							VD.addin (*j_L, *i_L);
-					}
-				}
-				TIMER_STOP(ElimBelow);
-
-				++rank;
-
-				if ((i_A - A.rowBegin ()) % PROGRESS_STEP == PROGRESS_STEP - 1)
-					commentator.progress ();
-			}
-
-			if (reduced)
-				ReduceRowEchelon (A, L, compute_L, rank + start_row, start_row);
-
-			TIMER_REPORT(GetPivot);
-			TIMER_REPORT(Permute);
-			TIMER_REPORT(ElimBelow);
-
-			commentator.stop (MSG_DONE, NULL, "GaussJordan::StandardRowEchelonForm");
-		}
-
-		template <class Matrix1, class Matrix2>
-		void StandardRowEchelonFormSpecialised (Matrix1       &A,
-							Matrix2       &L,
-							Permutation   &P,
-							size_t        &rank,
-							Element       &det,
-							bool           reduced,
-							bool           compute_L,
-							size_t         start_row,
-							VectorCategories::DenseZeroOneVectorTag) const
-		{
-			commentator.start ("Sparse row-echelon form", "GaussJordan::StandardRowEchelonForm", A.rowdim () / PROGRESS_STEP);
-
-			TIMER_DECLARE(GetPivot);
-			TIMER_DECLARE(Permute);
-			TIMER_DECLARE(ElimBelow);
-
-			typename Matrix1::RowIterator i_A, j_A;
-
-			int col = 0, k = start_row;
-			Element a;
-
-			typename Matrix2::RowIterator i_L, j_L;
-
-			if (compute_L)
-				SetIdentity (L, start_row);
-
-			P.clear ();
-			rank = 0;
-			F.init (det, 1);
-
-			for (i_A = A.rowBegin () + k, i_L = L.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A, ++i_L) {
-				TIMER_START(GetPivot);
-				int pivot = GetPivot (A, k, col);
-				TIMER_STOP(GetPivot);
-
-				if (pivot == -1)
-					break;
-
-				TIMER_START(Permute);
-				if (k != pivot) {
-					Transposition t (k, pivot);
-					P.push_back (t);
-					MD.permuteRows (A, &t, &t + 1);
-
-					if (compute_L) {
-						// DEBUG
-						// std::cout << __FUNCTION__ << ": Permuting " << k << " and " << pivot << std::endl;
-						// std::cout << __FUNCTION__ << ": L before permutation:" << std::endl;
-						// MD.write (std::cout, L);
-
-						Submatrix<DenseMatrix> Lp (L, 0, 0, L.rowdim (), k - start_row);
-						MD.permuteRows (Lp, &t, &t + 1);
-
-						// DEBUG
-						// std::cout << __FUNCTION__ << ": L after permutation:" << std::endl;
-						// MD.write (std::cout, L);
-					}
-				}
-				TIMER_STOP(Permute);
-
-				// DEBUG
-				// std::cout << __FUNCTION__ << ": Row " << k << ", pivot is " << pivot << std::endl;
-				// std::cout << __FUNCTION__ << ": Current A:" << std::endl;
-				// MD.write (std::cout, A);
-				// std::cout << __FUNCTION__ << ": Current L:" << std::endl;
-				// MD.write (std::cout, L);
-
-				TIMER_START(ElimBelow);
-				j_L = i_L;
-				++j_L;
-
-				int j_idx = k + 1;
-
-				for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L, ++j_idx) {
-					if (VD.firstNonzeroEntry (a, *j_A) == col) {
-						// DEBUG
-						// std::cout << __FUNCTION__ << ": Eliminating row " << j_idx << " from row " << k << std::endl;
-
-						VD.addin (*j_A, *i_A);
-
-						if (compute_L)
-							VD.addin (*j_L, *i_L);
-					}
-				}
-				TIMER_STOP(ElimBelow);
-
-				++rank;
-
-				if (rank % PROGRESS_STEP == PROGRESS_STEP - 1)
-					commentator.progress ();
-			}
-
-			if (reduced)
-				ReduceRowEchelon (A, L, compute_L, rank + start_row, start_row);
-
-			TIMER_REPORT(GetPivot);
-			TIMER_REPORT(Permute);
-			TIMER_REPORT(ElimBelow);
-
-			commentator.stop (MSG_DONE, NULL, "GaussJordan::StandardRowEchelonForm");
-		}
-
-		template <class Matrix1, class Matrix2>
 		Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 						     VectorCategories::SparseVectorTag) const
 		{
@@ -1276,8 +921,107 @@ namespace F4 {
 					     bool           reduced = false,
 					     bool           compute_L = true,
 					     size_t         start_row = 0) const
-			{ StandardRowEchelonFormSpecialised (A, L, P, rank, det, reduced, compute_L, start_row,
-							     typename VectorTraits<Field, typename Matrix1::Row>::VectorCategory ()); }
+		{
+			commentator.start ("Standard row-echelon form", __FUNCTION__, A.rowdim () / PROGRESS_STEP);
+
+			std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+			TIMER_DECLARE(GetPivot);
+			TIMER_DECLARE(Permute);
+			TIMER_DECLARE(ElimBelow);
+
+			typename Matrix1::RowIterator i_A, j_A;
+
+			int col, k = start_row;
+			Element a, x, xinv, negxinv, negaxinv;
+
+			typename Matrix2::RowIterator i_L, j_L;
+
+			if (compute_L)
+				SetIdentity (L, start_row);
+
+			P.clear ();
+			rank = 0;
+			F.init (det, 1);
+
+			for (i_A = A.rowBegin () + k, i_L = L.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A, ++i_L) {
+				TIMER_START(GetPivot);
+				int pivot = GetPivot (A, k, col);
+				TIMER_STOP(GetPivot);
+
+				if (pivot == -1)
+					break;
+
+				TIMER_START(Permute);
+				if (k != pivot) {
+					// DEBUG
+					report << "Permuting " << k << " and " << pivot << std::endl;
+					report << "L before permutation:" << std::endl;
+					MD.write (report, L);
+
+					Transposition t (k, pivot);
+					P.push_back (t);
+					MD.permuteRows (A, &t, &t + 1);
+
+					if (compute_L) {
+						typename SubmatrixTypename<Matrix2>::Type Lp (L, 0, 0, L.rowdim (), k - start_row);
+						MD.permuteRows (Lp, &t, &t + 1);
+					}
+
+					// DEBUG
+					report << "L after permutation:" << std::endl;
+					MD.write (report, L);
+
+				}
+				TIMER_STOP(Permute);
+
+				// DEBUG
+				report << "Row " << k << ", pivot is " << pivot << std::endl;
+				report << "Current A:" << std::endl;
+				MD.write (report, A);
+				report << "Current L:" << std::endl;
+				MD.write (report, L);
+
+				VD.firstNonzeroEntry (x, *i_A);
+
+				F.mulin (det, x);
+
+				F.inv (xinv, x);
+				F.neg (negxinv, xinv);
+
+				TIMER_START(ElimBelow);
+				j_L = i_L;
+				++j_L;
+
+				for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L) {
+					if (VD.firstNonzeroEntry (a, *j_A) == col) {
+						// DEBUG
+						report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
+
+						F.mul (negaxinv, negxinv, a);
+						VD.axpyin (*j_A, negaxinv, *i_A);
+
+						if (compute_L)
+							VD.axpyin (*j_L, negaxinv, *i_L);
+					}
+				}
+				TIMER_STOP(ElimBelow);
+
+				++rank;
+
+				if ((i_A - A.rowBegin ()) % PROGRESS_STEP == PROGRESS_STEP - 1)
+					commentator.progress ();
+			}
+
+			if (reduced)
+				ReduceRowEchelon (A, L, compute_L, rank + start_row, start_row);
+
+			TIMER_REPORT(GetPivot);
+			TIMER_REPORT(Permute);
+			TIMER_REPORT(ElimBelow);
+
+			commentator.stop (MSG_DONE);
+		}
 
 		/** \brief Take a matrix of known rank in row-echelon
 		 * form and convert to reduced row-echelon form
