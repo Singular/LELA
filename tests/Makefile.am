@@ -42,6 +42,7 @@ BASIC_TESTS =  \
         test-randiter-nonzero   \
         test-subiterator        \
         test-subvector          \
+	test-hybrid-vector	\
         test-vector-domain      \
         test-unparametric-field
 
@@ -142,6 +143,10 @@ test_matrix_SOURCES = \
 	test-matrix.C \
 	test-common.C \
 	test-matrix.h
+
+test_hybrid_vector_SOURCES = \
+	test-hybrid-vector.C \
+	test-common.C
 
 test_blas_domain_SOURCES=                \
         test-common.C   \
