@@ -88,4 +88,5 @@ tests/test-givaro-zpzuns
 tests/test-optimization
 tests/test-unparametric-field
 tests/test-hybrid-vector
+tests/test-bit-subvector
 tests/benchmark-matrix-domain
