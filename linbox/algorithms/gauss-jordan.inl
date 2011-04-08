@@ -143,19 +143,21 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 					 DenseMatrix  &T,
 					 DenseMatrix  &Up) const
 {
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
 	// DEBUG
-	// std::cout << __FUNCTION__ << ": enter" << std::endl;
-	// std::cout << __FUNCTION__ << ": A =" << std::endl;
-	// MD.write (std::cout, A);
-	// std::cout << __FUNCTION__ << ": U =" << std::endl;
-	// MD.write (std::cout, U);
-	// std::cout << __FUNCTION__ << ": k = " << k << ", d_0 = " << d_0 << std::endl;
+	// report << "enter" << std::endl;
+	// report << "A =" << std::endl;
+	// MD.write (report, A);
+	// report << "U =" << std::endl;
+	// MD.write (report, U);
+	// report << "k = " << k << ", d_0 = " << d_0 << std::endl;
 			
 	DenseMatrix Aw (A, k, 0, A.rowdim () - k, A.coldim ());
 			
 	if (MD.isZero (Aw)) {
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": A is 0" << std::endl;
+		// report << "A is 0" << std::endl;
 
 		r = 0;
 		h = A.rowdim () - k;
@@ -163,23 +165,23 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 	}
 	else if (A.coldim () <= _cutoff) {
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": A.coldim <= " << _cutoff << ", using standard elimination" << std::endl;
+		// report << "A.coldim <= " << _cutoff << ", using standard elimination" << std::endl;
 
 		size_t l = P.size ();
 
 		MD.copy (R, A);
 
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": U before elimination:" << std::endl;
-		// MD.write (std::cout, U);
+		// report << "U before elimination:" << std::endl;
+		// MD.write (report, U);
 
 		Submatrix<DenseMatrix> Up (U, 0, k, U.rowdim (), U.coldim () - k); //
 
 		StandardRowEchelonForm (R, Up, P, r, d, true, true, k);
 
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": U after elimination:" << std::endl;
-		// MD.write (std::cout, U);
+		// report << "U after elimination:" << std::endl;
+		// MD.write (report, U);
 
 		if (!P.empty ())
 			h = std::min_element (P.begin () + l, P.end (), CompareSecond ())->second;
@@ -188,7 +190,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 	}
 	else {
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": A.coldim () > " << _cutoff << std::endl;
+		// report << "A.coldim () > " << _cutoff << std::endl;
 
 		int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
 		DenseMatrix A_1 (A, 0, 0,   A.rowdim (), m_1);
@@ -202,15 +204,15 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 		GaussTransform (A_1, k, d_0, U, P, R_1, r_1, h_1, d_1, T, Up);
 
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": Status after first recursive call:" << std::endl;
-		// std::cout << "U =" << std::endl;
-		// MD.write (std::cout, U);
-		// std::cout << "P = ";
-		// MD.writePermutation (std::cout, P) << std::endl;
-		// std::cout << "R =" << std::endl;
-		// MD.write (std::cout, R);
-		// std::cout << "r_1 = " << r_1 << std::endl;
-		// std::cout << "d_1 = " << d_1 << std::endl;
+		// report << "Status after first recursive call:" << std::endl;
+		// report << "U =" << std::endl;
+		// MD.write (report, U);
+		// report << "P = ";
+		// MD.writePermutation (report, P) << std::endl;
+		// report << "R =" << std::endl;
+		// MD.write (report, R);
+		// report << "r_1 = " << r_1 << std::endl;
+		// report << "d_1 = " << d_1 << std::endl;
 				
 		Submatrix<DenseMatrix> U_2     (U, 0,       k,       U.rowdim (),           r_1);
 				
@@ -232,20 +234,20 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 		Permutation P_2;
 
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": Status before second recursive call:" << std::endl;
-		// std::cout << "B =" << std::endl;
-		// MD.write (std::cout, R_2);
+		// report << "Status before second recursive call:" << std::endl;
+		// report << "B =" << std::endl;
+		// MD.write (report, R_2);
 				
 		GaussTransform (R_2, k + r_1, d_1, U, P_2, R_2, r_2, h_2, d, T, Up);
 
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": Status after second recursive call:" << std::endl;
-		// std::cout << "U =" << std::endl;
-		// MD.write (std::cout, U);
-		// std::cout << "R =" << std::endl;
-		// MD.write (std::cout, R);
-		// std::cout << "r_2 = " << r_2 << std::endl;
-		// std::cout << "d = " << d << std::endl;
+		// report << "Status after second recursive call:" << std::endl;
+		// report << "U =" << std::endl;
+		// MD.write (report, U);
+		// report << "R =" << std::endl;
+		// MD.write (report, R);
+		// report << "r_2 = " << r_2 << std::endl;
+		// report << "d = " << d << std::endl;
 				
 		Submatrix<DenseMatrix> U_212        (U,  0,             k,       k + r_1,                      r_1);
 		Submatrix<DenseMatrix> U_3          (U,  0,             k + r_1, U.rowdim (),                  r_2);
@@ -257,26 +259,26 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 		DenseMatrix U_34P_2U_23  (Up, k + r_1 + r_2, 0,       Up.rowdim () - k - r_1 - r_2, r_1);
 
 		// DEBUG
-		// std::cout << "U_2 =" << std::endl;
-		// MD.write (std::cout, U);
-		// std::cout << "P_2 = ";
-		// MD.writePermutation (std::cout, P_2) << std::endl;
+		// report << "U_2 =" << std::endl;
+		// MD.write (report, U);
+		// report << "P_2 = ";
+		// MD.writePermutation (report, P_2) << std::endl;
 
 		MD.permuteRows (P_2U_2, P_2.begin (), P_2.end ());
 				
 		// DEBUG
-		// std::cout << "P_2U_2 =" << std::endl;
-		// MD.write (std::cout, P_2U_2);
-		// std::cout << "P_2U_23 =" << std::endl;
-		// MD.write (std::cout, P_2U_23);
-		// std::cout << "U_3 =" << std::endl;;
-		// MD.write (std::cout, U_3);
+		// report << "P_2U_2 =" << std::endl;
+		// MD.write (report, P_2U_2);
+		// report << "P_2U_23 =" << std::endl;
+		// MD.write (report, P_2U_23);
+		// report << "U_3 =" << std::endl;;
+		// MD.write (report, U_3);
 				
 		MD.gemm (F.one (), U_3, P_2U_23, F.zero (), U_3P_2U_23);
 
 		// DEBUG
-		// std::cout << "U_3P_2U_23 =" << std::endl;
-		// MD.write (std::cout, U_3P_2U_23);
+		// report << "U_3P_2U_23 =" << std::endl;
+		// MD.write (report, U_3P_2U_23);
 				
 		MD.axpy (F.one (), U_212, U_312P_2U_23);
 		MD.axpy (F.one (), P_2U_24, U_34P_2U_23);
@@ -289,14 +291,14 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 	}
 
 	// DEBUG
-	// std::cout << __FUNCTION__ << ": Status at end:" << std::endl;
-	// std::cout << "U =" << std::endl;
-	// MD.write (std::cout, U);
-	// std::cout << "P = ";
-	// MD.writePermutation (std::cout, P) << std::endl;
-	// std::cout << "R =" << std::endl;
-	// MD.write (std::cout, R);
-	// std::cout << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
+	// report << "Status at end:" << std::endl;
+	// report << "U =" << std::endl;
+	// MD.write (report, U);
+	// report << "P = ";
+	// MD.writePermutation (report, P) << std::endl;
+	// report << "R =" << std::endl;
+	// MD.write (report, R);
+	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
 }
 
 template <class Field>
@@ -330,13 +332,17 @@ Vector &GaussJordan<Field>::FastAddinSpecialised (Vector &v, const Vector &w, si
 }
 
 template <class Field>
-void GaussJordan<Field>::testFastAddinHybridVector () const
+bool GaussJordan<Field>::testFastAddinHybridVector () const
 {
-	std::cout << "GaussJordan: Testing FastAddin" << std::endl;
+	commentator.start ("Testing FastAddin", __FUNCTION__);
+
+	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+
+	bool pass = true;
 
 	Vector<GF2>::Hybrid v, w;
 
-	std::cout << std::hex << std::setfill ('0');
+	error << std::hex << std::setfill ('0');
 
 	v.push_back (Vector<GF2>::Hybrid::value_type (0, 0xffff0000ffff0000ULL));
 	v.push_back (Vector<GF2>::Hybrid::value_type (1, 0xffff0000ffff0000ULL));
@@ -345,15 +351,15 @@ void GaussJordan<Field>::testFastAddinHybridVector () const
 
 	FastAddin (v, w, 1);
 
-	if (v.front ().second != 0xffff0000ffff0000ULL)
-		std::cout << "Test 1 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ffff0000ffff0000" << std::endl;
-	else
-		std::cout << "Test 1 okay" << std::endl;
+	if (v.front ().second != 0xffff0000ffff0000ULL) {
+		error << "Test 1 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ffff0000ffff0000" << std::endl;
+		pass = false;
+	}
 
-	if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL)
-		std::cout << "Test 2 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
-	else
-		std::cout << "Test 2 okay" << std::endl;
+	if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL) {
+		error << "Test 2 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
+		pass = false;
+	}
 
 	v.clear ();
 	w.clear ();
@@ -365,15 +371,15 @@ void GaussJordan<Field>::testFastAddinHybridVector () const
 
 	FastAddin (v, w, 0);
 
-	if (v.front ().second != 0xff00ff00ff00ff00ULL)
-		std::cout << "Test 3 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
-	else
-		std::cout << "Test 3 okay" << std::endl;
+	if (v.front ().second != 0xff00ff00ff00ff00ULL) {
+		error << "Test 3 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
+		pass = false;
+	}
 
-	if ((v.begin () + 1)->second != 0xffff0000ffff0000ULL)
-		std::cout << "Test 4 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ffff0000ffff0000" << std::endl;
-	else
-		std::cout << "Test 4 okay" << std::endl;
+	if ((v.begin () + 1)->second != 0xffff0000ffff0000ULL) {
+		error << "Test 4 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ffff0000ffff0000" << std::endl;
+		pass = false;
+	}
 
 	v.clear ();
 	w.clear ();
@@ -386,19 +392,21 @@ void GaussJordan<Field>::testFastAddinHybridVector () const
 
 	FastAddin (v, w, 0);
 
-	if (v.front ().second != 0xff00ff00ff00ff00ULL)
-		std::cout << "Test 5 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
-	else
-		std::cout << "Test 5 okay" << std::endl;
+	if (v.front ().second != 0xff00ff00ff00ff00ULL) {
+		error << "Test 5 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
+		pass = false;
+	}
 
-	if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL)
-		std::cout << "Test 6 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
-	else
-		std::cout << "Test 6 okay" << std::endl;
+	if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL) {
+		error << "Test 6 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
+		pass = false;
+	}
 
-	std::cout << std::dec << std::setfill (' ');
+	error << std::dec << std::setfill (' ');
 
-	std::cout << "GaussJordan: Finished testing FastAddin" << std::endl;
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
 }
 
 template <class Field>
@@ -528,6 +536,8 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
 	if (rank == 0)
 		return A;
 
@@ -547,8 +557,8 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 
 	do {
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": Row " << current_row << ", state of A:" << std::endl;
-		// MD.write (std::cout, A);
+		// report << "Row " << current_row << ", state of A:" << std::endl;
+		// MD.write (report, A);
 
 		if (i_A - A.rowBegin () >= (int) start_row)
 			i_Ae = i_A;
@@ -574,7 +584,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 
 				if ((i_A->begin () + prev_idx)->second & mask) {
 					// DEBUG
-					// std::cout << "ReduceRowEchelonSpecialised: eliminating row " << current_row << " from row " << elim_row << std::endl;
+					// report << "ReduceRowEchelonSpecialised: eliminating row " << current_row << " from row " << elim_row << std::endl;
 
 					FastAddin (*i_A, *j_A, prev_idx);
 
@@ -626,6 +636,8 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
 	if (rank == 0)
 		return A;
 
@@ -643,15 +655,15 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 
 	do {
 		// DEBUG
-		// std::cout << __FUNCTION__ << ": Row " << current_row << ", current A:" << std::endl;
-		// MD.write (std::cout, A);
+		// report << "Row " << current_row << ", current A:" << std::endl;
+		// MD.write (report, A);
 
 		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
 			size_t col = VD.firstNonzeroEntry (a, *j_A);
 
 			if ((*i_A)[col]) {
 				// DEBUG
-				// std::cout << __FUNCTION__ << ": Eliminating " << current_row << " from " << elim_row << std::endl;
+				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
 
 				VD.addin (*i_A, *j_A);
 
@@ -812,9 +824,9 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 template <class Field>
 void GaussJordan<Field>::RunTests () const
 {
-	std::cout << "GaussJordan: Running internal tests..." << std::endl;
-	testFastAddinHybridVector ();
-	std::cout << "GaussJordan: Finished running internal tests." << std::endl;
+	commentator.start ("GaussJordan: Running internal tests", __FUNCTION__);
+	bool pass = testFastAddinHybridVector ();
+	commentator.stop (MSG_STATUS (pass));
 }
 
 } // namespace LinBox

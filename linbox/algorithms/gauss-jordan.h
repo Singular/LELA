@@ -182,7 +182,7 @@ private:
 	Vector &FastAddinSpecialised (Vector &v, const Vector &w, size_t idx,
 				      VectorCategories::HybridZeroOneVectorTag) const;
 
-	void testFastAddinHybridVector () const;
+	bool testFastAddinHybridVector () const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
