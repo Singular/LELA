@@ -13,8 +13,7 @@
 
 #include <linbox/vector/vector-domain.h>
 #include <linbox/matrix/matrix-domain.h>
-
-#include "gauss-jordan.h"
+#include <linbox/algorithms/gauss-jordan.h>
 
 #ifndef PROGRESS_STEP
 #  define PROGRESS_STEP 1024
@@ -343,7 +342,7 @@ namespace F4 {
 			size_t r_D;
 			typename Field::Element d_D;
 
-			GJ.DenseRowEchelonForm (D, U, P, D, r_D, d_D);
+			GJ.DenseRowEchelonForm (D, U, P, r_D, d_D);
 
 			reportUI << "Reduced row-echelon form of dense block:" << std::endl;
 			MD.write (reportUI, D);

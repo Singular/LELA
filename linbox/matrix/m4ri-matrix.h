@@ -71,7 +71,7 @@ class M4RIMatrixBase
 	typedef M4RIMatrixRowIterator<word *, const word *, M4RIMatrixBase *> RowIterator;
 	typedef M4RIMatrixRowIterator<const word *, const word *, const M4RIMatrixBase *> ConstRowIterator;
 
-	virtual ~M4RIMatrixBase () { mzd_free (_rep); }
+	virtual ~M4RIMatrixBase () { if (_rep != NULL) mzd_free (_rep); }
 
 	/** Get the number of rows in the matrix
 	 * @returns Number of rows in matrix

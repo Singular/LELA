@@ -19,8 +19,7 @@
 #include <linbox/matrix/sparse.h>
 #include <linbox/matrix/dense.h>
 #include <linbox/field/modular.h>
-
-#include "gauss-jordan.h"
+#include <linbox/algorithms/gauss-jordan.h>
 
 namespace F4 {
 	using namespace LinBox;
