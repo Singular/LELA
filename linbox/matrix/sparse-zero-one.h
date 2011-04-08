@@ -1,6 +1,4 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
-/* linbox/matrix/sparse-zero-one.inl
+/* linbox/matrix/sparse-zero-one.h
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Specialisation of SparseMatrix and helpers for 0-1 matrices
@@ -320,5 +318,12 @@ void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 } // namespace LinBox
 
 #endif // __LINBOX_matrix_sparse_zero_one_INL
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
 
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

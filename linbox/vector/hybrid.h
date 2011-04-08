@@ -1,7 +1,11 @@
 /* linbox/vector/hybrid.h
- * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
+ * Copyright 2011 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
+ *
+ * ------------------------------------
+ *
+ * See COPYING for license information.
  */
 
 #ifndef __LINBOX_VECTOR_HYBRID_H

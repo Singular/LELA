@@ -45,7 +45,8 @@ BASIC_TESTS =  \
 	test-bit-subvector	\
 	test-hybrid-vector	\
         test-vector-domain      \
-        test-unparametric-field
+        test-unparametric-field \
+	test-gauss-jordan
 
 # a benchmarker, not to be included in check.
 BENCHMARKS =                    \
@@ -160,6 +161,10 @@ test_blas_domain_SOURCES=                \
 test_ffpack_SOURCES=                \
         test-common.C   \
         test-ffpack.C
+
+test_gauss_jordan_SOURCES = \
+	test-common.C		\
+	test-gauss-jordan.C
 
 benchmark_matrix_domain_SOURCES = \
 	benchmark-matrix-domain.C \

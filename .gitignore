@@ -89,4 +89,5 @@ tests/test-optimization
 tests/test-unparametric-field
 tests/test-hybrid-vector
 tests/test-bit-subvector
+tests/test-gauss-jordan
 tests/benchmark-matrix-domain
