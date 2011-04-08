@@ -52,7 +52,7 @@ bool testDenseGJ (const Field &F, size_t m, size_t n)
 
 	MD.copy (R, A);
 
-	GJ.DenseRowEchelonForm (R, U, P, R, rank, det);
+	GJ.DenseRowEchelonForm (R, U, P, rank, det);
 
 	report << "A = " << std::endl;
 	MD.write (report, A);

@@ -142,12 +142,11 @@ private:
 			     Element       d_0,
 			     DenseMatrix  &U,
 			     Permutation  &P,
-			     DenseMatrix  &R,
 			     size_t       &r,
 			     int          &h,
 			     Element      &d,
-			     DenseMatrix  &T,
-			     DenseMatrix  &Up) const;
+			     DenseMatrix  &S,
+			     DenseMatrix  &T) const;
 
 	// Optimised version of VD.addin which can take
 	// advantage of knowledge of where in v the entries of
@@ -212,7 +211,7 @@ public:
 	 * R and A may be the same matrix, in which case A
 	 * will be replaced by its row-echelon form.
 	 *
-	 * @param R Sparse matrix-object into which to store
+	 * @param A Sparse matrix-object into which to store
 	 * row-echelon form of A; should have same dimensions
 	 * as A.
 	 *
@@ -223,19 +222,15 @@ public:
 	 * @param P Permutation in which to store the
 	 * row-permutations of A made by the choice of pivots.
 	 *
-	 * @param A Matrix to be converted to row-echelon
-	 * form. Not altered.
-	 *
 	 * @param rank Integer into which to store the
 	 * computed rank
 	 *
 	 * @param det Field-element into which to store the
 	 * computed determinant
 	 */
-	void DenseRowEchelonForm (DenseMatrix &R,
+	void DenseRowEchelonForm (DenseMatrix &A,
 				  DenseMatrix &U,
 				  Permutation &P,
-				  DenseMatrix &A,
 				  size_t      &rank,
 				  Element     &det);
 
