@@ -15,6 +15,24 @@
 
 #include "linbox/algorithms/gauss-jordan.h"
 
+#ifdef DETAILED_PROFILE
+#  define TIMER_DECLARE(part) LinBox::UserTimer part##_timer; double part##_time = 0.0;
+#  define TIMER_START(part) part##_timer.start ()
+#  define TIMER_STOP(part) part##_timer.stop (); part##_time += part##_timer.time ()
+#  define TIMER_REPORT(part) \
+	commentator.report (Commentator::LEVEL_NORMAL, TIMING_MEASURE) \
+		<< "Total " #part " time: " << part##_time << "s" << std::endl;
+#else
+#  define TIMER_DECLARE(part)
+#  define TIMER_START(part)
+#  define TIMER_STOP(part)
+#  define TIMER_REPORT(part)
+#endif
+
+#ifndef PROGRESS_STEP
+#  define PROGRESS_STEP 1024
+#endif // PROGRESS_STEP
+
 namespace LinBox
 {
 
@@ -169,7 +187,8 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 
 		size_t l = P.size ();
 
-		MD.copy (R, A);
+		if (&R != &A)
+			MD.copy (R, A);
 
 		// DEBUG
 		// report << "U before elimination:" << std::endl;
