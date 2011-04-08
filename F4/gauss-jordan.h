@@ -922,7 +922,7 @@ namespace F4 {
 
 			typename Matrix1::RowIterator i_A, j_A;
 
-			int col, k = start_row;
+			int col = 0, k = start_row;
 			Element a, x, xinv, negxinv, negaxinv;
 
 			typename Matrix2::RowIterator i_L, j_L;

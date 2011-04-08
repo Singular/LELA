@@ -66,7 +66,7 @@ void testDenseGJ (const Field &F)
 	GJ.StandardRowEchelonForm (R, U, P, rank, det, true, true);
 
 	std::cout << "A = " << std::endl;
-	MD.write (std::cout, A, FORMAT_SAGE);
+	MD.write (std::cout, A);
 
 	std::cout << "U = " << std::endl;
 	MD.write (std::cout, U);
