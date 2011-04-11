@@ -12,16 +12,6 @@ In general:
   ∘ Cannot compile on both 32-bit and 64-bit machines
     ‣ uint64 is long on 64-bit and long long on 32-bit, but M4RI-word is always long long
     ‣ So on 32-bit the specialisation of WordTraits to word is superfluous, but on 64-bit it's required
-• API-changes
-  ∘ Change interface of inv and div: return bool; true if successful, false otherwise
-  ∘ trsv should fail if the input-matrix is not nonsingular upper triangular (or at least with nonzero entries along the diagonal)
-  ∘ Figure out archetype/abstract/envelope business
-    ‣ Do we need archetype at all (except for documentation)? Maybe merge with abstract
-    ‣ Do we need envelope at all?
-• Candidates for review/removal
-  ∘ linbox/util/formats? (maybe incorporate into linbox/matrix/io.{h|inl}
-  ∘ RandomDenseStreamGF2, RandomSparseStreamGF2 <- Do we use these at all?
-  ∘ dense-submatrix.h, .inl
 • Missing specialisations, new wrappers
   ∘ Incorporate FFLAS/FFPACK into the rest of LinBox
     ‣ Some of FFLAS can go away -- it just duplicates functionality in MatrixDomain
