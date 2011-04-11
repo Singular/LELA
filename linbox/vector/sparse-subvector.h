@@ -24,6 +24,16 @@
 namespace LinBox
 {
 
+/** Empty struct to be used when constructing a sparse subvector of a
+ * hybrid vector with word-aligned boundaries. When SparseSubvector is
+ * instantiated with this tag, the meaning of the constructor-
+ * parameters start and end refers to the block-index (that is,
+ * column_index = bitsof (word_type) * block_index), unlike the
+ * column-index which is the case with the non-word-aligned
+ * version. This version is also much faster.
+ */
+struct HybridSubvectorWordAlignedTag {};
+
 /** A subvector of a sparse vector. It provides an interface which
  * mimics that of the containing vector, but does not allow any
  * operations which modify the vector's contents.
@@ -42,7 +52,7 @@ class SparseSubvector
 	~SparseSubvector () {}
 }; // template <class Vector, Trait> class SparseSubvector
 
-// Specialisation of SparseSubvector to sparse sequence format
+// Specialisation of SparseSubvector to sparse format
 
 template <class Vector>
 class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
@@ -114,6 +124,35 @@ class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public
 	~SparseSubvector () {}
 }; // template <class Vector> class SparseSubvector<Vector, SparseZeroOneVectorTag>
 
+// Specialisation of SparseSubvector to word-aligned hybrid format
+
+template <class Vector>
+class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
+	: public SparseSubvector<Vector, VectorCategories::SparseVectorTag>
+{
+    public:
+	typedef typename Vector::Endianness Endianness;
+	typedef typename Vector::index_type index_type;
+	typedef typename Vector::word_type word_type;
+
+	SparseSubvector () {}
+	SparseSubvector (Vector &v, index_type start, index_type finish)
+		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start, finish)
+	{}
+
+	SparseSubvector (SparseSubvector &v, index_type start, index_type finish)
+		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start, finish)
+	{}
+
+	SparseSubvector &operator = (const SparseSubvector &v)
+		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }
+
+	template <class V>
+	SparseSubvector &operator = (const SparseSubvector<V, VectorCategories::SparseVectorTag> &v)
+		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }
+
+}; // template <class Vector> class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
+
 // Vector traits for SparseVector wrapper
 template <class Vector, class Trait>
 struct DefaultVectorTraits<SparseSubvector<Vector, Trait> >
@@ -141,6 +180,20 @@ struct GF2VectorTraits<const SparseSubvector<Vector, Trait> >
 { 
 	typedef const SparseSubvector<Vector, Trait> VectorType;
 	typedef Trait VectorCategory; 
+};
+
+template <class Vector>
+struct GF2VectorTraits<SparseSubvector<Vector, HybridSubvectorWordAlignedTag> >
+{ 
+	typedef SparseSubvector<Vector, HybridSubvectorWordAlignedTag> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <class Vector>
+struct GF2VectorTraits<const SparseSubvector<Vector, HybridSubvectorWordAlignedTag> >
+{ 
+	typedef const SparseSubvector<Vector, HybridSubvectorWordAlignedTag> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
 } // namespace LinBox

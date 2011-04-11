@@ -54,6 +54,18 @@ class M4RIMatrixRowIterator;
 
 class M4RIMatrix;
 
+template <> struct MatrixTraits<M4RIMatrix>
+{
+	typedef M4RIMatrix MatrixType;
+	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
+};
+
+template <> struct MatrixTraits<const M4RIMatrix>
+{
+	typedef const M4RIMatrix MatrixType;
+	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
+};
+
 /** Wrapper for dense zero-one matrices in M4RI
  */
 class M4RIMatrixBase
@@ -165,8 +177,8 @@ class M4RIMatrixBase
 
 	friend class M4RIMatrixRowIterator<word *, const word *, M4RIMatrixBase *>;
 	friend class M4RIMatrixRowIterator<const word *, const word *, const M4RIMatrixBase *>;
-	friend class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag>;
-	friend class Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag>;
+	friend class Submatrix<M4RIMatrix>;
+	friend class Submatrix<const M4RIMatrix>;
 
 	M4RIMatrixBase (Rep rep) : _rep (rep) {}
 
@@ -218,8 +230,8 @@ private:
 
 	M4RIMatrix (Rep rep) : M4RIMatrixBase (rep) {}
 
-	friend class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag>;
-	friend class Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag>;
+	friend class Submatrix<M4RIMatrix>;
+	friend class Submatrix<const M4RIMatrix>;
 };
 
 template <>
@@ -246,7 +258,7 @@ class SubvectorFactory<const M4RIMatrixBase>
 /* Specialisation of Submatrix to M4RIMatrix using facilities in M4RI */
 
 template<>
-class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> : public Submatrix<M4RIMatrixBase, MatrixCategories::RowMatrixTag>
+class Submatrix<M4RIMatrix> : public Submatrix<M4RIMatrixBase>
 {
     public:
 	typedef M4RIMatrix Matrix;
@@ -258,7 +270,7 @@ class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> : public Submatrix<M
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<M4RIMatrixBase, MatrixCategories::RowMatrixTag> (M, row, col, rowdim, coldim),
+		: Submatrix<M4RIMatrixBase> (M, row, col, rowdim, coldim),
 		  _rep (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim))
 		{}
 
@@ -267,7 +279,7 @@ class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> : public Submatrix<M
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<M4RIMatrixBase, MatrixCategories::RowMatrixTag> (SM, row, col, rowdim, coldim),
+		: Submatrix<M4RIMatrixBase> ((Submatrix<M4RIMatrixBase> &) SM, row, col, rowdim, coldim),
 		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
 		{}
 
@@ -278,7 +290,7 @@ class Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> : public Submatrix<M
 };
 
 template<>
-class Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> : public Submatrix<const M4RIMatrixBase, MatrixCategories::RowMatrixTag>
+class Submatrix<const M4RIMatrix> : public Submatrix<const M4RIMatrixBase>
 {
     public:
 	typedef const M4RIMatrix Matrix;
@@ -290,7 +302,7 @@ class Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> : public Subma
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<const M4RIMatrixBase, MatrixCategories::RowMatrixTag> (M, row, col, rowdim, coldim),
+		: Submatrix<const M4RIMatrixBase> (M, row, col, rowdim, coldim),
 		  _rep (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim))
 		{}
 
@@ -299,7 +311,7 @@ class Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> : public Subma
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<const M4RIMatrixBase, MatrixCategories::RowMatrixTag> (SM, row, col, rowdim, coldim),
+		: Submatrix<const M4RIMatrixBase> (SM, row, col, rowdim, coldim),
 		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
 		{}
 
@@ -335,7 +347,7 @@ public:
 };
 
 template <>
-class Submatrix<DenseMatrix<bool> > : public Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag>
+class Submatrix<DenseMatrix<bool> > : public Submatrix<M4RIMatrix>
 {
     public:
 	typedef DenseMatrix<bool> Matrix;
@@ -347,7 +359,7 @@ class Submatrix<DenseMatrix<bool> > : public Submatrix<M4RIMatrix, MatrixCategor
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> (M, row, col, rowdim, coldim)
+		: Submatrix<M4RIMatrix> (M, row, col, rowdim, coldim)
 		{}
 
 	Submatrix (const Submatrix &SM,
@@ -355,12 +367,12 @@ class Submatrix<DenseMatrix<bool> > : public Submatrix<M4RIMatrix, MatrixCategor
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<M4RIMatrix, MatrixCategories::RowMatrixTag> (SM, row, col, rowdim, coldim)
+		: Submatrix<M4RIMatrix> (SM, row, col, rowdim, coldim)
 		{}
 };
 
 template <>
-class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag>
+class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix>
 {
     public:
 	typedef DenseMatrix<bool> Matrix;
@@ -372,7 +384,7 @@ class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix, M
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> (M, row, col, rowdim, coldim)
+		: Submatrix<const M4RIMatrix> (M, row, col, rowdim, coldim)
 		{}
 
 	Submatrix (const Submatrix &SM,
@@ -380,7 +392,7 @@ class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix, M
 		   size_t col,
 		   size_t rowdim,
 		   size_t coldim)
-		: Submatrix<const M4RIMatrix, MatrixCategories::RowMatrixTag> (SM, row, col, rowdim, coldim)
+		: Submatrix<const M4RIMatrix> (SM, row, col, rowdim, coldim)
 		{}
 };
 

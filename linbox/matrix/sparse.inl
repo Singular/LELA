@@ -153,6 +153,21 @@ class SubvectorFactory<const SparseMatrix<Element, Row, Trait> >
 		{ return ConstRowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ());; }
 };
 
+template <class Row>
+class HybridSubvectorFactory
+{
+    public:
+	typedef HybridSubvectorFactory<Row> Self_t;
+
+	typedef SparseSubvector<typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRow, HybridSubvectorWordAlignedTag> RowSubvector;
+	typedef RowSubvector ConstRowSubvector;
+
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>, Self_t> &M,
+						 typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRowIterator &pos)
+		{ return ConstRowSubvector (*pos, M.startCol () >> WordTraits<typename Row::word_type>::logof_size,
+					    (M.startCol () + M.coldim ()) >> WordTraits<typename Row::word_type>::logof_size); }
+};
+
 } // namespace LinBox
 
 #endif // __LINBOX_matrix_sparse_INL
