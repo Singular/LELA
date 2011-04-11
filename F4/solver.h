@@ -129,15 +129,26 @@ namespace F4 {
 			commentator.start ("Construction of dense matrix for reduction", __FUNCTION__, blocks.size ());
 
 			typename std::vector<Block>::const_iterator b, c, b_end = blocks.end ();
-			size_t D_col = 0, A_row = 0, b_width;
+			size_t D_col = 0, A_row = 0, b_width, wa_b_start, wa_b_finish, wa_b_width;
+
+			DenseMatrix Dpp;
 
 			for (b = blocks.begin (); b != b_end; ++b) {
-				b_width = GetNextBlockColumn (B.coldim (), b, b_end) - (b->col_idx + b->size);
+				wa_b_start = (b->col_idx + b->size) & ~WordTraits<typename SparseMatrix::Row::word_type>::pos_mask;
 
-				Submatrix<DenseMatrix> Dp (D, 0, D_col, D.rowdim (), b_width);
-				Submatrix<const SparseMatrix> Ds (B, 0, b->col_idx + b->size, D.rowdim (), b_width);
+				if (GetNextBlockColumn (B.coldim (), b, b_end) & ~WordTraits<typename SparseMatrix::Row::word_type>::pos_mask == 0)
+					wa_b_finish = GetNextBlockColumn (B.coldim (), b, b_end);
+				else
+					wa_b_finish = (GetNextBlockColumn (B.coldim (), b, b_end) + WordTraits<typename SparseMatrix::Row::word_type>::bits)
+						& ~WordTraits<typename SparseMatrix::Row::word_type>::pos_mask;
+				
+				wa_b_width = wa_b_finish - wa_b_start;
 
-				MD.copy (Dp, Ds);
+				Dpp.resize (D.rowdim (), wa_b_width);
+
+				Submatrix<const SparseMatrix, HybridSubvectorFactory<typename SparseMatrix::Row> > Ds (B, 0, wa_b_start, D.rowdim (), wa_b_width);
+
+				MD.copy (Dpp, Ds);
 
 				// DEBUG
 				// std::cout << __FUNCTION__ << ": block start " << b->col_idx << ", size " << b->size << ", width " << b_width << ", source-matrix is" << std::endl;
@@ -149,7 +160,7 @@ namespace F4 {
 
 				for (c = blocks.begin (); c <= b; ++c) {
 					Submatrix<const SparseMatrix> B1 (B, 0, c->col_idx, D.rowdim (), c->size);
-					Submatrix<const SparseMatrix> A1 (Agj, A_row, b->col_idx + b->size, c->size, b_width);
+					Submatrix<const SparseMatrix, HybridSubvectorFactory<typename SparseMatrix::Row> > A1 (Agj, A_row, wa_b_start, c->size, wa_b_width);
 
 					// DEBUG
 					// std::cout << __FUNCTION__ << ": Adding product of" << std::endl;
@@ -157,7 +168,7 @@ namespace F4 {
 					// std::cout << __FUNCTION__ << ": and" << std::endl;
 					// MD.write (std::cout, A1);
 
-					MD.gemm (neg_one, B1, A1, one, Dp);
+					MD.gemm (neg_one, B1, A1, one, Dpp);
 
 					// DEBUG
 					// std::cout << __FUNCTION__ << ": Resulting dest-matrix is" << std::endl;
@@ -165,6 +176,13 @@ namespace F4 {
 
 					A_row += c->size;
 				}
+
+				b_width = GetNextBlockColumn (B.coldim (), b, b_end) - (b->col_idx + b->size);
+
+				Submatrix<DenseMatrix> Dp (D, 0, D_col, D.rowdim (), b_width);
+				Submatrix<DenseMatrix> Dp_copy (Dpp, 0, (b->col_idx + b->size) - wa_b_start, D.rowdim (), b_width);
+
+				MD.copy (Dp, Dp_copy);
 
 				D_col += b_width;
 
