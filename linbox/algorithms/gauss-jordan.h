@@ -23,7 +23,6 @@
 #include <linbox/vector/vector-domain.h>
 #include <linbox/matrix/matrix-domain.h>
 #include <linbox/matrix/dense.h>
-#include <linbox/matrix/dense-submatrix.h>
 #include <linbox/matrix/sparse.h>
 #include <linbox/matrix/dense-zero-one.h>
 #include <linbox/matrix/sparse-zero-one.h>
