@@ -1,22 +1,23 @@
-Todo on LinBox (current as of 30.11.2011)
+Todo on LinBox (current as of 11.4.2011)
 
 In general:
-• Robustness/safety issues
-  ∘ Fix Commentator so that it passes valgrind
-  ∘ Valgrind everything else
 • Bugs
   ∘ Compiler sometimes refusing to instantiate with TransposeMatrix
   ∘ benchmark-matrix-domain doesn't print anything unless one gives -l -m -n -k???
-  ∘ RawIterator<Hybrid> and RawIndexedIterator<Hybrid> don't know when to stop a given row
-  ∘ M4RI-wrapper doesn't work properly with submatrices (possibly bug in M4RI)
+  ∘ Apparent bugs in M4RI
+    ‣ mzd_read_bit seems to ignore offset
+    ‣ Segfault on termination if mzd_free is called on _rep before resize
+    ‣ Lots of failures with ElectricFence (free did not come from malloc)
+    ‣ Does not appear to work with submatrices -- need further investigation
+  ∘ Cannot compile on both 32-bit and 64-bit machines
+    ‣ uint64 is long on 64-bit and long long on 32-bit, but M4RI-word is always long long
+    ‣ So on 32-bit the specialisation of WordTraits to word is superfluous, but on 64-bit it's required
 • API-changes
   ∘ Change interface of inv and div: return bool; true if successful, false otherwise
   ∘ trsv should fail if the input-matrix is not nonsingular upper triangular (or at least with nonzero entries along the diagonal)
   ∘ Figure out archetype/abstract/envelope business
     ‣ Do we need archetype at all (except for documentation)? Maybe merge with abstract
     ‣ Do we need envelope at all?
-    ‣ Create matrix archetype to document interfaces
-    ‣ Remove redundant documentation from matrices
 • Candidates for review/removal
   ∘ linbox/util/formats? (maybe incorporate into linbox/matrix/io.{h|inl}
   ∘ RandomDenseStreamGF2, RandomSparseStreamGF2 <- Do we use these at all?
@@ -28,17 +29,15 @@ In general:
     ‣ Other important part of FFLAS is Straßen-Winograd implementation, which should go into another MatrixDomain-wrapper
     ‣ Most of FFPACK should be put aside for the time being, but contents of ffpack.h are useful and should go into algorithms
     ‣ Everything needs to be reindented and reformated, of course
-• Improvements to test-suite
-  ∘ Need tests for vectors
-  ∘ Improve MatrixDomain tests
-    ‣ Add tests for MatrixDomainM4RI, MatrixDomainBLAS, etc.
-  ∘ MatrixDomainBLAS-tests await work on FFLAS
-    ‣ More mixtures of matrix-, and vector-formats (need careful review of what is tested)
-  ∘ Incorporate tests in F4 to test-suite
-    ‣ test-matrix-domain-gf2 done
-    ‣ test-bit-subvector and test-hybrid-subvector to be subsumed by above general vector-tests
-    ‣ test-gauss-jordan depends on incorporation of Gauss-Jordan transform into LinBox
-    ‣ test-solver and test-from-png are F4-specific
+• Sort out business with optional libraries, preferred matrix-type, etc.
+• Documentation-issues
+  ∘ Need to document vector-formats -- maybe in vector-traits.h
+• Improvements to GaussJordan:
+  ∘ Make ReduceRowEchelonForm use trsm and block-decomposition -- then maybe also eliminate specialisations
+  ∘ Specialisation for M4RIMatrix which just calls M4RI-backend
+  ∘ Do non-reducing version of GaussJordan
+    ‣ Can we pack U into A and use triangular methods here?
+  ∘ Move support-routines (GetPivot, SetIdentity, FastAddin) into other classes and create unit-tests for them
 • Improvements to build-process:
   ∘ Make the library compile standard instantiations for all non-inline functionality
   ∘ Non-inline stuff goes into new files *.tcc while inline stuff goes into *.h
@@ -58,9 +57,28 @@ In general:
     ‣ Contents m4ri-matrix.inl should go to .h file; read/write can be removed
     ‣ Contents of submatrix.inl should go into .h file
     ‣ io.inl is good to go
-• Sort out business with optional libraries, preferred matrix-type, etc.
-• Documentation-issues
-  ∘ Need to document vector-formats -- maybe in vector-traits.h
+• Improvements to test-suite
+  ∘ Need tests for vectors
+  ∘ Improve MatrixDomain tests
+    ‣ Add tests for MatrixDomainM4RI, MatrixDomainBLAS, etc.
+      • MatrixDomainBLAS-tests await work on FFLAS
+    ‣ More mixtures of matrix-, and vector-formats (need careful review of what is tested)
+  ∘ Incorporate tests in F4 to test-suite
+    ‣ test-gauss-jordan depends on incorporation of Gauss-Jordan transform into LinBox
+  ∘ Enhance tests for HybridVector: offset 0-related cases in SparseSubvector<Hybrid>
+  ∘ test-gauss-jordan needs to test more than just GF2-case (!)
+  ∘ Move GaussJordan::testFastAddinHybridVector to tests and eliminate RunTests
+• API-changes
+  ∘ Change interface of inv and div: return bool; true if successful, false otherwise
+  ∘ trsv should fail if the input-matrix is not nonsingular upper triangular (or at least with nonzero entries along the diagonal)
+  ∘ Figure out archetype/abstract/envelope business
+    ‣ Do we need archetype at all (except for documentation)? Maybe merge with abstract
+    ‣ Do we need envelope at all?
+    ‣ Create matrix archetype to document interfaces
+    ‣ Remove redundant documentation from matrices
+• Robustness/safety issues
+  ∘ Fix Commentator so that it passes valgrind
+  ∘ Valgrind everything else
 
 Lower priority:
 • Output-improvements to Commentator?
@@ -79,6 +97,8 @@ Lower priority:
   ∘ MatrixCategory (Sparse, Dense)
   ∘ MatrixIteratorCategory (Row, Col, RowCol)
   ∘ MatrixEntryCategory (Element, ZeroOne)
+• Merge BitSubvectorWordAligned into BitVector (maybe using same model as SparseVector)
+• PLUQ-decomposition
 
 Fuzzy/not sure what to do yet:
 • Merge gemvColDense into MatrixDomainSupport
@@ -95,16 +115,7 @@ For F4-backend:
 • Improve matrix-multiplication with hybrid-matrices (!)
   ∘ Way to incorporate M4RI?
   ∘ Way to use Method of 4 Russians for Multiplication?
-• Improvements to GaussJordan:
-  ∘ Use GEMM in DenseRowEchelonForm (maybe reduce need for intermediate storage?)
-  ∘ Eliminate specialisations for StandardRowEchelonForm
-    ‣ Need a way to create a Submatrix of a Submatrix so that it just gets the original type
-  ∘ Make ReduceRowEchelonForm use trsm and block-decomposition -- then maybe also eliminate specialisations
-  ∘ Specialisation for M4RIMatrix which just calls M4RI-backend
-• Move implementations in GaussJordan and F4Solver to .inl-files
-• Use stream-based SetIdentity
-• GaussTransform should use word-aligned submatrices only
-• Move gauss-jordan to linbox/algorithms
-• Enhance tests for HybridVector: offset 0-related cases in SparseSubvector<Hybrid>
 • Word-aligned version of SparseSubvector<Hybrid>
+  ∘ Almost possible by using "wrong" specialisation (to SparseVectorTag) of SparseSubvector
+  ∘ Just need that the resulting vector define Endianness, word_type, index_type
 • Update elimination-code to use above version
