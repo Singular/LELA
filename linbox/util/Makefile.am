@@ -5,8 +5,6 @@ INCLUDES=-I$(top_srcdir) -I$(top_builddir)
 
 AM_CXXFLAGS=-Wall -O2
 
-SUBDIRS=formats
-
 pkgincludesubdir=$(pkgincludedir)/util
 
 noinst_LTLIBRARIES=libutil.la
