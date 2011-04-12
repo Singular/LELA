@@ -46,7 +46,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline M4RIMatrix &copy (M4RIMatrix &B, const M4RIMatrix &A) const
 		{ mzd_copy (B._rep, A._rep); return B; }
 
-#if 0 // Disabled
+#if 0 // Disabled because M4RI can't handle non-word-aligned submatrices
 	inline Submatrix<M4RIMatrix> &copy (Submatrix<M4RIMatrix> &B, const M4RIMatrix &A) const
 		{ if (B.rowdim () > 0 && B.coldim () > 0) mzd_copy (B._rep._rep, A._rep); return B; }
 
@@ -64,7 +64,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline bool areEqual (const M4RIMatrix &A, const M4RIMatrix &B) const
 		{ return mzd_equal (A._rep, B._rep); }
 
-#if 1 // Disabled
+#if 0 // Disabled because M4RI can't handle non-word-aligned submatrices
 	inline bool areEqual (const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B) const
 		{ return mzd_equal (A._rep._rep, B._rep); }
 
@@ -82,10 +82,8 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline bool isZero (const M4RIMatrix &A) const
 		{ return mzd_is_zero (A._rep); }
 
-#if 1 // Disabled
 	inline bool isZero (const Submatrix<M4RIMatrix> &A) const
 		{ return mzd_is_zero (A._rep._rep); }
-#endif // Disabled
 
 	template <class Matrix>
 	inline Matrix &scal (Matrix &A, const bool &a) const
@@ -104,10 +102,8 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return A;
 	}
 
-#if 1 // Disabled
 	inline Submatrix<M4RIMatrix> &scal (Submatrix<M4RIMatrix> &A, const bool &a) const
 		{ scal (A._rep, a); return A; }
-#endif // Disabled
 
 	template <class Matrix1, class Matrix2>
 	inline Matrix2 &axpy (const bool &a, const Matrix1 &A, Matrix2 &B) const
@@ -127,7 +123,6 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return B;
 	}
 
-#if 1 // Disabled
 	inline M4RIMatrix &axpy (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B) const
 		{ axpy (a, A._rep, B); return B; }
 
@@ -136,7 +131,6 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 	inline Submatrix<M4RIMatrix> &axpy (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B) const
 		{ axpy (a, A._rep, B._rep); return B; }
-#endif // Disabled
 
 	template <class Matrix1, class Matrix2, class Matrix3>
 	inline Matrix3 &gemm (const bool &a, const Matrix1 &A, const Matrix2 &B, const bool &b, Matrix3 &C) const
@@ -152,23 +146,10 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 			return C;
 
 		if (a) {
-			if (C._rep->offset == 0) {
-				if (b)
-					mzd_addmul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-				else
-					mzd_mul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-			} else {
-				// M4RI complains if one tries to multiply into a non-word-aligned submatrix
-				M4RIMatrix T (C.rowdim (), C.coldim ());
-
-				if (b) {
-					copy (T, C);
-					mzd_addmul (T._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-				} else
-					mzd_mul (T._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-
-				copy (C, T);
-			}
+			if (b)
+				mzd_addmul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			else
+				mzd_mul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
 		}
 		else if (!b)
 			scal (C, false);
@@ -176,7 +157,6 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return C;
 	}
 
-#if 1 // Disabled
 	inline M4RIMatrix &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B, const bool &b, M4RIMatrix &C) const
 		{ gemm (a, A._rep, B, b, C); return C; }
 
@@ -185,19 +165,18 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 	inline M4RIMatrix &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const Submatrix<M4RIMatrix> &B, const bool &b, M4RIMatrix &C) const
 		{ gemm (a, A._rep, B._rep, b, C); return C; }
-
+	
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const M4RIMatrix &A, const M4RIMatrix &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, A, B, b, C._rep); return C; }
+		{ return copy_then_gemm (a, A, B, b, C); }
 
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, A._rep, B, b, C._rep); return C; }
+		{ return copy_then_gemm (a, A._rep, B, b, C); }
 
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const M4RIMatrix &A, const Submatrix<M4RIMatrix> &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, A, B._rep, b, C._rep); return C; }
+		{ return copy_then_gemm (a, A, B._rep, b, C); }
 
 	inline Submatrix<M4RIMatrix> &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const Submatrix<M4RIMatrix> &B, const bool &b, Submatrix<M4RIMatrix> &C) const
-		{ gemm (a, A._rep, B._rep, b, C._rep); return C; }
-#endif // Disabled
+		{ return copy_then_gemm (a, A._rep, B._rep, b, C); }
 
 	template <class Matrix1, class Matrix2>
 	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B) const
@@ -219,7 +198,6 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return B;
 	}
 
-#if 1 // Disabled
 	inline M4RIMatrix &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B) const
 		{ trsm (a, A._rep, B); return B; }
 
@@ -228,7 +206,6 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B) const
 		{ trsm (a, A._rep, B._rep); return B; }
-#endif // Disabled
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRows (Matrix   &A,
@@ -296,6 +273,30 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		}
 
 		return P;
+	}
+
+	// Work around problem with M4RI: mzd_mul doesn't like destination to be a non-word-aligned submatrix
+	inline Submatrix<M4RIMatrix> &copy_then_gemm (const bool &a, const M4RIMatrix &A, const M4RIMatrix &B, const bool &b, Submatrix<M4RIMatrix> &C) const
+	{
+		if (C._rep._rep->offset == 0)
+			gemm (a, A, B, b, C._rep);
+		else {
+			if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
+				return C;
+
+			// M4RI complains if one tries to multiply into a non-word-aligned submatrix
+			M4RIMatrix T (C.rowdim (), C.coldim ());
+
+			if (b) {
+				copy (T, C);
+				mzd_addmul (T._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			} else
+				mzd_mul (T._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+
+			copy (C, T);
+		}
+
+		return C;
 	}
 };
 
