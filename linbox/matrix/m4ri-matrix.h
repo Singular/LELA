@@ -66,6 +66,10 @@ template <> struct MatrixTraits<const M4RIMatrix>
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
 };
 
+// Forward declaration
+template <class Field>
+class GaussJordan;
+
 /** Wrapper for dense zero-one matrices in M4RI
  */
 class M4RIMatrixBase
@@ -179,6 +183,7 @@ class M4RIMatrixBase
 	friend class M4RIMatrixRowIterator<const word *, const word *, const M4RIMatrixBase *>;
 	friend class Submatrix<M4RIMatrix>;
 	friend class Submatrix<const M4RIMatrix>;
+	friend class GaussJordan<GF2>;
 
 	M4RIMatrixBase (Rep rep) : _rep (rep) {}
 
@@ -232,6 +237,7 @@ private:
 
 	friend class Submatrix<M4RIMatrix>;
 	friend class Submatrix<const M4RIMatrix>;
+	friend class GaussJordan<GF2>;
 };
 
 template <>

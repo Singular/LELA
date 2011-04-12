@@ -64,7 +64,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline bool areEqual (const M4RIMatrix &A, const M4RIMatrix &B) const
 		{ return mzd_equal (A._rep, B._rep); }
 
-#if 0 // Disabled
+#if 1 // Disabled
 	inline bool areEqual (const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B) const
 		{ return mzd_equal (A._rep._rep, B._rep); }
 
@@ -82,7 +82,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline bool isZero (const M4RIMatrix &A) const
 		{ return mzd_is_zero (A._rep); }
 
-#if 0 // Disabled
+#if 1 // Disabled
 	inline bool isZero (const Submatrix<M4RIMatrix> &A) const
 		{ return mzd_is_zero (A._rep._rep); }
 #endif // Disabled
@@ -95,13 +95,16 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	{
 		size_t i;
 
+		if (A.rowdim () == 0 || A.coldim () == 0)
+			return A;
+
 		if (!a)
 			for (i = 0; i < A.rowdim (); ++i)
 				mzd_row_clear_offset (A._rep, i, 0);
 		return A;
 	}
 
-#if 0 // Disabled
+#if 1 // Disabled
 	inline Submatrix<M4RIMatrix> &scal (Submatrix<M4RIMatrix> &A, const bool &a) const
 		{ scal (A._rep, a); return A; }
 #endif // Disabled
@@ -112,13 +115,19 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 	inline M4RIMatrix &axpy (const bool &a, const M4RIMatrix &A, M4RIMatrix &B) const
 	{
+		linbox_check (A.rowdim () == B.rowdim ());
+		linbox_check (A.coldim () == B.coldim ());
+
+		if (A.rowdim () == 0 || A.coldim () == 0)
+			return B;
+
 		if (a)
 			mzd_add (B._rep, B._rep, A._rep);
 
 		return B;
 	}
 
-#if 0 // Disabled
+#if 1 // Disabled
 	inline M4RIMatrix &axpy (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B) const
 		{ axpy (a, A._rep, B); return B; }
 
@@ -135,11 +144,31 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 	inline M4RIMatrix &gemm (const bool &a, const M4RIMatrix &A, const M4RIMatrix &B, const bool &b, M4RIMatrix &C) const
 	{
+		linbox_check (A.rowdim () == C.rowdim ());
+		linbox_check (A.coldim () == B.rowdim ());
+		linbox_check (B.coldim () == C.coldim ());
+
+		if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
+			return C;
+
 		if (a) {
-			if (b)
-				mzd_addmul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-			else
-				mzd_mul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			if (C._rep->offset == 0) {
+				if (b)
+					mzd_addmul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+				else
+					mzd_mul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			} else {
+				// M4RI complains if one tries to multiply into a non-word-aligned submatrix
+				M4RIMatrix T (C.rowdim (), C.coldim ());
+
+				if (b) {
+					copy (T, C);
+					mzd_addmul (T._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+				} else
+					mzd_mul (T._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+
+				copy (C, T);
+			}
 		}
 		else if (!b)
 			scal (C, false);
@@ -147,7 +176,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return C;
 	}
 
-#if 0 // Disabled
+#if 1 // Disabled
 	inline M4RIMatrix &gemm (const bool &a, const Submatrix<M4RIMatrix> &A, const M4RIMatrix &B, const bool &b, M4RIMatrix &C) const
 		{ gemm (a, A._rep, B, b, C); return C; }
 
@@ -176,6 +205,12 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 	inline M4RIMatrix &trsm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B) const
 	{
+		linbox_check (A.rowdim () == B.rowdim ());
+		linbox_check (A.rowdim () == A.coldim ());
+
+		if (A.rowdim () == 0 || A.coldim () == 0 || B.coldim () == 0)
+			return B;
+
 		if (a)
 			mzd_trsm_upper_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
 		else
@@ -184,7 +219,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return B;
 	}
 
-#if 0 // Disabled
+#if 1 // Disabled
 	inline M4RIMatrix &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B) const
 		{ trsm (a, A._rep, B); return B; }
 

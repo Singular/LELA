@@ -200,23 +200,22 @@ public:
 
 	/**
 	 * \brief Convert the matrix A into reduced
-	 * row-echelon form, preserving as much sparsity as
-	 * possible. At the end the matrices satisfy the
-	 * equation R=UPA, with R in row-echelon form.
+	 * row-echelon form.
 	 *
-	 * If A is invertible, then U will be the inverse of
+	 * At conclusion, the parameters will have the property that
+	 * A_out=LPA_in, where A_out is the matrix A at output and
+	 * A_in is the matrix A at input. A_out is in reduced
+	 * row-echelon form, L is lower triangular, and P is a
+	 * permutation.
+	 *
+	 * If A is invertible, then L will be the inverse of
 	 * A.
 	 *
-	 * R and A may be the same matrix, in which case A
-	 * will be replaced by its row-echelon form.
+	 * @param A Dense matrix A. Will be replaced by its reduced
+	 * row-echelon form
 	 *
-	 * @param A Sparse matrix-object into which to store
-	 * row-echelon form of A; should have same dimensions
-	 * as A.
-	 *
-	 * @param U Dense matrix-object into which to store
-	 * the matrix U. Should be n x n with n equal to the
-	 * row-dimension of A.
+	 * @param U Dense matrix into which to store the matrix
+	 * U. Should be n x n, with n the row-dimension of A.
 	 *
 	 * @param P Permutation in which to store the
 	 * row-permutations of A made by the choice of pivots.
@@ -238,11 +237,11 @@ public:
 	 * row-echelon form of a matrix using a sparse
 	 * algorithm
 	 *
-	 * At conclusion, the parameters will have the
-	 * property that A_out=LPA_in, where A_out is the
-	 * matrix A at output and A_in is the matrix A at
-	 * input. R is in reduced row-echelon form, L is lower
-	 * triangular, and P is a permutation.
+	 * At conclusion, the parameters will have the property that
+	 * A_out=LPA_in, where A_out is the matrix A at output and
+	 * A_in is the matrix A at input. A_out is in reduced
+	 * row-echelon form, L is lower triangular, and P is a
+	 * permutation.
 	 *
 	 * In comparison with @see RowEchelonForm, this
 	 * version does not take advantage of fast
@@ -275,7 +274,7 @@ public:
 	 *
 	 * @param reduced True if the routine should compute
 	 * the reduced row-echelon form and false if it should
-	 * only compute the (non-reduced) row-echelon form
+	 * only compute the (non-reduced) row-echelon form.
 	 *
 	 * @param compute_L True if the matrix L should be
 	 * computed. If false, then L is ignored.
