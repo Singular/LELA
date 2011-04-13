@@ -38,7 +38,25 @@ namespace LinBox
 
 template <class Field>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (Matrix &A, int start_row, size_t &col,
+int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+					     VectorCategories::DenseVectorTag) const
+{
+	typename Matrix::ConstRowIterator i;
+
+	for (; col < A.coldim (); ++col) {
+		int k = start_row;
+
+		for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k)
+			if (!F.isZero ((*i)[col]))
+				return k;
+	}
+
+	return -1;
+}
+
+template <class Field>
+template <class Matrix>
+int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 					     VectorCategories::DenseZeroOneVectorTag) const
 {
 	typename Matrix::ConstRowIterator i;
@@ -56,22 +74,22 @@ int GaussJordan<Field>::GetPivotSpecialised (Matrix &A, int start_row, size_t &c
 
 template <class Field>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (Matrix &A, int start_row, size_t &col,
+int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 					     VectorCategories::SparseVectorTag) const
 {
-	typename SparseMatrix::RowIterator i;
+	typename SparseMatrix::ConstRowIterator i;
 
 	size_t min_nonzero = (size_t) -1, pivot = -1, k = start_row, s;
 	col = A.coldim ();
 
 	for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
-		if (!i->first.empty ()) {
-			if (i->first.front () < col) {
-				col = i->first.front ();
-				min_nonzero = i->first.size ();
+		if (!i->empty ()) {
+			if (i->front ().first < col) {
+				col = i->front ().first;
+				min_nonzero = i->size ();
 				pivot = k;
 			}
-			else if (i->first.front () == col && (s = i->first.size ()) < min_nonzero) {
+			else if (i->front ().first == col && (s = i->size ()) < min_nonzero) {
 				min_nonzero = s;
 				pivot = k;
 			}
@@ -83,7 +101,7 @@ int GaussJordan<Field>::GetPivotSpecialised (Matrix &A, int start_row, size_t &c
 
 template <class Field>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (Matrix &A, int start_row, size_t &col,
+int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 					     VectorCategories::SparseZeroOneVectorTag) const
 {
 	typename SparseMatrix::RowIterator i;
@@ -110,10 +128,10 @@ int GaussJordan<Field>::GetPivotSpecialised (Matrix &A, int start_row, size_t &c
 
 template <class Field>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (Matrix &A, int start_row, size_t &col,
+int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 					     VectorCategories::HybridZeroOneVectorTag) const
 {
-	typename SparseMatrix::RowIterator i;
+	typename SparseMatrix::ConstRowIterator i;
 	typename Field::Element a;
 
 	size_t min_blocks = (size_t) -1, pivot = -1, k = start_row, s;
@@ -149,16 +167,16 @@ void GaussJordan<Field>::SetIdentity (Matrix &U, size_t start_row) const
 }
 
 template <class Field>
-void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
-					 int           k,
-					 Element       d_0,
-					 DenseMatrix  &U,
-					 Permutation  &P,
-					 size_t       &r,
-					 int          &h,
-					 Element      &d,
-					 DenseMatrix  &S,
-					 DenseMatrix  &T) const
+void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
+					       int           k,
+					       Element       d_0,
+					       DenseMatrix  &U,
+					       Permutation  &P,
+					       size_t       &r,
+					       int          &h,
+					       Element      &d,
+					       DenseMatrix  &S,
+					       DenseMatrix  &T) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -169,9 +187,9 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 	// report << "U =" << std::endl;
 	// MD.write (report, U);
 	// report << "k = " << k << ", d_0 = " << d_0 << std::endl;
-			
+
 	DenseMatrix Aw (A, k, 0, A.rowdim () - k, A.coldim ());
-			
+
 	if (MD.isZero (Aw)) {
 		// DEBUG
 		// report << "A is 0" << std::endl;
@@ -215,7 +233,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 		int h_1, h_2;
 		Element d_1;
 
-		GaussTransform (A_1, k, d_0, U, P, r_1, h_1, d_1, S, T);
+		GaussJordanTransform (A_1, k, d_0, U, P, r_1, h_1, d_1, S, T);
 
 		// DEBUG
 		// report << "Status after first recursive call:" << std::endl;
@@ -253,7 +271,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 		// report << "B =" << std::endl;
 		// MD.write (report, R_2);
 
-		GaussTransform (A_2, k + r_1, d_1, U, P_2, r_2, h_2, d, S, T);
+		GaussJordanTransform (A_2, k + r_1, d_1, U, P_2, r_2, h_2, d, S, T);
 
 		// DEBUG
 		// report << "Status after second recursive call:" << std::endl;
@@ -301,7 +319,158 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix  &A,
 
 		P.insert (P.end (), P_2.begin (), P_2.end ());
 		r = r_1 + r_2;
-		h = (h_1 < h_2) ? h_1 : h_2;
+		h = std::min (h_1, h_2);
+	}
+
+	// DEBUG
+	// report << "Status at end:" << std::endl;
+	// report << "U =" << std::endl;
+	// MD.write (report, U);
+	// report << "P = ";
+	// MD.writePermutation (report, P) << std::endl;
+	// report << "R =" << std::endl;
+	// MD.write (report, R);
+	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
+}
+
+template <class Field>
+void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
+					 Element                  d_0,
+					 Submatrix<DenseMatrix>  &U,
+					 Permutation             &P,
+					 size_t                  &r,
+					 int                     &h,
+					 Element                 &d,
+					 DenseMatrix             &T) const
+{
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	// DEBUG
+	// report << "enter" << std::endl;
+	// report << "A =" << std::endl;
+	// MD.write (report, A);
+	// report << "U =" << std::endl;
+	// MD.write (report, U);
+	// report << "k = " << k << ", d_0 = " << d_0 << std::endl;
+
+	if (MD.isZero (A)) {
+		// DEBUG
+		// report << "A is 0" << std::endl;
+
+		r = 0;
+		h = A.rowdim ();
+		F.assign (d, d_0);
+	}
+	else if (A.coldim () <= _cutoff) {
+		// DEBUG
+		// report << "A.coldim <= " << _cutoff << ", using standard elimination" << std::endl;
+
+		size_t l = P.size ();
+
+		// DEBUG
+		// report << "U before elimination:" << std::endl;
+		// MD.write (report, U);
+
+		StandardRowEchelonForm (A, U, P, r, d, false, true);
+
+		// DEBUG
+		// report << "U after elimination:" << std::endl;
+		// MD.write (report, U);
+
+		if (!P.empty ())
+			h = std::min_element (P.begin () + l, P.end (), CompareSecond ())->second;
+		else
+			h = 0;
+	}
+	else {
+		// DEBUG
+		// report << "A.coldim () > " << _cutoff << std::endl;
+
+		int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
+		DenseMatrix A_1 (A, 0, 0, A.rowdim (), m_1);
+
+		size_t r_1, r_2;
+		int h_1, h_2;
+		Element d_1;
+
+		GaussTransform (A_1, d_0, U, P, r_1, h_1, d_1, T);
+
+		// DEBUG
+		// report << "Status after first recursive call:" << std::endl;
+		// report << "U =" << std::endl;
+		// MD.write (report, U);
+		// report << "P = ";
+		// MD.writePermutation (report, P) << std::endl;
+		// report << "R =" << std::endl;
+		// MD.write (report, R);
+		// report << "r_1 = " << r_1 << std::endl;
+		// report << "d_1 = " << d_1 << std::endl;
+
+		Submatrix<DenseMatrix> U_11 (U, 0,   0,   r_1,               r_1);
+		Submatrix<DenseMatrix> U_12 (U, r_1, 0,   U.rowdim () - r_1, r_1);
+		Submatrix<DenseMatrix> U_22 (U, r_1, r_1, U.rowdim () - r_1, U.coldim () - r_1);
+
+		DenseMatrix A_2  (A, 0,   m_1, A.rowdim (),       m_2);
+		DenseMatrix A_21 (A, 0,   m_1, r_1,               m_2);
+		DenseMatrix A_22 (A, r_1, m_1, A.rowdim () - r_1, m_2);
+
+		MD.permuteRows (A_2, P.begin (), P.end ());
+
+		MD.gemm (F.one (), U_12, A_21, F.one (), A_22);
+
+		// FIXME: This should be replaced by trmm when it becomes available
+		T.resize (r_1, m_2);
+		MD.copy (T, A_21);
+		MD.gemm (F.one (), U_11, T, F.zero (), A_21);
+
+		Permutation P_2;
+
+		// DEBUG
+		// report << "Status before second recursive call:" << std::endl;
+		// report << "B =" << std::endl;
+		// MD.write (report, R_2);
+
+		GaussTransform (A_22, d_1, U_22, P_2, r_2, h_2, d, T);
+
+		// DEBUG
+		// report << "Status after second recursive call:" << std::endl;
+		// report << "U =" << std::endl;
+		// MD.write (report, U);
+		// report << "R =" << std::endl;
+		// MD.write (report, R);
+		// report << "r_2 = " << r_2 << std::endl;
+		// report << "d = " << d << std::endl;
+
+		// DEBUG
+		// report << "U_2 =" << std::endl;
+		// MD.write (report, U);
+		// report << "P_2 = ";
+		// MD.writePermutation (report, P_2) << std::endl;
+
+		MD.permuteRows (U_12, P_2.begin (), P_2.end ());
+
+		// FIXME: This should be replaced by trmm when it becomes available
+		T.resize (U_12.rowdim (), U_12.coldim ());
+		MD.copy (T, U_12);
+		MD.gemm (F.one (), U_22, T, F.zero (), U_12);
+				
+		// DEBUG
+		// report << "P_2U_2 =" << std::endl;
+		// MD.write (report, P_2U_2);
+
+		size_t P_len = P.size ();
+		P.insert (P.end (), P_2.begin (), P_2.end ());
+
+		// Update indices in permutation to refer to whole matrix
+		typename Permutation::iterator i;
+
+		for (i = P.begin () + P_len; i != P.end (); ++i) {
+			i->first += r_1;
+			i->second += r_1;
+		}
+
+		r = r_1 + r_2;
+		h = std::min (h_1, h_2);
 	}
 
 	// DEBUG
@@ -426,6 +595,63 @@ bool GaussJordan<Field>::testFastAddinHybridVector () const
 template <class Field>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+							  VectorCategories::DenseVectorTag) const
+{
+	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
+
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	if (rank == 0)
+		return A;
+
+	typename Matrix1::RowIterator i_A, j_A;
+	typename Matrix2::RowIterator i_L;
+
+	if (compute_L)
+		i_L = L.rowBegin () + (rank - 1);
+
+	int current_row = rank - 1, elim_row;
+
+	typename Field::Element a;
+
+	i_A = A.rowBegin () + current_row;
+
+	do {
+		// DEBUG
+		// report << "Row " << current_row << ", current A:" << std::endl;
+		// MD.write (report, A);
+
+		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
+			size_t col = VD.firstNonzeroEntry (a, *j_A);
+
+			if (!F.isZero ((*i_A)[col])) {
+				// DEBUG
+				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
+
+				VD.addin (*i_A, *j_A);
+
+				if (compute_L)
+					VD.addin (*i_L, *(L.rowBegin () + elim_row));
+			}
+		}
+
+		if (compute_L)
+			--i_L;
+
+		if ((rank - current_row) % PROGRESS_STEP == 0)
+			commentator.progress ();
+
+		--current_row;
+	} while (i_A-- != A.rowBegin ());
+
+	commentator.stop (MSG_DONE, NULL, "GaussJordan::ReduceRowEchelonSpecialised");
+
+	return A;
+}
+
+template <class Field>
+template <class Matrix1, class Matrix2>
+Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 							  VectorCategories::SparseVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
@@ -441,23 +667,19 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	i_A = A.rowBegin () + (rank - 1);
 
 	do {
-		if (i_A - A.rowBegin () >= start_row)
+		if (i_A - A.rowBegin () >= (long) start_row)
 			i_Ae = i_A;
 
 		for (j_A = A.rowBegin () + (rank - 1), j_L = L.rowBegin () + (rank - 1); j_A != i_Ae; --j_A, --j_L) {
 			// We must start over each time because the operations below invalidate iterators...
-			std::reverse_iterator<typename SparseMatrix::Row::first_type::iterator> i_idx (i_A->first.end ());
-			std::reverse_iterator<typename SparseMatrix::Row::second_type::iterator> i_elt (i_A->second.end ());
+			std::reverse_iterator<typename SparseMatrix::Row::iterator> i (i_A->end ());
+			std::reverse_iterator<typename SparseMatrix::Row::iterator> i_stop (i_A->begin ());
 
-			std::reverse_iterator<typename SparseMatrix::Row::first_type::iterator> i_stop (i_A->first.begin ());
+			while (i != i_stop && i->first > j_A->front ().first)
+				++i;
 
-			while (i_idx != i_stop && *i_idx > j_A->first.front ()) {
-				++i_idx;
-				++i_elt;
-			}
-
-			if (i_idx != i_stop && *i_idx == j_A->first.front ()) {
-				F.neg (negx, *i_elt);
+			if (i != i_stop && i->first == j_A->front ().first) {
+				F.neg (negx, i->second);
 
 				VD.axpyin (*i_A, negx, *j_A);
 
@@ -466,7 +688,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 			}
 		}
 
-		F.inv (xinv, i_A->second.front ());
+		F.inv (xinv, i_A->front ().second);
 		VD.mulin (*i_A, xinv);
 
 		if (compute_L) {
@@ -499,7 +721,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	i_A = A.rowBegin () + (rank - 1);
 
 	do {
-		if (i_A - A.rowBegin () >= start_row)
+		if (i_A - A.rowBegin () >= (long) start_row)
 			i_Ae = i_A;
 
 		size_t prev_idx = i_A->size ();
@@ -594,7 +816,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 
 			if (i->first == j_A->front ().first) {
 				v = j_A->front ().second;
-				mask = Endianness::first_position (v);
+				mask = Adaptor<Field>::Endianness::first_position (v);
 
 				if ((i_A->begin () + prev_idx)->second & mask) {
 					// DEBUG
@@ -625,7 +847,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 				}
 
 				v = j_A->front ().second;
-				mask = Endianness::first_position (v);
+				mask = Adaptor<Field>::Endianness::first_position (v);
 			}
 		}
 
@@ -705,18 +927,29 @@ void GaussJordan<Field>::DenseRowEchelonForm (DenseMatrix &A,
 					      DenseMatrix &U,
 					      Permutation &P,
 					      size_t      &rank,
-					      Element     &det)
+					      Element     &det,
+					      bool         reduced)
 {
+	linbox_check (U.rowdim () == A.rowdim ());
+	linbox_check (U.rowdim () == U.coldim ());
+
 	commentator.start ("Dense row-echelon form", "GaussJordan::DenseRowEchelonForm");
 
 	int h;
-			
+
 	SetIdentity (U);  // Necessary in case where A.rowdim () > A.coldim ()
 	P.clear ();
-			
-	DenseMatrix S, T;
 
-	GaussTransform (A, 0, F.one (), U, P, rank, h, det, S, T);
+	if (reduced) {
+		DenseMatrix S, T;
+
+		GaussJordanTransform (A, 0, F.one (), U, P, rank, h, det, S, T);
+	} else {
+		DenseMatrix T;
+		Submatrix<DenseMatrix> Up (U, 0, 0, U.rowdim (), U.coldim ());
+
+		GaussTransform (A, F.one (), Up, P, rank, h, det, T);
+	}
 
 	commentator.stop (MSG_DONE, NULL, "GaussJordan::DenseRowEchelonForm");
 }
@@ -745,6 +978,9 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 	size_t col = 0;
 	int k = start_row;
 	Element a, x, xinv, negxinv, negaxinv;
+
+	F.init (a, 0);
+	F.init (x, 0);
 
 	typename Matrix2::RowIterator i_L, j_L;
 

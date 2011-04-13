@@ -92,12 +92,12 @@ class DenseMatrix
 	template<typename _Tp1>
         struct rebind
         { 
-            typedef DenseMatrix<typename _Tp1::Element> other; 
+		typedef DenseMatrix<typename _Tp1::Element> other; 
         };
 
 	///
 	DenseMatrix ()
-		: _rows (0), _cols (0)
+		: _rows (0), _cols (0), _disp (0)
 	{}
 
 	/** Constructor.
@@ -105,31 +105,56 @@ class DenseMatrix
 	 * @param  n  column dimension
 	 */
 	DenseMatrix (size_t m, size_t n)
-		: _rep (m * n), _rows (m), _cols (n), _ptr(&_rep[0])
-	{}
+		: _rep (m * n), _rows (m), _cols (n), _disp (n), _ptr (&_rep[0])
+	{
+		_rep_begin = _rep.begin ();
+		_rep_end = _rep.end ();
+	}
+
+	/** Construct a dense submatrix of the given matrix.
+	 * @param  M parent-matrix
+	 * @param  beg_row  Beginning row (indexed at 0)
+	 * @param  beg_col  Beginning column (indexed at 0)
+	 * @param  m  row dimension
+	 * @param  n  column dimension
+	 */
+	DenseMatrix (DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+		: _rep_begin (M._rep_begin + (beg_row * M._disp + beg_col)),
+		  _rep_end (M._rep_begin + ((beg_row + m) * M._disp + beg_col + n)),
+		  _rows (m), _cols (n), _disp (M._disp)
+		{ _ptr = &*_rep_begin; }
 
 	///
 	DenseMatrix (const DenseMatrix &M)
-		: _rep (M._rep),_rows (M._rows), _cols (M._cols), _ptr(&_rep[0])
-	{}
+		: _rep (M._rep), _rep_begin (M._rep_begin), _rep_end (M._rep_end), _rows (M._rows), _cols (M._cols), _disp (M._disp)
+	{
+		if (!_rep.empty ()) {
+			_rep_begin = _rep.begin ();
+			_rep_end = _rep.end ();
+			_ptr = &*_rep_begin;
+		}
+	}
 
 	DenseMatrix (VectorStream<Row> &vs);
 
-	~DenseMatrix(){}
 	///
-	DenseMatrix& operator= (const DenseMatrix& M) {
-		(*this)._rep  = M._rep;
-		(*this)._rows = M._rows;
-		(*this)._cols = M._cols;
-		(*this)._ptr  = &_rep[0];
+	DenseMatrix &operator = (const DenseMatrix &M)
+	{
+		_rep = M._rep;
+		_rep_begin = M._rep_begin;
+		_rep_end = M._rep_end;
+		_rows = M._rows;
+		_cols = M._cols;
+		_disp = M._disp;
+		_ptr  = &*_rep_begin;
+
+		if (!_rep.empty ()) {
+			_rep_begin = _rep.begin ();
+			_rep_end = _rep.end ();
+		}
+
 		return (*this);
 	}
-
-	/** Get a pointer on the storage of the elements
-	 * @returns a pointer on Elements
-	/todo What is this?
-	 */
-	Element* FullIterator() const {return const_cast<Element*>(&_rep[0]);}
 
 	/** Get the number of rows in the matrix
 	 * @returns Number of rows in matrix
@@ -149,11 +174,14 @@ class DenseMatrix
 	 * @param m Number of rows
 	 * @param n Number of columns
 	 */
-	void resize (size_t m, size_t n, const Element& val = Element())
+	void resize (size_t m, size_t n)
 	{
 		_rows = m;
 		_cols = n;
-		_rep.resize (m * n, val);
+		_disp = n;
+		_rep.resize (m * n);
+		_rep_begin = _rep.begin ();
+		_rep_end = _rep.end ();
 	}
 
 	/** Set the entry at the (i, j) position to a_ij.
@@ -162,7 +190,7 @@ class DenseMatrix
 	 * @param a_ij Element to set
 	 */
 	void setEntry (size_t i, size_t j, const Element &a_ij)
-		{ _rep[i * _cols + j] = a_ij; }
+		{ _rep_begin[i * _disp + j] = a_ij; }
 
 	/** Does nothing. Provided for compatibility
 	 * @param i
@@ -178,7 +206,7 @@ class DenseMatrix
 	 * @returns true
 	 */
 	bool getEntry (Element &x, size_t i, size_t j) const
-		{ x = _rep[i * _cols + j]; return true; }
+		{ x = _rep_begin[i * _disp + j]; return true; }
 
 	/** @name Column of rows iterator
 	 * The column of rows iterator traverses the rows of the
@@ -239,10 +267,10 @@ class DenseMatrix
 	 * @param i Row index
 	 */
 	Row operator[] (size_t i)
-		{ return Row (_rep.begin () + i * _cols, _rep.begin () + i * _cols + _cols); }
+		{ return Row (_rep_begin + i * _disp, _rep_begin + i * _disp + _cols); }
 
 	ConstRow operator[] (size_t i) const
-		{ return Row (_rep.begin () + i * _cols, _rep.begin () + i * _cols + _cols); }
+		{ return Row (_rep_begin + i * _disp, _rep_begin + i * _disp + _cols); }
 
 	/** Compute column density
 	 */
@@ -253,9 +281,12 @@ class DenseMatrix
 
     protected:
 
-	std::vector<Element>  _rep;
-	size_t                _rows, _cols;
-	Element *             _ptr;
+	std::vector<Element> _rep;
+
+	typename std::vector<Element>::iterator _rep_begin, _rep_end;
+
+	size_t   _rows, _cols, _disp;
+	Element *_ptr;
 };
 
 template <class Element>

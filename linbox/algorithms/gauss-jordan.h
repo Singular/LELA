@@ -84,7 +84,6 @@ public:
 	typedef typename MatrixDomain<Field>::Transposition Transposition;
 	typedef typename Adaptor<Field>::SparseMatrix SparseMatrix;
 	typedef typename Adaptor<Field>::DenseMatrix DenseMatrix;
-	typedef typename Adaptor<Field>::Endianness Endianness;
 
 private:
 	const Field &F;   // Field over which operations take place
@@ -98,23 +97,26 @@ private:
 	// from start_row onwards are already 0) return
 	// -1. Otherwise fill in col with the pivot-column.
 	template <class Matrix>
-	int GetPivot (Matrix &A, int start_row, size_t &col) const
+	int GetPivot (const Matrix &A, int start_row, size_t &col) const
 		{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Field, typename Matrix::Row>::VectorCategory ()); }
 
 	// Find the first nonzero element in the given column
 	// starting at the row of the same index. Return -1 if
 	// none found.
 	template <class Matrix>
-	int GetPivotSpecialised (Matrix &A, int start_row, size_t &col, VectorCategories::DenseZeroOneVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::DenseVectorTag) const;
 
 	template <class Matrix>
-	int GetPivotSpecialised (Matrix &A, int start_row, size_t &col, VectorCategories::SparseVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Matrix>
-	int GetPivotSpecialised (Matrix &A, int start_row, size_t &col, VectorCategories::SparseZeroOneVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::SparseVectorTag) const;
 
 	template <class Matrix>
-	int GetPivotSpecialised (Matrix &A, int start_row, size_t &col, VectorCategories::HybridZeroOneVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::SparseZeroOneVectorTag) const;
+
+	template <class Matrix>
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::HybridZeroOneVectorTag) const;
 
 	// Set the given matrix to the identity-matrix
 	template <class Matrix>
@@ -136,16 +138,29 @@ private:
 	// matrix-multiplication. See Chapter 2 of "Algorithms
 	// for Matrix Canonical Forms", Ph.D thesis by Arne
 	// Storjohann.
-	void GaussTransform (DenseMatrix  &A,
-			     int           k,
-			     Element       d_0,
-			     DenseMatrix  &U,
-			     Permutation  &P,
-			     size_t       &r,
-			     int          &h,
-			     Element      &d,
-			     DenseMatrix  &S,
-			     DenseMatrix  &T) const;
+	void GaussJordanTransform (DenseMatrix  &A,
+				   int           k,
+				   Element       d_0,
+				   DenseMatrix  &U,
+				   Permutation  &P,
+				   size_t       &r,
+				   int          &h,
+				   Element      &d,
+				   DenseMatrix  &S,
+				   DenseMatrix  &T) const;
+
+	// Internal recursive procedure for the Gauss transform. Uses
+	// a divide and conquer method to maximise use of fast
+	// matrix-multiplication. See Chapter 2 of "Algorithms for
+	// Matrix Canonical Forms", Ph.D thesis by Arne Storjohann.
+	void GaussTransform (DenseMatrix             &A,
+			     Element                  d_0,
+			     Submatrix<DenseMatrix>  &U,
+			     Permutation             &P,
+			     size_t                  &r,
+			     int                     &h,
+			     Element                 &d,
+			     DenseMatrix             &T) const;
 
 	// Optimised version of VD.addin which can take
 	// advantage of knowledge of where in v the entries of
@@ -163,6 +178,10 @@ private:
 				      VectorCategories::HybridZeroOneVectorTag) const;
 
 	bool testFastAddinHybridVector () const;
+
+	template <class Matrix1, class Matrix2>
+	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+					      VectorCategories::DenseVectorTag) const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
@@ -199,7 +218,7 @@ public:
 		{}
 
 	/**
-	 * \brief Convert the matrix A into reduced
+	 * \brief Convert the matrix A into (possibly reduced)
 	 * row-echelon form.
 	 *
 	 * At conclusion, the parameters will have the property that
@@ -225,12 +244,16 @@ public:
 	 *
 	 * @param det Field-element into which to store the
 	 * computed determinant
+	 *
+	 * @param reduced Whether the output should be in reduced
+	 * row-echelon form or not
 	 */
 	void DenseRowEchelonForm (DenseMatrix &A,
 				  DenseMatrix &U,
 				  Permutation &P,
 				  size_t      &rank,
-				  Element     &det);
+				  Element     &det,
+				  bool         reduced = false);
 
 	/**
 	 * \brief Compute the (reduced or non-reduced)

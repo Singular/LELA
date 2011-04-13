@@ -21,8 +21,7 @@
 
 using namespace LinBox;
 
-typedef GF2 Field;
-
+template <class Field>
 bool testDenseGJ (const Field &F, size_t m, size_t n)
 {
 	commentator.start ("Testing GaussJordan::DenseRowEchelonForm", __FUNCTION__);
@@ -32,21 +31,19 @@ bool testDenseGJ (const Field &F, size_t m, size_t n)
 
 	bool pass = true;
 
-	GaussJordan<Field>::DenseMatrix R (m, n);
-	GaussJordan<Field>::DenseMatrix U (m, m);
-	GaussJordan<Field>::DenseMatrix UPA (m, n);
+	typename GaussJordan<Field>::DenseMatrix R (m, n);
+	typename GaussJordan<Field>::DenseMatrix U (m, m);
+	typename GaussJordan<Field>::DenseMatrix UPA (m, n);
 
-	RandomDenseStream<Field, GaussJordan<Field>::DenseMatrix::Row> A_stream (F, n, m);
+	RandomDenseStream<Field, typename GaussJordan<Field>::DenseMatrix::Row> A_stream (F, n, m);
 
-	GaussJordan<Field>::DenseMatrix A (A_stream);
+	typename GaussJordan<Field>::DenseMatrix A (A_stream);
 
-	report << "Number of words per row: " << A.rowBegin ()->word_size () << std::endl;
-
-	GaussJordan<Field>::Permutation P;
+	typename GaussJordan<Field>::Permutation P;
 
 	GaussJordan<Field> GJ (F);
 	size_t rank;
-	Field::Element det;
+	typename Field::Element det;
 
 	MatrixDomain<Field> MD (F);
 
@@ -91,6 +88,7 @@ bool testDenseGJ (const Field &F, size_t m, size_t n)
 	return pass;
 }
 
+template <class Field>
 bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 {
 	commentator.start ("Testing GaussJordan::StandardRowEchelonForm", __FUNCTION__);
@@ -103,20 +101,20 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 	MatrixDomain<Field> MD (F);
 	GaussJordan<Field> GJ (F);
 
-	typedef GaussJordan<Field>::SparseMatrix Matrix;
+	typedef typename GaussJordan<Field>::SparseMatrix Matrix;
 
-	RandomSparseStream<Field, Matrix::Row, Field::RandIter, VectorCategories::HybridZeroOneVectorTag> A_stream (F, (double) k / (double) n, n, m);
+	RandomSparseStream<Field, typename Matrix::Row, typename Field::RandIter> A_stream (F, (double) k / (double) n, n, m);
 
 	Matrix A (A_stream), Aorig (m, n);
-	GaussJordan<Field>::DenseMatrix U (m, m);
-	GaussJordan<Field>::DenseMatrix UPA (m, n);
+	typename GaussJordan<Field>::DenseMatrix U (m, m);
+	typename GaussJordan<Field>::DenseMatrix UPA (m, n);
 
 	MD.copy (Aorig, A);
 
-	GaussJordan<Field>::Permutation P;
+	typename GaussJordan<Field>::Permutation P;
 
 	size_t rank;
-	Field::Element det;
+	typename Field::Element det;
 
 	report << "A = " << std::endl;
 	MD.write (report, A, FORMAT_PRETTY);
@@ -157,11 +155,12 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 
 int main (int argc, char **argv)
 {
-	bool pass = true;
+	bool pass1 = true, pass2 = true;
 
 	static long m = 96;
 	static long n = 96;
 	static long k = 10;
+	static integer q = 101U;
 	static int iterations = 1;
 
 	static Argument args[] = {
@@ -169,12 +168,14 @@ int main (int argc, char **argv)
 		{ 'n', "-n N", "Set column-dimension of matrix A to N.", TYPE_INT, &n },
 		{ 'k', "-k K", "K nonzero elements per row/column in sparse matrices.", TYPE_INT, &k },
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT, &iterations },
+		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint32 modulus.", TYPE_INTEGER, &q },
 		{ '\0' }
 	};
 
 	parseArguments (argc, argv, args);
 
-	Field F;
+	Modular<uint32> GFq (q);
+	GF2 gf2;
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
@@ -183,12 +184,26 @@ int main (int argc, char **argv)
 
 	commentator.start ("GaussJordan test suite", "GaussJordan");
 
-	pass = testDenseGJ (F, m, n) && pass;
-	pass = testStandardGJ (F, m, n, k) && pass;
+	std::ostringstream str;
+	str << "Running tests over GF(" << q << ")" << std::ends;
 
-	commentator.stop (MSG_STATUS (pass));
+	commentator.start (str.str ().c_str (), "GaussJordan");
 
-	return pass ? 0 : -1;
+	pass1 = testDenseGJ (GFq, m, n) && pass1;
+	pass1 = testStandardGJ (GFq, m, n, k) && pass1;
+
+	commentator.stop (MSG_STATUS (pass1));
+
+	commentator.start ("Running tests over GF(2)", "GaussJordan");
+
+	pass2 = testDenseGJ (gf2, m, n) && pass2;
+	pass2 = testStandardGJ (gf2, m, n, k) && pass2;
+
+	commentator.stop (MSG_STATUS (pass2));
+
+	commentator.stop (MSG_STATUS (pass1 && pass2));
+
+	return (pass1 && pass2) ? 0 : -1;
 }
 
 // Local Variables:

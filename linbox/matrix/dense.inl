@@ -62,6 +62,14 @@ class DenseMatrixRowIterator
 		_dis = colp._dis;
 		return *this;
 	}
+
+	template <class It, class CIt>
+	DenseMatrixRowIterator &operator = (const DenseMatrixRowIterator<It, CIt> &colp)
+	{
+		_row = colp._row;
+		_dis = colp._dis;
+		return *this;
+	}
     
 	DenseMatrixRowIterator &operator ++ ()
 	{
@@ -97,6 +105,13 @@ class DenseMatrixRowIterator
 		_row = Row (_row.begin () + _dis * i, _row.end () + _dis * i);
 		return *this;
 	}
+
+	difference_type operator - (const DenseMatrixRowIterator &c) const
+		{ return (_row.begin () - c._row.begin ()) / _dis; }
+
+	template <class It, class CIt>
+	difference_type operator - (const DenseMatrixRowIterator<It, CIt> &c) const
+		{ return (_row.begin () - c._row.begin ()) / _dis; }
 
 	Row operator [] (int i) const
 		{ return Row (const_cast<Row&> (_row).begin () + _dis * i,
@@ -148,8 +163,20 @@ class DenseMatrixColIterator
     
 	DenseMatrixColIterator (const DenseMatrixColIterator &rowp)
 		: _col (rowp._col), _stride (rowp._stride) {}
-    
+
+	template <class It, class CIt>
+	DenseMatrixColIterator (const DenseMatrixColIterator<It, CIt> &rowp)
+		: _col (rowp._col), _stride (rowp._stride) {}
+
 	DenseMatrixColIterator &operator = (const DenseMatrixColIterator &rowp)
+	{
+		_col = rowp._col;
+		_stride = rowp._stride;
+		return *this;
+	}
+
+	template <class It, class CIt>
+	DenseMatrixColIterator &operator = (const DenseMatrixColIterator<It, CIt> &rowp)
 	{
 		_col = rowp._col;
 		_stride = rowp._stride;
@@ -179,6 +206,13 @@ class DenseMatrixColIterator
 			    Subiterator<Iterator> (_col.end ().operator-> () + i, _stride));
 		return *this;
 	}
+
+	difference_type operator - (const DenseMatrixColIterator &c) const
+		{ return _col.begin () - c._col.begin (); }
+
+	template <class It, class CIt>
+	difference_type operator - (const DenseMatrixColIterator<It, CIt> &c) const
+		{ return _col.begin () - c._col.begin (); }
 
 	Col operator [] (int i) const
 		{ return Col (Subiterator<Iterator> (const_cast<Col&> (_col).begin ().operator-> () + i, _stride), 
@@ -215,8 +249,11 @@ class DenseMatrixColIterator
 
 template <class _Element>
 DenseMatrix<_Element>::DenseMatrix (VectorStream<DenseMatrix<_Element>::Row> &vs)
-	: _rep (vs.size () * vs.dim ()), _rows (vs.size ()), _cols (vs.dim ()), _ptr (&_rep[0])
+	: _rep (vs.size () * vs.dim ()), _rows (vs.size ()), _cols (vs.dim ()), _disp (vs.dim ()), _ptr (&_rep[0])
 {
+	_rep_begin = _rep.begin ();
+	_rep_end = _rep.end ();
+
 	for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
 		vs >> *i;
 }
@@ -224,51 +261,51 @@ DenseMatrix<_Element>::DenseMatrix (VectorStream<DenseMatrix<_Element>::Row> &vs
 /// entry access raw view.  Size m*n vector in C (row major) order.
 template <class Element>
 typename DenseMatrix<Element>::RawIterator DenseMatrix<Element>::rawBegin ()
-	{ return _rep.begin (); }  
+	{ return _rep_begin; }  
 
 template <class Element>
 typename DenseMatrix<Element>::RawIterator DenseMatrix<Element>::rawEnd ()
-	{ return _rep.end (); }
+	{ return _rep_end; }
   
 template <class Element>
 typename DenseMatrix<Element>::ConstRawIterator DenseMatrix<Element>::rawBegin () const
-	{ return _rep.begin (); }  
+	{ return _rep_begin; }  
 
 template <class Element>
 typename DenseMatrix<Element>::ConstRawIterator DenseMatrix<Element>::rawEnd () const
-	{ return _rep.end (); }
+	{ return _rep_end; }
 
 template <class Element>
 typename DenseMatrix<Element>::RowIterator DenseMatrix<Element>::rowBegin ()
-	{ return RowIterator (_rep.begin (), _cols, _cols); }
+	{ return RowIterator (_rep_begin, _cols, _disp); }
 
 template <class Element>
 typename DenseMatrix<Element>::RowIterator DenseMatrix<Element>::rowEnd ()
-	{ return RowIterator (_rep.end (), _cols, _cols); }
+	{ return RowIterator (_rep_begin + _rows * _disp, _cols, _disp); }
   
 template <class Element>
 typename DenseMatrix<Element>::ConstRowIterator DenseMatrix<Element>::rowBegin () const
-	{ return ConstRowIterator (_rep.begin (), _cols, _cols); }  
+	{ return ConstRowIterator (_rep_begin, _cols, _disp); }  
 
 template <class Element>
 typename DenseMatrix<Element>::ConstRowIterator DenseMatrix<Element>::rowEnd () const
-	{return ConstRowIterator (_rep.end (), _cols, _cols); }
+	{return ConstRowIterator (_rep_begin + _rows * _disp, _cols, _disp); }
   
 template <class Element>
 typename DenseMatrix<Element>::ColIterator DenseMatrix<Element>::colBegin ()
-	{ return  typename DenseMatrix<Element>::ColIterator (_rep.begin (), _cols, _rows); }
+	{ return  typename DenseMatrix<Element>::ColIterator (_rep_begin, _disp, _rows); }
 
 template <class Element>
 typename DenseMatrix<Element>::ColIterator DenseMatrix<Element>::colEnd ()
-	{ return  typename DenseMatrix<Element>::ColIterator (_rep.begin ()+_cols, _cols, _rows); }
+	{ return  typename DenseMatrix<Element>::ColIterator (_rep_begin + _cols, _disp, _rows); }
   
 template <class Element>
 typename DenseMatrix<Element>::ConstColIterator DenseMatrix<Element>::colBegin () const
-	{ return  typename DenseMatrix<Element>::ConstColIterator (_rep.begin (), _cols, _rows); }
+	{ return  typename DenseMatrix<Element>::ConstColIterator (_rep_begin, _disp, _rows); }
   
 template <class Element>
 typename DenseMatrix<Element>::ConstColIterator DenseMatrix<Element>::colEnd () const
-	{ return  typename DenseMatrix<Element>::ConstColIterator (_rep.begin ()+_cols, _cols, _rows); }
+	{ return  typename DenseMatrix<Element>::ConstColIterator (_rep_begin + _cols, _disp, _rows); }
 
 template <class Element>
 class SubvectorFactory<DenseMatrix<Element> >
