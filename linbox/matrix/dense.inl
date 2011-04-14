@@ -39,10 +39,17 @@ template <class Iterator, class ConstIterator>
 class DenseMatrixRowIterator
 {
     public:
-	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
-
 	typedef Subvector<Iterator, ConstIterator> Row;
 	typedef Subvector<ConstIterator, ConstIterator> ConstRow;
+
+	typedef std::random_access_iterator_tag iterator_category;
+	typedef Row value_type;
+	typedef Row &reference;
+	typedef ConstRow &const_reference;
+	typedef Row *pointer;
+	typedef ConstRow *const_pointer;
+	typedef size_t size_type;
+	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
 	DenseMatrixRowIterator (const Iterator &p, size_t len, size_t d)
 		: _row (p, p + len), _dis (d) {}
@@ -149,10 +156,17 @@ template <class Iterator, class ConstIterator>
 class DenseMatrixColIterator
 {
     public:
-	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
-
 	typedef Subvector<Subiterator<Iterator>, Subiterator<ConstIterator> > Col;
 	typedef Subvector<Subiterator<ConstIterator> > ConstCol;
+
+	typedef std::random_access_iterator_tag iterator_category;
+	typedef Col value_type;
+	typedef Col &reference;
+	typedef ConstCol &const_reference;
+	typedef Col *pointer;
+	typedef ConstCol *const_pointer;
+	typedef size_t size_type;
+	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
 	DenseMatrixColIterator (Iterator p, size_t stride, size_t len)
 		: _col (Subiterator<Iterator> (p, stride),

@@ -16,6 +16,7 @@
 namespace LinBox
 {
 
+// FIXME: Currently ignores start_idx, end_idx!!!!
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename Field::Element &alpha,
@@ -41,6 +42,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 	return y;
 }
 
+// FIXME: Currently ignores start_idx, end_idx!!!!
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename Field::Element &alpha,
@@ -54,7 +56,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 	typename Field::Element t;
 	unsigned int idx = 0;
 
-	std::vector<std::pair<size_t, typename Field::Element> > yp;
+	typename Vector<Field>::Sparse yp;
 
 	if (_F.isZero (beta))
 		y.clear ();
@@ -66,7 +68,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 		_F.mulin (t, alpha);
 
 		if (!_F.isZero (t))
-			yp.push_back (std::pair<size_t, typename Field::Element> (idx, t));
+			yp.push_back (typename Vector<Field>::Sparse::value_type (idx, t));
 	}
 
 	return _VD.addin (y, yp);
@@ -79,18 +81,20 @@ Vector2 &MVProductDomain<Field>::gemvColDense (const VectorDomain<Field>     &VD
 					       const Matrix                  &A,
 					       const Vector1                 &x,
 					       const typename Field::Element &beta,
-					       Vector2                       &y) const
+					       Vector2                       &y,
+					       size_t                         start_idx,
+					       size_t                         end_idx) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector1::const_iterator j = x.begin ();
+	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
+	typename Vector1::const_iterator j = x.begin () + start_idx, j_end = x.begin () + end_idx;
 	typename Field::Element d;
 
 	VD.mulin (y, beta);
 
-	for (; j != x.end (); ++j, ++i) {
+	for (; j != j_end; ++j, ++i) {
 		VD.field ().mul (d, alpha, *j);
 		VD.axpyin (y, d, *i);
 	}
@@ -105,16 +109,16 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta,
 								Vector2                       &y,
+								size_t                         start_idx,
+								size_t                         end_idx,
 								VectorCategories::SparseVectorTag) const
 {
-	linbox_check (A.rowdim () == y.size ());
-
-	typename Vector1::const_iterator j = x.begin ();
+	typename Vector1::const_iterator j = std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 	typename Field::Element d;
 
 	_VD.mulin (y, beta);
 
-	for (; j != x.end (); ++j) {
+	for (; j != x.end () && j->first < end_idx; ++j) {
 		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
 		_F.mul (d, alpha, j->second);
 		_VD.axpyin (y, d, *i);
@@ -499,6 +503,61 @@ Matrix3 &MatrixDomainSupportGeneric<Field>::gemmColColCol (const typename Field:
 		gemv (alpha, A, *i, beta, *j);
 
 	return C;
+}
+
+template <class Field>
+template <class Matrix1, class Matrix2>
+Matrix2 &MatrixDomainSupportGeneric<Field>::trmmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+							     TriangularMatrixType type,
+							     MatrixCategories::RowMatrixTag,
+							     MatrixCategories::RowMatrixTag) const
+{
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (A.rowdim () == B.rowdim ());
+
+	if (_F.isZero (a))
+		return scal (B, a);
+
+	TransposeMatrix<Matrix2> BT (B);
+
+	if (type == LowerTriangular) {
+		typename Matrix2::RowIterator i_B = B.rowEnd ();
+		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
+
+		typename Field::Element a_ii;
+
+		size_t idx = B.rowdim ();
+
+		do {
+			--i_B; --i_A; --idx;
+
+			if (VectorWrapper::getEntry (*i_A, a_ii, idx))
+				_F.mulin (a_ii, a);
+			else
+				_F.init (a_ii, 0);
+
+			gemvSpecialized (a, BT, *i_A, a_ii, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
+		} while (i_B != B.rowBegin ());
+	}
+	else if (type == UpperTriangular) {
+		typename Matrix2::RowIterator i_B;
+		typename Matrix1::ConstRowIterator i_A;
+
+		typename Field::Element a_ii;
+
+		size_t idx = 0;
+
+		for (i_B = B.rowBegin (), i_A = A.rowBegin (); i_B != B.rowEnd (); ++i_B, ++i_A, ++idx) {
+			if (VectorWrapper::getEntry (*i_A, a_ii, idx))
+				_F.mulin (a_ii, a);
+			else
+				_F.init (a_ii, 0);
+
+			gemvSpecialized (a, BT, *i_A, a_ii, *i_B, idx + 1, B.rowdim (), MatrixCategories::ColMatrixTag ());
+		}
+	}
+
+	return B;
 }
 
 template <class Field>

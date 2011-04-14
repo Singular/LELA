@@ -42,10 +42,10 @@ inline bool &DotProductDomain<GF2>::dotSpecializedDSP
 {
 	typename Vector2::const_iterator i;
 
-	res = 0;
+	res = false;
 
 	for (i = v2.begin (); i != v2.end (); ++i)
-		res ^= v1[*i];
+		if (v1[*i]) res = !res;
 
 	return res;
 }
@@ -85,7 +85,7 @@ inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecia
 {
 	typename Vector2::const_iterator i;
 
-	res = 0;
+	res = false;
 
 	for (i = v2.begin (); i != v2.end (); ++i)
 		res ^= v1[*i];

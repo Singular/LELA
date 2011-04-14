@@ -49,7 +49,13 @@ class MVProductDomain
 
     protected:
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColDense (const VectorDomain<Field> &VD, const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y) const;
+	Vector2 &gemvColDense (const VectorDomain<Field> &VD, const typename Field::Element &alpha, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+			       size_t start_idx, size_t end_idx) const;
+};
+
+/** Upper versus lower triangular matrices, for trmm, trsv, trsm */
+enum TriangularMatrixType {
+	UpperTriangular, LowerTriangular
 };
 
 /** \brief Class of basic matrix-arithmetic-operations
@@ -99,7 +105,7 @@ public:
 	 */
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector2 &gemv (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y) const
-		{ return gemvSpecialized (a, A, x, b, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+		{ return gemvSpecialized (a, A, x, b, y, 0, A.coldim (), typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
 	/** Rank-1 update
 	 * A <- a x y^T + A
@@ -223,6 +229,23 @@ public:
 					  typename MatrixTraits<Matrix2>::MatrixCategory (),
 					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
 
+	/** Triangular matrix-matrix multiply
+	 * B <- a * A * B
+	 *
+	 * A and B either must both support row-iterators or must both
+	 * support column-iterators.
+	 *
+	 * @param a Input scalar a
+	 * @param A Input matrix A
+	 * @param B Input matrix B
+	 * @returns Reference to B
+	 */
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &trmm (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
+		{ return trmmSpecialized (a, A, B, type,
+					  typename MatrixTraits<Matrix1>::MatrixCategory (),
+					  typename MatrixTraits<Matrix2>::MatrixCategory ()); }
+
 	/** Triangular solve with matrix
 	 * B <- a A^{-1} B
 	 *
@@ -288,24 +311,34 @@ private:
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     size_t start_idx, size_t end_idx,
 				     VectorCategories::DenseVectorTag) const
-		{ return gemvColDense (_VD, a, A, x, b, y); } 
+		{ return gemvColDense (_VD, a, A, x, b, y, start_idx, end_idx); } 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvColSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     size_t start_idx, size_t end_idx,
 				     VectorCategories::SparseVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				  size_t start_idx, size_t end_idx,
 				  MatrixCategories::RowMatrixTag) const
-		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+	{
+		linbox_check (start_idx == 0);
+		linbox_check (end_idx == A.coldim ());
+		return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector2>::VectorCategory ());
+	}
+
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				  size_t start_idx, size_t end_idx,
 				 MatrixCategories::ColMatrixTag) const
-		{ return gemvColSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
+		{ return gemvColSpecialized (a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
-				 MatrixCategories::RowColMatrixTag) const
-		{ return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+				  size_t start_idx, size_t end_idx,
+				  MatrixCategories::RowColMatrixTag) const
+		{ return gemvColSpecialized (a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 
 	template <class Vector1, class Vector2, class Matrix>
 	inline Matrix &gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A, VectorCategories::DenseVectorTag) const;
@@ -489,6 +522,10 @@ private:
 				  MatrixCategories::ColMatrixTag,
 				  MatrixCategories::RowColMatrixTag) const
 		{ return gemmColColCol (a, A, B, b, C); }
+
+	template <class Matrix1, class Matrix2>
+	Matrix2 &trmmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+				  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;

@@ -54,7 +54,7 @@ class SubmatrixConstRowIterator {
 		return tmp;
 	}
 
-	SubmatrixConstRowIterator operator + (difference_type i) const
+	SubmatrixConstRowIterator operator + (difference_type i)
 	{
 		return SubmatrixConstRowIterator (_M, _pos + i);
 	}

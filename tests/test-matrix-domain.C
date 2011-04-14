@@ -27,8 +27,8 @@ int main (int argc, char **argv)
 	bool pass = true;
 
 	static long l = 50;
-	static long n = 50;
-	static long m = 40;
+	static long m = 50;
+	static long n = 40;
 	static long p = 30;
 	static long k = 10;
 	static integer q = 2147483647U;

@@ -108,7 +108,7 @@ public:
 	typedef const SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_reference;
 	typedef reference *pointer;
 	typedef const_reference *const_pointer;
-	typedef long difference_type;
+	typedef ptrdiff_t difference_type;
 	typedef size_t size_type;
 
 	SparseVectorIterator () {}

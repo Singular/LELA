@@ -1397,21 +1397,21 @@ class MVProductDomain<Modular<uint8> >
 
     protected:
 	template <class Vector1, class Matrix, class Vector2>
-		inline Vector2 &gemvColDense
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
+	inline Vector2 &gemvColDense
+		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx) const
 	{
 		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
+			(VD, alpha, A, x, beta, y, start_idx, end_idx, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
 	}
 
     private:
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
 		 VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
 		 VectorCategories::SparseVectorTag) const;
 
 	mutable std::vector<uint32> _tmp;
@@ -1429,20 +1429,20 @@ class MVProductDomain<Modular<uint16> >
     protected:
 	template <class Vector1, class Matrix, class Vector2>
 		inline Vector2 &gemvColDense
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
+		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, size_t start_idx, size_t end_idx, Vector2 &y) const
 	{
 		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
+			(VD, alpha, A, x, beta, y, start_idx, end_idx, DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
 	}
 
     private:
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
 		 VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
 		 VectorCategories::SparseVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;
@@ -1460,20 +1460,20 @@ class MVProductDomain<Modular<uint32> >
     protected:
 	template <class Vector1, class Matrix, class Vector2>
 		inline Vector2 &gemvColDense
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y) const
+		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx) const
 	{
 		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
+			(VD, alpha, A, x, beta, y, start_idx, end_idx, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
 	}
 
     private:
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
 		 VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
 		 VectorCategories::SparseVectorTag) const;
 
 	mutable std::vector<uint64> _tmp;

@@ -385,6 +385,12 @@ struct MatrixTraits<const TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag
 	typedef typename MatrixCategories::RowMatrixTag MatrixCategory; 
 };
 
+template <class Matrix>
+struct RealMatrixType<TransposeMatrix<Matrix> >
+{
+	typedef Matrix Type;
+};
+
 } // namespace LinBox
 
 #endif // __LINBOX_matrix_transpose_INL

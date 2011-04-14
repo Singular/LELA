@@ -340,8 +340,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 					 Permutation             &P,
 					 size_t                  &r,
 					 int                     &h,
-					 Element                 &d,
-					 DenseMatrix             &T) const
+					 Element                 &d) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -393,7 +392,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		int h_1, h_2;
 		Element d_1;
 
-		GaussTransform (A_1, d_0, U, P, r_1, h_1, d_1, T);
+		GaussTransform (A_1, d_0, U, P, r_1, h_1, d_1);
 
 		// DEBUG
 		// report << "Status after first recursive call:" << std::endl;
@@ -417,11 +416,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		MD.permuteRows (A_2, P.begin (), P.end ());
 
 		MD.gemm (F.one (), U_12, A_21, F.one (), A_22);
-
-		// FIXME: This should be replaced by trmm when it becomes available
-		T.resize (r_1, m_2);
-		MD.copy (T, A_21);
-		MD.gemm (F.one (), U_11, T, F.zero (), A_21);
+		MD.trmm (F.one (), U_11, A_21, LowerTriangular);
 
 		Permutation P_2;
 
@@ -430,7 +425,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		// report << "B =" << std::endl;
 		// MD.write (report, R_2);
 
-		GaussTransform (A_22, d_1, U_22, P_2, r_2, h_2, d, T);
+		GaussTransform (A_22, d_1, U_22, P_2, r_2, h_2, d);
 
 		// DEBUG
 		// report << "Status after second recursive call:" << std::endl;
@@ -448,11 +443,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		// MD.writePermutation (report, P_2) << std::endl;
 
 		MD.permuteRows (U_12, P_2.begin (), P_2.end ());
-
-		// FIXME: This should be replaced by trmm when it becomes available
-		T.resize (U_12.rowdim (), U_12.coldim ());
-		MD.copy (T, U_12);
-		MD.gemm (F.one (), U_22, T, F.zero (), U_12);
+		MD.trmm (F.one (), U_22, U_12, LowerTriangular);
 				
 		// DEBUG
 		// report << "P_2U_2 =" << std::endl;
@@ -945,10 +936,9 @@ void GaussJordan<Field>::DenseRowEchelonForm (DenseMatrix &A,
 
 		GaussJordanTransform (A, 0, F.one (), U, P, rank, h, det, S, T);
 	} else {
-		DenseMatrix T;
 		Submatrix<DenseMatrix> Up (U, 0, 0, U.rowdim (), U.coldim ());
 
-		GaussTransform (A, F.one (), Up, P, rank, h, det, T);
+		GaussTransform (A, F.one (), Up, P, rank, h, det);
 	}
 
 	commentator.stop (MSG_DONE, NULL, "GaussJordan::DenseRowEchelonForm");
@@ -1011,7 +1001,7 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 			MD.permuteRows (A, &t, &t + 1);
 
 			if (compute_L) {
-				typename SubmatrixTypename<Matrix2>::Type Lp (L, 0, 0, L.rowdim (), k - start_row);
+				Submatrix<typename RealMatrixType<Matrix2>::Type> Lp (L, 0, 0, L.rowdim (), k - start_row);
 				MD.permuteRows (Lp, &t, &t + 1);
 			}
 

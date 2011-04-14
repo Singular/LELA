@@ -38,6 +38,70 @@ TransposeMatrix<Matrix> transpose (Matrix &M)
 	return TransposeMatrix<Matrix> (M);
 }
 
+/* Construct a random nonsingular upper triangular matrix from a random matrix */
+
+template <class Field, class Matrix>
+static Matrix &makeUpperTriangular (Field &F, Matrix &A, bool nonsingular)
+{
+	size_t i, j;
+
+	typename Field::Element a;
+
+	for (i = 0; i < A.rowdim (); ++i) {
+		for (j = 0; j < std::min (i, A.coldim ()); ++j) {
+			if (A.getEntry (a, i, j) && !F.isZero (a)) {
+				A.setEntry (i, j, F.zero ());
+				A.eraseEntry (i, j);
+			}
+		}
+	}
+
+	if (nonsingular) {
+		NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+		for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
+			if (!A.getEntry (a, i, i) || F.isZero (a)) {
+				r.random (a);
+				A.setEntry (i, i, a);
+			}
+		}
+	}
+
+	return A;
+}
+
+/* Construct a random (possibly nonsingular) lower triangular matrix from a random matrix */
+
+template <class Field, class Matrix>
+static Matrix &makeLowerTriangular (Field &F, Matrix &A, bool nonsingular)
+{
+	size_t i, j;
+
+	typename Field::Element a;
+
+	for (i = 0; i < A.rowdim (); ++i) {
+		for (j = i + 1; j < A.coldim (); ++j) {
+			if (A.getEntry (a, i, j) && !F.isZero (a)) {
+				A.setEntry (i, j, F.zero ());
+				A.eraseEntry (i, j);
+			}
+		}
+	}
+
+	if (nonsingular) {
+		NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+		for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
+			if (!A.getEntry (a, i, i) || F.isZero (a)) {
+				r.random (a);
+				A.setEntry (i, i, a);
+			}
+		}
+	}
+
+	return A;
+}
+
 /* Test 1: Copy and areEqual
  *
  * Return true on success and false on failure
@@ -398,7 +462,135 @@ static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vect
 	return ret;
 }
 
-/* Test 7: Row-echelon and gemm
+/* Test 7a: trmm and gemm (upper triangular)
+ *
+ * Return true on success and false on failure
+ */
+
+template <class Field, class Matrix1, class Matrix2>
+static bool testTrmmGemmUpper (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B)
+{
+	ostringstream str;
+
+	str << "Testing " << text << " trmm (upper triangular, consistency with gemm)" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool ret = true;
+
+	MatrixDomain<Field> MD (F);
+
+	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
+	Matrix2 B1 (B.rowdim (), B.coldim ());
+	DenseMatrix<typename Field::Element> C (B.rowdim (), B.coldim ());
+
+	MD.copy (A1, A);
+	MD.copy (B1, B);
+
+	makeUpperTriangular (F, A1, false);
+
+	report << "Input matrix A:" << endl;
+	MD.write (report, A1);
+
+	report << "Input matrix B:" << endl;
+	MD.write (report, B1);
+
+	typename Field::Element a;
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+	r.random (a);
+
+	report << "Coefficient a = ";
+	F.write (report, a) << std::endl;
+
+	MD.trmm (a, A, B1, UpperTriangular);
+
+	report << "Output matrix a * A * B (trmm): " << std::endl;
+	MD.write (report, B1);
+
+	MD.gemm (a, A1, B, F.zero (), C);
+
+	report << "Output matrix a * A * B (gemm): " << std::endl;
+	MD.write (report, C);
+
+	if (!MD.areEqual (B1, C)) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: MatrixDomain reported results from trmm and gemm are not equal" << endl;
+		ret = false;
+	}
+
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
+
+	return ret;
+}
+
+/* Test 7b: trmm and gemm (lower triangular)
+ *
+ * Return true on success and false on failure
+ */
+
+template <class Field, class Matrix1, class Matrix2>
+static bool testTrmmGemmLower (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B)
+{
+	ostringstream str;
+
+	str << "Testing " << text << " trmm (lower triangular, consistency with gemm)" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool ret = true;
+
+	MatrixDomain<Field> MD (F);
+
+	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
+	Matrix2 B1 (B.rowdim (), B.coldim ());
+	DenseMatrix<typename Field::Element> C (B.rowdim (), B.coldim ());
+
+	MD.copy (A1, A);
+	MD.copy (B1, B);
+
+	makeLowerTriangular (F, A1, false);
+
+	report << "Input matrix A:" << endl;
+	MD.write (report, A1);
+
+	report << "Input matrix B:" << endl;
+	MD.write (report, B1);
+
+	typename Field::Element a;
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+	r.random (a);
+
+	report << "Coefficient a = ";
+	F.write (report, a) << std::endl;
+
+	MD.trmm (a, A, B1, LowerTriangular);
+
+	report << "Output matrix a * A * B (trmm): " << std::endl;
+	MD.write (report, B1);
+
+	MD.gemm (a, A1, B, F.zero (), C);
+
+	report << "Output matrix a * A * B (gemm): " << std::endl;
+	MD.write (report, C);
+
+	if (!MD.areEqual (B1, C)) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: MatrixDomain reported results from trmm and gemm are not equal" << endl;
+		ret = false;
+	}
+
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
+
+	return ret;
+}
+
+/* Test 8: Row-echelon and gemm
  *
  * Return true on success and false on failure
  */
@@ -571,7 +763,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 	return ret;
 }
 
-/* Test 8: gemv and gemm
+/* Test 9: gemv and gemm
  *
  * Return true on success and false on failure
  */
@@ -718,7 +910,7 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
 					typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ());
 }
 
-/* Test 9: gemv with coefficients
+/* Test 10: gemv with coefficients
  *
  * Return true on success and false on failure
  */
@@ -784,40 +976,10 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 	return ret;
 }
 
-/* Test 10: trsv
+/* Test 11: trsv
  *
  * Return true on success and false on failure
  */
-
-/* Construct a random nonsingular upper triangular matrix from a random matrix */
-
-template <class Field, class Matrix>
-static Matrix &makeUpperTriangular (Field &F, Matrix &A)
-{
-	size_t i, j;
-
-	typename Field::Element a;
-
-	for (i = 0; i < A.rowdim (); ++i) {
-		for (j = 0; j < std::min (i, A.coldim ()); ++j) {
-			if (A.getEntry (a, i, j) && !F.isZero (a)) {
-				A.setEntry (i, j, F.zero ());
-				A.eraseEntry (i, j);
-			}
-		}
-	}
-
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
-
-	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
-		if (!A.getEntry (a, i, i) || F.isZero (a)) {
-			r.random (a);
-			A.setEntry (i, i, a);
-		}
-	}
-
-	return A;
-}
 
 template <class Field, class Matrix, class Vector>
 static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector &v)
@@ -835,7 +997,7 @@ static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector 
 	Matrix U (A.rowdim (), A.coldim ());
 
 	MD.copy (U, A);
-	makeUpperTriangular (F, U);
+	makeUpperTriangular (F, U, true);
 
 	typename LinBox::Vector<Field>::Dense Uinv_v (U.coldim ()), UUinv_v (U.rowdim ());
 	VD.copy (Uinv_v, v);
@@ -868,7 +1030,7 @@ static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector 
 	return ret;
 }
 
-/* Test 11: trsm and trsv
+/* Test 12: trsm and trsv
  *
  * B must be iterable by columns
  *
@@ -896,7 +1058,7 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
 	Matrix1 U (A.rowdim (), A.coldim ());
 
 	MD.copy (U, A);
-	makeUpperTriangular (F, U);
+	makeUpperTriangular (F, U, true);
 
 	DenseMatrix<typename Field::Element> UinvBtrsm (U.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> UinvBtrsv (U.rowdim (), B.coldim ());
@@ -935,7 +1097,7 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
 	return ret;
 }
 
-/* Test 12: trsm with coefficient
+/* Test 13: trsm with coefficient
  *
  * B must be iterable by columns
  *
@@ -963,7 +1125,7 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 	Matrix1 U (A.rowdim (), A.coldim ());
 
 	MD.copy (U, A);
-	makeUpperTriangular (F, U);
+	makeUpperTriangular (F, U, true);
 
 	DenseMatrix<typename Field::Element> aUinvB (U.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> UinvB (U.rowdim (), B.coldim ());
@@ -1009,7 +1171,7 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 	return ret;
 }
 
-/* Test 13: permuteRows, permuteColumns
+/* Test 14: permuteRows, permuteColumns
  *
  * Return true on success and false on failure
  */
@@ -1113,7 +1275,7 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 	return ret;
 }
 
-/* Test 14: read and write
+/* Test 15: read and write
  *
  * Return true on success and false on failure
  */
@@ -1209,6 +1371,8 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (F, text, M1)) pass = false;
 	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
+	if (!testTrmmGemmUpper (F, text, M1, M2)) pass = false;
+	if (!testTrmmGemmLower (F, text, M1, M2)) pass = false;
 	if (!testGemmRowEchelon (F, text, M1)) pass = false;
 	if (!testGemvGemm (F, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
@@ -1249,6 +1413,8 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (F, text, M1)) pass = false;
 //	if (!testGerGemm (F, text, M1, v1, v2)) pass = false; // Needs ColIterator
+	if (!testTrmmGemmUpper (F, text, M1, M2)) pass = false;
+	if (!testTrmmGemmLower (F, text, M1, M2)) pass = false;
 //	if (!testGemmRowEchelon (F, text, M1)) pass = false;  // Needs ColIterator
 	if (!testGemvGemm (F, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
@@ -1288,6 +1454,8 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (F, text, M1)) pass = false;
 	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
+//	if (!testTrmmGemmUpper (F, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
+//	if (!testTrmmGemmLower (F, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
 	if (!testGemmRowEchelon (F, text, M1)) pass = false;
 //	if (!testGemvGemm (F, text, M1, M2)) pass = false;    Not compiling because the compiler won't instantiate with TransposeMatrix. Hmmm....
 	if (!testGemvCoeff (F, text, M1, v2)) pass = false;

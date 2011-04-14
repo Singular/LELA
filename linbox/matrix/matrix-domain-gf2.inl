@@ -101,18 +101,20 @@ Matrix2 &MatrixDomainSupportGF2::axpyRow (const bool &a, const Matrix1 &A, Matri
 }
 
 template <class Vector1, class Matrix, class Vector2>
-Vector2 &MatrixDomainSupportGF2::gemvColDense (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y) const
+Vector2 &MatrixDomainSupportGF2::gemvColDense (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx) const
 {
+	linbox_check (A.coldim () == x.size ());
+
 	typename Matrix::ConstColIterator i_A;
-	typename Vector1::const_iterator i_x;
+	typename Vector1::const_iterator i_x, i_x_end = x.begin () + end_idx;
 
 	if (!b)
-		_VD.subin (y, y);
+		_VD.mulin (y, false);
 
 	if (!a)
 		return y;
 
-	for (i_x = x.begin (), i_A = A.colBegin (); i_x != x.end (); ++i_x, ++i_A)
+	for (i_x = x.begin () + start_idx, i_A = A.colBegin () + start_idx; i_x != i_x_end; ++i_x, ++i_A)
 		if (*i_x)
 			_VD.addin (y, *i_A);
 
@@ -121,18 +123,19 @@ Vector2 &MatrixDomainSupportGF2::gemvColDense (const bool &a, const Matrix &A, c
 
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     size_t start_idx, size_t end_idx,
 						     VectorCategories::SparseZeroOneVectorTag,
 						     VectorCategories::DenseZeroOneVectorTag) const
 {
-	typename Vector1::const_iterator i_x;
+	typename Vector1::const_iterator i_x = std::lower_bound (x.begin (), x.end (), start_idx);
 
 	if (!b)
-		_VD.subin (y, y);
+		_VD.mulin (y, false);
 
 	if (!a)
 		return y;
 
-	for (i_x = x.begin (); i_x != x.end (); ++i_x)
+	for (; i_x != x.end () && *i_x < end_idx; ++i_x)
 		_VD.addin (y, *(A.colBegin () + *i_x));
 
 	return y;
@@ -140,23 +143,35 @@ Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix
 
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     size_t start_idx, size_t end_idx,
 						     VectorCategories::HybridZeroOneVectorTag,
 						     VectorCategories::DenseZeroOneVectorTag) const
 {
 	typename Matrix::ConstColIterator i_A;
 	typename Vector1::const_iterator i_x;
 	typename Vector1::word_type t;
+	typename Vector1::index_type idx;
 
 	if (!b)
-		_VD.subin (y, y);
+		_VD.mulin (y, false);
 
 	if (!a)
 		return y;
 
-	for (i_x = x.begin (); i_x != x.end (); ++i_x) {
-		i_A = A.colBegin () + (i_x->first << WordTraits<typename Vector1::word_type>::logof_size);
+	i_x = std::lower_bound (x.begin (), x.end (), start_idx >> WordTraits<typename Vector1::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
 
-		for (t = Vector1::Endianness::e_0; t != 0; t = Vector1::Endianness::shift_right (t, 1), ++i_A)
+	for (; i_x != x.end () && (i_x->first << WordTraits<typename Vector1::word_type>::logof_size) < (long) end_idx; ++i_x) {
+		if (start_idx >> WordTraits<typename Vector1::word_type>::logof_size == i_x->first) {
+			t = Vector1::Endianness::e_j (start_idx & WordTraits<typename Vector1::word_type>::pos_mask);
+			idx = start_idx;
+		} else {
+			t = Vector1::Endianness::e_0;
+			idx = i_x->first << WordTraits<typename Vector1::word_type>::logof_size;
+		}
+
+		i_A = A.colBegin () + idx;
+
+		for (; t != 0 && idx < end_idx; t = Vector1::Endianness::shift_right (t, 1), ++i_A, ++idx)
 			if (i_x->second & t)
 				_VD.addin (y, *i_A);
 	}
@@ -174,7 +189,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 	bool d;
 
 	if (!b)
-		_VD.subin (y, y);
+		_VD.mulin (y, false);
 
 	if (!a)
 		return y;
@@ -259,15 +274,22 @@ Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == x.size ());
 
-	bool ai;
-	int i = A.rowdim () - 1;
+	bool d;
 
-	while (--i >= 0) {
-		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
+	typename Matrix::ConstRowIterator i = A.rowEnd ();
+	size_t idx = A.rowdim () - 1;
+
+	--i;
+
+	do {
+		--i; --idx;
+
+		if (_VD.firstNonzeroEntry (d, *i) == -1)
 			continue;
 
-		_VD.dot (x[i], *(A.rowBegin () + i), x);
-	}
+		_VD.dot (d, *i, x);
+		x[idx] = d;
+	} while (i != A.rowBegin ());
 
 	return x;
 }
@@ -424,6 +446,63 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 }
 
 template <class Matrix1, class Matrix2>
+Matrix2 &MatrixDomainSupportGF2::trmmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
+						  TriangularMatrixType type,
+						  MatrixCategories::RowMatrixTag,
+						  MatrixCategories::RowMatrixTag) const
+{
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (A.rowdim () == B.rowdim ());
+
+	if (A.coldim () == 0 || A.rowdim () == 0)
+		return B;
+
+	if (!a)
+		return scal (B, a);
+
+	TransposeMatrix<Matrix2> BT (B);
+
+	if (type == LowerTriangular) {
+		typename Matrix2::RowIterator i_B = B.rowEnd ();
+		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
+
+		bool a_ii;
+
+		size_t idx = B.rowdim ();
+
+		do {
+			--i_B; --i_A; --idx;
+
+			if (VectorWrapper::getEntry (*i_A, a_ii, idx))
+				_F.mulin (a_ii, a);
+			else
+				a_ii = false;
+
+			gemvSpecialized (a, BT, *i_A, a_ii, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
+		} while (i_B != B.rowBegin ());
+	}
+	else if (type == UpperTriangular) {
+		typename Matrix2::RowIterator i_B;
+		typename Matrix1::ConstRowIterator i_A;
+
+		bool a_ii;
+
+		size_t idx = 0;
+
+		for (i_B = B.rowBegin (), i_A = A.rowBegin (); i_B != B.rowEnd (); ++i_B, ++i_A, ++idx) {
+			if (VectorWrapper::getEntry (*i_A, a_ii, idx))
+				_F.mulin (a_ii, a);
+			else
+				a_ii = false;
+
+			gemvSpecialized (a, BT, *i_A, a_ii, *i_B, idx + 1, B.rowdim (), MatrixCategories::ColMatrixTag ());
+		}
+	}
+
+	return B;
+}
+
+template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
 						  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const
 {
@@ -433,13 +512,13 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 	bool ai;
 	int i = A.rowdim () - 1;
 
-	TransposeMatrix<const Matrix1> AT (A);
+	TransposeMatrix<const Matrix2> BT (B);
 
 	while (--i >= 0) {
 		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
 			continue;
 
-		gemv (true, AT, *(A.rowBegin () + i), false, *(B.rowBegin () + i));
+		gemv (true, BT, *(A.rowBegin () + i), false, *(B.rowBegin () + i));
 	}
 
 	return B;
@@ -452,7 +531,7 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 	typename Matrix2::ColIterator i_B;
 
 	if (!a) {
-		subin (B, B);
+		scal (B, false);
 		return B;
 	}
 

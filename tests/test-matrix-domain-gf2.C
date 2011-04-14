@@ -28,9 +28,9 @@ int main (int argc, char **argv)
 {
 	bool pass = true;
 
-	static long l = 100;
-	static long n = 100;
-	static long m = 80;
+	static long l = 50;
+	static long m = 50;
+	static long n = 80;
 	static long p = 60;
 	static long k = 10;
 	static int iterations = 1;

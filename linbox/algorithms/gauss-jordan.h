@@ -159,8 +159,7 @@ private:
 			     Permutation             &P,
 			     size_t                  &r,
 			     int                     &h,
-			     Element                 &d,
-			     DenseMatrix             &T) const;
+			     Element                 &d) const;
 
 	// Optimised version of VD.addin which can take
 	// advantage of knowledge of where in v the entries of

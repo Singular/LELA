@@ -176,6 +176,9 @@ class BitVectorReference
 	BitVectorReference (word_iterator word, uint8 position)
 		: _word (word), _pos (position) {}
 
+	BitVectorReference (const BitVectorReference &v)
+		: _word (v._word), _pos (v._pos) {}
+
 	~BitVectorReference () {}
 
 	BitVectorReference &operator = (BitVectorReference &a) 
@@ -191,19 +194,19 @@ class BitVectorReference
 		{ *_word &= ~Endianness::e_j (_pos) | Endianness::shift_right (a.get_bit (), _pos - a._pos); return *this; }
 
 	BitVectorReference &operator &= (bool v) 
-		{ *_word &= ~Endianness::e_j (_pos) | (v & Endianness::e_j (_pos)); return *this; }
+		{ if (!v) *_word &= ~Endianness::e_j (_pos); return *this; }
 
 	BitVectorReference &operator |= (BitVectorReference &a) 
 		{ *_word |= Endianness::shift_right (a.get_bit (), _pos - a._pos); return *this; }
 
 	BitVectorReference &operator |= (bool v) 
-		{ *_word |= v & Endianness::e_j (_pos); return *this; }
+		{ if (v) *_word |= Endianness::e_j (_pos); return *this; }
 
 	BitVectorReference &operator ^= (BitVectorReference &a) 
 		{ *_word ^= Endianness::shift_right (a.get_bit (), _pos - a._pos); return *this; }
 
 	BitVectorReference &operator ^= (bool v) 
-		{ *_word ^= v & Endianness::e_j (_pos); return *this; }
+		{ if (v) *_word ^= Endianness::e_j (_pos); return *this; }
 
 	operator bool (void) const
 		{ return *_word & Endianness::e_j (_pos); return *this; }
@@ -250,10 +253,13 @@ class BitVectorConstReference
 	BitVectorConstReference (const_word_iterator word, uint8 position)
 		: _word (word), _pos (position) {}
 
+	BitVectorConstReference (const BitVectorConstReference &v)
+		: _word (v._word), _pos (v._pos) {}
+
 	~BitVectorConstReference () {}
 
 	operator bool (void) const
-		{ return *_word & Endianness::e_j (_pos); }
+		{ return (*_word & Endianness::e_j (_pos)) != 0; }
 
     private:
 	friend class BitVectorConstIterator<const_word_iterator, Endianness>;

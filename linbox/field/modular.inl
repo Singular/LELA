@@ -282,13 +282,14 @@ inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedSS
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+	 size_t start_idx, size_t end_idx,
 	 VectorCategories::DenseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j, j_end;
+	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
+	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
 	std::vector<uint32>::iterator l, l_end;
 
@@ -300,19 +301,19 @@ Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = x.begin ();
-		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
+		j = x.begin () + start_idx;
+		j_end = j + __LINBOX_MIN (end_idx - start_idx, VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (end_idx - start_idx - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != x.end ());
+	} while (j_end != j_stop);
 
 	typename Vector2::iterator y_j;
 
@@ -325,13 +326,14 @@ Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+	 size_t start_idx, size_t end_idx,
 	 VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j, j_end;
+	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
+	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
 	std::vector<uint32>::iterator l, l_end;
 
@@ -343,19 +345,19 @@ Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = x.begin ();
-		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
+		j = x.begin () + start_idx;
+		j_end = j + __LINBOX_MIN (end_idx - start_idx, VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				_tmp[k->first] += k->second * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (end_idx - start_idx - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != x.end ());
+	} while (j_end != j_stop);
 
 	typename Vector2::iterator y_j;
 
@@ -368,13 +370,14 @@ Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+	 size_t start_idx, size_t end_idx,
 	 VectorCategories::DenseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j = x.begin (), j_end;
+	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
+	typename Vector2::const_iterator j = x.begin () + start_idx, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
 	// Dan Roche, 7-1-04
 	// std::vector<uint32>::iterator l, l_end;
@@ -388,19 +391,19 @@ Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = x.begin ();
-		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
+		j = x.begin () + start_idx;
+		j_end = j + __LINBOX_MIN (end_idx - start_idx, VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (end_idx - start_idx - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != x.end ());
+	} while (j_end != j_stop);
 
 	typename Vector2::iterator y_j;
 
@@ -413,13 +416,14 @@ Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+	 size_t start_idx, size_t end_idx,
 	 VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j, j_end;
+	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
+	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
         // Dan Roche, 7-1-04
         // std::vector<uint32>::iterator l, l_end;
@@ -433,19 +437,19 @@ Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 	l_end = _tmp.begin () + y.size ();
 
 	do {
-		j = x.begin ();
-		j_end = j + __LINBOX_MIN (A->coldim (), VD.field ()._k);
+		j = x.begin () + start_idx;
+		j_end = j + __LINBOX_MIN (end_idx - start_idx, VD.field ()._k);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l)
 				_tmp[k->first] += k->second * *j;
 
-		j_end += __LINBOX_MIN (A->coldim () - (j_end - x.begin ()), VD.field ()._k);
+		j_end += __LINBOX_MIN (end_idx - start_idx - (j_end - x.begin ()), VD.field ()._k);
 
 		for (l =_tmp.begin (); l != l_end; ++l)
 			*l %= VD.field ()._modulus;
 
-	} while (j_end != x.end ());
+	} while (j_end != j_stop);
 
 	typename Vector2::iterator y_j;
 
@@ -458,13 +462,14 @@ Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+	 size_t start_idx, size_t end_idx,
 	 VectorCategories::DenseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j;
+	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
+	typename Vector2::const_iterator j, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
 	std::vector<uint64>::iterator l;
 
@@ -475,7 +480,7 @@ Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 
 	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	for (j = x.begin (); j != x.end (); ++j, ++i) {
+	for (j = x.begin () + start_idx; j != j_stop; ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
 			t = ((uint64) *k) * ((uint64) *j);
 
@@ -497,13 +502,14 @@ Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 	(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y,
+	 size_t start_idx, size_t end_idx,
 	 VectorCategories::SparseVectorTag) const
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j;
+	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
+	typename Vector2::const_iterator j, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
 	std::vector<uint64>::iterator l;
 
@@ -514,7 +520,7 @@ Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 
 	std::fill (_tmp.begin (), _tmp.begin () + y.size (), 0);
 
-	for (j = x.begin (); j != x.end (); ++j, ++i) {
+	for (j = x.begin () + start_idx; j != j_stop; ++j, ++i) {
 		for (k = i->begin (), l = _tmp.begin (); k != i->end (); ++k, ++l) {
 			t = ((uint64) k->second) * ((uint64) *j);
 

@@ -179,6 +179,37 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		{ return copy_then_gemm (a, A._rep, B._rep, b, C); }
 
 	template <class Matrix1, class Matrix2>
+	inline Matrix2 &trmm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
+		{ return MatrixDomainSupportGF2::trmm (a, A, B, type); }
+
+#if 0 // I wish M4RI had a trmm...
+	inline M4RIMatrix &trmm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B, TriangularMatrixType type) const
+	{
+		linbox_check (A.rowdim () == B.rowdim ());
+		linbox_check (A.rowdim () == A.coldim ());
+
+		if (A.rowdim () == 0 || A.coldim () == 0 || B.coldim () == 0)
+			return B;
+
+		if (a)
+			mzd_trmm_upper_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+		else
+			scal (B, false);
+
+		return B;
+	}
+
+	inline M4RIMatrix &trmm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B, TriangularMatrixType type) const
+		{ trmm (a, A._rep, B, type); return B; }
+
+	inline Submatrix<M4RIMatrix> &trmm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
+		{ trmm (a, A, B._rep, type); return B; }
+
+	inline Submatrix<M4RIMatrix> &trmm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
+		{ trmm (a, A._rep, B._rep, type); return B; }
+#endif // Disabled
+
+	template <class Matrix1, class Matrix2>
 	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B) const
 		{ return MatrixDomainSupportGF2::trsm (a, A, B); }
 

@@ -465,18 +465,10 @@ class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::ColMatrixTag>
 	size_t _end_col;
 };
 
-template <class Matrix,
-	  class SubvectorFactory = SubvectorFactory<Matrix, typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>,
-	  class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
-struct SubmatrixTypename
-{
-	typedef Submatrix<Matrix, SubvectorFactory, Trait> Type;
-};
-
 template <class Matrix, class SubvectorFactory, class Trait>
-struct SubmatrixTypename<Submatrix<Matrix, SubvectorFactory, Trait> >
+struct RealMatrixType<Submatrix<Matrix, SubvectorFactory, Trait> >
 {
-	typedef Submatrix<Matrix, SubvectorFactory, Trait> Type;
+	typedef Matrix Type;
 };
 
 } // namespace LinBox

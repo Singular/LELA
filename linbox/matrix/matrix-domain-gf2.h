@@ -48,7 +48,7 @@ public:
 
 	template <class Vector1, class Matrix, class Vector2>
 	inline Vector2 &gemv (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y) const
-		{ return gemvSpecialized (a, A, x, b, y, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+		{ return gemvSpecialized (a, A, x, b, y, 0, A.coldim (), typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
 	template <class Matrix, class Vector>
 	inline Vector &trsv (const Matrix &A, Vector &x) const
@@ -89,6 +89,12 @@ public:
 					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
 
 	template <class Matrix1, class Matrix2>
+	inline Matrix2 &trmm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
+		{ return trmmSpecialized (a, A, B, type,
+					  typename MatrixTraits<Matrix1>::MatrixCategory (),
+					  typename MatrixTraits<Matrix2>::MatrixCategory ()); }
+
+	template <class Matrix1, class Matrix2>
 	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B) const
 		{ return trsmSpecialized (a, A, B, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
@@ -119,7 +125,7 @@ private:
 
 	// Specialized function implementations
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColDense (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y) const;
+	Vector2 &gemvColDense (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
@@ -132,33 +138,48 @@ private:
 				     VectorCategories::HybridZeroOneVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
 				     VectorCategories::DenseZeroOneVectorTag,
 				     VectorCategories::DenseZeroOneVectorTag) const
-		{ return gemvColDense (a, A, x, b, y); } 
+		{ return gemvColDense (a, A, x, b, y, start_idx, end_idx); } 
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
 				     VectorCategories::DenseZeroOneVectorTag,
 				     VectorCategories::SparseZeroOneVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
+				     VectorCategories::SparseZeroOneVectorTag,
+				     VectorCategories::SparseZeroOneVectorTag) const
+		{ return gemvColSpecialized (a, A, x, b, y, start_idx, end_idx, VectorCategories::SparseZeroOneVectorTag (), VectorCategories::DenseZeroOneVectorTag ()); }
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
 				     VectorCategories::SparseZeroOneVectorTag,
 				     VectorCategories::DenseZeroOneVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
 				     VectorCategories::HybridZeroOneVectorTag,
 				     VectorCategories::DenseZeroOneVectorTag) const;
+	template <class Vector1, class Matrix, class Vector2>
+	Vector2 &gemvColSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
+				     VectorCategories::HybridZeroOneVectorTag,
+				     VectorCategories::HybridZeroOneVectorTag) const
+		{ return gemvColSpecialized (a, A, x, b, y, start_idx, end_idx, VectorCategories::HybridZeroOneVectorTag (), VectorCategories::DenseZeroOneVectorTag ()); }
 
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
 				  MatrixCategories::RowMatrixTag) const
-		{ return gemvRowSpecialized (a, A, x, b, y, typename GF2VectorTraits<Vector1>::VectorCategory ()); }
+	{
+		linbox_check (start_idx == 0);
+		linbox_check (end_idx == A.coldim ());
+		return gemvRowSpecialized (a, A, x, b, y, typename GF2VectorTraits<Vector1>::VectorCategory ());
+	}
+
 	template <class Vector1, class Matrix, class Vector2>
-	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
 				  MatrixCategories::ColMatrixTag) const
-		{ return gemvColSpecialized (a, A, x, b, y,
-					    typename GF2VectorTraits<Vector1>::VectorCategory (),
-					    typename GF2VectorTraits<Vector2>::VectorCategory ()); }
+		{ return gemvColSpecialized (a, A, x, b, y, start_idx, end_idx,
+					     typename GF2VectorTraits<Vector1>::VectorCategory (),
+					     typename GF2VectorTraits<Vector2>::VectorCategory ()); }
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 				  MatrixCategories::ZeroOneRowMatrixTag) const
@@ -318,6 +339,10 @@ private:
 				  MatrixCategories::ZeroOneRowMatrixTag,
 				  MatrixCategories::ZeroOneRowMatrixTag) const
 		{ return gemmRowRowRow (a, A, B, b, C); }
+
+	template <class Matrix1, class Matrix2>
+	inline Matrix2 &trmmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+					 MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
