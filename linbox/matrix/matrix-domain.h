@@ -128,8 +128,8 @@ public:
 	 * @returns Reference to x
 	 */
 	template <class Matrix, class Vector>
-	inline Vector &trsv (const Matrix &A, Vector &x, TriangularMatrixType type) const
-		{ return trsvSpecialized (A, x, type, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Field, Vector>::VectorCategory ()); }
+	inline Vector &trsv (const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne) const
+		{ return trsvSpecialized (A, x, type, diagIsOne, typename MatrixTraits<Matrix>::MatrixCategory (), typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 	/*? @name Matrix-matrix arithmetic operations
 	 *
@@ -241,8 +241,8 @@ public:
 	 * @returns Reference to B
 	 */
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trmm (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
-		{ return trmmSpecialized (a, A, B, type,
+	inline Matrix2 &trmm (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne) const
+		{ return trmmSpecialized (a, A, B, type, diagIsOne,
 					  typename MatrixTraits<Matrix1>::MatrixCategory (),
 					  typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
@@ -255,8 +255,8 @@ public:
 	 * @returns Reference to B
 	 */
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trsm (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
-		{ return trsmSpecialized (a, A, B, type, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
+	inline Matrix2 &trsm (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne) const
+		{ return trsmSpecialized (a, A, B, type, diagIsOne, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
 	/*? @name Matrix permutations
 	 * These operations permute the rows or columns of a matrix based on
@@ -363,7 +363,7 @@ private:
 		{ return gerRowSpecialised (a, x, y, A, typename VectorTraits<Field, Vector1>::VectorCategory ()); }
 
 	template <class Matrix, class Vector>
-	Vector &trsvSpecialized (const Matrix &A, Vector &x, TriangularMatrixType type, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag) const;
+	Vector &trsvSpecialized (const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne, MatrixCategories::RowMatrixTag, VectorCategories::DenseVectorTag) const;
 
 	template <class Matrix1, class Matrix2> Matrix1 &copyRow (Matrix1 &B, const Matrix2 &A) const;
 	template <class Matrix1, class Matrix2> Matrix1 &copyCol (Matrix1 &B, const Matrix2 &A) const;
@@ -524,26 +524,26 @@ private:
 		{ return gemmColColCol (a, A, B, b, C); }
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trmmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+	Matrix2 &trmmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				  MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				  MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag) const
-		{ return trsmSpecialized (a, A, B, type, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+		{ return trsmSpecialized (a, A, B, type, diagIsOne, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+	Matrix2 &trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				  MatrixCategories::RowMatrixTag, MatrixCategories::RowColMatrixTag) const
-		{ return trsmSpecialized (a, A, B, type, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+		{ return trsmSpecialized (a, A, B, type, diagIsOne, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRowsByRow (Matrix   &A,

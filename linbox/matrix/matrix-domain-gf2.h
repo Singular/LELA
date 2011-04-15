@@ -51,8 +51,8 @@ public:
 		{ return gemvSpecialized (a, A, x, b, y, 0, A.coldim (), typename MatrixTraits<Matrix>::MatrixCategory ()); }
 
 	template <class Matrix, class Vector>
-	inline Vector &trsv (const Matrix &A, Vector &x, TriangularMatrixType type) const
-		{ return trsvSpecialized (A, x, type, typename MatrixTraits<Matrix>::MatrixCategory (), typename GF2VectorTraits<Vector>::VectorCategory ()); }
+	inline Vector &trsv (const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne) const
+		{ return trsvSpecialized (A, x, type, diagIsOne, typename MatrixTraits<Matrix>::MatrixCategory (), typename GF2VectorTraits<Vector>::VectorCategory ()); }
 
 	template <class Matrix1, class Matrix2>
 	inline Matrix1 &copy (Matrix1 &B, const Matrix2 &A) const
@@ -89,14 +89,14 @@ public:
 					  typename MatrixTraits<Matrix3>::MatrixCategory ()); }
 
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trmm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
-		{ return trmmSpecialized (a, A, B, type,
+	inline Matrix2 &trmm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne) const
+		{ return trmmSpecialized (a, A, B, type, diagIsOne,
 					  typename MatrixTraits<Matrix1>::MatrixCategory (),
 					  typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
-		{ return trsmSpecialized (a, A, B, type, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
+	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne) const
+		{ return trsmSpecialized (a, A, B, type, diagIsOne, typename MatrixTraits<Matrix1>::MatrixCategory (), typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
 	template <class Matrix1, class Blackbox, class Matrix2>
 	inline Matrix2 &gebmm (Matrix2 &C, const Blackbox &A, const Matrix1 &B) const;
@@ -186,7 +186,7 @@ private:
 		{ return gemvRowSpecialized (a, A, x, b, y, typename GF2VectorTraits<Vector1>::VectorCategory ()); }
 
 	template <class Matrix, class Vector>
-	Vector &trsvSpecialized (const Matrix &A, Vector &x, TriangularMatrixType type, MatrixCategories::RowMatrixTag, VectorCategories::DenseZeroOneVectorTag) const;
+	Vector &trsvSpecialized (const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne, MatrixCategories::RowMatrixTag, VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Matrix1, class Matrix2> Matrix1 &copyRow (Matrix1 &B, const Matrix2 &A) const;
 	template <class Matrix1, class Matrix2> Matrix1 &copyCol (Matrix1 &B, const Matrix2 &A) const;
@@ -341,14 +341,16 @@ private:
 		{ return gemmRowRowRow (a, A, B, b, C); }
 
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trmmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type,
+	inline Matrix2 &trmmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 					 MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
+	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const;
 
 	template <class Matrix1, class Matrix2>
-	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const;
+	Matrix2 &trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const;
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRowsByRow (Matrix   &A,

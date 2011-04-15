@@ -416,7 +416,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		MD.permuteRows (A_2, P.begin (), P.end ());
 
 		MD.gemm (F.one (), U_12, A_21, F.one (), A_22);
-		MD.trmm (F.one (), U_11, A_21, LowerTriangular);
+		MD.trmm (F.one (), U_11, A_21, LowerTriangular, true);
 
 		Permutation P_2;
 
@@ -443,7 +443,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		// MD.writePermutation (report, P_2) << std::endl;
 
 		MD.permuteRows (U_12, P_2.begin (), P_2.end ());
-		MD.trmm (F.one (), U_22, U_12, LowerTriangular);
+		MD.trmm (F.one (), U_22, U_12, LowerTriangular, true);
 				
 		// DEBUG
 		// report << "P_2U_2 =" << std::endl;

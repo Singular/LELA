@@ -219,7 +219,7 @@ inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typen
 template <class Field>
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vector &x,
-							    TriangularMatrixType type,
+							    TriangularMatrixType type, bool diagIsOne,
 							    MatrixCategories::RowMatrixTag,
 							    VectorCategories::DenseVectorTag) const
 {
@@ -228,20 +228,28 @@ Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vec
 
 	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
 
+	if (diagIsOne) {
+		_F.assign (neg_ai_inv, _F.minusOne ());
+		_F.init (ai_p_1, 2);
+	}
+
 	if (type == LowerTriangular) {
 		typename Matrix::ConstRowIterator i_A;
 		size_t idx = 0;
 
 		for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A, ++idx) {
-			if (!VectorWrapper::getEntry (*i_A, ai, idx))
-				continue; // FIXME This should throw an error
+			if (!diagIsOne) {
+				if (!VectorWrapper::getEntry (*i_A, ai, idx))
+					continue; // FIXME This should throw an error
+
+				_F.invin (ai);
+				_F.add (ai_p_1, ai, _F.one ());
+				_F.neg (neg_ai_inv, ai);
+			}
 
 			_VD.dot (d, *i_A, x);
 
-			_F.invin (ai);
-			_F.add (ai_p_1, ai, _F.one ());
 			_F.mulin (x[idx], ai_p_1);
-			_F.neg (neg_ai_inv, ai);
 			_F.axpyin (x[idx], neg_ai_inv, d);
 		}
 	}
@@ -252,15 +260,18 @@ Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vec
 		do {
 			--i_A; --idx;
 
-			if (!VectorWrapper::getEntry (*i_A, ai, idx))
-				continue; // FIXME This should throw an error
+			if (!diagIsOne) {
+				if (!VectorWrapper::getEntry (*i_A, ai, idx))
+					continue; // FIXME This should throw an error
+
+				_F.invin (ai);
+				_F.add (ai_p_1, ai, _F.one ());
+				_F.neg (neg_ai_inv, ai);
+			}
 
 			_VD.dot (d, *i_A, x);
 
-			_F.invin (ai);
-			_F.add (ai_p_1, ai, _F.one ());
 			_F.mulin (x[idx], ai_p_1);
-			_F.neg (neg_ai_inv, ai);
 			_F.axpyin (x[idx], neg_ai_inv, d);
 		} while (i_A != A.rowBegin ());
 	}
@@ -547,7 +558,7 @@ Matrix3 &MatrixDomainSupportGeneric<Field>::gemmColColCol (const typename Field:
 template <class Field>
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGeneric<Field>::trmmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
-							     TriangularMatrixType type,
+							     TriangularMatrixType type, bool diagIsOne,
 							     MatrixCategories::RowMatrixTag,
 							     MatrixCategories::RowMatrixTag) const
 {
@@ -557,42 +568,47 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trmmSpecialized (const typename Fiel
 	if (_F.isZero (a))
 		return scal (B, a);
 
+	typename Field::Element ai;
+
+	if (diagIsOne)
+		_F.assign (ai, a);
+
 	TransposeMatrix<Matrix2> BT (B);
 
 	if (type == LowerTriangular) {
 		typename Matrix2::RowIterator i_B = B.rowEnd ();
 		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
 
-		typename Field::Element a_ii;
-
 		size_t idx = B.rowdim ();
 
 		do {
 			--i_B; --i_A; --idx;
 
-			if (VectorWrapper::getEntry (*i_A, a_ii, idx))
-				_F.mulin (a_ii, a);
-			else
-				_F.init (a_ii, 0);
+			if (!diagIsOne) {
+				if (VectorWrapper::getEntry (*i_A, ai, idx))
+					_F.mulin (ai, a);
+				else
+					_F.init (ai, 0);
+			}
 
-			gemvSpecialized (a, BT, *i_A, a_ii, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
+			gemvSpecialized (a, BT, *i_A, ai, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
 		} while (i_B != B.rowBegin ());
 	}
 	else if (type == UpperTriangular) {
 		typename Matrix2::RowIterator i_B;
 		typename Matrix1::ConstRowIterator i_A;
 
-		typename Field::Element a_ii;
-
 		size_t idx = 0;
 
 		for (i_B = B.rowBegin (), i_A = A.rowBegin (); i_B != B.rowEnd (); ++i_B, ++i_A, ++idx) {
-			if (VectorWrapper::getEntry (*i_A, a_ii, idx))
-				_F.mulin (a_ii, a);
-			else
-				_F.init (a_ii, 0);
+			if (!diagIsOne) {
+				if (VectorWrapper::getEntry (*i_A, ai, idx))
+					_F.mulin (ai, a);
+				else
+					_F.init (ai, 0);
+			}
 
-			gemvSpecialized (a, BT, *i_A, a_ii, *i_B, idx + 1, B.rowdim (), MatrixCategories::ColMatrixTag ());
+			gemvSpecialized (a, BT, *i_A, ai, *i_B, idx + 1, B.rowdim (), MatrixCategories::ColMatrixTag ());
 		}
 	}
 
@@ -602,7 +618,7 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trmmSpecialized (const typename Fiel
 template <class Field>
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
-							     TriangularMatrixType type,
+							     TriangularMatrixType type, bool diagIsOne,
 							     MatrixCategories::RowMatrixTag,
 							     MatrixCategories::RowMatrixTag) const
 {
@@ -610,6 +626,11 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 	linbox_check (A.rowdim () == B.rowdim ());
 
 	typename Field::Element ai, ai_inv, neg_ai_inv;
+
+	if (diagIsOne) {
+		_F.assign (neg_ai_inv, _F.minusOne ());
+		_F.assign (ai_inv, a);
+	}
 
 	TransposeMatrix<Matrix2> BT (B);
 
@@ -619,12 +640,14 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 		size_t idx = 0;
 
 		for (i_A = A.rowBegin (), i_B = B.rowBegin (); i_A != A.rowEnd (); ++i_A, ++i_B, ++idx) {
-			if (!VectorWrapper::getEntry (*i_A, ai, idx))
-				continue; // FIXME This should throw an error
+			if (!diagIsOne) {
+				if (!VectorWrapper::getEntry (*i_A, ai, idx))
+					continue; // FIXME This should throw an error
 
-			_F.inv (ai_inv, ai);
-			_F.neg (neg_ai_inv, ai_inv);
-			_F.mulin (ai_inv, a);
+				_F.inv (ai_inv, ai);
+				_F.neg (neg_ai_inv, ai_inv);
+				_F.mulin (ai_inv, a);
+			}
 
 			gemvSpecialized (neg_ai_inv, BT, *i_A, ai_inv, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
 		}
@@ -637,12 +660,14 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 		do {
 			--i_A; --i_B; --idx;
 
-			if (!VectorWrapper::getEntry (*i_A, ai, idx))
-				continue; // FIXME This should throw an error
+			if (!diagIsOne) {
+				if (!VectorWrapper::getEntry (*i_A, ai, idx))
+					continue; // FIXME This should throw an error
 
-			_F.inv (ai_inv, ai);
-			_F.neg (neg_ai_inv, ai_inv);
-			_F.mulin (ai_inv, a);
+				_F.inv (ai_inv, ai);
+				_F.neg (neg_ai_inv, ai_inv);
+				_F.mulin (ai_inv, a);
+			}
 
 			gemvSpecialized (neg_ai_inv, BT, *i_A, ai_inv, *i_B, idx + 1, A.coldim (), MatrixCategories::ColMatrixTag ());
 		} while (i_A != A.rowBegin ());
@@ -653,16 +678,16 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 
 template <class Field>
 template <class Matrix1, class Matrix2>
-Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B,
-							     TriangularMatrixType type,
+Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+							     TriangularMatrixType type, bool diagIsOne,
 							     MatrixCategories::RowMatrixTag,
 							     MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix2::ColIterator i_B;
 
 	for (i_B = B.colBegin (); i_B != B.colEnd (); ++i_B) {
-		trsv (A, *i_B, type);
-		_VD.mulin (*i_B, alpha);
+		trsv (A, *i_B, type, diagIsOne);
+		_VD.mulin (*i_B, a);
 	}
 
 	return B;

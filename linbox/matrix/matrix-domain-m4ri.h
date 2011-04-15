@@ -179,11 +179,11 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		{ return copy_then_gemm (a, A._rep, B._rep, b, C); }
 
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trmm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
-		{ return MatrixDomainSupportGF2::trmm (a, A, B, type); }
+	inline Matrix2 &trmm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne) const
+		{ return MatrixDomainSupportGF2::trmm (a, A, B, type, diagIsOne); }
 
 #if 0 // I wish M4RI had a trmm...
-	inline M4RIMatrix &trmm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B, TriangularMatrixType type) const
+	inline M4RIMatrix &trmm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B, TriangularMatrixType type, bool diagIsOne) const
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
 		linbox_check (A.rowdim () == A.coldim ());
@@ -199,21 +199,21 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return B;
 	}
 
-	inline M4RIMatrix &trmm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B, TriangularMatrixType type) const
-		{ trmm (a, A._rep, B, type); return B; }
+	inline M4RIMatrix &trmm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B, TriangularMatrixType type, bool diagIsOne) const
+		{ trmm (a, A._rep, B, type, diagIsOne); return B; }
 
-	inline Submatrix<M4RIMatrix> &trmm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
-		{ trmm (a, A, B._rep, type); return B; }
+	inline Submatrix<M4RIMatrix> &trmm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type, bool diagIsOne) const
+		{ trmm (a, A, B._rep, type, diagIsOne); return B; }
 
-	inline Submatrix<M4RIMatrix> &trmm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
-		{ trmm (a, A._rep, B._rep, type); return B; }
+	inline Submatrix<M4RIMatrix> &trmm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type, bool diagIsOne) const
+		{ trmm (a, A._rep, B._rep, type, diagIsOne); return B; }
 #endif // Disabled
 
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
-		{ return MatrixDomainSupportGF2::trsm (a, A, B, type); }
+	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne) const
+		{ return MatrixDomainSupportGF2::trsm (a, A, B, type, diagIsOne); }
 
-	inline M4RIMatrix &trsm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B, TriangularMatrixType type) const
+	inline M4RIMatrix &trsm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B, TriangularMatrixType type, bool diagIsOne) const
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
 		linbox_check (A.rowdim () == A.coldim ());
@@ -233,14 +233,14 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		return B;
 	}
 
-	inline M4RIMatrix &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B, TriangularMatrixType type) const
-		{ trsm (a, A._rep, B, type); return B; }
+	inline M4RIMatrix &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B, TriangularMatrixType type, bool diagIsOne) const
+		{ trsm (a, A._rep, B, type, diagIsOne); return B; }
 
-	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
-		{ trsm (a, A, B._rep, type); return B; }
+	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type, bool diagIsOne) const
+		{ trsm (a, A, B._rep, type, diagIsOne); return B; }
 
-	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
-		{ trsm (a, A._rep, B._rep, type); return B; }
+	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type, bool diagIsOne) const
+		{ trsm (a, A._rep, B._rep, type, diagIsOne); return B; }
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRows (Matrix   &A,

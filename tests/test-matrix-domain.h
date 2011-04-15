@@ -526,7 +526,7 @@ static bool testTrmmGemmUpper (Field &F, const char *text, const Matrix1 &A, con
 	report << "Coefficient a = ";
 	F.write (report, a) << std::endl;
 
-	MD.trmm (a, A, B1, UpperTriangular);
+	MD.trmm (a, A, B1, UpperTriangular, false);
 
 	report << "Output matrix a * A * B (trmm): " << std::endl;
 	MD.write (report, B1);
@@ -590,7 +590,7 @@ static bool testTrmmGemmLower (Field &F, const char *text, const Matrix1 &A, con
 	report << "Coefficient a = ";
 	F.write (report, a) << std::endl;
 
-	MD.trmm (a, A, B1, LowerTriangular);
+	MD.trmm (a, A, B1, LowerTriangular, false);
 
 	report << "Output matrix a * A * B (trmm): " << std::endl;
 	MD.write (report, B1);
@@ -1040,12 +1040,12 @@ static bool testTrsmLower (Field &F, const char *text, const Matrix &A, const Ma
 	report << "Coefficient a = ";
 	F.write (report, a) << std::endl;
 
-	MD.trsm (a, U, B1, LowerTriangular);
+	MD.trsm (a, U, B1, LowerTriangular, false);
 
 	report << "Output matrix U^-1 * B: " << std::endl;
 	MD.write (report, B1);
 
-	MD.trmm (ainv, U, B1, LowerTriangular);
+	MD.trmm (ainv, U, B1, LowerTriangular, false);
 
 	report << "Output matrix U U^-1 * B: " << std::endl;
 	MD.write (report, B1);
@@ -1104,12 +1104,12 @@ static bool testTrsmUpper (Field &F, const char *text, const Matrix &A, const Ma
 	report << "Coefficient a = ";
 	F.write (report, a) << std::endl;
 
-	MD.trsm (a, U, B1, UpperTriangular);
+	MD.trsm (a, U, B1, UpperTriangular, false);
 
 	report << "Output matrix U^-1 * B: " << std::endl;
 	MD.write (report, B1);
 
-	MD.trmm (ainv, U, B1, UpperTriangular);
+	MD.trmm (ainv, U, B1, UpperTriangular, false);
 
 	report << "Output matrix U U^-1 * B: " << std::endl;
 	MD.write (report, B1);
@@ -1173,12 +1173,12 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
 	typename DenseMatrix<typename Field::Element>::ColIterator i_UinvB = UinvBtrsv.colBegin ();
 
 	for (; i_UinvB != UinvBtrsv.colEnd (); ++i_UinvB)
-		MD.trsv (U, *i_UinvB, type);
+		MD.trsv (U, *i_UinvB, type, false);
 
 	report << "Output matrix U^-1 * B (from trsv):" << endl;
 	MD.write (report, UinvBtrsv);
 
-	MD.trsm (F.one (), U, UinvBtrsm, type);
+	MD.trsm (F.one (), U, UinvBtrsm, type, false);
 
 	report << "Output matrix U^-1 * B (from trsm):" << endl;
 	MD.write (report, UinvBtrsm);
@@ -1242,12 +1242,12 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 	report << "Coefficient: a = ";
 	F.write (report, a) << std::endl;
 
-	MD.trsm (a, U, aUinvB, UpperTriangular);
+	MD.trsm (a, U, aUinvB, UpperTriangular, false);
 
 	report << "Output matrix a U^-1 * B:" << endl;
 	MD.write (report, aUinvB);
 
-	MD.trsm (one, U, UinvB, UpperTriangular);
+	MD.trsm (one, U, UinvB, UpperTriangular, false);
 
 	report << "Output matrix U^-1 * B:" << endl;
 	MD.write (report, UinvB);

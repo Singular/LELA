@@ -284,7 +284,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
-						 TriangularMatrixType type,
+						 TriangularMatrixType type, bool diagIsOne,
 						 MatrixCategories::RowMatrixTag,
 						 VectorCategories::DenseZeroOneVectorTag) const
 {
@@ -298,8 +298,10 @@ Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
 		size_t idx = 0;
 
 		for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A, ++idx) {
-			if (!VectorWrapper::getEntry (*i_A, d, idx))
+#ifdef DEBUG // In properly working code, this is totally unnecessary, but if the user wants to debug things...
+			if (!diagIsOne && !VectorWrapper::getEntry (*i_A, d, idx))
 				continue; // FIXME This should throw an error
+#endif // DEBUG
 
 			_VD.dot (d, *i_A, x);
 			x[idx] = d;
@@ -312,8 +314,10 @@ Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
 		do {
 			--i_A; --idx;
 
-			if (!VectorWrapper::getEntry (*i_A, d, idx))
+#ifdef DEBUG // In properly working code, this is totally unnecessary, but if the user wants to debug things...
+			if (!diagIsOne && !VectorWrapper::getEntry (*i_A, d, idx))
 				continue; // FIXME This should throw an error
+#endif // DEBUG
 
 			_VD.dot (d, *i_A, x);
 			x[idx] = d;
@@ -476,7 +480,7 @@ Matrix3 &MatrixDomainSupportGF2::gemmRowRowRowSpecialised (const bool &a, const 
 
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trmmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
-						  TriangularMatrixType type,
+						  TriangularMatrixType type, bool diagIsOne,
 						  MatrixCategories::RowMatrixTag,
 						  MatrixCategories::RowMatrixTag) const
 {
@@ -533,7 +537,7 @@ Matrix2 &MatrixDomainSupportGF2::trmmSpecialized (const bool &a, const Matrix1 &
 
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
-						  TriangularMatrixType type,
+						  TriangularMatrixType type, bool diagIsOne,
 						  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
@@ -549,8 +553,10 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 		size_t idx = 0;
 
 		for (i_A = A.rowBegin (), i_B = B.rowBegin (); i_A != A.rowEnd (); ++i_A, ++i_B, ++idx) {
-			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+#ifdef DEBUG // In properly working code, this is totally unnecessary, but if the user wants to debug things...
+			if (!diagIsOne && !VectorWrapper::getEntry (*i_A, ai, idx))
 				continue; // FIXME This should throw an error
+#endif // DEBUG
 
 			gemvSpecialized (true, BT, *i_A, true, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
 		}
@@ -563,8 +569,10 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 		do {
 			--i_A; --i_B; --idx;
 
-			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+#ifdef DEBUG // In properly working code, this is totally unnecessary, but if the user wants to debug things...
+			if (!diagIsOne && !VectorWrapper::getEntry (*i_A, ai, idx))
 				continue; // FIXME This should throw an error
+#endif // DEBUG
 
 			gemvSpecialized (true, BT, *i_A, true, *i_B, idx + 1, A.coldim (), MatrixCategories::ColMatrixTag ());
 		} while (i_A != A.rowBegin ());
@@ -576,7 +584,7 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
-						  TriangularMatrixType type,
+						  TriangularMatrixType type, bool diagIsOne,
 						  MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix2::ColIterator i_B;
@@ -587,7 +595,7 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 	}
 
 	for (i_B = B.colBegin (); i_B != B.colEnd (); ++i_B)
-		trsv (A, *i_B, type);
+		trsv (A, *i_B, type, diagIsOne);
 
 	return B;
 }
