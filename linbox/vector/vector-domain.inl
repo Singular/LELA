@@ -868,10 +868,13 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDS
 	linbox_check (VectorWrapper::hasDim<Field> (v1, v2.size ()));
 
 	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
 		
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (); i != v1.end () && (size_t) i->first < end_idx; ++i)
+	for (; i != i_end; ++i)
 		VectorDomainBase<Field>::accu.mulacc (i->second, v2[i->first]);
 
 	return VectorDomainBase<Field>::accu.get (res);
