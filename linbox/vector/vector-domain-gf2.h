@@ -309,7 +309,8 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
 									size_t start_idx, size_t end_idx,
 									VectorCategories::DenseZeroOneVectorTag,
-									VectorCategories::SparseZeroOneVectorTag) const;
+									VectorCategories::SparseZeroOneVectorTag) const
+		{ bool tmp; dot (tmp, v1, v2, start_idx, end_idx); res = tmp; }
 	template <class Iterator, class Endianness, class Vector1, class Vector2>
 	inline BitVectorReference<Iterator, Endianness> dotSpecialized (BitVectorReference<Iterator, Endianness> res, const Vector1 &v1, const Vector2 &v2,
 									size_t start_idx, size_t end_idx,
