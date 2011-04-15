@@ -219,6 +219,7 @@ inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typen
 template <class Field>
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vector &x,
+							    TriangularMatrixType type,
 							    MatrixCategories::RowMatrixTag,
 							    VectorCategories::DenseVectorTag) const
 {
@@ -226,19 +227,42 @@ Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vec
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
 
 	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
-	int i = A.rowdim ();
 
-	while (--i >= 0) {
-		if (!VectorWrapper::getEntry (*(A.rowBegin () + i), ai, i))
-			continue;
+	if (type == LowerTriangular) {
+		typename Matrix::ConstRowIterator i_A;
+		size_t idx = 0;
 
-		_VD.dot (d, *(A.rowBegin () + i), x);
+		for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A, ++idx) {
+			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+				continue; // FIXME This should throw an error
 
-		_F.invin (ai);
-		_F.add (ai_p_1, ai, _F.one ());
-		_F.mulin (x[i], ai_p_1);
-		_F.neg (neg_ai_inv, ai);
-		_F.axpyin (x[i], neg_ai_inv, d);
+			_VD.dot (d, *i_A, x);
+
+			_F.invin (ai);
+			_F.add (ai_p_1, ai, _F.one ());
+			_F.mulin (x[idx], ai_p_1);
+			_F.neg (neg_ai_inv, ai);
+			_F.axpyin (x[idx], neg_ai_inv, d);
+		}
+	}
+	else if (type == UpperTriangular) {
+		typename Matrix::ConstRowIterator i_A = A.rowEnd ();
+		size_t idx = A.rowdim ();
+
+		do {
+			--i_A; --idx;
+
+			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+				continue; // FIXME This should throw an error
+
+			_VD.dot (d, *i_A, x);
+
+			_F.invin (ai);
+			_F.add (ai_p_1, ai, _F.one ());
+			_F.mulin (x[idx], ai_p_1);
+			_F.neg (neg_ai_inv, ai);
+			_F.axpyin (x[idx], neg_ai_inv, d);
+		} while (i_A != A.rowBegin ());
 	}
 
 	return x;
@@ -577,27 +601,51 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trmmSpecialized (const typename Fiel
 
 template <class Field>
 template <class Matrix1, class Matrix2>
-Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B,
+Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+							     TriangularMatrixType type,
 							     MatrixCategories::RowMatrixTag,
 							     MatrixCategories::RowMatrixTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
-	typename Field::Element ai, ai_p_1, neg_ai_inv;
-	int i = A.rowdim () - 1;
+	typename Field::Element ai, ai_inv, neg_ai_inv;
 
-	TransposeMatrix<const Matrix1> AT (A);
+	TransposeMatrix<Matrix2> BT (B);
 
-	while (--i >= 0) {
-		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
-			continue;
+	if (type == LowerTriangular) {
+		typename Matrix1::ConstRowIterator i_A;
+		typename Matrix2::RowIterator i_B;
+		size_t idx = 0;
 
-		_F.add (ai_p_1, ai, _F.one ());
-		_F.inv (neg_ai_inv, ai);
-		_F.negin (neg_ai_inv);
+		for (i_A = A.rowBegin (), i_B = B.rowBegin (); i_A != A.rowEnd (); ++i_A, ++i_B, ++idx) {
+			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+				continue; // FIXME This should throw an error
 
-		gemv (neg_ai_inv, AT, *(A.rowBegin () + i), ai_p_1, *(B.rowBegin () + i));
+			_F.inv (ai_inv, ai);
+			_F.neg (neg_ai_inv, ai_inv);
+			_F.mulin (ai_inv, a);
+
+			gemvSpecialized (neg_ai_inv, BT, *i_A, ai_inv, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
+		}
+	}
+	else if (type == UpperTriangular) {
+		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
+		typename Matrix2::RowIterator i_B = B.rowEnd ();
+		size_t idx = A.rowdim ();
+
+		do {
+			--i_A; --i_B; --idx;
+
+			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+				continue; // FIXME This should throw an error
+
+			_F.inv (ai_inv, ai);
+			_F.neg (neg_ai_inv, ai_inv);
+			_F.mulin (ai_inv, a);
+
+			gemvSpecialized (neg_ai_inv, BT, *i_A, ai_inv, *i_B, idx + 1, A.coldim (), MatrixCategories::ColMatrixTag ());
+		} while (i_A != A.rowBegin ());
 	}
 
 	return B;
@@ -606,13 +654,14 @@ Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Fiel
 template <class Field>
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGeneric<Field>::trsmSpecialized (const typename Field::Element &alpha, const Matrix1 &A, Matrix2 &B,
+							     TriangularMatrixType type,
 							     MatrixCategories::RowMatrixTag,
 							     MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix2::ColIterator i_B;
 
 	for (i_B = B.colBegin (); i_B != B.colEnd (); ++i_B) {
-		trsv (A, *i_B);
+		trsv (A, *i_B, type);
 		_VD.mulin (*i_B, alpha);
 	}
 

@@ -210,10 +210,10 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 #endif // Disabled
 
 	template <class Matrix1, class Matrix2>
-	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B) const
-		{ return MatrixDomainSupportGF2::trsm (a, A, B); }
+	inline Matrix2 &trsm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type) const
+		{ return MatrixDomainSupportGF2::trsm (a, A, B, type); }
 
-	inline M4RIMatrix &trsm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B) const
+	inline M4RIMatrix &trsm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B, TriangularMatrixType type) const
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
 		linbox_check (A.rowdim () == A.coldim ());
@@ -221,22 +221,26 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		if (A.rowdim () == 0 || A.coldim () == 0 || B.coldim () == 0)
 			return B;
 
-		if (a)
-			mzd_trsm_upper_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-		else
+		if (a) {
+			if (type == UpperTriangular)
+				mzd_trsm_upper_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			else if (type == LowerTriangular)
+				mzd_trsm_lower_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			// FIXME: Should throw error at this point -- invalid type
+		} else
 			scal (B, false);
 
 		return B;
 	}
 
-	inline M4RIMatrix &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B) const
-		{ trsm (a, A._rep, B); return B; }
+	inline M4RIMatrix &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, M4RIMatrix &B, TriangularMatrixType type) const
+		{ trsm (a, A._rep, B, type); return B; }
 
-	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B) const
-		{ trsm (a, A, B._rep); return B; }
+	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const M4RIMatrix &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
+		{ trsm (a, A, B._rep, type); return B; }
 
-	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B) const
-		{ trsm (a, A._rep, B._rep); return B; }
+	inline Submatrix<M4RIMatrix> &trsm (const bool &a, const Submatrix<M4RIMatrix> &A, Submatrix<M4RIMatrix> &B, TriangularMatrixType type) const
+		{ trsm (a, A._rep, B._rep, type); return B; }
 
 	template <class Matrix, class Iterator>
 	inline Matrix &permuteRows (Matrix   &A,

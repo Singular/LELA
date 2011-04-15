@@ -38,6 +38,27 @@ TransposeMatrix<Matrix> transpose (Matrix &M)
 	return TransposeMatrix<Matrix> (M);
 }
 
+/* Force the input-matrix to have nonsingular entries on the diagonal */
+
+template <class Field, class Matrix>
+static Matrix &makeNonsingDiag (Field &F, Matrix &A)
+{
+	size_t i;
+
+	typename Field::Element a;
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
+		if (!A.getEntry (a, i, i) || F.isZero (a)) {
+			r.random (a);
+			A.setEntry (i, i, a);
+		}
+	}
+
+	return A;
+}
+
 /* Construct a random nonsingular upper triangular matrix from a random matrix */
 
 template <class Field, class Matrix>
@@ -976,17 +997,17 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 	return ret;
 }
 
-/* Test 11: trsv
+/* Test 11a: trsm (lower triangular)
  *
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix, class Vector>
-static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector &v)
+template <class Field, class Matrix>
+static bool testTrsmLower (Field &F, const char *text, const Matrix &A, const Matrix &B)
 {
 	ostringstream str;
 
-	str << "Testing " << text << " trsv" << ends;
+	str << "Testing " << text << " trsm (lower triangular)" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
@@ -995,33 +1016,107 @@ static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector 
 	MatrixDomain<Field> MD (F);
 
 	Matrix U (A.rowdim (), A.coldim ());
+	Matrix B1 (B.rowdim (), B.coldim ());
 
 	MD.copy (U, A);
-	makeUpperTriangular (F, U, true);
+	makeNonsingDiag (F, U);
 
-	typename LinBox::Vector<Field>::Dense Uinv_v (U.coldim ()), UUinv_v (U.rowdim ());
-	VD.copy (Uinv_v, v);
+	MD.copy (B1, B);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
-	report << "Input matrix U:" << endl;
+	report << "Input matrix U:" << std::endl;
 	MD.write (report, U);
 
-	report << "Input vector v: ";
-	VD.write (report, Uinv_v) << endl;
+	report << "Input matrix B: " << std::endl;
+	MD.write (report, B);
 
-	MD.trsv (U, Uinv_v);
+	typename Field::Element a, ainv;
 
-	report << "Output vector U^-1 * v: ";
-	VD.write (report, Uinv_v) << std::endl;
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
-	MD.gemv (F.one (), U, Uinv_v, F.zero (), UUinv_v);
+	r.random (a);
+	F.inv (ainv, a);
 
-	report << "Output vector U U^-1 * v: ";
-	VD.write (report, UUinv_v) << std::endl;
+	report << "Coefficient a = ";
+	F.write (report, a) << std::endl;
 
-	if (!VD.areEqual (v, UUinv_v)) {
+	MD.trsm (a, U, B1, LowerTriangular);
+
+	report << "Output matrix U^-1 * B: " << std::endl;
+	MD.write (report, B1);
+
+	MD.trmm (ainv, U, B1, LowerTriangular);
+
+	report << "Output matrix U U^-1 * B: " << std::endl;
+	MD.write (report, B1);
+
+	if (!MD.areEqual (B, B1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: VectorxDomain reported v != U * U^-1 * v" << endl;
+			<< "ERROR: VectorxDomain reported B != U * U^-1 * B" << endl;
+		ret = false;
+	}
+
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
+
+	return ret;
+}
+
+/* Test 11a: trsm (upper triangular)
+ *
+ * Return true on success and false on failure
+ */
+
+template <class Field, class Matrix>
+static bool testTrsmUpper (Field &F, const char *text, const Matrix &A, const Matrix &B)
+{
+	ostringstream str;
+
+	str << "Testing " << text << " trsm (upper triangular)" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	bool ret = true;
+
+	VectorDomain<Field> VD (F);
+	MatrixDomain<Field> MD (F);
+
+	Matrix U (A.rowdim (), A.coldim ());
+	Matrix B1 (B.rowdim (), B.coldim ());
+
+	MD.copy (U, A);
+	makeNonsingDiag (F, U);
+
+	MD.copy (B1, B);
+
+	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	report << "Input matrix U:" << std::endl;
+	MD.write (report, U, FORMAT_SAGE);
+
+	report << "Input matrix B: " << std::endl;
+	MD.write (report, B, FORMAT_SAGE);
+
+	typename Field::Element a, ainv;
+
+	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+	r.random (a);
+	F.inv (ainv, a);
+
+	report << "Coefficient a = ";
+	F.write (report, a) << std::endl;
+
+	MD.trsm (a, U, B1, UpperTriangular);
+
+	report << "Output matrix U^-1 * B: " << std::endl;
+	MD.write (report, B1);
+
+	MD.trmm (ainv, U, B1, UpperTriangular);
+
+	report << "Output matrix U U^-1 * B: " << std::endl;
+	MD.write (report, B1);
+
+	if (!MD.areEqual (B, B1)) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: VectorxDomain reported B != U * U^-1 * B" << endl;
 		ret = false;
 	}
 
@@ -1038,27 +1133,29 @@ static bool testTrsv (Field &F, const char *text, const Matrix &A, const Vector 
  */
 
 template <class Field, class Matrix1, class Matrix2>
-static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B) 
+static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B, TriangularMatrixType type) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
 	ostringstream str;
 
-	str << "Testing " << text << " trsm (consistency with trsv)" << ends;
+	const char *type_str[] = { "upper", "lower" };
+
+	str << "Testing " << text << " trsm (consistency with trsv, " << type_str[type] << " triangular matrix)" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
 
 	MatrixDomain<Field> MD (F);
 
-	typename Field::Element one;
-
-	F.init (one, 1);
-
 	Matrix1 U (A.rowdim (), A.coldim ());
 
 	MD.copy (U, A);
-	makeUpperTriangular (F, U, true);
+
+	if (type == UpperTriangular)
+		makeUpperTriangular (F, U, true);
+	else if (type == LowerTriangular)
+		makeLowerTriangular (F, U, true);
 
 	DenseMatrix<typename Field::Element> UinvBtrsm (U.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> UinvBtrsv (U.rowdim (), B.coldim ());
@@ -1076,12 +1173,12 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
 	typename DenseMatrix<typename Field::Element>::ColIterator i_UinvB = UinvBtrsv.colBegin ();
 
 	for (; i_UinvB != UinvBtrsv.colEnd (); ++i_UinvB)
-		MD.trsv (U, *i_UinvB);
+		MD.trsv (U, *i_UinvB, type);
 
 	report << "Output matrix U^-1 * B (from trsv):" << endl;
 	MD.write (report, UinvBtrsv);
 
-	MD.trsm (one, U, UinvBtrsm);
+	MD.trsm (F.one (), U, UinvBtrsm, type);
 
 	report << "Output matrix U^-1 * B (from trsm):" << endl;
 	MD.write (report, UinvBtrsm);
@@ -1145,12 +1242,12 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 	report << "Coefficient: a = ";
 	F.write (report, a) << std::endl;
 
-	MD.trsm (a, U, aUinvB);
+	MD.trsm (a, U, aUinvB, UpperTriangular);
 
 	report << "Output matrix a U^-1 * B:" << endl;
 	MD.write (report, aUinvB);
 
-	MD.trsm (one, U, UinvB);
+	MD.trsm (one, U, UinvB, UpperTriangular);
 
 	report << "Output matrix U^-1 * B:" << endl;
 	MD.write (report, UinvB);
@@ -1378,8 +1475,10 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsv (F, text, M1, v2)) pass = false;
-		if (!testTrsmTrsv (F, text, M1, M2)) pass = false;
+		if (!testTrsmLower (F, text, M1, M2)) pass = false;
+		if (!testTrsmUpper (F, text, M1, M2)) pass = false;
+		if (!testTrsmTrsv (F, text, M1, M2, LowerTriangular)) pass = false;
+		if (!testTrsmTrsv (F, text, M1, M2, UpperTriangular)) pass = false;
 		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
 	} else {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
@@ -1420,7 +1519,8 @@ bool testMatrixDomain (const Field &F, const char *text,
 	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsv (F, text, M1, v2)) pass = false;
+		if (!testTrsmLower (F, text, M1, M2)) pass = false;
+		if (!testTrsmUpper (F, text, M1, M2)) pass = false;
 		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
 	} else {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
@@ -1462,7 +1562,8 @@ bool testMatrixDomain (const Field &F, const char *text,
 
 #if 0 // disabled because of TransposeMatrix-issues
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsv (F, text, M1, v2)) pass = false;
+		if (!testTrsmLower (F, text, M1, M2)) pass = false;
+		if (!testTrsmUpper (F, text, M1, M2)) pass = false;
 
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
 			<< "Input matrix M2 is not iterable by columns, so skipping tests of trsm" << std::endl;

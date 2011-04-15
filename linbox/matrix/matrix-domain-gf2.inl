@@ -284,6 +284,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 
 template <class Matrix, class Vector>
 Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
+						 TriangularMatrixType type,
 						 MatrixCategories::RowMatrixTag,
 						 VectorCategories::DenseZeroOneVectorTag) const
 {
@@ -292,20 +293,32 @@ Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
 
 	bool d;
 
-	typename Matrix::ConstRowIterator i = A.rowEnd ();
-	size_t idx = A.rowdim () - 1;
+	if (type == LowerTriangular) {
+		typename Matrix::ConstRowIterator i_A;
+		size_t idx = 0;
 
-	--i;
+		for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A, ++idx) {
+			if (!VectorWrapper::getEntry (*i_A, d, idx))
+				continue; // FIXME This should throw an error
 
-	do {
-		--i; --idx;
+			_VD.dot (d, *i_A, x);
+			x[idx] = d;
+		}
+	}
+	else if (type == UpperTriangular) {
+		typename Matrix::ConstRowIterator i_A = A.rowEnd ();
+		size_t idx = A.rowdim ();
 
-		if (_VD.firstNonzeroEntry (d, *i) == -1)
-			continue;
+		do {
+			--i_A; --idx;
 
-		_VD.dot (d, *i, x);
-		x[idx] = d;
-	} while (i != A.rowBegin ());
+			if (!VectorWrapper::getEntry (*i_A, d, idx))
+				continue; // FIXME This should throw an error
+
+			_VD.dot (d, *i_A, x);
+			x[idx] = d;
+		} while (i_A != A.rowBegin ());
+	}
 
 	return x;
 }
@@ -520,28 +533,50 @@ Matrix2 &MatrixDomainSupportGF2::trmmSpecialized (const bool &a, const Matrix1 &
 
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
+						  TriangularMatrixType type,
 						  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
 	bool ai;
-	int i = A.rowdim () - 1;
 
 	TransposeMatrix<const Matrix2> BT (B);
 
-	while (--i >= 0) {
-		if (_VD.firstNonzeroEntry (ai, *(A.rowBegin () + i)) == -1)
-			continue;
+	if (type == LowerTriangular) {
+		typename Matrix1::ConstRowIterator i_A;
+		typename Matrix2::RowIterator i_B;
+		size_t idx = 0;
 
-		gemv (true, BT, *(A.rowBegin () + i), false, *(B.rowBegin () + i));
+		for (i_A = A.rowBegin (), i_B = B.rowBegin (); i_A != A.rowEnd (); ++i_A, ++i_B, ++idx) {
+			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+				continue; // FIXME This should throw an error
+
+			gemvSpecialized (true, BT, *i_A, true, *i_B, 0, idx, MatrixCategories::ColMatrixTag ());
+		}
 	}
+	else if (type == UpperTriangular) {
+		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
+		typename Matrix2::RowIterator i_B = B.rowEnd ();
+		size_t idx = A.rowdim ();
+
+		do {
+			--i_A; --i_B; --idx;
+
+			if (!VectorWrapper::getEntry (*i_A, ai, idx))
+				continue; // FIXME This should throw an error
+
+			gemvSpecialized (true, BT, *i_A, true, *i_B, idx + 1, A.coldim (), MatrixCategories::ColMatrixTag ());
+		} while (i_A != A.rowBegin ());
+	}
+	// FIXME: Should throw error at this point -- invalid type
 
 	return B;
 }
 
 template <class Matrix1, class Matrix2>
 Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &A, Matrix2 &B,
+						  TriangularMatrixType type,
 						  MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix2::ColIterator i_B;
@@ -552,7 +587,7 @@ Matrix2 &MatrixDomainSupportGF2::trsmSpecialized (const bool &a, const Matrix1 &
 	}
 
 	for (i_B = B.colBegin (); i_B != B.colEnd (); ++i_B)
-		trsv (A, *i_B);
+		trsv (A, *i_B, type);
 
 	return B;
 }
