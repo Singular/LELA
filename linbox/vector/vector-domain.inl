@@ -840,15 +840,17 @@ template <class Vector1, class Vector2>
 inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDD
 	(Element       &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	linbox_check (v1.size () == v2.size ());
 
-	typename Vector1::const_iterator i;
+	typename Vector1::const_iterator i, i_end = v1.begin () + std::min (v1.size (), end_idx);
 	typename Vector2::const_iterator j;
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (), j = v2.begin (); i != v1.end (); i++, j++)
+	for (i = v1.begin () + start_idx, j = v2.begin () + start_idx; i != i_end; ++i, ++j)
 		VectorDomainBase<Field>::accu.mulacc (*i, *j);
 
 	return VectorDomainBase<Field>::accu.get (res);
@@ -859,15 +861,17 @@ template <class Vector1, class Vector2>
 inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDS
 	(Element       &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	linbox_check (VectorWrapper::hasDim<Field> (v1, v2.size ()));
 
-	typename Vector1::const_iterator i;
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 		
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (); i != v1.end (); ++i)
+	for (i = v1.begin (); i != v1.end () && (size_t) i->first < end_idx; ++i)
 		VectorDomainBase<Field>::accu.mulacc (i->second, v2[i->first]);
 
 	return VectorDomainBase<Field>::accu.get (res);
@@ -878,13 +882,15 @@ template <class Vector1, class Vector2>
 inline typename Field::Element &DotProductDomain<Field>::dotSpecializedSS
 	(Element       &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
-	typename Vector1::const_iterator i;
-	typename Vector2::const_iterator j;
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? v2.begin () : std::lower_bound (v2.begin (), v2.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (), j = v2.begin (); i != v1.end () && j != v2.end (); ++i) {
+	for (i = v1.begin (), j = v2.begin (); i != v1.end () && j != v2.end () && (size_t) i->first < end_idx && (size_t) j->first < end_idx; ++i) {
 		while (j != v2.end () && j->first < i->first) ++j;
 
 		if (j != v2.end () && j->first == i->first)

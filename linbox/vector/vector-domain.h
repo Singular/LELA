@@ -97,16 +97,13 @@ public:
 
 protected:
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+	inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecializedDSP (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+	inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
-
-	template <class Vector1, class Vector2>
-	inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+	inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 };
 
 
@@ -252,15 +249,10 @@ public:
 	 * @param v2 Input vector
 	 */
 	template <class Vector1, class Vector2>
-	inline Element &dot (Element &res, const Vector1 &v1, const Vector2 &v2) const
-		{ return dotSpecialized (res, v1, v2,
+	inline Element &dot (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx = 0, size_t end_idx = static_cast<size_t> (-1)) const
+		{ return dotSpecialized (res, v1, v2, start_idx, end_idx,
 					 typename VectorTraits<Field, Vector1>::VectorCategory (),
 					 typename VectorTraits<Field, Vector2>::VectorCategory ()); }
-
-	/* Alias for the above, to avoid source incompatibility */
-	template <class Vector1, class Vector2>
-	inline Element &dotprod (Element &res, const Vector1 &v1, const Vector2 &v2) const
-		{ return dot (res, v1, v2); }
 
 	/** Vector add
 	 * res <- y + x
@@ -533,26 +525,26 @@ protected:
 				 VectorCategories::SparseVectorTag) const;
 
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx,
 					VectorCategories::DenseVectorTag,
 					VectorCategories::DenseVectorTag) const
-		{ return DotProductDomain<Field>::dotSpecializedDD (res, v1, v2); }
+		{ return DotProductDomain<Field>::dotSpecializedDD (res, v1, v2, start_idx, end_idx); }
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx,
 					VectorCategories::SparseVectorTag,
 					VectorCategories::DenseVectorTag) const
-		{ return DotProductDomain<Field>::dotSpecializedDS (res, v1, v2); }
+		{ return DotProductDomain<Field>::dotSpecializedDS (res, v1, v2, start_idx, end_idx); }
 
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx,
 					VectorCategories::DenseVectorTag,
 					VectorCategories::SparseVectorTag) const
-		{ return dot (res, v2, v1); }
+		{ return dot (res, v2, v1, start_idx, end_idx); }
 	template <class Vector1, class Vector2>
-	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2,
+	inline Element &dotSpecialized (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx,
 					VectorCategories::SparseVectorTag,
 					VectorCategories::SparseVectorTag) const
-		{ return DotProductDomain<Field>::dotSpecializedSS (res, v1, v2); }
+		{ return DotProductDomain<Field>::dotSpecializedSS (res, v1, v2, start_idx, end_idx); }
 
 	template <class Vector1, class Vector2, class Vector3>
 	Vector1 &addSpecialized (Vector1 &res, const Vector2 &y, const Vector3 &x,

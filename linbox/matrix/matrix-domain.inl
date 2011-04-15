@@ -120,7 +120,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
 
-	typename Vector1::const_iterator j = std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator j = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 	typename Field::Element d;
 
 	_VD.mulin (y, beta);

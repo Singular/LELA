@@ -27,12 +27,12 @@ namespace LinBox
 
 template <class Vector1, class Vector2>
 inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDD
-	(uint8 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint8 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
-	typename Vector2::const_iterator j = v2.begin ();
+	typename Vector1::const_iterator i = v1.begin () + start_idx, i_end = v1.begin () + std::min (v1.size (), end_idx);
+	typename Vector2::const_iterator j = v2.begin () + start_idx;
 
-	typename Vector1::const_iterator iterend = v1.begin () + v1.size() % _F._k;
+	typename Vector1::const_iterator iterend = v1.begin () + std::min (v1.size (), end_idx) % _F._k;
 
 	uint64 y = 0;
 
@@ -41,7 +41,7 @@ inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDD
 
 	y %= (uint64) _F._modulus;
 
-	for (; iterend != v1.end (); j += _F._k) {
+	for (; iterend != i_end; j += _F._k) {
 		typename Vector1::const_iterator iter_i = iterend;
 		typename Vector2::const_iterator iter_j;
 
@@ -58,19 +58,21 @@ inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDD
 
 template <class Vector1, class Vector2>
 inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDS
-	(uint8 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint8 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
 
 	uint64 y = 0;
 
-	if (v1.size () < _F._k) {
-		for (; i != v1.end (); ++i)
+	if (i_end - i < _F._k) {
+		for (; i != i_end; ++i)
 			y += (uint64) i->second * (uint64) v2[i->first];
 
 		return res = y % (uint64) _F._modulus;
 	} else {
-		typename Vector1::const_iterator iterend = v1.begin () + v1.size() % _F._k;
+		typename Vector1::const_iterator iterend = v1.begin () + (i_end - v1.begin ()) % _F._k;
 
 		for (; i != iterend; ++i)
 			y += (uint64) i->second * (uint64) v2[i->first];
@@ -95,18 +97,23 @@ inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDS
 
 template <class Vector1, class Vector2>
 inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedSS
-	(uint8 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint8 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
-	typename Vector2::const_iterator j = v2.begin ();
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
+		v2.end () : std::lower_bound (v2.begin (), v2.end (), end_idx, VectorWrapper::CompareSparseEntries ());
 
 	uint64 y = 0, count;
 
-	while (i != v1.end () && j != v2.end ()) {
-		for (count = 0; count < _F._k && i != v1.end () && j != v2.end (); ++i) {
-			while (j != v2.end () && j->first < i->first) ++j;
+	while (i != i_end && j != j_end) {
+		for (count = 0; count < _F._k && i != i_end && j != j_end; ++i) {
+			while (j != j_end && j->first < i->first) ++j;
 
-			if (j != v2.end () && i->first == j->first) {
+			if (j != j_end && i->first == j->first) {
 				y += (uint64) i->second * (uint64) j->second;
 				++count;
 			}
@@ -120,12 +127,12 @@ inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedSS
 
 template <class Vector1, class Vector2>
 inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDD
-	(uint16 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint16 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
-	typename Vector2::const_iterator j = v2.begin ();
+	typename Vector1::const_iterator i = v1.begin () + start_idx, i_end = v1.begin () + std::min (v1.size (), end_idx);
+	typename Vector2::const_iterator j = v2.begin () + start_idx;
 
-	typename Vector1::const_iterator iterend = v1.begin () + v1.size() % _F._k;
+	typename Vector1::const_iterator iterend = v1.begin () + std::min (v1.size (), end_idx) % _F._k;
 
 	uint64 y = 0;
 
@@ -134,7 +141,7 @@ inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDD
 
 	y %= (uint64) _F._modulus;
 
-	for (; iterend != v1.end (); j += _F._k) {
+	for (; iterend != i_end; j += _F._k) {
 		typename Vector1::const_iterator iter_i = iterend;
 		typename Vector2::const_iterator iter_j;
 
@@ -151,19 +158,21 @@ inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDD
 
 template <class Vector1, class Vector2>
 inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDS
-	(uint16 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint16 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
 
 	uint64 y = 0;
 
-	if (v1.size () < _F._k) {
-		for (; i != v1.end (); ++i)
+	if (i_end - i < (long) _F._k) {
+		for (; i != i_end; ++i)
 			y += (uint64) i->second * (uint64) v2[i->first];
 
 		return res = y % (uint64) _F._modulus;
 	} else {
-		typename Vector1::const_iterator iterend = v1.begin () + v1.size() % _F._k;
+		typename Vector1::const_iterator iterend = v1.begin () + (i_end - v1.begin ()) % _F._k;
 
 		for (; i != iterend; ++i)
 			y += (uint64) i->second * (uint64) v2[i->first];
@@ -188,18 +197,23 @@ inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDS
 
 template <class Vector1, class Vector2>
 inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedSS
-	(uint16 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint16 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
-	typename Vector2::const_iterator j = v2.begin ();
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
+		v2.end () : std::lower_bound (v2.begin (), v2.end (), end_idx, VectorWrapper::CompareSparseEntries ());
 
 	uint64 y = 0, count;
 
-	while (i != v1.end () && j != v2.end ()) {
-		for (count = 0; count < _F._k && i != v1.end () && j != v2.end (); ++i) {
-			while (j != v2.end () && j->first < i->first) ++j;
+	while (i != i_end && j != j_end) {
+		for (count = 0; count < _F._k && i != i_end && j != j_end; ++i) {
+			while (j != j_end && j->first < i->first) ++j;
 
-			if (j != v2.end () && i->first == j->first) {
+			if (j != j_end && i->first == j->first) {
 				y += (uint64) i->second * (uint64) j->second;
 				++count;
 			}
@@ -213,15 +227,15 @@ inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedSS
 
 template <class Vector1, class Vector2>
 inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDD
-	(uint32 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint32 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i;
-	typename Vector2::const_iterator j;
+	typename Vector1::const_iterator i = v1.begin () + start_idx, i_end = v1.begin () + std::min (v1.size (), end_idx);
+	typename Vector2::const_iterator j = v2.begin () + start_idx;
   
 	uint64 y = 0;
 	uint64 t;
 
-	for (i = v1.begin (), j = v2.begin (); i < v1.end (); ++i, ++j) {
+	for (; i != i_end; ++i, ++j) {
 		t = (uint64) *i * (uint64) *j;
 		y += t;
 
@@ -236,13 +250,15 @@ inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDD
 
 template <class Vector1, class Vector2>
 inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDS
-	(uint32 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint32 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
 
 	uint64 y = 0, t;
 
-	for (i; i != v1.end (); ++i) {
+	for (i; i != i_end; ++i) {
 		t = (uint64) i->second * (uint64) v2[i->first];
 		y += t;
 
@@ -257,17 +273,22 @@ inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDS
 
 template <class Vector1, class Vector2>
 inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedSS
-	(uint32 &res, const Vector1 &v1, const Vector2 &v2) const
+	(uint32 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
-	typename Vector2::const_iterator j = v2.begin ();
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
+		v2.end () : std::lower_bound (v2.begin (), v2.end (), end_idx, VectorWrapper::CompareSparseEntries ());
 
 	uint64 y = 0, t;
 
-	for (; i != v1.end () && j != v2.end (); ++i) {
-		while (j != v2.end () && j->first < i->first) ++j;
+	for (; i != i_end && j != j_end; ++i) {
+		while (j != j_end && j->first < i->first) ++j;
 
-		if (j != v2.end () && i->first == j->first) {
+		if (j != j_end && i->first == j->first) {
 			t = (uint64) i->second * (uint64) j->second;
 			y += t;
 

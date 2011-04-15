@@ -1329,13 +1329,13 @@ class DotProductDomain<Modular<uint8> > : private virtual VectorDomainBase<Modul
 
     protected:
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 };
 
 // Specialization of DotProductDomain for unsigned short modular field
@@ -1353,13 +1353,13 @@ class DotProductDomain<Modular<uint16> > : private virtual VectorDomainBase<Modu
 
     protected:
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 };
 
 // Specialization of DotProductDomain for uint32 modular field
@@ -1377,13 +1377,13 @@ class DotProductDomain<Modular<uint32> > : private virtual VectorDomainBase<Modu
 
     protected:
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 
 	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2) const;
+		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
 };
 
 // Specialization of MVProductDomain for uint8 modular field

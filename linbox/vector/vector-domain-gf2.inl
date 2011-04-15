@@ -18,7 +18,9 @@ template <class Vector1, class Vector2>
 inline bool &DotProductDomain<GF2>::dotSpecializedDD
 	(bool          &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	linbox_check (v1.size () == v2.size ());
 
@@ -38,7 +40,9 @@ template <class Vector1, class Vector2>
 inline bool &DotProductDomain<GF2>::dotSpecializedDSP
 	(bool          &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
 
@@ -56,7 +60,9 @@ template <class Vector1, class Vector2>
 inline bool &DotProductDomain<GF2>::dotSpecializedDH
 	(bool          &res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
 
@@ -74,18 +80,22 @@ template <class Iterator, class Endianness, class Vector1, class Vector2>
 inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDD
 	(BitVectorReference<Iterator, Endianness> res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	bool tmp;
 
-	return res = dotSpecializedDD (tmp, v1, v2);
+	return res = dotSpecializedDD (tmp, v1, v2, start_idx, end_idx);
 }
 
 template <class Iterator, class Endianness, class Vector1, class Vector2>
 inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDSP
 	(BitVectorReference<Iterator, Endianness> res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
 
@@ -103,11 +113,13 @@ template <class Iterator, class Endianness, class Vector1, class Vector2>
 inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDH
 	(BitVectorReference<Iterator, Endianness> res,
 	 const Vector1 &v1,
-	 const Vector2 &v2) const
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx) const
 {
 	bool tmp;
 
-	return res = dotSpecializedDH (tmp, v1, v2);
+	return res = dotSpecializedDH (tmp, v1, v2, start_idx, end_idx);
 }
 
 template <class Vector>
@@ -508,7 +520,7 @@ inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_star
 }
 
 template <class Vector1, class Vector2>
-bool &VectorDomain<GF2>::dotSpecialized (bool &res, const Vector1 &v1, const Vector2 &v2,
+bool &VectorDomain<GF2>::dotSpecialized (bool &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx,
 					 VectorCategories::SparseZeroOneVectorTag,
 					 VectorCategories::SparseZeroOneVectorTag) const
 {
