@@ -103,7 +103,8 @@ Matrix2 &MatrixDomainSupportGF2::axpyRow (const bool &a, const Matrix1 &A, Matri
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvColDense (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx) const
 {
-	linbox_check (A.coldim () == x.size ());
+	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
 
 	typename Matrix::ConstColIterator i_A;
 	typename Vector1::const_iterator i_x, i_x_end = x.begin () + end_idx;
@@ -127,6 +128,9 @@ Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix
 						     VectorCategories::SparseZeroOneVectorTag,
 						     VectorCategories::DenseZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+
 	typename Vector1::const_iterator i_x = std::lower_bound (x.begin (), x.end (), start_idx);
 
 	if (!b)
@@ -147,6 +151,9 @@ Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix
 						     VectorCategories::HybridZeroOneVectorTag,
 						     VectorCategories::DenseZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+
 	typename Matrix::ConstColIterator i_A;
 	typename Vector1::const_iterator i_x;
 	typename Vector1::word_type t;
@@ -183,6 +190,9 @@ template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 						     VectorCategories::DenseZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
 
@@ -206,6 +216,9 @@ template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 						     VectorCategories::SparseZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
 
@@ -235,6 +248,9 @@ template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
 						     VectorCategories::HybridZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
 
@@ -272,7 +288,7 @@ Vector &MatrixDomainSupportGF2::trsvSpecialized (const Matrix &A, Vector &x,
 						 VectorCategories::DenseZeroOneVectorTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
-	linbox_check (A.rowdim () == x.size ());
+	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
 
 	bool d;
 

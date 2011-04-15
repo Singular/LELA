@@ -255,6 +255,100 @@ namespace VectorWrapper
 	template <class Field, class Vector>
 	inline void ensureDim (Vector &v, size_t n) 
 		{ ensureDimSpecialized (v, n, typename VectorTraits<Field, Vector>::VectorCategory()); }
+
+	template <class Vector>
+	inline bool hasDimSpecialized (const Vector &v, size_t n, VectorCategories::DenseVectorTag)
+		{ return v.size () == n; }
+
+	template <class Vector>
+	inline bool hasDimSpecialized (const Vector &v, size_t n, VectorCategories::SparseVectorTag)
+		{ return v.empty () || v.back ().first < n; }
+
+	template <class Vector>
+	inline bool hasDimSpecialized (const Vector &v, size_t n, VectorCategories::DenseZeroOneVectorTag)
+		{ return v.size () == n; }
+
+	template <class Vector>
+	inline bool hasDimSpecialized (const Vector &v, size_t n, VectorCategories::SparseZeroOneVectorTag)
+		{ return v.empty () || v.back () < n; }
+
+	template <class Vector>
+	inline bool hasDimSpecialized (const Vector &v, size_t n, VectorCategories::HybridZeroOneVectorTag)
+	{
+		if (v.empty ())
+			return true;
+		else if ((v.back ().first << WordTraits<typename Vector::word_type>::logof_size) >= (long) n)
+			return false;
+		else if (v.back ().first == (n >> WordTraits<typename Vector::word_type>::logof_size))
+			return (v.back ().second & Vector::Endianness::mask_right (n & WordTraits<typename Vector::word_type>::pos_mask)) == 0;
+		else
+			return true;
+	}
+
+	/// Determines whether the vector v can represent a vector of dimension n.
+	/// @returns true if v can represent a vector of dimension n and false otherwise
+	template <class Field, class Vector>
+	inline bool hasDim (const Vector &v, size_t n) 
+		{ return hasDimSpecialized (v, n, typename VectorTraits<Field, Vector>::VectorCategory()); }
+
+	template <class Vector>
+	inline bool isValidSpecialized (const Vector &v, VectorCategories::DenseVectorTag)
+		{ return true; }
+
+	template <class Vector>
+	inline bool isValidSpecialized (const Vector &v, VectorCategories::SparseVectorTag)
+	{
+		if (v.empty ())
+			return true;
+
+		typename Vector::const_iterator i = v.begin (), i_next = v.begin ();
+
+		for (++i_next; i_next != v.end (); ++i_next, ++i)
+			if (i->second >= i_next->second)
+				return false;
+
+		return true;
+	}
+
+	template <class Vector>
+	inline bool isValidSpecialized (const Vector &v, VectorCategories::DenseZeroOneVectorTag)
+		{ return true; }
+
+	template <class Vector>
+	inline bool isValidSpecialized (const Vector &v, VectorCategories::SparseZeroOneVectorTag)
+	{
+		if (v.empty ())
+			return true;
+
+		typename Vector::const_iterator i = v.begin (), i_next = v.begin ();
+
+		for (++i_next; i_next != v.end (); ++i_next, ++i)
+			if (*i >= *i_next)
+				return false;
+
+		return true;
+	}
+
+	template <class Vector>
+	inline bool isValidSpecialized (const Vector &v, VectorCategories::HybridZeroOneVectorTag)
+	{
+		if (v.empty ())
+			return true;
+
+		typename Vector::const_iterator i = v.begin (), i_next = v.begin ();
+
+		for (++i_next; i_next != v.end (); ++i_next, ++i)
+			if (i->second >= i_next->second)
+				return false;
+
+		return true;
+	}
+
+	/// Determines whether v is a valid vector of its format.
+	/// @returns true if v is valid or false if there is an error
+	template <class Field, class Vector>
+	inline bool isValid (const Vector &v) 
+		{ return isValidSpecialized (v, typename VectorTraits<Field, Vector>::VectorCategory()); }
 } // Namespace VectorWrapper
 
 // Specialization for STL vectors

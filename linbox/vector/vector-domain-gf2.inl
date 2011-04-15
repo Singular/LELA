@@ -40,6 +40,8 @@ inline bool &DotProductDomain<GF2>::dotSpecializedDSP
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
+
 	typename Vector2::const_iterator i;
 
 	res = false;
@@ -56,6 +58,8 @@ inline bool &DotProductDomain<GF2>::dotSpecializedDH
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
+
 	typename Vector1::word_type t = 0;
 	typename Vector1::const_word_iterator i = v1.wordBegin ();
 	typename Vector2::const_iterator j;
@@ -83,6 +87,8 @@ inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecia
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
+
 	typename Vector2::const_iterator i;
 
 	res = false;
@@ -224,6 +230,9 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::SparseZeroOneVectorTag) const
 {
+	if (v1.empty () && !v2.empty ())
+		return false;
+
 	typedef typename std::iterator_traits<typename Vector2::const_iterator>::value_type index_type;
 
 	typename Vector1::const_iterator i = v1.begin ();
@@ -235,6 +244,9 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 			if (*i) return false;
 			++idx;
 			++i;
+
+			if (i == v1.end ())
+				return false;
 		}
 
 		if (!*i) return false;
@@ -301,6 +313,9 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::HybridZeroOneVectorTag) const
 {
+	if (v1.empty () && !v2.empty ())
+		return false;
+
 	typename Vector1::const_word_iterator i = v1.wordBegin ();
 	typename Vector2::const_iterator j = v2.begin ();
 	typename Vector2::index_type idx = 0;
@@ -310,6 +325,9 @@ bool VectorDomain<GF2>::areEqualSpecialized (const Vector1 &v1, const Vector2 &v
 			if (*i) return false;
 			++idx;
 			++i;
+
+			if (i == v1.wordEnd ())
+				return false;
 		}
 
 		if (*i++ != j->second)
@@ -376,6 +394,8 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::SparseZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (v, res.size ()));
+
 	typename Vector2::const_iterator i;
 
 	std::fill (res.wordBegin (), res.wordEnd (), 0);
@@ -391,6 +411,8 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::HybridZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (v, res.size ()));
+
 	typename Vector2::const_iterator i;
 
 	std::fill (res.wordBegin (), res.wordEnd (), 0);
@@ -595,6 +617,8 @@ Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 					      VectorCategories::DenseZeroOneVectorTag,
 					      VectorCategories::SparseZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (x, y.size ()));
+
 	typename Vector2::const_iterator i;
 
 	for (i = x.begin (); i != x.end (); ++i)
@@ -608,6 +632,8 @@ Vector1 &VectorDomain<GF2>::addinSpecialized (Vector1 &y, const Vector2 &x,
 					      VectorCategories::DenseZeroOneVectorTag,
 					      VectorCategories::HybridZeroOneVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<GF2> (x, y.size ()));
+
 	typename Vector2::const_iterator i;
 	typename Vector1::word_iterator j = y.wordBegin ();
 

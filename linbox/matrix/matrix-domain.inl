@@ -26,7 +26,8 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 								Vector2                       &y,
 								VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
 
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Vector2::iterator j = y.begin ();
@@ -52,6 +53,9 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 								Vector2                       &y,
 								VectorCategories::SparseVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Field::Element t;
 	unsigned int idx = 0;
@@ -85,8 +89,8 @@ Vector2 &MVProductDomain<Field>::gemvColDense (const VectorDomain<Field>     &VD
 					       size_t                         start_idx,
 					       size_t                         end_idx) const
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector1::const_iterator j = x.begin () + start_idx, j_end = x.begin () + end_idx;
@@ -113,6 +117,9 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvColSpecialized (const typename F
 								size_t                         end_idx,
 								VectorCategories::SparseVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+
 	typename Vector1::const_iterator j = std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 	typename Field::Element d;
 
@@ -132,7 +139,8 @@ template <class Vector1, class Vector2, class Matrix>
 inline Matrix &MatrixDomainSupportGeneric<Field>::gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 								     VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.rowdim () == x.size ());
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
 
 	typename Matrix::RowIterator i_A;
 	typename Vector1::const_iterator i_x;
@@ -152,6 +160,9 @@ template <class Vector1, class Vector2, class Matrix>
 inline Matrix &MatrixDomainSupportGeneric<Field>::gerRowSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 								     VectorCategories::SparseVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
+
 	typename Vector1::const_iterator i_x;
 
 	typename Field::Element axi;
@@ -169,7 +180,8 @@ template <class Vector1, class Vector2, class Matrix>
 inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 								     VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
 
 	typename Matrix::ColIterator i_A;
 	typename Vector2::const_iterator i_y;
@@ -189,6 +201,9 @@ template <class Vector1, class Vector2, class Matrix>
 inline Matrix &MatrixDomainSupportGeneric<Field>::gerColSpecialised (const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 								     VectorCategories::SparseVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
+
 	typename Vector2::const_iterator i_y;
 
 	typename Field::Element ayi;
@@ -208,7 +223,7 @@ Vector &MatrixDomainSupportGeneric<Field>::trsvSpecialized (const Matrix &A, Vec
 							    VectorCategories::DenseVectorTag) const
 {
 	linbox_check (A.coldim () == A.rowdim ());
-	linbox_check (A.rowdim () == x.size ());
+	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
 
 	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
 	int i = A.rowdim ();

@@ -265,6 +265,8 @@ Vector1 &VectorDomain<Field>::copySpecialized (Vector1 &res, const Vector2 &v,
 					       VectorCategories::DenseVectorTag,
 					       VectorCategories::SparseVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<Field> (v, res.size ()));
+
 	typename Vector1::iterator i;
 	typename Vector2::const_iterator j;
 	size_t idx;
@@ -376,12 +378,12 @@ Vector1 &VectorDomain<Field>::addSpecialized (Vector1 &res, const Vector2 &y, co
 					      VectorCategories::DenseVectorTag,
 					      VectorCategories::DenseVectorTag) const
 {
+	linbox_check (y.size () == x.size ());
+	linbox_check (res.size () == x.size ());
+
 	typename Vector2::const_iterator i;
 	typename Vector3::const_iterator j;
 	typename Vector1::iterator k;
-
-	linbox_check (y.size () == x.size ());
-	linbox_check (res.size () == x.size ());
 
 	for (i = y.begin (), j = x.begin (), k = res.begin (); i != y.end (); i++, j++, k++)
 		VectorDomainBase<Field>::_F.add (*k, *i, *j);
@@ -432,10 +434,10 @@ Vector1 &VectorDomain<Field>::addinSpecialized (Vector1 &y, const Vector2 &x,
 						VectorCategories::DenseVectorTag,
 						VectorCategories::DenseVectorTag) const
 {
+	linbox_check (y.size () == x.size ());
+
 	typename Vector1::iterator i;
 	typename Vector2::const_iterator j;
-
-	linbox_check (y.size () == x.size ());
 
 	for (i = y.begin (), j = x.begin (); i != y.end (); i++, j++)
 		VectorDomainBase<Field>::_F.addin (*i, *j);
@@ -463,12 +465,12 @@ Vector1 &VectorDomain<Field>::subSpecialized (Vector1 &res, const Vector2 &y, co
 					      VectorCategories::DenseVectorTag,
 					      VectorCategories::DenseVectorTag) const
 {
+	linbox_check (y.size () == x.size ());
+	linbox_check (res.size () == x.size ());
+
 	typename Vector2::const_iterator i;
 	typename Vector3::const_iterator j;
 	typename Vector1::iterator k;
-
-	linbox_check (y.size () == x.size ());
-	linbox_check (res.size () == x.size ());
 
 	for (i = y.begin (), j = x.begin (), k = res.begin (); i != y.end (); i++, j++, k++)
 		VectorDomainBase<Field>::_F.sub (*k, *i, *j);
@@ -519,10 +521,10 @@ Vector1 &VectorDomain<Field>::subinSpecialized (Vector1 &y, const Vector2 &x,
 						VectorCategories::DenseVectorTag,
 						VectorCategories::DenseVectorTag) const
 {
+	linbox_check (y.size () == x.size ());
+
 	typename Vector1::iterator i;
 	typename Vector2::const_iterator j;
-
-	linbox_check (y.size () == x.size ());
 
 	for (i = y.begin (), j = x.begin (); i != y.end (); i++, j++)
 		VectorDomainBase<Field>::_F.subin (*i, *j);
@@ -549,10 +551,10 @@ Vector1 &VectorDomain<Field>::negSpecialized (Vector1 &res, const Vector2 &x,
 					      VectorCategories::DenseVectorTag,
 					      VectorCategories::DenseVectorTag) const
 {
+	linbox_check (res.size () == x.size ());
+
 	typename Vector2::const_iterator j;
 	typename Vector1::iterator k;
-
-	linbox_check (res.size () == x.size ());
 
 	for (j = x.begin (), k = res.begin (); j != x.end (); ++j, ++k)
 		VectorDomainBase<Field>::_F.neg (*k, *j);
@@ -611,11 +613,11 @@ Vector1 &VectorDomain<Field>::mulSpecialized
 	 const typename Field::Element &a,
 	 VectorCategories::DenseVectorTag) const
 {
+	linbox_check (res.size () == x.size ());
+	
 	typename Vector2::const_iterator i;
 	typename Vector1::iterator j;
 
-	linbox_check (res.size () == x.size ());
-	
 	for (i = x.begin (), j = res.begin (); i != x.end (); ++i, ++j)
 		VectorDomainBase<Field>::_F.mul (*j, *i, a);
 
@@ -690,12 +692,12 @@ Vector1 &VectorDomain<Field>::axpySpecialized
 	 VectorCategories::DenseVectorTag,
 	 VectorCategories::DenseVectorTag) const
 {
+	linbox_check (y.size () == x.size ());
+	linbox_check (res.size () == x.size ());
+
 	typename Vector2::const_iterator i;
 	typename Vector3::const_iterator j;
 	typename Vector1::iterator k;
-
-	linbox_check (y.size () == x.size ());
-	linbox_check (res.size () == x.size ());
 
 	for (i = y.begin (), j = x.begin (), k = res.begin (); i != y.end (); i++, j++, k++)
 		VectorDomainBase<Field>::_F.axpy (*k, a, *j, *i);
@@ -770,10 +772,10 @@ Vector1 &VectorDomain<Field>::axpyinSpecialized
 	 VectorCategories::DenseVectorTag,
 	 VectorCategories::DenseVectorTag) const
 {
+	linbox_check (y.size () == x.size ());
+
 	typename Vector1::iterator i;
 	typename Vector2::const_iterator j;
-
-	linbox_check (y.size () == x.size ());
 
 	for (i = y.begin (), j = x.begin (); i != y.end (); ++i, ++j)
 		VectorDomainBase<Field>::_F.axpyin (*i, a, *j);
@@ -807,6 +809,8 @@ Vector1 &VectorDomain<Field>::axpyinSpecialized
 	 VectorCategories::DenseVectorTag,
 	 VectorCategories::SparseVectorTag) const
 {
+	linbox_check (VectorWrapper::hasDim<Field> (x, y.size ()));
+
 	typename Vector2::const_iterator j;
 
 	for (j = x.begin (); j != x.end (); ++j)
@@ -838,11 +842,11 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDD
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {
+	linbox_check (v1.size () == v2.size ());
+
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
 	VectorDomainBase<Field>::accu.reset();
-
-	linbox_check (v1.size () == v2.size ());
 
 	for (i = v1.begin (), j = v2.begin (); i != v1.end (); i++, j++)
 		VectorDomainBase<Field>::accu.mulacc (*i, *j);
@@ -857,6 +861,8 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDS
 	 const Vector1 &v1,
 	 const Vector2 &v2) const
 {
+	linbox_check (VectorWrapper::hasDim<Field> (v1, v2.size ()));
+
 	typename Vector1::const_iterator i;
 		
 	VectorDomainBase<Field>::accu.reset();
@@ -894,6 +900,8 @@ inline void VectorDomain<Field>::swapSpecialized
 	(Vector &v1, Vector &v2,
 	 VectorCategories::DenseVectorTag) const 
 {
+	linbox_check (v1.size () == v2.size ());
+
 	typename Vector::iterator j, k;
 
 	for (j = v1.begin (), k = v2.begin (); j != v1.end (); ++j, ++k)
