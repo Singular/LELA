@@ -888,12 +888,18 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedSS
 {
 	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 	typename Vector2::const_iterator j = (start_idx == 0) ? v2.begin () : std::lower_bound (v2.begin (), v2.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
+		v2.end () : std::lower_bound (v2.begin (), v2.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+
 	VectorDomainBase<Field>::accu.reset();
 
-	for (i = v1.begin (), j = v2.begin (); i != v1.end () && j != v2.end () && (size_t) i->first < end_idx && (size_t) j->first < end_idx; ++i) {
-		while (j != v2.end () && j->first < i->first) ++j;
+	for (; i != i_end && j != j_end; ++i) {
+		while (j != j_end && j->first < i->first) ++j;
 
-		if (j != v2.end () && j->first == i->first)
+		if (j != j_end && j->first == i->first)
 			VectorDomainBase<Field>::accu.mulacc (i->second, j->second);
 	}
 

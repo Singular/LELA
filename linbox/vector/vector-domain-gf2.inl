@@ -14,114 +14,6 @@
 namespace LinBox 
 { 
 
-template <class Vector1, class Vector2>
-inline bool &DotProductDomain<GF2>::dotSpecializedDD
-	(bool          &res,
-	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 size_t         start_idx,
-	 size_t         end_idx) const
-{
-	linbox_check (v1.size () == v2.size ());
-
-	typename Vector1::word_type t = 0;
-	typename Vector1::const_word_iterator i = v1.wordBegin ();
-	typename Vector2::const_word_iterator j = v2.wordBegin ();
-
-	while (i != v1.wordEnd () - 1)
-		t ^= *i++ & *j++;
-        
-        t ^= *i & *j & Vector1::Endianness::mask_left (v1.size() % WordTraits<typename Vector1::word_type>::bits);
-
-        return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
-}
-
-template <class Vector1, class Vector2>
-inline bool &DotProductDomain<GF2>::dotSpecializedDSP
-	(bool          &res,
-	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 size_t         start_idx,
-	 size_t         end_idx) const
-{
-	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
-
-	typename Vector2::const_iterator i;
-
-	res = false;
-
-	for (i = v2.begin (); i != v2.end (); ++i)
-		if (v1[*i]) res = !res;
-
-	return res;
-}
-
-template <class Vector1, class Vector2>
-inline bool &DotProductDomain<GF2>::dotSpecializedDH
-	(bool          &res,
-	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 size_t         start_idx,
-	 size_t         end_idx) const
-{
-	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
-
-	typename Vector1::word_type t = 0;
-	typename Vector1::const_word_iterator i = v1.wordBegin ();
-	typename Vector2::const_iterator j;
-
-	for (j = v2.begin (); j != v2.end (); ++j)
-		t ^= *(i + j->first) & j->second;
-        
-        return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
-}
-
-template <class Iterator, class Endianness, class Vector1, class Vector2>
-inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDD
-	(BitVectorReference<Iterator, Endianness> res,
-	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 size_t         start_idx,
-	 size_t         end_idx) const
-{
-	bool tmp;
-
-	return res = dotSpecializedDD (tmp, v1, v2, start_idx, end_idx);
-}
-
-template <class Iterator, class Endianness, class Vector1, class Vector2>
-inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDSP
-	(BitVectorReference<Iterator, Endianness> res,
-	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 size_t         start_idx,
-	 size_t         end_idx) const
-{
-	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
-
-	typename Vector2::const_iterator i;
-
-	res = false;
-
-	for (i = v2.begin (); i != v2.end (); ++i)
-		res ^= v1[*i];
-
-	return res;
-}
-
-template <class Iterator, class Endianness, class Vector1, class Vector2>
-inline BitVectorReference<Iterator, Endianness> DotProductDomain<GF2>::dotSpecializedDH
-	(BitVectorReference<Iterator, Endianness> res,
-	 const Vector1 &v1,
-	 const Vector2 &v2,
-	 size_t         start_idx,
-	 size_t         end_idx) const
-{
-	bool tmp;
-
-	return res = dotSpecializedDH (tmp, v1, v2, start_idx, end_idx);
-}
-
 template <class Vector>
 std::ostream &VectorDomain<GF2>::writeSpecialized (std::ostream &os, const Vector &x,
 						   VectorCategories::DenseZeroOneVectorTag) const
@@ -520,18 +412,114 @@ inline Vector &VectorDomain<GF2>::permuteSpecialized (Vector &v, Iterator P_star
 }
 
 template <class Vector1, class Vector2>
+inline bool &VectorDomain<GF2>::dotSpecialized
+	(bool          &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx,
+	 VectorCategories::DenseZeroOneVectorTag,
+	 VectorCategories::DenseZeroOneVectorTag) const
+{
+	linbox_check (v1.size () == v2.size ());
+
+	typename Vector1::word_type t = 0;
+	typename Vector1::const_word_iterator i = v1.wordBegin ();
+	typename Vector2::const_word_iterator j = v2.wordBegin ();
+
+	while (i != v1.wordEnd () - 1)
+		t ^= *i++ & *j++;
+        
+        t ^= *i & *j & Vector1::Endianness::mask_left (v1.size() % WordTraits<typename Vector1::word_type>::bits);
+
+        return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
+}
+
+template <class Vector1, class Vector2>
+inline bool &VectorDomain<GF2>::dotSpecialized
+	(bool          &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx,
+	 VectorCategories::DenseZeroOneVectorTag,
+	 VectorCategories::SparseZeroOneVectorTag) const
+{
+	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
+
+	typename Vector2::const_iterator i;
+
+	res = false;
+
+	for (i = v2.begin (); i != v2.end (); ++i)
+		if (v1[*i]) res = !res;
+
+	return res;
+}
+
+template <class Vector1, class Vector2>
+inline bool &VectorDomain<GF2>::dotSpecialized
+	(bool          &res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx,
+	 VectorCategories::DenseZeroOneVectorTag,
+	 VectorCategories::HybridZeroOneVectorTag) const
+{
+	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
+
+	typename Vector1::word_type t = 0;
+	typename Vector1::const_word_iterator i = v1.wordBegin ();
+	typename Vector2::const_iterator j;
+
+	for (j = v2.begin (); j != v2.end (); ++j)
+		t ^= *(i + j->first) & j->second;
+        
+        return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
+}
+
+template <class Iterator, class Endianness, class Vector1, class Vector2>
+inline BitVectorReference<Iterator, Endianness> VectorDomain<GF2>::dotSpecialized
+	(BitVectorReference<Iterator, Endianness> res,
+	 const Vector1 &v1,
+	 const Vector2 &v2,
+	 size_t         start_idx,
+	 size_t         end_idx,
+	 VectorCategories::DenseZeroOneVectorTag,
+	 VectorCategories::SparseZeroOneVectorTag) const
+{
+	linbox_check (VectorWrapper::hasDim<GF2> (v2, v1.size ()));
+
+	typename Vector2::const_iterator i;
+
+	res = false;
+
+	for (i = v2.begin (); i != v2.end (); ++i)
+		res ^= v1[*i];
+
+	return res;
+}
+
+template <class Vector1, class Vector2>
 bool &VectorDomain<GF2>::dotSpecialized (bool &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx,
 					 VectorCategories::SparseZeroOneVectorTag,
 					 VectorCategories::SparseZeroOneVectorTag) const
 {
-	typename Vector1::const_iterator i = v1.begin ();
-	typename Vector2::const_iterator j = v2.begin ();
+	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx);
+	typename Vector2::const_iterator j = (start_idx == 0) ? v2.begin () : std::lower_bound (v2.begin (), v2.end (), start_idx);
+
+	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
+		v1.end () : std::lower_bound (v1.begin (), v1.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
+		v2.end () : std::lower_bound (v2.begin (), v2.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+
 	res = false;
 
-	while (i != v1.end () || j != v2.end ()) {
-		while (i != v1.end () && (j == v2.end () || *i < *j)) { res = !res; ++i; }
-		while (j != v2.end () && (i == v1.end () || *j < *i)) { res = !res; ++j; }
-		if (i != v1.end () && j != v2.end () && *i == *j) { ++i; ++j; }
+	while (i != i_end || j != j_end) {
+		while (i != i_end && (j == j_end || *i < *j)) { res = !res; ++i; }
+		while (j != j_end && (i == i_end || *j < *i)) { res = !res; ++j; }
+		if (i != i_end && j != j_end && *i == *j) { ++i; ++j; }
 	}
 
 	return res;
