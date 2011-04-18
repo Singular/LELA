@@ -182,7 +182,7 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 	inline Matrix2 &trmm (const bool &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne) const
 		{ return MatrixDomainSupportGF2::trmm (a, A, B, type, diagIsOne); }
 
-#if 0 // I wish M4RI had a trmm...
+#if 1 // I wish M4RI had a trmm...
 	inline M4RIMatrix &trmm (const bool &a, const M4RIMatrix &A, M4RIMatrix &B, TriangularMatrixType type, bool diagIsOne) const
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
@@ -191,9 +191,30 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 		if (A.rowdim () == 0 || A.coldim () == 0 || B.coldim () == 0)
 			return B;
 
-		if (a)
-			mzd_trmm_upper_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-		else
+		if (a) {
+			// Since M4RI doesn't seem to have in-place
+			// trmm, we'll do it by two calls to
+			// trsm. First we construct an
+			// identity-matrix, then we use trsm to get
+			// the inverse of A, then we use trsm again to
+			// construct AB.
+			M4RIMatrix Ainv (A.rowdim (), A.coldim ());
+
+			M4RIMatrix::RowIterator i;
+			StandardBasisStream<GF2, M4RIMatrix::Row> stream (_F, A.rowdim ());
+
+			for (i = Ainv.rowBegin (); i != Ainv.rowEnd (); ++i)
+				stream >> *i;
+
+			if (type == UpperTriangular) {
+				mzd_trsm_upper_left (A._rep, Ainv._rep, STRASSEN_MUL_CUTOFF);
+				mzd_trsm_upper_left (Ainv._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			}
+			else if (type == LowerTriangular) {
+				mzd_trsm_lower_left (A._rep, Ainv._rep, STRASSEN_MUL_CUTOFF);
+				mzd_trsm_lower_left (Ainv._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			}
+		} else
 			scal (B, false);
 
 		return B;
@@ -223,9 +244,9 @@ class MatrixDomainM4RI : public MatrixDomainSupportGF2
 
 		if (a) {
 			if (type == UpperTriangular)
-				mzd_trsm_upper_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+				mzd_trsm_upper_left (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
 			else if (type == LowerTriangular)
-				mzd_trsm_lower_right (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+				mzd_trsm_lower_left (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
 			// FIXME: Should throw error at this point -- invalid type
 		} else
 			scal (B, false);
