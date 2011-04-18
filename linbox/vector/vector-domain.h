@@ -247,6 +247,8 @@ public:
 	 * @param res element into which to store result
 	 * @param v1 Input vector
 	 * @param v2 Input vector
+	 * @param start_idx Starting index of dot-product. Set to nonzero value to get a dot-product of a part of the vector. 0 means the start of the vector. Default 0.
+	 * @param end_idx Ending index of dot-product. (size_t) -1 means the end of the vector. Default (size_t) -1.
 	 */
 	template <class Vector1, class Vector2>
 	inline Element &dot (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx = 0, size_t end_idx = static_cast<size_t> (-1)) const

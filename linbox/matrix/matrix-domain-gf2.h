@@ -129,12 +129,15 @@ private:
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+				     size_t start_idx, size_t end_idx,
 				     VectorCategories::DenseZeroOneVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+				     size_t start_idx, size_t end_idx,
 				     VectorCategories::SparseZeroOneVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+				     size_t start_idx, size_t end_idx,
 				     VectorCategories::HybridZeroOneVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
@@ -168,11 +171,7 @@ private:
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,
 				  MatrixCategories::RowMatrixTag) const
-	{
-		linbox_check (start_idx == 0);
-		linbox_check (end_idx == A.coldim ());
-		return gemvRowSpecialized (a, A, x, b, y, typename GF2VectorTraits<Vector1>::VectorCategory ());
-	}
+		{ return gemvRowSpecialized (a, A, x, b, y, start_idx, end_idx, typename GF2VectorTraits<Vector1>::VectorCategory ()); }
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y, size_t start_idx, size_t end_idx,

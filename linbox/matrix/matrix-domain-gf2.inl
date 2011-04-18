@@ -188,6 +188,7 @@ Vector2 &MatrixDomainSupportGF2::gemvColSpecialized (const bool &a, const Matrix
 
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     size_t start_idx, size_t end_idx,
 						     VectorCategories::DenseZeroOneVectorTag) const
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
@@ -205,7 +206,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		_VD.dot (d, *i_A, x);
+		_VD.dot (d, *i_A, x, start_idx, end_idx);
 		_F.addin (y[idx], d);
 	}
 		
@@ -214,6 +215,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     size_t start_idx, size_t end_idx,
 						     VectorCategories::SparseZeroOneVectorTag) const
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
@@ -233,7 +235,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		_VD.dot (d, *i_A, x);
+		_VD.dot (d, *i_A, x, start_idx, end_idx);
 
 		if (d)
 			t.push_back (idx);
@@ -246,6 +248,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix &A, const Vector1 &x, const bool &b, Vector2 &y,
+						     size_t start_idx, size_t end_idx,
 						     VectorCategories::HybridZeroOneVectorTag) const
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
@@ -266,7 +269,7 @@ Vector2 &MatrixDomainSupportGF2::gemvRowSpecialized (const bool &a, const Matrix
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		_VD.dot (d, *i_A, x);
+		_VD.dot (d, *i_A, x, start_idx, end_idx);
 
 		if (d) {
 			if (t.first.empty () || t.first.back () != idx & ~WordTraits<typename Vector2::word_type>::pos_mask)

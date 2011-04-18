@@ -304,9 +304,11 @@ private:
 	// Specialized function implementations
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     size_t start_idx, size_t end_idx,
 				     VectorCategories::DenseVectorTag) const;
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvRowSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+				     size_t start_idx, size_t end_idx,
 				     VectorCategories::SparseVectorTag) const;
 
 	template <class Vector1, class Matrix, class Vector2>
@@ -323,11 +325,7 @@ private:
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 				  size_t start_idx, size_t end_idx,
 				  MatrixCategories::RowMatrixTag) const
-	{
-		linbox_check (start_idx == 0);
-		linbox_check (end_idx == A.coldim ());
-		return gemvRowSpecialized (a, A, x, b, y, typename VectorTraits<Field, Vector2>::VectorCategory ());
-	}
+		{ return gemvRowSpecialized (a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	template <class Vector1, class Matrix, class Vector2>
 	Vector2 &gemvSpecialized (const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,

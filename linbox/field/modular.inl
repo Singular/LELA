@@ -29,6 +29,7 @@ template <class Vector1, class Vector2>
 inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDD
 	(uint8 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
+	linbox_check (v1.size () == v2.size ());
 	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = v1.begin () + start_idx, i_end = v1.begin () + std::min (v1.size (), end_idx);
@@ -62,6 +63,7 @@ template <class Vector1, class Vector2>
 inline uint8 &DotProductDomain<Modular<uint8> >::dotSpecializedDS
 	(uint8 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
+	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (v1, v2.size ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
@@ -136,6 +138,7 @@ template <class Vector1, class Vector2>
 inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDD
 	(uint16 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
+	linbox_check (v1.size () == v2.size ());
 	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = v1.begin () + start_idx, i_end = v1.begin () + std::min (v1.size (), end_idx);
@@ -169,6 +172,7 @@ template <class Vector1, class Vector2>
 inline uint16 &DotProductDomain<Modular<uint16> >::dotSpecializedDS
 	(uint16 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
+	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (v1, v2.size ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
@@ -243,6 +247,7 @@ template <class Vector1, class Vector2>
 inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDD
 	(uint32 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
+	linbox_check (v1.size () == v2.size ());
 	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = v1.begin () + start_idx, i_end = v1.begin () + std::min (v1.size (), end_idx);
@@ -268,6 +273,7 @@ template <class Vector1, class Vector2>
 inline uint32 &DotProductDomain<Modular<uint32> >::dotSpecializedDS
 	(uint32 &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const
 {
+	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (v1, v2.size ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
@@ -326,8 +332,8 @@ Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 	 size_t start_idx, size_t end_idx,
 	 VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
@@ -371,8 +377,8 @@ Vector2 &MVProductDomain<Modular<uint8> >::gemvColDenseSpecialized
 	 size_t start_idx, size_t end_idx,
 	 VectorCategories::SparseVectorTag) const
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
@@ -416,8 +422,8 @@ Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 	 size_t start_idx, size_t end_idx,
 	 VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
@@ -463,8 +469,8 @@ Vector2 &MVProductDomain<Modular<uint16> >::gemvColDenseSpecialized
 	 size_t start_idx, size_t end_idx,
 	 VectorCategories::SparseVectorTag) const
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
@@ -510,8 +516,8 @@ Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 	 size_t start_idx, size_t end_idx,
 	 VectorCategories::DenseVectorTag) const
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
@@ -551,8 +557,8 @@ Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 	 size_t start_idx, size_t end_idx,
 	 VectorCategories::SparseVectorTag) const
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
+	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;

@@ -16,7 +16,6 @@
 namespace LinBox
 {
 
-// FIXME: Currently ignores start_idx, end_idx!!!!
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename Field::Element &alpha,
@@ -24,6 +23,8 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta,
 								Vector2                       &y,
+								size_t                         start_idx,
+								size_t                         end_idx,
 								VectorCategories::DenseVectorTag) const
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
@@ -35,7 +36,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 	typename Field::Element d;
 
 	for (; i != A.rowEnd (); ++j, ++i) {
-		_VD.dot (d, x, *i);
+		_VD.dot (d, x, *i, start_idx, end_idx);
 		_F.mulin (*j, beta);
 		_F.axpyin (*j, alpha, d);
 	}
@@ -43,7 +44,6 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 	return y;
 }
 
-// FIXME: Currently ignores start_idx, end_idx!!!!
 template <class Field>
 template <class Vector1, class Matrix, class Vector2>
 Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename Field::Element &alpha,
@@ -51,6 +51,8 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 								const Vector1                 &x,
 								const typename Field::Element &beta,
 								Vector2                       &y,
+								size_t                         start_idx,
+								size_t                         end_idx,
 								VectorCategories::SparseVectorTag) const
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
@@ -68,7 +70,7 @@ Vector2 &MatrixDomainSupportGeneric<Field>::gemvRowSpecialized (const typename F
 		_VD.mulin (y, beta);
 
 	for (; i != A.rowEnd (); ++i, ++idx) {
-		_VD.dot (t, x, *i);
+		_VD.dot (t, x, *i, start_idx, end_idx);
 		_F.mulin (t, alpha);
 
 		if (!_F.isZero (t))
@@ -91,6 +93,7 @@ Vector2 &MVProductDomain<Field>::gemvColDense (const VectorDomain<Field>     &VD
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+	linbox_check (start_idx <= end_idx);
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector1::const_iterator j = x.begin () + start_idx, j_end = x.begin () + end_idx;
