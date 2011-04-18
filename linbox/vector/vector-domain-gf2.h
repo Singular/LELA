@@ -199,7 +199,15 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>
 	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
 				  VectorCategories::DenseZeroOneVectorTag,
 				  VectorCategories::HybridZeroOneVectorTag) const;
-    
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::HybridZeroOneVectorTag,
+				  VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector1, class Vector2>
+	bool areEqualSpecialized (const Vector1 &v1, const Vector2 &v2,
+				  VectorCategories::SparseZeroOneVectorTag,
+				  VectorCategories::HybridZeroOneVectorTag) const
+		{ return areEqual (v2, v1); }
 
 	template <class Vector>
 	bool isZeroSpecialized (const Vector &v, VectorCategories::DenseZeroOneVectorTag) const;
@@ -393,6 +401,10 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>
 	template <class Vector1, class Vector2>
 	Vector1 &mulSpecialized (Vector1 &res, const Vector2 &x, const Element a,
 				 VectorCategories::SparseZeroOneVectorTag tag) const
+		{ if (a) this->copy (res, x); else res.clear (); return res; }
+	template <class Vector1, class Vector2>
+	Vector1 &mulSpecialized (Vector1 &res, const Vector2 &x, const Element a,
+				 VectorCategories::HybridZeroOneVectorTag tag) const
 		{ if (a) this->copy (res, x); else res.clear (); return res; }
 
 	template <class Vector>

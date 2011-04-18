@@ -845,6 +845,7 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDD
 	 size_t         end_idx) const
 {
 	linbox_check (v1.size () == v2.size ());
+	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i, i_end = v1.begin () + std::min (v1.size (), end_idx);
 	typename Vector2::const_iterator j;
@@ -866,6 +867,7 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedDS
 	 size_t         end_idx) const
 {
 	linbox_check (VectorWrapper::hasDim<Field> (v1, v2.size ()));
+	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 
@@ -889,6 +891,8 @@ inline typename Field::Element &DotProductDomain<Field>::dotSpecializedSS
 	 size_t         start_idx,
 	 size_t         end_idx) const
 {
+	linbox_check (start_idx <= end_idx);
+
 	typename Vector1::const_iterator i = (start_idx == 0) ? v1.begin () : std::lower_bound (v1.begin (), v1.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 	typename Vector2::const_iterator j = (start_idx == 0) ? v2.begin () : std::lower_bound (v2.begin (), v2.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 

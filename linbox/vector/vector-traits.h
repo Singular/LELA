@@ -166,7 +166,15 @@ namespace VectorWrapper
 	{
 	public:
 		template<typename PairType>
-		inline bool operator () (const PairType &i, size_t j) const
+		inline bool operator () (const PairType &i, uint16 j) const
+			{ return i.first < j; }
+
+		template<typename PairType>
+		inline bool operator () (const PairType &i, uint32 j) const
+			{ return i.first < j; }
+
+		template<typename PairType>
+		inline bool operator () (const PairType &i, uint64 j) const
 			{ return i.first < j; }
 
 		template<typename PairType>
@@ -250,6 +258,10 @@ namespace VectorWrapper
 
 	template <class Vector>
 	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::SparseZeroOneVectorTag)
+		{}
+
+	template <class Vector>
+	inline void ensureDimSpecialized (Vector &v, size_t n, VectorCategories::HybridZeroOneVectorTag)
 		{}
 
 	template <class Field, class Vector>

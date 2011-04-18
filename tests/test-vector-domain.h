@@ -23,6 +23,24 @@
 
 #include "test-common.h" 
 
+/* Construct the dot-product of two vectors manually. Depends on
+ * proper functioning of VectorWrapper::getEntry and of
+ * Field::axpyin.
+ */
+
+template <class Field, class Vector1, class Vector2>
+typename Field::Element &manualDot (const Field &F, typename Field::Element &x, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx)
+{
+	typename Field::Element a, b;
+
+	F.init (x, 0);
+
+	for (size_t j = start_idx; j < end_idx; j++)
+		if (LinBox::VectorWrapper::getEntry (v1, a, j) && LinBox::VectorWrapper::getEntry (v2, b, j))
+			F.axpyin (x, a, b);
+
+	return x;
+}
 
 /** Test 1: Dot product of vectors
  *
@@ -32,16 +50,20 @@
  * n - Dimension to which to make vectors
  * stream1 - Stream for first family of vectors
  * stream2 - Stream for second family of vectors
+ * start_idx - Starting index to be used
+ * end_idx - Ending index to be used
  *
  * Return true on success and false on failure
  */
 
 template <class Field, class Vector1, class Vector2>
-static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vector1> &stream1, LinBox::VectorStream<Vector2> &stream2) 
+static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vector1> &stream1, LinBox::VectorStream<Vector2> &stream2, size_t start_idx, size_t end_idx) 
 {
+	linbox_check (stream1.dim () == stream2.dim ());
+
 	std::ostringstream str;
 
-	str << "\t--Testing " << text << " dot product" << std::ends;
+	str << "Testing " << text << " dot product (indices " << start_idx << "-" << end_idx << ")" << std::ends;
 	LinBox::commentator.start (str.str ().c_str (), "testDotProduct", stream1.m ());
 
 	bool ret = true;
@@ -52,33 +74,19 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 
 	LinBox::VectorDomain<Field> VD (F);
 
-	size_t j;
-
-	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector2> (v2, stream2.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v1, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector2> (v2, stream2.dim ());
 
 	LinBox::Timer timer;
 	double totaltime = 0.0;
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
-
-		F.init (sigma, 0);
+		LinBox::commentator.startIteration (stream1.pos ());
 
 		stream1.next (v1);
 		stream2.next (v2);
 
-		for (j = 0; j < stream1.n (); j++) {
-			typename Field::Element a, b;
-
-			if (!LinBox::VectorWrapper::getEntry (v1, a, j))
-				a = F.zero ();
-
-			if (!LinBox::VectorWrapper::getEntry (v2, b, j))
-				b = F.zero ();
-
-			F.axpyin (sigma, a, b);
-		}
+		manualDot (F, sigma, v1, v2, start_idx, std::min (end_idx, stream1.dim ()));
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 of size " << v1.size() << ":  ";
@@ -88,7 +96,7 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 		VD.write (report, v2) << std::endl;
 
 		timer.start ();
-		VD.dot (rho, v1, v2);
+		VD.dot (rho, v1, v2, start_idx, end_idx);
 		timer.stop ();
 		totaltime += timer.realtime ();
 
@@ -100,8 +108,8 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 
 		if (!F.areEqual (sigma, rho)) {
 			ret = false;
-			LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: Dot products are not equal" << std::endl;
+			std::ostream &error = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+			error << "ERROR: Dot products are not equal" << std::endl;
 		}
 
 		LinBox::commentator.stop ("done");
@@ -109,7 +117,7 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 	}
 
 	LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, TIMING_MEASURE)
-		<< "Average time for dot product: " << totaltime / stream1.m () << std::endl;
+		<< "Average time for dot product: " << totaltime / stream1.size () << std::endl;
 
 	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testDotProduct");
 
@@ -137,7 +145,7 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 {
 	std::ostringstream str;
 
-	str << "\t--Testing " << text << " vector add, mul" << std::ends;
+	str << "Testing " << text << " vector add, mul" << std::ends;
 	LinBox::commentator.start (str.str ().c_str (), "testAddMul", stream1.m ());
 
 	bool ret = true;
@@ -240,7 +248,7 @@ static bool testSubMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 {
 	std::ostringstream str;
 
-	str << "\t--Testing " << text << " vector sub, mul" << std::ends;
+	str << "Testing " << text << " vector sub, mul" << std::ends;
 	LinBox::commentator.start (str.str ().c_str (), "testSubMul", stream1.m ());
 
 	bool ret = true;
@@ -341,7 +349,7 @@ template <class Field, class Vector>
 static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &stream1, LinBox::VectorStream<Vector> &stream2) 
 {
 	std::ostringstream str;
-	str << "\t--Testing " << text << " vector axpy" << std::ends;
+	str << "Testing " << text << " vector axpy" << std::ends;
 	LinBox::commentator.start (str.str ().c_str (), "testAXPY", stream1.m ());
 
 	bool ret = true;
@@ -424,7 +432,7 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 {
 	std::ostringstream str;
 
-	str << "\t--Testing " << text << " vector copy, areEqual" << std::ends;
+	str << "Testing " << text << " vector copy, areEqual" << std::ends;
 	LinBox::commentator.start (str.str ().c_str (), "testCopyEqual", stream.m ());
 
 	bool ret = true;
