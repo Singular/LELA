@@ -84,13 +84,17 @@ class SparseMatrix
         struct rebind
         { typedef SparseMatrix<typename _Tp1::Element, _R1, Trait> other; };
 
+	/** Default constructor. Builds empty matrix
+	 */
+        SparseMatrix () : _m (0), _n (0) {}
+
 	/** Constructor.
 	 * Note: the copy constructor and operator= will work as intended
 	 *       because of STL's container design
 	 * @param  m  row dimension
 	 * @param  n  column dimension
 	 */
-        SparseMatrix (size_t m, size_t n): _A(m), _m(m), _n(n) {};
+        SparseMatrix (size_t m, size_t n) : _A (m), _m (m), _n (n) {}
 
 	/** Constructor from a VectorStream
 	 *
@@ -272,6 +276,8 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
 	{
 		typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseVectorTag> other;
 	};
+
+        SparseMatrix () : _m (0), _n (0) {}
 
 	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}

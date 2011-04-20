@@ -35,6 +35,7 @@ public:
         struct rebind
         { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseZeroOneVectorTag> other; };
 
+        SparseMatrix () : _m (0), _n (0) {}
 	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
 	SparseMatrix (const SparseMatrix<Element, Row> &A)
@@ -136,6 +137,7 @@ public:
 	struct rebind
 	{ typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::HybridZeroOneVectorTag> other; };
 
+        SparseMatrix () : _m (0), _n (0) {}
 	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
 	SparseMatrix (const SparseMatrix<Element, Row> &A)

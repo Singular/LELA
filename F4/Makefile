@@ -10,7 +10,7 @@ all: $(TARGETS)
 test-solver: test-solver.o
 test-matrix-domain-gf2: test-matrix-domain-gf2.o
 
-test-solver.o: test-solver.C solver.h from-png.h from-png.inl
+test-solver.o: test-solver.C solver.h
 test-matrix-domain-gf2.o: test-matrix-domain-gf2.C
 
 %.o : %.C

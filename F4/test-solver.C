@@ -15,7 +15,6 @@
 #include "linbox/field/gf2.h"
 #include "linbox/randiter/mersenne-twister.h"
 
-#include "from-png.h"
 #include "solver.h"
 
 using namespace LinBox;
@@ -211,39 +210,39 @@ void fileTest (char *filename, char *output) {
 	Field F (2);
 	MatrixDomain<Field> MD (F);
 
-	SparseMatrixReader<Field> reader (F);
+	SparseMatrix A;
 
-	SparseMatrix *A = reader.ReadFromPNG (filename);
+	std::ifstream ifile (filename);
 
-	if (A == NULL) {
+	if (!ifile.good ()) {
 		std::cerr << "Could not read file" << std::endl;
 		return;
 	}
 
-	size_t total = ComputeMemoryUsage (*A);
+	MD.read (ifile, A, FORMAT_PNG);
+
+	size_t total = ComputeMemoryUsage (A);
 
 	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 		<< "Total length of row-vectors: " << total << std::endl;
 
-	CheckHybridMatrix (*A);
+	CheckHybridMatrix (A);
 
 	F4Solver<Field> Solver (F);
 
 	size_t rank;
 	Field::Element det;
 
-	Solver.RowEchelonForm (*A, *A, rank, det);
+	Solver.RowEchelonForm (A, A, rank, det);
 
 	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 		<< "Computed rank: " << rank << std::endl << "Computed determinant: ";
 	F.write (commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION), det) << std::endl;
 
-	CheckHybridMatrix (*A);
+	CheckHybridMatrix (A);
 
 	std::ofstream f (output);
-	MD.write (f, *A, FORMAT_GUILLAUME);
-
-	delete A;
+	MD.write (f, A, FORMAT_PNG);
 }
 
 } // namespace F4Tests
