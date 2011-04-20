@@ -43,7 +43,6 @@ namespace F4 {
 
 	private:
 		const Field &F;
-		typename Field::Element one;
 
 		size_t total_nonzero;
 
@@ -63,9 +62,7 @@ namespace F4 {
 						 Endianness);
 
 	public:
-		SparseMatrixReader (const Field &_F) : F (_F) {
-			F.init (one, 1);
-		}
+		SparseMatrixReader (const Field &_F) : F (_F) {}
 
 		SparseMatrix *ReadFromPNG (char *filename);
 	};
