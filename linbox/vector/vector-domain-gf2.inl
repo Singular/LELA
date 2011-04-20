@@ -345,7 +345,7 @@ Vector1 &VectorDomain<GF2>::copySpecialized (Vector1 &res, const Vector2 &v,
 					     VectorCategories::DenseZeroOneVectorTag,
 					     VectorCategories::HybridZeroOneVectorTag) const
 {
-	linbox_check (VectorWrapper::hasDim<GF2> (v, res.size ()));
+	// linbox_check (VectorWrapper::hasDim<GF2> (v, res.size ()));
 
 	typename Vector2::const_iterator i;
 
