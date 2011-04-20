@@ -1381,7 +1381,7 @@ template <class Field, class Matrix>
 bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, FileFormatTag format)
 {
 	static const char *format_names[] = 
-		{ "detect", "unknown", "Turner", "one-based", "Guillaume", "Maple", "Matlab", "Sage", "pretty" };
+		{ "detect", "unknown", "Turner", "one-based", "Guillaume", "Maple", "Matlab", "Sage", "pretty", "PNG" };
 
 	ostringstream str;
 	str << "Testing " << text << " read/write (format " << format_names[format] << ")" << std::ends;
@@ -1396,8 +1396,19 @@ bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, Fil
 	Matrix M1 (M.rowdim (), M.coldim ());
 
 	ostringstream output;
-	MD.write (output, M, format);
 
+	try {
+		MD.write (output, M, format);
+	}
+	catch (LinboxError e) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: Caught LinboxError: " << e << endl;
+		pass = false;
+	}
+
+#ifdef __LINBOX_HAVE_LIBPNG
+	if (format != FORMAT_PNG)
+#endif // __LINBOX_HAVE_LIBPNG
 	report << "Matrix-output as string:" << std::endl << output.str ();
 
 	istringstream input (output.str ());
@@ -1416,6 +1427,11 @@ bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, Fil
 	catch (InvalidMatrixInput) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: Caught InvalidMatrixInput while trying to read the matrix" << endl;
+		pass = false;
+	}
+	catch (LinboxError e) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: Caught LinboxError: " << e << endl;
 		pass = false;
 	}
 
@@ -1440,6 +1456,35 @@ bool testReadWrite (const Field &F, const char *text, const Matrix &M)
 	MD.write (report, M);
 
 	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY };
+
+	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)
+		pass = testReadWriteFormat (F, text, M, formats[i]) && pass;
+
+	commentator.stop (MSG_STATUS (pass), (const char *) 0, __FUNCTION__);
+
+	return pass;
+}
+
+template <class Matrix>
+bool testReadWrite (const GF2 &F, const char *text, const Matrix &M)
+{
+	ostringstream str;
+	str << "Testing " << text << " read/write" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	bool pass = true;
+
+	MatrixDomain<GF2> MD (F);
+
+	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+	report << "Input matrix M:" << std::endl;
+	MD.write (report, M);
+
+#ifdef __LINBOX_HAVE_LIBPNG
+	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY, FORMAT_PNG };
+#else // !__LINBOX_HAVE_LIBPNG
+	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY };
+#endif // __LINBOX_HAVE_LIBPNG
 
 	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)
 		pass = testReadWriteFormat (F, text, M, formats[i]) && pass;

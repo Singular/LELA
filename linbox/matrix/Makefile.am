@@ -9,6 +9,7 @@ BASIC_HDRS =			\
 	matrix-traits.h		\
 	io.h			\
 	io.inl			\
+	io-png.inl		\
 	raw-iterator.h		\
 	sparse.h		\
 	sparse.inl		\

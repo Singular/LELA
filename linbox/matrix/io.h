@@ -11,12 +11,19 @@
 
 #include <iostream>
 
+#ifdef __LINBOX_HAVE_LIBPNG
+#  include <png.h>
+#endif
+
 namespace LinBox
 {
 
 /// File-formats for matrix-output
 enum FileFormatTag {
-	FORMAT_DETECT, FORMAT_UNKNOWN, FORMAT_TURNER, FORMAT_ONE_BASED, FORMAT_GUILLAUME, FORMAT_MAPLE, FORMAT_MATLAB, FORMAT_SAGE, FORMAT_PRETTY
+	FORMAT_DETECT, FORMAT_UNKNOWN, FORMAT_TURNER, FORMAT_ONE_BASED, FORMAT_GUILLAUME, FORMAT_MAPLE, FORMAT_MATLAB, FORMAT_SAGE, FORMAT_PRETTY,
+#ifdef __LINBOX_HAVE_LIBPNG
+	FORMAT_PNG
+#endif // __LINBOX_HAVE_LIBPNG
 };
 
 /// Exception thrown when the format cannot be detected
@@ -64,6 +71,56 @@ private:
 
 	template <class Matrix>
 	std::istream &readPretty (std::istream &is, Matrix &A) const;
+
+#ifdef __LINBOX_HAVE_LIBPNG
+	static const unsigned _png_sig_size = 8;
+
+	bool isPNG (std::istream &is) const;
+
+	static void PNGReadData (png_structp pngPtr, png_bytep data, png_size_t length);
+
+	template <class Vector>
+	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+				      VectorCategories::DenseVectorTag) const
+		{ throw NotImplemented (); }
+
+	template <class Vector>
+	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+				      VectorCategories::SparseVectorTag) const
+		{ throw NotImplemented (); }
+
+	template <class Vector>
+	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+				      VectorCategories::DenseZeroOneVectorTag) const;
+	template <class Vector>
+	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+				      VectorCategories::SparseZeroOneVectorTag) const;
+	template <class Vector>
+	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+				      VectorCategories::HybridZeroOneVectorTag) const;
+	template <class Vector>
+	void readPNGBlock (Vector &v, png_byte x, size_t start, size_t stop) const
+		{ readPNGBlockSpecialised (v, x, start, stop, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+
+	template <class Vector>
+	void readPNGRow (Vector &v, png_bytep row, size_t width) const;
+
+	template <class Matrix>
+	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::RowMatrixTag) const;
+
+	template <class Matrix>
+	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::ColMatrixTag) const
+		{ throw NotImplemented (); }
+
+	template <class Matrix>
+	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::RowColMatrixTag) const
+		{ return readPNGSpecialised (is, A, MatrixCategories::RowMatrixTag ()); }
+
+	template <class Matrix>
+	std::istream &readPNG (std::istream &is, Matrix &A) const
+		{ return readPNGSpecialised (is, A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+
+#endif // __LINBOX_HAVE_LIBPNG	
 
 	template <class Vector>
 	void appendEntry (Vector &v, size_t index, const typename Field::Element &a) const
@@ -119,6 +176,47 @@ private:
 
 	template <class Matrix>
 	std::ostream &writePretty (std::ostream &os, const Matrix &A) const;
+
+#ifdef __LINBOX_HAVE_LIBPNG
+	static void PNGWriteData (png_structp png_ptr, png_bytep data, png_size_t length);
+	static void PNGFlush (png_structp png_ptr);
+
+	template <class Vector>
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::DenseVectorTag) const
+		{ throw NotImplemented (); }
+
+	template <class Vector>
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::SparseVectorTag) const
+		{ throw NotImplemented (); }
+
+	template <class Vector>
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::DenseZeroOneVectorTag) const;
+
+	template <class Vector>
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::SparseZeroOneVectorTag) const;
+
+	template <class Vector>
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::HybridZeroOneVectorTag) const;
+
+	template <class Vector>
+	void copyToPNGData (png_bytep data, const Vector &v, size_t width) const
+		{ copyToPNGDataSpecialised (data, v, width, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+
+	template <class Matrix>
+	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::RowMatrixTag) const;
+
+	template <class Matrix>
+	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::ColMatrixTag) const
+		{ throw NotImplemented (); }
+
+	template <class Matrix>
+	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::RowColMatrixTag) const
+		{ return writePNGSpecialised (is, A, MatrixCategories::RowMatrixTag ()); }
+
+	template <class Matrix>
+	std::ostream &writePNG (std::ostream &is, const Matrix &A) const
+		{ return writePNGSpecialised (is, A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+#endif // __LINBOX_HAVE_LIBPNG	
 };
 
 } // namespace LinBox

@@ -117,6 +117,8 @@ AC_DEFINE_UNQUOTED(INT64, $LINBOX_INT64, Canonical 64-bit data type)
 LB_MISC
 LB_DRIVER
 
+AC_CHECK_LIB([png], [png_create_write_struct_2])
+
 AC_LANG_CPLUSPLUS
 LB_CHECK_GMP(,,[
 echo '*******************************************************************************'

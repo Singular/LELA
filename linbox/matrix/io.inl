@@ -59,6 +59,12 @@ std::istream &MatrixReader<Field>::read (std::istream &is, Matrix &A, FileFormat
 		return readPretty (is, A);
 		break;
 
+#ifdef __LINBOX_HAVE_LIBPNG
+	case FORMAT_PNG:
+		return readPNG (is, A);
+		break;
+#endif // __LINBOX_HAVE_LIBPNG
+
 	default:
 		throw PreconditionFailed (__FUNCTION__, __LINE__, "bad input-format");
 	}
@@ -322,6 +328,12 @@ std::ostream &MatrixWriter<Field>::write (std::ostream &os, const Matrix &A, Fil
 		return writePretty (os, A);
 		break;
 
+#ifdef __LINBOX_HAVE_LIBPNG
+	case FORMAT_PNG:
+		return writePNG (os, A);
+		break;
+#endif // __LINBOX_HAVE_LIBPNG
+
 	default:
 		throw PreconditionFailed (__FUNCTION__, __LINE__, "bad output-format");
 	}
@@ -527,6 +539,10 @@ std::ostream &MatrixWriter<Field>::writePretty (std::ostream &os, const Matrix &
 }
 
 } // namespace LinBox
+
+#ifdef __LINBOX_HAVE_LIBPNG
+#  include "linbox/matrix/io-png.inl"
+#endif // __LINBOX_HAVE_LIBPNG
 
 #endif // __LINBOX_MATRIX_IO_INL
 
