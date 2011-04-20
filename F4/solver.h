@@ -96,12 +96,6 @@ namespace F4 {
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}
 
-		size_t DenseSize (const SparseMatrix &A, const std::vector<size_t> &pivot_rows, size_t &rowdim, size_t &coldim) const
-		{
-			rowdim = A.rowdim () - pivot_rows.size ();
-			coldim = A.coldim () - pivot_rows.size ();
-		}
-
 		void AssemblePivotRows (const SparseMatrix &A, SparseMatrix &Agj, SparseMatrix &B, const std::vector<size_t> &pivot_rows) const
 		{
 			commentator.start ("Assembly of pivot-rows", __FUNCTION__);
@@ -124,165 +118,128 @@ namespace F4 {
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}
 
-		void ConstructDensePart (const SparseMatrix &Agj, const SparseMatrix &B, DenseMatrix &D, const std::vector<Block> &blocks) const
+		template <class Matrix1, class Matrix2>
+		void SplitMatrix (const Matrix1 &X, Matrix2 &A, Matrix2 &B, const std::vector<Block> &blocks) const
 		{
-			commentator.start ("Construction of dense matrix for reduction", __FUNCTION__, blocks.size ());
+			commentator.start ("Splitting input-matrix into parts", __FUNCTION__);
 
-			typename std::vector<Block>::const_iterator b, c, b_end = blocks.end ();
-			size_t D_col = 0, A_row = 0, b_width, wa_b_start, wa_b_finish, wa_b_width;
+			typename std::vector<Block>::const_iterator i;
 
-			DenseMatrix Dpp;
+			size_t prev_col_A = 0, prev_col_B = 0;
 
-			for (b = blocks.begin (); b != b_end; ++b) {
-				wa_b_start = (b->col_idx + b->size) & ~WordTraits<typename SparseMatrix::Row::word_type>::pos_mask;
+			for (i = blocks.begin (); i != blocks.end (); ++i) {
+				Submatrix<const Matrix1> A_part_source (X, 0, i->col_idx, X.rowdim (), i->size);
+				Submatrix<Matrix2> A_part_dest (A, 0, prev_col_A, A.rowdim (), i->size);
 
-				if (GetNextBlockColumn (B.coldim (), b, b_end) & ~WordTraits<typename SparseMatrix::Row::word_type>::pos_mask == 0)
-					wa_b_finish = GetNextBlockColumn (B.coldim (), b, b_end);
-				else
-					wa_b_finish = (GetNextBlockColumn (B.coldim (), b, b_end) + WordTraits<typename SparseMatrix::Row::word_type>::bits)
-						& ~WordTraits<typename SparseMatrix::Row::word_type>::pos_mask;
-				
-				wa_b_width = wa_b_finish - wa_b_start;
+				Submatrix<const Matrix1> B_part_source (X, 0, i->col_idx + i->size, X.rowdim (), i->D_size);
+				Submatrix<Matrix2> B_part_dest (B, 0, prev_col_B, B.rowdim (), i->D_size);
 
-				Dpp.resize (D.rowdim (), wa_b_width);
+				MD.copy (A_part_dest, A_part_source);
+				MD.copy (B_part_dest, B_part_source);
 
-				Submatrix<const SparseMatrix, HybridSubvectorFactory<typename SparseMatrix::Row> > Ds (B, 0, wa_b_start, D.rowdim (), wa_b_width);
-
-				MD.copy (Dpp, Ds);
-
-				// DEBUG
-				// std::cout << __FUNCTION__ << ": block start " << b->col_idx << ", size " << b->size << ", width " << b_width << ", source-matrix is" << std::endl;
-				// MD.write (std::cout, Ds);
-				// std::cout << __FUNCTION__ << ": Initial dest-matrix is" << std::endl;
-				// MD.write (std::cout, Dp);
-
-				A_row = 0;
-
-				for (c = blocks.begin (); c <= b; ++c) {
-					Submatrix<const SparseMatrix> B1 (B, 0, c->col_idx, D.rowdim (), c->size);
-					Submatrix<const SparseMatrix, HybridSubvectorFactory<typename SparseMatrix::Row> > A1 (Agj, A_row, wa_b_start, c->size, wa_b_width);
-
-					// DEBUG
-					// std::cout << __FUNCTION__ << ": Adding product of" << std::endl;
-					// MD.write (std::cout, B1);
-					// std::cout << __FUNCTION__ << ": and" << std::endl;
-					// MD.write (std::cout, A1);
-
-					MD.gemm (neg_one, B1, A1, one, Dpp);
-
-					// DEBUG
-					// std::cout << __FUNCTION__ << ": Resulting dest-matrix is" << std::endl;
-					// MD.write (std::cout, Dp);
-
-					A_row += c->size;
-				}
-
-				b_width = GetNextBlockColumn (B.coldim (), b, b_end) - (b->col_idx + b->size);
-
-				Submatrix<DenseMatrix> Dp (D, 0, D_col, D.rowdim (), b_width);
-				Submatrix<DenseMatrix> Dp_copy (Dpp, 0, (b->col_idx + b->size) - wa_b_start, D.rowdim (), b_width);
-
-				MD.copy (Dp, Dp_copy);
-
-				D_col += b_width;
-
-				commentator.progress (b - blocks.begin ());
+				prev_col_A += i->size;
+				prev_col_B += i->D_size;
 			}
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}
 
-		// FIXME: This is quite inefficient, since it ends up copying zero much of the time
+		std::vector<Block> &CombineBlocks (std::vector<Block> &output, const std::vector<Block> &B_blocks, const std::vector<Block> &D_blocks) const
+		{
+			typename std::vector<Block>::const_iterator i_B, i_D = D_blocks.begin ();
+			size_t D_col = 0;
+
+			for (i_B = B_blocks.begin (); i_B != B_blocks.end (); ++i_B) {
+				while (i_D != D_blocks.end () && i_D->col_idx + i_D->size < D_col + i_B->D_size) {
+					output.push_back (Block (i_B->col_idx + i_D->col_idx - D_col, i_D->size, i_D->D_size));
+					++i_D;
+				}
+
+				D_col += i_B->D_size;
+			}
+		}
+
+		size_t round_up (size_t v, size_t x) const
+			{ return ((v + x - 1) / x) * x; }
+
 		template <class Vector1, class Vector2>
-		void ExpandVector (Vector1 &x, const Vector2 &y, const std::vector<Block> &blocks, size_t coldim) const
+		Vector1 &CopyBlockSpecialised (Vector1 &dest, const Vector2 &source, size_t source_idx, size_t len, size_t dest_idx,
+					       VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const
 		{
-			static BitVector<Endianness> v;
+			typedef BitVector<typename Vector1::Endianness> TmpVector;
+			typedef BitSubvector<typename TmpVector::iterator, typename TmpVector::const_iterator> TmpSubvector;
+			typedef BitSubvector<typename Vector2::const_iterator, typename Vector2::const_iterator> ConstTmpSubvector;
 
-			v.resize (coldim);
+			size_t dest_idx_offset = dest_idx & WordTraits<typename Vector2::word_type>::pos_mask;
 
-			std::fill (v.wordBegin (), v.wordEnd (), 0ULL);
+			TmpVector tmp (round_up (len + dest_idx_offset, WordTraits<typename Vector2::word_type>::bits));
+			ConstTmpSubvector v1 (source.begin () + source_idx, source.begin () + (source_idx + len));
+			TmpSubvector v2 (tmp.begin () + dest_idx_offset, tmp.begin () + (dest_idx_offset + len));
 
-			typename std::vector<Block>::const_iterator b, b_end = blocks.end ();
-			size_t next_block_col, start_block_y = 0, next_block_y;
+			VD.copy (v2, v1);
 
-			for (b = blocks.begin (); b != b_end; ++b) {
-				next_block_col = GetNextBlockColumn (coldim, b, b_end);
-				next_block_y = start_block_y + (next_block_col - (b->col_idx + b->size));
+			typename TmpVector::word_iterator i = tmp.wordBegin ();
+			size_t idx = dest_idx >> WordTraits<typename Vector1::word_type>::logof_size;
 
-				BitSubvector<typename BitVector<Endianness>::iterator> vs (v.begin () + (b->col_idx + b->size), v.begin () + next_block_col);
-				BitSubvector<typename Vector2::const_iterator> ys (y.begin () + start_block_y, y.begin () + next_block_y);
-
-				VD.copy (vs, ys);
-
-				start_block_y = next_block_y;
+			if (!dest.empty () && dest.back ().first == idx) {
+				dest.back ().second |= *i;
+				++i;
+				++idx;
 			}
 
-			VD.copy (x, v);
+			for (; i != tmp.wordEnd (); ++i, ++idx)
+				dest.push_back (typename Vector1::value_type (idx, *i));
+
+			return dest;
 		}
 
-		size_t EffectiveColumn (size_t idx, const std::vector<Block> &blocks) const
-		{
-			typename std::vector<Block>::const_iterator b, b_end;
-			size_t next_column;
+		template <class Vector1, class Vector2>
+		Vector1 &CopyBlock (Vector1 &dest, const Vector2 &source, size_t source_idx, size_t len, size_t dest_idx) const
+			{ return CopyBlockSpecialised (dest, source, source_idx, len, dest_idx,
+						       typename VectorTraits<Field, Vector1>::VectorCategory (),
+						       typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
-			for (b = blocks.begin (); b != b_end; ++b) {
-				if (idx < b->D_size)
-					return idx + b->col_idx + b->size;
-
-				idx -= b->D_size;
-			}
-
-			return next_column;
-		}
-
-		void AssembleOutput (const SparseMatrix &Agj, const DenseMatrix &D, SparseMatrix &R, const std::vector<Block> &blocks) const
+		void AssembleOutput (SparseMatrix &R, const DenseMatrix &B, const DenseMatrix &D, const std::vector<Block> &blocks, const std::vector<size_t> &pivot_rows) const
 		{
 			commentator.start ("Assembly of final output", __FUNCTION__, R.rowdim () / 1024);
 
 			typename SparseMatrix::RowIterator i_R;
-			typename SparseMatrix::ConstRowIterator i_Agj = Agj.rowBegin ();
-			typename DenseMatrix::ConstRowIterator i_D = D.rowBegin ();
-
+			typename DenseMatrix::ConstRowIterator i_B = B.rowBegin (), i_D = D.rowBegin ();
+			typename std::vector<Block>::const_iterator block, block_begin = blocks.begin ();
 			typename Field::Element a;
 
-			size_t first_col_A, first_col_D;
-			int idx;
+			std::vector<size_t>::const_iterator pr = pivot_rows.begin ();
 
-			for (i_R = R.rowBegin (); i_R != R.rowEnd (); ++i_R) {
-				if (i_Agj != Agj.rowEnd ())
-					first_col_A = VD.firstNonzeroEntry (a, *i_Agj);
-				else
-					first_col_A = Agj.coldim ();
+			size_t idx = 0, col_idx;
 
-				if (i_D != D.rowEnd ()) {
-					idx = VD.firstNonzeroEntry (a, *i_D);
+			for (i_R = R.rowBegin (); i_R != R.rowEnd () && block_begin != blocks.end (); ++i_R) {
+				i_R->push_back (typename SparseMatrix::Row::value_type
+						(idx >> WordTraits<typename SparseMatrix::Row::word_type>::logof_size,
+						 SparseMatrix::Row::Endianness::e_j (idx & WordTraits<typename SparseMatrix::Row::word_type>::pos_mask)));
 
-					if (idx == -1)
-						first_col_D = Agj.coldim ();
-					else
-						first_col_D = EffectiveColumn ((size_t) idx, blocks);
+				for (block = block_begin, col_idx = 0; block != blocks.end (); ++block) {
+					if (pr != pivot_rows.end () && *pr == idx) {
+						CopyBlock (*i_R, *i_B, col_idx, block->D_size, block->col_idx + block->size);
+						++i_B; ++pr;
+					} else {
+						CopyBlock (*i_R, *i_D, col_idx, block->D_size, block->col_idx + block->size);
+						++i_D;
+					}
+
+					col_idx += block->D_size;
+				}
+
+				if (idx >= block_begin->col_idx + block_begin->size) {
+					++block_begin;
+
+					if (block_begin != blocks.end ())
+						idx = block_begin->col_idx;
 				}
 				else
-					first_col_D = Agj.coldim ();
-
-				if (first_col_A < first_col_D) {
-					VD.copy (*i_R, *i_Agj);
-					++i_Agj;
-				}
-				else if (first_col_A > first_col_D) {
-					ExpandVector (*i_R, *i_D, blocks, R.coldim ());
-					++i_D;
-				}
-				else if (i_Agj == Agj.rowEnd ())
-					VD.mulin (*i_R, false);
-				else
-					throw LinboxError ("Got two pivots in the same column -- this shouldn't ever happen!");
-
-				if (!(i_R - R.rowBegin () + 1) % 1024)
-					commentator.progress ((i_R - R.rowBegin () + 1) / 1024);
+					++idx;
 			}
 
-			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
+			commentator.stop (MSG_DONE);
 		}
 
 	public:
@@ -319,61 +276,104 @@ namespace F4 {
 		 * @param det Field-element-reference into which to
 		 * store computed determinant of pivot-submatrix
 		 */
-		void RowEchelonForm (SparseMatrix &R, const SparseMatrix &A, size_t &rank, Element &det) {
+		void RowEchelonForm (SparseMatrix &R, const SparseMatrix &X, size_t &rank, Element &det) {
 			commentator.start ("Reduction of F4-matrix to reduced row-echelon form", __FUNCTION__);
 
 			std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-			std::vector<Block> blocks;
-			std::vector<size_t> pivot_rows;
+			std::vector<Block> blocks1, blocks2, blocks_combined;
+			std::vector<size_t> pivot_rows, pivot_rows2;
 
-			size_t D_rowdim, D_coldim;
-
-			FindPivotRows (A, blocks, pivot_rows);
-			DenseSize (A, pivot_rows, D_rowdim, D_coldim);
+			FindPivotRows (X, blocks1, pivot_rows);
 
 			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
-				<< "Found " << pivot_rows.size () << " pivots in " << blocks.size () << " blocks" << std::endl;
+				<< "Found " << pivot_rows.size () << " pivots in " << blocks1.size () << " blocks" << std::endl;
 
-			SparseMatrix Agj (A.rowdim () - D_rowdim, A.coldim ()), B (D_rowdim, A.coldim ());
-			DenseMatrix D (D_rowdim, D_coldim);
+			SparseMatrix X1 (pivot_rows.size (), X.coldim ()), X2 (X.rowdim () - pivot_rows.size (), X.coldim ());
 
-			AssemblePivotRows (A, Agj, B, pivot_rows);
+			AssemblePivotRows (X, X1, X2, pivot_rows);
 
-			reportUI << "Matrix of pivots:" << std::endl;
-			MD.write (reportUI, Agj);
-			reportUI << "Residual block:" << std::endl;
+			DenseMatrix A (pivot_rows.size (), pivot_rows.size ());
+			DenseMatrix B (pivot_rows.size (), X.coldim () - pivot_rows.size ());
+			DenseMatrix C (X.rowdim () - pivot_rows.size (), pivot_rows.size ());
+			DenseMatrix D (X.rowdim () - pivot_rows.size (), X.coldim () - pivot_rows.size ());
+
+			SplitMatrix (X1, A, B, blocks1);
+			SplitMatrix (X2, C, D, blocks1);
+
+			reportUI << "Matrix A:" << std::endl;
+			MD.write (reportUI, A);
+			reportUI << "Matrix B:" << std::endl;
 			MD.write (reportUI, B);
-
-			GJ.ReduceRowEchelon (Agj, D, false, Agj.rowdim ());
-
-			reportUI << "Reduced echelon-form of pivot-matrix:" << std::endl;
-			MD.write (reportUI, Agj);
-
-			ConstructDensePart (Agj, B, D, blocks);
-
-			reportUI << "Dense block:" << std::endl;
+			reportUI << "Matrix C:" << std::endl;
+			MD.write (reportUI, C);
+			reportUI << "Matrix D:" << std::endl;
 			MD.write (reportUI, D);
 
-			DenseMatrix U (D_rowdim, D_rowdim);
+			commentator.start ("Constructing D - C A^-1 B");
+
+			MD.trsm (F.one (), A, B, UpperTriangular, true);
+			MD.gemm (F.minusOne (), C, B, F.one (), D);
+
+			commentator.stop (MSG_DONE);
+
+			reportUI << "A^-1 B:" << std::endl;
+			MD.write (reportUI, B);
+
+			reportUI << "D - C A^-1 B:" << std::endl;
+			MD.write (reportUI, D);
+
+			DenseMatrix U (D.rowdim (), D.rowdim ());
 			typename GaussJordan<Field>::Permutation P;
 			size_t r_D;
 			typename Field::Element d_D;
 
 			GJ.DenseRowEchelonForm (D, U, P, r_D, d_D);
 
-			reportUI << "Reduced row-echelon form of dense block:" << std::endl;
+			reportUI << "Row-echelon form of D - C A^-1 B:" << std::endl;
 			MD.write (reportUI, D);
 
 			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 				<< "Rank of dense part is " << r_D << std::endl;
 
-			AssembleOutput (Agj, D, R, blocks);
+			FindPivotRows (D, blocks2, pivot_rows2);
+
+			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
+				<< "(In D) found " << pivot_rows2.size () << " pivots in " << blocks2.size () << " blocks" << std::endl;
+
+			DenseMatrix B1 (B.rowdim (), pivot_rows2.size ());
+			DenseMatrix B2 (B.rowdim (), D.coldim () - pivot_rows2.size ());
+			DenseMatrix D1 (D.rowdim (), pivot_rows2.size ());
+			DenseMatrix D2 (D.rowdim (), D.coldim () - pivot_rows2.size ());
+
+			SplitMatrix (B, B1, B2, blocks2);
+			SplitMatrix (D, D1, D2, blocks2);
+
+			reportUI << "Matrix B1:" << std::endl;
+			MD.write (reportUI, B1);
+			reportUI << "Matrix B2:" << std::endl;
+			MD.write (reportUI, B2);
+			reportUI << "Matrix D1:" << std::endl;
+			MD.write (reportUI, D1);
+			reportUI << "Matrix D2:" << std::endl;
+			MD.write (reportUI, D2);
+
+			DenseMatrix D1p (D1, 0, 0, pivot_rows2.size (), pivot_rows2.size ());
+			DenseMatrix D2p (D2, 0, 0, pivot_rows2.size (), D2.coldim ());
+
+			commentator.start ("Constructing B2 - B1 D1^-1 D2");
+
+			MD.trsm (F.one (), D1p, D2p, UpperTriangular, true);			
+			MD.gemm (F.minusOne (), B1, D2p, F.one (), B2);
+
+			commentator.stop (MSG_DONE);
+
+			CombineBlocks (blocks_combined, blocks1, blocks2);
+
+			AssembleOutput (R, B2, D2, blocks_combined, pivot_rows);
 
 			rank = pivot_rows.size () + r_D;
-			det = true;
-
-			GJ.ReduceRowEchelon (R, D, false, rank);
+			det = d_D;
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}
