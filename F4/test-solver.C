@@ -166,42 +166,21 @@ size_t ComputeMemoryUsage (const SparseMatrix &A)
 
 // Check hybrid-vector to make sure it is valid
 
-bool CheckHybridVector (const SparseVector &v)
-{
-	if (v.empty ())
-		return false;
-
-	SparseVector::const_iterator i = v.begin ();
-	SparseVector::index_type last = i->first;
-
-	bool bad = false;
-
-	while (++i != v.end ()) {
-		if (last >= i->first) {
-			std::cerr << __FUNCTION__ << ": Error at index " << i - v.begin () << ": last index is " << last << ", current is " << i->first << std::endl;
-			bad = true;
-		}
-
-		last = i->first;
-	}
-
-	return bad;
-}
-
 void CheckHybridMatrix (const SparseMatrix &A)
 {
 	SparseMatrix::ConstRowIterator i;
 
-	std::cout << __FUNCTION__ << ": Checking rows of matrix" << std::endl;
+	commentator.start ("Checking that rows of matrix are valid", __FUNCTION__);
 
 	for (i = A.rowBegin (); i != A.rowEnd (); ++i) {
-		if (CheckHybridVector (*i)) {
-			std::cerr << __FUNCTION__ << ": Error at row " << i - A.rowBegin () << std::endl;
-			break;
+		if (!VectorWrapper::isValid<GF2> (*i)) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "Error at row " << i - A.rowBegin () << std::endl;
+			commentator.stop ("FAILED");
 		}
 	}
 
-	std::cout << __FUNCTION__ << ": done" << std::endl;
+	commentator.stop ("passed");
 }
 
 // Real test using data from a PNG-file
@@ -212,10 +191,13 @@ void fileTest (char *filename, char *output) {
 
 	SparseMatrix A;
 
+	commentator.start ("Testing F4-solver with PNG-file", __FUNCTION__);
+
 	std::ifstream ifile (filename);
 
 	if (!ifile.good ()) {
-		std::cerr << "Could not read file" << std::endl;
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "Could not open file " << filename << std::endl;
 		return;
 	}
 
@@ -243,17 +225,22 @@ void fileTest (char *filename, char *output) {
 
 	std::ofstream f (output);
 	MD.write (f, A, FORMAT_PNG);
+
+	commentator.stop ("done");
 }
 
 } // namespace F4Tests
 
 int main (int argc, char **argv)
 {
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (2);
+	commentator.setBriefReportParameters (Commentator::OUTPUT_PIPE, false, false, false);
+	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (0);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (3);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
-	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (2);
+	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
-	commentator.getMessageClass (PROGRESS_REPORT).setMaxDepth (2);
+	commentator.getMessageClass (PROGRESS_REPORT).setMaxDepth (3);
+	commentator.setBriefReportStream (commentator.cnull);
 	commentator.setReportStream (std::cout);
 
 	if (argc == 2 && !strcmp (argv[1], "-s"))

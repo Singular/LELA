@@ -316,7 +316,7 @@ namespace VectorWrapper
 		typename Vector::const_iterator i = v.begin (), i_next = v.begin ();
 
 		for (++i_next; i_next != v.end (); ++i_next, ++i)
-			if (i->second >= i_next->second)
+			if (i->first >= i_next->first)
 				return false;
 
 		return true;
@@ -350,7 +350,7 @@ namespace VectorWrapper
 		typename Vector::const_iterator i = v.begin (), i_next = v.begin ();
 
 		for (++i_next; i_next != v.end (); ++i_next, ++i)
-			if (i->second >= i_next->second)
+			if (i->first >= i_next->first)
 				return false;
 
 		return true;
