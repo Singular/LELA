@@ -75,17 +75,21 @@ void createRandomF4Matrix (SparseMatrix &A)
 	size_t col = 0;
 
 	for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A) {
-		LinBox::uint32 v = MT.randomIntRange (0, 3);
+		LinBox::uint32 v = MT.randomIntRange (0, 7);
 
 		switch (v) {
 		case 0:
 			break;
 
 		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
 			++col;
 			break;
 
-		case 2:
+		case 6:
 			col = MT.randomIntRange (col, A.coldim () - (A.rowEnd () - i_A + 1));
 			break;
 		}
