@@ -23,34 +23,38 @@ namespace F4 {
 	using namespace LinBox;
 
 	class Block {
+	public:
+		enum BlockType { TYPE_TRIANGULAR, TYPE_RESIDUAL };
+
+	private:
+
+		BlockType type;
 		size_t orig_idx;
 		size_t dest_idx;
-		size_t tr_size;
-		size_t res_size;
+		size_t size;
 
 		friend std::ostream &operator << (std::ostream &os, const Block &b);
 
 	public:
-		Block (size_t _orig_idx, size_t _dest_idx, size_t _tr_size, size_t _res_size)
-			: dest_idx (_dest_idx), orig_idx (_orig_idx), tr_size (_tr_size), res_size (_res_size) {}
+		Block (BlockType _type, size_t _orig_idx, size_t _dest_idx, size_t _size)
+			: type (_type), dest_idx (_dest_idx), orig_idx (_orig_idx), size (_size) {}
 
-		inline size_t dest_idx_residual_part () const { return dest_idx; }
-		inline size_t orig_idx_triangular_part () const { return orig_idx; }
-		inline size_t orig_idx_residual_part () const { return orig_idx + tr_size; }
-		inline size_t orig_idx_next_block () const { return orig_idx + tr_size + res_size; }
+		inline BlockType get_type () const { return type; }
+
+		inline size_t get_dest_idx () const { return dest_idx; }
+		inline size_t get_orig_idx () const { return orig_idx; }
+		inline size_t get_orig_idx_next_block () const { return orig_idx + size; }
 		inline size_t map_dest_to_orig_idx (size_t idx) const { return idx - dest_idx + orig_idx; }
 
-		inline size_t get_tr_size () const { return tr_size; }
-		inline size_t get_res_size () const { return res_size; }
+		inline size_t get_size () const { return size; }
 
-		inline bool is_orig_idx_in_tr_block (size_t idx) const { return idx >= orig_idx && idx < orig_idx + tr_size; }
-		inline bool is_orig_idx_in_res_block (size_t idx) const { return idx >= orig_idx + tr_size && idx < orig_idx + tr_size + res_size; }
-		inline bool is_dest_idx_in_block (size_t idx) const { return idx >= dest_idx && idx < dest_idx + res_size; }
+		inline bool is_orig_idx_in_block (size_t idx) const { return idx >= orig_idx && idx < orig_idx + size; }
+		inline bool is_dest_idx_in_block (size_t idx) const { return idx >= dest_idx && idx < dest_idx + size; }
 	};
 
 	std::ostream &operator << (std::ostream &os, const Block &b)
 	{
-		os << "Block (" << b.orig_idx << "," << b.dest_idx << "," << b.tr_size << "," << b.res_size << ")";
+		os << "Block (" << (b.type == Block::TYPE_TRIANGULAR ? "triangular," : "residual,") << b.orig_idx << "," << b.dest_idx << "," << b.size << ")";
 		return os;
 	}
 
@@ -98,7 +102,7 @@ namespace F4 {
 			commentator.start ("Finding pivot-rows", __FUNCTION__);
 
 			typename Matrix::ConstRowIterator i_A;
-			int last_col = -1, col, first_col_in_block = 0, height = 0, dest_col = 0;
+			int last_col = -1, col, first_col_in_block = 0, height = 0, dest_col_tr = 0, dest_col_res = 0;
 			typename Field::Element a;
 
 			for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A) {
@@ -112,15 +116,25 @@ namespace F4 {
 					++height;
 				}
 				else if (col > last_col + 1) {
-					blocks.push_back (Block (first_col_in_block, dest_col, height, col - last_col - 1));
+					if (height > 0)
+						blocks.push_back (Block (Block::TYPE_TRIANGULAR, first_col_in_block, dest_col_tr, height));
+
+					if (col - last_col > 1)
+						blocks.push_back (Block (Block::TYPE_RESIDUAL, first_col_in_block + height, dest_col_res, col - last_col - 1));
+
 					pivot_rows.push_back (i_A - A.rowBegin ());
-					dest_col += col - last_col - 1;
+					dest_col_tr += height;
+					dest_col_res += col - last_col - 1;
 					height = 1;
 					first_col_in_block = last_col = col;
 				}
 			}
 
-			blocks.push_back (Block (first_col_in_block, dest_col, height, A.coldim () - first_col_in_block - height));
+			if (height > 0)
+				blocks.push_back (Block (Block::TYPE_TRIANGULAR, first_col_in_block, dest_col_tr, height));
+
+			if (A.coldim () - first_col_in_block > height)
+				blocks.push_back (Block (Block::TYPE_RESIDUAL, first_col_in_block + height, dest_col_res, A.coldim () - first_col_in_block - height));
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}
@@ -154,23 +168,79 @@ namespace F4 {
 
 			typename std::vector<Block>::const_iterator i;
 
-			size_t prev_col_A = 0, prev_col_B = 0;
-
 			for (i = blocks.begin (); i != blocks.end (); ++i) {
-				Submatrix<const Matrix1> A_part_source (X, 0, i->orig_idx_triangular_part (), X.rowdim (), i->get_tr_size ());
-				Submatrix<Matrix2> A_part_dest (A, 0, prev_col_A, A.rowdim (), i->get_tr_size ());
+				if (i->get_type () == Block::TYPE_TRIANGULAR) {
+					Submatrix<const Matrix1> A_part_source (X, 0, i->get_orig_idx (), X.rowdim (), i->get_size ());
+					Submatrix<Matrix2> A_part_dest (A, 0, i->get_dest_idx (), A.rowdim (), i->get_size ());
 
-				Submatrix<const Matrix1> B_part_source (X, 0, i->orig_idx_residual_part (), X.rowdim (), i->get_res_size ());
-				Submatrix<Matrix2> B_part_dest (B, 0, prev_col_B, B.rowdim (), i->get_res_size ());
+					MD.copy (A_part_dest, A_part_source);
+				}
+				else if (i->get_type () == Block::TYPE_RESIDUAL) {
+					Submatrix<const Matrix1> B_part_source (X, 0, i->get_orig_idx (), X.rowdim (), i->get_size ());
+					Submatrix<Matrix2> B_part_dest (B, 0, i->get_dest_idx (), B.rowdim (), i->get_size ());
 
-				MD.copy (A_part_dest, A_part_source);
-				MD.copy (B_part_dest, B_part_source);
-
-				prev_col_A += i->get_tr_size ();
-				prev_col_B += i->get_res_size ();
+					MD.copy (B_part_dest, B_part_source);
+				}
 			}
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
+		}
+
+		std::vector<Block> &MapBlocks (std::vector<Block> &output, const std::vector<Block> &X_blocks, const std::vector<Block> &D_blocks)
+		{
+			std::vector<Block>::const_iterator X_block;			
+			std::vector<Block>::const_iterator D_block = D_blocks.begin ();
+
+			size_t curr_orig_idx = 0, curr_dest_idx = 0, rest_size = 0, curr_size = 0;
+
+			commentator.start ("Mapping blocks", __FUNCTION__);
+
+			for (X_block = X_blocks.begin (); X_block != X_blocks.end (); ++X_block) {
+				if (X_block->get_type () == Block::TYPE_TRIANGULAR)
+					continue;
+
+				curr_orig_idx = X_block->get_orig_idx ();
+
+				if (rest_size > 0) {
+					curr_size = std::min (rest_size, X_block->get_size ());
+
+					output.push_back (Block (D_block->get_type (), curr_orig_idx, curr_dest_idx, curr_size));
+
+					commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
+						<< "New block created (leftover): " << output.back () << std::endl
+						<< "Source-block from D: " << *D_block << std::endl
+						<< "Source-block from X: " << *X_block << std::endl;
+
+					curr_orig_idx += curr_size;
+					curr_dest_idx += curr_size;
+					rest_size -= curr_size;
+
+					if (rest_size == 0)
+						++D_block;
+				}
+
+				while (D_block != D_blocks.end () && rest_size == 0 && X_block->is_dest_idx_in_block (D_block->get_orig_idx ())) {
+					curr_size = std::min (D_block->get_size (), X_block->get_orig_idx () + X_block->get_size () - curr_orig_idx);
+
+					output.push_back (Block (D_block->get_type (), curr_orig_idx, D_block->get_dest_idx (), curr_size));
+
+					commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
+						<< "New block created: " << output.back () << std::endl
+						<< "Source-block from D: " << *D_block << std::endl
+						<< "Source-block from X: " << *X_block << std::endl;
+
+					curr_orig_idx += curr_size;
+					curr_dest_idx = D_block->get_dest_idx ();
+					rest_size = D_block->get_size () - curr_size;
+
+					if (rest_size == 0)
+						++D_block;
+				}
+			}
+
+			commentator.stop (MSG_DONE);
+
+			return output;
 		}
 
 		size_t round_up (size_t v, size_t x) const
@@ -208,87 +278,69 @@ namespace F4 {
 			return dest;
 		}
 
-		std::vector<Block> &MapBlocks (std::vector<Block> &output, const std::vector<Block> &B_blocks, const std::vector<Block> &D_blocks)
-		{
-			std::vector<Block>::const_iterator B_block = B_blocks.begin ();			
-			std::vector<Block>::const_iterator D_block;
-
-			for (D_block = D_blocks.begin (); D_block != D_blocks.end (); ++D_block) {
-				while (B_block != B_blocks.end () && !B_block->is_dest_idx_in_block (D_block->orig_idx_residual_part ()))
-					++B_block;
-
-				linbox_check (B_block != B_blocks.end ());
-
-				output.push_back (Block (B_block->map_dest_to_orig_idx (D_block->orig_idx_triangular_part ()),
-							 D_block->dest_idx_residual_part (),
-							 D_block->get_tr_size (),
-							 D_block->get_res_size ()));
-			}
-
-			return output;
-		}
-
 		template <class Vector1, class Vector2>
 		Vector1 &CopyBlock (Vector1 &dest, const Vector2 &source, size_t source_idx, size_t len, size_t dest_idx) const
 			{ return CopyBlockSpecialised (dest, source, source_idx, len, dest_idx,
 						       typename VectorTraits<Field, Vector1>::VectorCategory (),
 						       typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
-		void AssembleOutput (SparseMatrix &R, const DenseMatrix &B, const DenseMatrix &D, const std::vector<Block> &B_blocks, const std::vector<Block> &D_blocks) const
+		template <class Iterator1, class Iterator2>
+		void AssembleRows (Iterator2 i_B,
+				   Iterator1 i_R,
+				   Iterator1 i_R_end,
+				   typename std::vector<Block>::const_iterator start_block,
+				   typename std::vector<Block>::const_iterator end_block,
+				   size_t pivot_idx) const
+		{
+			typename std::vector<Block>::const_iterator block;
+
+			for (; i_R != i_R_end; ++i_R, ++i_B, ++pivot_idx) {
+				i_R->clear ();
+
+				i_R->push_back (typename SparseMatrix::Row::value_type
+						(pivot_idx >> WordTraits<typename SparseMatrix::Row::word_type>::logof_size,
+						 SparseMatrix::Row::Endianness::e_j (pivot_idx & WordTraits<typename SparseMatrix::Row::word_type>::pos_mask)));
+
+				for (block = start_block; block != end_block; ++block)
+					if (block->get_type () == Block::TYPE_RESIDUAL)
+						CopyBlock (*i_R, *i_B, block->get_dest_idx (), block->get_size (), block->get_orig_idx ());
+			}
+		}
+
+		void AssembleOutput (SparseMatrix &R, const DenseMatrix &B, const DenseMatrix &D, const std::vector<Block> &X_blocks, const std::vector<Block> &D_blocks) const
 		{
 			commentator.start ("Assembly of final output", __FUNCTION__, R.rowdim () / 1024);
 
 			typename SparseMatrix::RowIterator i_R = R.rowBegin (), i_R_end;
 			typename DenseMatrix::ConstRowIterator i_B = B.rowBegin (), i_D = D.rowBegin ();
-			typename std::vector<Block>::const_iterator B_block = B_blocks.begin (), D_block = D_blocks.begin (), block;
-			typename Field::Element a;
+			typename std::vector<Block>::const_iterator X_block, D_block = D_blocks.begin ();
 
-			size_t pivot_idx, col_idx, B_col = 0;
+			for (X_block = X_blocks.begin (); X_block != X_blocks.end (); ++X_block) {
+				if (X_block->get_type () == Block::TYPE_TRIANGULAR) {
+					linbox_check (R.rowEnd () - i_R >= X_block->get_size ());
+					linbox_check (B.rowEnd () - i_B >= X_block->get_size ());
 
-			while (i_R != R.rowEnd () && B_block != B_blocks.end ()) {
-				i_R_end = i_R + B_block->get_tr_size ();
-				pivot_idx = B_block->orig_idx_triangular_part ();
+					i_R_end = i_R + X_block->get_size ();
+					AssembleRows (i_B, i_R, i_R_end, D_block, D_blocks.end (), X_block->get_orig_idx ());
 
-				for (; i_R != i_R_end; ++i_R, ++i_B, ++pivot_idx) {
-					linbox_check (i_R != R.rowEnd ());
-					linbox_check (i_B != B.rowEnd ());
+					i_R = i_R_end;
+					i_B += X_block->get_size ();
+				}
+				else if (X_block->get_type () == Block::TYPE_RESIDUAL) {
+					for (; D_block != D_blocks.end () && X_block->is_orig_idx_in_block (D_block->get_orig_idx ()); ++D_block) {
+						if (D_block->get_type () != Block::TYPE_TRIANGULAR)
+							continue;
 
-					i_R->clear ();
+						linbox_check (R.rowEnd () - i_R >= D_block->get_size ());
+						linbox_check (D.rowEnd () - i_D >= D_block->get_size ());
 
-					i_R->push_back (typename SparseMatrix::Row::value_type
-							(pivot_idx >> WordTraits<typename SparseMatrix::Row::word_type>::logof_size,
-							 SparseMatrix::Row::Endianness::e_j (pivot_idx & WordTraits<typename SparseMatrix::Row::word_type>::pos_mask)));
+						i_R_end = i_R + D_block->get_size ();
+						AssembleRows (i_D, i_R, i_R_end, D_block, D_blocks.end (), D_block->get_orig_idx ());
 
-					for (block = B_block, col_idx = 0; block != B_blocks.end (); ++block) {
-						CopyBlock (*i_R, *i_B, col_idx, block->get_res_size (), block->orig_idx_residual_part ());
-						col_idx += block->get_res_size ();
+						i_R = i_R_end;
+						i_D += D_block->get_size ();
 					}
 				}
-
-				B_col += B_block->get_res_size ();
-
-				for (; D_block != D_blocks.end () && B_block->is_orig_idx_in_res_block (D_block->orig_idx_residual_part ()); ++D_block) {
-					i_R_end = i_R + D_block->get_tr_size ();
-					pivot_idx = D_block->orig_idx_triangular_part ();
-
-					for (; i_R != i_R_end; ++i_R, ++i_D, ++pivot_idx) {
-						linbox_check (i_R != R.rowEnd ());
-						linbox_check (i_D != D.rowEnd ());
-
-						i_R->clear ();
-
-						i_R->push_back (typename SparseMatrix::Row::value_type
-								(pivot_idx >> WordTraits<typename SparseMatrix::Row::word_type>::logof_size,
-								 SparseMatrix::Row::Endianness::e_j (pivot_idx & WordTraits<typename SparseMatrix::Row::word_type>::pos_mask)));
-
-						for (block = D_block, col_idx = 0; block != D_blocks.end (); ++block) {
-							CopyBlock (*i_R, *i_D, col_idx, block->get_res_size (), block->orig_idx_residual_part ());
-							col_idx += block->get_res_size ();
-						}
-					}
-				}
-
-				++B_block;
 			}
 
 			for (; i_R != R.rowEnd (); ++i_R)
@@ -336,14 +388,14 @@ namespace F4 {
 
 			std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-			std::vector<Block> B_blocks, D_blocks, D_blocks_mapped;
+			std::vector<Block> X_blocks, D_blocks, D_blocks_mapped;
 			std::vector<size_t> pivot_rows, pivot_rows2;
 
-			FindPivotRows (X, B_blocks, pivot_rows);
+			FindPivotRows (X, X_blocks, pivot_rows);
 
 			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
-				<< "Found " << pivot_rows.size () << " pivots in " << B_blocks.size () << " blocks" << std::endl;
-			reportUI << "Blocks:" << std::endl << B_blocks << std::endl;
+				<< "Found " << pivot_rows.size () << " pivots in " << X_blocks.size () << " blocks" << std::endl;
+			reportUI << "Blocks:" << std::endl << X_blocks << std::endl;
 
 			SparseMatrix X1 (pivot_rows.size (), X.coldim ()), X2 (X.rowdim () - pivot_rows.size (), X.coldim ());
 
@@ -354,8 +406,8 @@ namespace F4 {
 			DenseMatrix C (X.rowdim () - pivot_rows.size (), pivot_rows.size ());
 			DenseMatrix D (X.rowdim () - pivot_rows.size (), X.coldim () - pivot_rows.size ());
 
-			SplitMatrix (X1, A, B, B_blocks);
-			SplitMatrix (X2, C, D, B_blocks);
+			SplitMatrix (X1, A, B, X_blocks);
+			SplitMatrix (X2, C, D, X_blocks);
 
 			reportUI << "Matrix A:" << std::endl;
 			MD.write (reportUI, A);
@@ -428,11 +480,11 @@ namespace F4 {
 			reportUI << "B2 - B1 D1^-1 D2:" << std::endl;
 			MD.write (reportUI, B2);
 
-			MapBlocks (D_blocks_mapped, B_blocks, D_blocks);
+			MapBlocks (D_blocks_mapped, X_blocks, D_blocks);
 
 			reportUI << "Mapped blocks:" << std::endl << D_blocks_mapped << std::endl;
 
-			AssembleOutput (R, B2, D2, B_blocks, D_blocks_mapped);
+			AssembleOutput (R, B2, D2, X_blocks, D_blocks_mapped);
 
 			rank = pivot_rows.size () + r_D;
 			det = d_D;
