@@ -230,7 +230,7 @@ namespace F4 {
 						<< "Source-block from X: " << *X_block << std::endl;
 
 					curr_orig_idx += curr_size;
-					curr_dest_idx = D_block->get_dest_idx ();
+					curr_dest_idx = D_block->get_dest_idx () + curr_size;
 					rest_size = D_block->get_size () - curr_size;
 
 					if (rest_size == 0)
