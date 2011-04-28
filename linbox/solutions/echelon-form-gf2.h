@@ -13,35 +13,44 @@
 #ifndef __LINBOX_SOLUTIONS_ECHELON_FORM_GF2_H
 #define __LINBOX_SOLUTIONS_ECHELON_FORM_GF2_H
 
-#include "linbox/solutions/echelon-form.h"
-#include "linbox/field/gf2.h"
-
 // No point specialising if we aren't using libm4ri
 #ifdef __LINBOX_HAVE_M4RI
 
 #include <m4ri/m4ri.h>
 
+#include "linbox/solutions/echelon-form.h"
+#include "linbox/field/gf2.h"
+#include "linbox/util/commentator.h"
 #include "linbox/matrix/m4ri-matrix.h"
+#include "linbox/matrix/matrix-domain-gf2.h"
+#include "linbox/vector/vector-domain-gf2.h"
 
 namespace LinBox
 {
 
+// Specialisation of EchelonForm to GF2 to take advantage of M4RI-routines
 template <>
 class EchelonForm<GF2>
 {
+	const GF2 &_F;
 	GaussJordan<GF2> _GJ;
 
 	DenseMatrix<bool> _L;
 	MatrixDomain<GF2>::Permutation _P;
 
+	// Map pointers to matrices to computed ranks
+	std::map<const void *, size_t> _rank_table;
+
 public:
 	enum Method { METHOD_STANDARD_GJ, METHOD_ASYMPTOTICALLY_FAST_GJ, METHOD_M4RI };
 
-	EchelonForm (const GF2 &F) : _GJ (F) {}
+	EchelonForm (const GF2 &F) : _F (F), _GJ (F) {}
 
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
 	{
+		commentator.start ("Row-echelon form", __FUNCTION__);
+
 		size_t rank;
 		bool d;
 
@@ -54,23 +63,31 @@ public:
 			throw LinboxError ("Invalid method for choice of matrix");
 		}
 
+		_rank_table[&A] = rank;
+
+		commentator.stop (MSG_DONE);
+
 		return A;
 	}
 
 	// Specialisation for M4RI-matrices
 	M4RIMatrix &RowEchelonForm (M4RIMatrix &A, bool reduced = false, Method method = METHOD_M4RI)
 	{
+		commentator.start ("Row-echelon form", __FUNCTION__);
+
 		size_t rank;
 		bool d;
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
 			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			_rank_table[&A] = rank;
 			break;
 
 		case METHOD_ASYMPTOTICALLY_FAST_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
 			_GJ.DenseRowEchelonForm (A, _L, _P, rank, d, reduced);
+			_rank_table[&A] = rank;
 			break;
 
 		case METHOD_M4RI:
@@ -81,7 +98,41 @@ public:
 			throw LinboxError ("Invalid method for choice of matrix");
 		}
 
+		commentator.stop (MSG_DONE);
+
 		return A;
+	}
+
+	template <class Matrix>
+	size_t rank (const Matrix &A) const
+		{ return _rank_table[&A]; }
+
+	size_t rank (const M4RIMatrix &A)
+	{
+		if (_rank_table.find (&A) != _rank_table.end ())
+			return _rank_table[&A];
+		else {
+			// Not computed yet, so we compute it ourselves. Assume matrix is in row-echelon form.
+			VectorDomain<GF2> VD (_F);
+			MatrixDomain<GF2> MD (_F);
+
+			if (MD.isZero (A)) {
+				_rank_table[&A] = 0;
+				return 0;
+			}
+
+			M4RIMatrix::ConstRowIterator i = A.rowBegin () + (A.rowdim () - 1);
+
+			size_t r = A.rowdim ();
+
+			while (VD.isZero (*i)) {
+				--i; --r;
+			}
+
+			_rank_table[&A] = r;
+
+			return r;
+		}
 	}
 };
 

@@ -419,12 +419,24 @@ namespace F4 {
 			reportUI << "Matrix D:" << std::endl;
 			MD.write (reportUI, D);
 
+			// std::ofstream Aout ("A.png");
+			// MD.write (Aout, A, FORMAT_PNG);
+			// std::ofstream Bout ("B.png");
+			// MD.write (Bout, B, FORMAT_PNG);
+			// std::ofstream Cout ("C.png");
+			// MD.write (Cout, C, FORMAT_PNG);
+			// std::ofstream Dout ("D.png");
+			// MD.write (Dout, D, FORMAT_PNG);
+
 			commentator.start ("Constructing D - C A^-1 B");
 
 			MD.trsm (F.one (), A, B, UpperTriangular, true);
 			MD.gemm (F.minusOne (), C, B, F.one (), D);
 
 			commentator.stop (MSG_DONE);
+
+			// std::ofstream DCABout ("D-CAB.png");
+			// MD.write (DCABout, D, FORMAT_PNG);
 
 			reportUI << "A^-1 B:" << std::endl;
 			MD.write (reportUI, B);
@@ -484,8 +496,8 @@ namespace F4 {
 
 			AssembleOutput (R, B2, D2, X_blocks, D_blocks_mapped);
 
-			// rank = pivot_rows.size () + r_D;
-			// det = d_D;
+			rank = pivot_rows.size () + pivot_rows2.size ();
+			det = true;
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}

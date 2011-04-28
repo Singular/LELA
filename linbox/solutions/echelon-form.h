@@ -29,6 +29,9 @@ class EchelonForm
 	DenseMatrix<typename Field::Element> _L;
 	typename MatrixDomain<Field>::Permutation _P;
 
+	// Map pointers to matrices to computed ranks
+	std::map<const void *, size_t> _rank_table;
+
 public:
 	enum Method { METHOD_STANDARD_GJ, METHOD_ASYMPTOTICALLY_FAST_GJ };
 
@@ -48,6 +51,8 @@ public:
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
 	{
+		commentator.start ("Row-echelon form", __FUNCTION__);
+
 		size_t rank;
 		typename Field::Element d;
 
@@ -60,12 +65,18 @@ public:
 			throw LinboxError ("Invalid method for choice of matrix");
 		}
 
+		_rank_table[&A] = rank;
+
+		commentator.stop (MSG_DONE);
+
 		return A;
 	}
 
 	// Specialisation for dense matrices
 	DenseMatrix<typename Field::Element> &RowEchelonForm (DenseMatrix<typename Field::Element> &A, bool reduced = false, Method method = METHOD_ASYMPTOTICALLY_FAST_GJ)
 	{
+		commentator.start ("Row-echelon form", __FUNCTION__);
+
 		size_t rank;
 		typename Field::Element d;
 
@@ -83,8 +94,21 @@ public:
 			throw LinboxError ("Invalid method for choice of matrix");
 		}
 
+		_rank_table[&A] = rank;
+
+		commentator.stop (MSG_DONE);
+
 		return A;
 	}
+
+	/** Determine the rank of the given matrix
+	 *
+	 * @param A Input matrix. Must already have been an argument to RowEchelonForm.
+	 * @returns rank
+	 */
+	template <class Matrix>
+	size_t rank (const Matrix &A) const
+		{ return _rank_table[&A]; }
 };
 
 } // namespace LinBox
