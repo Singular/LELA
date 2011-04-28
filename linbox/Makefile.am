@@ -3,7 +3,7 @@
 # see COPYING for licence
 INCLUDES=-I$(top_srcdir)
 
-SUBDIRS=util element field randiter vector matrix algorithms fflas ffpack
+SUBDIRS=util element field randiter vector matrix algorithms solutions fflas ffpack
 
 BASIC_HDRS =				\
 	integer.h	\

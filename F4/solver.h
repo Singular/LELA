@@ -13,7 +13,8 @@
 
 #include <linbox/vector/vector-domain.h>
 #include <linbox/matrix/matrix-domain.h>
-#include <linbox/algorithms/gauss-jordan.h>
+#include <linbox/solutions/echelon-form.h>
+#include <linbox/solutions/echelon-form-gf2.h>
 
 #ifndef PROGRESS_STEP
 #  define PROGRESS_STEP 1024
@@ -90,7 +91,7 @@ namespace F4 {
 		const Field &F;
 		const VectorDomain<Field> VD;
 		const MatrixDomain<Field> MD;
-		GaussJordan<Field> GJ;
+		EchelonForm<Field> EF;
 
 		Element one, neg_one;
 
@@ -360,7 +361,7 @@ namespace F4 {
 		 * this value, then the row is considered to be
 		 * dense. Default 0.2.
 		 */
-		F4Solver (const Field &_F, double _threshold = 0.2) : F (_F), VD (_F), MD (_F), GJ (_F), threshold (_threshold) {
+		F4Solver (const Field &_F, double _threshold = 0.2) : F (_F), VD (_F), MD (_F), EF (_F), threshold (_threshold) {
 			F.init (one, 1);
 			F.init (neg_one, -1);
 		}
@@ -431,18 +432,15 @@ namespace F4 {
 			reportUI << "D - C A^-1 B:" << std::endl;
 			MD.write (reportUI, D);
 
-			DenseMatrix U (D.rowdim (), D.rowdim ());
-			typename GaussJordan<Field>::Permutation P;
-			size_t r_D;
-			typename Field::Element d_D;
+			// size_t r_D;
 
-			GJ.DenseRowEchelonForm (D, U, P, r_D, d_D);
+			EF.RowEchelonForm (D);
 
 			reportUI << "Row-echelon form of D - C A^-1 B:" << std::endl;
 			MD.write (reportUI, D);
 
-			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
-				<< "Rank of dense part is " << r_D << std::endl;
+			// commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
+			// 	<< "Rank of dense part is " << r_D << std::endl;
 
 			FindPivotRows (D, D_blocks, pivot_rows2);
 
@@ -486,8 +484,8 @@ namespace F4 {
 
 			AssembleOutput (R, B2, D2, X_blocks, D_blocks_mapped);
 
-			rank = pivot_rows.size () + r_D;
-			det = d_D;
+			// rank = pivot_rows.size () + r_D;
+			// det = d_D;
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}
