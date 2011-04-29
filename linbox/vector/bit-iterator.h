@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "linbox/linbox-config.h"
+
 namespace LinBox
 {
 
@@ -55,10 +57,11 @@ struct WordTraits<uint8> {
 	}
 };
 
-/** Specialisation for 32-bit words */
+/** Specialisation for int */
+#if __LINBOX_SIZEOF_INT == 4
 template <>
-struct WordTraits<uint32> {
-	typedef uint32 Word;
+struct WordTraits<unsigned int> {
+	typedef unsigned int Word;
 	static const unsigned int bits = 32;
 	static const unsigned int logof_size = 5;
 	static const unsigned int pos_mask = 0x1F;
@@ -72,11 +75,10 @@ struct WordTraits<uint32> {
 		return bool( (0x6996 >> t) & 0x1);
 	}
 };
-
-/** Specialisation for 64-bit words */
+#elif __LINBOX_SIZEOF_INT == 8
 template <>
-struct WordTraits<uint64> {
-	typedef uint64 Word;
+struct WordTraits<unsigned int> {
+	typedef unsigned int Word;
 	static const unsigned int bits = 64;
 	static const unsigned int logof_size = 6;
 	static const unsigned int pos_mask = 0x3F;
@@ -91,6 +93,85 @@ struct WordTraits<uint64> {
 		return bool( (0x6996 >> t) & 0x1);
 	}
 };
+#endif // __LINBOX_SIZEOF_INT
+
+/** Specialisation for long */
+#if __LINBOX_SIZEOF_LONG == 4
+template <>
+struct WordTraits<unsigned long> {
+	typedef unsigned long Word;
+	static const unsigned int bits = 32;
+	static const unsigned int logof_size = 5;
+	static const unsigned int pos_mask = 0x1F;
+	static const Word all_ones = static_cast<const Word> (-1);
+
+	static inline bool ParallelParity (Word t) {
+		t ^= (t >> 16);
+		t ^= (t >> 8);
+		t ^= (t >> 4);
+		t &= 0xf;
+		return bool( (0x6996 >> t) & 0x1);
+	}
+};
+#elif __LINBOX_SIZEOF_LONG == 8
+template <>
+struct WordTraits<unsigned long> {
+	typedef unsigned long Word;
+	static const unsigned int bits = 64;
+	static const unsigned int logof_size = 6;
+	static const unsigned int pos_mask = 0x3F;
+	static const Word all_ones = static_cast<const Word> (-1);
+
+	static inline bool ParallelParity (Word t) {
+		t ^= (t >> 32);
+		t ^= (t >> 16);
+		t ^= (t >> 8);
+		t ^= (t >> 4);
+		t &= 0xf;
+		return bool( (0x6996 >> t) & 0x1);
+	}
+};
+#endif
+
+/** Specialisation for unsigned long long */
+#if __LINBOX_SIZEOF_LONG_LONG == 8
+template <>
+struct WordTraits<unsigned long long> {
+	typedef unsigned long long Word;
+	static const unsigned int bits = 64;
+	static const unsigned int logof_size = 6;
+	static const unsigned int pos_mask = 0x3F;
+	static const Word all_ones = static_cast<const Word> (-1);
+
+	static inline bool ParallelParity (Word t) {
+		t ^= (t >> 32);
+		t ^= (t >> 16);
+		t ^= (t >> 8);
+		t ^= (t >> 4);
+		t &= 0xf;
+		return bool( (0x6996 >> t) & 0x1);
+	}
+};
+#elif __LINBOX_SIZEOF_LONG_LONG == 16
+template <>
+struct WordTraits<unsigned long long> {
+	typedef unsigned long long Word;
+	static const unsigned int bits = 128;
+	static const unsigned int logof_size = 7;
+	static const unsigned int pos_mask = 0x7F;
+	static const Word all_ones = static_cast<const Word> (-1);
+
+	static inline bool ParallelParity (Word t) {
+		t ^= (t >> 64);
+		t ^= (t >> 32);
+		t ^= (t >> 16);
+		t ^= (t >> 8);
+		t ^= (t >> 4);
+		t &= 0xf;
+		return bool( (0x6996 >> t) & 0x1);
+	}
+};
+#endif
 
 // Generic routines for big endian word-order
 

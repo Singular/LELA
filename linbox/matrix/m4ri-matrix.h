@@ -30,25 +30,6 @@ namespace LinBox
 
 class MatrixDomainM4RI;
 
-/** Specialisation of WordTraits for M4RI-words */
-template <>
-struct WordTraits<word> {
-	typedef word Word;
-	static const unsigned int bits = 64;
-	static const unsigned int logof_size = 6;
-	static const unsigned int pos_mask = 0x3F;
-	static const Word all_ones = static_cast<const Word> (-1);
-
-	static inline bool ParallelParity (Word t) {
-		t ^= (t >> 32);
-		t ^= (t >> 16);
-		t ^= (t >> 8);
-		t ^= (t >> 4);
-		t &= 0xf;
-		return bool( (0x6996 >> t) & 0x1);
-	}
-};
-
 template <class Iterator, class ConstIterator, class MatrixPointer>
 class M4RIMatrixRowIterator;
 

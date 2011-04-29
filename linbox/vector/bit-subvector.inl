@@ -203,7 +203,7 @@ class BitSubvectorWordIterator {
 	typename BitSubvector<Iterator, ConstIterator>::word_reference _ref;
 
 	inline void init_mask () {
-		_ref._mask = 0ULL - 1ULL;
+		_ref._mask = (value_type) 0 - (value_type) 1;
 		update_mask ();
 	}
 
