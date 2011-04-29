@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "linbox/util/commentator.h"
+#include "linbox/field/gf2.h"
 #include "linbox/vector/vector-domain.h"
 #include "linbox/matrix/matrix-domain.h"
 #include "linbox/vector/stream.h"
