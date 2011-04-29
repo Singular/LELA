@@ -35,11 +35,11 @@ class BitVector
 	typedef bool        value_type;
 	typedef size_t      size_type;
 	typedef long         difference_type;
-	typedef __LINBOX_BITVECTOR_WORD_TYPE word_type;
-	typedef std::vector<word_type>::iterator               word_iterator;
-	typedef std::vector<word_type>::const_iterator         const_word_iterator;
-	typedef std::vector<word_type>::reverse_iterator       reverse_word_iterator;
-	typedef std::vector<word_type>::const_reverse_iterator const_reverse_word_iterator;
+	typedef typename _Endianness::word word_type;
+	typedef typename std::vector<word_type>::iterator               word_iterator;
+	typedef typename std::vector<word_type>::const_iterator         const_word_iterator;
+	typedef typename std::vector<word_type>::reverse_iterator       reverse_word_iterator;
+	typedef typename std::vector<word_type>::const_reverse_iterator const_reverse_word_iterator;
 
 	typedef _Endianness Endianness;
 

@@ -136,7 +136,7 @@ inline BitVector<Endianness> &BitVector<Endianness>::operator = (const Container
 {
 	typename Container::const_iterator i;
 	typename Container::const_iterator i_end = v.begin () + (v.size () >> WordTraits<word_type>::logof_size);
-	std::vector<word_type>::iterator j;
+	typename std::vector<word_type>::iterator j;
 	word_type idx;
 
 	_v.resize ((v.size () >> WordTraits<word_type>::logof_size) + ((v.size () & WordTraits<word_type>::pos_mask) ? 1UL : 0UL));
