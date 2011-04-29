@@ -164,6 +164,7 @@ Makefile
 linbox-config
 linbox/Makefile
 linbox/algorithms/Makefile
+linbox/solutions/Makefile
 linbox/fflas/Makefile
 linbox/ffpack/Makefile
 linbox/element/Makefile
