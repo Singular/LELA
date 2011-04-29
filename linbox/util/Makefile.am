@@ -13,11 +13,14 @@ libutil_la_SOURCES=	\
 	timer.C		\
 	error.C		\
 	commentator.C	\
-	debug.C
+	debug.C		\
+	splicer.C
 
 pkgincludesub_HEADERS=\
-	debug.h				\
-	error.h				\
-	commentator.h 			\
-	timer.h				\
-	field-axpy.h
+	debug.h		\
+	error.h		\
+	commentator.h 	\
+	timer.h		\
+	field-axpy.h	\
+	splicer.h	\
+	splicer.tcc
