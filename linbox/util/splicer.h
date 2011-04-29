@@ -191,6 +191,14 @@ public:
 	void addVerticalBlock (const Block &block)
 		{ _vert_blocks.push_back (block); }
 
+	/** Clear all horizontal blocks */
+	void clearHorizontalBlocks ()
+		{ _horiz_blocks.clear (); }
+
+	/** Clear all vertical blocks */
+	void clearVerticalBlocks ()
+		{ _vert_blocks.clear (); }
+
 	/** Chop the input matrix A into matrices based on the given
 	 * block-decomposition
 	 *
