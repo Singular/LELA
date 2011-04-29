@@ -40,7 +40,6 @@ namespace F4 {
 		typedef typename Field::Element Element;
 		typedef typename GaussJordan<Field>::SparseMatrix SparseMatrix;
 		typedef typename GaussJordan<Field>::DenseMatrix DenseMatrix;
-		typedef typename Adaptor<Field>::Endianness Endianness;
 
 	private:
 		const Field &F;
