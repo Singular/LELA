@@ -417,16 +417,16 @@ struct GF2VectorTraits<const std::vector<uint32> >
 };
 
 template <> 
-struct GF2VectorTraits<std::vector<size_t> >
+struct GF2VectorTraits<std::vector<uint64> >
 { 
-	typedef std::vector<size_t> VectorType;
+	typedef std::vector<uint64> VectorType;
 	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
 };
 
 template <> 
-struct GF2VectorTraits<const std::vector<size_t> >
+struct GF2VectorTraits<const std::vector<uint64> >
 { 
-	typedef std::vector<size_t> VectorType;
+	typedef std::vector<uint64> VectorType;
 	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
 };
 
