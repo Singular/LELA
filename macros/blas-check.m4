@@ -192,7 +192,6 @@ fi
 
 if test "x$blas_found" = "xyes"; then
 	AC_SUBST(BLAS_LIBS)
-	AC_SUBST(CBLAS_FLAG)
 	AC_DEFINE(HAVE_BLAS,1,[Define if BLAS is installed])
 	AC_DEFINE(HAVE_CBLAS,1,[Define if C interface to BLAS is available])
 	AC_DEFINE(BLAS_AVAILABLE,,[Define if BLAS routines are available])
@@ -336,7 +335,6 @@ if test "x$blas_found" != "xyes" ; then
 
 	if test "x$blas_found" = "xyes"; then
 		AC_SUBST(BLAS_LIBS)
-		AC_SUBST(CBLAS_FLAG)	
 		AC_DEFINE(HAVE_BLAS,1,[Define if BLAS is installed])	
 		AC_DEFINE(BLAS_AVAILABLE,,[Define if BLAS routines are available])
 		HAVE_BLAS=yes
