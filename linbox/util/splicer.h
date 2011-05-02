@@ -86,6 +86,12 @@ public:
 	 */
 	SourceMatrix (Type type) : _A (NULL), _type (type) {}
 
+	/** Copy-constructor */
+	SourceMatrix (const SourceMatrix &S) : _A (S._A), _type (S._type) {}
+
+	/** Assignment-operator */
+	SourceMatrix &operator = (const SourceMatrix &S) { _A = S._A; _type = S._type; }
+
 	Type type () const { return _type; }
 	Matrix &A () { return *_A; }
 };
@@ -202,6 +208,9 @@ public:
 	/** Chop the input matrix A into matrices based on the given
 	 * block-decomposition
 	 *
+	 * @param F Field over which matrices are defined. Needed to
+	 * copy submatrices.
+	 *
 	 * @param output Array of arrays of SourceMatrix-objects. Matrices
 	 * should already be allocated and be of the right sizes. The
 	 * pointer at index i,j in the vector is whither data from
@@ -229,7 +238,7 @@ public:
 	 * in this vector must be non-null.
 	 */
 	template <class Field, class Matrix1, class Matrix2>
-	void splice (const Field &F, Matrix1 &A, const SourceMatrix<Matrix2> **input) const;
+	void splice (const Field &F, Matrix1 &A, SourceMatrix<Matrix2> **input) const;
 
 	/** Compose this Splicer with another and produce a new Splicer
 	 *

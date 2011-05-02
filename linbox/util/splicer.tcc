@@ -101,8 +101,6 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 	for (; i != tmp.wordEnd (); ++i, ++idx)
 		if (*i)
 			out.push_back (typename Vector1::value_type (idx, *i));
-
-	return out;
 }
 
 template <class Field, class Vector1, class Vector2>
@@ -140,6 +138,8 @@ void Splicer::chop (const Field &F, SourceMatrix<Matrix1> **output, const Matrix
 	linbox_check (!_horiz_blocks.empty ());
 	linbox_check (!_vert_blocks.empty ());
 
+	linbox_check (check ());
+
 	linbox_check (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () == A.rowdim ());
 	linbox_check (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () == A.coldim ());
 
@@ -152,11 +152,11 @@ void Splicer::chop (const Field &F, SourceMatrix<Matrix1> **output, const Matrix
 	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block) {
 		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block) {
 			if (output[horiz_block->source ()][vert_block->source ()].type () == SourceMatrix<Matrix1>::TYPE_MATRIX) {
-				Submatrix<const Matrix1> source_part (A, horiz_block->sourceIndex (), horiz_block->destIndex (), horiz_block->size (), vert_block->size ());
-				Submatrix<Matrix2> dest_part (output[horiz_block->source ()][vert_block->source ()].A (),
-							      horiz_block->destIndex (), vert_block->destIndex (), horiz_block->size (), vert_block->size ());
+				Submatrix<const Matrix2> dest_part (A, horiz_block->destIndex (), vert_block->destIndex (), horiz_block->size (), vert_block->size ());
+				Submatrix<Matrix1> source_part (output[horiz_block->source ()][vert_block->source ()].A (),
+								horiz_block->sourceIndex (), vert_block->sourceIndex (), horiz_block->size (), vert_block->size ());
 
-				MD.copy (dest_part, source_part);
+				MD.copy (source_part, dest_part);
 			}
 		}
 	}
@@ -165,7 +165,7 @@ void Splicer::chop (const Field &F, SourceMatrix<Matrix1> **output, const Matrix
 }
 
 template <class Field, class Matrix1, class Matrix2>
-void Splicer::splice (const Field &F, Matrix1 &A, const SourceMatrix<Matrix2> **input) const
+void Splicer::splice (const Field &F, Matrix1 &A, SourceMatrix<Matrix2> **input) const
 {
 	linbox_check (!_horiz_blocks.empty ());
 	linbox_check (!_vert_blocks.empty ());
@@ -173,13 +173,15 @@ void Splicer::splice (const Field &F, Matrix1 &A, const SourceMatrix<Matrix2> **
 	linbox_check (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () == A.rowdim ());
 	linbox_check (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () == A.coldim ());
 
+	linbox_check (check ());
+
 	commentator.start ("Splicing matrices", __FUNCTION__);
 
 	typename std::vector<Block>::const_iterator horiz_block, vert_block;
 
 	MatrixDomain<Field> MD (F);
 
-	MD.clear (A);
+	MD.scal (A, F.zero ());
 
 	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block) {
 		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block) {

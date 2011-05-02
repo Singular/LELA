@@ -50,7 +50,7 @@ namespace F4 {
 		const double threshold;
 
 		template <class Matrix>
-		void setup_splicer (Splicer splicer, const Matrix &A, size_t &num_pivot_rows, typename Field::Element &det) const
+		void setup_splicer (Splicer &splicer, const Matrix &A, size_t &num_pivot_rows, typename Field::Element &det) const
 		{
 			commentator.start ("Finding pivot-rows", __FUNCTION__);
 
@@ -65,11 +65,17 @@ namespace F4 {
 			for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A, ++row) {
 				col = VD.firstNonzeroEntry (a, *i_A);
 
-				if (col == -1)
+				if (col == -1) {
+					if (!last_was_same_col) {
+						splicer.addHorizontalBlock (Block (0, dest_row_tr, first_row_in_block, row - first_row_in_block));
+						dest_row_tr += row - first_row_in_block;
+						first_row_in_block = row;
+					}
 					break;
+				}
 				else if (col == last_col) {
 					if (!last_was_same_col) {
-						splicer.addHorizontalBlock (Block (0, first_row_in_block, dest_row_tr, row - first_row_in_block));
+						splicer.addHorizontalBlock (Block (0, dest_row_tr, first_row_in_block, row - first_row_in_block));
 						dest_row_tr += row - first_row_in_block;
 						first_row_in_block = row;
 						last_was_same_col = true;
@@ -77,7 +83,7 @@ namespace F4 {
 				}
 				else {
 					if (last_was_same_col) {
-						splicer.addHorizontalBlock (Block (1, first_row_in_block, dest_row_res, row - first_row_in_block));
+						splicer.addHorizontalBlock (Block (1, dest_row_res, first_row_in_block, row - first_row_in_block));
 						dest_row_res += row - first_row_in_block;
 						first_row_in_block = row;
 						last_was_same_col = false;
@@ -89,10 +95,10 @@ namespace F4 {
 						++num_pivot_rows;
 					} else {
 						if (height > 0)
-							splicer.addVerticalBlock (Block (0, first_col_in_block, dest_col_tr, height));
+							splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
 
 						if (col - last_col > 1)
-							splicer.addVerticalBlock (Block (1, first_col_in_block + height, dest_col_res, col - last_col - 1));
+							splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, col - last_col - 1));
 
 						dest_col_tr += height;
 						dest_col_res += col - last_col - 1;
@@ -106,13 +112,17 @@ namespace F4 {
 			}
 
 			if (height > 0)
-				splicer.addVerticalBlock (Block (0, first_col_in_block, dest_col_tr, height));
+				splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
 
 			if (first_col_in_block + height < A.coldim ())
-				splicer.addVerticalBlock (Block (1, first_col_in_block + height, dest_col_res, A.coldim () - first_col_in_block - height));
+				splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, A.coldim () - first_col_in_block - height));
 
-			if (first_row_in_block < A.rowdim ())
-				splicer.addHorizontalBlock (Block (1, first_row_in_block, dest_row_res, A.rowdim () - first_row_in_block));
+			if (first_row_in_block < A.rowdim ()) {
+				if (row < A.rowdim () || last_was_same_col)
+					splicer.addHorizontalBlock (Block (1, dest_row_res, first_row_in_block, A.rowdim () - first_row_in_block));
+				else
+					splicer.addHorizontalBlock (Block (0, dest_row_tr, first_row_in_block, A.rowdim () - first_row_in_block));
+			}
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}
@@ -170,8 +180,10 @@ namespace F4 {
 			DenseMatrix C (X.rowdim () - num_pivot_rows, num_pivot_rows);
 			DenseMatrix D (X.rowdim () - num_pivot_rows, X.coldim () - num_pivot_rows);
 
-			SourceMatrix<DenseMatrix> X_targets[][2] = { { SourceMatrix<DenseMatrix> (A), SourceMatrix<DenseMatrix> (B) },
-								     { SourceMatrix<DenseMatrix> (C), SourceMatrix<DenseMatrix> (D) } };
+			SourceMatrix<DenseMatrix> X_targets_inner_1[] = { SourceMatrix<DenseMatrix> (A), SourceMatrix<DenseMatrix> (B) };
+			SourceMatrix<DenseMatrix> X_targets_inner_2[] = { SourceMatrix<DenseMatrix> (C), SourceMatrix<DenseMatrix> (D) };
+
+			SourceMatrix<DenseMatrix> *X_targets[] = { X_targets_inner_1, X_targets_inner_2 };
 
 			X_splicer.chop (F, X_targets, X);
 
@@ -223,7 +235,7 @@ namespace F4 {
 
 			Splicer D_splicer;
 
-			setup_splicer (D_splicer, X, num_pivot_rows, det);
+			setup_splicer (D_splicer, D, num_pivot_rows, det);
 			rank += num_pivot_rows;
 
 			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
@@ -235,10 +247,13 @@ namespace F4 {
 			DenseMatrix D1 (num_pivot_rows, num_pivot_rows);
 			DenseMatrix D2 (num_pivot_rows, D.coldim () - num_pivot_rows);
 
-			SourceMatrix<DenseMatrix> B_targets[][2] = { { SourceMatrix<DenseMatrix> (B1), SourceMatrix<DenseMatrix> (B2) } };
-			SourceMatrix<DenseMatrix> D_targets[][2] = { { SourceMatrix<DenseMatrix> (D1), SourceMatrix<DenseMatrix> (D2) },
-								     { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
-								       SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO) } };
+			SourceMatrix<DenseMatrix> B_targets_inner[] = { SourceMatrix<DenseMatrix> (B1), SourceMatrix<DenseMatrix> (B2) };
+			SourceMatrix<DenseMatrix> D_targets_inner_1[] = { SourceMatrix<DenseMatrix> (D1), SourceMatrix<DenseMatrix> (D2) };
+			SourceMatrix<DenseMatrix> D_targets_inner_2[] = { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
+									  SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO) };
+
+			SourceMatrix<DenseMatrix> *B_targets[] = { B_targets_inner };
+			SourceMatrix<DenseMatrix> *D_targets[] = { D_targets_inner_1, D_targets_inner_2 };
 
 			Splicer B_splicer (D_splicer);
 			B_splicer.clearHorizontalBlocks ();
@@ -272,15 +287,17 @@ namespace F4 {
 
 			reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
 
-			SourceMatrix<DenseMatrix> X_sources[][3] = { { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_IDENTITY),
-								       SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
-								       SourceMatrix<DenseMatrix> (B2) },
-								     { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
-								       SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_IDENTITY),
-								       SourceMatrix<DenseMatrix> (D2) },
-								     { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
-								       SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
-								       SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO) } };
+			SourceMatrix<DenseMatrix> X_sources_inner_1[] = { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_IDENTITY),
+									  SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
+									  SourceMatrix<DenseMatrix> (B2) };
+			SourceMatrix<DenseMatrix> X_sources_inner_2[] = { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
+									  SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_IDENTITY),
+									  SourceMatrix<DenseMatrix> (D2) };
+			SourceMatrix<DenseMatrix> X_sources_inner_3[] = { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
+									  SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO),
+									  SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_ZERO) };
+
+			SourceMatrix<DenseMatrix> *X_sources[] = { X_sources_inner_1, X_sources_inner_2, X_sources_inner_3 };
 
 			composed_splicer.splice (F, R, X_sources);
 
