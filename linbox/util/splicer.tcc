@@ -113,11 +113,11 @@ void Splicer::attach_identity (const Field &F, Matrix &A, const Block &horiz_blo
 {
 	typename Matrix::RowIterator i_A = A.rowBegin () + horiz_block.destIndex ();
 	typename Matrix::RowIterator i_A_end = A.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
-	size_t idx = vert_block.sourceIndex ();
+	size_t idx = horiz_block.sourceIndex ();
 
 	for (; i_A != i_A_end; ++i_A, ++idx)
-		if (horiz_block.isSourceIndexInBlock (idx))
-			attach_e_i (F, *i_A, horiz_block.sourceToDestIndex (idx));
+		if (vert_block.isSourceIndexInBlock (idx))
+			attach_e_i (F, *i_A, vert_block.sourceToDestIndex (idx));
 }
 
 template <class Field, class Matrix1, class Matrix2>

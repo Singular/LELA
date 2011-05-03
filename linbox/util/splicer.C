@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 #include "linbox/util/splicer.h"
 #include "linbox/util/commentator.h"
@@ -20,61 +21,72 @@ std::ostream &operator << (std::ostream &os, const Block &b)
 	return os;
 }
 
+struct CompareBlockSources { inline bool operator () (const Block &b1, const Block &b2) { return b1.source () < b2.source (); } };
+
 std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::vector<Block> &outer_blocks, const std::vector<Block> &inner_blocks, unsigned int inner_source) const
 {
+	linbox_check (!inner_blocks->empty ());
+
 	std::vector<Block>::const_iterator outer_block;
 	std::vector<Block>::const_iterator inner_block = inner_blocks.begin ();
 
-	size_t curr_source_idx = 0, curr_dest_idx = 0, rest_size = 0, curr_size = 0;
+	size_t curr_dest_idx = 0, rest_size = 0, curr_size = 0;
+	std::map<size_t, size_t> curr_source_idx;
 
 	commentator.start ("Mapping blocks", __FUNCTION__);
 
+	size_t max_inner_block = (std::max_element (inner_blocks.begin (), inner_blocks.end (), CompareBlockSources ()))->source ();
+
 	for (outer_block = outer_blocks.begin (); outer_block != outer_blocks.end (); ++outer_block) {
 		if (outer_block->source () != inner_source) {
-			output.push_back (*outer_block);
+			if (outer_block->source () < inner_source)
+				output.push_back (*outer_block);
+			else
+				output.push_back (Block (outer_block->source () - inner_source + max_inner_block, outer_block->sourceIndex (), outer_block->destIndex (), outer_block->size ()));
+
+			curr_dest_idx += outer_block->size ();
 
 			commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
 				<< "New block created (from outer block): " << output.back () << std::endl;
+		} else {
+			if (rest_size > 0) {
+				curr_size = std::min (rest_size, outer_block->size ());
 
-			continue;
-		}
+				output.push_back (Block (inner_block->source () + outer_block->source (), curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
 
-		curr_source_idx = outer_block->sourceIndex ();
+				commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
+					<< "New block created (leftover): " << output.back () << std::endl
+					<< "Inner source-block: " << *inner_block << std::endl
+					<< "Outer source-block: " << *outer_block << std::endl;
 
-		if (rest_size > 0) {
-			curr_size = std::min (rest_size, outer_block->size ());
+				curr_source_idx[inner_block->source ()] += curr_size;
+				curr_dest_idx += curr_size;
+				rest_size -= curr_size;
 
-			output.push_back (Block (inner_block->source (), curr_source_idx, curr_dest_idx, curr_size));
+				if (rest_size == 0)
+					++inner_block;
+			}
 
-			commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
-				<< "New block created (leftover): " << output.back () << std::endl
-				<< "Inner source-block: " << *inner_block << std::endl
-				<< "Outer source-block: " << *outer_block << std::endl;
+			while (inner_block != inner_blocks.end () && rest_size == 0 && outer_block->destIndex () + outer_block->size () > curr_dest_idx) {
+				curr_size = std::min (inner_block->size (), outer_block->destIndex () + outer_block->size () - curr_dest_idx);
 
-			curr_source_idx += curr_size;
-			curr_dest_idx += curr_size;
-			rest_size -= curr_size;
+				if (curr_source_idx.find (inner_block->source ()) == curr_source_idx.end ())
+					curr_source_idx[inner_block->source ()] = 0;
 
-			if (rest_size == 0)
-				++inner_block;
-		}
+				output.push_back (Block (inner_block->source () + outer_block->source (), curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
 
-		while (inner_block != inner_blocks.end () && rest_size == 0 && outer_block->isDestIndexInBlock (inner_block->sourceIndex ())) {
-			curr_size = std::min (inner_block->size (), outer_block->sourceIndex () + outer_block->size () - curr_source_idx);
+				commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
+					<< "New block created: " << output.back () << std::endl
+					<< "Inner source-block: " << *inner_block << std::endl
+					<< "Outer source-block: " << *outer_block << std::endl;
 
-			output.push_back (Block (inner_block->source (), curr_source_idx, inner_block->destIndex (), curr_size));
+				curr_source_idx[inner_block->source ()] += curr_size;
+				curr_dest_idx += curr_size;
+				rest_size = inner_block->size () - curr_size;
 
-			commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
-				<< "New block created: " << output.back () << std::endl
-				<< "Inner source-block: " << *inner_block << std::endl
-				<< "Outer source-block: " << *outer_block << std::endl;
-
-			curr_source_idx += curr_size;
-			curr_dest_idx = inner_block->destIndex () + curr_size;
-			rest_size = inner_block->size () - curr_size;
-
-			if (rest_size == 0)
-				++inner_block;
+				if (rest_size == 0)
+					++inner_block;
+			}
 		}
 	}
 
