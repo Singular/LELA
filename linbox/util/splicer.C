@@ -25,7 +25,7 @@ struct CompareBlockSources { inline bool operator () (const Block &b1, const Blo
 
 std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::vector<Block> &outer_blocks, const std::vector<Block> &inner_blocks, unsigned int inner_source) const
 {
-	linbox_check (!inner_blocks->empty ());
+	linbox_check (!inner_blocks.empty ());
 
 	std::vector<Block>::const_iterator outer_block;
 	std::vector<Block>::const_iterator inner_block = inner_blocks.begin ();
@@ -42,7 +42,7 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::
 			if (outer_block->source () < inner_source)
 				output.push_back (*outer_block);
 			else
-				output.push_back (Block (outer_block->source () - inner_source + max_inner_block, outer_block->sourceIndex (), outer_block->destIndex (), outer_block->size ()));
+				output.push_back (Block (outer_block->source () + max_inner_block, outer_block->sourceIndex (), outer_block->destIndex (), outer_block->size ()));
 
 			curr_dest_idx += outer_block->size ();
 
@@ -93,6 +93,58 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::
 	commentator.stop (MSG_DONE);
 
 	return output;
+}
+
+class IsSourceP {
+	unsigned int _source;
+
+public:
+	IsSourceP (int source) : _source (source) {}
+
+	bool operator () (const Block &b)
+		{ return b.source () == _source; }
+};
+
+void Splicer::fillHorizontal (unsigned int id, size_t rowdim)
+{
+	linbox_check (!_horiz_blocks.empty ());
+	linbox_check (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () <= rowdim);
+
+	if (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () == rowdim)
+		return;
+
+	std::vector<Block>::reverse_iterator i = std::find_if (_horiz_blocks.rbegin (), _horiz_blocks.rend (), IsSourceP (id));
+
+	size_t source_idx;
+
+	if (i == _horiz_blocks.rend ())
+		source_idx = 0;
+	else
+		source_idx = i->sourceIndex () + i->size ();
+
+	_horiz_blocks.push_back (Block (id, source_idx, _horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size (),
+					rowdim - (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size ())));
+}
+
+void Splicer::fillVertical (unsigned int id, size_t coldim)
+{
+	linbox_check (!_vert_blocks.empty ());
+	linbox_check (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () <= coldim);
+
+	if (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () == coldim)
+		return;
+
+	std::vector<Block>::reverse_iterator i = std::find_if (_vert_blocks.rbegin (), _vert_blocks.rend (), IsSourceP (id));
+
+	size_t source_idx;
+
+	if (i == _vert_blocks.rend ())
+		source_idx = 0;
+	else
+		source_idx = i->sourceIndex () + i->size ();
+
+	_vert_blocks.push_back (Block (id, source_idx, _vert_blocks.back ().destIndex () + _vert_blocks.back ().size (),
+				       coldim - (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size ())));
 }
 
 Splicer &Splicer::compose (Splicer &output, const Splicer &inner, unsigned int horiz_inner_source, unsigned int vert_inner_source) const
@@ -158,6 +210,48 @@ bool Splicer::check () const
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
+}
+
+void Splicer::substitute (std::vector<Block> &blocks, const std::vector<Block> &other_blocks, unsigned int source, unsigned int other_source)
+{
+	std::ostringstream str;
+	str << "Substituting block " << other_source << " for block " << source << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	report << "Splicer before substitution:" << std::endl << *this;
+
+	std::vector<Block>::iterator i;
+	std::vector<Block>::const_iterator j = other_blocks.begin (), j_stop;
+	size_t curr_dest_idx = 0;
+
+	for (i = blocks.begin (); i != blocks.end (); ++i) {
+		if (i->source () == source) {
+			for (j_stop = j; j_stop != other_blocks.end () && j_stop->destIndex () - curr_dest_idx < i->size (); ++j_stop);
+
+			for (; j != j_stop && j->source () != other_source; ++j);
+
+			if (j != j_stop) {
+				report << "Replacing " << *i;
+				*i = Block (source, j->sourceIndex (), curr_dest_idx, j->size ());
+				report << " with " << *i << " (substitution)" << std::endl;
+				curr_dest_idx += j->size ();
+				++j;
+			} else {
+				report << "Erasing block " << *i << std::endl;
+				i = blocks.erase (i);
+				--i;
+			}
+		} else {
+			report << "Replacing " << *i;
+			*i = Block (i->source (), i->sourceIndex (), curr_dest_idx, i->size ());
+			report << " with " << *i << std::endl;
+			curr_dest_idx += i->size ();
+		}
+	}
+
+	commentator.stop (MSG_DONE);
 }
 
 std::ostream &operator << (std::ostream &os, const Splicer &splicer)

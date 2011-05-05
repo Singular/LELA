@@ -50,13 +50,14 @@ namespace F4 {
 		const double threshold;
 
 		template <class Matrix>
-		void setup_splicer (Splicer &splicer, const Matrix &A, size_t &num_pivot_rows, typename Field::Element &det) const
+		void setup_splicer (Splicer &splicer, Splicer &reconst_splicer, const Matrix &A, size_t &num_pivot_rows, typename Field::Element &det) const
 		{
 			commentator.start ("Finding pivot-rows", __FUNCTION__);
 
 			typename Matrix::ConstRowIterator i_A;
 			int last_col = -1, col, first_col_in_block = 0, height = 0, dest_col_tr = 0, dest_col_res = 0;
 			int row = 0, first_row_in_block = 0, dest_row_tr = 0, dest_row_res = 0;
+			int first_source_row = 0;
 			bool last_was_same_col = false;
 			typename Field::Element a;
 
@@ -94,11 +95,22 @@ namespace F4 {
 						++height;
 						++num_pivot_rows;
 					} else {
-						if (height > 0)
+						if (height > 0) {
 							splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
+							reconst_splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
+						}
 
-						if (col - last_col > 1)
+						if (col - last_col > 1) {
 							splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, col - last_col - 1));
+							reconst_splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, col - last_col - 1));
+						}
+
+						if (row > first_source_row)
+							reconst_splicer.addHorizontalBlock (Block (0, first_source_row, col, height));
+
+						reconst_splicer.addHorizontalBlock (Block (1, 0, col, col - last_col - 1));
+
+						first_source_row += height;
 
 						dest_col_tr += height;
 						dest_col_res += col - last_col - 1;
@@ -111,17 +123,23 @@ namespace F4 {
 				F.mulin (det, a);
 			}
 
-			if (height > 0)
+			if (height > 0) {
 				splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
+				reconst_splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
+			}
 
-			if (first_col_in_block + height < A.coldim ())
+			if (first_col_in_block + height < A.coldim ()) {
 				splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, A.coldim () - first_col_in_block - height));
+				reconst_splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, A.coldim () - first_col_in_block - height));
+			}
 
 			if (first_row_in_block < A.rowdim ()) {
 				if (row < A.rowdim () || last_was_same_col)
 					splicer.addHorizontalBlock (Block (1, dest_row_res, first_row_in_block, A.rowdim () - first_row_in_block));
 				else
 					splicer.addHorizontalBlock (Block (0, dest_row_tr, first_row_in_block, A.rowdim () - first_row_in_block));
+
+				reconst_splicer.addHorizontalBlock (Block (1, 0, col, A.coldim () - col));
 			}
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
@@ -164,11 +182,11 @@ namespace F4 {
 
 			std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-			Splicer X_splicer;
+			Splicer X_splicer, X_reconst_splicer;
 
 			size_t num_pivot_rows;
 
-			setup_splicer (X_splicer, X, num_pivot_rows, det);
+			setup_splicer (X_splicer, X_reconst_splicer, X, num_pivot_rows, det);
 			rank = num_pivot_rows;
 
 			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
@@ -233,9 +251,9 @@ namespace F4 {
 			// commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 			// 	<< "Rank of dense part is " << r_D << std::endl;
 
-			Splicer D_splicer;
+			Splicer D_splicer, D_reconst_splicer;
 
-			setup_splicer (D_splicer, D, num_pivot_rows, det);
+			setup_splicer (D_splicer, D_reconst_splicer, D, num_pivot_rows, det);
 			rank += num_pivot_rows;
 
 			commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
@@ -283,7 +301,9 @@ namespace F4 {
 
 			Splicer composed_splicer;
 
-			X_splicer.compose (composed_splicer, D_splicer, 1, 1);
+			X_reconst_splicer.substituteHoriz (D_reconst_splicer, 1, 0);
+			X_reconst_splicer.compose (composed_splicer, D_splicer, 1, 1);
+			composed_splicer.fillHorizontal (2, X.rowdim ());
 
 			reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
 

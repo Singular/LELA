@@ -186,6 +186,8 @@ class Splicer {
 
 	bool check_blocks (const std::vector<Block> blocks, const char *type) const;
 
+	void substitute (std::vector<Block> &blocks, const std::vector<Block> &other_blocks, unsigned int source, unsigned int other_source);
+
 	friend std::ostream &operator << (std::ostream &os, const Splicer &splicer);
 
 public:
@@ -204,6 +206,22 @@ public:
 	/** Clear all vertical blocks */
 	void clearVerticalBlocks ()
 		{ _vert_blocks.clear (); }
+
+	/** Add a horizontal block with the given source so that the
+	 * total row-dimension matches what is requested.
+	 *
+	 * @param id Source-id of block to be added
+	 * @param rowdim Desired row-dimension
+	 */
+	void fillHorizontal (unsigned int id, size_t rowdim);
+
+	/** Add a vertical block with the given source so that the
+	 * total column-dimension matches what is requested.
+	 *
+	 * @param id Source-id of block to be added
+	 * @param rowdim Desired column-dimension
+	 */
+	void fillVertical (unsigned int id, size_t coldim);
 
 	/** Chop the input matrix A into matrices based on the given
 	 * block-decomposition
@@ -262,6 +280,28 @@ public:
 	 * @returns true if everything is okay, false if error found
 	 */
 	bool check () const;
+
+	/** Substitute given horizontal blocks from given splicer into this splicer.
+	 *
+	 * @param splicer Splicer with horizontal blocks to substitute
+	 * @param source Source-id of blocks to be substituted
+	 * @param splicer_source Source-id in splicer of blocks to use
+	 *
+	 * @returns Reference to this
+	 */
+	Splicer &substituteHoriz (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
+		{ substitute (_horiz_blocks, splicer._horiz_blocks, source, splicer_source); return *this; }
+
+	/** Substitute given vertical blocks from given splicer into this splicer.
+	 *
+	 * @param splicer Splicer with vertical blocks to substitute
+	 * @param source Source-id of blocks to be substituted
+	 * @param splicer_source Source-id in splicer of blocks to use
+	 *
+	 * @returns Reference to this
+	 */
+	Splicer &substituteVert (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
+		{ substitute (_vert_blocks, splicer._vert_blocks, source, splicer_source); return *this; }
 };
 
 } // namespace LinBox
