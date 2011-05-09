@@ -51,10 +51,10 @@
 #include <algorithm>
 
 #include "linbox/linbox-config.h"
+#include "linbox/util/debug.h"
 #include "linbox/vector/vector-traits.h"
 #include "linbox/matrix/matrix-traits.h"
-#include "linbox/util/debug.h"
-#include "linbox/matrix/matrix-domain.h"
+#include "linbox/vector/sparse-subvector.h"
 
 namespace LinBox
 {
@@ -79,6 +79,7 @@ class SparseMatrix
 	typedef _Row Row;
 	typedef const Row ConstRow;
 	typedef typename _SP_BB_VECTOR_<Row> Rep;
+	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
@@ -270,6 +271,7 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
 	typedef _Row Row;
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
+	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 
 	template <typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other>
         struct rebind
@@ -363,22 +365,33 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
 };
 
 template <class Element, class Row, class Trait>
-struct MatrixTraits< SparseMatrix<Element, Row, Trait> >
-{ 
-	typedef SparseMatrix<Element, Row, Trait> MatrixType;
-	typedef typename MatrixCategories::RowMatrixTag MatrixCategory; 
+class SubvectorFactory<SparseMatrix<Element, Row, Trait> >
+{
+    public:
+	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::Row, Trait> RowSubvector;
+	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> ConstRowSubvector;
+
+	RowSubvector MakeRowSubvector (Submatrix<SparseMatrix<Element, Row, Trait> > &M, typename SparseMatrix<Element, Row, Trait>::RowIterator &pos)
+		{ return RowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
+
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<SparseMatrix<Element, Row, Trait> > &M, typename SparseMatrix<Element, Row, Trait>::ConstRowIterator &pos)
+		{ return ConstRowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 };
 
 template <class Element, class Row, class Trait>
-struct MatrixTraits< const SparseMatrix<Element, Row, Trait> >
-{ 
-	typedef const SparseMatrix<Element, Row, Trait> MatrixType;
-	typedef typename MatrixCategories::RowMatrixTag MatrixCategory; 
+class SubvectorFactory<const SparseMatrix<Element, Row, Trait> >
+{
+    public:
+	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> RowSubvector;
+	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> ConstRowSubvector;
+
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const SparseMatrix<Element, Row, Trait> > &M, typename SparseMatrix<Element, Row, Trait>::ConstRowIterator &pos)
+		{ return ConstRowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ());; }
 };
 
 } // namespace LinBox
 
-#include "linbox/matrix/sparse.inl"
+#include "linbox/matrix/sparse.tcc"
 
 #endif // __LINBOX_matrix_sparse_H
 

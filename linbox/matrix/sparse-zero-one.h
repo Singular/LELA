@@ -13,6 +13,7 @@
 
 #include "linbox/matrix/sparse.h"
 #include "linbox/vector/bit-vector.h"
+#include "linbox/vector/sparse-subvector.h"
 
 namespace LinBox {
 
@@ -27,6 +28,7 @@ public:
 	typedef _Row Row;
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
+	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
@@ -132,6 +134,7 @@ public:
 	typedef _Row Row;
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
+	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
 	struct rebind
@@ -316,6 +319,21 @@ void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 		}
 	}
 }
+
+template <class Row>
+class HybridSubvectorFactory
+{
+    public:
+	typedef HybridSubvectorFactory<Row> Self_t;
+
+	typedef SparseSubvector<typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRow, HybridSubvectorWordAlignedTag> RowSubvector;
+	typedef RowSubvector ConstRowSubvector;
+
+	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>, Self_t> &M,
+						 typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRowIterator &pos)
+		{ return ConstRowSubvector (*pos, M.startCol () >> WordTraits<typename Row::word_type>::logof_size,
+					    (M.startCol () + M.coldim ()) >> WordTraits<typename Row::word_type>::logof_size); }
+};
 
 } // namespace LinBox
 
