@@ -33,6 +33,9 @@
 namespace LinBox
 {
 
+template <class Element>
+struct DenseMatrixTag {};
+
 /** Blackbox dense matrix template. This is a class of dense matrices
  * templatized by the entry type, the Element type of some {@link Fields field}.
  * The matrix is stored as a one dimensional STL vector of the elements, by rows. 
@@ -279,7 +282,8 @@ class DenseMatrix
 	typedef _Element Element;
 	typedef typename RawVector<Element>::Dense Rep;
         typedef DenseMatrix<_Element> Self_t;
-	typedef MatrixCategories::RowColMatrixTag MatrixCategory; 
+	typedef MatrixCategories::RowColMatrixTag MatrixCategory;
+	typedef DenseMatrixTag<Element> Tag;
 
 	typedef Subvector<typename Rep::iterator, typename Rep::const_iterator> Row;
 	typedef Subvector<typename Rep::const_iterator> ConstRow;  
@@ -515,49 +519,50 @@ class DenseMatrix
 	Element *_ptr;
 };
 
-template <class Element>
-class SubvectorFactory<DenseMatrix<Element> >
+template <class Element, class Submatrix>
+class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::RowIterator, DefaultSubvectorFactoryTrait>
 {
     public:
-	typedef typename DenseMatrix<Element>::Row RowSubvector;
-	typedef typename DenseMatrix<Element>::ConstRow ConstRowSubvector;
-	typedef typename DenseMatrix<Element>::Col ColSubvector;
-	typedef typename DenseMatrix<Element>::ConstCol ConstColSubvector;
+	typedef typename DenseMatrix<Element>::RowIterator IteratorType;
+	typedef typename DenseMatrix<Element>::Row Subvector;
 
-	RowSubvector MakeRowSubvector (Submatrix<DenseMatrix<Element> > &M,
-				       typename DenseMatrix<Element>::RowIterator &pos)
-		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<DenseMatrix<Element> > &M,
-						 typename DenseMatrix<Element>::ConstRowIterator &pos)
-		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-
-	ColSubvector MakeColSubvector (Submatrix<DenseMatrix<Element> > &M,
-				       typename DenseMatrix<Element>::ColIterator &pos)
-		{ return ColSubvector (Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-				       Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
-	ConstColSubvector MakeConstColSubvector (const Submatrix<DenseMatrix<Element> > &M,
-						 typename DenseMatrix<Element>::ConstColIterator &pos)
-		{ return ConstColSubvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-					    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
-template <class Element>
-class SubvectorFactory<const DenseMatrix<Element> >
+template <class Element, class Submatrix>
+class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::ConstRowIterator, DefaultSubvectorFactoryTrait>
 {
     public:
-	typedef typename DenseMatrix<Element>::ConstRow RowSubvector;
-	typedef typename DenseMatrix<Element>::ConstRow ConstRowSubvector;
-	typedef typename DenseMatrix<Element>::ConstCol ColSubvector;
-	typedef typename DenseMatrix<Element>::ConstCol ConstColSubvector;
+	typedef typename DenseMatrix<Element>::ConstRowIterator IteratorType;
+	typedef typename DenseMatrix<Element>::ConstRow Subvector;
 
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const DenseMatrix<Element> > &M,
-						 typename DenseMatrix<Element>::ConstRowIterator &pos)
-		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-	ConstColSubvector MakeConstColSubvector (const Submatrix<const DenseMatrix<Element> > &M,
-						 typename DenseMatrix<Element>::ConstColIterator &pos)
-		{ return ConstColSubvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-					    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
+};
+
+template <class Element, class Submatrix>
+class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::ColIterator, DefaultSubvectorFactoryTrait>
+{
+    public:
+	typedef typename DenseMatrix<Element>::ColIterator IteratorType;
+	typedef typename DenseMatrix<Element>::Col Subvector;
+
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
+				    Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
+};
+
+template <class Element, class Submatrix>
+class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::ConstColIterator, DefaultSubvectorFactoryTrait>
+{
+    public:
+	typedef typename DenseMatrix<Element>::ConstColIterator IteratorType;
+	typedef typename DenseMatrix<Element>::ConstCol Subvector;
+
+	Subvector MakeSubvector (const Submatrix &M, IteratorType &pos)
+		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
+				    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
 };
 
 } // namespace LinBox

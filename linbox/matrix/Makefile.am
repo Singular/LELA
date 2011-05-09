@@ -17,11 +17,10 @@ BASIC_HDRS =			\
 	dense.h  		\
 	dense-rows-matrix.h	\
 	dense-zero-one.h	\
-	dense-zero-one.inl	\
 	sparse-zero-one.h	\
+	sparse-zero-one.tcc	\
 	m4ri-matrix.h		\
 	submatrix.h		\
-	submatrix.inl		\
 	matrix-domain.h		\
 	matrix-domain.tcc	\
 	matrix-domain-gf2.h	\

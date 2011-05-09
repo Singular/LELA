@@ -1,5 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* linbox/matrix/m4ri-matrix.h
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
@@ -21,6 +19,8 @@
 
 #include "linbox/matrix/matrix-domain-gf2.h"
 #include "linbox/vector/bit-subvector-word-aligned.h"
+#include "linbox/vector/bit-iterator.h"
+#include "linbox/vector/bit-subvector.h"
 #include "linbox/matrix/submatrix.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/raw-iterator.h"
@@ -154,6 +154,7 @@ class M4RIMatrixBase
 	typedef mzd_t *Rep;
         typedef M4RIMatrixBase Self_t;
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
+	struct Tag {};
 
 	typedef BitSubvectorWordAligned<word *, const word *, BigEndian<word> > Row;  
 	typedef BitSubvectorWordAligned<const word *, const word *, BigEndian<word> > ConstRow;
@@ -325,28 +326,26 @@ private:
 	friend class EchelonForm<GF2>;
 };
 
-template <>
-class SubvectorFactory<M4RIMatrixBase>
+template <class Submatrix>
+class SubvectorFactory<M4RIMatrixBase::Tag, Submatrix, M4RIMatrixBase::RowIterator, DefaultSubvectorFactoryTrait>
 {
     public:
-	typedef BitSubvector<BitVectorIterator<word *, const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > RowSubvector;
-	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > ConstRowSubvector;
+	typedef M4RIMatrixBase::RowIterator IteratorType;
+	typedef BitSubvector<BitVectorIterator<word *, const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > Subvector;
 
-	RowSubvector MakeRowSubvector (Submatrix<M4RIMatrixBase> &M, M4RIMatrixBase::RowIterator &pos)
-		{ return RowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<M4RIMatrixBase> &M, M4RIMatrixBase::ConstRowIterator &pos)
-		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
-template <>
-class SubvectorFactory<const M4RIMatrixBase>
+template <class Submatrix>
+class SubvectorFactory<M4RIMatrixBase::Tag, Submatrix, M4RIMatrixBase::ConstRowIterator, DefaultSubvectorFactoryTrait>
 {
     public:
-	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > RowSubvector;
-	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > ConstRowSubvector;
+	typedef M4RIMatrixBase::ConstRowIterator IteratorType;
+	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > Subvector;
 
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const M4RIMatrixBase> &M, M4RIMatrixBase::ConstRowIterator &pos)
-		{ return ConstRowSubvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
 /* Specialisation of Submatrix to M4RIMatrix using facilities in M4RI */
@@ -493,3 +492,12 @@ class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix>
 } // namespace LinBox
 
 #endif // __LINBOX_MATRIX_M4RI_MATRIX_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

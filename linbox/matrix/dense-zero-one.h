@@ -24,6 +24,9 @@ namespace LinBox
 {
 
 template <class Iterator, class ConstIterator, class Endianness>
+struct DenseZeroOneMatrixTag {};
+
+template <class Iterator, class ConstIterator, class Endianness>
 class DenseZeroOneMatrixRowIterator
 {
     public:
@@ -137,6 +140,8 @@ class DenseZeroOneMatrix
 	typedef BitVector<Endianness> Rep;
         typedef DenseZeroOneMatrix Self_t;
 	typedef typename std::iterator_traits<Iterator>::value_type word_type;
+	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
+	typedef DenseZeroOneMatrixTag<Iterator, ConstIterator, Endianness> Tag;
 
 	typedef DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness> RowIterator;
 	typedef DenseZeroOneMatrixRowIterator<ConstIterator, ConstIterator, Endianness> ConstRowIterator;
@@ -274,10 +279,14 @@ class DenseZeroOneMatrix
 	 * a row vector in dense format
 	 */
 
-	RowIterator rowBegin ();
-	RowIterator rowEnd ();
-	ConstRowIterator rowBegin () const;
-	ConstRowIterator rowEnd () const;
+	RowIterator rowBegin ()
+		{ return RowIterator (_begin, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp); }
+	RowIterator rowEnd ()
+		{ return RowIterator (_begin + _rows * _disp, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp); }
+	ConstRowIterator rowBegin () const
+		{ return ConstRowIterator (_begin, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp); }
+	ConstRowIterator rowEnd () const
+		{ return ConstRowIterator (_begin + _rows * _disp, (!(_cols & WordTraits<word_type>::pos_mask)) ? (_cols >> WordTraits<word_type>::logof_size) : ((_cols >> WordTraits<word_type>::logof_size) + 1), _cols, _disp); }
 
 	/** \brief
 	 *
@@ -375,36 +384,28 @@ public:
 
 #endif // !__LINBOX_HAVE_M4RI
 
-template <class Iterator, class ConstIterator, class Endianness>
-struct MatrixTraits< DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> >
+template <class Iterator, class ConstIterator, class Endianness, class Submatrix>
+class SubvectorFactory<DenseZeroOneMatrixTag<Iterator, ConstIterator, Endianness>, Submatrix, typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator, DefaultSubvectorFactoryTrait>
 {
-	typedef DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> MatrixType;
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
+    public:
+	typedef typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::RowIterator IteratorType;
+	typedef BitSubvector<BitVectorIterator<Iterator, ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > Subvector;
+
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
-template <class Iterator, class ConstIterator, class Endianness>
-struct MatrixTraits< const DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> >
-{ 
-	typedef const DenseZeroOneMatrix<Iterator, ConstIterator, Endianness> MatrixType;
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
-};
+template <class Iterator, class ConstIterator, class Endianness, class Submatrix>
+class SubvectorFactory<DenseZeroOneMatrixTag<Iterator, ConstIterator, Endianness>, Submatrix, typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator, DefaultSubvectorFactoryTrait>
+{
+    public:
+	typedef typename DenseZeroOneMatrix<Iterator, ConstIterator, Endianness>::ConstRowIterator IteratorType;
+	typedef BitSubvector<BitVectorConstIterator<ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > Subvector;
 
-template <>
-struct MatrixTraits<DenseMatrix<bool> >
-{ 
-	typedef DenseMatrix<bool> MatrixType;
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
-};
-
-template <>
-struct MatrixTraits<const DenseMatrix<bool> >
-{ 
-	typedef const DenseMatrix<bool> MatrixType;
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
 };
 
 } // namespace LinBox
-
-#include "linbox/matrix/dense-zero-one.inl"
 
 #endif // __MATRIX_DENSE_ZERO_ONE_H

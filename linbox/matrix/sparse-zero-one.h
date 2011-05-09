@@ -8,8 +8,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_matrix_sparse_zero_one_INL
-#define __LINBOX_matrix_sparse_zero_one_INL
+#ifndef __LINBOX_matrix_sparse_zero_one_H
+#define __LINBOX_matrix_sparse_zero_one_H
 
 #include "linbox/matrix/sparse.h"
 #include "linbox/vector/bit-vector.h"
@@ -20,7 +20,7 @@ namespace LinBox {
 /* Specialization for sparse zero-one vectors */
 
 template <class _Element, class _Row>
-class SparseMatrix<_Element, _Row, VectorCategories::SparseZeroOneVectorTag >
+class SparseMatrix<_Element, _Row, VectorCategories::SparseZeroOneVectorTag>
 {
 public:
 	
@@ -29,6 +29,7 @@ public:
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
+	typedef SparseMatrixTag<bool, Row, VectorCategories::SparseZeroOneVectorTag> Tag;
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
@@ -45,15 +46,16 @@ public:
     
     	template<class VectorType>
 	SparseMatrix (const SparseMatrix<Element, VectorType> &A)
-		: _A(A._m), _m (A._m), _n (A._n) {
-			typename Rep::iterator i;
-			typename SparseMatrix<Element, VectorType>::ConstRowIterator i_A;
+		: _A (A._m), _m (A._m), _n (A._n)
+	{
+		typename Rep::iterator i;
+		typename SparseMatrix<Element, VectorType>::ConstRowIterator i_A;
 
-			for (i = _A.begin (), i_A = A.rowBegin (); i != _A.end (); ++i, ++i_A) {
-				i->resize (i_A->size ());
-				std::copy (i_A->begin (), i_A->end (), i->begin ());
-			}
+		for (i = _A.begin (), i_A = A.rowBegin (); i != _A.end (); ++i, ++i_A) {
+			i->resize (i_A->size ());
+			std::copy (i_A->begin (), i_A->end (), i->begin ());
 		}
+	}
 
 	SparseMatrix (VectorStream<Row> &vs)
 		: _A (vs.size ()), _m (vs.size ()), _n (vs.dim ())
@@ -126,7 +128,7 @@ public:
 /* Specialization for hybrid zero-one vectors */
 
 template <class _Element, class _Row>
-class SparseMatrix<_Element, _Row, VectorCategories::HybridZeroOneVectorTag >
+class SparseMatrix<_Element, _Row, VectorCategories::HybridZeroOneVectorTag>
 {
 public:
 
@@ -135,6 +137,7 @@ public:
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
+	typedef SparseMatrixTag<bool, Row, VectorCategories::HybridZeroOneVectorTag> Tag;
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
 	struct rebind
@@ -229,115 +232,23 @@ protected:
 	template<class F, class R, class T> friend class SparseMatrix;
 };
 
-template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::getEntry (Element &x, size_t i, size_t j) const
-{
-	const Row &v = (*this)[i];
-
-	typename Row::const_iterator idx = std::lower_bound (v.begin (), v.end (), j);
-
-	if (idx != v.end () && *idx == j) {
-		x = true;
-		return true;
-	} else
-		return false;
-}
-
-template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEntry (Element &x, size_t i, size_t j) const
-{
-	const Row &v = (*this)[i];
-
-	typename Row::const_iterator idx;
-
-	idx = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
-
-	if (idx != v.end () && idx->first == j >> WordTraits<typename Row::word_type>::logof_size) {
-		x = idx->second & Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
-		return true;
-	} else
-		return false;
-}
-
-template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::eraseEntry (size_t i, size_t j)
-{
-	Row &v = (*this)[i];
-
-	typename Row::iterator idx = std::lower_bound (v.begin (), v.end (), j);
-
-	if (idx != v.end () && *idx == j)
-		v.erase (idx);
-}
-
-template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag >
-	::setEntry (size_t i, size_t j, const Element &value) 
-{
-	Row &v = _A[i];
-	typename Row::iterator iter;
-
-	if (value && v.size () == 0) {
-		v.push_back (j);
-	} else {
-		iter = std::lower_bound (v.begin (), v.end (), j);
-
-		if (value && (iter == v.end () || *iter != j))
-			iter = v.insert (iter, j);
-		else if (!value && iter != v.end () && *iter == j)
-			v.erase (iter);
-	}
-}
-
-template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
-	::setEntry (size_t i, size_t j, const Element &value) 
-{
-	Row &v = _A[i];
-	typename Row::iterator it;
-
-	typename Row::word_type m = Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
-
-	if (value && v.empty ()) {
-		v.push_back (typename Row::value_type (j >> WordTraits<typename Row::word_type>::logof_size, m));
-	} else {
-		it = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
-
-		if (it == v.end () || it->first != (j >> WordTraits<typename Row::word_type>::logof_size)) {
-			if (value)
-				it = v.insert (it, typename Row::value_type (j >> WordTraits<typename Row::word_type>::logof_size, m));
-		}
-		else {
-			if (value)
-				it->second |= m;
-			else {
-				it->second &= ~m;
-
-				if (!it->second)
-					v.erase (it);
-			}
-		}
-	}
-}
-
-template <class Row>
-class HybridSubvectorFactory
+template <class Row, class Trait, class Submatrix>
+class SubvectorFactory<SparseMatrixTag<bool, Row, Trait>, Submatrix, typename SparseMatrix<bool, Row, Trait>::ConstRowIterator, HybridSubvectorWordAlignedTag>
 {
     public:
-	typedef HybridSubvectorFactory<Row> Self_t;
+	typedef typename SparseMatrix<bool, Row, Trait>::ConstRowIterator IteratorType;
+	typedef SparseSubvector<typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRow, HybridSubvectorWordAlignedTag> Subvector;
 
-	typedef SparseSubvector<typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRow, HybridSubvectorWordAlignedTag> RowSubvector;
-	typedef RowSubvector ConstRowSubvector;
-
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>, Self_t> &M,
-						 typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRowIterator &pos)
-		{ return ConstRowSubvector (*pos, M.startCol () >> WordTraits<typename Row::word_type>::logof_size,
-					    (M.startCol () + M.coldim ()) >> WordTraits<typename Row::word_type>::logof_size); }
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (*pos, M.startCol () >> WordTraits<typename Row::word_type>::logof_size,
+				    (M.startCol () + M.coldim ()) >> WordTraits<typename Row::word_type>::logof_size); }
 };
 
 } // namespace LinBox
 
-#endif // __LINBOX_matrix_sparse_zero_one_INL
+#include "linbox/matrix/sparse-zero-one.tcc"
+
+#endif // __LINBOX_matrix_sparse_zero_one_H
 
 // Local Variables:
 // mode: C++

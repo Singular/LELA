@@ -58,6 +58,9 @@
 
 namespace LinBox
 {
+
+template <class _Element, class _Row, class Trait>
+struct SparseMatrixTag {};
 	
 /** Sparse matrix container
  * This class acts as a generic row-wise container for sparse
@@ -80,6 +83,7 @@ class SparseMatrix
 	typedef const Row ConstRow;
 	typedef typename _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
+	typedef SparseMatrixTag<Element, Row, Trait> Tag;
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
@@ -263,7 +267,7 @@ class SparseMatrix
 /* Specialization for sparse sequence vectors */
 
 template <class _Element, class _Row>
-class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
+class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag>
 {
     public:
 
@@ -272,6 +276,7 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
+	typedef SparseMatrixTag<Element, Row, VectorCategories::SparseVectorTag> Tag;
 
 	template <typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other>
         struct rebind
@@ -364,29 +369,26 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag >
     	template<class F, class R, class T> friend class SparseMatrix;
 };
 
-template <class Element, class Row, class Trait>
-class SubvectorFactory<SparseMatrix<Element, Row, Trait> >
+template <class Element, class Row, class Trait, class Submatrix>
+class SubvectorFactory<SparseMatrixTag<Element, Row, Trait>, Submatrix, typename SparseMatrix<Element, Row, Trait>::RowIterator, DefaultSubvectorFactoryTrait>
 {
     public:
-	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::Row, Trait> RowSubvector;
-	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> ConstRowSubvector;
+	typedef typename SparseMatrix<Element, Row, Trait>::RowIterator IteratorType;
+	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::Row, Trait> Subvector;
 
-	RowSubvector MakeRowSubvector (Submatrix<SparseMatrix<Element, Row, Trait> > &M, typename SparseMatrix<Element, Row, Trait>::RowIterator &pos)
-		{ return RowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
-
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<SparseMatrix<Element, Row, Trait> > &M, typename SparseMatrix<Element, Row, Trait>::ConstRowIterator &pos)
-		{ return ConstRowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
+	Subvector MakeSubvector (const Submatrix &M, IteratorType &pos)
+		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 };
 
-template <class Element, class Row, class Trait>
-class SubvectorFactory<const SparseMatrix<Element, Row, Trait> >
+template <class Element, class Row, class Trait, class Submatrix>
+class SubvectorFactory<SparseMatrixTag<Element, Row, Trait>, Submatrix, typename SparseMatrix<Element, Row, Trait>::ConstRowIterator, DefaultSubvectorFactoryTrait>
 {
     public:
-	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> RowSubvector;
-	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> ConstRowSubvector;
+	typedef typename SparseMatrix<Element, Row, Trait>::ConstRowIterator IteratorType;
+	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> Subvector;
 
-	ConstRowSubvector MakeConstRowSubvector (const Submatrix<const SparseMatrix<Element, Row, Trait> > &M, typename SparseMatrix<Element, Row, Trait>::ConstRowIterator &pos)
-		{ return ConstRowSubvector (*pos, M.startCol (), M.startCol () + M.coldim ());; }
+	Subvector MakeSubvector (const Submatrix &M, IteratorType &pos)
+		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 };
 
 } // namespace LinBox

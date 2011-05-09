@@ -25,19 +25,9 @@ namespace LinBox
 {
 
 template <class Matrix, class SubvectorFactory, class Trait>
-class SubmatrixRowIterator;
-
-template <class Matrix, class SubvectorFactory, class Trait>
-class SubmatrixConstRowIterator;
-
-template <class Matrix, class SubvectorFactory, class Trait>
-class SubmatrixColIterator;
-
-template <class Matrix, class SubvectorFactory, class Trait>
-class SubmatrixConstColIterator;
-
-template <class Matrix, class SubvectorFactory, class Trait>
 class Submatrix;
+
+struct DefaultSubvectorFactoryTrait {};
 
 /** Factory for subvectors
  *
@@ -48,21 +38,124 @@ class Submatrix;
  * the parent-matrix being used.
  */
 
-template <class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
+template <class MatrixTag, class Submatrix, class _IteratorType, class SFTrait>
 class SubvectorFactory {
     public:
-	typedef SubvectorFactory<Matrix, Trait> Self_t;
+	typedef SubvectorFactory<MatrixTag, Submatrix, _IteratorType, SFTrait> Self_t;
+	typedef _IteratorType IteratorType;
 
-	class RowSubvector;
-	class ConstRowSubvector;
-	class ColSubvector;
-	class ConstColSubvector;
+	class Subvector;
 
-	virtual RowSubvector MakeRowSubvector (Submatrix<Matrix, Self_t, Trait> &M, const typename Matrix::RowIterator &pos) = 0;
-	virtual ConstRowSubvector MakeConstRowSubvector (const Submatrix<Matrix, Self_t, Trait> &M, const typename Matrix::ConstRowIterator &pos) = 0;
+	virtual Subvector MakeSubvector (Submatrix &M, const IteratorType &pos) = 0;
+};
 
-	virtual ColSubvector MakeColSubvector (Submatrix<Matrix, Self_t, Trait> &M, const typename Matrix::ColIterator &pos) = 0;
-	virtual ConstColSubvector MakeConstColSubvector (const Submatrix<Matrix, Self_t, Trait> &M, const typename Matrix::ConstColIterator &pos) = 0;
+template <class Submatrix, class SubvectorFactory, class Trait>
+class SubmatrixRowColIteratorPT {
+public:
+	typedef std::random_access_iterator_tag iterator_category;
+	typedef typename SubvectorFactory::Subvector &reference;
+	typedef typename SubvectorFactory::Subvector *pointer;
+	typedef typename SubvectorFactory::Subvector value_type;
+	typedef ptrdiff_t difference_type;
+
+	SubmatrixRowColIteratorPT () {}
+
+	SubmatrixRowColIteratorPT (Submatrix *M, typename SubvectorFactory::IteratorType pos)
+		: _M (M), _pos (pos), _row_valid (false) {}
+
+	SubmatrixRowColIteratorPT (const SubmatrixRowColIteratorPT &i) : _M (i._M), _pos (i._pos), _row (i._row), _row_valid (i._row_valid) {}
+
+	SubmatrixRowColIteratorPT &operator = (const SubmatrixRowColIteratorPT &i)
+	{
+		_M = i._M;
+		_pos = i._pos;
+		_row = i._row;
+		_row_valid = i._row_valid;
+		return *this;
+	}
+
+	SubmatrixRowColIteratorPT &operator ++ () 
+	{
+		++_pos;
+		_row_valid = false;
+		return *this;
+	}
+
+	SubmatrixRowColIteratorPT operator ++ (int) 
+	{
+		SubmatrixRowColIteratorPT tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	SubmatrixRowColIteratorPT operator + (difference_type i)
+		{ return SubmatrixRowColIteratorPT (_M, _pos + i); }
+
+	SubmatrixRowColIteratorPT &operator += (difference_type i) 
+	{
+		_pos += i;
+		_row_valid = false;
+		return *this;
+	}
+
+	SubmatrixRowColIteratorPT &operator -- () 
+	{
+		--_pos;
+		_row_valid = false;
+		return *this;
+	}
+
+	SubmatrixRowColIteratorPT operator -- (int) 
+	{
+		SubmatrixRowColIteratorPT tmp (*this);
+		--*this;
+		return tmp;
+	}
+
+	SubmatrixRowColIteratorPT operator - (difference_type i) const
+		{ return *this + -i; }
+
+	SubmatrixRowColIteratorPT &operator -= (difference_type i) 
+		{ return *this += -i; }
+
+	difference_type operator - (SubmatrixRowColIteratorPT &i) const 
+		{ return _pos - i._pos; }
+
+	reference operator [] (long i) const
+		{ return *(*this + i); }
+
+	const reference operator * ()
+		{ update_row (); return _row; }
+
+	const pointer operator -> ()
+		{ update_row (); return &_row; }
+
+	bool operator == (const SubmatrixRowColIteratorPT &c) const 
+		{ return (_pos == c._pos); }
+
+	bool operator != (const SubmatrixRowColIteratorPT &c) const 
+		{ return (_pos != c._pos); }
+
+	template <class SM, class SF, class T>
+	operator SubmatrixRowColIteratorPT<SM, SF, T> ()
+		{ return SubmatrixRowColIteratorPT<SM, SF, T> (_M, _pos); }
+
+private:
+	template <class SM, class SF, class T>
+	friend class SubmatrixRowColIteratorPT;
+
+	Submatrix *_M;
+	typename SubvectorFactory::IteratorType _pos;
+	value_type _row;
+	bool _row_valid;
+
+	inline void update_row ()
+	{
+		if (!_row_valid) {
+			_row = (SubvectorFactory ()).MakeSubvector (*_M, _pos);
+			_row_valid = true;
+		}
+	}
 };
 
 /** Generic submatrix
@@ -73,16 +166,14 @@ class SubvectorFactory {
 
 \ingroup matrix
  */
-template<class _Matrix,
-	 class _SubvectorFactory = SubvectorFactory<_Matrix, typename MatrixIteratorTypes<typename MatrixTraits<_Matrix>::MatrixCategory>::MatrixCategory>,
-	 class Trait = typename MatrixIteratorTypes<typename MatrixTraits<_Matrix>::MatrixCategory>::MatrixCategory>
+template<class _Matrix, class SFTrait = DefaultSubvectorFactoryTrait, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<_Matrix>::MatrixCategory>::MatrixCategory>
 class Submatrix
 {
     public:
  
 	typedef _Matrix Matrix;
-	typedef _SubvectorFactory SubvectorFactory;
-        typedef Submatrix<Matrix, SubvectorFactory, Trait> Self_t;
+        typedef Submatrix<Matrix, SFTrait, Trait> Self_t;
+	typedef typename Matrix::Tag Tag;
 
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
@@ -94,10 +185,10 @@ class Submatrix
 	 * matrix in ascending order. Dereferencing the iterator yields
 	 * a row vector in dense format
 	 */
-	typedef SubmatrixRowIterator<Matrix, SubvectorFactory, Trait> RowIterator;
-	typedef SubmatrixConstRowIterator<Matrix, SubvectorFactory, Trait> ConstRowIterator;
-	typedef typename SubvectorFactory::RowSubvector Row;
-	typedef const typename SubvectorFactory::ConstRowSubvector ConstRow;
+	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::RowIterator, SFTrait>, Trait> RowIterator;
+	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstRowIterator, SFTrait>, Trait> ConstRowIterator;
+	typedef typename SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::RowIterator, SFTrait>::Subvector Row;
+	typedef const typename SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstRowIterator, SFTrait>::Subvector ConstRow;
 
 	/** \brief
 	 *
@@ -105,10 +196,10 @@ class Submatrix
 	 * matrix in ascending order. Dereferencing the iterator yields
 	 * a column vector in dense format
 	 */
-	typedef SubmatrixColIterator<Matrix, SubvectorFactory, Trait> ColIterator;
-	typedef SubmatrixConstColIterator<Matrix, SubvectorFactory, Trait> ConstColIterator;
-	typedef typename SubvectorFactory::ColSubvector Col;
-	typedef const typename SubvectorFactory::ConstColSubvector ConstCol;
+	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::ColIterator, SFTrait>, Trait> ColIterator;
+	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstColIterator, SFTrait>, Trait> ConstColIterator;
+	typedef typename SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::ColIterator, SFTrait>::Subvector Col;
+	typedef const typename SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstColIterator, SFTrait>::Subvector ConstCol;
 
 	typedef Col Column;
 
@@ -207,15 +298,23 @@ class Submatrix
 	bool getEntry (Element &x, size_t i, size_t j) const
 		{ return _M->getEntry (x, i + _beg_row, j + _beg_col); } 
 
-	RowIterator rowBegin ();
-	RowIterator rowEnd ();
-	ConstRowIterator rowBegin () const;
-	ConstRowIterator rowEnd () const;
+	RowIterator rowBegin ()
+		{ return RowIterator (this, _M->rowBegin () + _beg_row); }
+	RowIterator rowEnd ()
+		{ return RowIterator (this, _M->rowBegin () + _end_row); }
+	ConstRowIterator rowBegin () const
+		{ return ConstRowIterator (this, _M->rowBegin () + _beg_row); }
+	ConstRowIterator rowEnd () const
+		{ return ConstRowIterator (this, _M->rowBegin () + _end_row); }
  
-	ColIterator colBegin ();
-	ColIterator colEnd ();
-	ConstColIterator colBegin () const;
-	ConstColIterator colEnd () const;
+	ColIterator colBegin ()
+		{ return ColIterator (this, _M->colBegin () + _beg_col); }
+	ColIterator colEnd ()
+		{ return ColIterator (this, _M->colBegin () + _end_col); }
+	ConstColIterator colBegin () const
+		{ return ConstColIterator (this, _M->colBegin () + _beg_col); }
+	ConstColIterator colEnd () const
+		{ return ConstColIterator (this, _M->colBegin () + _end_col); }
 
 	/** \brief
 	 *
@@ -254,9 +353,6 @@ class Submatrix
 	inline size_t startRow () const { return _beg_row; }
 	inline size_t startCol () const { return _beg_col; }
 
-	friend class SubmatrixRowIterator<Matrix, SubvectorFactory, MatrixCategories::RowMatrixTag>;
-	friend class SubmatrixConstRowIterator<Matrix, SubvectorFactory, MatrixCategories::RowMatrixTag>;
-
     protected:
 
 	Matrix *_M;
@@ -268,23 +364,23 @@ class Submatrix
 
 /// Specialisation for matrices indexed only by rows
 
-template <class _Matrix, class _SubvectorFactory>
-class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::RowMatrixTag>
+template <class _Matrix, class SFTrait>
+class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 {
     public:
  
 	typedef _Matrix Matrix;
-	typedef _SubvectorFactory SubvectorFactory;
-        typedef Submatrix<Matrix, SubvectorFactory, MatrixCategories::RowMatrixTag> Self_t;
+        typedef Submatrix<Matrix, SFTrait, MatrixCategories::RowMatrixTag> Self_t;
+	typedef typename Matrix::Tag Tag;
 
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
 	typedef typename Matrix::Element Element;
 
-	typedef SubmatrixRowIterator<Matrix, SubvectorFactory, MatrixCategories::RowMatrixTag> RowIterator;
-	typedef SubmatrixConstRowIterator<Matrix, SubvectorFactory, MatrixCategories::RowMatrixTag> ConstRowIterator;
-	typedef typename SubvectorFactory::RowSubvector Row;
-	typedef const typename SubvectorFactory::ConstRowSubvector ConstRow;
+	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::RowIterator, SFTrait>, MatrixCategories::RowMatrixTag> RowIterator;
+	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstRowIterator, SFTrait>, MatrixCategories::RowMatrixTag> ConstRowIterator;
+	typedef typename SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::RowIterator, SFTrait>::Subvector Row;
+	typedef const typename SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstRowIterator, SFTrait>::Subvector ConstRow;
 
 	Submatrix () {}
 
@@ -331,10 +427,14 @@ class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::RowMatrixTag>
 	bool getEntry (Element &x, size_t i, size_t j) const
 		{ return _M->getEntry (x, i + _beg_row, j + _beg_col); } 
 
-	inline RowIterator rowBegin ();
-	inline RowIterator rowEnd ();
-	inline ConstRowIterator rowBegin () const;
-	inline ConstRowIterator rowEnd () const;
+	inline RowIterator rowBegin ()
+		{ return RowIterator (this, _M->rowBegin () + _beg_row); }
+	inline RowIterator rowEnd ()
+		{ return RowIterator (this, _M->rowBegin () + _end_row); }
+	inline ConstRowIterator rowBegin () const
+		{ return ConstRowIterator (this, _M->rowBegin () + _beg_row); }
+	inline ConstRowIterator rowEnd () const
+		{ return ConstRowIterator (this, _M->rowBegin () + _end_row); }
 
 	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
@@ -355,8 +455,6 @@ class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::RowMatrixTag>
 	inline size_t startCol () const { return _beg_col; }
 
     protected:
-	friend class SubmatrixRowIterator<Matrix, SubvectorFactory, MatrixCategories::RowMatrixTag>;
-	friend class SubmatrixConstRowIterator<Matrix, SubvectorFactory, MatrixCategories::RowMatrixTag>;
 
 	Matrix *_M;
 	size_t _beg_row;
@@ -367,23 +465,24 @@ class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::RowMatrixTag>
 
 /// Specialisation for matrices indexed only by columns
 
-template <class _Matrix, class _SubvectorFactory>
-class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::ColMatrixTag>
+template <class _Matrix, class SFTrait>
+class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 {
     public:
  
 	typedef _Matrix Matrix;
-	typedef _SubvectorFactory SubvectorFactory;
-        typedef Submatrix<Matrix, SubvectorFactory, MatrixCategories::ColMatrixTag> Self_t;
+        typedef Submatrix<Matrix, SFTrait, MatrixCategories::ColMatrixTag> Self_t;
+	typedef typename Matrix::Tag Tag;
 
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
 	typedef typename Matrix::Element Element;
 
-	typedef SubmatrixColIterator<Matrix, SubvectorFactory, MatrixCategories::ColMatrixTag> ColIterator;
-	typedef SubmatrixConstColIterator<Matrix, SubvectorFactory, MatrixCategories::ColMatrixTag> ConstColIterator;
-	typedef typename SubvectorFactory::ColSubvector Col;
-	typedef const typename SubvectorFactory::ConstColSubvector ConstCol;
+	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::ColIterator, SFTrait>, MatrixCategories::ColMatrixTag> ColIterator;
+	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstColIterator, SFTrait>, MatrixCategories::ColMatrixTag> ConstColIterator;
+	typedef typename SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::ColIterator, SFTrait>::Subvector Col;
+	typedef const typename SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstColIterator, SFTrait>::Subvector ConstCol;
+
 	typedef Col Column;
 
 	Submatrix () {}
@@ -431,10 +530,14 @@ class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::ColMatrixTag>
 	bool getEntry (Element &x, size_t i, size_t j) const
 		{ return _M->getEntry (x, i + _beg_row, j + _beg_col); } 
 
-	inline ColIterator colBegin ();
-	inline ColIterator colEnd ();
-	inline ConstColIterator colBegin () const;
-	inline ConstColIterator colEnd () const;
+	ColIterator colBegin ()
+		{ return ColIterator (this, _M->colBegin () + _beg_col); }
+	ColIterator colEnd ()
+		{ return ColIterator (this, _M->colBegin () + _end_col); }
+	ConstColIterator colBegin () const
+		{ return ConstColIterator (this, _M->colBegin () + _beg_col); }
+	ConstColIterator colEnd () const
+		{ return ConstColIterator (this, _M->colBegin () + _end_col); }
 
 	typedef MatrixRawIterator<ConstColIterator, typename ElementVectorTraits<Element, Column>::VectorCategory> RawIterator;
 	typedef RawIterator ConstRawIterator;
@@ -455,8 +558,6 @@ class Submatrix<_Matrix, _SubvectorFactory, MatrixCategories::ColMatrixTag>
 	inline size_t startCol () const { return _beg_col; }
 
     protected:
-	friend class SubmatrixColIterator<Matrix, SubvectorFactory, MatrixCategories::ColMatrixTag>;
-	friend class SubmatrixConstColIterator<Matrix, SubvectorFactory, MatrixCategories::ColMatrixTag>;
 
 	Matrix *_M;
 	size_t _beg_row;
@@ -472,8 +573,6 @@ struct RealMatrixType<Submatrix<Matrix, SubvectorFactory, Trait> >
 };
 
 } // namespace LinBox
-
-#include "linbox/matrix/submatrix.inl"
 
 #endif // __MATRIX_SUBMATRIX_H
 
