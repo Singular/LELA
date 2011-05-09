@@ -1,5 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* linbox/matrix/matrix-domain-gf2.h
  * Copyright 2010 Bradford Hovinen
  *
@@ -459,7 +457,7 @@ class MatrixDomainSupport<const GF2> : public MatrixDomainSupportGF2
 
 } // namespace LinBox
 
-#include "linbox/matrix/matrix-domain-gf2.inl"
+#include "linbox/matrix/matrix-domain-gf2.tcc"
 
 #endif // __MATRIX_MATRIX_DOMAIN_GF2_H
 

@@ -1,15 +1,9 @@
 /* linbox/matrix/matrix-domain.h
- * Copyright (C) 2002 Zhendong Wan, Bradford Hovinen
+ * Copyright 2002 Zhendong Wan, Bradford Hovinen
  *
  * Written by Zhendong Wan <wan@mail.eecis.udel.edu>,
- *            Bradford Hovinen <bghovinen@math.uwaterloo.ca>
+ *            Bradford Hovinen <hovinen@gmail.com>
  *
- * ------------------------------------------------------------
- * 2002-11-26  Bradford Hovinen  <bghovinen@math.uwaterloo.ca>
- *
- * Added detailed documentation, cleaned up the interface slightly, and added
- * support for matrix traits. Added read, write, neg, negin, axpy, and
- * matrix-vector and matrix-black box operations.
  * ------------------------------------------------------------
  *
  * See COPYING for license information.
@@ -710,7 +704,7 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 
 } // namespace LinBox
 
-#include "linbox/matrix/matrix-domain.inl"
+#include "linbox/matrix/matrix-domain.tcc"
 
 #endif // __LINBOX_matrix_domain_H
 

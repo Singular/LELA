@@ -1,4 +1,4 @@
-/* linbox/vector/vector-domain-gf2.h
+/* linbox/vector/vector-domain-gf2.tcc
  * Copyright 2003, 2011 Bradford Hovinen
  *
  * Written by Bradford Hovinen, Dumas, bds
@@ -8,8 +8,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_VECTOR_DOMAIN_GF2_INL
-#define __LINBOX_VECTOR_DOMAIN_GF2_INL
+#ifndef __LINBOX_VECTOR_DOMAIN_GF2_TCC
+#define __LINBOX_VECTOR_DOMAIN_GF2_TCC
 
 namespace LinBox 
 { 
@@ -754,7 +754,7 @@ inline int VectorDomain<GF2>::firstNonzeroEntrySpecialized (bool &a, const Vecto
 
 } // namespace LinBox
 
-#endif // __LINBOX_VECTOR_DOMAIN_GF2_INL
+#endif // __LINBOX_VECTOR_DOMAIN_GF2_TCC
 
 // Local Variables:
 // mode: C++

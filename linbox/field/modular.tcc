@@ -1,7 +1,7 @@
-/* linbox/field/modular.inl
- * Copyright (C) 2002 Bradford Hovinen
- * Copyright (C) 2002 Ahmet Duran
- * Copyright (C) 2002 B. David Saunders
+/* linbox/field/modular.tcc
+ * Copyright 2002 Bradford Hovinen
+ * Copyright 2002 Ahmet Duran
+ * Copyright 2002 B. David Saunders
  *
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
  *            Ahmet Duran <duran@cis.udel.edu>,
@@ -12,8 +12,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_field_modular_INL
-#define __LINBOX_field_modular_INL
+#ifndef __LINBOX_field_modular_TCC
+#define __LINBOX_field_modular_TCC
 
 //Dan Roche 7-2-04
 #ifndef __LINBOX_MIN
@@ -594,7 +594,7 @@ Vector2 &MVProductDomain<Modular<uint32> >::gemvColDenseSpecialized
 
 } // namespace LinBox
 
-#endif // __LINBOX_field_modular_INL
+#endif // __LINBOX_field_modular_TCC
 
 // Local Variables:
 // mode: C++

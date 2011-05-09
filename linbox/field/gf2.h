@@ -15,11 +15,12 @@
 #include <climits>
 #include <cmath>
 
+#include "linbox/linbox-config.h"
+#include "linbox/util/debug.h"
 #include "linbox/integer.h"
 #include "linbox/field/field-interface.h"
-#include "linbox/util/debug.h"
-#include "linbox/vector/bit-iterator.h"
-#include "linbox/linbox-config.h"
+#include "linbox/vector/bit-vector.h"
+#include "linbox/vector/hybrid.h"
 #include "linbox/field/field-traits.h"
 
 // Namespace in which all LinBox code resides
@@ -606,6 +607,46 @@ class GF2 : public FieldInterface
 
 }; // class GF2
 
+// Specialization of canonical vector types
+
+template <>
+class RawVector<bool>
+{
+    public:
+	typedef BitVector<BigEndian<uint64> > Dense;
+	typedef std::vector<size_t> Sparse;
+	typedef HybridVector<BigEndian<uint64>, uint16, uint64> Hybrid;
+};
+
+// Vector traits for hybrid sparse-dense format
+template <> 
+struct GF2VectorTraits<HybridVector<BigEndian<uint64>, uint16, uint64> >
+{ 
+	typedef HybridVector<BigEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <>
+struct GF2VectorTraits<const HybridVector<BigEndian<uint64>, uint16, uint64> >
+{ 
+	typedef const HybridVector<BigEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <> 
+struct GF2VectorTraits<HybridVector<LittleEndian<uint64>, uint16, uint64> >
+{ 
+	typedef HybridVector<LittleEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
+template <>
+struct GF2VectorTraits<const HybridVector<LittleEndian<uint64>, uint16, uint64> >
+{ 
+	typedef const HybridVector<LittleEndian<uint64>, uint16, uint64> VectorType;
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+};
+
 } // namespace LinBox
 
 // #include <bits/stl_bvector.h>
@@ -620,9 +661,14 @@ namespace std
 	}
 }
 
-
 #include "linbox/randiter/gf2.h"
-#include "linbox/field/gf2.inl"
+
+#include "linbox/vector/vector-domain-gf2.h"
+#include "linbox/matrix/matrix-domain-gf2.h"
+
+#ifdef __LINBOX_HAVE_M4RI
+#  include "linbox/matrix/m4ri-matrix.h"
+#endif
 
 #endif // __LINBOX_field_gf2_H
 

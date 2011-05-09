@@ -1,4 +1,4 @@
-/* linbox/algorithms/gauss-jordan.inl
+/* linbox/algorithms/gauss-jordan.tcc
  * Copyright 2010, 2011 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
@@ -10,8 +10,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_ALGORITHMS_GAUSS_JORDAN_INL
-#define __LINBOX_ALGORITHMS_GAUSS_JORDAN_INL
+#ifndef __LINBOX_ALGORITHMS_GAUSS_JORDAN_TCC
+#define __LINBOX_ALGORITHMS_GAUSS_JORDAN_TCC
 
 #include "linbox/algorithms/gauss-jordan.h"
 
@@ -1069,7 +1069,7 @@ void GaussJordan<Field>::RunTests () const
 
 } // namespace LinBox
 
-#endif // __LINBOX_ALGORITHMS_GAUSS_JORDAN_INL
+#endif // __LINBOX_ALGORITHMS_GAUSS_JORDAN_TCC
 
 // Local Variables:
 // mode: C++

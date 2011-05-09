@@ -1,6 +1,4 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
-/* linbox/field/matrix-domain-gf2.inl
+/* linbox/field/matrix-domain-gf2.tcc
  * Copyright 2010 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
@@ -10,8 +8,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __MATRIX_MATRIX_DOMAIN_GF2_INL
-#define __MATRIX_MATRIX_DOMAIN_GF2_INL
+#ifndef __MATRIX_MATRIX_DOMAIN_GF2_TCC
+#define __MATRIX_MATRIX_DOMAIN_GF2_TCC
 
 #include "linbox/util/error.h"
 
@@ -649,7 +647,15 @@ Matrix &MatrixDomainSupportGF2::permuteColsByRow (Matrix   &A,
 	return A;
 }
 
-}
+} // namespace LinBox
 
-#endif // __MATRIX_MATRIX_DOMAIN_GF2_INL
+#endif // __MATRIX_MATRIX_DOMAIN_GF2_TCC
 
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

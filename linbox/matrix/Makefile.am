@@ -8,8 +8,8 @@ BASIC_HDRS =			\
 	matrix-category.h	\
 	matrix-traits.h		\
 	io.h			\
-	io.inl			\
-	io-png.inl		\
+	io.tcc			\
+	io-png.tcc		\
 	raw-iterator.h		\
 	sparse.h		\
 	sparse.inl		\
@@ -25,9 +25,9 @@ BASIC_HDRS =			\
 	submatrix.h		\
 	submatrix.inl		\
 	matrix-domain.h		\
-	matrix-domain.inl	\
+	matrix-domain.tcc	\
 	matrix-domain-gf2.h	\
-	matrix-domain-gf2.inl	\
+	matrix-domain-gf2.tcc	\
 	matrix-domain-m4ri.h	\
 	blas-matrix.h		\
 	factorized-matrix.h	\

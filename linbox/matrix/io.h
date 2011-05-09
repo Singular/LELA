@@ -221,7 +221,7 @@ private:
 
 } // namespace LinBox
 
-#include "linbox/matrix/io.inl"
+#include "linbox/matrix/io.tcc"
 
 #endif // __LINBOX_MATRIX_IO_H
 

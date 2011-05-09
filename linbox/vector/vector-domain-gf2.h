@@ -475,7 +475,7 @@ class VectorDomain<GF2> : private virtual VectorDomainBase<GF2>
 
 #endif // __LINBOX_VECTOR_DOMAIN_GF2_H
 
-#include "linbox/vector/vector-domain-gf2.inl"
+#include "linbox/vector/vector-domain-gf2.tcc"
 
 // Local Variables:
 // mode: C++

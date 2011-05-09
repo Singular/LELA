@@ -831,7 +831,7 @@ protected:
 
 } // namespace LinBox
 
-#include "linbox/vector/vector-domain.inl"
+#include "linbox/vector/vector-domain.tcc"
 
 #endif // __LINBOX_field_vector_domain_H
 

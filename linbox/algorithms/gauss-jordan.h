@@ -347,7 +347,7 @@ public:
 
 } // namespace LinBox
 
-#include "linbox/algorithms/gauss-jordan.inl"
+#include "linbox/algorithms/gauss-jordan.tcc"
 
 #endif // __LINBOX_ALGORITHMS_GAUSS_JORDAN_H
 

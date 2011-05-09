@@ -1,15 +1,15 @@
-/* linbox/matrix/matrix-domain.inl
+/* linbox/matrix/matrix-domain.tcc
  * Copyright 2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
  *
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_matrix_domain_INL
-#define __LINBOX_matrix_domain_INL
+#ifndef __LINBOX_matrix_domain_TCC
+#define __LINBOX_matrix_domain_TCC
 
 #include "linbox/matrix/transpose-matrix.h"
 
@@ -764,7 +764,7 @@ Matrix &MatrixDomainSupportGeneric<Field>::permuteColsByCol (Matrix   &A,
 
 } // namespace LinBox
 
-#endif // __LINBOX_matrix_domain_INL
+#endif // __LINBOX_matrix_domain_TCC
 
 // Local Variables:
 // mode: C++

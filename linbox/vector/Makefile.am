@@ -26,6 +26,6 @@ pkgincludesub_HEADERS=		\
 	sparse-subvector-hybrid.h	\
 	sparse-subvector-hybrid.inl	\
 	vector-domain.h		\
-	vector-domain.inl	\
+	vector-domain.tcc	\
 	vector-domain-gf2.h	\
-	vector-domain-gf2.inl
+	vector-domain-gf2.tcc

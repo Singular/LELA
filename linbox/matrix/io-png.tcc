@@ -1,4 +1,4 @@
-/* linbox/matrix/io-png.inl
+/* linbox/matrix/io-png.tcc
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
@@ -6,8 +6,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_MATRIX_IO_PNG_INL
-#define __LINBOX_MATRIX_IO_PNG_INL
+#ifndef __LINBOX_MATRIX_IO_PNG_TCC
+#define __LINBOX_MATRIX_IO_PNG_TCC
 
 #ifndef __LINBOX_HAVE_LIBPNG
 #  error "This header file requires that LinBox be configured with libpng enabled. Please ensure that libpng is properly installed and re-run configure."
@@ -320,7 +320,7 @@ std::ostream &MatrixWriter<Field>::writePNGSpecialised (std::ostream &os, const 
 
 }
 
-#endif // __LINBOX_MATRIX_IO_PNG_INL
+#endif // __LINBOX_MATRIX_IO_PNG_TCC
 
 // Local Variables:
 // mode: C++

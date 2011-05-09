@@ -1,4 +1,4 @@
-/* linbox/matrix/io.inl
+/* linbox/matrix/io.tcc
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
@@ -6,8 +6,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_MATRIX_IO_INL
-#define __LINBOX_MATRIX_IO_INL
+#ifndef __LINBOX_MATRIX_IO_TCC
+#define __LINBOX_MATRIX_IO_TCC
 
 #include <sstream>
 #include <cmath>
@@ -541,10 +541,10 @@ std::ostream &MatrixWriter<Field>::writePretty (std::ostream &os, const Matrix &
 } // namespace LinBox
 
 #ifdef __LINBOX_HAVE_LIBPNG
-#  include "linbox/matrix/io-png.inl"
+#  include "linbox/matrix/io-png.tcc"
 #endif // __LINBOX_HAVE_LIBPNG
 
-#endif // __LINBOX_MATRIX_IO_INL
+#endif // __LINBOX_MATRIX_IO_TCC
 
 // Local Variables:
 // mode: C++
