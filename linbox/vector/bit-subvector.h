@@ -1,5 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* linbox/vector/bit-subvector.h
  * Copyright 2010 Bradford Hovinen
  *
@@ -23,12 +21,6 @@
 namespace LinBox
 {
 
-template <class Iterator, class ConstIterator = Iterator>
-class BitSubvectorWordIterator;
-
-template <class Iterator, class ConstIterator = Iterator>
-class BitSubvectorConstWordIterator;
-
 /** A subvector of a BitVector. The interface is identical to that of \ref BitVector.
  \ingroup vector
  */
@@ -42,6 +34,7 @@ class BitSubvector
 	typedef typename std::iterator_traits<Iterator>::reference	 reference;
 	typedef Iterator iterator;
 	typedef ConstIterator const_iterator;
+	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
 
 	typedef typename std::iterator_traits<iterator>::size_type	 size_type;
 	typedef typename std::iterator_traits<const_iterator>::const_reference const_reference;
@@ -50,15 +43,15 @@ class BitSubvector
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	class word_reference;
-	typedef BitSubvectorWordIterator<Iterator, ConstIterator> word_iterator;
-	typedef BitSubvectorConstWordIterator<Iterator, ConstIterator> const_word_iterator;
+	class word_iterator;
+	class const_word_iterator;
 
 	typedef std::reverse_iterator<word_iterator> reverse_word_iterator;
 	typedef std::reverse_iterator<const_word_iterator> const_reverse_word_iterator;
 
 	friend class word_reference;
-	friend class BitSubvectorConstWordIterator<Iterator, ConstIterator>;
-	friend class BitSubvectorWordIterator<Iterator, ConstIterator>;
+	friend class word_iterator;
+	friend class const_word_iterator;
 
 	typedef typename Iterator::Endianness Endianness;
 	typedef typename std::iterator_traits<word_iterator>::value_type word_type;
@@ -157,26 +150,326 @@ class BitSubvector
 			++_end_marker;
 	}
 
+    public:
+
+	class word_reference
+	{
+	public:
+		typedef typename std::iterator_traits<typename Iterator::word_iterator>::value_type word;
+		typedef typename Iterator::Endianness Endianness;
+
+		word_reference () {}
+
+		word_reference (typename Iterator::word_iterator position, uint8 shift)
+			: _pos (position), _shift (shift)
+			{}
+
+		~word_reference () {}
+
+		word_reference &operator = (word_reference &a)
+		{
+			*this = (word) a;
+			return a;
+		}
+
+		word_reference &operator = (word v)
+		{
+			v &= _mask;
+
+			*_pos = (*_pos & (Endianness::shift_right (~_mask, _shift) | Endianness::mask_left (_shift))) | Endianness::shift_right (v, _shift);
+
+			if (_shift != 0 && !_just_this_word)
+				_pos[1] = (_pos[1] & (~Endianness::shift_left (_mask, WordTraits<word>::bits - _shift) | Endianness::mask_right (_shift))) |
+					Endianness::shift_left (v, WordTraits<word>::bits - _shift);
+
+			return *this;
+		}
+
+		word_reference &operator &= (word_reference &a)
+			{ return *this = (word) *this & (word) a; }
+
+		word_reference &operator &= (word v) 
+			{ return *this = (word) *this & v; }
+
+		word_reference &operator |= (word_reference &a) 
+			{ return *this = (word) *this | (word) a; }
+
+		word_reference &operator |= (word v) 
+			{ return *this = (word) *this | v; }
+
+		word_reference &operator ^= (word_reference &a) 
+			{ return *this = ((word) *this) ^ ((word) a); }
+
+		word_reference &operator ^= (word v) 
+			{ return *this = ((word) *this) ^ v; }
+
+		operator word (void) const
+			{ return (Endianness::shift_left (*_pos, _shift) | ((_just_this_word || _shift == 0) ? 0 : Endianness::shift_right (_pos[1], WordTraits<word>::bits - _shift))) & _mask; }
+
+	private:
+		friend class word_iterator;
+		friend class const_word_iterator;
+		friend class const_word_reference;
+
+		typename Iterator::word_iterator _pos;
+		uint8 _shift;
+
+		word _mask;
+		bool _just_this_word;
+	};
+
+	class word_iterator
+	{
+	public:
+		typedef std::random_access_iterator_tag iterator_category;
+		typedef typename BitSubvector<Iterator, ConstIterator>::word_reference reference;
+		typedef typename BitSubvector<Iterator, ConstIterator>::word_reference *pointer;
+		typedef typename std::iterator_traits<typename Iterator::word_iterator>::value_type value_type;
+		typedef typename std::iterator_traits<typename Iterator::word_iterator>::difference_type difference_type;
+		typedef typename Iterator::Endianness Endianness;
+
+		word_iterator () {}
+		word_iterator (BitSubvector<Iterator, ConstIterator> &v, typename Iterator::word_iterator pos)
+			: _v (&v), _ref (pos, v._begin.pos ()) { init_mask (); }
+		word_iterator (const word_iterator &i)
+			: _v (i._v), _ref (i._ref._pos, i._ref._shift) { init_mask (); }
+
+		word_iterator &operator = (const word_iterator &i)
+		{
+			_v = i._v;
+			_ref._pos = i._ref._pos;
+			_ref._shift = i._ref._shift;
+			_ref._mask = i._ref._mask;
+			_ref._just_this_word = i._ref._just_this_word;
+			return *this;
+		}
+
+		word_iterator &operator ++ () 
+		{
+			++_ref._pos;
+			update_mask ();
+			return *this;
+		}
+
+		word_iterator operator ++ (int) 
+		{
+			word_iterator tmp (*this);
+			++*this;
+			return tmp;
+		}
+
+		word_iterator operator + (difference_type i) const
+			{ return word_iterator (*const_cast<BitSubvector<Iterator, ConstIterator> *> (_v), _ref._pos + i); }
+
+		word_iterator &operator += (difference_type i) 
+		{
+			_ref._pos += i;
+			init_mask ();
+			return *this;
+		}
+
+		word_iterator &operator -- () 
+		{
+			--_ref._pos;
+			init_mask ();
+			return *this;
+		}
+
+		word_iterator operator -- (int) 
+		{
+			word_iterator tmp (*this);
+			--*this;
+			return tmp;
+		}
+
+		word_iterator operator - (difference_type i) const
+			{ return *this + -i; }
+
+		word_iterator &operator -= (difference_type i) 
+			{ return *this += -i; }
+
+		difference_type operator - (word_iterator &i) const 
+			{ return _ref._pos - i._ref._pos; }
+
+		typename BitSubvector<Iterator, ConstIterator>::word_reference operator [] (long i) 
+			{ return *(*this + i); }
+
+		typename BitSubvector<Iterator, ConstIterator>::word_reference operator * () 
+			{ return _ref; }
+
+		typename BitSubvector<Iterator, ConstIterator>::word_reference *operator -> () 
+			{ return &_ref; }
+
+		value_type operator * () const 
+			{ return _ref; }
+
+		bool operator == (const word_iterator &c) const 
+			{ return (_ref._pos == c._ref._pos); }
+
+		bool operator != (const word_iterator &c) const 
+			{ return (_ref._pos != c._ref._pos); }
+
+	private:
+		friend class const_word_iterator;
+
+		BitSubvector<Iterator, ConstIterator> *_v;
+		word_reference _ref;
+
+		inline void init_mask ()
+		{
+			_ref._mask = (value_type) 0 - (value_type) 1;
+			update_mask ();
+		}
+
+		inline void update_mask ()
+		{
+			if (((_ref._pos - _v->_begin.word () + 1) << WordTraits<value_type>::logof_size) > _v->_end - _v->_begin)
+				_ref._mask = Endianness::mask_left ((_v->_end - _v->_begin) & WordTraits<value_type>::pos_mask);
+
+			if (_ref._pos + 1 == _v->_end_marker)
+				_ref._just_this_word = true;
+			else
+				_ref._just_this_word = false;
+		}
+	};
+
+	class const_word_iterator
+	{
+	public:
+		typedef std::random_access_iterator_tag iterator_category;
+		typedef typename BitSubvector<Iterator, ConstIterator>::word_reference reference;
+		typedef typename BitSubvector<Iterator, ConstIterator>::word_reference *pointer;
+		typedef typename std::iterator_traits<typename Iterator::const_word_iterator>::value_type value_type;
+		typedef typename std::iterator_traits<typename Iterator::const_word_iterator>::difference_type difference_type;
+		typedef typename Iterator::Endianness Endianness;
+
+		const_word_iterator () {}
+		const_word_iterator (const BitSubvector<Iterator, ConstIterator> &v, typename Iterator::const_word_iterator pos)
+			: _v (&v), _pos (pos), _ref_valid (false) {}
+		const_word_iterator (const const_word_iterator  &i)
+			: _v (i._v), _pos (i._pos), _word (i._word), _ref_valid (i._ref_valid) {}
+		const_word_iterator (const word_iterator  &i)
+			: _v (i._v), _pos (i._ref._pos), _ref_valid (false) {}
+
+		const_word_iterator &operator = (const const_word_iterator  &i)
+		{
+			_v = i._v;
+			_pos = i._pos;
+			_word = i._word;
+			_ref_valid = i._ref_valid;
+			return *this;
+		}
+
+		const_word_iterator &operator = (const word_iterator  &i)
+		{
+			_v = i._v;
+			_pos = i._ref._pos;
+			_ref_valid = false;
+			return *this;
+		}
+
+		const_word_iterator &operator ++ () 
+		{
+			++_pos;
+			_ref_valid = false;
+			return *this;
+		}
+
+		const_word_iterator operator ++ (int) 
+		{
+			const_word_iterator tmp (*this);
+			++*this;
+			return tmp;
+		}
+
+		const_word_iterator operator + (difference_type i) const
+			{ return const_word_iterator (*_v, _pos + i); }
+
+		const_word_iterator &operator += (difference_type i) 
+		{
+			_pos += i;
+			_ref_valid = false;
+			return *this;
+		}
+
+		const_word_iterator &operator -- () 
+		{
+			--_pos;
+			_ref_valid = false;
+			return *this;
+		}
+
+		const_word_iterator operator -- (int) 
+		{
+			const_word_iterator tmp (*this);
+			--*this;
+			return tmp;
+		}
+
+		const_word_iterator operator - (difference_type i) const
+			{ return *this + -i; }
+
+		const_word_iterator &operator -= (difference_type i) 
+			{ return *this += -i; }
+
+		difference_type operator - (const_word_iterator &i) const 
+			{ return _pos - i._pos; }
+
+		value_type operator [] (long i) 
+			{ return *(*this + i); }
+
+		value_type operator * ()
+			{ update_ref (); return _word; }
+
+		bool operator == (const word_iterator &c) const 
+			{ return (_pos == c._ref._pos); }
+
+		bool operator == (const const_word_iterator &c) const 
+			{ return (_pos == c._pos); }
+
+		bool operator != (const word_iterator &c) const 
+			{ return (_pos != c._ref._pos); }
+
+		bool operator != (const const_word_iterator &c) const 
+			{ return (_pos != c._pos); }
+
+	private:
+		friend class word_iterator;
+
+		const BitSubvector<Iterator, ConstIterator> *_v;
+		typename Iterator::const_word_iterator _pos;
+		value_type _word;
+		bool _ref_valid;
+
+		inline void update_ref ()
+		{
+			if (!_ref_valid) {
+				if (_v->_begin.pos () == 0)
+					_word = *_pos;
+				else if (_pos + 1 == (_v->_end.pos () ? (_v->_end.word () + 1) : _v->_end.word ()))
+					_word = Endianness::shift_left (*_pos, _v->_begin.pos ());
+				else
+					_word = Endianness::shift_left (*_pos, _v->_begin.pos ()) | Endianness::shift_right (_pos[1], WordTraits<value_type>::bits - _v->_begin.pos ());
+
+				if (((_pos - _v->_begin.word () + 1) << WordTraits<value_type>::logof_size) > _v->_end - _v->_begin)
+					_word &= Endianness::mask_left ((_v->_end - _v->_begin) & WordTraits<value_type>::pos_mask);
+
+				_ref_valid = true;
+			}
+		}
+	};
+
 }; // template <class Iterator> class BitSubvector
-
-// Vector traits for BitSubvector
-template <class Iterator, class ConstIterator>
-struct GF2VectorTraits<BitSubvector<Iterator, ConstIterator> >
-{ 
-	typedef BitSubvector<Iterator, ConstIterator> VectorType;
-	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
-};
-
-// Vector traits for BitSubvector
-template <class Iterator, class ConstIterator>
-struct GF2VectorTraits<const BitSubvector<Iterator, ConstIterator> >
-{ 
-	typedef BitSubvector<Iterator, ConstIterator> VectorType;
-	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
-};
 
 } // namespace LinBox
 
-#include "linbox/vector/bit-subvector.inl"
-
 #endif // __VECTOR_BIT_SUBVECTOR_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

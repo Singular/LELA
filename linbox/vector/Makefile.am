@@ -19,7 +19,6 @@ pkgincludesub_HEADERS=		\
 	bit-vector.h		\
 	bit-vector.tcc		\
 	bit-subvector.h		\
-	bit-subvector.inl	\
 	bit-subvector-word-aligned.h	\
 	shifted-vector.h	\
 	sparse-subvector.h	\
