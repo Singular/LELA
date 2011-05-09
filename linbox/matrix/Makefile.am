@@ -15,7 +15,6 @@ BASIC_HDRS =			\
 	sparse.inl		\
 	transpose-matrix.h	\
 	dense.h  		\
-	dense.inl		\
 	dense-rows-matrix.h	\
 	dense-zero-one.h	\
 	dense-zero-one.inl	\
