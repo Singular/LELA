@@ -289,8 +289,7 @@ public:
 	 *
 	 * @returns Reference to this
 	 */
-	Splicer &substituteHoriz (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
-		{ substitute (_horiz_blocks, splicer._horiz_blocks, source, splicer_source); return *this; }
+	Splicer &substituteHoriz (const Splicer &splicer, unsigned int source, unsigned int splicer_source);
 
 	/** Substitute given vertical blocks from given splicer into this splicer.
 	 *
@@ -300,8 +299,7 @@ public:
 	 *
 	 * @returns Reference to this
 	 */
-	Splicer &substituteVert (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
-		{ substitute (_vert_blocks, splicer._vert_blocks, source, splicer_source); return *this; }
+	Splicer &substituteVert (const Splicer &splicer, unsigned int source, unsigned int splicer_source);
 };
 
 } // namespace LinBox

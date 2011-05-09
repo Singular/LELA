@@ -57,7 +57,6 @@ namespace F4 {
 			typename Matrix::ConstRowIterator i_A;
 			int last_col = -1, col, first_col_in_block = 0, height = 0, dest_col_tr = 0, dest_col_res = 0;
 			int row = 0, first_row_in_block = 0, dest_row_tr = 0, dest_row_res = 0;
-			int first_source_row = 0;
 			bool last_was_same_col = false;
 			typename Field::Element a;
 
@@ -96,21 +95,20 @@ namespace F4 {
 						++num_pivot_rows;
 					} else {
 						if (height > 0) {
-							splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
-							reconst_splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
+							Block newblock (0, dest_col_tr, first_col_in_block, height);
+							
+							splicer.addVerticalBlock (newblock);
+							reconst_splicer.addVerticalBlock (newblock);
+							reconst_splicer.addHorizontalBlock (newblock);
 						}
 
 						if (col - last_col > 1) {
-							splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, col - last_col - 1));
-							reconst_splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, col - last_col - 1));
+							Block newblock (1, dest_col_res, first_col_in_block + height, col - last_col - 1);
+							
+							splicer.addVerticalBlock (newblock);
+							reconst_splicer.addVerticalBlock (newblock);
+							reconst_splicer.addHorizontalBlock (newblock);
 						}
-
-						if (row > first_source_row)
-							reconst_splicer.addHorizontalBlock (Block (0, first_source_row, col, height));
-
-						reconst_splicer.addHorizontalBlock (Block (1, 0, col, col - last_col - 1));
-
-						first_source_row += height;
 
 						dest_col_tr += height;
 						dest_col_res += col - last_col - 1;
@@ -124,13 +122,19 @@ namespace F4 {
 			}
 
 			if (height > 0) {
-				splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
-				reconst_splicer.addVerticalBlock (Block (0, dest_col_tr, first_col_in_block, height));
+				Block newblock (0, dest_col_tr, first_col_in_block, height);
+				
+				splicer.addVerticalBlock (newblock);
+				reconst_splicer.addVerticalBlock (newblock);
+				reconst_splicer.addHorizontalBlock (newblock);
 			}
 
 			if (first_col_in_block + height < A.coldim ()) {
-				splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, A.coldim () - first_col_in_block - height));
-				reconst_splicer.addVerticalBlock (Block (1, dest_col_res, first_col_in_block + height, A.coldim () - first_col_in_block - height));
+				Block newblock (1, dest_col_res, first_col_in_block + height, A.coldim () - first_col_in_block - height);
+				
+				splicer.addVerticalBlock (newblock);
+				reconst_splicer.addVerticalBlock (newblock);
+				reconst_splicer.addHorizontalBlock (newblock);
 			}
 
 			if (first_row_in_block < A.rowdim ()) {
@@ -138,8 +142,6 @@ namespace F4 {
 					splicer.addHorizontalBlock (Block (1, dest_row_res, first_row_in_block, A.rowdim () - first_row_in_block));
 				else
 					splicer.addHorizontalBlock (Block (0, dest_row_tr, first_row_in_block, A.rowdim () - first_row_in_block));
-
-				reconst_splicer.addHorizontalBlock (Block (1, 0, col, A.coldim () - col));
 			}
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);

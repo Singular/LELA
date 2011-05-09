@@ -214,35 +214,33 @@ bool Splicer::check () const
 
 void Splicer::substitute (std::vector<Block> &blocks, const std::vector<Block> &other_blocks, unsigned int source, unsigned int other_source)
 {
-	std::ostringstream str;
-	str << "Substituting block " << other_source << " for block " << source << std::ends;
-	commentator.start (str.str ().c_str (), __FUNCTION__);
+	std::vector<Block>::iterator i;
+	std::vector<Block>::const_iterator j = other_blocks.begin (), j_stop;
+	size_t curr_source_idx = 0, curr_dest_idx = 0, size_from_source = 0;
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-	report << "Splicer before substitution:" << std::endl << *this;
-
-	std::vector<Block>::iterator i;
-	std::vector<Block>::const_iterator j = other_blocks.begin (), j_stop;
-	size_t curr_dest_idx = 0;
-
 	for (i = blocks.begin (); i != blocks.end (); ++i) {
 		if (i->source () == source) {
-			for (j_stop = j; j_stop != other_blocks.end () && j_stop->destIndex () - curr_dest_idx < i->size (); ++j_stop);
+			for (j_stop = j; j_stop != other_blocks.end () && j_stop->destIndex () < i->sourceIndex () + i->size (); ++j_stop)
+				if (j_stop->source () == other_source)
+					size_from_source += j_stop->size ();
 
-			for (; j != j_stop && j->source () != other_source; ++j);
-
-			if (j != j_stop) {
+			if (size_from_source > 0) {
 				report << "Replacing " << *i;
-				*i = Block (source, j->sourceIndex (), curr_dest_idx, j->size ());
+				size_t new_size = std::min (size_from_source, i->size ());
+				*i = Block (source, curr_source_idx, curr_dest_idx, new_size);
 				report << " with " << *i << " (substitution)" << std::endl;
-				curr_dest_idx += j->size ();
-				++j;
+				curr_dest_idx += new_size;
+				curr_source_idx += new_size;
+				size_from_source -= new_size;
 			} else {
 				report << "Erasing block " << *i << std::endl;
 				i = blocks.erase (i);
 				--i;
 			}
+
+			j = j_stop;
 		} else {
 			report << "Replacing " << *i;
 			*i = Block (i->source (), i->sourceIndex (), curr_dest_idx, i->size ());
@@ -250,8 +248,42 @@ void Splicer::substitute (std::vector<Block> &blocks, const std::vector<Block> &
 			curr_dest_idx += i->size ();
 		}
 	}
+}
+
+Splicer &Splicer::substituteHoriz (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
+{
+	std::ostringstream str;
+	str << "Substituting horizontal block " << splicer_source << " for block " << source << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	report << "Splicer before substitution:" << std::endl << *this;
+	report << "Splicer to be substituted:" << std::endl << splicer;
+
+	substitute (_horiz_blocks, splicer._horiz_blocks, source, splicer_source);
 
 	commentator.stop (MSG_DONE);
+
+	return *this;
+}
+
+Splicer &Splicer::substituteVert (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
+{
+	std::ostringstream str;
+	str << "Substituting vertical block " << splicer_source << " for block " << source << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	report << "Splicer before substitution:" << std::endl << *this;
+	report << "Splicer to be substituted:" << std::endl << splicer;
+
+	substitute (_vert_blocks, splicer._vert_blocks, source, splicer_source);
+
+	commentator.stop (MSG_DONE);
+
+	return *this;
 }
 
 std::ostream &operator << (std::ostream &os, const Splicer &splicer)
