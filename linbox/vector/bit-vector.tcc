@@ -1,13 +1,13 @@
-/* linbox/vector/bit-vector.inl
- * Copyright (C) 2003 Bradford Hovinen
+/* linbox/vector/bit-vector.tcc
+ * Copyright 2003 Bradford Hovinen
  *
  * -------------------------------------------------
  *
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_bit_vector_INL
-#define __LINBOX_bit_vector_INL
+#ifndef __LINBOX_bit_vector_TCC
+#define __LINBOX_bit_vector_TCC
 
 #include <stdexcept>
 #include <vector>
@@ -17,14 +17,6 @@
 
 namespace LinBox
 {
-
-template <class Endianness>
-inline typename BitVector<Endianness>::iterator BitVector<Endianness>::begin (void)
-	{ return iterator (_v.begin (), 0UL); }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::const_iterator BitVector<Endianness>::begin (void) const
-	{ return const_iterator (_v.begin (), 0UL); }
 
 template <class Endianness>
 inline typename BitVector<Endianness>::iterator BitVector<Endianness>::end (void)
@@ -45,30 +37,6 @@ inline typename BitVector<Endianness>::const_iterator BitVector<Endianness>::end
 }
 
 template <class Endianness>
-inline typename BitVector<Endianness>::reverse_iterator BitVector<Endianness>::rbegin (void)
-	{ return reverse_iterator (end () - 1UL); }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::const_reverse_iterator BitVector<Endianness>::rbegin (void) const
-	{ return const_reverse_iterator (end () - 1UL); }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::reverse_iterator BitVector<Endianness>::rend (void)
-	{ return reverse_iterator (begin () - 1UL); }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::const_reverse_iterator BitVector<Endianness>::rend (void) const
-	{ return const_reverse_iterator (begin () - 1UL); }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::reference BitVector<Endianness>::operator[] (BitVector::size_type n)
-	{ return *(begin () + n); }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::operator[] (BitVector::size_type n) const
-	{ return *(begin () + n); }
-
-template <class Endianness>
 inline typename BitVector<Endianness>::reference BitVector<Endianness>::at (BitVector<Endianness>::size_type n)
 {
 	if (n >= _size)
@@ -85,14 +53,6 @@ inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::at
 	else
 		return (*this)[n];
 }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::reference BitVector<Endianness>::front (void)
-	{ return reference (_v.begin (), 0UL); }
-
-template <class Endianness>
-inline typename BitVector<Endianness>::const_reference BitVector<Endianness>::front (void) const
-	{ return const_reference (_v.begin (), 0UL); }
 
 template <class Endianness>
 inline typename BitVector<Endianness>::reference BitVector<Endianness>::back (void)
@@ -164,10 +124,6 @@ inline BitVector<Endianness> &BitVector<Endianness>::operator = (const Container
 }
 
 template <class Endianness>
-inline void BitVector<Endianness>::resize (BitVector<Endianness>::size_type new_size, bool val)
-	{ _v.resize ((new_size >> WordTraits<word_type>::logof_size) + ((new_size & WordTraits<word_type>::pos_mask) ? 1UL : 0UL), val ? WordTraits<word_type>::all_ones : 0UL); _size = new_size; }
-
-template <class Endianness>
 inline bool BitVector<Endianness>::operator == (const BitVector<Endianness> &v) const
 {
 	const_word_iterator i, j;
@@ -189,7 +145,7 @@ inline bool BitVector<Endianness>::operator == (const BitVector<Endianness> &v) 
 
 } // namespace LinBox
 
-#endif // __LINBOX_bit_vector_INL
+#endif // __LINBOX_bit_vector_TCC
 
 // Local Variables:
 // mode: C++

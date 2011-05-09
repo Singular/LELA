@@ -17,7 +17,7 @@ pkgincludesub_HEADERS=		\
 	stream.h		\
 	bit-iterator.h		\
 	bit-vector.h		\
-	bit-vector.inl		\
+	bit-vector.tcc		\
 	bit-subvector.h		\
 	bit-subvector.inl	\
 	bit-subvector-word-aligned.h	\

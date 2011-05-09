@@ -73,15 +73,21 @@ class BitVector
 	typedef iterator    pointer;
 	typedef const_iterator    const_pointer;
 
-	inline iterator                    begin      (void);
-	inline const_iterator              begin      (void) const;
+	inline iterator                    begin      (void)
+		{ return iterator (_v.begin (), 0UL); }
+	inline const_iterator              begin      (void) const
+		{ return const_iterator (_v.begin (), 0UL); }
 	inline iterator                    end        (void);
 	inline const_iterator              end        (void) const;
 
-	inline reverse_iterator            rbegin     (void);
-	inline const_reverse_iterator      rbegin     (void) const;
-	inline reverse_iterator            rend       (void);
-	inline const_reverse_iterator      rend       (void) const;
+	inline reverse_iterator            rbegin     (void)
+		{ return reverse_iterator (end () - 1UL); }
+	inline const_reverse_iterator      rbegin     (void) const
+		{ return const_reverse_iterator (end () - 1UL); }
+	inline reverse_iterator            rend       (void)
+		{ return reverse_iterator (begin () - 1UL); }
+	inline const_reverse_iterator      rend       (void) const
+		{ return const_reverse_iterator (begin () - 1UL); }
 
 	inline word_iterator               wordBegin  (void)       { return _v.begin (); }
 	inline const_word_iterator         wordBegin  (void) const { return _v.begin (); }
@@ -95,14 +101,18 @@ class BitVector
 
 	// Element access
 
-	inline reference       operator[] (size_type n);
-	inline const_reference operator[] (size_type n) const;
+	inline reference       operator[] (size_type n)
+		{ return *(begin () + n); }
+	inline const_reference operator[] (size_type n) const
+		{ return *(begin () + n); }
 
 	inline reference at       (size_type n);
 	inline const_reference at (size_type n) const;
 
-	inline reference       front (void);
-	inline const_reference front (void) const;
+	inline reference       front (void)
+		{ return reference (_v.begin (), 0UL); }
+	inline const_reference front (void) const
+		{ return const_reference (_v.begin (), 0UL); }
 	inline reference       back  (void);
 	inline const_reference back  (void) const;
 
@@ -133,7 +143,8 @@ class BitVector
 	template<class Container>
 	inline BitVector &operator = (const Container& x);
 
-	inline void resize (size_type new_size, bool val = false);
+	inline void resize (size_type new_size, bool val = false)
+		{ _v.resize ((new_size >> WordTraits<word_type>::logof_size) + ((new_size & WordTraits<word_type>::pos_mask) ? 1UL : 0UL), val ? WordTraits<word_type>::all_ones : 0UL); _size = new_size; }
 
 	inline void clear () { _v.clear (); _size = 0; }
 
@@ -179,7 +190,7 @@ struct GF2VectorTraits<const BitVector<Endianness> >
 
 } // namespace LinBox
 
-#include "linbox/vector/bit-vector.inl"
+#include "linbox/vector/bit-vector.tcc"
 
 #endif // __LINBOX_bit_vector_H
 
