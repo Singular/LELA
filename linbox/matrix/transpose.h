@@ -1,21 +1,17 @@
 /* linbox/matrix/transpose.h
- * Copyright (C) 2002 Bradford Hovinen,
+ * Copyright 2002 Bradford Hovinen,
  *
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
  *
  * Evolved from dense-base.h by Bradford Hovinen
  *
  * --------------------------------------------------------
- * 2003-01-11  Bradford Hovinen  <bghovinen@math.uwaterloo.ca>
- *
- * Move from blackbox/transpose-matrix.h to matrix/transpose.h
- * --------------------------------------------------------
  *
  * See COPYING for license information
  */
 
-#ifndef __LINBOX_matrix_transpose_INL
-#define __LINBOX_matrix_transpose_INL
+#ifndef __LINBOX_matrix_transpose_H
+#define __LINBOX_matrix_transpose_H
 
 #include <iostream>
 #include <vector>
@@ -393,7 +389,7 @@ struct RealMatrixType<TransposeMatrix<Matrix> >
 
 } // namespace LinBox
 
-#endif // __LINBOX_matrix_transpose_INL
+#endif // __LINBOX_matrix_transpose_H
 
 // Local Variables:
 // mode: C++

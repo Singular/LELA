@@ -13,7 +13,7 @@ BASIC_HDRS =			\
 	raw-iterator.h		\
 	sparse.h		\
 	sparse.tcc		\
-	transpose-matrix.h	\
+	transpose.h		\
 	dense.h  		\
 	dense-rows-matrix.h	\
 	dense-zero-one.h	\

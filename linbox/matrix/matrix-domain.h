@@ -19,7 +19,7 @@
 #include "linbox/matrix/io.h"
 
 // For some specialisations
-#include "linbox/matrix/transpose-matrix.h"
+#include "linbox/matrix/transpose.h"
 
 namespace LinBox
 {

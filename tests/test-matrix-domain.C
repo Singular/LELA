@@ -15,7 +15,7 @@
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
 #include "linbox/vector/stream.h"
-#include "linbox/matrix/transpose-matrix.h"
+#include "linbox/matrix/transpose.h"
 
 #include "test-common.h"
 #include "test-matrix-domain.h"

@@ -14,7 +14,7 @@
 
 #include "linbox/util/commentator.h"
 #include "linbox/matrix/submatrix.h"
-#include "linbox/matrix/transpose-matrix.h"
+#include "linbox/matrix/transpose.h"
 
 using namespace LinBox;
 

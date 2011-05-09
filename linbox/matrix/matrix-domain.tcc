@@ -11,7 +11,8 @@
 #ifndef __LINBOX_matrix_domain_TCC
 #define __LINBOX_matrix_domain_TCC
 
-#include "linbox/matrix/transpose-matrix.h"
+#include "linbox/matrix/matrix-domain.h"
+#include "linbox/matrix/transpose.h"
 
 namespace LinBox
 {
