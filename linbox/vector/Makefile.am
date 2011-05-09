@@ -23,7 +23,7 @@ pkgincludesub_HEADERS=		\
 	shifted-vector.h	\
 	sparse-subvector.h	\
 	sparse-subvector-hybrid.h	\
-	sparse-subvector-hybrid.inl	\
+	sparse-subvector-hybrid.tcc	\
 	vector-domain.h		\
 	vector-domain.tcc	\
 	vector-domain-gf2.h	\
