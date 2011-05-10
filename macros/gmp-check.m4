@@ -7,8 +7,10 @@ dnl Test for the GNU Multiprecision library and define GMP_CFLAGS and GMP_LIBS
 
 AC_DEFUN([LB_CHECK_GMP],
 [
+DEFAULT_CHECKING_PATH="/usr /usr/local /sw /opt/local"
+
 AC_ARG_WITH(gmp,
-[  --with-gmp= <path>|yes Use GMP library. This library is mandatory for LinBox
+[  --with-gmp= <path>|yes Use GMP library. This library is mandatory for Singular
 	                 compilation. If argument is yes or <empty> that means 
    	       		 the library is reachable with the standard search path
 			 "/usr" or "/usr/local" (set as default). Otherwise you
@@ -22,10 +24,10 @@ AC_ARG_WITH(gmp,
 	        fi],
 		[GMP_HOME_PATH="${DEFAULT_CHECKING_PATH}"])
 
-min_gmp_version=ifelse([$1], ,3.1.1,$1)
+min_gmp_version=ifelse([$1], ,1.0,$1)
 
 dnl Check for existence
-BACKUP_CXXFLAGS=${CXXFLAGS}
+BACKUP_CFLAGS=${CFLAGS}
 BACKUP_LIBS=${LIBS}
 
 AC_MSG_CHECKING(for GMP >= $min_gmp_version)
@@ -34,15 +36,15 @@ for GMP_HOME in ${GMP_HOME_PATH}
   do	
 	if test -r "$GMP_HOME/include/gmp.h"; then
 
-		if test "x$GMP_HOME" != "x/usr" -a "x$GMP_HOME" != "x/usr/local"; then
+		if test "x$GMP_HOME" != "x/usr"; then
 			GMP_CFLAGS="-I${GMP_HOME}/include"
-			GMP_LIBS="-L${GMP_HOME}/lib -lgmpxx -lgmp"	
+			GMP_LIBS="-L${GMP_HOME}/lib -lgmp"	
 		else
 			GMP_CFLAGS=
-			GMP_LIBS="-lgmpxx -lgmp"		
+			GMP_LIBS="-lgmp"		
 		fi
 	
-		CXXFLAGS="${CXXFLAGS} ${GMP_CFLAGS}"
+		CFLAGS="${CFLAGS} ${GMP_CFLAGS}"
 		LIBS="${LIBS} ${GMP_LIBS}"
 
 		AC_TRY_LINK(
@@ -65,22 +67,8 @@ for GMP_HOME in ${GMP_HOME_PATH}
 	   			],[
 					gmp_found="yes"
 					AC_MSG_RESULT(yes)
-					# See if GMP was compiled with --enable-cxx
-					AC_MSG_CHECKING(whether GMP was compiled with --enable-cxx)
-					AC_TRY_RUN(
-					[#include <gmpxx.h>
-					int main () { mpz_class a(2),b(3),c(5); if ( a+b == c ) return 0; else return -1; }
-					],[
-						AC_MSG_RESULT(yes)
-						GMP_VERSION=""
-						AC_SUBST(GMP_VERSION)
-					],[
-						gmp_found="no"	
-						AC_MSG_RESULT(no)
-					],[
-						dnl This should never happen
-						AC_MSG_RESULT(no)
-					])				
+					GMP_VERSION=""
+					AC_SUBST(GMP_VERSION)
 				],[
 					AC_MSG_RESULT(no)
 					AC_DEFINE(GMP_VERSION_3,1,[Define if GMP is version 3.xxx])
@@ -128,7 +116,7 @@ if test "x$gmp_found" != "xyes"; then
 fi
 
 
-CXXFLAGS=${BACKUP_CXXFLAGS}
+CFLAGS=${BACKUP_CFLAGS}
 LIBS=${BACKUP_LIBS}
 #unset LD_LIBRARY_PATH
 
