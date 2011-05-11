@@ -16,7 +16,7 @@ namespace LinBox
 
 std::ostream &operator << (std::ostream &os, const Block &b)
 {
-	os << "Block (source=" << b.source () << ",source-index=" << b.sourceIndex () << ",dest-index=" << b.destIndex () << ",size=" << b.size () << ")";
+	os << "Block (source=" << b.source () << ",dest=" << b.dest () << ",source-index=" << b.sourceIndex () << ",dest-index=" << b.destIndex () << ",size=" << b.size () << ")";
 
 	return os;
 }
@@ -34,22 +34,27 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 	std::vector<Block>::const_iterator outer_block;
 	std::vector<Block>::const_iterator inner_block = inner_blocks.begin ();
 
-	size_t curr_dest_idx = 0, rest_size = 0, curr_size = 0;
+	size_t rest_size = 0, curr_size = 0;
 	std::map<size_t, size_t> curr_source_idx;
+	std::map<size_t, size_t> curr_dest_idx;
 	unsigned int use_source;
 
 	commentator.start ("Mapping blocks", __FUNCTION__);
 
-	size_t max_inner_block = (only_source == (unsigned int) -1) ? 1 : (std::max_element (inner_blocks.begin (), inner_blocks.end (), CompareBlockSources ()))->source ();
+	size_t max_inner_block = (only_source == (unsigned int) -1) ? (std::max_element (inner_blocks.begin (), inner_blocks.end (), CompareBlockSources ()))->source () : 0;
 
 	for (outer_block = outer_blocks.begin (); outer_block != outer_blocks.end (); ++outer_block) {
+		if (curr_dest_idx.find (outer_block->dest ()) == curr_dest_idx.end ())
+			curr_dest_idx[outer_block->dest ()] = 0;
+
 		if (outer_block->source () != inner_source) {
 			if (outer_block->source () < inner_source)
 				output.push_back (*outer_block);
 			else
-				output.push_back (Block (outer_block->source () + max_inner_block, outer_block->sourceIndex (), outer_block->destIndex (), outer_block->size ()));
+				output.push_back (Block (outer_block->source () + max_inner_block, outer_block->dest (),
+							 outer_block->sourceIndex (), outer_block->destIndex (), outer_block->size ()));
 
-			curr_dest_idx += outer_block->size ();
+			curr_dest_idx[outer_block->dest ()] += outer_block->size ();
 
 			commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
 				<< "New block created (from outer block): " << output.back () << std::endl;
@@ -60,7 +65,7 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 				if (only_source == (unsigned int) -1 || inner_block->source () == only_source) {
 					use_source = (only_source == (unsigned int) -1) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
 
-					output.push_back (Block (use_source, curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
+					output.push_back (Block (use_source, outer_block->dest (), curr_source_idx[inner_block->source ()], curr_dest_idx[outer_block->dest ()], curr_size));
 
 					commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
 						<< "New block created (leftover): " << output.back () << std::endl
@@ -69,15 +74,15 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 				}
 
 				curr_source_idx[inner_block->source ()] += curr_size;
-				curr_dest_idx += curr_size;
+				curr_dest_idx[outer_block->dest ()] += curr_size;
 				rest_size -= curr_size;
 
 				if (rest_size == 0)
 					++inner_block;
 			}
 
-			while (inner_block != inner_blocks.end () && rest_size == 0 && outer_block->destIndex () + outer_block->size () > curr_dest_idx) {
-				curr_size = std::min (inner_block->size (), outer_block->destIndex () + outer_block->size () - curr_dest_idx);
+			while (inner_block != inner_blocks.end () && rest_size == 0 && outer_block->destIndex () + outer_block->size () > curr_dest_idx[outer_block->dest ()]) {
+				curr_size = std::min (inner_block->size (), outer_block->destIndex () + outer_block->size () - curr_dest_idx[outer_block->dest ()]);
 
 				if (curr_source_idx.find (inner_block->source ()) == curr_source_idx.end ())
 					curr_source_idx[inner_block->source ()] = 0;
@@ -85,7 +90,7 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 				if (only_source == (unsigned int) -1 || inner_block->source () == only_source) {
 					use_source = (only_source == (unsigned int) -1) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
 
-					output.push_back (Block (use_source, curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
+					output.push_back (Block (use_source, outer_block->dest (), curr_source_idx[inner_block->source ()], curr_dest_idx[outer_block->dest ()], curr_size));
 
 					commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
 						<< "New block created: " << output.back () << std::endl
@@ -94,7 +99,7 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 				}
 
 				curr_source_idx[inner_block->source ()] += curr_size;
-				curr_dest_idx += curr_size;
+				curr_dest_idx[outer_block->dest ()] += curr_size;
 				rest_size = inner_block->size () - curr_size;
 
 				if (rest_size == 0)
@@ -118,7 +123,7 @@ public:
 		{ return b.source () == _source; }
 };
 
-void Splicer::fillHorizontal (unsigned int id, size_t rowdim)
+void Splicer::fillHorizontal (unsigned int sid, unsigned int did, size_t rowdim)
 {
 	linbox_check (!_horiz_blocks.empty ());
 	linbox_check (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () <= rowdim);
@@ -126,7 +131,7 @@ void Splicer::fillHorizontal (unsigned int id, size_t rowdim)
 	if (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () == rowdim)
 		return;
 
-	std::vector<Block>::reverse_iterator i = std::find_if (_horiz_blocks.rbegin (), _horiz_blocks.rend (), IsSourceP (id));
+	std::vector<Block>::reverse_iterator i = std::find_if (_horiz_blocks.rbegin (), _horiz_blocks.rend (), IsSourceP (sid));
 
 	size_t source_idx;
 
@@ -135,11 +140,11 @@ void Splicer::fillHorizontal (unsigned int id, size_t rowdim)
 	else
 		source_idx = i->sourceIndex () + i->size ();
 
-	_horiz_blocks.push_back (Block (id, source_idx, _horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size (),
+	_horiz_blocks.push_back (Block (sid, did, source_idx, _horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size (),
 					rowdim - (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size ())));
 }
 
-void Splicer::fillVertical (unsigned int id, size_t coldim)
+void Splicer::fillVertical (unsigned int sid, unsigned int did, size_t coldim)
 {
 	linbox_check (!_vert_blocks.empty ());
 	linbox_check (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () <= coldim);
@@ -147,7 +152,7 @@ void Splicer::fillVertical (unsigned int id, size_t coldim)
 	if (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () == coldim)
 		return;
 
-	std::vector<Block>::reverse_iterator i = std::find_if (_vert_blocks.rbegin (), _vert_blocks.rend (), IsSourceP (id));
+	std::vector<Block>::reverse_iterator i = std::find_if (_vert_blocks.rbegin (), _vert_blocks.rend (), IsSourceP (sid));
 
 	size_t source_idx;
 
@@ -156,7 +161,7 @@ void Splicer::fillVertical (unsigned int id, size_t coldim)
 	else
 		source_idx = i->sourceIndex () + i->size ();
 
-	_vert_blocks.push_back (Block (id, source_idx, _vert_blocks.back ().destIndex () + _vert_blocks.back ().size (),
+	_vert_blocks.push_back (Block (sid, did, source_idx, _vert_blocks.back ().destIndex () + _vert_blocks.back ().size (),
 				       coldim - (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size ())));
 }
 
@@ -171,7 +176,7 @@ void Splicer::consolidate_blocks (std::vector<Block> &blocks)
 		for (i_end = i; i_end != blocks.end () && i_end->source () == i->source (); ++i_end)
 			size += i_end->size ();
 
-		*i = Block (i->source (), i->sourceIndex (), i->destIndex (), size);
+		*i = Block (i->source (), i->dest (), i->sourceIndex (), i->destIndex (), size);
 
 		++i;
 		i = blocks.erase (i, i_end);
@@ -190,7 +195,7 @@ void Splicer::remove_gaps_from_blocks (std::vector<Block> &blocks)
 	size_t curr_dest_idx = 0;
 
 	for (i = blocks.begin (); i != blocks.end (); ++i) {
-		*i = Block (i->source (), i->sourceIndex (), curr_dest_idx, i->size ());
+		*i = Block (i->source (), i->dest (), i->sourceIndex (), curr_dest_idx, i->size ());
 		curr_dest_idx += i->size ();
 	}
 }
@@ -217,6 +222,21 @@ Splicer &Splicer::compose (Splicer &output,
 	return output;
 }
 
+void Splicer::reverse_blocks (std::vector<Block> &out_blocks, const std::vector<Block> &in_blocks) const
+{
+	std::vector<Block>::const_iterator i;
+
+	for (i = in_blocks.begin (); i != in_blocks.end (); ++i)
+		out_blocks.push_back (Block (i->dest (), i->source (), i->destIndex (), i->sourceIndex (), i->size ()));
+}
+
+Splicer &Splicer::reverse (Splicer &output) const
+{
+	reverse_blocks (output._horiz_blocks, _horiz_blocks);
+	reverse_blocks (output._vert_blocks, _vert_blocks);
+	return output;
+}
+
 bool Splicer::check_blocks (const std::vector<Block> &blocks, const char *type) const
 {
 	std::ostringstream str;
@@ -224,20 +244,12 @@ bool Splicer::check_blocks (const std::vector<Block> &blocks, const char *type) 
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	std::vector<Block>::const_iterator i;
-	size_t dest_idx = 0;
 	std::map<unsigned int, size_t> src_idx;
+	std::map<unsigned int, size_t> dest_idx;
 
 	bool pass = true;
 
 	for (i = blocks.begin (); i != blocks.end (); ++i) {
-		if (dest_idx != i->destIndex ()) {
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: Problem at block " << *i << ": Expected destination-index " << dest_idx << " but got " << i->destIndex () << std::endl;
-			pass = false;
-		}
-
-		dest_idx = i->destIndex () + i->size ();
-
 		if (src_idx.find (i->source ()) == src_idx.end () && i->sourceIndex () != 0) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: Problem at block " << *i << ": Expected source-index 0 but got " << i->sourceIndex () << std::endl;
@@ -249,7 +261,19 @@ bool Splicer::check_blocks (const std::vector<Block> &blocks, const char *type) 
 			pass = false;
 		}
 
+		if (dest_idx.find (i->dest ()) == dest_idx.end () && i->destIndex () != 0) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "ERROR: Problem at block " << *i << ": Expected dest-index 0 but got " << i->destIndex () << std::endl;
+			pass = false;
+		}
+		else if (dest_idx[i->dest ()] != i->destIndex ()) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "ERROR: Problem at block " << *i << ": Expected dest-index " << dest_idx[i->dest ()] << " but got " << i->destIndex () << std::endl;
+			pass = false;
+		}
+
 		src_idx[i->source ()] = i->sourceIndex () + i->size ();
+		dest_idx[i->dest ()] = i->destIndex () + i->size ();
 	}
 
 	commentator.stop (MSG_STATUS (pass));

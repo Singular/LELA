@@ -12,6 +12,7 @@
 #include "linbox/vector/vector-domain.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/bit-subvector.h"
+#include "linbox/vector/sparse-subvector.h"
 #include "linbox/matrix/submatrix.h"
 #include "linbox/matrix/matrix-domain.h"
 
@@ -105,6 +106,30 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 
 template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+					VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const
+{
+	VectorDomain<Field> VD (F);
+
+	SparseSubvector<Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
+
+	VD.copy (v2, v1);
+}
+
+template <class Field, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+					VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const
+{
+	VectorDomain<Field> VD (F);
+
+	SparseSubvector<Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
+
+	VD.copy (v2, v1);
+}
+
+template <class Field, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::GenericVectorTag, VectorCategories::GenericVectorTag) const
 	{}
 
@@ -133,45 +158,10 @@ void Splicer::attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const
 }
 
 template <class Field, class Matrix1, class Matrix2>
-void Splicer::chop (const Field &F, SourceMatrix<Matrix1> **output, const Matrix2 &A) const
+void Splicer::splice (const Field &F, MatrixPart<Matrix1> **input, MatrixPart<Matrix2> **output) const
 {
 	linbox_check (!_horiz_blocks.empty ());
 	linbox_check (!_vert_blocks.empty ());
-
-	linbox_check (check ());
-
-	linbox_check (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () == A.rowdim ());
-	linbox_check (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () == A.coldim ());
-
-	commentator.start ("Chopping matrix", __FUNCTION__);
-
-	MatrixDomain<Field> MD (F);
-
-	typename std::vector<Block>::const_iterator horiz_block, vert_block;
-
-	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block) {
-		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block) {
-			if (output[horiz_block->source ()][vert_block->source ()].type () == SourceMatrix<Matrix1>::TYPE_MATRIX) {
-				Submatrix<const Matrix2> dest_part (A, horiz_block->destIndex (), vert_block->destIndex (), horiz_block->size (), vert_block->size ());
-				Submatrix<Matrix1> source_part (output[horiz_block->source ()][vert_block->source ()].A (),
-								horiz_block->sourceIndex (), vert_block->sourceIndex (), horiz_block->size (), vert_block->size ());
-
-				MD.copy (source_part, dest_part);
-			}
-		}
-	}
-
-	commentator.stop (MSG_DONE, NULL, __FUNCTION__);
-}
-
-template <class Field, class Matrix1, class Matrix2>
-void Splicer::splice (const Field &F, Matrix1 &A, SourceMatrix<Matrix2> **input) const
-{
-	linbox_check (!_horiz_blocks.empty ());
-	linbox_check (!_vert_blocks.empty ());
-
-	linbox_check (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () == A.rowdim ());
-	linbox_check (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () == A.coldim ());
 
 	linbox_check (check ());
 
@@ -181,21 +171,24 @@ void Splicer::splice (const Field &F, Matrix1 &A, SourceMatrix<Matrix2> **input)
 
 	MatrixDomain<Field> MD (F);
 
-	MD.scal (A, F.zero ());
-
 	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block) {
 		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block) {
-			switch (input[horiz_block->source ()][vert_block->source ()].type ()) {
-			case SourceMatrix<Matrix2>::TYPE_ZERO:
-				break;
+			if (output[horiz_block->dest ()][vert_block->dest ()].type () == MatrixPart<Matrix2>::TYPE_MATRIX) {
+				switch (input[horiz_block->source ()][vert_block->source ()].type ()) {
+				case MatrixPart<Matrix1>::TYPE_ZERO:
+					break;
 
-			case SourceMatrix<Matrix2>::TYPE_IDENTITY:
-				attach_identity (F, A, *horiz_block, *vert_block);
-				break;
+				case MatrixPart<Matrix1>::TYPE_IDENTITY:
+					attach_identity (F, output[horiz_block->dest ()][vert_block->dest ()].A (),
+							 *horiz_block, *vert_block);
+					break;
 
-			case SourceMatrix<Matrix2>::TYPE_MATRIX:
-				attach_source (F, A, input[horiz_block->source ()][vert_block->source ()].A (), *horiz_block, *vert_block);
-				break;
+				case MatrixPart<Matrix1>::TYPE_MATRIX:
+					attach_source (F, output[horiz_block->dest ()][vert_block->dest ()].A (),
+						       input[horiz_block->source ()][vert_block->source ()].A (),
+						       *horiz_block, *vert_block);
+					break;
+				}
 			}
 		}
 	}

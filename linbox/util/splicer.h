@@ -19,6 +19,7 @@ class Block {
 private:
 
 	unsigned int _source;
+	unsigned int _dest;
 	size_t _src_idx;
 	size_t _dest_idx;
 	size_t _size;
@@ -31,11 +32,14 @@ public:
 	 * @param dest_idx Row- resp. column-index of block in destination-matrix
 	 * @param size Size of block
 	 */
-	Block (unsigned int source, size_t src_idx, size_t dest_idx, size_t size)
-		: _source (source), _src_idx (src_idx), _dest_idx (dest_idx), _size (size) {}
+	Block (unsigned int source, unsigned int dest, size_t src_idx, size_t dest_idx, size_t size)
+		: _source (source), _dest (dest), _src_idx (src_idx), _dest_idx (dest_idx), _size (size) {}
 
 	/** Get index of source-matrix */
 	inline unsigned int source () const { return _source; }
+
+	/** Get index of destination-matrix */
+	inline unsigned int dest () const { return _dest; }
 
 	/** Get column- resp. row-index of block in source-matrix */
 	inline size_t sourceIndex () const { return _src_idx; }
@@ -64,7 +68,7 @@ public:
 
 /** Class representing a matrix to be spliced by the Splicer */
 template<class Matrix>
-class SourceMatrix {
+class MatrixPart {
 public:
 	enum Type { TYPE_ZERO, TYPE_IDENTITY, TYPE_MATRIX };
 
@@ -73,24 +77,24 @@ private:
 	const Type _type;
 
 public:
-	/** Construct a SourceMatrix-object from a matrix
+	/** Construct a MatrixPart-object from a matrix
 	 *
 	 * @param A Source-matrix
 	 */
-	SourceMatrix (Matrix &A) : _A (&A), _type (TYPE_MATRIX) {}
+	MatrixPart (Matrix &A) : _A (&A), _type (TYPE_MATRIX) {}
 
-	/** Construct a SourceMatrix-object with no matrix
+	/** Construct a MatrixPart-object with no matrix
 	 *
 	 * @param type Type of source. Must be TYPE_ZERO or
 	 * TYPE_IDENTITY.
 	 */
-	SourceMatrix (Type type) : _A (NULL), _type (type) {}
+	MatrixPart (Type type) : _A (NULL), _type (type) {}
 
 	/** Copy-constructor */
-	SourceMatrix (const SourceMatrix &S) : _A (S._A), _type (S._type) {}
+	MatrixPart (const MatrixPart &S) : _A (S._A), _type (S._type) {}
 
 	/** Assignment-operator */
-	SourceMatrix &operator = (const SourceMatrix &S) { _A = S._A; _type = S._type; }
+	MatrixPart &operator = (const MatrixPart &S) { _A = S._A; _type = S._type; }
 
 	Type type () const { return _type; }
 	Matrix &A () { return *_A; }
@@ -174,6 +178,14 @@ class Splicer {
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const;
+
+	template <class Field, class Vector1, class Vector2>
+	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const;
+
+	template <class Field, class Vector1, class Vector2>
+	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::GenericVectorTag, VectorCategories::GenericVectorTag) const;
 
 	template <class Field, class Vector1, class Vector2>
@@ -193,6 +205,8 @@ class Splicer {
 	void consolidate_blocks (std::vector<Block> &blocks);
 
 	void remove_gaps_from_blocks (std::vector<Block> &blocks);
+
+	void reverse_blocks (std::vector<Block> &out_blocks, const std::vector<Block> &in_blocks) const;
 
 	friend std::ostream &operator << (std::ostream &os, const Splicer &splicer);
 
@@ -216,18 +230,20 @@ public:
 	/** Add a horizontal block with the given source so that the
 	 * total row-dimension matches what is requested.
 	 *
-	 * @param id Source-id of block to be added
+	 * @param sid Source-id of block to be added
+	 * @param did Destination-id of block to be added
 	 * @param rowdim Desired row-dimension
 	 */
-	void fillHorizontal (unsigned int id, size_t rowdim);
+	void fillHorizontal (unsigned int sid, unsigned int did, size_t rowdim);
 
 	/** Add a vertical block with the given source so that the
 	 * total column-dimension matches what is requested.
 	 *
-	 * @param id Source-id of block to be added
+	 * @param sid Source-id of block to be added
+	 * @param did Destination-id of block to be added
 	 * @param rowdim Desired column-dimension
 	 */
-	void fillVertical (unsigned int id, size_t coldim);
+	void fillVertical (unsigned int sid, unsigned int did, size_t coldim);
 
 	/** Find successive blocks with an identical source-id and
 	 * consolidate them into single blocks
@@ -239,40 +255,27 @@ public:
 	 */
 	void removeGaps ();
 
-	/** Chop the input matrix A into matrices based on the given
-	 * block-decomposition
-	 *
-	 * @param F Field over which matrices are defined. Needed to
-	 * copy submatrices.
-	 *
-	 * @param output Array of arrays of SourceMatrix-objects. Matrices
-	 * should already be allocated and be of the right sizes. The
-	 * pointer at index i,j in the vector is whither data from
-	 * blocks with destination-index i,j are to be copied. If a
-	 * pointer at a given index is null, then the matrix is
-	 * ignored and the data are not copied.
-	 *
-	 * @param A Input-matrix
-	 */
-	template <class Field, class Matrix1, class Matrix2>
-	void chop (const Field &F, SourceMatrix<Matrix1> **output, const Matrix2 &A) const;
-
 	/** Splice the given set of matrices into a single matrix
 	 * based on the given block-decomposition
 	 *
 	 * @param F Field over which matrices are defined. Needed to
 	 * build identity-matrix when requested and to copy vectors.
 	 *
-	 * @param A Output-matrix
-	 *
-	 * @param input Array of arrays of SourceMatrix-objects. The pointer
+	 * @param input Array of arrays of MatrixPart-objects. The pointer
 	 * at index i,j should point to the source-matrix for blocks
 	 * with that source-index. If the source-type for a block is
 	 * SOURCE_MATRIX, then the pointer at the corresponding index
 	 * in this vector must be non-null.
+	 *
+	 * @param output Array of arrays of MatrixPart-objects. Matrices
+	 * should already be allocated and be of the right sizes. The
+	 * pointer at index i,j in the vector is whither data from
+	 * blocks with destination-index i,j are to be copied. If a
+	 * pointer at a given index is null, then the matrix is
+	 * ignored and the data are not copied.
 	 */
 	template <class Field, class Matrix1, class Matrix2>
-	void splice (const Field &F, Matrix1 &A, SourceMatrix<Matrix2> **input) const;
+	void splice (const Field &F, MatrixPart<Matrix1> **input, MatrixPart<Matrix2> **output) const;
 
 	/** Compose this Splicer with another and produce a new Splicer
 	 *
@@ -295,6 +298,13 @@ public:
 			  unsigned int vert_inner_source,
 			  unsigned int horiz_only_source = -1,
 			  unsigned int vert_only_source = -1) const;
+
+	/** Construct the reverse of this splicer and place it in output
+	 *
+	 * @param output Splicer into which to place the reverse
+	 * @returns Reference to output
+	 */
+	Splicer &reverse (Splicer &output) const;
 
 	/** Check that the blocks are valid. Useful for debugging.
 	 *
