@@ -108,7 +108,11 @@ public:
 class Splicer {
 	std::vector<Block> _vert_blocks, _horiz_blocks;
 
-	std::vector<Block> &map_blocks (std::vector<Block> &output, const std::vector<Block> &outer_blocks, const std::vector<Block> &inner_blocks, unsigned int inner_source) const;
+	std::vector<Block> &map_blocks (std::vector<Block> &output,
+					const std::vector<Block> &outer_blocks,
+					const std::vector<Block> &inner_blocks,
+					unsigned int inner_source,
+					unsigned int only_source) const;
 
 	template <class Field, class Vector>
 	void attach_e_i_specialised (const Field &F, Vector &row, size_t idx, VectorCategories::DenseVectorTag) const
@@ -184,9 +188,11 @@ class Splicer {
 	template <class Field, class Matrix1, class Matrix2>
 	void attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block) const;
 
-	bool check_blocks (const std::vector<Block> blocks, const char *type) const;
+	bool check_blocks (const std::vector<Block> &blocks, const char *type) const;
 
-	void substitute (std::vector<Block> &blocks, const std::vector<Block> &other_blocks, unsigned int source, unsigned int other_source);
+	void consolidate_blocks (std::vector<Block> &blocks);
+
+	void remove_gaps_from_blocks (std::vector<Block> &blocks);
 
 	friend std::ostream &operator << (std::ostream &os, const Splicer &splicer);
 
@@ -222,6 +228,16 @@ public:
 	 * @param rowdim Desired column-dimension
 	 */
 	void fillVertical (unsigned int id, size_t coldim);
+
+	/** Find successive blocks with an identical source-id and
+	 * consolidate them into single blocks
+	 */
+	void consolidate ();
+
+	/** Find and remove gaps in the blocks, updating
+	 * destination-ids appropriately.
+	 */
+	void removeGaps ();
 
 	/** Chop the input matrix A into matrices based on the given
 	 * block-decomposition
@@ -269,9 +285,16 @@ public:
 	 * @param inner Splicer with which to compose this one
 	 * @param horiz_inner_source Horizontal index of source to which inner blocks correspond
 	 * @param vert_inner_source Vertical index of source to which inner blocks correspond
+	 * @param horiz_only_source If not -1, only include horizontal blocks with this source-id and ignore all others
+	 * @param vert_only_source If not -1, only include vertical blocks with this source-id and ignore all others
 	 * @returns Reference to output
 	 */
-	Splicer &compose (Splicer &output, const Splicer &inner, unsigned int horiz_inner_source, unsigned int vert_inner_source) const;
+	Splicer &compose (Splicer &output,
+			  const Splicer &inner,
+			  unsigned int horiz_inner_source,
+			  unsigned int vert_inner_source,
+			  unsigned int horiz_only_source = -1,
+			  unsigned int vert_only_source = -1) const;
 
 	/** Check that the blocks are valid. Useful for debugging.
 	 *
@@ -280,26 +303,6 @@ public:
 	 * @returns true if everything is okay, false if error found
 	 */
 	bool check () const;
-
-	/** Substitute given horizontal blocks from given splicer into this splicer.
-	 *
-	 * @param splicer Splicer with horizontal blocks to substitute
-	 * @param source Source-id of blocks to be substituted
-	 * @param splicer_source Source-id in splicer of blocks to use
-	 *
-	 * @returns Reference to this
-	 */
-	Splicer &substituteHoriz (const Splicer &splicer, unsigned int source, unsigned int splicer_source);
-
-	/** Substitute given vertical blocks from given splicer into this splicer.
-	 *
-	 * @param splicer Splicer with vertical blocks to substitute
-	 * @param source Source-id of blocks to be substituted
-	 * @param splicer_source Source-id in splicer of blocks to use
-	 *
-	 * @returns Reference to this
-	 */
-	Splicer &substituteVert (const Splicer &splicer, unsigned int source, unsigned int splicer_source);
 };
 
 } // namespace LinBox

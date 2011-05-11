@@ -301,12 +301,15 @@ namespace F4 {
 			reportUI << "B2 - B1 D1^-1 D2:" << std::endl;
 			MD.write (reportUI, B2);
 
-			Splicer composed_splicer;
+			Splicer composed_splicer, subst_splicer;
 
-			X_reconst_splicer.substituteHoriz (D_reconst_splicer, 1, 0);
-			X_reconst_splicer.compose (composed_splicer, D_splicer, 1, 1);
+			X_reconst_splicer.compose (subst_splicer, D_reconst_splicer, 1, (unsigned int) -1, 0, (unsigned int) -1);
+			subst_splicer.removeGaps ();
+			subst_splicer.consolidate ();
+			subst_splicer.compose (composed_splicer, D_splicer, 1, 1);
 			composed_splicer.fillHorizontal (2, X.rowdim ());
 
+			reportUI << "Splicer after substitution:" << std::endl << subst_splicer << std::endl;
 			reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
 
 			SourceMatrix<DenseMatrix> X_sources_inner_1[] = { SourceMatrix<DenseMatrix> (SourceMatrix<DenseMatrix>::TYPE_IDENTITY),

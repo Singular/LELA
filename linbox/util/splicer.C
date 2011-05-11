@@ -23,7 +23,11 @@ std::ostream &operator << (std::ostream &os, const Block &b)
 
 struct CompareBlockSources { inline bool operator () (const Block &b1, const Block &b2) { return b1.source () < b2.source (); } };
 
-std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::vector<Block> &outer_blocks, const std::vector<Block> &inner_blocks, unsigned int inner_source) const
+std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
+					 const std::vector<Block> &outer_blocks,
+					 const std::vector<Block> &inner_blocks,
+					 unsigned int inner_source,
+					 unsigned int only_source) const
 {
 	linbox_check (!inner_blocks.empty ());
 
@@ -32,10 +36,11 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::
 
 	size_t curr_dest_idx = 0, rest_size = 0, curr_size = 0;
 	std::map<size_t, size_t> curr_source_idx;
+	unsigned int use_source;
 
 	commentator.start ("Mapping blocks", __FUNCTION__);
 
-	size_t max_inner_block = (std::max_element (inner_blocks.begin (), inner_blocks.end (), CompareBlockSources ()))->source ();
+	size_t max_inner_block = (only_source == (unsigned int) -1) ? 1 : (std::max_element (inner_blocks.begin (), inner_blocks.end (), CompareBlockSources ()))->source ();
 
 	for (outer_block = outer_blocks.begin (); outer_block != outer_blocks.end (); ++outer_block) {
 		if (outer_block->source () != inner_source) {
@@ -52,12 +57,16 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::
 			if (rest_size > 0) {
 				curr_size = std::min (rest_size, outer_block->size ());
 
-				output.push_back (Block (inner_block->source () + outer_block->source (), curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
+				if (only_source == (unsigned int) -1 || inner_block->source () == only_source) {
+					use_source = (only_source == (unsigned int) -1) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
 
-				commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
-					<< "New block created (leftover): " << output.back () << std::endl
-					<< "Inner source-block: " << *inner_block << std::endl
-					<< "Outer source-block: " << *outer_block << std::endl;
+					output.push_back (Block (use_source, curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
+
+					commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
+						<< "New block created (leftover): " << output.back () << std::endl
+						<< "Inner source-block: " << *inner_block << std::endl
+						<< "Outer source-block: " << *outer_block << std::endl;
+				}
 
 				curr_source_idx[inner_block->source ()] += curr_size;
 				curr_dest_idx += curr_size;
@@ -73,12 +82,16 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output, const std::
 				if (curr_source_idx.find (inner_block->source ()) == curr_source_idx.end ())
 					curr_source_idx[inner_block->source ()] = 0;
 
-				output.push_back (Block (inner_block->source () + outer_block->source (), curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
+				if (only_source == (unsigned int) -1 || inner_block->source () == only_source) {
+					use_source = (only_source == (unsigned int) -1) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
 
-				commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
-					<< "New block created: " << output.back () << std::endl
-					<< "Inner source-block: " << *inner_block << std::endl
-					<< "Outer source-block: " << *outer_block << std::endl;
+					output.push_back (Block (use_source, curr_source_idx[inner_block->source ()], curr_dest_idx, curr_size));
+
+					commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION)
+						<< "New block created: " << output.back () << std::endl
+						<< "Inner source-block: " << *inner_block << std::endl
+						<< "Outer source-block: " << *outer_block << std::endl;
+				}
 
 				curr_source_idx[inner_block->source ()] += curr_size;
 				curr_dest_idx += curr_size;
@@ -147,18 +160,64 @@ void Splicer::fillVertical (unsigned int id, size_t coldim)
 				       coldim - (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size ())));
 }
 
-Splicer &Splicer::compose (Splicer &output, const Splicer &inner, unsigned int horiz_inner_source, unsigned int vert_inner_source) const
+void Splicer::consolidate_blocks (std::vector<Block> &blocks)
+{
+	std::vector<Block>::iterator i = blocks.begin (), i_end;
+	size_t size;
+
+	while (i != blocks.end ()) {
+		size = 0;
+
+		for (i_end = i; i_end != blocks.end () && i_end->source () == i->source (); ++i_end)
+			size += i_end->size ();
+
+		*i = Block (i->source (), i->sourceIndex (), i->destIndex (), size);
+
+		++i;
+		i = blocks.erase (i, i_end);
+	}
+}
+
+void Splicer::consolidate ()
+{
+	consolidate_blocks (_horiz_blocks);
+	consolidate_blocks (_vert_blocks);
+}
+
+void Splicer::remove_gaps_from_blocks (std::vector<Block> &blocks)
+{
+	std::vector<Block>::iterator i;
+	size_t curr_dest_idx = 0;
+
+	for (i = blocks.begin (); i != blocks.end (); ++i) {
+		*i = Block (i->source (), i->sourceIndex (), curr_dest_idx, i->size ());
+		curr_dest_idx += i->size ();
+	}
+}
+
+void Splicer::removeGaps ()
+{
+	remove_gaps_from_blocks (_horiz_blocks);
+	remove_gaps_from_blocks (_vert_blocks);
+}
+
+Splicer &Splicer::compose (Splicer &output,
+			   const Splicer &inner,
+			   unsigned int horiz_inner_source,
+			   unsigned int vert_inner_source,
+			   unsigned int horiz_only_source,
+			   unsigned int vert_only_source) const
 {
 	output._horiz_blocks.clear ();
 	output._vert_blocks.clear ();
 
-	map_blocks (output._horiz_blocks, _horiz_blocks, inner._horiz_blocks, horiz_inner_source);
-	map_blocks (output._vert_blocks, _vert_blocks, inner._vert_blocks, vert_inner_source);
+	map_blocks (output._horiz_blocks, _horiz_blocks, inner._horiz_blocks, horiz_inner_source, horiz_only_source);
+	map_blocks (output._vert_blocks, _vert_blocks, inner._vert_blocks, vert_inner_source, vert_only_source);
 
 	return output;
 }
 
-bool Splicer::check_blocks (const std::vector<Block> blocks, const char *type) const
+bool Splicer::check_blocks (const std::vector<Block> &blocks, const char *type) const
 {
 	std::ostringstream str;
 	str << "Checking " << type << " blocks" << std::ends;
@@ -210,80 +269,6 @@ bool Splicer::check () const
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
-}
-
-void Splicer::substitute (std::vector<Block> &blocks, const std::vector<Block> &other_blocks, unsigned int source, unsigned int other_source)
-{
-	std::vector<Block>::iterator i;
-	std::vector<Block>::const_iterator j = other_blocks.begin (), j_stop;
-	size_t curr_source_idx = 0, curr_dest_idx = 0, size_from_source = 0;
-
-	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-	for (i = blocks.begin (); i != blocks.end (); ++i) {
-		if (i->source () == source) {
-			for (j_stop = j; j_stop != other_blocks.end () && j_stop->destIndex () < i->sourceIndex () + i->size (); ++j_stop)
-				if (j_stop->source () == other_source)
-					size_from_source += j_stop->size ();
-
-			if (size_from_source > 0) {
-				report << "Replacing " << *i;
-				size_t new_size = std::min (size_from_source, i->size ());
-				*i = Block (source, curr_source_idx, curr_dest_idx, new_size);
-				report << " with " << *i << " (substitution)" << std::endl;
-				curr_dest_idx += new_size;
-				curr_source_idx += new_size;
-				size_from_source -= new_size;
-			} else {
-				report << "Erasing block " << *i << std::endl;
-				i = blocks.erase (i);
-				--i;
-			}
-
-			j = j_stop;
-		} else {
-			report << "Replacing " << *i;
-			*i = Block (i->source (), i->sourceIndex (), curr_dest_idx, i->size ());
-			report << " with " << *i << std::endl;
-			curr_dest_idx += i->size ();
-		}
-	}
-}
-
-Splicer &Splicer::substituteHoriz (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
-{
-	std::ostringstream str;
-	str << "Substituting horizontal block " << splicer_source << " for block " << source << std::ends;
-	commentator.start (str.str ().c_str (), __FUNCTION__);
-
-	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-	report << "Splicer before substitution:" << std::endl << *this;
-	report << "Splicer to be substituted:" << std::endl << splicer;
-
-	substitute (_horiz_blocks, splicer._horiz_blocks, source, splicer_source);
-
-	commentator.stop (MSG_DONE);
-
-	return *this;
-}
-
-Splicer &Splicer::substituteVert (const Splicer &splicer, unsigned int source, unsigned int splicer_source)
-{
-	std::ostringstream str;
-	str << "Substituting vertical block " << splicer_source << " for block " << source << std::ends;
-	commentator.start (str.str ().c_str (), __FUNCTION__);
-
-	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-	report << "Splicer before substitution:" << std::endl << *this;
-	report << "Splicer to be substituted:" << std::endl << splicer;
-
-	substitute (_vert_blocks, splicer._vert_blocks, source, splicer_source);
-
-	commentator.stop (MSG_DONE);
-
-	return *this;
 }
 
 std::ostream &operator << (std::ostream &os, const Splicer &splicer)
