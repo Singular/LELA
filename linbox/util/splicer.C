@@ -123,46 +123,39 @@ public:
 		{ return b.source () == _source; }
 };
 
-void Splicer::fillHorizontal (unsigned int sid, unsigned int did, size_t rowdim)
+class IsDestP {
+	unsigned int _dest;
+
+public:
+	IsDestP (int dest) : _dest (dest) {}
+
+	bool operator () (const Block &b)
+		{ return b.dest () == _dest; }
+};
+
+void Splicer::fill_blocks (std::vector<Block> &blocks, unsigned int sid, unsigned int did, size_t dim)
 {
-	linbox_check (!_horiz_blocks.empty ());
-	linbox_check (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () <= rowdim);
+	linbox_check (!blocks.empty ());
 
-	if (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size () == rowdim)
-		return;
+	std::vector<Block>::reverse_iterator i_s = std::find_if (blocks.rbegin (), blocks.rend (), IsSourceP (sid));
+	std::vector<Block>::reverse_iterator i_d = std::find_if (blocks.rbegin (), blocks.rend (), IsDestP (did));
 
-	std::vector<Block>::reverse_iterator i = std::find_if (_horiz_blocks.rbegin (), _horiz_blocks.rend (), IsSourceP (sid));
+	size_t source_idx, dest_idx;
 
-	size_t source_idx;
-
-	if (i == _horiz_blocks.rend ())
+	if (i_s == blocks.rend ())
 		source_idx = 0;
 	else
-		source_idx = i->sourceIndex () + i->size ();
+		source_idx = i_s->sourceIndex () + i_s->size ();
 
-	_horiz_blocks.push_back (Block (sid, did, source_idx, _horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size (),
-					rowdim - (_horiz_blocks.back ().destIndex () + _horiz_blocks.back ().size ())));
-}
-
-void Splicer::fillVertical (unsigned int sid, unsigned int did, size_t coldim)
-{
-	linbox_check (!_vert_blocks.empty ());
-	linbox_check (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () <= coldim);
-
-	if (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size () == coldim)
-		return;
-
-	std::vector<Block>::reverse_iterator i = std::find_if (_vert_blocks.rbegin (), _vert_blocks.rend (), IsSourceP (sid));
-
-	size_t source_idx;
-
-	if (i == _vert_blocks.rend ())
-		source_idx = 0;
+	if (i_d == blocks.rend ())
+		dest_idx = 0;
 	else
-		source_idx = i->sourceIndex () + i->size ();
+		dest_idx = i_d->destIndex () + i_d->size ();
 
-	_vert_blocks.push_back (Block (sid, did, source_idx, _vert_blocks.back ().destIndex () + _vert_blocks.back ().size (),
-				       coldim - (_vert_blocks.back ().destIndex () + _vert_blocks.back ().size ())));
+	linbox_check (dest_idx <= dim);
+
+	if (dest_idx < dim)
+		blocks.push_back (Block (sid, did, source_idx, dest_idx, dim - dest_idx));
 }
 
 void Splicer::consolidate_blocks (std::vector<Block> &blocks)
@@ -173,7 +166,7 @@ void Splicer::consolidate_blocks (std::vector<Block> &blocks)
 	while (i != blocks.end ()) {
 		size = 0;
 
-		for (i_end = i; i_end != blocks.end () && i_end->source () == i->source (); ++i_end)
+		for (i_end = i; i_end != blocks.end () && i_end->source () == i->source () && i_end->dest () == i->dest (); ++i_end)
 			size += i_end->size ();
 
 		*i = Block (i->source (), i->dest (), i->sourceIndex (), i->destIndex (), size);
@@ -192,11 +185,18 @@ void Splicer::consolidate ()
 void Splicer::remove_gaps_from_blocks (std::vector<Block> &blocks)
 {
 	std::vector<Block>::iterator i;
-	size_t curr_dest_idx = 0;
+	std::map<unsigned int, size_t> curr_source_idx, curr_dest_idx;
 
 	for (i = blocks.begin (); i != blocks.end (); ++i) {
-		*i = Block (i->source (), i->dest (), i->sourceIndex (), curr_dest_idx, i->size ());
-		curr_dest_idx += i->size ();
+		if (curr_source_idx.find (i->source ()) == curr_source_idx.end ())
+			curr_source_idx[i->source ()] = 0;
+
+		if (curr_dest_idx.find (i->dest ()) == curr_dest_idx.end ())
+			curr_dest_idx[i->dest ()] = 0;
+
+		*i = Block (i->source (), i->dest (), curr_source_idx[i->source ()], curr_dest_idx[i->dest ()], i->size ());
+		curr_source_idx[i->source ()] += i->size ();
+		curr_dest_idx[i->dest ()] += i->size ();
 	}
 }
 

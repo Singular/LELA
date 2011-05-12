@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "linbox/vector/vector-traits.h"
+#include "linbox/matrix/matrix-traits.h"
 
 namespace LinBox
 {
@@ -66,10 +67,19 @@ public:
 	inline bool isDestIndexInBlock (size_t idx) const { return idx >= _dest_idx && idx < _dest_idx + _size; }
 };
 
-/** Class representing a matrix to be spliced by the Splicer */
-template<class Matrix>
+/** Class representing a part of a matrix to be spliced by the Splicer */
+template<class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
 class MatrixPart {
 public:
+	/** Type of the matrix-part
+	 *
+	 * A MatrixPart can be zero (TYPE_ZERO), the identity-matrix
+	 * (TYPE_IDENTITY), or an existing matrix (TYPE_MATRIX). When
+	 * splicing, MatrixParts of type TYPE_ZERO are ignored, those
+	 * of type TYPE_IDENTITY are transferred by building the
+	 * appropriate identity-block, and those of type TYPE_MATRIX
+	 * are copied.
+	 */
 	enum Type { TYPE_ZERO, TYPE_IDENTITY, TYPE_MATRIX };
 
 private:
@@ -96,18 +106,42 @@ public:
 	/** Assignment-operator */
 	MatrixPart &operator = (const MatrixPart &S) { _A = S._A; _type = S._type; }
 
+	/** Return the type */
 	Type type () const { return _type; }
+
+	/** Return the matrix if it exists */
 	Matrix &A () { return *_A; }
 };
 
-/** Class to chop a matrix up into smaller matrices which may be
- * distributed across non-continuous rows and columns and to assemble
- * smaller matrices into a large matrix in the same manner.
+/** Class to chop matrices up and splice them together.
  *
- * Horizontal respectively vertical blocks must be arranged from left
- * to right respectively top to bottom in both the source- and
- * destination-matrix with no gaps in either. The method check ()
- * checks whether this is so and reports problems.
+ * This class maintains a set of data-structures which describe how a
+ * large virtual matrix is divided in two ways (a source and a
+ * destination) into smaller matrices. It then provides a facility,
+ * @ref splice, which, given appropriate sets of matrices (actually
+ * arrays of type @ref MatrixPart), converts from the
+ * source-representation to the destination-representation.
+ *
+ * The virtual matrix is divided horizontally and vertically into
+ * blocks represented by the class @ref Block. Each block indicates a
+ * source-id, a destination-id, a source-index, a destination-index,
+ * and a size. A pair consisting of a horizontal block and a vertical
+ * block represents an atomic division of the virtual matrix and
+ * contains the information required to transfer the data from the
+ * source-representation to the destination-representation.
+ *
+ * The pair (horizontal id, vertical id) identifies which matrix from
+ * the source respectively destination is used. It gives the indices
+ * into two-dimensional arrays of type @ref MatrixPart which are
+ * passed to @ref splice. The indices are then of the row respectively
+ * column where the block begins.
+ *
+ * Horizontal and vertical blocks must be arranged from left to right
+ * respectively top to bottom in both the source- and
+ * destination-matrix with no gaps in either and no overlaps. The
+ * method @ref check checks whether this is so and reports
+ * problems. The method @ref removeGaps searches for gaps in the
+ * horizontal and vertical blocks and removes them.
  */
 class Splicer {
 	std::vector<Block> _vert_blocks, _horiz_blocks;
@@ -162,11 +196,18 @@ class Splicer {
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag) const;
+
+	template <class Field, class Vector1, class Vector2>
+	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const;
+
+	template <class Vector>
+	void append_word (Vector &v, size_t index, typename Vector::word_type word) const;
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
@@ -174,19 +215,19 @@ class Splicer {
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
-
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const;
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const;
+				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::GenericVectorTag, VectorCategories::GenericVectorTag) const;
+				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
+
+	template <class Field, class Vector1, class Vector2>
+	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const;
 
 	template <class Field, class Vector1, class Vector2>
 	void attach_block (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size) const
@@ -195,22 +236,29 @@ class Splicer {
 					    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 	template <class Field, class Matrix>
-	void attach_identity (const Field &F, Matrix &A, const Block &horiz_block, const Block &vert_block) const;
+	void attach_identity (const Field &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
+
+	template <class Field, class Matrix>
+	void attach_identity (const Field &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
 
 	template <class Field, class Matrix1, class Matrix2>
-	void attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block) const;
+	void attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
+
+	template <class Field, class Matrix1, class Matrix2>
+	void attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
 
 	bool check_blocks (const std::vector<Block> &blocks, const char *type) const;
-
 	void consolidate_blocks (std::vector<Block> &blocks);
-
 	void remove_gaps_from_blocks (std::vector<Block> &blocks);
-
 	void reverse_blocks (std::vector<Block> &out_blocks, const std::vector<Block> &in_blocks) const;
+	void fill_blocks (std::vector<Block> &blocks, unsigned int sid, unsigned int did, size_t dim);
 
 	friend std::ostream &operator << (std::ostream &os, const Splicer &splicer);
 
 public:
+	/// @name Management of the blocks
+	//@{
+
 	/** Add a new block which divides the matrix horizontally */
 	void addHorizontalBlock (const Block &block)
 		{ _horiz_blocks.push_back (block); }
@@ -234,7 +282,8 @@ public:
 	 * @param did Destination-id of block to be added
 	 * @param rowdim Desired row-dimension
 	 */
-	void fillHorizontal (unsigned int sid, unsigned int did, size_t rowdim);
+	void fillHorizontal (unsigned int sid, unsigned int did, size_t rowdim)
+		{ fill_blocks (_horiz_blocks, sid, did, rowdim); }
 
 	/** Add a vertical block with the given source so that the
 	 * total column-dimension matches what is requested.
@@ -243,39 +292,18 @@ public:
 	 * @param did Destination-id of block to be added
 	 * @param rowdim Desired column-dimension
 	 */
-	void fillVertical (unsigned int sid, unsigned int did, size_t coldim);
+	void fillVertical (unsigned int sid, unsigned int did, size_t coldim)
+		{ fill_blocks (_vert_blocks, sid, did, coldim); }
 
-	/** Find successive blocks with an identical source-id and
-	 * consolidate them into single blocks
+	/** Find successive blocks with identical source- and
+	 * destination-ids and consolidate them into single blocks
 	 */
 	void consolidate ();
 
-	/** Find and remove gaps in the blocks, updating
-	 * destination-ids appropriately.
+	/** Find and remove gaps in the blocks, updating indices
+	 * appropriately.
 	 */
 	void removeGaps ();
-
-	/** Splice the given set of matrices into a single matrix
-	 * based on the given block-decomposition
-	 *
-	 * @param F Field over which matrices are defined. Needed to
-	 * build identity-matrix when requested and to copy vectors.
-	 *
-	 * @param input Array of arrays of MatrixPart-objects. The pointer
-	 * at index i,j should point to the source-matrix for blocks
-	 * with that source-index. If the source-type for a block is
-	 * SOURCE_MATRIX, then the pointer at the corresponding index
-	 * in this vector must be non-null.
-	 *
-	 * @param output Array of arrays of MatrixPart-objects. Matrices
-	 * should already be allocated and be of the right sizes. The
-	 * pointer at index i,j in the vector is whither data from
-	 * blocks with destination-index i,j are to be copied. If a
-	 * pointer at a given index is null, then the matrix is
-	 * ignored and the data are not copied.
-	 */
-	template <class Field, class Matrix1, class Matrix2>
-	void splice (const Field &F, MatrixPart<Matrix1> **input, MatrixPart<Matrix2> **output) const;
 
 	/** Compose this Splicer with another and produce a new Splicer
 	 *
@@ -313,6 +341,30 @@ public:
 	 * @returns true if everything is okay, false if error found
 	 */
 	bool check () const;
+
+	//@} Management of the blocks
+
+	/** Splice the given set of matrices input into the set of
+	 * matrices output
+	 *
+	 * @param F Field over which matrices are defined. Needed to
+	 * build identity-matrix when requested and to copy vectors.
+	 *
+	 * @param input Array of arrays of @ref MatrixPart objects
+	 * from which data are copied.
+	 *
+	 * @param output Array of arrays of @ref MatrixPart objects to
+	 * which data are copied. If the type of a MatrixPart is
+	 * TYPE_MATRIX, then its corresponding matrices should already
+	 * be allocated, be of the right size, and be initialised to
+	 * zero. If the type is not TYPE_MATRIX, then it is ignored by
+	 * this operation.
+	 */
+	template <class Field, class Matrix1, class Matrix2>
+	void splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const;
+
+	template <class Field, class Matrix1, class Matrix2>
+	void splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::ColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::ColMatrixTag> **output) const;
 };
 
 } // namespace LinBox
