@@ -15,6 +15,7 @@ pkgincludesub_HEADERS=		\
 	reverse.h		\
 	random.h                \
 	stream.h		\
+	stream.tcc		\
 	bit-iterator.h		\
 	bit-vector.h		\
 	bit-vector.tcc		\

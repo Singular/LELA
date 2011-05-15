@@ -1,42 +1,8 @@
 /* linbox/vector/stream.h
- * Copyright (C) 2002 Bradford Hovinen
+ * Copyright 2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ------------------------------------
- * 2003-02-03 Bradford Hovinen <bghovinen@math.uwaterloo.ca>
- *
- * RandomSparseStream::RandomSparseStream: put probability parameter before
- * vector dimension
- * ------------------------------------
- * 2002-09-05 Bradford Hovinen <bghovine@math.uwaterloo.ca>
- *
- *  - Renamed to stream.h and moved to linbox/vector
- *  - VectorFactory is now called VectorStream, which fits its purpose
- *    somewhat better
- *  - The interface is now closer to the interface for istream
- *  - RandomDenseVectorFactory, et al. are refactored into classes
- *    parameterized on the vector type and specialized appropriately. This
- *    allows, e.g. construction of a random dense vector in sparse
- *    representation and so on.
- *  - New constructor interface for RandomSparseStream accepts proportion of
- *    nonzero entries; removed existing constructors
- *  - Reindented, since the other changes are so numerous that diffs aren't a
- *    big deal anyway
- *
- * ------------------------------------
- * 2002-05-18 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Refactor: Create one class StandardBasisFactory, parameterized by vector
- * type, with specializations for dense, sparse map, and sparse associative
- * vectors.
- * 
- * ------------------------------------
- * Modified by Dmitriy Morozov <linbox@foxcub.org>. May 27, 2002.
- *
- * Added parametrization of the VectorCategroy tags by VectorTraits (see 
- * vector-traits.h for more details).
- * 
  * ------------------------------------
  *  
  * See COPYING for license information.
@@ -151,6 +117,7 @@ class ConstantVectorStream : public VectorStream<_Vector>
 	 */
 	Self_t &operator >> (Vector &v)
 		{ get (v); return *this; }
+
 	/** Number of vectors to be created
 	 */
 	size_t size () const { return _m; }
@@ -213,6 +180,7 @@ class RandomDenseStream : public VectorStream<_Vector>
 	 */
 	Self_t &operator >> (Vector &v)
 		{ get (v); return *this; }
+
 	/** Number of vectors to be created
 	 */
 	size_t size () const;
@@ -237,7 +205,7 @@ class RandomDenseStream : public VectorStream<_Vector>
 // Specialization of random dense stream for dense vectors
 
 template <class Field, class _Vector, class RandIter>
-class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseVectorTag > : public VectorStream<_Vector>
+class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
@@ -251,18 +219,7 @@ class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseVectorT
 		: _F (F), _r (r), _n (n), _m (m), _j (0)
 	{}
 
-	Vector &get (Vector &v) 
-	{
-		typename Vector::iterator i;
-
-		if ( (_m > 0) && (_j++ >= _m) )
-			return v;
-
-		for (i = v.begin (); i != v.end (); i++)
-			_r.random (*i);
-
-		return v;
-	}
+	Vector &get (Vector &v);
 
 	/** Extraction operator form
 	 */
@@ -320,6 +277,7 @@ class RandomSparseStream : public VectorStream<_Vector>
 	 */
 	Self_t &operator >> (Vector &v)
 		{ get (v); return *this; }
+
 	/** Number of vectors to be created
 	 */
 	size_t size () const;
@@ -348,11 +306,11 @@ class RandomSparseStream : public VectorStream<_Vector>
 // Specialization of RandomSparseStream for dense vectors
 
 template <class Field, class _Vector, class RandIter>
-class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVectorTag > : public VectorStream<_Vector>
+class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::DenseVectorTag > Self_t;
+        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::DenseVectorTag> Self_t;
 
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1),
@@ -365,29 +323,8 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVector
 		  _MT (seed)
 		{ linbox_check ((p >= 0.0) && (p <= 1.0)); _F.init (_zero, 0); }
 
-	Vector &get (Vector &v)
-	{
-		double val;
-
-		if (_m > 0 && _j++ >= _m)
-			return v;
-
-		for (typename Vector::iterator i = v.begin (); i != v.end (); ++i) {
-			val = _MT.randomDouble ();
-
-			if (val < _p)
-				_r.random (*i);
-			else
-				_F.assign (*i, _zero);
-		}
-
-		return v;
-	}
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
-
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _m; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -410,11 +347,11 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::DenseVector
 // Specialization of RandomSparseStream for sparse sequence vectors
 
 template <class Field, class _Vector, class RandIter>
-class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseVectorTag > : public VectorStream<_Vector>
+class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseVectorTag > Self_t;
+        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseVectorTag> Self_t;
 
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1), _n (n), _m (m), _j (0),
@@ -426,40 +363,8 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseVecto
 		  _MT (seed)
 		{ setP (p); }
 
-	Vector &get (Vector &v) 
-	{
-		typename Field::Element x;
-		size_t i = (size_t) -1;
-		double val;
-		int skip;
-
-		if (_m > 0 && _j++ >= _m)
-			return v;
-
-		v.clear ();
-
-		while (1) {
-			val = _MT.randomDouble ();
-			skip = (int) (ceil (log (val) * _1_log_1mp));
-
-			if (skip <= 0)
-				++i;
-			else
-				i += skip;
-
-			if (i >= _n) break;
-
-			_r.random (x);
-			v.push_back (std::pair<size_t, typename Field::Element> (i, x));
-		}
-
-		return v;
-	}
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
-
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _m; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -488,11 +393,11 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseVecto
 // Specialisation for dense zero-one vectors
 
 template <class Field, class _Vector, class RandIter>
-class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseZeroOneVectorTag > : public VectorStream<_Vector>
+class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseZeroOneVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomDenseStream<Field, Vector, RandIter, VectorCategories::DenseZeroOneVectorTag > Self_t;
+        typedef RandomDenseStream<Field, Vector, RandIter, VectorCategories::DenseZeroOneVectorTag> Self_t;
 
 	RandomDenseStream (const Field &F, size_t n, size_t m = 0)
 		: _F (F), _r (F), _n (n), _m (m), _j (0)
@@ -502,23 +407,8 @@ class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseZeroOne
 		: _F (F), _r (r), _n (n), _m (m), _j (0)
 	{}
 
-	Vector &get (Vector &v) 
-	{
-		typename Vector::iterator i;
-
-		if ( (_m > 0) && (_j++ >= _m) )
-			return v;
-
-		for (i = v.begin (); i != v.end (); i++)
-			_r.random (*i);
-
-		return v;
-	}
-
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _m; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -536,11 +426,11 @@ class RandomDenseStream<Field, _Vector, RandIter, VectorCategories::DenseZeroOne
 // Specialization of RandomSparseStream for sparse zero-one vectors
 
 template <class Field, class _Vector, class RandIter>
-class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseZeroOneVectorTag > : public VectorStream<_Vector>
+class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseZeroOneVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseZeroOneVectorTag > Self_t;
+        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseZeroOneVectorTag> Self_t;
 
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _n (n), _m (m), _j (0), _MT (0)
@@ -550,39 +440,8 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseZeroO
 		: _F (F), _n (n), _m (m), _j (0), _MT (0)
 		{ setP (p); }
 
-	Vector &get (Vector &v) 
-	{
-		size_t i = (size_t) -1;
-		double val;
-		int skip;
-
-		if (_m > 0 && _j++ >= _m)
-			return v;
-
-		v.clear ();
-
-		while (1) {
-			val = _MT.randomDouble ();
-			skip = (int) (ceil (log (val) * _1_log_1mp));
-
-			if (skip <= 0)
-				i++;
-			else
-				i += skip;
-
-			if (i >= _n) break;
-
-			v.push_back (i);
-		}
-
-		return v;
-	}
-
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
-
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _m; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -609,11 +468,11 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::SparseZeroO
 // Specialization of RandomSparseStream for hybrid zero-one vectors
 
 template <class Field, class _Vector, class RandIter>
-class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroOneVectorTag > : public VectorStream<_Vector>
+class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroOneVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::HybridZeroOneVectorTag > Self_t;
+        typedef RandomSparseStream<Field, Vector, RandIter, VectorCategories::HybridZeroOneVectorTag> Self_t;
 
 	RandomSparseStream (const Field &F, double p, size_t n, size_t m = 0)
 		: _F (F), _n (n), _m (m), _j (0), _MT (0)
@@ -623,45 +482,8 @@ class RandomSparseStream<Field, _Vector, RandIter, VectorCategories::HybridZeroO
 		: _F (F), _n (n), _m (m), _j (0), _MT (0)
 		{ setP (p); }
 
-	Vector &get (Vector &v) 
-	{
-		size_t i = (size_t) -1;
-		double val;
-		int skip;
-
-		if (_m > 0 && _j++ >= _m)
-			return v;
-
-		v.clear ();
-
-		while (1) {
-			val = _MT.randomDouble ();
-			skip = (int) (ceil (log (val) * _1_log_1mp));
-
-			if (skip <= 0)
-				i++;
-			else
-				i += skip;
-
-			if (i >= _n) break;
-
-			typename Vector::index_type idx = i >> WordTraits<typename Vector::word_type>::logof_size;
-			typename Vector::word_type mask = Vector::Endianness::e_j (i & WordTraits<typename Vector::word_type>::pos_mask);
-
-			if (!v.empty () && idx == v.back ().first)
-				v.back ().second |= mask;
-			else
-				v.push_back (typename Vector::value_type (idx, mask));
-		}
-
-		return v;
-	}
-
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
-
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _m; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -697,7 +519,7 @@ class StandardBasisStream : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Field, Vector, Trait > Self_t;
+        typedef StandardBasisStream<Field, Vector, Trait> Self_t;
 
 	/** Constructor
 	 * Construct a new stream with the given field and vector size.
@@ -749,38 +571,18 @@ class StandardBasisStream : public VectorStream<_Vector>
 // Specialization of standard basis stream for dense vectors
 
 template <class Field, class _Vector>
-class StandardBasisStream<Field, _Vector, VectorCategories::DenseVectorTag > : public VectorStream<_Vector>
+class StandardBasisStream<Field, _Vector, VectorCategories::DenseVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Field, Vector, VectorCategories::DenseVectorTag > Self_t;
+        typedef StandardBasisStream<Field, Vector, VectorCategories::DenseVectorTag> Self_t;
 
 	StandardBasisStream (const Field &F, size_t n)
 		: _F (F), _n (n), _j (0)
 	{}
 
-	Vector &get (Vector &v) 
-	{
-		static typename Field::Element zero;
-		typename Vector::iterator i;
-		size_t idx;
-
-		for (i = v.begin (), idx = 0; i != v.end (); i++, idx++) {
-			if (idx == _j)
-				_F.init (*i, 1);
-			else
-				_F.assign (*i, zero);
-		}
-
-		_j++;
-
-		return v;
-	}
-
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _n; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -797,30 +599,18 @@ class StandardBasisStream<Field, _Vector, VectorCategories::DenseVectorTag > : p
 // Specialization of standard basis stream for sparse sequence vectors
 
 template <class Field, class _Vector>
-class StandardBasisStream<Field, _Vector, VectorCategories::SparseVectorTag > : public VectorStream<_Vector>
+class StandardBasisStream<Field, _Vector, VectorCategories::SparseVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Field, Vector, VectorCategories::SparseVectorTag > Self_t;
+        typedef StandardBasisStream<Field, Vector, VectorCategories::SparseVectorTag> Self_t;
 
 	StandardBasisStream (Field &F, size_t n)
 		: _F (F), _n (n), _j (0)
-	{ _F.init (_one, 1); }
+		{ _F.init (_one, 1); }
 
-	Vector &get (Vector &v) 
-	{
-		v.clear ();
-
-		if (_j < _n)
-			v.push_back (std::pair <size_t, typename Field::Element> (_j++, _one));
-
-		return v;
-	}
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
-
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _n; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -836,31 +626,18 @@ class StandardBasisStream<Field, _Vector, VectorCategories::SparseVectorTag > : 
 };
 
 template <class Field, class _Vector>
-class StandardBasisStream<Field, _Vector, VectorCategories::DenseZeroOneVectorTag > : public VectorStream<_Vector>
+class StandardBasisStream<Field, _Vector, VectorCategories::DenseZeroOneVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Field, Vector, VectorCategories::DenseZeroOneVectorTag > Self_t;
+        typedef StandardBasisStream<Field, Vector, VectorCategories::DenseZeroOneVectorTag> Self_t;
 
 	StandardBasisStream (const Field &F, size_t n)
 		: _F (F), _n (n), _j (0)
 	{}
 
-	Vector &get (Vector &v) 
-	{
-		std::fill (v.wordBegin (), v.wordEnd (), 0);
-
-		v[_j] = true;
-
-		_j++;
-
-		return v;
-	}
-
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _n; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -875,27 +652,18 @@ class StandardBasisStream<Field, _Vector, VectorCategories::DenseZeroOneVectorTa
 };
 
 template <class Field, class _Vector>
-class StandardBasisStream<Field, _Vector, VectorCategories::HybridZeroOneVectorTag > : public VectorStream<_Vector>
+class StandardBasisStream<Field, _Vector, VectorCategories::HybridZeroOneVectorTag> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Field, Vector, VectorCategories::HybridZeroOneVectorTag > Self_t;
+        typedef StandardBasisStream<Field, Vector, VectorCategories::HybridZeroOneVectorTag> Self_t;
 
 	StandardBasisStream (const Field &F, size_t n)
 		: _F (F), _n (n), _j (0)
 	{}
 
-	Vector &get (Vector &v) 
-	{
-		v.clear ();
-		v.push_back (_j >> WordTraits<typename Vector::word_type>::logof_size, Vector::Endianness::e_j (_j & WordTraits<typename Vector::word_type>::pos_mask));
-		return v;
-	}
-
-	/** Extraction operator form
-	 */
-	Self_t &operator >> (Vector &v)
-		{ get (v); return *this; }
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
 	size_t size () const { return _n; }
 	size_t pos () const { return _j; }
 	size_t dim () const { return _n; }
@@ -910,6 +678,8 @@ class StandardBasisStream<Field, _Vector, VectorCategories::HybridZeroOneVectorT
 };
 
 } // namespace LinBox
+
+#include "linbox/vector/stream.tcc"
 
 #endif // __LINBOX_vector_stream_H
 
