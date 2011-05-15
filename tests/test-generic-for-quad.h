@@ -1090,10 +1090,10 @@ static bool testTranspose (Field                             &F,
 	report << "Blackbox transpose test [that u^T(Av) == (uA)^T v]" << std::endl;
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
-		stream1.next (u);
-		stream2.next (v);
+		stream1.get (u);
+		stream2.get (v);
 
 		//ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -1169,12 +1169,12 @@ testLinearity (Field                             &F,
 	report << "Blackbox linearity test [that A.apply to (ax + y) == a A.apply to x + A.apply to y]" << std::endl;
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
 		iter_passed = true;
 
-		stream1.next (x);
-		stream2.next (y);
+		stream1.get (x);
+		stream2.get (y);
 
 		r.random (alpha);
 
@@ -1614,7 +1614,7 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 	std::ostringstream str;
 
 	str << "Testing " << text << " dot product" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testDotProduct", stream1.m ());
+	LinBox::commentator.start (str.str ().c_str (), "testDotProduct", stream1.size ());
 
 	bool ret = true;
 
@@ -1626,21 +1626,21 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 
 	size_t j;
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
 
 	LinBox::Timer timer;
 	double totaltime = 0.0;
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
 		F.init (sigma, 0);
 
-		stream1.next (v1);
-		stream2.next (v2);
+		stream1.get (v1);
+		stream2.get (v2);
 
-		for (j = 0; j < stream1.n (); j++) {
+		for (j = 0; j < stream1.dim (); j++) {
 			typename Field::Element a, b;
 
 			if (!LinBox::VectorWrapper::getEntry (v1, a, j))
@@ -1680,7 +1680,7 @@ static bool testDotProduct (Field &F, const char *text, LinBox::VectorStream<Vec
 	}
 
 	LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, TIMING_MEASURE)
-		<< "Average time for dot product: " << totaltime / stream1.m () << std::endl;
+		<< "Average time for dot product: " << totaltime / stream1.size () << std::endl;
 
 	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testDotProduct");
 
@@ -1709,7 +1709,7 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector add, mul" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testAddMul", stream1.m ());
+	LinBox::commentator.start (str.str ().c_str (), "testAddMul", stream1.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -1720,20 +1720,20 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	typename Field::Element aneg;
 	typename Field::RandIter r (F);
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.dim ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
 		iter_passed = true;
 
-		stream1.next (v1);
-		stream2.next (v2);
+		stream1.get (v1);
+		stream2.get (v2);
 
 		do r.random (a); while (F.isZero (a));
 
@@ -1812,7 +1812,7 @@ static bool testSubMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector sub, mul" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testSubMul", stream1.m ());
+	LinBox::commentator.start (str.str ().c_str (), "testSubMul", stream1.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -1823,20 +1823,20 @@ static bool testSubMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	typename Field::Element aneg;
 	typename Field::RandIter r (F);
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.dim ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
 		iter_passed = true;
 
-		stream1.next (v1);
-		stream2.next (v2);
+		stream1.get (v1);
+		stream2.get (v2);
 
 		do r.random (a); while (F.isZero (a));
 
@@ -1913,7 +1913,7 @@ static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &
 {
 	std::ostringstream str;
 	str << "Testing " << text << " vector axpy" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testAXPY", stream1.m ());
+	LinBox::commentator.start (str.str ().c_str (), "testAXPY", stream1.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -1924,20 +1924,20 @@ static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &
 	typename Field::Element aneg;
 	typename Field::RandIter r (F);
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.dim ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
 		iter_passed = true;
 
-		stream1.next (v1);
-		stream2.next (v2);
+		stream1.get (v1);
+		stream2.get (v2);
 
 		do r.random (a); while (F.isZero (a));
 
@@ -1996,7 +1996,7 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector copy, areEqual" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testCopyEqual", stream.m ());
+	LinBox::commentator.start (str.str ().c_str (), "testCopyEqual", stream.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -2004,17 +2004,17 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 	Vector1 v;
 	Vector2 w;
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v, stream.n ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector2> (w, stream.n ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v, stream.dim ());
+	LinBox::VectorWrapper::ensureDim<Field, Vector2> (w, stream.dim ());
 
 	LinBox::VectorDomain<Field> VD (F);
 
 	while (stream) {
-		LinBox::commentator.startIteration (stream.j ());
+		LinBox::commentator.startIteration (stream.pos ());
 
 		iter_passed = true;
 
-		stream.next (v);
+		stream.get (v);
 		VD.copy (w, v);
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);

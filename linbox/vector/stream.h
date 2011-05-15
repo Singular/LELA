@@ -74,20 +74,6 @@ class VectorStream
 	/** Alias for reset
 	 */
 	void rewind () { reset (); }
-
-	/** @name Legacy interface
-	 * These functions provide compatiblity with older parts of the
-	 * library. Their use is deprecated.
-	 */
-
-	//@{
-
-	Vector &next (Vector &v) { return get (v); }
-	size_t j () const { return pos (); }
-	size_t m () const { return size (); }
-	size_t n () const { return dim (); }
-
-	//@}
 };
 
 /** Constant vector factory

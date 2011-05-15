@@ -63,10 +63,10 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	double totaltime = 0.0;
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
-		stream1.next (v1);
-		stream2.next (v2);
+		stream1.get (v1);
+		stream2.get (v2);
 
 		// Copy v1 and v2 into w1 and w2
 		for (i1 = v1.begin (), j1 = w1.begin (); i1 != v1.end (); ++i1, ++j1) {
@@ -115,7 +115,7 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	}
 
 	LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, TIMING_MEASURE)
-		<< "Average time for dot product: " << totaltime / stream1.m () << std::endl;
+		<< "Average time for dot product: " << totaltime / stream1.size () << std::endl;
 
 	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testDotProduct");
 
@@ -157,10 +157,10 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	double totaltime = 0.0;
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.j ());
+		LinBox::commentator.startIteration (stream1.pos ());
 
-		stream1.next (v1);
-		stream2.next (v2);
+		stream1.get (v1);
+		stream2.get (v2);
 
 		// Copy v1 and v2 into w1 and w2
 		for (i1 = v1.begin (), j1 = w1.begin (); i1 != v1.end (); ++i1, ++j1) {
@@ -207,7 +207,7 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	}
 
 	LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, TIMING_MEASURE)
-		<< "Average time for dot product: " << totaltime / stream1.m () << std::endl;
+		<< "Average time for dot product: " << totaltime / stream1.size () << std::endl;
 
 	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testDotProduct");
 
