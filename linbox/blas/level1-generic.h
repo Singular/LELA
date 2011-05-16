@@ -27,8 +27,8 @@ typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Fi
 				   size_t start_idx, size_t end_idx,
 				   VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
 
-template <class Field, class Vector1, class Vector2>
-typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Field::Element &res, const Vector1 &x, const Vector2 &y,
+template <class Field, class Modules, class Vector1, class Vector2>
+typename Field::Element &dot_impl (const Field &F, Modules &M, typename Field::Element &res, const Vector1 &x, const Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
 	{ return _dot (F, M, res, y, x, start_idx, end_idx); }
@@ -105,8 +105,8 @@ template <class Field, class Vector1, class Vector2>
 bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
 		 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
 
-template <class Field, class Vector1, class Vector2>
-bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
+template <class Field, class Modules, class Vector1, class Vector2>
+bool equal_impl (const Field &F, Modules &M, const Vector1 &x, const Vector2 &y,
 		 VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
 	{ return _equal (F, M, y, x); }
 

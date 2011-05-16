@@ -250,9 +250,7 @@ public:
 	/// Return the negative of the one-element of the field
 	Element minusOne () const { return _modulus - 1; }
 
-protected:
-
-	/// Private (non-static) element for modulus
+	/// Modulus
 	Element _modulus;
 
 }; // class ModularBase
@@ -773,15 +771,11 @@ class Modular<uint8> : public FieldInterface, public ModularBase<uint8>
 		return r;
 	}
 
-    private:
-
-	friend class FieldAXPY<Modular<uint8> >;
-	friend class DotProductDomain<Modular<uint8> >;
-	friend class MVProductDomain<Modular<uint8> >;
-
 	// Number of times one can perform an axpy into a long long
 	// before modding out is mandatory.
 	uint64 _k;
+
+    private:
 
 	// Inverse of modulus in floating point
 	double _pinv;
@@ -931,15 +925,11 @@ class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
 		return r;
 	}
 
-    private:
-
-	friend class FieldAXPY<Modular<uint16> >;
-	friend class DotProductDomain<Modular<uint16> >;
-	friend class MVProductDomain<Modular<uint16> >;
-
 	// Number of times one can perform an axpy into a long long
 	// before modding out is mandatory.
 	uint64 _k;
+
+    private:
 
 	// Inverse of modulus in floating point
 	double _pinv;
@@ -1084,6 +1074,8 @@ class Modular<uint32> : public FieldInterface, public ModularBase<uint32>
 		return r;
 	}
 
+	Element _two_64;
+
     private:
 
 	void init_two_64 () 
@@ -1096,388 +1088,7 @@ class Modular<uint32> : public FieldInterface, public ModularBase<uint32>
 		_two_64 = two_64;
 	}
 
-	friend class FieldAXPY<Modular<uint32> >;
-	friend class DotProductDomain<Modular<uint32> >;
-	friend class MVProductDomain<Modular<uint32> >;
-
-	Element _two_64;
-
 }; // class Modular<uint32>
-
-/* Specialization of FieldAXPY for parameterized modular field */
-
-template <class _Element>
-class FieldAXPY<Modular<_Element> >
-{
-    public:
-
-	typedef _Element Element;
-	typedef Modular<_Element> Field;
-
-	FieldAXPY (const Field &F) : _F (F) { _y = 0; }
-	FieldAXPY (const FieldAXPY<Modular<Element> > &faxpy) : _F (faxpy._F), _y (faxpy._y) {}
-
-	FieldAXPY<Modular <Element> > &operator = (const FieldAXPY &faxpy) 
-		{ _F = faxpy._F; _y = faxpy._y; return *this; }
-
-	inline Element& mulacc (const Element &a, const Element &x)
-		{ return accumulate(a * x); }
-
-	inline Element& accumulate (const Element &t)
-		{ return _y+=t; }
-
-	inline Element &get (Element &y)
-		{ _y %= _F._modulus; y = _y; return y; }
-
-	inline FieldAXPY &assign (const Element y)
-		{ _y = y; return *this; }
-
-	inline void reset()
-		{ _F.init(_y, 0); }
-
-    private:
-
-	Field _F;
-	Element _y;
-};
-
-/* Specialization of FieldAXPY for uint8 modular field */
-
-template <>
-class FieldAXPY<Modular<uint8> >
-{
-    public:
-
-	typedef uint8 Element;
-	typedef Modular<uint8> Field;
-
-	FieldAXPY (const Field &F) : _F (F), i (F._k) { _y = 0; }
-	FieldAXPY (const FieldAXPY &faxpy) : _F (faxpy._F), _y (0), i (faxpy._F._k) {}
-
-	FieldAXPY<Modular<uint8> > &operator = (const FieldAXPY &faxpy) 
-		{ _F = faxpy._F; _y = faxpy._y; return *this; }
-
-	inline uint64& mulacc (const Element &a, const Element &x)
-	{
-		uint32 t = (uint32) a * (uint32) x;
-
-		if (!i--) {
-			i = _F._k;
-			return _y = _y % (uint32) _F._modulus + t;
-		} else
-			return _y += t;
-	}
-
-	inline uint64& accumulate (const Element &t)
-	{
-
-		if (!i--) {
-			i = _F._k;
-			return _y = _y % (uint32) _F._modulus + t;
-		} else
-			return _y += t;
-	}
-
-	inline Element &get (Element &y) {
-		_y %= (uint32) _F._modulus;
-		if ((int32) _y < 0) _y += _F._modulus;
-		y = (uint8) _y;
-		i = _F._k;
-		return y;
-	}
-
-	inline FieldAXPY &assign (const Element y)
-		{ _y = y; i = _F._k; return *this; }
-
-	inline void reset()
-		{ _y = 0; }
-
-    private:
-
-	Field _F;
-	uint64 _y;
-	int i;
-};
-
-/* Specialization of FieldAXPY for uint16 modular field */
-
-template <>
-class FieldAXPY<Modular<uint16> >
-{
-    public:
-
-	typedef uint16 Element;
-	typedef Modular<uint16> Field;
-
-	FieldAXPY (const Field &F) : _F (F), i (F._k) { _y = 0; }
-	FieldAXPY (const FieldAXPY &faxpy) : _F (faxpy._F), _y (0), i (faxpy._F._k) {}
-
-	FieldAXPY<Modular<uint16> > &operator = (const FieldAXPY &faxpy) 
-		{ _F = faxpy._F; _y = faxpy._y; return *this; }
-
-	inline uint64& mulacc (const Element &a, const Element &x)
-	{
-		uint64 t = (long long) a * (long long) x;
-
-		if (!i--) {
-			i = _F._k;
-			return _y = _y % (uint64) _F._modulus + t;
-		} else
-			return _y += t;
-	}
-
-	inline uint64& accumulate (const Element &t)
-	{
-		if (!i--) {
-			i = _F._k;
-			return _y = _y % (uint64) _F._modulus + t;
-		} else
-			return _y += t;
-	}
-
-	inline Element &get (Element &y) {
-		_y %= (uint64) _F._modulus;
-		if ((int64) _y < 0) _y += _F._modulus;
-		y = (uint16) _y;
-		i = _F._k;
-		return y;
-	}
-
-	inline FieldAXPY &assign (const Element y)
-		{ _y = y; i = _F._k; return *this; }
-
-	inline void reset()
-		{ _y = 0; }
-
-    private:
-
-	Field _F;
-	uint64 _y;
-	int i;
-};
-
-/* Specialization of FieldAXPY for unsigned short modular field */
-
-template <>
-class FieldAXPY<Modular<uint32> >
-{
-    public:
-
-	typedef uint32 Element;
-	typedef Modular<uint32> Field;
-
-	FieldAXPY (const Field &F) : _F (F) { _y = 0; }
-	FieldAXPY (const FieldAXPY &faxpy) : _F (faxpy._F), _y (0) {}
-
-	FieldAXPY<Modular<uint32> > &operator = (const FieldAXPY &faxpy) 
-		{ _F = faxpy._F; _y = faxpy._y; return *this; }
-
-	inline uint64& mulacc (const Element &a, const Element &x)
-	{
-		uint64 t = (uint64) a * (uint64) x;
-		_y += t;
-
-		if (_y < t)
-			return _y += _F._two_64;
-		else
-			return _y;
-	}
-
-	inline uint64& accumulate (const Element &t)
-	{
-		_y += t;
-
-		if (_y < t)
-			return _y += _F._two_64;
-		else
-			return _y;
-	}
-
-	inline uint64& accumulate_special (const Element &t)
-		{ return _y += t; }
-
-	inline Element &get (Element &y)
-	{
-		_y %= (uint64) _F._modulus;
-		return y = (uint32) _y;
-	}
-
-	inline FieldAXPY &assign (const Element y)
-		{ _y = y; return *this; }
-
-	inline void reset()
-		{ _y = 0; }
-
-    private:
-
-	Field _F;
-	uint64 _y;
-};
-
-// Specialization of DotProductDomain for unsigned short modular field
-
-template <>
-class DotProductDomain<Modular<uint8> > : private virtual VectorDomainBase<Modular<uint8> >
-{
-    public:
-
-	typedef uint8 Element;
-
-	DotProductDomain (const Modular<uint8> &F)
-		: VectorDomainBase<Modular<uint8> > (F)
-	{}
-
-    protected:
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-};
-
-// Specialization of DotProductDomain for unsigned short modular field
-
-template <>
-class DotProductDomain<Modular<uint16> > : private virtual VectorDomainBase<Modular<uint16> >
-{
-    public:
-
-	typedef uint16 Element;
-
-	DotProductDomain (const Modular<uint16> &F)
-		: VectorDomainBase<Modular<uint16> > (F)
-	{}
-
-    protected:
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-};
-
-// Specialization of DotProductDomain for uint32 modular field
-
-template <>
-class DotProductDomain<Modular<uint32> > : private virtual VectorDomainBase<Modular<uint32> >
-{
-    public:
-
-	typedef uint32 Element;
-
-	DotProductDomain (const Modular<uint32> &F)
-		: VectorDomainBase<Modular<uint32> > (F)
-	{}
-
-    protected:
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDD (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedDS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-
-	template <class Vector1, class Vector2>
-		inline Element &dotSpecializedSS (Element &res, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx) const;
-};
-
-// Specialization of MVProductDomain for uint8 modular field
-
-template <>
-class MVProductDomain<Modular<uint8> >
-{
-    public:
-
-	typedef uint8 Element;
-
-    protected:
-	template <class Vector1, class Matrix, class Vector2>
-	inline Vector2 &gemvColDense
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx) const
-	{
-		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, start_idx, end_idx, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
-	}
-
-    private:
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
-		 VectorCategories::DenseVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint8> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
-		 VectorCategories::SparseVectorTag) const;
-
-	mutable std::vector<uint32> _tmp;
-};
-
-// Specialization of MVProductDomain for uint16 modular field
-
-template <>
-class MVProductDomain<Modular<uint16> >
-{
-    public:
-
-	typedef uint16 Element;
-
-    protected:
-	template <class Vector1, class Matrix, class Vector2>
-		inline Vector2 &gemvColDense
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, size_t start_idx, size_t end_idx, Vector2 &y) const
-	{
-		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, start_idx, end_idx, DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
-	}
-
-    private:
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
-		 VectorCategories::DenseVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint16> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
-		 VectorCategories::SparseVectorTag) const;
-
-	mutable std::vector<uint64> _tmp;
-};
-
-// Specialization of MVProductDomain for uint32 modular field
-
-template <>
-class MVProductDomain<Modular<uint32> >
-{
-    public:
-
-	typedef uint32 Element;
-
-    protected:
-	template <class Vector1, class Matrix, class Vector2>
-		inline Vector2 &gemvColDense
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx) const
-	{
-		return gemvColDenseSpecialized
-			(VD, alpha, A, x, beta, y, start_idx, end_idx, typename DefaultVectorTraits<typename Matrix::Column>::VectorCategory ());
-	}
-
-    private:
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
-		 VectorCategories::DenseVectorTag) const;
-	template <class Vector1, class Matrix, class Vector2>
-		Vector2 &gemvColDenseSpecialized
-		(const VectorDomain<Modular<uint32> > &VD, const Element &alpha, const Matrix &A, const Vector1 &x, const Element &beta, Vector2 &y, size_t start_idx, size_t end_idx,
-		 VectorCategories::SparseVectorTag) const;
-
-	mutable std::vector<uint64> _tmp;
-};
 
 template <>
 inline std::ostream& ModularBase<integer>::write (std::ostream &os) const 
@@ -1491,15 +1102,25 @@ inline integer& Modular<integer>::init (integer& x, const double& y) const
 	return x = tmp;
 }
 
+template <class Element>
+struct ZpModule : public GenericModule
+{
+	mutable std::vector<Element> _tmp;
+};
+
+template <class Element>
+struct AllModules<Modular<Element> > : public ZpModule<Element> {};
+
 } // namespace LinBox
 
-#include "linbox/field/modular.tcc"
 #include "linbox/randiter/modular.h"
 #include "linbox/field/modular-int32.h"
 #include "linbox/field/modular-short.h"
 #include "linbox/field/modular-byte.h"
 #include "linbox/field/modular-double.h"
 #include "linbox/field/modular-float.h"
+#include "linbox/blas/level1-modular.h"
+#include "linbox/blas/level2-modular.h"
 
 #endif // __LINBOX_field_modular_H
 
