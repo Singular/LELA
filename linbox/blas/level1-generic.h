@@ -43,12 +43,8 @@ typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Fi
 				   VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
 
 template <class Field, class Vector>
-void swap_impl (const Field &F, GenericModule &M, Vector &x, Vector &y, VectorCategories::DenseVectorTag)
-	{ std::swap_ranges (x.begin (), x.end (), y.begin ()); }
-
-template <class Field, class Vector>
-void swap_impl (const Field &F, GenericModule &M, Vector &x, Vector &y, VectorCategories::SparseVectorTag)
-	{ std::swap_ranges (x.begin (), x.end (), y.begin ()); }
+void swap_impl (const Field &F, GenericModule &M, Vector &x, Vector &y, VectorCategories::GenericVectorTag)
+	{ std::swap (x, y); }
 
 template <class Field, class Vector1, class Vector2>
 Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 &y,
@@ -93,6 +89,12 @@ Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Eleme
 
 template <class Field, class Vector>
 Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Element &a, Vector &x, VectorCategories::SparseVectorTag);
+
+template <class Field, class Modules, class Iterator, class Vector>
+Vector &permute_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::DenseVectorTag);
+
+template <class Field, class Modules, class Iterator, class Vector>
+Vector &permute_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseVectorTag);
 
 template <class Field, class Vector1, class Vector2>
 bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,

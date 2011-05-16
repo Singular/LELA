@@ -138,8 +138,8 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 {
 	linbox_check (y.size () == x.size ());
 
-	typename Vector1::iterator i;
-	typename Vector2::const_iterator j;
+	typename Vector2::iterator i;
+	typename Vector1::const_iterator j;
 
 	for (i = y.begin (), j = x.begin (); i != y.end (); ++i, ++j)
 		F.axpyin (*i, a, *j);
@@ -149,7 +149,15 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 
 template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag);
+		    VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+{
+	typename Vector<Field>::Dense tmp (x.size ());
+	_copy (F, M, x, tmp);
+	_scal (F, M, a, tmp);
+	_axpy (F, M, F.one (), y, tmp);
+	_copy (F, M, tmp, y);
+	return y;
+}
 
 template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
@@ -157,7 +165,7 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, y.size ()));
 
-	typename Vector2::const_iterator j;
+	typename Vector1::const_iterator j;
 
 	for (j = x.begin (); j != x.end (); ++j)
 		F.axpyin (y[j->first], a, j->second);
@@ -229,6 +237,41 @@ Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Eleme
 		F.mulin (i->second, a);
 
 	return x;
+}
+
+template <class Field, class Modules, class Iterator, class Vector>
+Vector &permute_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::DenseVectorTag)
+{
+	for (; P_begin != P_end; ++P_begin)
+		std::swap (v[P_begin->first], v[P_begin->second]);
+
+	return v;
+}
+
+template <class Iterator>
+typename Iterator::value_type::first_type image (typename Iterator::value_type::first_type x, Iterator P_begin, Iterator P_end)
+{
+	for (; P_begin != P_end; ++P_begin) {
+		if (P_begin->first == x)
+			x = P_begin->second;
+		else if (P_begin->second == x)
+			x = P_begin->first;
+	}
+
+	return x;
+}
+
+template <class Field, class Modules, class Iterator, class Vector>
+Vector &permute_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseVectorTag)
+{
+	typename Vector::iterator j;
+
+	for (j = v.begin (); j != v.end (); ++j)
+		j->first = image (j->first, P_begin, P_end);
+
+	std::sort (v.begin (), v.end (), VectorWrapper::CompareSparseEntries ());
+
+	return v;
 }
 
 template <class Field, class Vector1, class Vector2>

@@ -15,7 +15,7 @@
 namespace LinBox
 {
 
-/** This namespace contains the level-1 BLAS interface */
+/** This namespace contains the level 1 BLAS interface */
 namespace BLAS1 
 {
 
@@ -121,6 +121,22 @@ template <class Field, class Modules, class Vector>
 Vector &_scal (const Field &F, Modules &M, const typename Field::Element &a, Vector &x)
 	{ return scal_impl (F, M, a, x,
 			    typename VectorTraits<Field, Vector>::VectorCategory ()); }
+
+/** Permute entries of v, v <- Pv, where P is a permutation
+ *
+ * @param P_begin beginning iterator of permutation
+ * @param P_end ending iterator of permutation
+ * @param v Vector v, to be replaced by result of computation
+ * @returns Reference to v
+ */
+template <class Field, class Modules, class Iterator, class Vector>
+Vector &permute (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end, Vector &v)
+	{ return _permute (ctx.F, ctx.M, P_begin, P_end, v); }
+
+template <class Field, class Modules, class Iterator, class Vector>
+Vector &_permute (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v)
+	{ return permute_impl (F, M, P_begin, P_end, v,
+			       typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 /** Test whether x and y are equal
  *

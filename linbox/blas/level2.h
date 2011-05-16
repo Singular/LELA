@@ -14,7 +14,7 @@
 namespace LinBox
 {
 
-/** This namespace contains the level-2 BLAS interface */
+/** This namespace contains the level 2 BLAS interface */
 namespace BLAS2
 {
 
@@ -121,12 +121,12 @@ Vector &_trsv (const Field &F, Modules &M, const Matrix &A, Vector &x, Triangula
  */
 template <class Field, class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &ger (Context<Field, Modules> &ctx, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
-	{ return _ger (ctx.F, ctx.M, a, A, x, b, y); }
+	{ return _ger (ctx.F, ctx.M, a, x, y, A); }
 
 /// Version specifying the field and module directly rather than in a Context object
 template <class Field, class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger (const Field &F, Modules &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
-	{ return ger_impl (F, M, a, A, x, b, y,
+	{ return ger_impl (F, M, a, x, y, A,
 			   typename VectorTraits<Field, Vector1>::VectorCategory (),
 			   typename VectorTraits<Field, Vector2>::VectorCategory (),
 			   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
@@ -134,6 +134,8 @@ Matrix &_ger (const Field &F, Modules &M, const typename Field::Element &a, cons
 } // namespace BLAS2
 
 } // namespace LinBox
+
+#include "linbox/blas/level2-generic.h"
 
 #endif // __BLAS_LEVEL2_H
 

@@ -37,9 +37,9 @@ Matrix2 &copy_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 	j = B.rowBegin ();
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		BLAS1::copy (F, M, *i, *j);
+		BLAS1::_copy (F, M, *i, *j);
 
-	return A;
+	return B;
 }
 
 template <class Field, class Matrix1, class Matrix2>
@@ -56,29 +56,67 @@ Matrix2 &copy_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 	j = B.colBegin ();
 
 	for (; i != A.colEnd (); ++i, ++j)
-		BLAS1::copy (F, M, *i, *j);
-
-	return A;
-}
-
-template <class Field, class Modules, class Matrix>
-bool scal_impl (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A, MatrixCategories::RowMatrixTag)
-{
-	typename Matrix::RowIterator i;
-
-	for (i = B.rowBegin (); i != B.rowEnd (); ++i)
-		BLAS1::scal (F, M, a, *i);
+		BLAS1::_copy (F, M, *i, *j);
 
 	return B;
 }
 
 template <class Field, class Modules, class Matrix>
-bool scal_impl (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A, MatrixCategories::ColMatrixTag)
+Matrix &scal_impl (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A, MatrixCategories::RowMatrixTag)
+{
+	typename Matrix::RowIterator i;
+
+	for (i = A.rowBegin (); i != A.rowEnd (); ++i)
+		BLAS1::_scal (F, M, a, *i);
+
+	return A;
+}
+
+template <class Field, class Modules, class Matrix>
+Matrix &scal_impl (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ColIterator i;
 
-	for (i = B.colBegin (); i != B.colEnd (); ++i)
-		BLAS1::scal (F, M, a, *i);
+	for (i = A.colBegin (); i != A.colEnd (); ++i)
+		BLAS1::_scal (F, M, a, *i);
+
+	return A;
+}
+
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &axpy_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+{
+	linbox_check (A.rowdim () == B.rowdim ());
+	linbox_check (A.coldim () == B.coldim ());
+
+	typename Matrix1::ConstRowIterator i;
+	typename Matrix2::RowIterator j;
+
+	i = A.rowBegin ();
+	j = B.rowBegin ();
+
+	for (; i != A.rowEnd (); ++i, ++j)
+		BLAS1::_axpy (F, M, a, *i, *j);
+
+	return B;
+}
+
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &axpy_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+		    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+{
+	linbox_check (A.rowdim () == B.rowdim ());
+	linbox_check (A.coldim () == B.coldim ());
+
+	typename Matrix1::ConstColIterator i;
+	typename Matrix2::ColIterator j;
+
+	i = A.colBegin ();
+	j = B.colBegin ();
+
+	for (; i != A.colEnd (); ++i, ++j)
+		BLAS1::_axpy (F, M, a, *i, *j);
 
 	return B;
 }
@@ -98,7 +136,7 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	TransposeMatrix<const Matrix2> BT (B);
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		BLAS2::gemv (F, M, a, BT, *i, b, *j);
+		BLAS2::_gemv (F, M, a, BT, *i, b, *j);
 
 	return C;
 }
@@ -116,7 +154,7 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	typename Matrix3::ColIterator j = C.colBegin ();
 
 	for (; i != B.colEnd (); ++i, ++j)
-		BLAS2::gemv (F, M, a, A, *i, b, *j);
+		BLAS2::_gemv (F, M, a, A, *i, b, *j);
 
 	return C;
 }
@@ -139,9 +177,9 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 
 	for (i = A.rowBegin (), l1 = C.rowBegin (); i != A.rowEnd (); ++i, ++l1) {
 		for (j = B.colBegin (), l2 = l1->begin (); j != B.colEnd (); ++j, ++l2) {
-			BLAS1::dot (F, M, d, *i, *j);
-			F.mulin (*l2, beta);
-			F.axpyin (*l2, alpha, d);
+			BLAS1::_dot (F, M, d, *i, *j);
+			F.mulin (*l2, b);
+			F.axpyin (*l2, a, d);
 		}
 	}
 
@@ -166,9 +204,9 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 
 	for (j = B.colBegin (), l1 = C.colBegin (); j != B.colEnd (); ++j, ++l1) {
 		for (i = A.rowBegin (), l2 = l1->begin (); i != A.rowEnd (); ++i, ++l2) {
-			BLAS1::dot (F, M, d, *i, *j);
-			F.mulin (*l2, beta);
-			F.axpyin (*l2, alpha, d);
+			BLAS1::_dot (F, M, d, *i, *j);
+			F.mulin (*l2, b);
+			F.axpyin (*l2, a, d);
 		}
 	}
 
@@ -176,14 +214,14 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 }
 
 template <class Field, class Matrix1, class Matrix2>
-Matrix2 &trmm_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
 	if (F.isZero (a))
-		return scal (B, a);
+		return _scal (F, M, a, B);
 
 	typename Field::Element ai;
 
@@ -208,7 +246,7 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 					F.assign (ai, F.zero ());
 			}
 
-			BLAS2::gemv (F, M, a, BT, *i_A, ai, *i_B, 0, idx);
+			BLAS2::_gemv (F, M, a, BT, *i_A, ai, *i_B, 0, idx);
 		} while (i_B != B.rowBegin ());
 	}
 	else if (type == UpperTriangular) {
@@ -225,7 +263,7 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 					F.assign (ai, F.zero ());
 			}
 
-			BLAS2::gemv (F, M, a, BT, *i_A, ai, *i_B, idx + 1, B.rowdim ());
+			BLAS2::_gemv (F, M, a, BT, *i_A, ai, *i_B, idx + 1, B.rowdim ());
 		}
 	}
 
@@ -233,7 +271,7 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 }
 
 template <class Field, class Matrix1, class Matrix2>
-Matrix2 &trsm_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == A.rowdim ());
@@ -263,7 +301,7 @@ Matrix2 &trsm_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 				F.mulin (ai_inv, a);
 			}
 
-			BLAS2::gemv (F, M, neg_ai_inv, BT, *i_A, ai_inv, *i_B, 0, idx);
+			BLAS2::_gemv (F, M, neg_ai_inv, BT, *i_A, ai_inv, *i_B, 0, idx);
 		}
 	}
 	else if (type == UpperTriangular) {
@@ -283,11 +321,63 @@ Matrix2 &trsm_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 				F.mulin (ai_inv, a);
 			}
 
-			BLAS2::gemvSpecialized (neg_ai_inv, BT, *i_A, ai_inv, *i_B, idx + 1, A.coldim ());
+			BLAS2::_gemv (F, M, neg_ai_inv, BT, *i_A, ai_inv, *i_B, idx + 1, A.coldim ());
 		} while (i_A != A.rowBegin ());
 	}
 
 	return B;
+}
+
+template <class Field, class Modules, class Iterator, class Matrix>
+Matrix &permute_rows_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+{
+	typename Matrix::RowIterator j, k;
+
+	for (; P_begin != P_end; ++P_begin) {
+		j = A.rowBegin () + P_begin->first;
+		k = A.rowBegin () + P_begin->second;
+
+		BLAS1::_swap (F, M, *j, *k);
+	}
+
+	return A;
+}
+
+template <class Field, class Modules, class Iterator, class Matrix>
+Matrix &permute_rows_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+{
+	typename Matrix::ColIterator j;
+
+	for (j = A.colBegin (); j != A.colEnd (); ++j)
+		BLAS1::_permute (F, M, P_begin, P_end, *j);
+
+	return A;
+}
+
+template <class Field, class Modules, class Iterator, class Matrix>
+Matrix &permute_cols_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+{
+	typename Matrix::RowIterator j;
+
+	for (j = A.rowBegin (); j != A.rowEnd (); ++j)
+		BLAS1::_permute (F, M, P_begin, P_end, *j);
+
+	return A;
+}
+
+template <class Field, class Modules, class Iterator, class Matrix>
+Matrix &permute_cols_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+{
+	typename Matrix::ColIterator j, k;
+
+	for (; P_begin != P_end; ++P_begin) {
+		j = A.colBegin () + P_begin->first;
+		k = A.colBegin () + P_begin->second;
+
+		BLAS1::_swap (F, M, *j, *k);
+	}
+
+	return A;
 }
 
 template <class Field, class Matrix1, class Matrix2>
@@ -304,7 +394,7 @@ bool equal_impl (const Field &F, GenericModule &M, const Matrix1 &A, const Matri
 	j = B.rowBegin ();
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		if (!BLAS1::equal (F, M, *i, *j))
+		if (!BLAS1::_equal (F, M, *i, *j))
 			return false;
 
 	return true;
@@ -324,7 +414,7 @@ bool equal_impl (const Field &F, GenericModule &M, const Matrix1 &A, const Matri
 	j = B.colBegin ();
 
 	for (; i != A.colEnd (); ++i, ++j)
-		if (!BLAS1::equal (F, M, *i, *j))
+		if (!BLAS1::_equal (F, M, *i, *j))
 			return false;
 
 	return true;
@@ -338,7 +428,7 @@ bool is_zero_impl (const Field &F, GenericModule &M, const Matrix &A, MatrixCate
 	i = A.rowBegin ();
 
 	for (; i != A.rowEnd (); ++i)
-		if (!BLAS1::is_zero (F, M, *i))
+		if (!BLAS1::_is_zero (F, M, *i))
 			return false;
 
 	return true;
@@ -352,7 +442,7 @@ bool is_zero_impl (const Field &F, GenericModule &M, const Matrix &A, MatrixCate
 	i = A.colBegin ();
 
 	for (; i != A.colEnd (); ++i)
-		if (!BLAS1::is_zero (F, M, *i))
+		if (!BLAS1::_is_zero (F, M, *i))
 			return false;
 
 	return true;

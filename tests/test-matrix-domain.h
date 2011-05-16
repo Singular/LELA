@@ -21,6 +21,9 @@
 #include <vector>
 
 #include "linbox/util/commentator.h"
+#include "linbox/blas/context.h"
+#include "linbox/blas/level2.h"
+#include "linbox/blas/level3.h"
 #include "linbox/field/gf2.h"
 #include "linbox/vector/vector-domain.h"
 #include "linbox/matrix/matrix-domain.h"
@@ -124,22 +127,22 @@ static Matrix &makeLowerTriangular (Field &F, Matrix &A, bool nonsingular)
 	return A;
 }
 
-/* Test 1: Copy and areEqual
+/* Test 1: Copy and equal
  *
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-static bool testCopyEqual (Field &F, const char *text, const Matrix &M) 
+template <class Field, class Modules, class Matrix>
+static bool testCopyEqual (Context<Field, Modules> &ctx, const char *text, const Matrix &M) 
 {
 	ostringstream str;
 
-	str << "Testing " << text << " matrix copy, areEqual" << ends;
-	commentator.start (str.str ().c_str (), "testCopyEqual");
+	str << "Testing " << text << " matrix copy, equal" << ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> M1 (M.rowdim (), M.coldim ());
 
@@ -147,42 +150,42 @@ static bool testCopyEqual (Field &F, const char *text, const Matrix &M)
 	report << "Input matrix M:" << endl;
 	MD.write (report, M);
 
-	MD.copy (M1, M);
+	BLAS3::copy (ctx, M, M1);
 
 	report << "Output matrix M1:" << endl;
 	MD.write (report, M1);
 
-	if (!MD.areEqual (M1, M)) {
+	if (!BLAS3::equal (ctx, M1, M)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported matrices M and M1 are not equal" << endl;
 		ret = false;
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testCopyEqual");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, __FUNCTION__);
 
 	return ret;
 }
 
-/* Test 2: scal, axpy, isZero
+/* Test 2: scal, axpy, is_zero
  *
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-static bool testScalAxpyIsZero (Field &F, const char *text, const Matrix &M) 
+template <class Field, class Modules, class Matrix>
+static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, const Matrix &M) 
 {
 	ostringstream str;
 
-	str << "Testing " << text << " matrix scal, axpy, isZero" << ends;
+	str << "Testing " << text << " matrix scal, axpy, is_zero" << ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	typename Field::Element a, nega;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> M1 (M.rowdim (), M.coldim ());
 
@@ -191,23 +194,23 @@ static bool testScalAxpyIsZero (Field &F, const char *text, const Matrix &M)
 	MD.write (report, M);
 
 	r.random (a);
-	F.neg (nega, a);
+	ctx.F.neg (nega, a);
 
 	report << "Coefficient: ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
-	MD.copy (M1, M);
-	MD.scal (M1, a);
+	BLAS3::copy (ctx, M, M1);
+	BLAS3::scal (ctx, a, M1);
 
 	report << "Output matrix a * M:" << endl;
 	MD.write (report, M1);
 
-	MD.axpy (nega, M, M1);
+	BLAS3::axpy (ctx, nega, M, M1);
 
 	report << "Output matrix -a * M + a * M:" << endl;
 	MD.write (report, M1);
 
-	if (!MD.isZero (M1)) {
+	if (!BLAS3::is_zero (ctx, M1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported matrix M1 is not zero" << endl;
 		ret = false;
@@ -223,8 +226,8 @@ static bool testScalAxpyIsZero (Field &F, const char *text, const Matrix &M)
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testGemmCoeff (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B)
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -235,7 +238,7 @@ static bool testGemmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> C (A.rowdim (), B.coldim ());
 
@@ -246,36 +249,36 @@ static bool testGemmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 	report << "Input matrix B:" << endl;
 	MD.write (report, B);
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 	typename Field::Element a, b;
 
 	r.random (a);
 	r.random (b);
 
 	report << "Coefficients: a = ";
-	F.write (report, a) << ", b = ";
-	F.write (report, b) << std::endl;
+	ctx.F.write (report, a) << ", b = ";
+	ctx.F.write (report, b) << std::endl;
 
-	MD.gemm (a, A, B, F.zero (), C);
+	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), C);
 
 	report << "Output matrix C := a * A * B:" << endl;
 	MD.write (report, C);
 
 	typename Field::Element negainvb;
 
-	F.inv (negainvb, a);
-	F.mulin (negainvb, b);
-	F.negin (negainvb);
+	ctx.F.inv (negainvb, a);
+	ctx.F.mulin (negainvb, b);
+	ctx.F.negin (negainvb);
 
 	report << "Coefficient: -a^-1 b = ";
-	F.write (report, negainvb) << std::endl;
+	ctx.F.write (report, negainvb) << std::endl;
 
-	MD.gemm (b, A, B, negainvb, C);
+	BLAS3::gemm (ctx, b, A, B, negainvb, C);
 
 	report << "Output matrix D := b * A * B - b * a^-1 * C:" << endl;
 	MD.write (report, C);
 
-	if (!MD.isZero (C)) {
+	if (!BLAS3::is_zero (ctx, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported matrix D is not zero" << endl;
 		ret = false;
@@ -291,8 +294,8 @@ static bool testGemmCoeff (Field &F, const char *text, const Matrix1 &A, const M
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-static bool testGemmAssoc (Field &F, const char *text, const Matrix &A, const Matrix &B, const Matrix &C)
+template <class Field, class Modules, class Matrix>
+static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const Matrix &A, const Matrix &B, const Matrix &C)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (B.coldim () == C.rowdim ());
@@ -304,7 +307,7 @@ static bool testGemmAssoc (Field &F, const char *text, const Matrix &A, const Ma
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> AB (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> BC (B.rowdim (), C.coldim ());
@@ -321,27 +324,27 @@ static bool testGemmAssoc (Field &F, const char *text, const Matrix &A, const Ma
 	report << "Input matrix C:" << endl;
 	MD.write (report, C);
 
-	MD.gemm (F.one (), A, B, F.zero (), AB);
+	BLAS3::gemm (ctx, ctx.F.one (), A, B, ctx.F.zero (), AB);
 
 	report << "Output matrix A * B:" << endl;
 	MD.write (report, AB);
 
-	MD.gemm (F.one (), AB, C, F.zero (), ABpC);
+	BLAS3::gemm (ctx, ctx.F.one (), AB, C, ctx.F.zero (), ABpC);
 
 	report << "Output matrix (A * B) * C:" << endl;
 	MD.write (report, ABpC);
 
-	MD.gemm (F.one (), B, C, F.zero (), BC);
+	BLAS3::gemm (ctx, ctx.F.one (), B, C, ctx.F.zero (), BC);
 
 	report << "Output matrix B * C:" << endl;
 	MD.write (report, AB);
 
-	MD.gemm (F.one (), A, BC, F.zero (), ApBC);
+	BLAS3::gemm (ctx, ctx.F.one (), A, BC, ctx.F.zero (), ApBC);
 
 	report << "Output matrix A * (B * C):" << endl;
 	MD.write (report, ApBC);
 
-	if (!MD.areEqual (ABpC, ApBC)) {
+	if (!BLAS3::equal (ctx, ABpC, ApBC)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported (A * B) * C != A * (B * C)" << endl;
 		ret = false;
@@ -357,8 +360,8 @@ static bool testGemmAssoc (Field &F, const char *text, const Matrix &A, const Ma
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
+template <class Field, class Modules, class Matrix>
+static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const Matrix &A)
 {
 	ostringstream str;
 
@@ -367,12 +370,12 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> AI (A.rowdim (), A.coldim ());
 	DenseMatrix<typename Field::Element> IA (A.rowdim (), A.coldim ());
 
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> I_l_stream (F, A.rowdim ()), I_r_stream (F, A.coldim ());
+	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> I_l_stream (ctx.F, A.rowdim ()), I_r_stream (ctx.F, A.coldim ());
 
 	DenseMatrix<typename Field::Element> I_l (I_l_stream);
 	DenseMatrix<typename Field::Element> I_r (I_r_stream);
@@ -387,23 +390,23 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
 	report << "Identity matrix I_r:" << endl;
 	MD.write (report, I_r);
 
-	MD.gemm (F.one (), I_l, A, F.zero (), IA);
+	BLAS3::gemm (ctx, ctx.F.one (), I_l, A, ctx.F.zero (), IA);
 
 	report << "Output matrix I * A:" << endl;
 	MD.write (report, IA);
 
-	if (!MD.areEqual (A, IA)) {
+	if (!BLAS3::equal (ctx, A, IA)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported A != I * A" << endl;
 		ret = false;
 	}
 
-	MD.gemm (F.one (), A, I_r, F.zero (), AI);
+	BLAS3::gemm (ctx, ctx.F.one (), A, I_r, ctx.F.zero (), AI);
 
 	report << "Output matrix A * I:" << endl;
 	MD.write (report, AI);
 
-	if (!MD.areEqual (AI, A)) {
+	if (!BLAS3::equal (ctx, AI, A)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported A * I != A" << endl;
 		ret = false;
@@ -419,8 +422,8 @@ static bool testGemmIdent (Field &F, const char *text, const Matrix &A)
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vector1 &u, const Vector2 &v)
+template <class Field, class Modules, class Matrix, class Vector1, class Vector2>
+static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const Matrix &A, const Vector1 &u, const Vector2 &v)
 {
 	ostringstream str;
 
@@ -429,18 +432,18 @@ static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vect
 
 	typename Field::Element a;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	bool ret = true;
 
-	VectorDomain<Field> VD (F);
-	MatrixDomain<Field> MD (F);
+	VectorDomain<Field> VD (ctx.F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> A2 (A.rowdim (), A.coldim ());
 
 	Matrix A1 (A);
 
-	MD.copy (A2, A);
+	BLAS3::copy (ctx, A, A2);
 
 	DenseMatrix<typename Field::Element> U (A.rowdim (), 1);
 	DenseMatrix<typename Field::Element> V (1, A.coldim ());
@@ -461,19 +464,19 @@ static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vect
 	r.random (a);
 
 	report << "Coefficient a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
-	MD.ger (a, u, v, A1);
+	BLAS2::ger (ctx, a, u, v, A1);
 
 	report << "Output matrix a * u * v^T + A: " << std::endl;
 	MD.write (report, A1);
 
-	MD.gemm (a, U, V, F.one (), A2);
+	BLAS3::gemm (ctx, a, U, V, ctx.F.one (), A2);
 
 	report << "Output matrix a * U * V + A: " << std::endl;
 	MD.write (report, A2);
 
-	if (!MD.areEqual (A1, A2)) {
+	if (!BLAS3::equal (ctx, A1, A2)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported a * u * v^T + A != a * U * V + A" << endl;
 		ret = false;
@@ -489,8 +492,8 @@ static bool testGerGemm (Field &F, const char *text, const Matrix &A, const Vect
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testTrmmGemmUpper (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B)
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B)
 {
 	ostringstream str;
 
@@ -501,16 +504,16 @@ static bool testTrmmGemmUpper (Field &F, const char *text, const Matrix1 &A, con
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
 	Matrix2 B1 (B.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> C (B.rowdim (), B.coldim ());
 
-	MD.copy (A1, A);
-	MD.copy (B1, B);
+	BLAS3::copy (ctx, A, A1);
+	BLAS3::copy (ctx, B, B1);
 
-	makeUpperTriangular (F, A1, false);
+	makeUpperTriangular (ctx.F, A1, false);
 
 	report << "Input matrix A:" << endl;
 	MD.write (report, A1);
@@ -520,24 +523,24 @@ static bool testTrmmGemmUpper (Field &F, const char *text, const Matrix1 &A, con
 
 	typename Field::Element a;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	r.random (a);
 
 	report << "Coefficient a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
-	MD.trmm (a, A, B1, UpperTriangular, false);
+	BLAS3::trmm (ctx, a, A, B1, UpperTriangular, false);
 
 	report << "Output matrix a * A * B (trmm): " << std::endl;
 	MD.write (report, B1);
 
-	MD.gemm (a, A1, B, F.zero (), C);
+	BLAS3::gemm (ctx, a, A1, B, ctx.F.zero (), C);
 
 	report << "Output matrix a * A * B (gemm): " << std::endl;
 	MD.write (report, C);
 
-	if (!MD.areEqual (B1, C)) {
+	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported results from trmm and gemm are not equal" << endl;
 		ret = false;
@@ -553,8 +556,8 @@ static bool testTrmmGemmUpper (Field &F, const char *text, const Matrix1 &A, con
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testTrmmGemmLower (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B)
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B)
 {
 	ostringstream str;
 
@@ -565,16 +568,16 @@ static bool testTrmmGemmLower (Field &F, const char *text, const Matrix1 &A, con
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
 	Matrix2 B1 (B.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> C (B.rowdim (), B.coldim ());
 
-	MD.copy (A1, A);
-	MD.copy (B1, B);
+	BLAS3::copy (ctx, A, A1);
+	BLAS3::copy (ctx, B, B1);
 
-	makeLowerTriangular (F, A1, false);
+	makeLowerTriangular (ctx.F, A1, false);
 
 	report << "Input matrix A:" << endl;
 	MD.write (report, A1);
@@ -584,24 +587,24 @@ static bool testTrmmGemmLower (Field &F, const char *text, const Matrix1 &A, con
 
 	typename Field::Element a;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	r.random (a);
 
 	report << "Coefficient a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
-	MD.trmm (a, A, B1, LowerTriangular, false);
+	BLAS3::trmm (ctx, a, A, B1, LowerTriangular, false);
 
 	report << "Output matrix a * A * B (trmm): " << std::endl;
 	MD.write (report, B1);
 
-	MD.gemm (a, A1, B, F.zero (), C);
+	BLAS3::gemm (ctx, a, A1, B, ctx.F.zero (), C);
 
 	report << "Output matrix a * A * B (gemm): " << std::endl;
 	MD.write (report, C);
 
-	if (!MD.areEqual (B1, C)) {
+	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported results from trmm and gemm are not equal" << endl;
 		ret = false;
@@ -619,14 +622,14 @@ static bool testTrmmGemmLower (Field &F, const char *text, const Matrix1 &A, con
 
 /* Elimination-step */
 
-template <class Field, class Matrix1, class Matrix2>
-void eliminate (MatrixDomain<Field> &MD, Matrix1 &M, Matrix2 &pivotRow,
+template <class Field, class Modules, class Matrix1, class Matrix2>
+void eliminate (Context<Field, Modules> &ctx, Matrix1 &M, Matrix2 &pivotRow,
 		size_t row, size_t col, size_t rowdim, size_t coldim) 
 {
 	Submatrix<Matrix1> pivotCol (M, row, col, rowdim, 1);
 	Submatrix<Matrix1> block (M, row, col, rowdim, coldim);
 
-	MD.ger (MD.field ().minusOne (), *pivotCol.colBegin (), *pivotRow.rowBegin (), block);
+	BLAS2::ger (ctx, ctx.F.minusOne (), *pivotCol.colBegin (), *pivotRow.rowBegin (), block);
 }
 
 /* Dumb elimination code
@@ -636,8 +639,8 @@ void eliminate (MatrixDomain<Field> &MD, Matrix1 &M, Matrix2 &pivotRow,
  * satisfy R = UA. Places rank in parameter rank.
  */
 
-template <class Field, class Matrix1, class Matrix2>
-void rowEchelon (MatrixDomain<Field> &MD, Matrix1 &U, Matrix1 &R, const Matrix2 &A, size_t &rank) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+void rowEchelon (MatrixDomain<Field> &MD, Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Matrix2 &A, size_t &rank) 
 {
 	linbox_check (U.rowdim () == A.rowdim ());
 	linbox_check (U.coldim () == A.rowdim ());
@@ -654,7 +657,7 @@ void rowEchelon (MatrixDomain<Field> &MD, Matrix1 &U, Matrix1 &R, const Matrix2 
 	for (; ip != M2.rowEnd (); ++ip)
 		stream >> *ip;
 
-	MD.copy (M1, A);
+	BLAS3::copy (ctx, A, M1);
 
 	unsigned int idx;
 	typename Field::Element Mjj_inv, a;
@@ -688,24 +691,24 @@ void rowEchelon (MatrixDomain<Field> &MD, Matrix1 &U, Matrix1 &R, const Matrix2 
 		M.getEntry (Mjj_inv, idx, idx);
 		MD.field ().invin (Mjj_inv);
 		Submatrix<Matrix1> realPivotRow (M, idx, idx, 1, M.coldim () - idx);
-		MD.scal (realPivotRow, Mjj_inv);
+		BLAS3::scal (ctx, Mjj_inv, realPivotRow);
 
 		if (idx > 0)
-			eliminate (MD, M, realPivotRow, 0, idx, idx, M.coldim () - idx);
+			eliminate (ctx, M, realPivotRow, 0, idx, idx, M.coldim () - idx);
 
 		if (idx < M.rowdim () - 1)
-			eliminate (MD, M, realPivotRow, idx + 1, idx,
+			eliminate (ctx, M, realPivotRow, idx + 1, idx,
 				   M.rowdim () - idx - 1, M.coldim () - idx);
 
 		++rank;
 	}
 
-	MD.copy (R, M1);
-	MD.copy (U, M2);
+	BLAS3::copy (ctx, M1, R);
+	BLAS3::copy (ctx, M2, U);
 }
 
-template <class Field, class Matrix>
-static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M) 
+template <class Field, class Modules, class Matrix>
+static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, const Matrix &M) 
 {
 	ostringstream str;
 
@@ -714,7 +717,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	size_t rank;
 
@@ -722,7 +725,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 	DenseMatrix<typename Field::Element> U (M.rowdim (), M.rowdim ());
 	DenseMatrix<typename Field::Element> UM (U.rowdim (), M.coldim ());
 
-	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (F, M.rowdim ());
+	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (ctx.F, M.rowdim ());
 
 	DenseMatrix<typename Field::Element> I (UM.rowdim (), UM.coldim ());
 	typename DenseMatrix<typename Field::Element>::RowIterator i = I.rowBegin ();
@@ -734,7 +737,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 	report << "Input matrix M:" << endl;
 	MD.write (report, M);
 
-	rowEchelon (MD, U, R, M, rank);
+	rowEchelon (MD, ctx, U, R, M, rank);
 
 	report << "Computed transform U:" << std::endl;
 	MD.write (report, U);
@@ -744,12 +747,12 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 
 	report << "Computed rank = " << rank << std::endl;
 
-	MD.gemm (F.one (), U, M, F.zero (), UM);
+	BLAS3::gemm (ctx, ctx.F.one (), U, M, ctx.F.zero (), UM);
 
 	report << "Computed product UM:" << endl;
 	MD.write (report, UM);
 
-	if (!MD.areEqual (UM, R)) {
+	if (!BLAS3::equal (ctx, UM, R)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported matrix UM != R" << endl;
 		ret = false;
@@ -758,7 +761,7 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 	if (rank == M.rowdim () && rank == M.coldim ()) {
 		report << "Full rank reported and matrix is square. Checking whether R is identity-matrix..." << std::endl;
 
-		if (!MD.areEqual (UM, I)) {
+		if (!BLAS3::equal (ctx, UM, I)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: MatrixDomain reported matrix R is not identity" << endl;
 			ret = false;
@@ -766,12 +769,12 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
 
 		report << "Checking whether U is inverse..." << std::endl;
 
-		MD.gemm (F.one (), M, U, F.zero (), UM);
+		BLAS3::gemm (ctx, ctx.F.one (), M, U, ctx.F.zero (), UM);
 
 		report << "Computed product MU:" << endl;
 		MD.write (report, UM);
 
-		if (!MD.areEqual (UM, R)) {
+		if (!BLAS3::equal (ctx, UM, R)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: MatrixDomain reported matrix MU is not identity" << endl;
 			ret = false;
@@ -790,8 +793,8 @@ static bool testGemmRowEchelon (Field &F, const char *text, const Matrix &M)
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::BlackboxTag, MatrixCategories::ColMatrixTag) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::BlackboxTag, MatrixCategories::ColMatrixTag) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -802,7 +805,7 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> ABgemm (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> ABgemv (A.rowdim (), B.coldim ());
@@ -816,28 +819,28 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
 
 	typename Field::Element a;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	r.random (a);
 
 	report << "Coefficient a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
 	typename DenseMatrix<typename Field::Element>::ColIterator i_AB = ABgemv.colBegin ();
 	typename Matrix2::ColIterator i_B = B.colBegin ();
 
 	for (; i_AB != ABgemv.colEnd (); ++i_B, ++i_AB)
-		MD.gemv (a, A, *i_B, F.zero (), *i_AB);
+		BLAS2::gemv (ctx, a, A, *i_B, ctx.F.zero (), *i_AB);
 
 	report << "Output matrix AB (from gemv):" << endl;
 	MD.write (report, ABgemv);
 
-	MD.gemm (a, A, B, F.zero (), ABgemm);
+	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), ABgemm);
 
 	report << "Output matrix AB (from gemm):" << endl;
 	MD.write (report, ABgemm);
 
-	if (!MD.areEqual (ABgemv, ABgemm)) {
+	if (!BLAS3::equal (ctx, ABgemv, ABgemm)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported matrices from gemm and gemv are not equal" << endl;
 		ret = false;
@@ -848,8 +851,8 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
 	return ret;
 }
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::BlackboxTag) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::BlackboxTag) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -860,7 +863,7 @@ static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> ABgemm (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> ABgemv (A.rowdim (), B.coldim ());
@@ -874,28 +877,28 @@ static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &
 
 	typename Field::Element a;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	r.random (a);
 
 	report << "Coefficient a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
 	typename DenseMatrix<typename Field::Element>::RowIterator i_AB = ABgemv.rowBegin ();
 	typename Matrix1::ConstRowIterator i_A = A.rowBegin ();
 
 	for (; i_AB != ABgemv.rowEnd (); ++i_A, ++i_AB)
-		MD.gemv (a, transpose (B), *i_A, F.zero (), *i_AB);
+		BLAS2::gemv (ctx, a, transpose (B), *i_A, ctx.F.zero (), *i_AB);
 
 	report << "Output matrix AB (from gemv):" << endl;
 	MD.write (report, ABgemv);
 
-	MD.gemm (a, A, B, F.zero (), ABgemm);
+	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), ABgemm);
 
 	report << "Output matrix AB (from gemm):" << endl;
 	MD.write (report, ABgemm);
 
-	if (!MD.areEqual (ABgemv, ABgemm)) {
+	if (!BLAS3::equal (ctx, ABgemv, ABgemm)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported matrices from gemm and gemv are not equal" << endl;
 		ret = false;
@@ -906,28 +909,28 @@ static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &
 	return ret;
 }
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::BlackboxTag, MatrixCategories::RowColMatrixTag) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::BlackboxTag, MatrixCategories::RowColMatrixTag) 
 {
-	return testGemvGemmSpecialised (F, text, A, B, MatrixCategories::BlackboxTag (), MatrixCategories::ColMatrixTag ());
+	return testGemvGemmSpecialised (ctx, text, A, B, MatrixCategories::BlackboxTag (), MatrixCategories::ColMatrixTag ());
 }
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowColMatrixTag, MatrixCategories::BlackboxTag) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowColMatrixTag, MatrixCategories::BlackboxTag) 
 {
-	return testGemvGemmSpecialised (F, text, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::BlackboxTag ());
+	return testGemvGemmSpecialised (ctx, text, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::BlackboxTag ());
 }
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag) 
 {
-	return testGemvGemmSpecialised (F, text, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::BlackboxTag ());
+	return testGemvGemmSpecialised (ctx, text, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::BlackboxTag ());
 }
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B) 
 {
-	return testGemvGemmSpecialised (F, text, A, B,
+	return testGemvGemmSpecialised (ctx, text, A, B,
 					typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
 					typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ());
 }
@@ -937,8 +940,8 @@ static bool testGemvGemm (Field &F, const char *text, const Matrix1 &A, const Ma
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix, class Vector>
-static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Vector &v)
+template <class Field, class Modules, class Matrix, class Vector>
+static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const Matrix &A, const Vector &v)
 {
 	ostringstream str;
 
@@ -947,12 +950,12 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 
 	typename Field::Element a, b, negainvb;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	bool ret = true;
 
-	VectorDomain<Field> VD (F);
-	MatrixDomain<Field> MD (F);
+	VectorDomain<Field> VD (ctx.F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	typename LinBox::Vector<Field>::Dense aAv (A.rowdim ());
 
@@ -967,22 +970,22 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
 	r.random (b);
 
 	report << "Coefficients: a = ";
-	F.write (report, a) << ", b = ";
-	F.write (report, b) << std::endl;
+	ctx.F.write (report, a) << ", b = ";
+	ctx.F.write (report, b) << std::endl;
 
-	MD.gemv (a, A, v, F.zero (), aAv);
+	BLAS2::gemv (ctx, a, A, v, ctx.F.zero (), aAv);
 
 	report << "Output vector a * A * v: ";
 	VD.write (report, aAv) << std::endl;
 
-	F.inv (negainvb, a);
-	F.mulin (negainvb, b);
-	F.negin (negainvb);
+	ctx.F.inv (negainvb, a);
+	ctx.F.mulin (negainvb, b);
+	ctx.F.negin (negainvb);
 
 	report << "Coefficient: -a^-1 b = ";
-	F.write (report, negainvb) << std::endl;
+	ctx.F.write (report, negainvb) << std::endl;
 
-	MD.gemv (b, A, v, negainvb, aAv);
+	BLAS2::gemv (ctx, b, A, v, negainvb, aAv);
 
 	report << "Output vector w := b * A * v - b * a^-1 * aAv: ";
 	VD.write (report, aAv) << std::endl;
@@ -1003,8 +1006,8 @@ static bool testGemvCoeff (Field &F, const char *text, const Matrix &A, const Ve
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-static bool testTrsmLower (Field &F, const char *text, const Matrix &A, const Matrix &B)
+template <class Field, class Modules, class Matrix>
+static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const Matrix &A, const Matrix &B)
 {
 	ostringstream str;
 
@@ -1013,16 +1016,16 @@ static bool testTrsmLower (Field &F, const char *text, const Matrix &A, const Ma
 
 	bool ret = true;
 
-	VectorDomain<Field> VD (F);
-	MatrixDomain<Field> MD (F);
+	VectorDomain<Field> VD (ctx.F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix U (A.rowdim (), A.coldim ());
 	Matrix B1 (B.rowdim (), B.coldim ());
 
-	MD.copy (U, A);
-	makeNonsingDiag (F, U);
+	BLAS3::copy (ctx, A, U);
+	makeNonsingDiag (ctx.F, U);
 
-	MD.copy (B1, B);
+	BLAS3::copy (ctx, B, B1);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix U:" << std::endl;
@@ -1033,25 +1036,25 @@ static bool testTrsmLower (Field &F, const char *text, const Matrix &A, const Ma
 
 	typename Field::Element a, ainv;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	r.random (a);
-	F.inv (ainv, a);
+	ctx.F.inv (ainv, a);
 
 	report << "Coefficient a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
-	MD.trsm (a, U, B1, LowerTriangular, false);
+	BLAS3::trsm (ctx, a, U, B1, LowerTriangular, false);
 
 	report << "Output matrix U^-1 * B: " << std::endl;
 	MD.write (report, B1);
 
-	MD.trmm (ainv, U, B1, LowerTriangular, false);
+	BLAS3::trmm (ctx, ainv, U, B1, LowerTriangular, false);
 
 	report << "Output matrix U U^-1 * B: " << std::endl;
 	MD.write (report, B1);
 
-	if (!MD.areEqual (B, B1)) {
+	if (!BLAS3::equal (ctx, B, B1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: VectorxDomain reported B != U * U^-1 * B" << endl;
 		ret = false;
@@ -1067,8 +1070,8 @@ static bool testTrsmLower (Field &F, const char *text, const Matrix &A, const Ma
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-static bool testTrsmUpper (Field &F, const char *text, const Matrix &A, const Matrix &B)
+template <class Field, class Modules, class Matrix>
+static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const Matrix &A, const Matrix &B)
 {
 	ostringstream str;
 
@@ -1077,45 +1080,45 @@ static bool testTrsmUpper (Field &F, const char *text, const Matrix &A, const Ma
 
 	bool ret = true;
 
-	VectorDomain<Field> VD (F);
-	MatrixDomain<Field> MD (F);
+	VectorDomain<Field> VD (ctx.F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix U (A.rowdim (), A.coldim ());
 	Matrix B1 (B.rowdim (), B.coldim ());
 
-	MD.copy (U, A);
-	makeNonsingDiag (F, U);
+	BLAS3::copy (ctx, A, U);
+	makeNonsingDiag (ctx.F, U);
 
-	MD.copy (B1, B);
+	BLAS3::copy (ctx, B, B1);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix U:" << std::endl;
-	MD.write (report, U, FORMAT_SAGE);
+	MD.write (report, U);
 
 	report << "Input matrix B: " << std::endl;
-	MD.write (report, B, FORMAT_SAGE);
+	MD.write (report, B);
 
 	typename Field::Element a, ainv;
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	r.random (a);
-	F.inv (ainv, a);
+	ctx.F.inv (ainv, a);
 
 	report << "Coefficient a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
-	MD.trsm (a, U, B1, UpperTriangular, false);
+	BLAS3::trsm (ctx, a, U, B1, UpperTriangular, false);
 
 	report << "Output matrix U^-1 * B: " << std::endl;
 	MD.write (report, B1);
 
-	MD.trmm (ainv, U, B1, UpperTriangular, false);
+	BLAS3::trmm (ctx, ainv, U, B1, UpperTriangular, false);
 
 	report << "Output matrix U U^-1 * B: " << std::endl;
 	MD.write (report, B1);
 
-	if (!MD.areEqual (B, B1)) {
+	if (!BLAS3::equal (ctx, B, B1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: VectorxDomain reported B != U * U^-1 * B" << endl;
 		ret = false;
@@ -1133,8 +1136,8 @@ static bool testTrsmUpper (Field &F, const char *text, const Matrix &A, const Ma
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B, TriangularMatrixType type) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, TriangularMatrixType type) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -1147,16 +1150,16 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix1 U (A.rowdim (), A.coldim ());
 
-	MD.copy (U, A);
+	BLAS3::copy (ctx, A, U);
 
 	if (type == UpperTriangular)
-		makeUpperTriangular (F, U, true);
+		makeUpperTriangular (ctx.F, U, true);
 	else if (type == LowerTriangular)
-		makeLowerTriangular (F, U, true);
+		makeLowerTriangular (ctx.F, U, true);
 
 	DenseMatrix<typename Field::Element> UinvBtrsm (U.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> UinvBtrsv (U.rowdim (), B.coldim ());
@@ -1168,23 +1171,23 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
 	report << "Input matrix B:" << endl;
 	MD.write (report, B);
 
-	MD.copy (UinvBtrsm, B);
-	MD.copy (UinvBtrsv, B);
+	BLAS3::copy (ctx, B, UinvBtrsm);
+	BLAS3::copy (ctx, B, UinvBtrsv);
 
 	typename DenseMatrix<typename Field::Element>::ColIterator i_UinvB = UinvBtrsv.colBegin ();
 
 	for (; i_UinvB != UinvBtrsv.colEnd (); ++i_UinvB)
-		MD.trsv (U, *i_UinvB, type, false);
+		BLAS2::trsv (ctx, U, *i_UinvB, type, false);
 
 	report << "Output matrix U^-1 * B (from trsv):" << endl;
 	MD.write (report, UinvBtrsv);
 
-	MD.trsm (F.one (), U, UinvBtrsm, type, false);
+	BLAS3::trsm (ctx, ctx.F.one (), U, UinvBtrsm, type, false);
 
 	report << "Output matrix U^-1 * B (from trsm):" << endl;
 	MD.write (report, UinvBtrsm);
 
-	if (!MD.areEqual (UinvBtrsv, UinvBtrsm)) {
+	if (!BLAS3::equal (ctx, UinvBtrsv, UinvBtrsm)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported matrices from trsm and trsv are not equal" << endl;
 		ret = false;
@@ -1202,8 +1205,8 @@ static bool testTrsmTrsv (Field &F, const char *text, const Matrix1 &A, const Ma
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix1, class Matrix2>
-static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const Matrix2 &B) 
+template <class Field, class Modules, class Matrix1, class Matrix2>
+static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -1214,16 +1217,12 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
-
-	typename Field::Element one;
-
-	F.init (one, 1);
+	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix1 U (A.rowdim (), A.coldim ());
 
-	MD.copy (U, A);
-	makeUpperTriangular (F, U, true);
+	BLAS3::copy (ctx, A, U);
+	makeUpperTriangular (ctx.F, U, true);
 
 	DenseMatrix<typename Field::Element> aUinvB (U.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> UinvB (U.rowdim (), B.coldim ());
@@ -1235,30 +1234,33 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
 	report << "Input matrix B:" << endl;
 	MD.write (report, B);
 
-	typename Field::RandIter r (F);
+	BLAS3::copy (ctx, B, aUinvB);
+	BLAS3::copy (ctx, B, UinvB);
+
+	typename Field::RandIter r (ctx.F);
 	typename Field::Element a;
 
 	r.random (a);
 
 	report << "Coefficient: a = ";
-	F.write (report, a) << std::endl;
+	ctx.F.write (report, a) << std::endl;
 
-	MD.trsm (a, U, aUinvB, UpperTriangular, false);
+	BLAS3::trsm (ctx, a, U, aUinvB, UpperTriangular, false);
 
 	report << "Output matrix a U^-1 * B:" << endl;
 	MD.write (report, aUinvB);
 
-	MD.trsm (one, U, UinvB, UpperTriangular, false);
+	BLAS3::trsm (ctx, ctx.F.one (), U, UinvB, UpperTriangular, false);
 
 	report << "Output matrix U^-1 * B:" << endl;
 	MD.write (report, UinvB);
 
-	MD.scal (UinvB, a);
+	BLAS3::scal (ctx, a, UinvB);
 
 	report << "Output matrix a (U^-1 * B):" << endl;
 	MD.write (report, UinvB);
 
-	if (!MD.areEqual (UinvB, aUinvB)) {
+	if (!BLAS3::equal (ctx, UinvB, aUinvB)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported a U^-1 * B != a (U^-1 * B)" << endl;
 		ret = false;
@@ -1274,8 +1276,8 @@ static bool testTrsmCoeff (Field &F, const char *text, const Matrix1 &A, const M
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-bool testPermutation (const Field &F, const char *text, const Matrix &M) 
+template <class Field, class Modules, class Matrix>
+bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matrix &M) 
 {
 	ostringstream str;
 
@@ -1284,7 +1286,7 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 	MersenneTwister MT (time (NULL));
 
 	typename MatrixDomain<Field>::Permutation P, Pinv;
@@ -1307,6 +1309,9 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 	std::reverse (Pinv.begin (), Pinv.end ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+	report << "Input matrix M:" << endl;
+	MD.write (report, M);
+
 	report << "Permutation P:    ";
 	MD.writePermutation (report, P.begin (), P.end ()) << endl;
 	report << "Permutation P^-1: ";
@@ -1315,20 +1320,21 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 	// Apply the permutation and then its inverse to a copy of M
 	Matrix M1 (M);
 
-	MD.permuteRows (M1, P.begin (), P.end ());
- 	MD.permuteRows (M1, Pinv.begin (), Pinv.end ());
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), M1);
+	BLAS3::permute_rows (ctx, Pinv.begin (), Pinv.end (), M1);
 
 	report << "Output matrix P^-1 PM:" << endl;
 	MD.write (report, M1);
 
 	// Compare M and M1
-	if (!MD.areEqual (M, M1)) {
+	if (!BLAS3::equal (ctx, M, M1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: M != P^-1 PM" << endl;
 		ret = false;
 	}
 
 	// Now we do exactly the same thing with columns
+	BLAS3::copy (ctx, M, M1);
 	P.clear ();
 	Pinv.clear ();
 
@@ -1355,14 +1361,14 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
 	MD.writePermutation (report, Pinv.begin (), Pinv.end ()) << endl;
 
 	// Apply the permutation and then its inverse to a copy of M
-	MD.permuteColumns (M1, P.begin (), P.end ());
-	MD.permuteColumns (M1, Pinv.begin (), Pinv.end ());
+	BLAS3::permute_cols (ctx, P.begin (), P.end (), M1);
+	BLAS3::permute_cols (ctx, Pinv.begin (), Pinv.end (), M1);
 
 	report << "Output matrix MPP^-1:" << endl;
 	MD.write (report, M1);
 
 	// Compare M and M1
-	if (!MD.areEqual (M, M1)) {
+	if (!BLAS3::equal (ctx, M, M1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: M != MPP^-1" << endl;
 		ret = false;
@@ -1378,8 +1384,8 @@ bool testPermutation (const Field &F, const char *text, const Matrix &M)
  * Return true on success and false on failure
  */
 
-template <class Field, class Matrix>
-bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, FileFormatTag format)
+template <class Field, class Modules, class Matrix>
+bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const Matrix &M, FileFormatTag format)
 {
 	static const char *format_names[] = 
 		{ "detect", "unknown", "Turner", "one-based", "Guillaume", "Maple", "Matlab", "Sage", "pretty", "PNG" };
@@ -1392,7 +1398,7 @@ bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, Fil
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix M1 (M.rowdim (), M.coldim ());
 
@@ -1419,7 +1425,7 @@ bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, Fil
 		report << "Matrix as read from " << format_names[format] << " format" << std::endl;
 		MD.write (report, M1);
 
-		if (!MD.areEqual (M, M1)) {
+		if (!BLAS3::equal (ctx, M, M1)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: Matrix as read does not equal original" << endl;
 			pass = false;
@@ -1441,8 +1447,8 @@ bool testReadWriteFormat (const Field &F, const char *text, const Matrix &M, Fil
 	return pass;
 }
 
-template <class Field, class Matrix>
-bool testReadWrite (const Field &F, const char *text, const Matrix &M)
+template <class Field, class Modules, class Matrix>
+bool testReadWrite (Context<Field, Modules> &ctx, const char *text, const Matrix &M)
 {
 	ostringstream str;
 	str << "Testing " << text << " read/write" << ends;
@@ -1450,7 +1456,7 @@ bool testReadWrite (const Field &F, const char *text, const Matrix &M)
 
 	bool pass = true;
 
-	MatrixDomain<Field> MD (F);
+	MatrixDomain<Field> MD (ctx.F);
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;
@@ -1459,15 +1465,15 @@ bool testReadWrite (const Field &F, const char *text, const Matrix &M)
 	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY };
 
 	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)
-		pass = testReadWriteFormat (F, text, M, formats[i]) && pass;
+		pass = testReadWriteFormat (ctx, text, M, formats[i]) && pass;
 
 	commentator.stop (MSG_STATUS (pass), (const char *) 0, __FUNCTION__);
 
 	return pass;
 }
 
-template <class Matrix>
-bool testReadWrite (const GF2 &F, const char *text, const Matrix &M)
+template <class Modules, class Matrix>
+bool testReadWrite (Context<GF2, Modules> &ctx, const char *text, const Matrix &M)
 {
 	ostringstream str;
 	str << "Testing " << text << " read/write" << ends;
@@ -1475,7 +1481,7 @@ bool testReadWrite (const GF2 &F, const char *text, const Matrix &M)
 
 	bool pass = true;
 
-	MatrixDomain<GF2> MD (F);
+	MatrixDomain<GF2> MD (ctx.F);
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;
@@ -1488,15 +1494,15 @@ bool testReadWrite (const GF2 &F, const char *text, const Matrix &M)
 #endif // __LINBOX_HAVE_LIBPNG
 
 	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)
-		pass = testReadWriteFormat (F, text, M, formats[i]) && pass;
+		pass = testReadWriteFormat (ctx, text, M, formats[i]) && pass;
 
 	commentator.stop (MSG_STATUS (pass), (const char *) 0, __FUNCTION__);
 
 	return pass;
 }
 
-template <class Field, class Matrix, class Vector>
-bool testMatrixDomain (const Field &F, const char *text,
+template <class Field, class Modules, class Matrix, class Vector>
+bool testMatrixDomain (Context<Field, Modules> &ctx, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
 		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
@@ -1508,39 +1514,39 @@ bool testMatrixDomain (const Field &F, const char *text,
 
 	bool pass = true;
 
-	if (!testCopyEqual (F, text, M1)) pass = false;
-	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
-	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
-	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
-	if (!testGemmIdent (F, text, M1)) pass = false;
-	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
-	if (!testTrmmGemmUpper (F, text, M1, M2)) pass = false;
-	if (!testTrmmGemmLower (F, text, M1, M2)) pass = false;
-	if (!testGemmRowEchelon (F, text, M1)) pass = false;
-	if (!testGemvGemm (F, text, M1, M2)) pass = false;
-	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
+	if (!testCopyEqual (ctx, text, M1)) pass = false;
+	if (!testScalAxpyIsZero (ctx, text, M1)) pass = false;
+	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
+	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (ctx, text, M1)) pass = false;
+	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false;
+	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
+	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
+	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
+	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;
+	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsmLower (F, text, M1, M2)) pass = false;
-		if (!testTrsmUpper (F, text, M1, M2)) pass = false;
-		if (!testTrsmTrsv (F, text, M1, M2, LowerTriangular)) pass = false;
-		if (!testTrsmTrsv (F, text, M1, M2, UpperTriangular)) pass = false;
-		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
+		if (!testTrsmLower (ctx, text, M1, M2)) pass = false;
+		if (!testTrsmUpper (ctx, text, M1, M2)) pass = false;
+		if (!testTrsmTrsv (ctx, text, M1, M2, LowerTriangular)) pass = false;
+		if (!testTrsmTrsv (ctx, text, M1, M2, UpperTriangular)) pass = false;
+		if (!testTrsmCoeff (ctx, text, M1, M2)) pass = false;
 	} else {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
 			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
 	}
 
-	if (!testPermutation (F, text, M1)) pass = false;
-	if (!testReadWrite (F, text, M1)) pass = false;
+	if (!testPermutation (ctx, text, M1)) pass = false;
+	if (!testReadWrite (ctx, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
 
-template <class Field, class Matrix, class Vector>
-bool testMatrixDomain (const Field &F, const char *text,
+template <class Field, class Modules, class Matrix, class Vector>
+bool testMatrixDomain (Context<Field, Modules> &ctx, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
 		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
@@ -1552,37 +1558,37 @@ bool testMatrixDomain (const Field &F, const char *text,
 
 	bool pass = true;
 
-	if (!testCopyEqual (F, text, M1)) pass = false;
-	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
-	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
-	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
-	if (!testGemmIdent (F, text, M1)) pass = false;
-//	if (!testGerGemm (F, text, M1, v1, v2)) pass = false; // Needs ColIterator
-	if (!testTrmmGemmUpper (F, text, M1, M2)) pass = false;
-	if (!testTrmmGemmLower (F, text, M1, M2)) pass = false;
-//	if (!testGemmRowEchelon (F, text, M1)) pass = false;  // Needs ColIterator
-	if (!testGemvGemm (F, text, M1, M2)) pass = false;
-	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
+	if (!testCopyEqual (ctx, text, M1)) pass = false;
+	if (!testScalAxpyIsZero (ctx, text, M1)) pass = false;
+	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
+	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (ctx, text, M1)) pass = false;
+//	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false; // Needs ColIterator
+	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
+	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
+//	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
+	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;
+	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsmLower (F, text, M1, M2)) pass = false;
-		if (!testTrsmUpper (F, text, M1, M2)) pass = false;
-		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
+		if (!testTrsmLower (ctx, text, M1, M2)) pass = false;
+		if (!testTrsmUpper (ctx, text, M1, M2)) pass = false;
+		if (!testTrsmCoeff (ctx, text, M1, M2)) pass = false;
 	} else {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
 			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
 	}
 
-	if (!testPermutation (F, text, M1)) pass = false;
-	if (!testReadWrite (F, text, M1)) pass = false;
+	if (!testPermutation (ctx, text, M1)) pass = false;
+	if (!testReadWrite (ctx, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
 
-template <class Field, class Matrix, class Vector>
-bool testMatrixDomain (const Field &F, const char *text,
+template <class Field, class Modules, class Matrix, class Vector>
+bool testMatrixDomain (Context<Field, Modules> &ctx, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
 		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
@@ -1594,22 +1600,22 @@ bool testMatrixDomain (const Field &F, const char *text,
 
 	bool pass = true;
 
-	if (!testCopyEqual (F, text, M1)) pass = false;
-	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
-	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
-	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
-	if (!testGemmIdent (F, text, M1)) pass = false;
-	if (!testGerGemm (F, text, M1, v1, v2)) pass = false;
-//	if (!testTrmmGemmUpper (F, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
-//	if (!testTrmmGemmLower (F, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
-	if (!testGemmRowEchelon (F, text, M1)) pass = false;
-//	if (!testGemvGemm (F, text, M1, M2)) pass = false;    Not compiling because the compiler won't instantiate with TransposeMatrix. Hmmm....
-	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
+	if (!testCopyEqual (ctx, text, M1)) pass = false;
+	if (!testScalAxpyIsZero (ctx, text, M1)) pass = false;
+	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
+	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (ctx, text, M1)) pass = false;
+	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false;
+//	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
+//	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
+	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
+//	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;    Not compiling because the compiler won't instantiate with TransposeMatrix. Hmmm....
+	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
 #if 0 // disabled because of TransposeMatrix-issues
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsmLower (F, text, M1, M2)) pass = false;
-		if (!testTrsmUpper (F, text, M1, M2)) pass = false;
+		if (!testTrsmLower (ctx, text, M1, M2)) pass = false;
+		if (!testTrsmUpper (ctx, text, M1, M2)) pass = false;
 
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
 			<< "Input matrix M2 is not iterable by columns, so skipping tests of trsm" << std::endl;
@@ -1624,8 +1630,8 @@ bool testMatrixDomain (const Field &F, const char *text,
 	return pass;
 }
 
-template <class Field, class Matrix, class Vector>
-bool testMatrixDomainSubmatrix (const Field &F, const char *text,
+template <class Field, class Modules, class Matrix, class Vector>
+bool testMatrixDomainSubmatrix (Context<Field, Modules> &ctx, const char *text, // 
 				const Matrix &M1, const Matrix &M2, const Matrix &M3,
 				Vector &v1, Vector &v2,
 				unsigned int iterations,
@@ -1637,27 +1643,27 @@ bool testMatrixDomainSubmatrix (const Field &F, const char *text,
 
 	bool pass = true;
 
-	if (!testCopyEqual (F, text, M1)) pass = false;
-	if (!testScalAxpyIsZero (F, text, M1)) pass = false;
-	if (!testGemmCoeff (F, text, M1, M2)) pass = false;
-	if (!testGemmAssoc (F, text, M1, M2, M3)) pass = false;
-	if (!testGemmIdent (F, text, M1)) pass = false;
-//	if (!testGerGemm (F, text, M1, v1, v2)) pass = false; // Needs ColIterator
-//	if (!testGemmRowEchelon (F, text, M1)) pass = false;  // Needs ColIterator
-	if (!testGemvGemm (F, text, M1, M2)) pass = false;
-	if (!testGemvCoeff (F, text, M1, v2)) pass = false;
+	if (!testCopyEqual (ctx, text, M1)) pass = false;
+	if (!testScalAxpyIsZero (ctx, text, M1)) pass = false;
+	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
+	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
+	if (!testGemmIdent (ctx, text, M1)) pass = false;
+//	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false; // Needs ColIterator
+//	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
+	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;
+	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
 #if 0 // Disabled until we have a good candidate here
 	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsv (F, text, M1, v2)) pass = false;
-		if (!testTrsmCoeff (F, text, M1, M2)) pass = false;
+		if (!testTrsv (ctx, text, M1, v2)) pass = false;
+		if (!testTrsmCoeff (ctx, text, M1, M2)) pass = false;
 	} else {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
 			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
 	}
 #endif
 
-	if (!testPermutation (F, text, M1)) pass = false;
+	if (!testPermutation (ctx, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 

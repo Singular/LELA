@@ -656,8 +656,6 @@ class MatrixDomain : public MatrixDomainSupport<Field>
 	 */
 	const Field &field () const
 		{ return MatrixDomainSupport<Field>::_F; }
-	Field &field () 
-		{ return MatrixDomainSupport<Field>::_F; }
 
 	/*? @name Field-independent functionality
 	 *

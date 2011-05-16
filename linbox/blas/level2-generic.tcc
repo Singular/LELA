@@ -26,11 +26,14 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowMatrixTag,
-		    VectorCategories::DenseVectorTag,
+		    VectorCategories::GenericVectorTag,
 		    VectorCategories::DenseVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+
+	if (end_idx == (size_t) -1)
+		end_idx = A.coldim ();
 
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Vector2::iterator j = y.begin ();
@@ -39,8 +42,8 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 
 	for (; i != A.rowEnd (); ++j, ++i) {
 		BLAS1::_dot (F, M, d, x, *i, start_idx, end_idx);
-		F.mulin (*j, beta);
-		F.axpyin (*j, alpha, d);
+		F.mulin (*j, b);
+		F.axpyin (*j, a, d);
 	}
 
 	return y;
@@ -51,11 +54,14 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowMatrixTag,
-		    VectorCategories::SparseVectorTag,
+		    VectorCategories::GenericVectorTag,
 		    VectorCategories::SparseVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+
+	if (end_idx == (size_t) -1)
+		end_idx = A.coldim ();
 
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Field::Element t;
@@ -63,7 +69,7 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 
 	typename Vector<Field>::Sparse yp;
 
-	if (F.isZero (beta))
+	if (F.isZero (b))
 		y.clear ();
 	else
 		BLAS1::_scal (F, M, y, b);
@@ -85,17 +91,20 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::ColMatrixTag,
 		    VectorCategories::DenseVectorTag,
-		    VectorCategories::DenseVectorTag)
+		    VectorCategories::GenericVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
+	if (end_idx == (size_t) -1)
+		end_idx = A.coldim ();
+
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector1::const_iterator j = x.begin () + start_idx, j_end = x.begin () + end_idx;
 	typename Field::Element d;
 
-	BLAS1::_scal (F, M, y, b);
+	BLAS1::_scal (F, M, b, y);
 
 	for (; j != j_end; ++j, ++i) {
 		F.mul (d, a, *j);
@@ -111,21 +120,24 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::ColMatrixTag,
 		    VectorCategories::SparseVectorTag,
-		    VectorCategories::SparseVectorTag)
+		    VectorCategories::GenericVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+
+	if (end_idx == (size_t) -1)
+		end_idx = A.coldim ();
 
 	typename Vector1::const_iterator j =
 		(start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
 	typename Field::Element d;
 
-	BLAS1::_scal (F, M, y, b);
+	BLAS1::_scal (F, M, b, y);
 
 	for (; j != x.end () && j->first < end_idx; ++j) {
 		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
 		F.mul (d, a, j->second);
-		BLAS1::_axpy (F, M, d, *i, y ());
+		BLAS1::_axpy (F, M, d, *i, y);
 	}
 
 	return y;
@@ -145,11 +157,10 @@ Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x,
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
 
-	typename Field::Element ai, ai_p_1, neg_ai_inv, d;
+	typename Field::Element ai, ai_inv, neg_ai_inv, d;
 
 	if (diagIsOne) {
 		F.assign (neg_ai_inv, F.minusOne ());
-		F.init (ai_p_1, 2);
 	}
 
 	if (type == LowerTriangular) {
@@ -163,10 +174,12 @@ Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x,
 
 				F.inv (ai_inv, ai);
 				F.neg (neg_ai_inv, ai_inv);
-				F.mulin (ai_inv, a);
 			}
 
-			BLAS1::_dot (F, M, x[idx], *i_A, x, 0, idx);
+			BLAS1::_dot (F, M, d, *i_A, x, 0, idx);
+
+			F.mulin (x[idx], ai_inv);
+			F.axpyin (x[idx], d, neg_ai_inv);
 		}
 	}
 	else if (type == UpperTriangular) {
@@ -174,7 +187,7 @@ Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x,
 		size_t idx = A.rowdim ();
 
 		do {
-			--i_A; --i_B; --idx;
+			--i_A; --idx;
 
 			if (!diagIsOne) {
 				if (!VectorWrapper::getEntry (*i_A, ai, idx))
@@ -182,10 +195,12 @@ Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x,
 
 				F.inv (ai_inv, ai);
 				F.neg (neg_ai_inv, ai_inv);
-				F.mulin (ai_inv, a);
 			}
 
-			BLAS1::_dot (F, M, x[idx], *i_A, x, idx + 1, (size_t) -1);
+			BLAS1::_dot (F, M, d, *i_A, x, idx + 1, (size_t) -1);
+
+			F.mulin (x[idx], ai_inv);
+			F.axpyin (x[idx], d, neg_ai_inv);
 		} while (i_A != A.rowBegin ());
 	}
 
@@ -251,7 +266,7 @@ Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Elemen
 
 	for (i_A = A.colBegin (), i_y = y.begin (); i_A != A.colEnd (); ++i_A, ++i_y) {
 		F.mul (ayi, a, *i_y);
-		BLAS1::_axpy (F, M, *i_A, ayi, x);
+		BLAS1::_axpy (F, M, ayi, x, *i_A);
 	}
 
 	return A;

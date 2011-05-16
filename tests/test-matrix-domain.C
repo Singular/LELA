@@ -11,6 +11,7 @@
  */
 
 #include "linbox/util/commentator.h"
+#include "linbox/blas/context.h"
 #include "linbox/field/modular.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
@@ -78,7 +79,9 @@ int main (int argc, char **argv)
 	DenseMatrix<Element> M2 (stream12);
 	DenseMatrix<Element> M3 (stream13);
 
-	if (!testMatrixDomain (F, "dense", M1, M2, M3, v1, v2, iterations,
+	Context<Field> ctx (F);
+
+	if (!testMatrixDomain (ctx, "dense", M1, M2, M3, v1, v2, iterations,
 			       MatrixTraits<DenseMatrix<Element> >::MatrixCategory ()))
 		pass = false;
 
@@ -90,7 +93,7 @@ int main (int argc, char **argv)
 	SparseMatrix<Element> M5 (stream22);
 	SparseMatrix<Element> M6 (stream23);
 
-	if (!testMatrixDomain (F, "sparse row-wise", M4, M5, M6, v1, v2, iterations,
+	if (!testMatrixDomain (ctx, "sparse row-wise", M4, M5, M6, v1, v2, iterations,
 			       MatrixTraits<SparseMatrix<Element> >::MatrixCategory ()))
 		pass = false;
 
@@ -98,7 +101,7 @@ int main (int argc, char **argv)
 	TransposeMatrix<SparseMatrix<Element> > M8 (M5);
 	TransposeMatrix<SparseMatrix<Element> > M9 (M4);
 
-	if (!testMatrixDomain (F, "sparse column-wise", M7, M8, M9, v4, v3, iterations,
+	if (!testMatrixDomain (ctx, "sparse column-wise", M7, M8, M9, v4, v3, iterations,
 			       MatrixTraits<TransposeMatrix<SparseMatrix<Element> > >::MatrixCategory ()))
 		pass = false;
 

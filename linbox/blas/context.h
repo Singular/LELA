@@ -6,8 +6,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __BLAS_LEVEL3_H
-#define __BLAS_LEVEL3_H
+#ifndef __BLAS_CONTEXT_H
+#define __BLAS_CONTEXT_H
 
 namespace LinBox
 {
@@ -73,8 +73,8 @@ enum TriangularMatrixType {
 };
 #endif
 
-/** Whether a triangular matrix is on the left or the right side, for trmv, trsv, trmm, trsm */
-enum TriangularMatrixSide {
+/** Whether a matrix is on the left or the right side, for trmv, trsv, trmm, trsm, and permute */
+enum MatrixSide {
 	LeftSide, RightSide
 };
 
@@ -82,7 +82,7 @@ enum TriangularMatrixSide {
 
 } // namespace LinBox
 
-#endif // __BLAS_LEVEL3_H
+#endif // __BLAS_CONTEXT_H
 
 // Local Variables:
 // mode: C++

@@ -138,7 +138,7 @@ std::istream &MatrixReader<Field>::readGuillaume (std::istream &is, Matrix &A) c
 
 		_F.read (is, x);
 
-		if (! _F.isZero(x))
+		if (! _F.isZero (x))
 			A.setEntry (i - 1, j - 1, x);
 	}
 
@@ -178,7 +178,11 @@ std::istream &MatrixReader<Field>::readMatlab (std::istream &is, Matrix &A) cons
 		is.putback (c);
 
 		_F.read (is, a_ij);
-		A.setEntry (i, j++, a_ij);
+
+		if (! _F.isZero (a_ij))
+			A.setEntry (i, j, a_ij);
+
+		++j;
 
 		do
 			is >> c;
