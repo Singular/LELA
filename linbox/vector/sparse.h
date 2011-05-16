@@ -8,6 +8,7 @@
 #define __LINBOX_VECTOR_SPARSE_H
 
 #include <vector>
+#include <algorithm>
 
 #include "linbox/vector/vector-traits.h"
 
@@ -237,6 +238,8 @@ template <class IndexIterator, class ElementIterator, class ConstIndexIterator =
 class ConstSparseVector
 {
 public:
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
+
 	typedef SparseVectorIterator<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> iterator;
 	typedef SparseVectorIterator<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_iterator;
 
@@ -337,6 +340,8 @@ template <class Element, class IndexVector, class ElementVector> // N.B. default
 class SparseVector
 {
 public:
+	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
+
 	typedef typename IndexVector::iterator IndexIterator;
 	typedef typename IndexVector::const_iterator ConstIndexIterator;
 	typedef typename ElementVector::iterator ElementIterator;
@@ -477,6 +482,9 @@ public:
 	inline bool operator == (const SparseVector &v) const
 		{ return (_idx == v._idx) && (_elt == v._elt); }
 
+	void swap (SparseVector &v)
+		{ std::swap (_idx, v._idx); std::swap (_elt, v._elt); }
+
 private:
 	template <class V, class T>
 	friend class SparseSubvector;
@@ -489,35 +497,17 @@ private:
 	ElementVector _elt;
 };
 
-template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
-struct DefaultVectorTraits< ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
-{ 
-	typedef ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
-	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
-};
-
-template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
-struct DefaultVectorTraits<const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> >
-{ 
-	typedef const ConstSparseVector<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> VectorType;
-	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
-};
-
-template <class Element, class IndexVector, class ElementVector>
-struct DefaultVectorTraits< SparseVector<Element, IndexVector, ElementVector> >
-{ 
-	typedef SparseVector<Element, IndexVector, ElementVector> VectorType;
-	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
-};
-
-template <class Element, class IndexVector, class ElementVector>
-struct DefaultVectorTraits<const SparseVector<Element, IndexVector, ElementVector> >
-{ 
-	typedef const SparseVector<Element, IndexVector, ElementVector> VectorType;
-	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
-};
-
 } // namespace LinBox
+
+namespace std
+{
+
+// Specialisation of std::swap to sparse vectors
+template <class Element, class IndexVector, class ElementVector>
+void swap (LinBox::SparseVector<Element, IndexVector, ElementVector> &v1, LinBox::SparseVector<Element, IndexVector, ElementVector> &v2)
+	{ v1.swap (v2); }
+
+} // namespace std
 
 #endif // __LINBOX_VECTOR_SPARSE_H
 
