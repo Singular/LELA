@@ -14,6 +14,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/vector/vector-traits.h"
+#include "linbox/matrix/io.h"
 
 namespace LinBox
 {
@@ -149,6 +150,14 @@ bool is_zero_impl (const Field &F, GenericModule &M, const Matrix &A, MatrixCate
 template <class Field, class Matrix>
 bool is_zero_impl (const Field &F, GenericModule &M, const Matrix &A, MatrixCategories::RowColMatrixTag)
 	{ return is_zero_impl (F, M, A, MatrixCategories::RowMatrixTag ()); }
+
+template <class Field, class Modules, class Matrix>
+std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Matrix &A, FileFormatTag format)
+	{ MatrixReader<Field> reader (F); return reader.read (is, A, format); }
+
+template <class Field, class Modules, class Matrix>
+std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Matrix &A, FileFormatTag format)
+	{ MatrixWriter<Field> writer (F); return writer.write (os, A, format); }
 
 } // namespace BLAS3
 

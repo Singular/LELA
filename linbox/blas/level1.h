@@ -9,6 +9,8 @@
 #ifndef __BLAS_LEVEL1_H
 #define __BLAS_LEVEL1_H
 
+#include <iostream>
+
 #include "linbox/blas/context.h"
 #include "linbox/vector/vector-traits.h"
 
@@ -18,6 +20,9 @@ namespace LinBox
 /** This namespace contains the level 1 BLAS interface */
 namespace BLAS1 
 {
+
+/// @name Operations on vectors
+//@{
 
 /** Compute the dot-product of the two vectors
  *
@@ -138,6 +143,11 @@ Vector &_permute (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, 
 	{ return permute_impl (F, M, P_begin, P_end, v,
 			       typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
+//@} Operations on vectors
+
+/// @name Queries on vectors
+//@{
+
 /** Test whether x and y are equal
  *
  * x and y may be of different types, but must be defined over the same field
@@ -188,6 +198,45 @@ int head (Context<Field, Modules> &ctx, typename Field::Element &a, const Vector
 template <class Field, class Modules, class Vector>
 int _head (const Field &F, Modules &M, typename Field::Element &a, const Vector &x)
 	{ return head_impl (F, M, a, x, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+
+//@} Queries on vectors
+
+/// @name I/O of vectors
+//@{
+
+/** Read the given vector from the given stream
+ *
+ * @param ctx Context-object
+ * @param is Input-stream
+ * @param v Vector into which to place result
+ * @returns Reference to is
+ */
+template <class Field, class Modules, class Vector>
+std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Vector &v)
+	{ return _read (ctx.F, ctx.M, is, v); }
+
+/// Version specifying the field and module directly rather than in a Context object
+template <class Field, class Modules, class Vector>
+std::istream &_read (const Field &F, Modules &M, std::istream &is, Vector &v)
+	{ return read_impl (F, M, is, v, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+
+/** Write the given vector to the given stream
+ *
+ * @param ctx Context-object
+ * @param os Output-stream
+ * @param v Vector to be written
+ * @returns Reference to os
+ */
+template <class Field, class Modules, class Vector>
+std::ostream &write (Context<Field, Modules> &ctx, std::ostream &os, const Vector &v)
+	{ return _write (ctx.F, ctx.M, os, v); }
+
+/// Version specifying the field and module directly rather than in a Context object
+template <class Field, class Modules, class Vector>
+std::ostream &_write (const Field &F, Modules &M, std::ostream &os, const Vector &v)
+	{ return write_impl (F, M, os, v, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+
+//@} I/O of vectors
 
 } // namespace BLAS1
 

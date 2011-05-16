@@ -380,6 +380,104 @@ int head_impl (const Field &F, GenericModule &M, typename Field::Element &a, con
 	}
 }
 
+template <class Field, class Modules, class Vector>
+std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v, VectorCategories::DenseVectorTag)
+{
+	typename Vector::iterator i;
+	char c;
+	bool seekrightbracket = false;
+
+	i = v.begin ();
+	do is >> c; while (is && isspace (c));
+
+	if (c == '[')
+		seekrightbracket = true;
+	else
+		is.unget ();
+
+	while (i != v.end() && is) {
+		do is >> c; while (!isdigit (c) && c != '-');
+		is.unget ();
+		F.read (is, *i++);
+	}
+
+	if (seekrightbracket)
+		do is >> c; while (is && c != ']');
+
+	return is;
+}
+
+template <class Field, class Modules, class Vector>
+std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v, VectorCategories::SparseVectorTag)
+{
+	typename Field::Element tmp;
+	char c;
+	int idx;
+
+	do is >> c; while (is && isspace (c));
+
+	if (isdigit (c))
+		is.unget ();
+
+	c = ','; v.clear (); idx = 0;
+
+	while (is && c == ',') {
+		do is >> c; while (is && isspace (c));
+		is.unget ();
+		F.read (is, tmp);
+
+		if (!F.isZero (tmp))
+			v.push_back (std::pair <size_t, typename Field::Element> (idx, tmp));
+
+		is >> c;
+		idx++;
+	}
+
+	return is;
+}
+
+template <class Field, class Modules, class Vector>
+std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::DenseVectorTag)
+{
+	typename Vector::const_iterator i;
+
+	os << '[';
+
+	for (i = v.begin (); i != v.end ();) {
+		F.write (os, *i);
+
+		if (++i != v.end ())
+			os << ", ";
+	}
+
+	os << ']';
+
+	return os;
+}
+
+template <class Field, class Modules, class Vector>
+std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::SparseVectorTag)
+{
+	typename Vector::const_iterator i;
+	size_t idx;
+
+	os << '[';
+
+	for (i = v.begin (), idx = 0; i != v.end ();) {
+		while (idx++ < i->first)
+			os << "0, ";
+
+		F.write (os, i->second);
+
+		if (++i != v.end ())
+			os << ", ";
+	}
+
+	os << ']';
+
+	return os;
+}
+
 } // namespace BLAS1
 
 } // namespace LinBox

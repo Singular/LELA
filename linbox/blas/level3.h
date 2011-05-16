@@ -19,6 +19,9 @@ namespace LinBox
 namespace BLAS3
 {
 
+/// @name Operations on matrices
+//@{
+
 /** Copy A into B
  *
  * A and B must both be defined over the same field.
@@ -173,6 +176,11 @@ Matrix &_permute_cols (const Field &F, Modules &M, Iterator P_begin, Iterator P_
 	{ return permute_cols_impl (F, M, P_begin, P_end, A,
 				     typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
 
+//@} Operations on matrices
+
+/// @name Queries on matrices
+//@{
+
 /** Test whether A and B are equal
  *
  * @param ctx @ref Context object for calculation
@@ -205,6 +213,47 @@ bool is_zero (Context<Field, Modules> &ctx, const Matrix &A)
 template <class Field, class Modules, class Matrix>
 bool _is_zero (const Field &F, Modules &M, const Matrix &A)
 	{ return is_zero_impl (F, M, A, typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+
+//@} Queries on matrices
+
+/// @name I/O of matrices
+//@{
+
+/** Read the given matrix from the given stream
+ *
+ * @param ctx Context-object
+ * @param is Input-stream
+ * @param A Matrix into which to place result
+ * @param format Format in which matrix is, default FORMAT_DETECT, which tries to guess
+ * @returns Reference to is
+ */
+template <class Field, class Modules, class Matrix>
+std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Matrix &A, FileFormatTag format = FORMAT_DETECT)
+	{ return _read (ctx.F, ctx.M, is, A, format); }
+
+/// Version specifying the field and module directly rather than in a Context object
+template <class Field, class Modules, class Matrix>
+std::istream &_read (const Field &F, Modules &M, std::istream &is, Matrix &A, FileFormatTag format = FORMAT_DETECT)
+	{ return read_impl (F, M, is, A, format); }
+
+/** Write the given matrix to the given stream
+ *
+ * @param ctx Context-object
+ * @param os Output-stream
+ * @param A Matrix to be written
+ * @param format Format in which to write matrix, default FORMAT_PRETTY
+ * @returns Reference to os
+ */
+template <class Field, class Modules, class Matrix>
+std::ostream &write (Context<Field, Modules> &ctx, std::ostream &os, const Matrix &A, FileFormatTag format = FORMAT_PRETTY)
+	{ return _write (ctx.F, ctx.M, os, A, format); }
+
+/// Version specifying the field and module directly rather than in a Context object
+template <class Field, class Modules, class Matrix>
+std::ostream &_write (const Field &F, Modules &M, std::ostream &os, const Matrix &A, FileFormatTag format = FORMAT_PRETTY)
+	{ return write_impl (F, M, os, A, format); }
+
+//@} I/O of matrices
 
 } // namespace BLAS3
 

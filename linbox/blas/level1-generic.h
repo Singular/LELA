@@ -11,6 +11,7 @@
 #define __BLAS_LEVEL1_GENERIC_H
 
 #include <algorithm>
+#include <iostream>
 
 #include "linbox/blas/context.h"
 #include "linbox/vector/vector-traits.h"
@@ -124,6 +125,18 @@ int head_impl (const Field &F, GenericModule &M, typename Field::Element &a, con
 
 template <class Field, class Vector>
 int head_impl (const Field &F, GenericModule &M, typename Field::Element &a, const Vector &x, VectorCategories::SparseVectorTag);
+
+template <class Field, class Modules, class Vector>
+std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v, VectorCategories::DenseVectorTag);
+
+template <class Field, class Modules, class Vector>
+std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v, VectorCategories::SparseVectorTag);
+
+template <class Field, class Modules, class Vector>
+std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::DenseVectorTag);
+
+template <class Field, class Modules, class Vector>
+std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::SparseVectorTag);
 
 } // namespace BLAS1
 

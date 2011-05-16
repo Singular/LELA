@@ -148,12 +148,12 @@ static bool testCopyEqual (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 	BLAS3::copy (ctx, M, M1);
 
 	report << "Output matrix M1:" << endl;
-	MD.write (report, M1);
+	BLAS3::write (ctx, report, M1);
 
 	if (!BLAS3::equal (ctx, M1, M)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -191,7 +191,7 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 	r.random (a);
 	ctx.F.neg (nega, a);
@@ -203,12 +203,12 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 	BLAS3::scal (ctx, a, M1);
 
 	report << "Output matrix a * M:" << endl;
-	MD.write (report, M1);
+	BLAS3::write (ctx, report, M1);
 
 	BLAS3::axpy (ctx, nega, M, M1);
 
 	report << "Output matrix -a * M + a * M:" << endl;
-	MD.write (report, M1);
+	BLAS3::write (ctx, report, M1);
 
 	if (!BLAS3::is_zero (ctx, M1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -244,10 +244,10 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 	typename Field::Element a, b;
@@ -262,7 +262,7 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), C);
 
 	report << "Output matrix C := a * A * B:" << endl;
-	MD.write (report, C);
+	BLAS3::write (ctx, report, C);
 
 	typename Field::Element negainvb;
 
@@ -276,7 +276,7 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::gemm (ctx, b, A, B, negainvb, C);
 
 	report << "Output matrix D := b * A * B - b * a^-1 * C:" << endl;
-	MD.write (report, C);
+	BLAS3::write (ctx, report, C);
 
 	if (!BLAS3::is_zero (ctx, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -316,33 +316,33 @@ static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	report << "Input matrix C:" << endl;
-	MD.write (report, C);
+	BLAS3::write (ctx, report, C);
 
 	BLAS3::gemm (ctx, ctx.F.one (), A, B, ctx.F.zero (), AB);
 
 	report << "Output matrix A * B:" << endl;
-	MD.write (report, AB);
+	BLAS3::write (ctx, report, AB);
 
 	BLAS3::gemm (ctx, ctx.F.one (), AB, C, ctx.F.zero (), ABpC);
 
 	report << "Output matrix (A * B) * C:" << endl;
-	MD.write (report, ABpC);
+	BLAS3::write (ctx, report, ABpC);
 
 	BLAS3::gemm (ctx, ctx.F.one (), B, C, ctx.F.zero (), BC);
 
 	report << "Output matrix B * C:" << endl;
-	MD.write (report, AB);
+	BLAS3::write (ctx, report, AB);
 
 	BLAS3::gemm (ctx, ctx.F.one (), A, BC, ctx.F.zero (), ApBC);
 
 	report << "Output matrix A * (B * C):" << endl;
-	MD.write (report, ApBC);
+	BLAS3::write (ctx, report, ApBC);
 
 	if (!BLAS3::equal (ctx, ABpC, ApBC)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -382,18 +382,18 @@ static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "Identity matrix I_l:" << endl;
-	MD.write (report, I_l);
+	BLAS3::write (ctx, report, I_l);
 
 	report << "Identity matrix I_r:" << endl;
-	MD.write (report, I_r);
+	BLAS3::write (ctx, report, I_r);
 
 	BLAS3::gemm (ctx, ctx.F.one (), I_l, A, ctx.F.zero (), IA);
 
 	report << "Output matrix I * A:" << endl;
-	MD.write (report, IA);
+	BLAS3::write (ctx, report, IA);
 
 	if (!BLAS3::equal (ctx, A, IA)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -404,7 +404,7 @@ static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::gemm (ctx, ctx.F.one (), A, I_r, ctx.F.zero (), AI);
 
 	report << "Output matrix A * I:" << endl;
-	MD.write (report, AI);
+	BLAS3::write (ctx, report, AI);
 
 	if (!BLAS3::equal (ctx, AI, A)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -453,7 +453,7 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	MD.write (report, A1);
+	BLAS3::write (ctx, report, A1);
 
 	report << "Input vector u: ";
 	VD.write (report, u) << endl;
@@ -469,12 +469,12 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
 	BLAS2::ger (ctx, a, u, v, A1);
 
 	report << "Output matrix a * u * v^T + A: " << std::endl;
-	MD.write (report, A1);
+	BLAS3::write (ctx, report, A1);
 
 	BLAS3::gemm (ctx, a, U, V, ctx.F.one (), A2);
 
 	report << "Output matrix a * U * V + A: " << std::endl;
-	MD.write (report, A2);
+	BLAS3::write (ctx, report, A2);
 
 	if (!BLAS3::equal (ctx, A1, A2)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -516,10 +516,10 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 	makeUpperTriangular (ctx.F, A1, false);
 
 	report << "Input matrix A:" << endl;
-	MD.write (report, A1);
+	BLAS3::write (ctx, report, A1);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	typename Field::Element a;
 
@@ -533,12 +533,12 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 	BLAS3::trmm (ctx, a, A, B1, UpperTriangular, false);
 
 	report << "Output matrix a * A * B (trmm): " << std::endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	BLAS3::gemm (ctx, a, A1, B, ctx.F.zero (), C);
 
 	report << "Output matrix a * A * B (gemm): " << std::endl;
-	MD.write (report, C);
+	BLAS3::write (ctx, report, C);
 
 	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -580,10 +580,10 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 	makeLowerTriangular (ctx.F, A1, false);
 
 	report << "Input matrix A:" << endl;
-	MD.write (report, A1);
+	BLAS3::write (ctx, report, A1);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	typename Field::Element a;
 
@@ -597,12 +597,12 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 	BLAS3::trmm (ctx, a, A, B1, LowerTriangular, false);
 
 	report << "Output matrix a * A * B (trmm): " << std::endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	BLAS3::gemm (ctx, a, A1, B, ctx.F.zero (), C);
 
 	report << "Output matrix a * A * B (gemm): " << std::endl;
-	MD.write (report, C);
+	BLAS3::write (ctx, report, C);
 
 	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -735,22 +735,22 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 	rowEchelon (MD, ctx, U, R, M, rank);
 
 	report << "Computed transform U:" << std::endl;
-	MD.write (report, U);
+	BLAS3::write (ctx, report, U);
 
 	report << "Computed row-echelon form R:" << std::endl;
-	MD.write (report, R);
+	BLAS3::write (ctx, report, R);
 
 	report << "Computed rank = " << rank << std::endl;
 
 	BLAS3::gemm (ctx, ctx.F.one (), U, M, ctx.F.zero (), UM);
 
 	report << "Computed product UM:" << endl;
-	MD.write (report, UM);
+	BLAS3::write (ctx, report, UM);
 
 	if (!BLAS3::equal (ctx, UM, R)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -772,7 +772,7 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 		BLAS3::gemm (ctx, ctx.F.one (), M, U, ctx.F.zero (), UM);
 
 		report << "Computed product MU:" << endl;
-		MD.write (report, UM);
+		BLAS3::write (ctx, report, UM);
 
 		if (!BLAS3::equal (ctx, UM, R)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -812,10 +812,10 @@ static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const 
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	typename Field::Element a;
 
@@ -833,12 +833,12 @@ static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const 
 		BLAS2::gemv (ctx, a, A, *i_B, ctx.F.zero (), *i_AB);
 
 	report << "Output matrix AB (from gemv):" << endl;
-	MD.write (report, ABgemv);
+	BLAS3::write (ctx, report, ABgemv);
 
 	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), ABgemm);
 
 	report << "Output matrix AB (from gemm):" << endl;
-	MD.write (report, ABgemm);
+	BLAS3::write (ctx, report, ABgemm);
 
 	if (!BLAS3::equal (ctx, ABgemv, ABgemm)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -870,10 +870,10 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	typename Field::Element a;
 
@@ -891,12 +891,12 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 		BLAS2::gemv (ctx, a, transpose (B), *i_A, ctx.F.zero (), *i_AB);
 
 	report << "Output matrix AB (from gemv):" << endl;
-	MD.write (report, ABgemv);
+	BLAS3::write (ctx, report, ABgemv);
 
 	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), ABgemm);
 
 	report << "Output matrix AB (from gemm):" << endl;
-	MD.write (report, ABgemm);
+	BLAS3::write (ctx, report, ABgemm);
 
 	if (!BLAS3::equal (ctx, ABgemv, ABgemm)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -961,7 +961,7 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "Input vector v: ";
 	VD.write (report, v) << endl;
@@ -1029,10 +1029,10 @@ static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix U:" << std::endl;
-	MD.write (report, U);
+	BLAS3::write (ctx, report, U);
 
 	report << "Input matrix B: " << std::endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	typename Field::Element a, ainv;
 
@@ -1047,12 +1047,12 @@ static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::trsm (ctx, a, U, B1, LowerTriangular, false);
 
 	report << "Output matrix U^-1 * B: " << std::endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	BLAS3::trmm (ctx, ainv, U, B1, LowerTriangular, false);
 
 	report << "Output matrix U U^-1 * B: " << std::endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	if (!BLAS3::equal (ctx, B, B1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -1093,10 +1093,10 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix U:" << std::endl;
-	MD.write (report, U);
+	BLAS3::write (ctx, report, U);
 
 	report << "Input matrix B: " << std::endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	typename Field::Element a, ainv;
 
@@ -1111,12 +1111,12 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::trsm (ctx, a, U, B1, UpperTriangular, false);
 
 	report << "Output matrix U^-1 * B: " << std::endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	BLAS3::trmm (ctx, ainv, U, B1, UpperTriangular, false);
 
 	report << "Output matrix U U^-1 * B: " << std::endl;
-	MD.write (report, B1);
+	BLAS3::write (ctx, report, B1);
 
 	if (!BLAS3::equal (ctx, B, B1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -1166,10 +1166,10 @@ static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const 
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix U:" << endl;
-	MD.write (report, U);
+	BLAS3::write (ctx, report, U);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	BLAS3::copy (ctx, B, UinvBtrsm);
 	BLAS3::copy (ctx, B, UinvBtrsv);
@@ -1180,12 +1180,12 @@ static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const 
 		BLAS2::trsv (ctx, U, *i_UinvB, type, false);
 
 	report << "Output matrix U^-1 * B (from trsv):" << endl;
-	MD.write (report, UinvBtrsv);
+	BLAS3::write (ctx, report, UinvBtrsv);
 
 	BLAS3::trsm (ctx, ctx.F.one (), U, UinvBtrsm, type, false);
 
 	report << "Output matrix U^-1 * B (from trsm):" << endl;
-	MD.write (report, UinvBtrsm);
+	BLAS3::write (ctx, report, UinvBtrsm);
 
 	if (!BLAS3::equal (ctx, UinvBtrsv, UinvBtrsm)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -1229,10 +1229,10 @@ static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix U:" << endl;
-	MD.write (report, U);
+	BLAS3::write (ctx, report, U);
 
 	report << "Input matrix B:" << endl;
-	MD.write (report, B);
+	BLAS3::write (ctx, report, B);
 
 	BLAS3::copy (ctx, B, aUinvB);
 	BLAS3::copy (ctx, B, UinvB);
@@ -1248,17 +1248,17 @@ static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::trsm (ctx, a, U, aUinvB, UpperTriangular, false);
 
 	report << "Output matrix a U^-1 * B:" << endl;
-	MD.write (report, aUinvB);
+	BLAS3::write (ctx, report, aUinvB);
 
 	BLAS3::trsm (ctx, ctx.F.one (), U, UinvB, UpperTriangular, false);
 
 	report << "Output matrix U^-1 * B:" << endl;
-	MD.write (report, UinvB);
+	BLAS3::write (ctx, report, UinvB);
 
 	BLAS3::scal (ctx, a, UinvB);
 
 	report << "Output matrix a (U^-1 * B):" << endl;
-	MD.write (report, UinvB);
+	BLAS3::write (ctx, report, UinvB);
 
 	if (!BLAS3::equal (ctx, UinvB, aUinvB)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -1310,7 +1310,7 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 	report << "Permutation P:    ";
 	MD.writePermutation (report, P.begin (), P.end ()) << endl;
@@ -1324,7 +1324,7 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 	BLAS3::permute_rows (ctx, Pinv.begin (), Pinv.end (), M1);
 
 	report << "Output matrix P^-1 PM:" << endl;
-	MD.write (report, M1);
+	BLAS3::write (ctx, report, M1);
 
 	// Compare M and M1
 	if (!BLAS3::equal (ctx, M, M1)) {
@@ -1365,7 +1365,7 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 	BLAS3::permute_cols (ctx, Pinv.begin (), Pinv.end (), M1);
 
 	report << "Output matrix MPP^-1:" << endl;
-	MD.write (report, M1);
+	BLAS3::write (ctx, report, M1);
 
 	// Compare M and M1
 	if (!BLAS3::equal (ctx, M, M1)) {
@@ -1405,7 +1405,7 @@ bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const 
 	ostringstream output;
 
 	try {
-		MD.write (output, M, format);
+		BLAS3::write (ctx, output, M, format);
 	}
 	catch (LinboxError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -1421,9 +1421,9 @@ bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const 
 	istringstream input (output.str ());
 
 	try {
-		MD.read (input, M1, format);
+		BLAS3::read (ctx, input, M1, format);
 		report << "Matrix as read from " << format_names[format] << " format" << std::endl;
-		MD.write (report, M1);
+		BLAS3::write (ctx, report, M1);
 
 		if (!BLAS3::equal (ctx, M, M1)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -1460,7 +1460,7 @@ bool testReadWrite (Context<Field, Modules> &ctx, const char *text, const Matrix
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY };
 
@@ -1485,7 +1485,7 @@ bool testReadWrite (Context<GF2, Modules> &ctx, const char *text, const Matrix &
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 #ifdef __LINBOX_HAVE_LIBPNG
 	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY, FORMAT_PNG };

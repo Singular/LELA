@@ -65,10 +65,10 @@ static bool testCopyEqual (LinBox::Context<Field, Modules> &ctx, const char *tex
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector:   ";
-		VD.write (report, v) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v) << std::endl;
 
 		report << "Output vector:  ";
-		VD.write (report, w) << std::endl;
+		LinBox::BLAS1::write (ctx, report, w) << std::endl;
 
 		if (!LinBox::BLAS1::equal (ctx, v, w))
 			ret = iter_passed = false;
@@ -156,10 +156,10 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 of size " << v1.size() << ":  ";
-		VD.write (report, v1) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Input vector 2 of size " << v2.size() << ":  ";
-		VD.write (report, v2) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
 
 		timer.start ();
 		LinBox::BLAS1::dot (ctx, rho, v1, v2, start_idx, end_idx);
@@ -237,7 +237,7 @@ static bool testScal (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 of size " << v1.size() << ":  ";
-		VD.write (report, v1) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Element a:  ";
 		ctx.F.write (report, a) << std::endl;
@@ -249,13 +249,13 @@ static bool testScal (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 		LinBox::BLAS1::scal (ctx, nega, v2);
 
 		report << "         -a * x = ";
-		VD.write (report, v2) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
 		report.flush ();
 
 		LinBox::BLAS1::axpy (ctx, a, v1, v2);
 
 		report << " a * x + -a * x = ";
-		VD.write (report, v2) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
 
 		if (!LinBox::BLAS1::is_zero (ctx, v2))
 			ret = iter_passed = false;
@@ -319,10 +319,10 @@ static bool testAXPY (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 v_1 of size " << v1.size() << ":  ";
-		VD.write (report, v1) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Input vector 2 v_2 of size " << v2.size() << ":  ";
-		VD.write (report, v2) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
 
 		report << "Element a:  ";
 		ctx.F.write (report, a) << std::endl;
@@ -334,17 +334,17 @@ static bool testAXPY (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 		LinBox::BLAS1::axpy (ctx, a, v2, v3);
 
 		report << "av_2 + v_1 = ";
-		VD.write (report, v3) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v3) << std::endl;
 
 		LinBox::BLAS1::axpy (ctx, ainv, v1, v2);
 
 		report << "a^-1 v_1 + v_2 = ";
-		VD.write (report, v3) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v3) << std::endl;
 
 		LinBox::BLAS1::axpy (ctx, aneg, v2, v3);
 
 		report << "(av_2 + v_1) + -a (a^-1 v_1 + v_2) = ";
-		VD.write (report, v3) << std::endl;
+		LinBox::BLAS1::write (ctx, report, v3) << std::endl;
 
 		if (!LinBox::BLAS1::is_zero (ctx, v3))
 			ret = iter_passed = false;
