@@ -27,16 +27,11 @@ test-common.C
 # will be ignored by "make check" and can be temporary storage for problematic tests.
 BASIC_TESTS =  \
         test-commentator        \
-        test-ffpack             \
         test-gf2                \
         test-gmp-rational       \
 	test-matrix		\
         test-modular            \
-        test-modular-byte       \
         test-modular-double     \
-        test-modular-short      \
-        test-modular-int32      \
-        test-modular-balanced-int32 \
         test-matrix-domain      \
 	test-matrix-domain-gf2	\
         test-randiter-nonzero   \
@@ -55,6 +50,7 @@ BENCHMARKS =                    \
         benchmark-blas-domain
 
 NON_COMPILING_TESTS = \
+        test-ffpack             \
         test-blas-domain        
 
 EXTRA_PROGRAMS = $(NON_COMPILING_TESTS) $(BENCHMARKS)
@@ -117,28 +113,9 @@ test_matrix_domain_gf2_SOURCES =                 \
         test-matrix-domain.h                \
         test-common.C
 
-test_modular_int32_SOURCES =                \
-        test-modular-int32.C                 \
-        test-common.C        
-
-test_modular_short_SOURCES =                \
-        test-modular-short.C                \
-        test-generic.h                        \
-        test-common.C
-
 test_modular_double_SOURCES =                \
         test-modular-double.C                \
         test-generic.h                        \
-        test-common.C
-
-test_modular_byte_SOURCES =                \
-        test-modular-byte.C                \
-        test-generic.h                        \
-        test-common.C
-
-test_modular_balanced_int32_SOURCES =             \
-        test-modular-balanced-int32.C             \
-        test-generic.h                  \
         test-common.C
 
 test_matrix_SOURCES = \
@@ -158,9 +135,9 @@ test_blas_domain_SOURCES=                \
         test-common.C   \
         test-blas-domain.C
 
-test_ffpack_SOURCES=                \
-        test-common.C   \
-        test-ffpack.C
+# test_ffpack_SOURCES=                \
+#         test-common.C   \
+#         test-ffpack.C
 
 test_gauss_jordan_SOURCES = \
 	test-common.C		\

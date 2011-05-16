@@ -13,12 +13,6 @@ BASIC_HDRS =			\
 	unparametric.h		\
 	gmp-rational.h		\
 	modular.h		\
-	modular-int32.h		\
-	modular-short.h		\
-	modular-byte.h		\
-	modular-balanced-double.h	\
-	modular-balanced-float.h	\
-	modular-balanced-int32.h	\
 	modular-double.h	\
 	modular-float.h		\
 	gf2.h

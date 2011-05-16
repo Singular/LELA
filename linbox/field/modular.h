@@ -26,6 +26,7 @@
 #include <cmath>
 
 #include "linbox/integer.h"
+#include "linbox/blas/context.h"
 #include "linbox/vector/vector-domain.h"
 #include "linbox/matrix/matrix-domain.h"
 #include "linbox/field/field-interface.h"
@@ -1114,9 +1115,6 @@ struct AllModules<Modular<Element> > : public ZpModule<Element> {};
 } // namespace LinBox
 
 #include "linbox/randiter/modular.h"
-#include "linbox/field/modular-int32.h"
-#include "linbox/field/modular-short.h"
-#include "linbox/field/modular-byte.h"
 #include "linbox/field/modular-double.h"
 #include "linbox/field/modular-float.h"
 #include "linbox/blas/level1-modular.h"
