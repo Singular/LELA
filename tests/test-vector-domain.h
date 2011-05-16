@@ -66,7 +66,7 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 	std::ostringstream str;
 
 	str << "Testing " << text << " dot product (indices " << start_idx << "-" << end_idx << ")" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testDotProduct", stream1.size ());
+	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;
 
@@ -121,7 +121,7 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 	LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, TIMING_MEASURE)
 		<< "Average time for dot product: " << totaltime / stream1.size () << std::endl;
 
-	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testDotProduct");
+	LinBox::commentator.stop (MSG_STATUS (ret));
 
 	stream1.reset ();
 	stream2.reset ();
@@ -129,7 +129,9 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 	return ret;
 }
 
-/** Test 2: Vector-vector addition, vector-scalar multiply
+#if 0
+
+/** Test 2: Vector scal
  *
  * Construct two random vectors x and y and a random element a and compute (x +
  * a*y) and a*(y + a^-1*x) using vector add, sub, and mul. Check whether the
@@ -142,13 +144,13 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
  * Return true on success and false on failure
  */
 
-template <class Field, class Vector>
-static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector> &stream1, LinBox::VectorStream<Vector> &stream2) 
+template <class Field, class Modules, class Vector>
+static bool testScal (LinBox::Context<Field, Modules> &ctx, const char *text, LinBox::VectorStream<Vector> &stream1) 
 {
 	std::ostringstream str;
 
-	str << "Testing " << text << " vector add, mul" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testAddMul", stream1.size ());
+	str << "Testing " << text << " vector scal" << std::ends;
+	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -157,14 +159,14 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	typename Field::Element a;
 	typename Field::Element ainv;
 	typename Field::Element aneg;
-	typename Field::RandIter r (F);
+	typename Field::RandIter r (ctx.F);
 
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.dim ());
 
-	LinBox::VectorDomain<Field> VD (F);
+	LinBox::VectorDomain<Field> VD (ctx.F);
 
 	while (stream1 && stream2) {
 		LinBox::commentator.startIteration (stream1.pos ());
@@ -174,7 +176,7 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 		stream1.get (v1);
 		stream2.get (v2);
 
-		do r.random (a); while (F.isZero (a));
+		do r.random (a); while (ctx.F.isZero (a));
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 of size " << v1.size() << ":  ";
@@ -184,10 +186,10 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 		VD.write (report, v2) << std::endl;
 
 		report << "Element a:  ";
-		F.write (report, a) << std::endl;
+		ctx.F.write (report, a) << std::endl;
 
-		F.inv (ainv, a);
-		F.neg (aneg, a);
+		ctx.F.inv (ainv, a);
+		ctx.F.neg (aneg, a);
 		VD.mul (v3, v1, ainv);
 		report << "          a^-1 * x = ";
 		VD.write (report, v3) << std::endl;
@@ -213,7 +215,7 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 		VD.write (report, v3) << std::endl;
 		report.flush ();
 
-		if (!VD.areEqual (v3, v4))
+		if (!LinBox::BLAS1::equal (ctx, v3, v4))
 			ret = iter_passed = false;
 
 		if (!iter_passed)
@@ -224,7 +226,7 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 		LinBox::commentator.progress ();
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testAddMul");
+	LinBox::commentator.stop (MSG_STATUS (ret));
 
 	stream1.reset ();
 	stream2.reset ();
@@ -232,110 +234,9 @@ static bool testAddMul (Field &F, const char *text, LinBox::VectorStream<Vector>
 	return ret;
 }
 
-/** Test 3: Vector-vector subtraction, vector-scalar multiply
- *
- * Construct two random vectors x and y and a random element a and compute (x -
- * a*y) and a*(a^-1*x - y) using vector add, sub, and mul. Check whether the
- * results are equal.
- *
- * F - Field over which to perform computations
- * n - Dimension to which to make vectors
- * iterations - Number of iterations over which to run
- *
- * Return true on success and false on failure
- */
+#endif // Disabled
 
-template <class Field, class Vector>
-static bool testSubMul (Field &F, const char *text, LinBox::VectorStream<Vector> &stream1, LinBox::VectorStream<Vector> &stream2) 
-{
-	std::ostringstream str;
-
-	str << "Testing " << text << " vector sub, mul" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testSubMul", stream1.size ());
-
-	bool ret = true;
-	bool iter_passed;
-
-	Vector v1, v2, v3, v4;
-	typename Field::Element a;
-	typename Field::Element ainv;
-	typename Field::Element aneg;
-	typename Field::RandIter r (F);
-
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.dim ());
-
-	LinBox::VectorDomain<Field> VD (F);
-
-	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.pos ());
-
-		iter_passed = true;
-
-		stream1.get (v1);
-		stream2.get (v2);
-
-		do r.random (a); while (F.isZero (a));
-
-		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-		report << "Input vector 1 of size " << v1.size() << ":  ";
-		VD.write (report, v1) << std::endl;
-
-		report << "Input vector 2 of size " << v2.size() << ":  ";
-		VD.write (report, v2) << std::endl;
-
-		report << "Element a:  ";
-		F.write (report, a) << std::endl;
-
-		F.inv (ainv, a);
-		F.neg (aneg, a);
-		VD.mul (v3, v1, ainv);
-		report << "          a^-1 * x = ";
-		VD.write (report, v3) << std::endl;
-		report.flush ();
-
-		VD.subin (v3, v2);
-		report << "      a^-1 * x - y = ";
-		VD.write (report, v3) << std::endl;
-		report.flush ();
-
-		VD.mulin (v2, a);
-		report << "             a * y = ";
-		VD.write (report, v2) << std::endl;
-		report.flush ();
-
-		VD.sub (v4, v1, v2);
-		report << "         x - a * y = ";
-		VD.write (report, v4) << std::endl;
-		report.flush ();
-
-		VD.mulin (v3, a);
-		report << "a * (y - a^-1 * x) = ";
-		VD.write (report, v4) << std::endl;
-		report.flush ();
-
-		if (!VD.areEqual (v3, v4))
-			ret = iter_passed = false;
-
-		if (!iter_passed)
-			LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: (x - a*y) != a*(a^-1*x - y)" << std::endl;
-
-		LinBox::commentator.stop ("done");
-		LinBox::commentator.progress ();
-	}
-
-	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testSubMul");
-
-	stream1.reset ();
-	stream2.reset ();
-
-	return ret;
-}
-
-/** Test 4: Vector-vector axpy
+/** Test 3: Vector axpy
  *
  * Construct two random vectors x and y and a random element a and compute (x +
  * a*y) - a*(y + a^-1*x) using vector axpy. Check whether the result is 0.
@@ -347,28 +248,25 @@ static bool testSubMul (Field &F, const char *text, LinBox::VectorStream<Vector>
  * Return true on success and false on failure
  */
 
-template <class Field, class Vector>
-static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &stream1, LinBox::VectorStream<Vector> &stream2) 
+template <class Field, class Modules, class Vector>
+static bool testAXPY (LinBox::Context<Field, Modules> &ctx, const char *text, LinBox::VectorStream<Vector> &stream1, LinBox::VectorStream<Vector> &stream2) 
 {
 	std::ostringstream str;
 	str << "Testing " << text << " vector axpy" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testAXPY", stream1.size ());
+	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;
 	bool iter_passed;
 
-	Vector v1, v2, v3, v4;
-	typename Field::Element a;
-	typename Field::Element ainv;
-	typename Field::Element aneg;
-	typename Field::RandIter r (F);
+	Vector v1, v2, v3;
+	typename Field::Element a, ainv, aneg;
+	typename Field::RandIter r (ctx.F);
 
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v4, stream1.dim ());
 
-	LinBox::VectorDomain<Field> VD (F);
+	LinBox::VectorDomain<Field> VD (ctx.F);
 
 	while (stream1 && stream2) {
 		LinBox::commentator.startIteration (stream1.pos ());
@@ -378,39 +276,49 @@ static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &
 		stream1.get (v1);
 		stream2.get (v2);
 
-		do r.random (a); while (F.isZero (a));
+		do r.random (a); while (ctx.F.isZero (a));
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-		report << "Input vector 1 of size " << v1.size() << ":  ";
+		report << "Input vector 1 v_1 of size " << v1.size() << ":  ";
 		VD.write (report, v1) << std::endl;
 
-		report << "Input vector 2 of size " << v2.size() << ":  ";
+		report << "Input vector 2 v_2 of size " << v2.size() << ":  ";
 		VD.write (report, v2) << std::endl;
 
 		report << "Element a:  ";
-		F.write (report, a) << std::endl;
+		ctx.F.write (report, a) << std::endl;
 
-		F.inv (ainv, a);
-		F.neg (aneg, a);
-		VD.axpy (v3, a, v2, v1);
-		VD.axpy (v4, ainv, v1, v2);
-		VD.axpyin (v3, aneg, v4);
+		ctx.F.inv (ainv, a);
+		ctx.F.neg (aneg, a);
 
-		report << "Output vector:  ";
+		LinBox::BLAS1::copy (ctx, v1, v3);
+		LinBox::BLAS1::axpy (ctx, a, v2, v3);
+
+		report << "av_2 + v_1 = ";
 		VD.write (report, v3) << std::endl;
 
-		if (!VD.isZero (v3))
+		LinBox::BLAS1::axpy (ctx, ainv, v1, v2);
+
+		report << "a^-1 v_1 + v_2 = ";
+		VD.write (report, v3) << std::endl;
+
+		LinBox::BLAS1::axpy (ctx, aneg, v2, v3);
+
+		report << "(av_2 + v_1) + -a (a^-1 v_1 + v_2) = ";
+		VD.write (report, v3) << std::endl;
+
+		if (!LinBox::BLAS1::is_zero (ctx, v3))
 			ret = iter_passed = false;
 
 		if (!iter_passed)
 			LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: (x + a*y) - a*(y + a^-1*x) != 0" << std::endl;
+				<< "ERROR: (av_2 + v_1) + -a (a^-1 v_1 + v_2) != 0" << std::endl;
 
 		LinBox::commentator.stop ("done");
 		LinBox::commentator.progress ();
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testAXPY");
+	LinBox::commentator.stop (MSG_STATUS (ret));
 
 	stream1.reset ();
 	stream2.reset ();
@@ -418,7 +326,7 @@ static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &
 	return ret;
 }
 
-/** Test 5: Copy and areEqual
+/** Test 4: Copy and areEqual
  *
  * Constructs a random vector and copies it to another vector. Then checks equality.
  *
@@ -429,13 +337,13 @@ static bool testAXPY (Field &F, const char *text, LinBox::VectorStream<Vector> &
  *
  * Return true on success and false on failure
  */
-template <class Field, class Vector1, class Vector2>
-static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vector1> &stream, LinBox::VectorStream<Vector2> &stream2) 
+template <class Field, class Modules, class Vector1, class Vector2>
+static bool testCopyEqual (LinBox::Context<Field, Modules> &ctx, const char *text, LinBox::VectorStream<Vector1> &stream, LinBox::VectorStream<Vector2> &stream2) 
 {
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector copy, areEqual" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), "testCopyEqual", stream.size ());
+	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -446,7 +354,7 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v, stream.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector2> (w, stream.dim ());
 
-	LinBox::VectorDomain<Field> VD (F);
+	LinBox::VectorDomain<Field> VD (ctx.F);
 
 	while (stream) {
 		LinBox::commentator.startIteration (stream.pos ());
@@ -454,7 +362,7 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 		iter_passed = true;
 
 		stream.get (v);
-		VD.copy (w, v);
+		LinBox::BLAS1::copy (ctx, v, w);
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector:   ";
@@ -463,7 +371,7 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 		report << "Output vector:  ";
 		VD.write (report, w) << std::endl;
 
-		if (!VD.areEqual (v, w))
+		if (!LinBox::BLAS1::equal (ctx, v, w))
 			ret = iter_passed = false;
 
 		if (!iter_passed)
@@ -474,7 +382,7 @@ static bool testCopyEqual (Field &F, const char *text, LinBox::VectorStream<Vect
 		LinBox::commentator.progress ();
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testCopyEqual");
+	LinBox::commentator.stop (MSG_STATUS (ret));
 
 	stream.reset ();
 	stream2.reset ();

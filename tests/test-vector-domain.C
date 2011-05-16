@@ -57,19 +57,18 @@ bool testVectorDomain (Field &F, const char *text, size_t n, unsigned int iterat
 	if (!runDPTests (ctx, "sparse/dense", stream3, stream1)) pass = false;
 	if (!runDPTests (ctx, "sparse/sparse", stream3, stream4)) pass = false;
 
-	if (!testAddMul (F, "dense", stream1, stream2)) pass = false;
-	if (!testAddMul (F, "sparse", stream3, stream4)) pass = false;
+#if 0
+	if (!testScal (F, "dense", stream1)) pass = false;
+	if (!testScal (F, "sparse", stream3)) pass = false;
+#endif
 
-	if (!testSubMul (F, "dense", stream1, stream2)) pass = false;
-	if (!testSubMul (F, "sparse", stream3, stream4)) pass = false;
+	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;
+	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;
 
-	if (!testAXPY (F, "dense", stream1, stream2)) pass = false;
-	if (!testAXPY (F, "sparse", stream3, stream4)) pass = false;
-
-	if (!testCopyEqual (F, "dense/dense", stream1, stream1)) pass = false;
-	if (!testCopyEqual (F, "dense/sparse", stream1, stream3)) pass = false;
-	if (!testCopyEqual (F, "sparse/dense", stream3, stream1)) pass = false;
-	if (!testCopyEqual (F, "sparse/sparse", stream3, stream3)) pass = false;
+	if (!testCopyEqual (ctx, "dense/dense", stream1, stream1)) pass = false;
+	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream3)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream1)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream3)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
@@ -88,34 +87,32 @@ bool testVectorDomain (GF2 &F, const char *text, size_t n, unsigned int iteratio
 	RandomSparseStream<GF2, Vector<GF2>::Sparse> stream3 (F, 0.1, n, iterations), stream4 (F, 0.1, n, iterations);
 	RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (F, 0.1, n, iterations), stream6 (F, 0.1, n, iterations);
 
+	Context<GF2> ctx (F);
+
 #if 0
-	if (!runDPTests (F, "dense/dense", stream1, stream2)) pass = false;
-	if (!runDPTests (F, "dense/sparse", stream1, stream3)) pass = false;
-	if (!runDPTests (F, "dense/hybrid", stream1, stream5)) pass = false;
-	if (!runDPTests (F, "sparse/sparse", stream3, stream4)) pass = false;
+	if (!runDPTests (ctx, "dense/dense", stream1, stream2)) pass = false;
+	if (!runDPTests (ctx, "dense/sparse", stream1, stream3)) pass = false;
+	if (!runDPTests (ctx, "dense/hybrid", stream1, stream5)) pass = false;
+	if (!runDPTests (ctx, "sparse/sparse", stream3, stream4)) pass = false;
+
+	if (!testScal (ctx, "dense", stream1, stream2)) pass = false;
+	if (!testScal (ctx, "sparse", stream3, stream4)) pass = false;
+	if (!testScal (ctx, "hybrid", stream5, stream6)) pass = false;
+
+	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;
+	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;
+	if (!testAXPY (ctx, "hybrid", stream5, stream6)) pass = false;
+
+	if (!testCopyEqual (ctx, "dense/dense", stream1, stream2)) pass = false;
+	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream4)) pass = false;
+	if (!testCopyEqual (ctx, "dense/hybrid", stream1, stream6)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream2)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream4)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/hybrid", stream3, stream6)) pass = false;
+	if (!testCopyEqual (ctx, "hybrid/dense", stream5, stream2)) pass = false;
+	if (!testCopyEqual (ctx, "hybrid/sparse", stream5, stream4)) pass = false;
+	if (!testCopyEqual (ctx, "hybrid/hybrid", stream5, stream6)) pass = false;
 #endif
-
-	if (!testAddMul (F, "dense", stream1, stream2)) pass = false;
-	if (!testAddMul (F, "sparse", stream3, stream4)) pass = false;
-	if (!testAddMul (F, "hybrid", stream5, stream6)) pass = false;
-
-	if (!testSubMul (F, "dense", stream1, stream2)) pass = false;
-	if (!testSubMul (F, "sparse", stream3, stream4)) pass = false;
-	if (!testSubMul (F, "hybrid", stream5, stream6)) pass = false;
-
-	if (!testAXPY (F, "dense", stream1, stream2)) pass = false;
-	if (!testAXPY (F, "sparse", stream3, stream4)) pass = false;
-	if (!testAXPY (F, "hybrid", stream5, stream6)) pass = false;
-
-	if (!testCopyEqual (F, "dense/dense", stream1, stream2)) pass = false;
-	if (!testCopyEqual (F, "dense/sparse", stream1, stream4)) pass = false;
-	if (!testCopyEqual (F, "dense/hybrid", stream1, stream6)) pass = false;
-	if (!testCopyEqual (F, "sparse/dense", stream3, stream2)) pass = false;
-	if (!testCopyEqual (F, "sparse/sparse", stream3, stream4)) pass = false;
-	if (!testCopyEqual (F, "sparse/hybrid", stream3, stream6)) pass = false;
-	if (!testCopyEqual (F, "hybrid/dense", stream5, stream2)) pass = false;
-	if (!testCopyEqual (F, "hybrid/sparse", stream5, stream4)) pass = false;
-	if (!testCopyEqual (F, "hybrid/hybrid", stream5, stream6)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 

@@ -167,7 +167,42 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 
 template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+{
+	SparseVector<typename Field::Element> tmp;
+
+	typename Vector2::const_iterator i;
+	typename Vector1::const_iterator j;
+	typename Field::Element c;
+
+	tmp.clear ();
+
+	for (j = x.begin (), i = y.begin (); j != x.end (); j++) {
+		while (i != y.end () && i->first < j->first) {
+			tmp.push_back (*i);
+			i++;
+		}
+
+		if (i != y.end () && i->first == j->first) {
+			F.axpy (c, a, j->second, i->second);
+			i++;
+		}
+		else
+			F.mul (c, a, j->second);
+
+		if (!F.isZero (c))
+			tmp.push_back (typename SparseVector<typename Field::Element>::value_type (j->first, c));
+	}
+
+	while (i != y.end ()) {
+		tmp.push_back (*i);
+		i++;
+	}
+
+	y = tmp;
+
+	return y;
+}
 
 template <class Field, class Vector>
 Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Element &a, Vector &x, VectorCategories::DenseVectorTag)
