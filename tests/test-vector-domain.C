@@ -53,22 +53,20 @@ bool testVectorDomain (Field &F, const char *text, size_t n, unsigned int iterat
 
 	Context<Field> ctx (F);
 
-	if (!runDPTests (ctx, "dense/dense", stream1, stream2)) pass = false;
-	if (!runDPTests (ctx, "sparse/dense", stream3, stream1)) pass = false;
-	if (!runDPTests (ctx, "sparse/sparse", stream3, stream4)) pass = false;
-
-#if 0
-	if (!testScal (F, "dense", stream1)) pass = false;
-	if (!testScal (F, "sparse", stream3)) pass = false;
-#endif
-
-	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;
-	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;
-
 	if (!testCopyEqual (ctx, "dense/dense", stream1, stream1)) pass = false;
 	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream3)) pass = false;
 	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream1)) pass = false;
 	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream3)) pass = false;
+
+	if (!runDPTests (ctx, "dense/dense", stream1, stream2)) pass = false;
+	if (!runDPTests (ctx, "sparse/dense", stream3, stream1)) pass = false;
+	if (!runDPTests (ctx, "sparse/sparse", stream3, stream4)) pass = false;
+
+	if (!testScal (ctx, "dense", stream1)) pass = false;
+	if (!testScal (ctx, "sparse", stream3)) pass = false;
+
+	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;
+	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
@@ -90,6 +88,16 @@ bool testVectorDomain (GF2 &F, const char *text, size_t n, unsigned int iteratio
 	Context<GF2> ctx (F);
 
 #if 0
+	if (!testCopyEqual (ctx, "dense/dense", stream1, stream2)) pass = false;
+	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream4)) pass = false;
+	if (!testCopyEqual (ctx, "dense/hybrid", stream1, stream6)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream2)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream4)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/hybrid", stream3, stream6)) pass = false;
+	if (!testCopyEqual (ctx, "hybrid/dense", stream5, stream2)) pass = false;
+	if (!testCopyEqual (ctx, "hybrid/sparse", stream5, stream4)) pass = false;
+	if (!testCopyEqual (ctx, "hybrid/hybrid", stream5, stream6)) pass = false;
+
 	if (!runDPTests (ctx, "dense/dense", stream1, stream2)) pass = false;
 	if (!runDPTests (ctx, "dense/sparse", stream1, stream3)) pass = false;
 	if (!runDPTests (ctx, "dense/hybrid", stream1, stream5)) pass = false;
@@ -102,16 +110,6 @@ bool testVectorDomain (GF2 &F, const char *text, size_t n, unsigned int iteratio
 	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;
 	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;
 	if (!testAXPY (ctx, "hybrid", stream5, stream6)) pass = false;
-
-	if (!testCopyEqual (ctx, "dense/dense", stream1, stream2)) pass = false;
-	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream4)) pass = false;
-	if (!testCopyEqual (ctx, "dense/hybrid", stream1, stream6)) pass = false;
-	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream2)) pass = false;
-	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream4)) pass = false;
-	if (!testCopyEqual (ctx, "sparse/hybrid", stream3, stream6)) pass = false;
-	if (!testCopyEqual (ctx, "hybrid/dense", stream5, stream2)) pass = false;
-	if (!testCopyEqual (ctx, "hybrid/sparse", stream5, stream4)) pass = false;
-	if (!testCopyEqual (ctx, "hybrid/hybrid", stream5, stream6)) pass = false;
 #endif
 
 	commentator.stop (MSG_STATUS (pass));
