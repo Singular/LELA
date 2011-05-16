@@ -478,6 +478,15 @@ std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Ve
 	return os;
 }
 
+template <class Iterator>
+std::ostream &write_permutation (std::ostream &os, Iterator P_begin, Iterator P_end)
+{
+	for (; P_begin != P_end; ++P_begin)
+		os << "(" << P_begin->first << " " << P_begin->second << ")";
+
+	return os;
+}
+
 } // namespace BLAS1
 
 } // namespace LinBox

@@ -16,12 +16,9 @@
 #include <cstdio>
 
 #include "linbox/util/commentator.h"
-#include "linbox/util/field-axpy.h"
 #include "linbox/vector/stream.h"
-#include "linbox/vector/vector-domain.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level1.h"
-#include "linbox/integer.h"
 
 #include "test-common.h" 
 
@@ -52,8 +49,6 @@ static bool testCopyEqual (LinBox::Context<Field, Modules> &ctx, const char *tex
 
 	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v, stream.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector2> (w, stream.dim ());
-
-	LinBox::VectorDomain<Field> VD (ctx.F);
 
 	while (stream) {
 		LinBox::commentator.startIteration (stream.pos ());
@@ -137,8 +132,6 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 	Vector1 v1;
 	Vector2 v2;
 	typename Field::Element sigma, rho;
-
-	LinBox::VectorDomain<Field> VD (ctx.F);
 
 	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v1, stream1.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector2> (v2, stream2.dim ());
@@ -224,8 +217,6 @@ static bool testScal (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream1.dim ());
 
-	LinBox::VectorDomain<Field> VD (ctx.F);
-
 	while (stream1) {
 		LinBox::commentator.startIteration (stream1.pos ());
 
@@ -304,8 +295,6 @@ static bool testAXPY (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
 	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
-
-	LinBox::VectorDomain<Field> VD (ctx.F);
 
 	while (stream1 && stream2) {
 		LinBox::commentator.startIteration (stream1.pos ());

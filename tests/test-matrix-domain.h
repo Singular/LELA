@@ -25,8 +25,6 @@
 #include "linbox/blas/level2.h"
 #include "linbox/blas/level3.h"
 #include "linbox/field/gf2.h"
-#include "linbox/vector/vector-domain.h"
-#include "linbox/matrix/matrix-domain.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/submatrix.h"
@@ -142,8 +140,6 @@ static bool testCopyEqual (Context<Field, Modules> &ctx, const char *text, const
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (ctx.F);
-
 	DenseMatrix<typename Field::Element> M1 (M.rowdim (), M.coldim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
@@ -184,8 +180,6 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 
 	bool ret = true;
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> M1 (M.rowdim (), M.coldim ());
 
@@ -237,8 +231,6 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> C (A.rowdim (), B.coldim ());
 
@@ -307,8 +299,6 @@ static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (ctx.F);
-
 	DenseMatrix<typename Field::Element> AB (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> BC (B.rowdim (), C.coldim ());
 	DenseMatrix<typename Field::Element> ABpC (A.rowdim (), C.coldim ());
@@ -369,8 +359,6 @@ static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> AI (A.rowdim (), A.coldim ());
 	DenseMatrix<typename Field::Element> IA (A.rowdim (), A.coldim ());
@@ -436,9 +424,6 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
 
 	bool ret = true;
 
-	VectorDomain<Field> VD (ctx.F);
-	MatrixDomain<Field> MD (ctx.F);
-
 	DenseMatrix<typename Field::Element> A2 (A.rowdim (), A.coldim ());
 
 	Matrix A1 (A);
@@ -448,18 +433,18 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
 	DenseMatrix<typename Field::Element> U (A.rowdim (), 1);
 	DenseMatrix<typename Field::Element> V (1, A.coldim ());
 
-	VD.copy (*U.colBegin (), u);
-	VD.copy (*V.rowBegin (), v);
+	BLAS1::copy (ctx, u, *U.colBegin ());
+	BLAS1::copy (ctx, v, *V.rowBegin ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
 	BLAS3::write (ctx, report, A1);
 
 	report << "Input vector u: ";
-	VD.write (report, u) << endl;
+	BLAS1::write (ctx, report, u) << endl;
 
 	report << "Input vector v: ";
-	VD.write (report, v) << endl;
+	BLAS1::write (ctx, report, v) << endl;
 
 	r.random (a);
 
@@ -503,8 +488,6 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	bool ret = true;
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
 	Matrix2 B1 (B.rowdim (), B.coldim ());
@@ -567,8 +550,6 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	bool ret = true;
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
 	Matrix2 B1 (B.rowdim (), B.coldim ());
@@ -640,7 +621,7 @@ void eliminate (Context<Field, Modules> &ctx, Matrix1 &M, Matrix2 &pivotRow,
  */
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
-void rowEchelon (MatrixDomain<Field> &MD, Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Matrix2 &A, size_t &rank) 
+void rowEchelon (Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Matrix2 &A, size_t &rank) 
 {
 	linbox_check (U.rowdim () == A.rowdim ());
 	linbox_check (U.coldim () == A.rowdim ());
@@ -651,7 +632,7 @@ void rowEchelon (MatrixDomain<Field> &MD, Context<Field, Modules> &ctx, Matrix1 
 	Submatrix<Matrix1> M1 (M, 0, 0, R.rowdim (), R.coldim ());
 	Submatrix<Matrix1> M2 (M, 0, R.coldim (), U.rowdim (), U.coldim ());
 
-	StandardBasisStream<Field, typename Submatrix<Matrix1>::Row> stream (MD.field (), U.coldim ());
+	StandardBasisStream<Field, typename Submatrix<Matrix1>::Row> stream (ctx.F, U.coldim ());
 	typename Submatrix<Matrix1>::RowIterator ip = M2.rowBegin ();
 
 	for (; ip != M2.rowEnd (); ++ip)
@@ -665,7 +646,7 @@ void rowEchelon (MatrixDomain<Field> &MD, Context<Field, Modules> &ctx, Matrix1 
 	rank = 0;
 
 	for (idx = 0; idx < M.rowdim (); ++idx) {
-		if (!M.getEntry (a, idx, idx) || MD.field ().isZero (a)) {
+		if (!M.getEntry (a, idx, idx) || ctx.F.isZero (a)) {
 			typename DenseMatrix<typename Matrix1::Element>::ColIterator col;
 			typename DenseMatrix<typename Matrix1::Element>::Col::iterator i;
 			unsigned int c_idx = idx + 1;
@@ -673,7 +654,7 @@ void rowEchelon (MatrixDomain<Field> &MD, Context<Field, Modules> &ctx, Matrix1 
 			col = M.colBegin () + idx;
 			i = col->begin () + idx + 1;
 
-			while (MD.field ().isZero (*i) && i != col->end ())
+			while (ctx.F.isZero (*i) && i != col->end ())
 				++i, ++c_idx;
 
 			if (i == col->end ())
@@ -689,7 +670,7 @@ void rowEchelon (MatrixDomain<Field> &MD, Context<Field, Modules> &ctx, Matrix1 
 		}
 
 		M.getEntry (Mjj_inv, idx, idx);
-		MD.field ().invin (Mjj_inv);
+		ctx.F.invin (Mjj_inv);
 		Submatrix<Matrix1> realPivotRow (M, idx, idx, 1, M.coldim () - idx);
 		BLAS3::scal (ctx, Mjj_inv, realPivotRow);
 
@@ -717,8 +698,6 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (ctx.F);
-
 	size_t rank;
 
 	DenseMatrix<typename Field::Element> R (M.rowdim (), M.coldim ());
@@ -737,7 +716,7 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 	report << "Input matrix M:" << endl;
 	BLAS3::write (ctx, report, M);
 
-	rowEchelon (MD, ctx, U, R, M, rank);
+	rowEchelon (ctx, U, R, M, rank);
 
 	report << "Computed transform U:" << std::endl;
 	BLAS3::write (ctx, report, U);
@@ -805,8 +784,6 @@ static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const 
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (ctx.F);
-
 	DenseMatrix<typename Field::Element> ABgemm (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> ABgemv (A.rowdim (), B.coldim ());
 
@@ -862,8 +839,6 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	DenseMatrix<typename Field::Element> ABgemm (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> ABgemv (A.rowdim (), B.coldim ());
@@ -954,9 +929,6 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	bool ret = true;
 
-	VectorDomain<Field> VD (ctx.F);
-	MatrixDomain<Field> MD (ctx.F);
-
 	typename LinBox::Vector<Field>::Dense aAv (A.rowdim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
@@ -964,7 +936,7 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::write (ctx, report, A);
 
 	report << "Input vector v: ";
-	VD.write (report, v) << endl;
+	BLAS1::write (ctx, report, v) << endl;
 
 	r.random (a);
 	r.random (b);
@@ -976,7 +948,7 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS2::gemv (ctx, a, A, v, ctx.F.zero (), aAv);
 
 	report << "Output vector a * A * v: ";
-	VD.write (report, aAv) << std::endl;
+	BLAS1::write (ctx, report, aAv) << std::endl;
 
 	ctx.F.inv (negainvb, a);
 	ctx.F.mulin (negainvb, b);
@@ -988,9 +960,9 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS2::gemv (ctx, b, A, v, negainvb, aAv);
 
 	report << "Output vector w := b * A * v - b * a^-1 * aAv: ";
-	VD.write (report, aAv) << std::endl;
+	BLAS1::write (ctx, report, aAv) << std::endl;
 
-	if (!VD.isZero (aAv)) {
+	if (!BLAS1::is_zero (ctx, aAv)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: MatrixDomain reported vector w is not zero" << endl;
 		ret = false;
@@ -1015,9 +987,6 @@ static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
-
-	VectorDomain<Field> VD (ctx.F);
-	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix U (A.rowdim (), A.coldim ());
 	Matrix B1 (B.rowdim (), B.coldim ());
@@ -1079,9 +1048,6 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
-
-	VectorDomain<Field> VD (ctx.F);
-	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix U (A.rowdim (), A.coldim ());
 	Matrix B1 (B.rowdim (), B.coldim ());
@@ -1150,8 +1116,6 @@ static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const 
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (ctx.F);
-
 	Matrix1 U (A.rowdim (), A.coldim ());
 
 	BLAS3::copy (ctx, A, U);
@@ -1216,8 +1180,6 @@ static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool ret = true;
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix1 U (A.rowdim (), A.coldim ());
 
@@ -1286,7 +1248,6 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 
 	bool ret = true;
 
-	MatrixDomain<Field> MD (ctx.F);
 	MersenneTwister MT (time (NULL));
 
 	typename MatrixDomain<Field>::Permutation P, Pinv;
@@ -1313,9 +1274,9 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 	BLAS3::write (ctx, report, M);
 
 	report << "Permutation P:    ";
-	MD.writePermutation (report, P.begin (), P.end ()) << endl;
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << endl;
 	report << "Permutation P^-1: ";
-	MD.writePermutation (report, Pinv.begin (), Pinv.end ()) << endl;
+	BLAS1::write_permutation (report, Pinv.begin (), Pinv.end ()) << endl;
 
 	// Apply the permutation and then its inverse to a copy of M
 	Matrix M1 (M);
@@ -1356,9 +1317,9 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 	std::reverse (Pinv.begin (), Pinv.end ());
 
 	report << "Permutation P:    ";
-	MD.writePermutation (report, P.begin (), P.end ()) << endl;
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << endl;
 	report << "Permutation P^-1: ";
-	MD.writePermutation (report, Pinv.begin (), Pinv.end ()) << endl;
+	BLAS1::write_permutation (report, Pinv.begin (), Pinv.end ()) << endl;
 
 	// Apply the permutation and then its inverse to a copy of M
 	BLAS3::permute_cols (ctx, P.begin (), P.end (), M1);
@@ -1397,8 +1358,6 @@ bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const 
 	bool pass = true;
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-	MatrixDomain<Field> MD (ctx.F);
 
 	Matrix M1 (M.rowdim (), M.coldim ());
 
@@ -1456,8 +1415,6 @@ bool testReadWrite (Context<Field, Modules> &ctx, const char *text, const Matrix
 
 	bool pass = true;
 
-	MatrixDomain<Field> MD (ctx.F);
-
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;
 	BLAS3::write (ctx, report, M);
@@ -1480,8 +1437,6 @@ bool testReadWrite (Context<GF2, Modules> &ctx, const char *text, const Matrix &
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	bool pass = true;
-
-	MatrixDomain<GF2> MD (ctx.F);
 
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;

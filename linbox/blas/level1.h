@@ -236,6 +236,16 @@ template <class Field, class Modules, class Vector>
 std::ostream &_write (const Field &F, Modules &M, std::ostream &os, const Vector &v)
 	{ return write_impl (F, M, os, v, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
+/** Output the given permutation to the given stream
+ *
+ * @param os Output-stream
+ * @param P_begin Beginning of permutation
+ * @param P_end End of permutation
+ * @returns Reference to os
+ */
+template <class Iterator>
+std::ostream &write_permutation (std::ostream &os, Iterator P_begin, Iterator P_end);
+
 //@} I/O of vectors
 
 } // namespace BLAS1
