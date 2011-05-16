@@ -445,6 +445,20 @@ public:
 		return iterator (i_idx, i_elt);
 	}
 
+	template <class It>
+	void insert (iterator pos, It begin, It end)
+	{
+		typename IndexVector::value_type idx;
+		typename ElementVector::value_type elt;
+
+		typename IndexVector::difference_type p = pos._ref.first._i - _idx.begin ();
+
+		_idx.insert (pos._ref.first._i, end - begin, idx);
+		_elt.insert (pos._ref.second._i, end - begin, elt);
+
+		std::copy (begin, end, iterator (_idx.begin () + p, _elt.begin () + p));
+	}
+
 	inline iterator erase (iterator pos)
 	{
 		typename IndexVector::iterator i_idx;
