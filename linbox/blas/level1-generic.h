@@ -100,16 +100,16 @@ bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vecto
 
 template <class Field, class Vector1, class Vector2>
 bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-		 VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
-	{ return equal (F, M, y, x); }
-
-template <class Field, class Vector1, class Vector2>
-bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
 		 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
 
 template <class Field, class Vector1, class Vector2>
 bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-	    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+		 VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+	{ return _equal (F, M, y, x); }
+
+template <class Field, class Vector1, class Vector2>
+bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
+		 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
 
 template <class Field, class Vector>
 bool is_zero_impl (const Field &F, GenericModule &M, const Vector &x, VectorCategories::DenseVectorTag);
