@@ -13,8 +13,6 @@ BASIC_HDRS =			\
 	unparametric.h		\
 	gmp-rational.h		\
 	modular.h		\
-	modular-double.h	\
-	modular-float.h		\
 	gf2.h
 
 pkgincludesub_HEADERS =			\

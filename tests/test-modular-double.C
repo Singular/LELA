@@ -79,7 +79,7 @@ int main (int argc, char **argv)
 	report << "Field G" << std::endl;
 	if (!runFieldTests (G,  "Modular<double>",  iterations, n, false)) pass = false;
 
-	commentator.stop("Modular<double> field test suite");
+	commentator.stop(MSG_STATUS (pass));
 	return pass ? 0 : -1;
 }
 /* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */

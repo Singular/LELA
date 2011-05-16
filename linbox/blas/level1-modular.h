@@ -65,6 +65,26 @@ uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, co
 		  size_t start_idx, size_t end_idx,
 		  VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
 
+template <class Vector1, class Vector2>
+float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
+		 size_t start_idx, size_t end_idx,
+		 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+
+template <class Vector1, class Vector2>
+float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
+		 size_t start_idx, size_t end_idx,
+		 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+
+template <class Vector1, class Vector2>
+double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
+		  size_t start_idx, size_t end_idx,
+		  VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+
+template <class Vector1, class Vector2>
+double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
+		  size_t start_idx, size_t end_idx,
+		  VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+
 } // namespace BLAS1
 
 } // namespace LinBox

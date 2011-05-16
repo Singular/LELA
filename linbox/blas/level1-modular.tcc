@@ -328,6 +328,142 @@ uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, co
 	return res = s % (uint64) F._modulus;
 }
 
+template <class Vector1, class Vector2>
+float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
+		 size_t start_idx, size_t end_idx,
+		 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+{
+	float s = 0.;
+	float t = 0.;
+
+	if (x.size () < M._nmax) {
+		for (size_t i = 0; i < x.size (); ++i)
+			s += x[i] * y[i];
+
+		s = fmod (s, F.modulus);
+	} else {
+		size_t i = 0;
+
+		for (; i < x.size () - M._nmax ;i = i + M._nmax) {
+			for (size_t j = i; j < i + M._nmax; ++j)
+				s += x[j] * y[j];
+
+			t += fmod (s, F.modulus);
+			s = 0.;
+		}
+
+		for (; i < x.size (); ++i)
+			y += x[i] * y[i];
+
+		t += fmod (s, F.modulus);
+		s = fmod (t, F.modulus);
+	}
+
+	return res = s;
+}
+
+template <class Vector1, class Vector2>
+float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
+		 size_t start_idx, size_t end_idx,
+		 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+{
+	float s = 0.;
+	float t = 0.;
+
+	if (x.first.size () < M._nmax) {
+		for (size_t i = 0; i < x.size (); ++i)
+			s += x[i].second * y[x[i].first];
+
+		s = fmod (s, F.modulus);
+	} else {
+		size_t i = 0;
+
+		for (; i < x.size() - M._nmax; i = i + M._nmax) {
+			for (size_t j = i; j < i + M._nmax; ++j)
+				s += x[j].second * y[x[j].first];
+
+			t += fmod (s, F.modulus);
+			s = 0.;
+		}
+		for (; i < x.size (); ++i)
+			s += x[i].second * y[x[i].first];
+
+		t += fmod (s, F.modulus);
+		s = fmod (t, F.modulus);
+	}
+
+	return res = s;
+}
+
+template <class Vector1, class Vector2>
+double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
+		  size_t start_idx, size_t end_idx,
+		  VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+{
+	double s = 0.;
+	double t = 0.;
+
+	if (x.size () < M._nmax) {
+		for (size_t i = 0; i < x.size(); ++i)
+			s += x[i] * y[i];
+
+		s = fmod (s, F.modulus);
+	} else {			
+		size_t i = 0;
+
+		for (; i < x.size () - M._nmax; i = i + M._nmax) {
+			for (size_t j = i; j < i + M._nmax; ++j)
+				s += x[j] * y[j];
+
+			t += fmod (s, F.modulus);
+			s = 0.;
+		}
+
+		for (; i < x.size (); ++i)
+			s += x[i] * y[i];
+
+		t += fmod (s, F.modulus);
+		s = fmod (t, F.modulus);
+	}
+
+	return res = s;
+}
+
+template <class Vector1, class Vector2>
+double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
+		  size_t start_idx, size_t end_idx,
+		  VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+{
+	double s = 0.;
+	double t = 0.;
+
+	if (x.first.size () < M._nmax) {
+		for (size_t i = 0; i < x.size (); ++i)
+			s += x[i].second * y[x[i].first];
+
+		s = fmod (s, F.modulus);
+	}
+	else {
+		size_t i = 0;
+
+		for (; i < x.size () - M._nmax; i = i + M._nmax) {
+			for (size_t j = i; j < i + M._nmax; ++j)
+				s += x[j].second * y[x[j].first];
+
+			t += fmod (s, F.modulus);
+			s = 0.;
+		}
+
+		for (; i < x.size (); ++i)
+			s += x[i].second * y[x[i].first];
+
+		t += fmod (s, F.modulus);
+		s = fmod (t, F.modulus);
+	}
+
+	return res = y;
+}
+
 } // namespace BLAS1
 
 } // namespace LinBox
