@@ -258,6 +258,8 @@ class M4RIMatrixBase
         ConstRawIndexedIterator rawIndexedEnd() const
 		{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
+	Rep    _rep;
+
     protected:
 
 	friend class MatrixDomainM4RI;
@@ -267,8 +269,6 @@ class M4RIMatrixBase
 	friend class EchelonForm<GF2>;
 
 	M4RIMatrixBase (Rep rep) : _rep (rep) {}
-
-	Rep    _rep;
 
     private:
 

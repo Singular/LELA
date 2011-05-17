@@ -20,6 +20,8 @@ template <class _Endianness, class IndexType, class WordType>
 class HybridVector : public SparseVector<WordType, std::vector<IndexType>, std::vector<WordType> >
 {
 public:
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+
 	typedef _Endianness Endianness;
 	typedef IndexType index_type;
 	typedef WordType word_type;

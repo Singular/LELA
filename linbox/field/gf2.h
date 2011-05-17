@@ -619,62 +619,47 @@ class RawVector<bool>
 	typedef HybridVector<BigEndian<uint64>, uint16, uint64> Hybrid;
 };
 
-// Vector traits for hybrid sparse-dense format
-template <> 
-struct GF2VectorTraits<HybridVector<BigEndian<uint64>, uint16, uint64> >
-{ 
-	typedef HybridVector<BigEndian<uint64>, uint16, uint64> VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
-
-template <>
-struct GF2VectorTraits<const HybridVector<BigEndian<uint64>, uint16, uint64> >
-{ 
-	typedef const HybridVector<BigEndian<uint64>, uint16, uint64> VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
-
-template <> 
-struct GF2VectorTraits<HybridVector<LittleEndian<uint64>, uint16, uint64> >
-{ 
-	typedef HybridVector<LittleEndian<uint64>, uint16, uint64> VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
-
-template <>
-struct GF2VectorTraits<const HybridVector<LittleEndian<uint64>, uint16, uint64> >
-{ 
-	typedef const HybridVector<LittleEndian<uint64>, uint16, uint64> VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
-
-template <>
-struct AllModules<GF2> : public GenericModule {};
-
 } // namespace LinBox
 
-// #include <bits/stl_bvector.h>
-namespace std 
-{
-//! @todo JGD 05.11.2009 : it should be in bits/stl_bvector.h  ...
-	inline void swap(_Bit_reference __x, _Bit_reference __y)
-	{
-		bool __tmp = __x;
-		__x = __y;
-		__y = __tmp;
-	}
-}
-
-#include "linbox/randiter/gf2.h"
-
-#include "linbox/blas/level1-gf2.h"
-#include "linbox/blas/level2-gf2.h"
 #include "linbox/vector/vector-domain-gf2.h"
 #include "linbox/matrix/matrix-domain-gf2.h"
 
 #ifdef __LINBOX_HAVE_M4RI
 #  include "linbox/matrix/m4ri-matrix.h"
 #endif
+
+namespace LinBox
+{
+
+// Calculation-modules
+
+#ifdef __LINBOX_HAVE_M4RI
+
+struct M4RIModule : public GenericModule
+{
+	M4RIMatrix _tmp;
+};
+
+template <>
+struct AllModules<GF2> : public M4RIModule {};
+
+#else // !__LINBOX_HAVE_M4RI
+
+template <>
+struct AllModules<GF2> : public GenericModule {};
+
+#endif // __LINBOX_HAVE_M4RI
+
+} // namespace LinBox
+
+#include "linbox/randiter/gf2.h"
+
+#include "linbox/blas/level1-gf2.h"
+#include "linbox/blas/level2-gf2.h"
+
+#ifdef __LINBOX_HAVE_M4RI
+#  include "linbox/blas/level3-m4ri.h"
+#endif // __LINBOX_HAVE_M4RI
 
 #endif // __LINBOX_field_gf2_H
 
