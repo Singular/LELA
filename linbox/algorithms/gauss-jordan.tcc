@@ -15,6 +15,10 @@
 
 #include "linbox/algorithms/gauss-jordan.h"
 
+#include "linbox/vector/subvector.h"
+#include "linbox/blas/level1.h"
+#include "linbox/blas/level3.h"
+
 #ifdef DETAILED_PROFILE
 #  define TIMER_DECLARE(part) LinBox::UserTimer part##_timer; double part##_time = 0.0;
 #  define TIMER_START(part) part##_timer.start ()
@@ -139,7 +143,7 @@ int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, siz
 
 	for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
 		if (!i->empty () && i->front ().first << WordTraits<typename Matrix::Row::word_type>::logof_size <= (int) col) {
-			int idx = VD.firstNonzeroEntry (a, *i);
+			int idx = BLAS1::head (ctx, a, *i);
 			if ((size_t) idx < col) {
 				col = idx;
 				min_blocks = i->size ();
@@ -183,14 +187,14 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 	// DEBUG
 	// report << "enter" << std::endl;
 	// report << "A =" << std::endl;
-	// MD.write (report, A);
+	// BLAS3::write (ctx, report, A);
 	// report << "U =" << std::endl;
-	// MD.write (report, U);
+	// BLAS3::write (ctx, report, U);
 	// report << "k = " << k << ", d_0 = " << d_0 << std::endl;
 
 	DenseMatrix Aw (A, k, 0, A.rowdim () - k, A.coldim ());
 
-	if (MD.isZero (Aw)) {
+	if (BLAS3::is_zero (ctx, Aw)) {
 		// DEBUG
 		// report << "A is 0" << std::endl;
 
@@ -206,7 +210,7 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 
 		// DEBUG
 		// report << "U before elimination:" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 
 		Submatrix<DenseMatrix> Up (U, 0, k, U.rowdim (), U.coldim () - k);
 
@@ -214,7 +218,7 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 
 		// DEBUG
 		// report << "U after elimination:" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 
 		if (!P.empty ())
 			h = std::min_element (P.begin () + l, P.end (), CompareSecond ())->second;
@@ -238,11 +242,11 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 		// DEBUG
 		// report << "Status after first recursive call:" << std::endl;
 		// report << "U =" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 		// report << "P = ";
-		// MD.writePermutation (report, P) << std::endl;
+		// BLAS3::write_permutation (report, P) << std::endl;
 		// report << "R =" << std::endl;
-		// MD.write (report, R);
+		// BLAS3::write (ctx, report, R);
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
@@ -257,28 +261,28 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 		DenseMatrix A_22    (A, k,       m_1,     r_1,                   m_2);
 		DenseMatrix A_23    (A, k + r_1, m_1,     A.rowdim () - r_1 - k, m_2);
 
-		MD.permuteRows (A_2, P.begin (), P.end ());
+		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
 
-		MD.copy (T, A_22);
-		MD.gemm (F.one (), U_21, T, F.one (),  A_21);
-		MD.gemm (F.one (), U_22, T, F.zero (), A_22);
-		MD.gemm (F.one (), U_23, T, F.one (),  A_23);
+		BLAS3::copy (ctx, A_22, T);
+		BLAS3::gemm (ctx, F.one (), U_21, T, F.one (),  A_21);
+		BLAS3::gemm (ctx, F.one (), U_22, T, F.zero (), A_22);
+		BLAS3::gemm (ctx, F.one (), U_23, T, F.one (),  A_23);
 
 		Permutation P_2;
 
 		// DEBUG
 		// report << "Status before second recursive call:" << std::endl;
 		// report << "B =" << std::endl;
-		// MD.write (report, R_2);
+		// BLAS3::write (ctx, report, R_2);
 
 		GaussJordanTransform (A_2, k + r_1, d_1, U, P_2, r_2, h_2, d, S, T);
 
 		// DEBUG
 		// report << "Status after second recursive call:" << std::endl;
 		// report << "U =" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 		// report << "R =" << std::endl;
-		// MD.write (report, R);
+		// BLAS3::write (ctx, report, R);
 		// report << "r_2 = " << r_2 << std::endl;
 		// report << "d = " << d << std::endl;
 
@@ -292,30 +296,30 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 
 		// DEBUG
 		// report << "U_2 =" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 		// report << "P_2 = ";
-		// MD.writePermutation (report, P_2) << std::endl;
+		// BLAS3::write_permutation (report, P_2) << std::endl;
 
-		MD.permuteRows (P_2U_2, P_2.begin (), P_2.end ());
+		BLAS3::permute_rows (ctx, P_2.begin (), P_2.end (), P_2U_2);
 				
 		// DEBUG
 		// report << "P_2U_2 =" << std::endl;
-		// MD.write (report, P_2U_2);
+		// BLAS3::write (ctx, report, P_2U_2);
 		// report << "P_2U_23 =" << std::endl;
-		// MD.write (report, P_2U_23);
+		// BLAS3::write (ctx, report, P_2U_23);
 		// report << "U_3 =" << std::endl;;
-		// MD.write (report, U_3);
+		// BLAS3::write (ctx, report, U_3);
 
 		S.resize (r_2, r_1);
-		MD.copy (S, P_2U_23);
+		BLAS3::copy (ctx, P_2U_23, S);
 
-		MD.gemm (F.one (), U_312, S, F.one (), U_212);
-		MD.gemm (F.one (), U_33, S, F.zero (), P_2U_23);
-		MD.gemm (F.one (), U_34, S, F.one (), P_2U_24);
+		BLAS3::gemm (ctx, F.one (), U_312, S, F.one (), U_212);
+		BLAS3::gemm (ctx, F.one (), U_33, S, F.zero (), P_2U_23);
+		BLAS3::gemm (ctx, F.one (), U_34, S, F.one (), P_2U_24);
 
 		// DEBUG
 		// report << "U_3P_2U_23 =" << std::endl;
-		// MD.write (report, U_3P_2U_23);
+		// BLAS3::write (ctx, report, U_3P_2U_23);
 
 		P.insert (P.end (), P_2.begin (), P_2.end ());
 		r = r_1 + r_2;
@@ -325,11 +329,11 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 	// DEBUG
 	// report << "Status at end:" << std::endl;
 	// report << "U =" << std::endl;
-	// MD.write (report, U);
+	// BLAS3::write (ctx, report, U);
 	// report << "P = ";
-	// MD.writePermutation (report, P) << std::endl;
+	// BLAS3::write_permutation (report, P) << std::endl;
 	// report << "R =" << std::endl;
-	// MD.write (report, R);
+	// BLAS3::write (ctx, report, R);
 	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
 }
 
@@ -347,12 +351,12 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 	// DEBUG
 	// report << "enter" << std::endl;
 	// report << "A =" << std::endl;
-	// MD.write (report, A);
+	// BLAS3::write (ctx, report, A);
 	// report << "U =" << std::endl;
-	// MD.write (report, U);
+	// BLAS3::write (ctx, report, U);
 	// report << "k = " << k << ", d_0 = " << d_0 << std::endl;
 
-	if (MD.isZero (A)) {
+	if (BLAS3::is_zero (ctx, A)) {
 		// DEBUG
 		// report << "A is 0" << std::endl;
 
@@ -368,13 +372,13 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 
 		// DEBUG
 		// report << "U before elimination:" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 
 		StandardRowEchelonForm (A, U, P, r, d, false, true);
 
 		// DEBUG
 		// report << "U after elimination:" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 
 		if (!P.empty ())
 			h = std::min_element (P.begin () + l, P.end (), CompareSecond ())->second;
@@ -397,11 +401,11 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		// DEBUG
 		// report << "Status after first recursive call:" << std::endl;
 		// report << "U =" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 		// report << "P = ";
-		// MD.writePermutation (report, P) << std::endl;
+		// BLAS3::write_permutation (report, P) << std::endl;
 		// report << "R =" << std::endl;
-		// MD.write (report, R);
+		// BLAS3::write (ctx, report, R);
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
@@ -413,41 +417,41 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		DenseMatrix A_21 (A, 0,   m_1, r_1,               m_2);
 		DenseMatrix A_22 (A, r_1, m_1, A.rowdim () - r_1, m_2);
 
-		MD.permuteRows (A_2, P.begin (), P.end ());
+		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
 
-		MD.gemm (F.one (), U_12, A_21, F.one (), A_22);
-		MD.trmm (F.one (), U_11, A_21, LowerTriangular, true);
+		BLAS3::gemm (ctx, F.one (), U_12, A_21, F.one (), A_22);
+		BLAS3::trmm (ctx, F.one (), U_11, A_21, LowerTriangular, true);
 
 		Permutation P_2;
 
 		// DEBUG
 		// report << "Status before second recursive call:" << std::endl;
 		// report << "B =" << std::endl;
-		// MD.write (report, R_2);
+		// BLAS3::write (ctx, report, R_2);
 
 		GaussTransform (A_22, d_1, U_22, P_2, r_2, h_2, d);
 
 		// DEBUG
 		// report << "Status after second recursive call:" << std::endl;
 		// report << "U =" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 		// report << "R =" << std::endl;
-		// MD.write (report, R);
+		// BLAS3::write (ctx, report, R);
 		// report << "r_2 = " << r_2 << std::endl;
 		// report << "d = " << d << std::endl;
 
 		// DEBUG
 		// report << "U_2 =" << std::endl;
-		// MD.write (report, U);
+		// BLAS3::write (ctx, report, U);
 		// report << "P_2 = ";
-		// MD.writePermutation (report, P_2) << std::endl;
+		// BLAS3::write_permutation (report, P_2) << std::endl;
 
-		MD.permuteRows (U_12, P_2.begin (), P_2.end ());
-		MD.trmm (F.one (), U_22, U_12, LowerTriangular, true);
+		BLAS3::permute_rows (ctx, P_2.begin (), P_2.end (), U_12);
+		BLAS3::trmm (ctx, F.one (), U_22, U_12, LowerTriangular, true);
 				
 		// DEBUG
 		// report << "P_2U_2 =" << std::endl;
-		// MD.write (report, P_2U_2);
+		// BLAS3::write (ctx, report, P_2U_2);
 
 		size_t P_len = P.size ();
 		P.insert (P.end (), P_2.begin (), P_2.end ());
@@ -467,48 +471,27 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 	// DEBUG
 	// report << "Status at end:" << std::endl;
 	// report << "U =" << std::endl;
-	// MD.write (report, U);
+	// BLAS3::write (ctx, report, U);
 	// report << "P = ";
-	// MD.writePermutation (report, P) << std::endl;
+	// BLAS3::write_permutation (report, P) << std::endl;
 	// report << "R =" << std::endl;
-	// MD.write (report, R);
+	// BLAS3::write (ctx, report, R);
 	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
 }
 
 template <class Field>
 template <class Vector>
-Vector &GaussJordan<Field>::FastAddinSpecialised (Vector &v, const Vector &w, size_t idx,
-						  VectorCategories::SparseZeroOneVectorTag) const
+Vector &GaussJordan<Field>::FastAxpy (Vector &v, const typename Field::Element &a, const Vector &w, size_t idx) const
 {
-	static Vector tmp;
-
-	VD.add (tmp, Subvector<typename Vector::iterator> (v.begin () + idx, v.end ()), w);
-	v.resize (idx + tmp.size ());
-	std::copy (tmp.begin (), tmp.end (), v.begin () + idx);
-
+	Subvector<typename Vector::iterator> t (v.begin () + idx, v.end ())
+	BLAS1::axpy (ctx, a, w, t);
 	return v;
 }
 
 template <class Field>
-template <class Vector>
-Vector &GaussJordan<Field>::FastAddinSpecialised (Vector &v, const Vector &w, size_t idx,
-						  VectorCategories::HybridZeroOneVectorTag) const
+bool GaussJordan<Field>::testFastAxpyHybridVector () const
 {
-	static Vector tmp;
-
-	Subvector<typename Vector::iterator> t (v.begin () + idx, v.end ());
-
-	VD.add (tmp, t, w);
-	v.resize (idx + tmp.size ());
-	std::copy (tmp.begin (), tmp.end (), v.begin () + idx);
-
-	return v;
-}
-
-template <class Field>
-bool GaussJordan<Field>::testFastAddinHybridVector () const
-{
-	commentator.start ("Testing FastAddin", __FUNCTION__);
+	commentator.start ("Testing FastAxpy", __FUNCTION__);
 
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 
@@ -523,7 +506,7 @@ bool GaussJordan<Field>::testFastAddinHybridVector () const
 
 	w.push_back (Vector<GF2>::Hybrid::value_type (1, 0x00ffff0000ffff00ULL));
 
-	FastAddin (v, w, 1);
+	FastAxpy (v, ctx.F.one (), w, 1);
 
 	if (v.front ().second != 0xffff0000ffff0000ULL) {
 		error << "Test 1 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ffff0000ffff0000" << std::endl;
@@ -543,7 +526,7 @@ bool GaussJordan<Field>::testFastAddinHybridVector () const
 
 	w.push_back (Vector<GF2>::Hybrid::value_type (0, 0x00ffff0000ffff00ULL));
 
-	FastAddin (v, w, 0);
+	FastAxpy (v, ctx.F.one (), w, 0);
 
 	if (v.front ().second != 0xff00ff00ff00ff00ULL) {
 		error << "Test 3 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
@@ -564,7 +547,7 @@ bool GaussJordan<Field>::testFastAddinHybridVector () const
 	w.push_back (Vector<GF2>::Hybrid::value_type (0, 0x00ffff0000ffff00ULL));
 	w.push_back (Vector<GF2>::Hybrid::value_type (1, 0x00ffff0000ffff00ULL));
 
-	FastAddin (v, w, 0);
+	FastAxpy (v, ctx.F.one (), w, 0);
 
 	if (v.front ().second != 0xff00ff00ff00ff00ULL) {
 		error << "Test 5 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
@@ -610,19 +593,19 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	do {
 		// DEBUG
 		// report << "Row " << current_row << ", current A:" << std::endl;
-		// MD.write (report, A);
+		// BLAS3::write (ctx, report, A);
 
 		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
-			size_t col = VD.firstNonzeroEntry (a, *j_A);
+			size_t col = BLAS1::head (ctx, a, *j_A);
 
 			if (!F.isZero ((*i_A)[col])) {
 				// DEBUG
 				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
 
-				VD.addin (*i_A, *j_A);
+				BLAS1::axpy (ctx, ctx.F.one (), *j_A, *i_A);
 
 				if (compute_L)
-					VD.addin (*i_L, *(L.rowBegin () + elim_row));
+					BLAS::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
 			}
 		}
 
@@ -672,18 +655,18 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 			if (i != i_stop && i->first == j_A->front ().first) {
 				F.neg (negx, i->second);
 
-				VD.axpyin (*i_A, negx, *j_A);
+				BLAS1::axpy (ctx, negx, *j_A, *i_A);
 
 				if (compute_L)
-					VD.axpyin (*i_L, negx, *j_L);
+					BLAS1::axpy (ctx, negx, *j_L, *i_L);
 			}
 		}
 
 		F.inv (xinv, i_A->front ().second);
-		VD.mulin (*i_A, xinv);
+		BLAS1::scal (ctx, xinv, *i_A);
 
 		if (compute_L) {
-			VD.mulin (*i_L, xinv);
+			BLAS1::scal (ctx, xinv, *i_L);
 			--i_L;
 		}
 
@@ -734,10 +717,10 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 			}
 
 			if (i_idx != i_stop && *i_idx == j_A->front ()) {
-				FastAddin (*i_A, *j_A, prev_idx - 1);
+				FastAxpy (*i_A, ctx.F.one (), *j_A, prev_idx - 1);
 
 				if (compute_L)
-					VD.addin (*i_L, *j_L);
+					BLAS1::axpy (ctx, ctx.F.one (), *j_L, *i_L);
 			}
 
 			if (compute_L)
@@ -785,7 +768,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	do {
 		// DEBUG
 		// report << "Row " << current_row << ", state of A:" << std::endl;
-		// MD.write (report, A);
+		// BLAS3::write (ctx, report, A);
 
 		if (i_A - A.rowBegin () >= (int) start_row)
 			i_Ae = i_A;
@@ -813,10 +796,10 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 					// DEBUG
 					// report << "ReduceRowEchelonSpecialised: eliminating row " << current_row << " from row " << elim_row << std::endl;
 
-					FastAddin (*i_A, *j_A, prev_idx);
+					FastAxpy (*i_A, ctx.F.one (), *j_A, prev_idx);
 
 					if (compute_L)
-						VD.addin (*i_L, *(L.rowBegin () + elim_row));
+						BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
 				}
 			}
 
@@ -883,19 +866,19 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	do {
 		// DEBUG
 		// report << "Row " << current_row << ", current A:" << std::endl;
-		// MD.write (report, A);
+		// BLAS3::write (ctx, report, A);
 
 		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
-			size_t col = VD.firstNonzeroEntry (a, *j_A);
+			size_t col = BLAS1::head (ctx, a, *j_A);
 
 			if ((*i_A)[col]) {
 				// DEBUG
 				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
 
-				VD.addin (*i_A, *j_A);
+				BLAS1::axpy (ctx, ctx.F.one (), *j_A, *i_A);
 
 				if (compute_L)
-					VD.addin (*i_L, *(L.rowBegin () + elim_row));
+					BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
 			}
 		}
 
@@ -994,31 +977,31 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 			// DEBUG
 			// report << "Permuting " << k << " and " << pivot << std::endl;
 			// report << "L before permutation:" << std::endl;
-			// MD.write (report, L);
+			// BLAS3::write (ctx, report, L);
 
 			Transposition t (k, pivot);
 			P.push_back (t);
-			MD.permuteRows (A, &t, &t + 1);
+			BLAS3::permute_rows (ctx, &t, &t + 1, A);
 
 			if (compute_L) {
 				Submatrix<typename RealMatrixType<Matrix2>::Type> Lp (L, 0, 0, L.rowdim (), k - start_row);
-				MD.permuteRows (Lp, &t, &t + 1);
+				BLAS3::permute_rows (ctx, &t, &t + 1, Lp);
 			}
 
 			// DEBUG
 			// report << "L after permutation:" << std::endl;
-			// MD.write (report, L);
+			// BLAS3::write (ctx, report, L);
 		}
 		TIMER_STOP(Permute);
 
 		// DEBUG
 		// report << "Row " << k << ", pivot is " << pivot << std::endl;
 		// report << "Current A:" << std::endl;
-		// MD.write (report, A);
+		// BLAS3::write (ctx, report, A);
 		// report << "Current L:" << std::endl;
-		// MD.write (report, L);
+		// BLAS3::write (ctx, report, L);
 
-		VD.firstNonzeroEntry (x, *i_A);
+		BLAS1::head (ctx, x, *i_A);
 
 		F.mulin (det, x);
 
@@ -1030,15 +1013,15 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 		++j_L;
 
 		for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L) {
-			if (VD.firstNonzeroEntry (a, *j_A) == (int) col) {
+			if (BLAS1::head (ctx, a, *j_A) == (int) col) {
 				// DEBUG
 				// report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
 
 				F.mul (negaxinv, negxinv, a);
-				VD.axpyin (*j_A, negaxinv, *i_A);
+				BLAS1::axpy (ctx, negaxinv, *i_A, *j_A);
 
 				if (compute_L)
-					VD.axpyin (*j_L, negaxinv, *i_L);
+					BLAS1::axpy (ctx, negaxinv, *i_L, *j_L);
 			}
 		}
 		TIMER_STOP(ElimBelow);
@@ -1063,7 +1046,7 @@ template <class Field>
 void GaussJordan<Field>::RunTests () const
 {
 	commentator.start ("GaussJordan: Running internal tests", __FUNCTION__);
-	bool pass = testFastAddinHybridVector ();
+	bool pass = testFastAxpyHybridVector ();
 	commentator.stop (MSG_STATUS (pass));
 }
 

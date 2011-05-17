@@ -17,18 +17,13 @@
 #include <iomanip>
 #include <cassert>
 
-#include <linbox/util/commentator.h>
-#include <linbox/util/timer.h>
-#include <linbox/field/gf2.h>
-#include <linbox/vector/vector-domain.h>
-#include <linbox/matrix/matrix-domain.h>
-#include <linbox/matrix/dense.h>
-#include <linbox/matrix/sparse.h>
-#include <linbox/matrix/dense-zero-one.h>
-#include <linbox/matrix/sparse-zero-one.h>
-#include <linbox/matrix/submatrix.h>
-#include <linbox/vector/bit-subvector-word-aligned.h>
-#include <linbox/vector/sparse-subvector-hybrid.h>
+#include "linbox/util/commentator.h"
+#include "linbox/util/timer.h"
+#include "linbox/blas/context.h"
+#include "linbox/field/gf2.h"
+#include "linbox/matrix/dense.h"
+#include "linbox/matrix/sparse.h"
+#include "linbox/matrix/submatrix.h"
 
 namespace LinBox
 {
@@ -75,20 +70,18 @@ public:
  * @param Field The field in which arithmetic takes
  * place. Must satisfy the field-archetype in LinBox.
  */
-template <class Field>
+template <class Field, class Modules = AllModules<Field> >
 class GaussJordan
 {
 public:
 	typedef typename Field::Element Element;
-	typedef typename MatrixDomain<Field>::Permutation Permutation;
-	typedef typename MatrixDomain<Field>::Transposition Transposition;
+	typedef std::pair<uint32, uint32> Transposition;
+	typedef std::vector<Transposition> Permutation;
 	typedef typename Adaptor<Field>::SparseMatrix SparseMatrix;
 	typedef typename Adaptor<Field>::DenseMatrix DenseMatrix;
 
 private:
-	const Field &F;   // Field over which operations take place
-	const VectorDomain<Field> VD;
-	const MatrixDomain<Field> MD;
+	Context<Field, Modules> &ctx;
 
 	const size_t _cutoff;
 
@@ -165,18 +158,9 @@ private:
 	// advantage of knowledge of where in v the entries of
 	// w start
 	template <class Vector>
-	Vector &FastAddin (Vector &v, const Vector &w, size_t idx) const
-		{ return FastAddinSpecialised (v, w, idx, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+	Vector &FastAxpy (Vector &v, const typename Field::Element &a, const Vector &w, size_t idx) const;
 
-	template <class Vector>
-	Vector &FastAddinSpecialised (Vector &v, const Vector &w, size_t idx,
-				      VectorCategories::SparseZeroOneVectorTag) const;
-
-	template <class Vector>
-	Vector &FastAddinSpecialised (Vector &v, const Vector &w, size_t idx,
-				      VectorCategories::HybridZeroOneVectorTag) const;
-
-	bool testFastAddinHybridVector () const;
+	bool testFastAxpyHybridVector () const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
@@ -212,8 +196,8 @@ public:
 	 *
 	 * @param _F Field over which operations take place
 	 */
-	GaussJordan (const Field &_F)
-		: F (_F), VD (_F), MD (_F), _cutoff (Adaptor<Field>::cutoff)
+	GaussJordan (Context<Field, Modules> &_ctx)
+		: ctx (_ctx), _cutoff (Adaptor<Field>::cutoff)
 		{}
 
 	/**
