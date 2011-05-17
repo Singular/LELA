@@ -177,13 +177,11 @@ template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
-	SparseVector<typename Field::Element> tmp;
+	Vector2 tmp;
 
 	typename Vector2::const_iterator i;
 	typename Vector1::const_iterator j;
 	typename Field::Element c;
-
-	tmp.clear ();
 
 	for (j = x.begin (), i = y.begin (); j != x.end (); j++) {
 		while (i != y.end () && i->first < j->first) {
@@ -207,7 +205,7 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 		i++;
 	}
 
-	y = tmp;
+	std::swap (y, tmp);
 
 	return y;
 }

@@ -40,15 +40,15 @@ namespace BLAS1
  * @param end_idx Ending index in vector, or (size_t) -1 for the whole vector
  * @returns Reference to res
  */
-template <class Field, class Modules, class Vector1, class Vector2>
-typename Field::Element &dot (Context<Field, Modules> &ctx, typename Field::Element &res, const Vector1 &x, const Vector2 &y,
-			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
+template <class reference, class Field, class Modules, class Vector1, class Vector2>
+reference &dot (Context<Field, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y,
+		size_t start_idx = 0, size_t end_idx = (size_t) -1)
 	{ return _dot (ctx.F, ctx.M, res, x, y, start_idx, end_idx); }
 
 /// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector1, class Vector2>
-typename Field::Element &_dot (const Field &F, Modules &M, typename Field::Element &res, const Vector1 &x, const Vector2 &y,
-			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
+template <class reference, class Field, class Modules, class Vector1, class Vector2>
+reference &_dot (const Field &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
+		 size_t start_idx = 0, size_t end_idx = (size_t) -1)
 	{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
 			   typename VectorTraits<Field, Vector1>::VectorCategory (),
 			   typename VectorTraits<Field, Vector2>::VectorCategory ()); }

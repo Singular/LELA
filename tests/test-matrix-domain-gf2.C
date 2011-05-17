@@ -12,13 +12,15 @@
  */
 
 #include "linbox/util/commentator.h"
-#include "linbox/field/gf2.h"
+#include "linbox/blas/context.h"
 #include "linbox/matrix/dense-zero-one.h"
 #include "linbox/matrix/sparse-zero-one.h"
 #include "linbox/vector/stream.h"
 
 #include "test-common.h"
 #include "test-matrix-domain.h"
+
+#include "linbox/field/gf2.h"
 
 using namespace LinBox;
 
@@ -75,7 +77,9 @@ int main (int argc, char **argv)
 	DenseMatrix<Field::Element> M2 (stream12);
 	DenseMatrix<Field::Element> M3 (stream13);
 
-	if (!testMatrixDomain (F, "dense", M1, M2, M3, v1, v2, iterations,
+	Context<GF2> ctx (F);
+
+	if (!testMatrixDomain (ctx, "dense", M1, M2, M3, v1, v2, iterations,
 			       MatrixTraits<DenseMatrix<Field::Element> >::MatrixCategory ()))
 		pass = false;
 
@@ -87,7 +91,7 @@ int main (int argc, char **argv)
 	SparseMatrix<Field::Element, Vector<Field>::Sparse> M5 (stream22);
 	SparseMatrix<Field::Element, Vector<Field>::Sparse> M6 (stream23);
 
-	if (!testMatrixDomain (F, "sparse", M4, M5, M6, v1, v2, iterations,
+	if (!testMatrixDomain (ctx, "sparse", M4, M5, M6, v1, v2, iterations,
 			       MatrixTraits<SparseMatrix<Field::Element, Vector<Field>::Sparse> >::MatrixCategory ()))
 		pass = false;
 
@@ -99,7 +103,7 @@ int main (int argc, char **argv)
 	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M8 (stream32);
 	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M9 (stream33);
 
-	if (!testMatrixDomain (F, "hybrid", M7, M8, M9, v1, v2, iterations,
+	if (!testMatrixDomain (ctx, "hybrid", M7, M8, M9, v1, v2, iterations,
 			       MatrixTraits<SparseMatrix<Field::Element, Vector<Field>::Hybrid> >::MatrixCategory ()))
 		pass = false;
 
@@ -114,7 +118,7 @@ int main (int argc, char **argv)
 	Submatrix<DenseMatrix<Field::Element> > M11 (M2, 4, 4, m - 8, n - 8);
 	Submatrix<DenseMatrix<Field::Element> > M12 (M3, 4, 4, n - 8, p - 8);
 
-	if (!testMatrixDomainSubmatrix (F, "dense (submatrix)", M10, M11, M12, v1p, v2p, iterations,
+	if (!testMatrixDomainSubmatrix (ctx, "dense (submatrix)", M10, M11, M12, v1p, v2p, iterations,
 					MatrixTraits<DenseMatrix<Field::Element> >::MatrixCategory ()))
 		pass = false;
 

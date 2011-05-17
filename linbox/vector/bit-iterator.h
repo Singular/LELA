@@ -601,29 +601,11 @@ class BitVectorConstIterator : public std::iterator <std::random_access_iterator
 
 namespace std 
 {
-	template <class word_iterator, class const_word_iterator, class _Endianness>
-	struct iterator_traits<LinBox::BitVectorIterator<word_iterator, const_word_iterator, _Endianness> >
-	{
-		typedef random_access_iterator_tag iterator_category;
-		typedef LinBox::BitVectorReference<word_iterator, _Endianness> reference;
-		typedef LinBox::BitVectorConstReference<const_word_iterator, _Endianness> const_reference;
-		typedef bool *pointer;
-		typedef bool value_type;
-		typedef long difference_type;
-		typedef unsigned long size_type;
-	};
 
-	template <class const_word_iterator, class _Endianness>
-	struct iterator_traits<LinBox::BitVectorConstIterator<const_word_iterator, _Endianness> >
-	{
-		typedef random_access_iterator_tag iterator_category;
-		typedef LinBox::BitVectorConstReference<const_word_iterator, _Endianness> reference;
-		typedef LinBox::BitVectorConstReference<const_word_iterator, _Endianness> const_reference;
-		typedef const bool *pointer;
-		typedef bool value_type;
-		typedef long difference_type;
-		typedef unsigned long size_type;
-	};
-}
+template <class word_iterator, class Endianness>
+void swap (LinBox::BitVectorReference<word_iterator, Endianness> x, LinBox::BitVectorReference<word_iterator, Endianness> y)
+	{ bool t = x; x = y; y = t; }
+
+} // namespace std
 
 #endif // __BIT_ITERATOR_H

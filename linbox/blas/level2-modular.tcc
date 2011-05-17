@@ -1,7 +1,7 @@
 /* linbox/blas/level2-modular.tcc
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
- * Modular implementations of level 2 BLAS interface
+ * Implementations of level 2 BLAS interface for Z/p
  * ------------------------------------
  *
  * See COPYING for license information.

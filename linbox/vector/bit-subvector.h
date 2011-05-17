@@ -36,8 +36,8 @@ class BitSubvector
 	typedef ConstIterator const_iterator;
 	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
 
-	typedef typename std::iterator_traits<iterator>::size_type	 size_type;
-	typedef typename std::iterator_traits<const_iterator>::const_reference const_reference;
+	typedef typename Iterator::size_type	 size_type;
+	typedef typename Iterator::const_reference const_reference;
 
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;

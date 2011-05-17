@@ -17,6 +17,7 @@
 
 #include "linbox/linbox-config.h"
 #include "linbox/util/debug.h"
+#include "linbox/blas/context.h"
 #include "linbox/integer.h"
 #include "linbox/field/field-interface.h"
 #include "linbox/vector/bit-vector.h"
@@ -614,7 +615,7 @@ class RawVector<bool>
 {
     public:
 	typedef BitVector<BigEndian<uint64> > Dense;
-	typedef std::vector<size_t> Sparse;
+	typedef std::vector<uint32> Sparse;
 	typedef HybridVector<BigEndian<uint64>, uint16, uint64> Hybrid;
 };
 
@@ -647,6 +648,9 @@ struct GF2VectorTraits<const HybridVector<LittleEndian<uint64>, uint16, uint64> 
 	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 };
 
+template <>
+struct AllModules<GF2> : public GenericModule {};
+
 } // namespace LinBox
 
 // #include <bits/stl_bvector.h>
@@ -663,6 +667,8 @@ namespace std
 
 #include "linbox/randiter/gf2.h"
 
+#include "linbox/blas/level1-gf2.h"
+#include "linbox/blas/level2-gf2.h"
 #include "linbox/vector/vector-domain-gf2.h"
 #include "linbox/matrix/matrix-domain-gf2.h"
 
