@@ -28,7 +28,7 @@
 #include <vector>
 #include <queue>
 
-#include "linbox/field/modular-double.h"
+#include "linbox/field/modular.h"
 
 #include "test-common.h"
 #include "test-generic.h"
