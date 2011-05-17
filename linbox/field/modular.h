@@ -774,7 +774,7 @@ class Modular<uint8> : public FieldInterface, public ModularBase<uint8>
 
 	// Number of times one can perform an axpy into a long long
 	// before modding out is mandatory.
-	uint64 _k;
+	size_t _k;
 
     private:
 
@@ -928,7 +928,7 @@ class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
 
 	// Number of times one can perform an axpy into a long long
 	// before modding out is mandatory.
-	uint64 _k;
+	size_t _k;
 
     private:
 
