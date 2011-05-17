@@ -13,6 +13,7 @@
 #ifndef __LINBOX_SOLUTIONS_ECHELON_FORM_H
 #define __LINBOX_SOLUTIONS_ECHELON_FORM_H
 
+#include "linbox/blas/context.h"
 #include "linbox/algorithms/gauss-jordan.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/util/error.h"
@@ -21,10 +22,10 @@ namespace LinBox
 {
 
 /** Solution for computing the echelon-form of a matrix */
-template <class Field>
+template <class Field, class Modules = AllModules<Field> >
 class EchelonForm
 {
-	GaussJordan<Field> _GJ;
+	GaussJordan<Field, Modules> _GJ;
 
 	DenseMatrix<typename Field::Element> _L;
 	typename MatrixDomain<Field>::Permutation _P;
@@ -39,7 +40,7 @@ public:
 	 *
 	 * @param F Field over which to compute
 	 */
-	EchelonForm (const Field &F) : _GJ (F) {}
+	EchelonForm (Context<Field, Modules> &ctx) : _GJ (ctx) {}
 
 	/** Compute the (possibly reduced) row-echelon form of a matrix
 	 *

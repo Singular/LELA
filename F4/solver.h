@@ -11,8 +11,9 @@
 #ifndef __F4_SOLVER_H
 #define __F4_SOLVER_H
 
-#include <linbox/vector/vector-domain.h>
-#include <linbox/matrix/matrix-domain.h>
+#include <linbox/blas/context.h>
+#include <linbox/blas/level1.h>
+#include <linbox/blas/level3.h>
 #include <linbox/solutions/echelon-form.h>
 #include <linbox/solutions/echelon-form-gf2.h>
 #include <linbox/util/splicer.h>
@@ -34,18 +35,16 @@ namespace F4 {
 	 *
 	 * This implementation uses LinBox for underlying matrix-arithmetic; see http://www.linalg.org/
 	 */
-        template <class Field>
+        template <class Field, class Modules = AllModules<Field> >
 	class F4Solver {
 	public:
 		typedef typename Field::Element Element;
-		typedef typename GaussJordan<Field>::SparseMatrix SparseMatrix;
+		typedef typename GaussJordan<Field>::Sparseatrix SparseMatrix;
 		typedef typename GaussJordan<Field>::DenseMatrix DenseMatrix;
 
 	private:
-		const Field &F;
-		const VectorDomain<Field> VD;
-		const MatrixDomain<Field> MD;
-		EchelonForm<Field> EF;
+		Context<Field, Modules> &ctx;
+		EchelonForm<Field, Modules> EF;
 
 		const double threshold;
 
@@ -63,7 +62,7 @@ namespace F4 {
 			num_pivot_rows = 0;
 
 			for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A, ++row) {
-				col = VD.firstNonzeroEntry (a, *i_A);
+				col = BLAS1::head (ctx, a, *i_A);
 
 				if (col == -1) {
 					if (!last_was_same_col) {
@@ -158,8 +157,8 @@ namespace F4 {
 		 * this value, then the row is considered to be
 		 * dense. Default 0.2.
 		 */
-		F4Solver (const Field &_F, double _threshold = 0.2)
-			: F (_F), VD (_F), MD (_F), EF (_F), threshold (_threshold) {}
+		F4Solver (Context<Field, Modules> &_ctx, double _threshold = 0.2)
+			: ctx (_ctx), EF (_ctx), threshold (_threshold) {}
 
 		/** 
 		 * \brief Convert the matrix A into reduced
@@ -211,47 +210,47 @@ namespace F4 {
 			X_splicer.splice (F, X_sources, X_targets);
 
 			reportUI << "Matrix A:" << std::endl;
-			MD.write (reportUI, A);
+			BLAS3::write (ctx, reportUI, A);
 			reportUI << "Matrix B:" << std::endl;
-			MD.write (reportUI, B);
+			BLAS3::write (ctx, reportUI, B);
 			reportUI << "Matrix C:" << std::endl;
-			MD.write (reportUI, C);
+			BLAS3::write (ctx, reportUI, C);
 			reportUI << "Matrix D:" << std::endl;
-			MD.write (reportUI, D);
+			BLAS3::write (ctx, reportUI, D);
 
 			// std::ofstream Aout ("A.png");
-			// MD.write (Aout, A, FORMAT_PNG);
+			// BLAS3::write (ctx, Aout, A, FORMAT_PNG);
 			// std::ofstream Bout ("B.png");
-			// MD.write (Bout, B, FORMAT_PNG);
+			// BLAS3::write (ctx, Bout, B, FORMAT_PNG);
 			// std::ofstream Cout ("C.png");
-			// MD.write (Cout, C, FORMAT_PNG);
+			// BLAS3::write (ctx, Cout, C, FORMAT_PNG);
 			// std::ofstream Dout ("D.png");
-			// MD.write (Dout, D, FORMAT_PNG);
+			// BLAS3::write (ctx, Dout, D, FORMAT_PNG);
 
 			commentator.start ("Constructing D - C A^-1 B");
 
-			MD.trsm (F.one (), A, B, UpperTriangular, true);
-			MD.gemm (F.minusOne (), C, B, F.one (), D);
+			BLAS3::trsm (ctx, F.one (), A, B, UpperTriangular, true);
+			BLAS3::gemm (ctx, F.minusOne (), C, B, F.one (), D);
 
 			commentator.stop (MSG_DONE);
 
 			// std::ofstream ABout ("AB.png");
-			// MD.write (ABout, B, FORMAT_PNG);
+			// BLAS3::write (ctx, ABout, B, FORMAT_PNG);
 			// std::ofstream DCABout ("D-CAB.png");
-			// MD.write (DCABout, D, FORMAT_PNG);
+			// BLAS3::write (ctx, DCABout, D, FORMAT_PNG);
 
 			reportUI << "A^-1 B:" << std::endl;
-			MD.write (reportUI, B);
+			BLAS3::write (ctx, reportUI, B);
 
 			reportUI << "D - C A^-1 B:" << std::endl;
-			MD.write (reportUI, D);
+			BLAS3::write (ctx, reportUI, D);
 
 			// size_t r_D;
 
 			EF.RowEchelonForm (D);
 
 			reportUI << "Row-echelon form of D - C A^-1 B:" << std::endl;
-			MD.write (reportUI, D);
+			BLAS3::write (ctx, reportUI, D);
 
 			// commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 			// 	<< "Rank of dense part is " << r_D << std::endl;
@@ -292,23 +291,23 @@ namespace F4 {
 			D_splicer.splice (F, D_sources, D_targets);
 
 			reportUI << "Matrix B1:" << std::endl;
-			MD.write (reportUI, B1);
+			BLAS3::write (ctx, reportUI, B1);
 			reportUI << "Matrix B2:" << std::endl;
-			MD.write (reportUI, B2);
+			BLAS3::write (ctx, reportUI, B2);
 			reportUI << "Matrix D1:" << std::endl;
-			MD.write (reportUI, D1);
+			BLAS3::write (ctx, reportUI, D1);
 			reportUI << "Matrix D2:" << std::endl;
-			MD.write (reportUI, D2);
+			BLAS3::write (ctx, reportUI, D2);
 
 			commentator.start ("Constructing B2 - B1 D1^-1 D2");
 
-			MD.trsm (F.one (), D1, D2, UpperTriangular, true);			
-			MD.gemm (F.minusOne (), B1, D2, F.one (), B2);
+			BLAS3::trsm (ctx, F.one (), D1, D2, UpperTriangular, true);			
+			BLAS3::gemm (ctx, F.minusOne (), B1, D2, F.one (), B2);
 
 			commentator.stop (MSG_DONE);
 
 			reportUI << "B2 - B1 D1^-1 D2:" << std::endl;
-			MD.write (reportUI, B2);
+			BLAS3::write (ctx, reportUI, B2);
 
 			Splicer composed_splicer, subst_splicer, D_splicer_rev;
 
@@ -337,7 +336,7 @@ namespace F4 {
 			MatrixPart<SparseMatrix> R_targets_1[] = { MatrixPart<SparseMatrix> (R) };
 			MatrixPart<SparseMatrix> *R_targets[] = { R_targets_1 };
 
-			MD.scal (R, F.zero ());
+			BLAS3::scal (ctx, F.zero (), R);
 
 			composed_splicer.splice (F, R_sources, R_targets);
 

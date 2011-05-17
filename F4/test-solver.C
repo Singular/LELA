@@ -116,9 +116,9 @@ void smallTest () {
 	createRandomF4Matrix (A);
 
 	Field F (2);
-	MatrixDomain<Field> MD (F);
-	F4Solver<Field> Solver (F);
-	GaussJordan<Field> GJ (F);
+	Context<Field> ctx (F);
+	F4Solver<Field> Solver (ctx);
+	GaussJordan<Field> GJ (ctx);
 
 	size_t rank;
 	Field::Element det;
@@ -214,7 +214,8 @@ void fileTest (char *filename, char *output) {
 
 	CheckHybridMatrix (A);
 
-	F4Solver<Field> Solver (F);
+	Context<Field> ctx (F);
+	F4Solver<Field> Solver (ctx);
 
 	size_t rank;
 	Field::Element det;
