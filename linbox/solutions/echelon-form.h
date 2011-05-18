@@ -59,6 +59,7 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
+			_L.resize (A.rowdim (), A.rowdim ());
 			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
 			break;
 
@@ -83,6 +84,7 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
+			_L.resize (A.rowdim (), A.rowdim ());
 			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
 			break;
 
