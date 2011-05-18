@@ -303,9 +303,9 @@ class MutableSubvector
 	{
 		if (n > size ()) {
 			_v.resize (n + _idx_begin + _v.size () - _idx_end);
-			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_end + n));
+			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_begin + n));
 		} else if (n < size ()) {
-			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_end + n));
+			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_begin + n));
 			_v.resize (n + _idx_begin + _v.size () - _idx_end);
 		}
 
