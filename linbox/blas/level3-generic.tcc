@@ -239,6 +239,9 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 
 		size_t idx = B.rowdim ();
 
+		if (idx == 0)   // Nothing to do
+			return B;
+
 		do {
 			--i_B; --i_A; --idx;
 
@@ -250,7 +253,7 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 			}
 
 			BLAS2::_gemv (F, M, a, BT, *i_A, ai, *i_B, 0, idx);
-		} while (i_B != B.rowBegin ());
+		} while (idx != 0);
 	}
 	else if (type == UpperTriangular) {
 		typename Matrix2::RowIterator i_B;
@@ -310,7 +313,11 @@ Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	else if (type == UpperTriangular) {
 		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
 		typename Matrix2::RowIterator i_B = B.rowEnd ();
+
 		size_t idx = A.rowdim ();
+
+		if (idx == 0)   // Nothing to do
+			return B;
 
 		do {
 			--i_A; --i_B; --idx;
@@ -325,7 +332,7 @@ Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 			}
 
 			BLAS2::_gemv (F, M, neg_ai_inv, BT, *i_A, ai_inv, *i_B, idx + 1, A.coldim ());
-		} while (i_A != A.rowBegin ());
+		} while (idx != 0);
 	}
 
 	return B;

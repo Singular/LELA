@@ -81,15 +81,15 @@ class Subvector //: public Vector // for types
 	
 	// Iterators
 	
-	iterator               begin  (void)       { return _begin; }
-	const_iterator         begin  (void) const { return _begin; }
-	iterator               end    (void)       { return _end; }
-	const_iterator         end    (void) const { return _end; }
+	iterator               begin  ()       { return _begin; }
+	const_iterator         begin  () const { return _begin; }
+	iterator               end    ()       { return _end; }
+	const_iterator         end    () const { return _end; }
 	
-	reverse_iterator       rbegin (void)       { return reverse_iterator (_end); }
-	const_reverse_iterator rbegin (void) const { return reverse_iterator (_end); }
-	reverse_iterator       rend   (void)       { return reverse_iterator (_begin); }
-	const_reverse_iterator rend   (void) const { return reverse_iterator (_begin); }
+	reverse_iterator       rbegin ()       { return reverse_iterator (_end); }
+	const_reverse_iterator rbegin () const { return reverse_iterator (_end); }
+	reverse_iterator       rend   ()       { return reverse_iterator (_begin); }
+	const_reverse_iterator rend   () const { return reverse_iterator (_begin); }
 	
 	// Element access
 	
@@ -116,10 +116,10 @@ class Subvector //: public Vector // for types
 			throw std::out_of_range("out of range"); //out of range error message
 	}
 	
-	reference       front (void)       { return *_begin; }
-	const_reference front (void) const { return *_begin; }
-	reference       back  (void)       { return *( _end - 1 ); }
-	const_reference back  (void) const { return *( _end - 1 ); }
+	reference       front ()       { return *_begin; }
+	const_reference front () const { return *_begin; }
+	reference       back  ()       { return *( _end - 1 ); }
+	const_reference back  () const { return *( _end - 1 ); }
 	
 	template<class Container>
 	/** assign the elements of Container one by one to *this.
@@ -160,16 +160,10 @@ class Subvector //: public Vector // for types
 	Subvector& operator=(const Subvector& sub)
 	{ _begin = sub._begin; _end = sub._end; return *this; }
 	
-	size_type size      (void) const { return _end - _begin; }
-	bool      empty     (void) const { return _end == _begin; }
-	size_type max_size  (void) const { return _end - _begin; }
-	//size_type capacity(void) const { return _end - _begin; }
-	
-	// Swap
-
-	void swap (Subvector& x)
-	{ std::swap (_begin,x._begin); std::swap(_end, x._end); }
-	
+	size_type size      () const { return _end - _begin; }
+	bool      empty     () const { return _end == _begin; }
+	size_type max_size  () const { return _end - _begin; }
+	size_type capacity  () const { return _end - _begin; }
 	
     protected:
 	template <class It, class CIt>
@@ -211,15 +205,15 @@ class MutableSubvector
 	
 	// Iterators
 	
-	iterator               begin  (void)       { return _v.begin () + _idx_begin; }
-	const_iterator         begin  (void) const { return _v.begin () + _idx_begin; }
-	iterator               end    (void)       { return _v.begin () + _idx_end; }
-	const_iterator         end    (void) const { return _v.begin () + _idx_end; }
+	iterator               begin  ()       { return _v.begin () + _idx_begin; }
+	const_iterator         begin  () const { return _v.begin () + _idx_begin; }
+	iterator               end    ()       { return _v.begin () + _idx_end; }
+	const_iterator         end    () const { return _v.begin () + _idx_end; }
 	
-	reverse_iterator       rbegin (void)       { return reverse_iterator (_v.begin () + _idx_end); }
-	const_reverse_iterator rbegin (void) const { return reverse_iterator (_v.begin () + _idx_end); }
-	reverse_iterator       rend   (void)       { return reverse_iterator (_v.begin () + _idx_begin); }
-	const_reverse_iterator rend   (void) const { return reverse_iterator (_v.begin () + _idx_begin); }
+	reverse_iterator       rbegin ()       { return reverse_iterator (_v.begin () + _idx_end); }
+	const_reverse_iterator rbegin () const { return reverse_iterator (_v.begin () + _idx_end); }
+	reverse_iterator       rend   ()       { return reverse_iterator (_v.begin () + _idx_begin); }
+	const_reverse_iterator rend   () const { return reverse_iterator (_v.begin () + _idx_begin); }
 	
 	// Element access
 	
@@ -242,10 +236,10 @@ class MutableSubvector
 			throw std::out_of_range ("n");
 	}
 	
-	reference       front (void)       { return _v[_idx_begin]; }
-	const_reference front (void) const { return _v[_idx_begin]; }
-	reference       back  (void)       { return _v[_idx_end - 1]; }
-	const_reference back  (void) const { return _v[_idx_end - 1]; }
+	reference       front ()       { return _v[_idx_begin]; }
+	const_reference front () const { return _v[_idx_begin]; }
+	reference       back  ()       { return _v[_idx_end - 1]; }
+	const_reference back  () const { return _v[_idx_end - 1]; }
 	
 	template<class Container>
 	MutableSubvector &operator = (const Container &x)
@@ -259,10 +253,10 @@ class MutableSubvector
 		return *this;
 	}
 
-	size_type size     (void) const { return _idx_end - _idx_begin; }
-	bool      empty    (void) const { return _idx_end == _idx_begin; }
-	size_type max_size (void) const { return _v.max_size () - (_v.size () - _idx_end) - _idx_begin; }
-	size_type capacity (void) const { return _v.capacity () - (_v.size () - _idx_end) - _idx_begin; }
+	size_type size     () const { return _idx_end - _idx_begin; }
+	bool      empty    () const { return _idx_end == _idx_begin; }
+	size_type max_size () const { return _v.max_size () - (_v.size () - _idx_end) - _idx_begin; }
+	size_type capacity () const { return _v.capacity () - (_v.size () - _idx_end) - _idx_begin; }
 
 	iterator insert (iterator position, const value_type &x)
 	{
@@ -321,9 +315,6 @@ class MutableSubvector
 	void reserve (size_type n)
 		{ _v.reserve (n + _idx_begin + _v.size () - _idx_end); }
 	
-	void swap (MutableSubvector& x)
-		{ std::swap (_v, x._v); std::swap (_idx_begin, x._idx_begin); std::swap (_idx_end, x._idx_end); }
-
     protected:
 	template <class V2>
 	friend class MutableSubvector;
@@ -339,7 +330,12 @@ namespace std {
 
 template<class Iterator, class ConstIterator>
 void swap (LinBox::Subvector<Iterator, ConstIterator> &x, LinBox::Subvector<Iterator, ConstIterator> &y)
-	{ x.swap (y); }
+{
+	typename LinBox::Subvector<Iterator, ConstIterator>::iterator i_x, i_y;
+
+	for (i_x = x.begin (), i_y = y.begin (); i_x != x.end () && i_y != y.end (); ++i_x, ++i_y)
+		std::swap (*i_x, *i_y);
+}
 
 template<class Vector>
 void swap (LinBox::MutableSubvector<Vector> &x, LinBox::MutableSubvector<Vector> &y)

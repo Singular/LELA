@@ -33,6 +33,8 @@ template <class Iterator, class ConstIterator, class _Endianness>
 class BitSubvectorWordAligned
 {
     public:
+	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
+
 	typedef Iterator word_iterator;
 	typedef ConstIterator const_word_iterator;
 	typedef _Endianness Endianness;
@@ -161,21 +163,19 @@ class BitSubvectorWordAligned
 
 }; // template <class Iterator> class BitSubvectorWordAligned
 
-// Vector traits for BitVector wrapper
-template <class Iterator, class ConstIterator, class Endianness>
-struct GF2VectorTraits<BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> >
-{ 
-	typedef BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> VectorType;
-	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
-};
-
-template <class Iterator, class ConstIterator, class Endianness>
-struct GF2VectorTraits< std::pair<std::vector<size_t>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > >
-{ 
-	typedef std::pair<std::vector<size_t>, BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> > VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
-
 } // namespace LinBox
+
+namespace std {
+
+template<class Iterator, class ConstIterator, class Endianness>
+void swap (LinBox::BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> &x, LinBox::BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> &y)
+{
+	typename LinBox::BitSubvectorWordAligned<Iterator, ConstIterator, Endianness>::word_iterator i_x, i_y;
+
+	for (i_x = x.wordBegin (), i_y = y.wordBegin (); i_x != x.wordEnd () && i_y != y.wordEnd (); ++i_x, ++i_y)
+		std::swap (*i_x, *i_y);
+}
+
+} // namespace std
 
 #endif // __VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H

@@ -35,6 +35,8 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
 
+	linbox_check (end_idx <= A.coldim ());
+
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Vector2::iterator j = y.begin ();
 
@@ -62,6 +64,8 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
+
+	linbox_check (end_idx <= A.coldim ());
 
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Field::Element t;
@@ -100,6 +104,8 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
 
+	// linbox_check (end_idx <= A.coldim ());
+
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector1::const_iterator j = x.begin () + start_idx, j_end = x.begin () + end_idx;
 	typename Field::Element d;
@@ -127,6 +133,8 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
+
+	linbox_check (end_idx <= A.coldim ());
 
 	typename Vector1::const_iterator j =
 		(start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
@@ -184,7 +192,11 @@ Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x,
 	}
 	else if (type == UpperTriangular) {
 		typename Matrix::ConstRowIterator i_A = A.rowEnd ();
+
 		size_t idx = A.rowdim ();
+
+		if (idx == 0)   // Nothing to do
+			return x;
 
 		do {
 			--i_A; --idx;
@@ -201,7 +213,7 @@ Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x,
 
 			F.mulin (x[idx], ai_inv);
 			F.axpyin (x[idx], d, neg_ai_inv);
-		} while (i_A != A.rowBegin ());
+		} while (idx != 0);
 	}
 
 	return x;

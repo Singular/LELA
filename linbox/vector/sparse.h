@@ -438,6 +438,21 @@ public:
 	inline void            clear     ()            { _idx.clear (); _elt.clear (); }
 	inline void            resize    (size_type s) { _idx.resize (s); _elt.resize (s); }
 
+	template <class InputIterator>
+	void assign (InputIterator first, InputIterator last)
+	{
+		clear ();
+
+		while (first != last)
+			push_back (*first++);
+	}
+
+	void assign (const_iterator first, const_iterator last)
+	{
+		_idx.assign (first._ref.first._i, last._ref.first._i);
+		_elt.assign (first._ref.second._i, last._ref.second._i);
+	}
+
 	template <class T>
 	inline iterator insert (iterator pos, const T &x)
 	{

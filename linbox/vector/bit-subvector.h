@@ -463,6 +463,22 @@ class BitSubvector
 
 } // namespace LinBox
 
+namespace std {
+
+template<class Iterator, class ConstIterator>
+void swap (LinBox::BitSubvector<Iterator, ConstIterator> &x, LinBox::BitSubvector<Iterator, ConstIterator> &y)
+{
+	typename LinBox::BitSubvector<Iterator, ConstIterator>::word_iterator i_x, i_y;
+
+	for (i_x = x.wordBegin (), i_y = y.wordBegin (); i_x != x.wordEnd () && i_y != y.wordEnd (); ++i_x, ++i_y) {
+		typename Iterator::word_type word = *i_x;
+		*i_x = *i_y;
+		*i_y = word;
+	}
+}
+
+} // namespace std
+
 #endif // __VECTOR_BIT_SUBVECTOR_H
 
 // Local Variables:

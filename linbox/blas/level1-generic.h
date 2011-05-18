@@ -71,7 +71,8 @@ Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 
 
 template <class Field, class Vector1, class Vector2>
 Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+	{ y.assign (x.begin (), x.end ()); return y; }
 
 template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,

@@ -87,7 +87,7 @@ int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start
 {
 	typename SparseMatrix::ConstRowIterator i;
 
-	size_t min_nonzero = (size_t) -1, pivot = -1, k = start_row, s;
+	size_t min_nonzero = (size_t) -1, pivot = -1, k = start_row;
 	col = A.coldim ();
 
 	for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
@@ -97,8 +97,8 @@ int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start
 				min_nonzero = i->size ();
 				pivot = k;
 			}
-			else if (i->front ().first == col && (s = i->size ()) < min_nonzero) {
-				min_nonzero = s;
+			else if (i->front ().first == col && i->size () < min_nonzero) {
+				min_nonzero = i->size ();
 				pivot = k;
 			}
 		}
@@ -992,7 +992,7 @@ void GaussJordan<Field, Modules>::StandardRowEchelonForm (Matrix1       &A,
 		TIMER_START(Permute);
 		if (k != pivot) {
 			// DEBUG
-			// report << "Permuting " << k << " and " << pivot << std::endl;
+			// report << "Permuting " << k << " and " << pivot << " (first " << k - start_row << " columns)" << std::endl;
 			// report << "L before permutation:" << std::endl;
 			// BLAS3::write (ctx, report, L);
 

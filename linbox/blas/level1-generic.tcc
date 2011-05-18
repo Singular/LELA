@@ -124,15 +124,6 @@ Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 
 }
 
 template <class Field, class Vector1, class Vector2>
-Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
-{
-	y.clear ();
-	y.insert (y.begin (), x.begin (), x.end ());
-	return y;
-}
-
-template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
@@ -188,33 +179,33 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 {
 	Vector2 tmp;
 
-	typename Vector2::const_iterator i;
-	typename Vector1::const_iterator j;
+	typename Vector1::const_iterator i;
+	typename Vector2::const_iterator j;
 	typename Field::Element c;
 
-	for (j = x.begin (), i = y.begin (); j != x.end (); j++) {
-		while (i != y.end () && i->first < j->first) {
-			tmp.push_back (*i);
-			i++;
+	for (i = x.begin (), j = y.begin (); i != x.end (); i++) {
+		while (j != y.end () && j->first < i->first) {
+			tmp.push_back (*j);
+			j++;
 		}
 
-		if (i != y.end () && i->first == j->first) {
-			F.axpy (c, a, j->second, i->second);
-			i++;
+		if (j != y.end () && i->first == j->first) {
+			F.axpy (c, a, i->second, j->second);
+			j++;
 		}
 		else
-			F.mul (c, a, j->second);
+			F.mul (c, a, i->second);
 
 		if (!F.isZero (c))
-			tmp.push_back (typename SparseVector<typename Field::Element>::value_type (j->first, c));
+			tmp.push_back (typename Vector2::value_type (i->first, c));
 	}
 
-	while (i != y.end ()) {
-		tmp.push_back (*i);
-		i++;
+	while (j != y.end ()) {
+		tmp.push_back (*j);
+		j++;
 	}
 
-	std::swap (y, tmp);
+	std::swap (tmp, y);
 
 	return y;
 }

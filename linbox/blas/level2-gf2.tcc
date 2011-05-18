@@ -149,6 +149,8 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
 
+	linbox_check (end_idx <= A.coldim ());
+
 	typename Matrix::ConstColIterator i_A, i_A_end = A.colBegin () + end_idx;
 	typename Vector1::const_iterator i_x;
 
@@ -180,6 +182,8 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
 
+	linbox_check (end_idx <= A.coldim ());
+
 	for (; i_x != x.end () && *i_x < end_idx; ++i_x)
 		BLAS1::_axpy (F, M, true, *(A.colBegin () + *i_x), y);
 
@@ -210,6 +214,8 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
+
+	linbox_check (end_idx <= A.coldim ());
 
 	i_x = std::lower_bound (x.begin (), x.end (), start_idx >> WordTraits<typename Vector1::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
 
