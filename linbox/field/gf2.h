@@ -22,7 +22,12 @@
 #include "linbox/field/field-interface.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/hybrid.h"
+#include "linbox/vector/sparse-subvector-hybrid.h"
 #include "linbox/field/field-traits.h"
+
+#ifdef __LINBOX_HAVE_M4RI
+#  include "linbox/matrix/m4ri-matrix.h"
+#endif
 
 // Namespace in which all LinBox code resides
 namespace LinBox 
@@ -618,18 +623,6 @@ struct RawVector<bool>
 	typedef std::vector<uint32> Sparse;
 	typedef HybridVector<BigEndian<uint64>, uint16, uint64> Hybrid;
 };
-
-} // namespace LinBox
-
-#include "linbox/vector/vector-domain-gf2.h"
-#include "linbox/matrix/matrix-domain-gf2.h"
-
-#ifdef __LINBOX_HAVE_M4RI
-#  include "linbox/matrix/m4ri-matrix.h"
-#endif
-
-namespace LinBox
-{
 
 // Calculation-modules
 

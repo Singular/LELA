@@ -26,14 +26,14 @@
 #include <cmath>
 
 #include "linbox/integer.h"
+#include "linbox/util/debug.h"
 #include "linbox/blas/context.h"
-#include "linbox/vector/vector-domain.h"
-#include "linbox/matrix/matrix-domain.h"
 #include "linbox/field/field-interface.h"
 #include "linbox/util/field-axpy.h"
 #include "linbox/vector/vector-traits.h"
 #include "linbox/linbox-config.h"
-#include <linbox/field/field-traits.h>
+#include "linbox/field/field-traits.h"
+#include "linbox/randiter/nonzero.h"
 
 namespace LinBox 
 {

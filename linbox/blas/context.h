@@ -66,12 +66,10 @@ public:
 /// @name Enumerations used in arithmetic operations
 //@{
 
-#if 0
 /** Upper versus lower triangular matrices, for trmv, trsv, trmm, trsm */
 enum TriangularMatrixType {
 	UpperTriangular, LowerTriangular
 };
-#endif
 
 /** Whether a matrix is on the left or the right side, for trmv, trsv, trmm, trsm, and permute */
 enum MatrixSide {

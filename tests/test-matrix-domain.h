@@ -32,6 +32,8 @@
 using namespace std;
 using namespace LinBox;
 
+typedef std::vector<std::pair<uint32, uint32> > Permutation;
+
 class SingularMatrix {};
 
 template <class Matrix>
@@ -1250,7 +1252,7 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 
 	MersenneTwister MT (time (NULL));
 
-	typename MatrixDomain<Field>::Permutation P, Pinv;
+	Permutation P, Pinv;
 
 	// Create a random row permutation
 	for (unsigned int i = 0; i < M.rowdim (); ++i) {
@@ -1261,7 +1263,7 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 			row2 = MT.randomInt () % M.rowdim ();
 		} while (row1 == row2);
 
-		P.push_back (typename MatrixDomain<Field>::Transposition (row1, row2));
+		P.push_back (Permutation::value_type (row1, row2));
 	}
 
 	// Construct the inverse of this transposition
@@ -1308,7 +1310,7 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 			col2 = MT.randomInt () % M.coldim ();
 		} while (col1 == col2);
 
-		P.push_back (typename MatrixDomain<Field>::Transposition (col1, col2));
+		P.push_back (Permutation::value_type (col1, col2));
 	}
 
 	// Construct the inverse of this transposition

@@ -6,8 +6,10 @@
  * See COPYING for license information.
  */
 
-#include "linbox/field/modular.h"
 #include "linbox/field/gf2.h"
+#include "linbox/field/modular.h"
+#include "linbox/blas/context.h"
+#include "linbox/blas/level3.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
 #include "linbox/matrix/dense-zero-one.h"
@@ -26,11 +28,11 @@ bool runAllTests (const Field &F, const char *text, Matrix &M, size_t n, size_t 
 
 	bool pass = true;
 
-	MatrixDomain<Field> MD (F);
+	Context<Field> ctx (F);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 	pass = testRowdimColdim (F, M, n, m) && pass;
 	pass = testRowColIterator (F, M) && pass;
@@ -54,11 +56,11 @@ bool runDenseTests (const Field &F, const char *text, const Matrix &M, size_t n,
 
 	bool pass = true;
 
-	MatrixDomain<Field> MD (F);
+	Context<Field> ctx (F);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << std::endl;
-	MD.write (report, M);
+	BLAS3::write (ctx, report, M);
 
 	pass = testRowdimColdim (F, M, n, m) && pass;
 	pass = testRowColIterator (F, M) && pass;

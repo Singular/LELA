@@ -21,11 +21,6 @@ BASIC_HDRS =			\
 	sparse-zero-one.tcc	\
 	m4ri-matrix.h		\
 	submatrix.h		\
-	matrix-domain.h		\
-	matrix-domain.tcc	\
-	matrix-domain-gf2.h	\
-	matrix-domain-gf2.tcc	\
-	matrix-domain-m4ri.h	\
 	blas-matrix.h		\
 	factorized-matrix.h	\
 	factorized-matrix.inl	

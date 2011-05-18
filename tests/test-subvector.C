@@ -23,6 +23,8 @@
 
 #include "linbox/util/commentator.h"
 #include "linbox/field/unparametric.h"
+#include "linbox/blas/context.h"
+#include "linbox/blas/level1.h"
 #include "linbox/vector/subvector.h"
 
 #include "test-common.h"
@@ -87,12 +89,12 @@ static bool testSubvector(Field &F, size_t n)
 	typedef typename Subvect::reverse_iterator	ReverseIterator;
 	typedef typename Subvect::reverse_iterator	ReverseSubiterator;
 
-	VectorDomain<Field> VD (F);
+	Context<Field> ctx (F);
 
 	Vector v(n);
 	for (size_t z = 0; z < n; z++) v[z] = z;
 
-	VD.write (report, v);
+	BLAS1::write (ctx, report, v);
 
 	int start = 1;
 	int stride = 2;
@@ -256,7 +258,7 @@ static bool testSubvector(Field &F, size_t n)
 	report << "w.empty() = false = " << w.empty() << endl;
 	ret = ret && !w.empty();
 
-	VD.write (report, w);
+	BLAS1::write (ctx, report, w);
 
 	report << "Printing using operator[]: (";
 	for (unsigned long i = 0; i < w.size(); i++)
@@ -281,11 +283,11 @@ static bool testSubvector(Field &F, size_t n)
 	Subvect ww(vv, 0, 1, 3);
 	//vector<int> ww(3, 77);
 	w = ww;
-	VD.write (report, ww);
+	BLAS1::write (ctx, report, ww);
 #if 0
 	report << "Constructing subvector from iterators: ";
 	Subvect www(w.begin(), w.end());
-	VD.write (report, www);
+	BLAS1::write (ctx, report, www);
 #endif
 
 	// finish

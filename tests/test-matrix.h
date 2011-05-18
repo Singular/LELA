@@ -13,6 +13,8 @@
 #include <sstream>
 
 #include "linbox/util/commentator.h"
+#include "linbox/blas/context.h"
+#include "linbox/blas/level3.h"
 #include "linbox/matrix/submatrix.h"
 #include "linbox/matrix/transpose.h"
 
@@ -29,8 +31,6 @@ bool testRowIterator (const Field &F, const Matrix &M)
 	commentator.start ("Testing RowIterator", __FUNCTION__);
 
 	bool pass = true;
-
-	MatrixDomain<Field> MD (F);
 
 	typename Matrix::ConstRowIterator i_M;
 	size_t i, j;
@@ -87,8 +87,6 @@ bool testColIterator (const Field &F, const Matrix &M)
 
 	bool pass = true;
 
-	MatrixDomain<Field> MD (F);
-	
 	typename Matrix::ConstColIterator j_M;
 	size_t i, j;
 
@@ -177,11 +175,11 @@ bool testGetSetEntry (const Field &F, const Matrix &M)
 
 	bool pass = true;
 
-	MatrixDomain<Field> MD (F);
-
 	Matrix M1 (M.rowdim (), M.coldim ());
 
-	MD.copy (M1, M);
+	Context<Field> ctx (F);
+
+	BLAS3::copy (ctx, M, M1);
 
 	NonzeroRandIter <Field> r (F, typename Field::RandIter (F));
 	typename Field::Element a, b;
@@ -229,11 +227,11 @@ bool testSetEraseEntry (const Field &F, const Matrix &M)
 
 	bool pass = true;
 
-	MatrixDomain<Field> MD (F);
-
 	Matrix M1 (M.rowdim (), M.coldim ());
 
-	MD.copy (M1, M);
+	Context<Field> ctx (F);
+
+	BLAS3::copy (ctx, M, M1);
 
 	NonzeroRandIter <Field> r (F, typename Field::RandIter (F));
 	typename Field::Element a, b;
@@ -257,11 +255,11 @@ bool testSetEraseEntry (const Field &F, const Matrix &M)
 		}
 	}
 
-	if (!MD.isZero (M1)) {
+	if (!BLAS3::is_zero (ctx, M1)) {
 		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 		error << "ERROR: MatrixDomain reports that M is not zero" << std::endl;
 		error << "State of M:" << std::endl;
-		MD.write (error, M1);
+		BLAS3::write (ctx, error, M1);
 	}
 
 	commentator.stop (MSG_STATUS (pass), (const char *) 0, __FUNCTION__);
@@ -307,8 +305,6 @@ bool testRawIterator (const Field &F, const Matrix &M)
 	commentator.start ("Testing RawIterator, RawIndexedIterator", __FUNCTION__);
 
 	bool pass = true;
-
-	MatrixDomain<Field> MD (F);
 
 	typename Matrix::ConstRawIterator i_elt;
 	typename Matrix::ConstRawIndexedIterator i_idx;
@@ -386,12 +382,12 @@ bool testSubmatrixDim (const Field &F, Matrix &M, size_t row_begin, size_t col_b
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 
-	MatrixDomain<Field> MD (F);
-
 	Submatrix<Matrix> Mp (M, row_begin, col_begin, rowdim, coldim);
 
+	Context<Field> ctx (F);
+
 	report << "Submatrix:" << std::endl;
-	MD.write (report, Mp);
+	BLAS3::write (ctx, report, Mp);
 
 	if (Mp.startRow () != row_begin) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)

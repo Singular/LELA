@@ -9,12 +9,13 @@
 
 #include "linbox/util/splicer.h"
 #include "linbox/util/commentator.h"
-#include "linbox/vector/vector-domain.h"
+#include "linbox/util/debug.h"
+#include "linbox/blas/context.h"
+#include "linbox/blas/level1.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/bit-subvector.h"
 #include "linbox/vector/sparse-subvector.h"
 #include "linbox/matrix/submatrix.h"
-#include "linbox/matrix/matrix-domain.h"
 
 namespace LinBox
 {
@@ -56,15 +57,15 @@ template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const
 {
-	VectorDomain<Field> VD (F);
-
 	typedef BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> DestSubvector;
 	typedef BitSubvector<typename Vector2::const_iterator, typename Vector2::const_iterator> SourceSubvector;
 
 	SourceSubvector v1 (in.begin () + src_idx, in.begin () + (src_idx + size));
 	DestSubvector v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
-	VD.copy (v2, v1);
+	Context<Field> ctx (F);
+
+	BLAS1::copy (ctx, v1, v2);
 }
 
 template <class Field, class Vector1, class Vector2>
@@ -114,12 +115,12 @@ template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const
 {
-	VectorDomain<Field> VD (F);
-
 	SparseSubvector<Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
-	VD.copy (v2, v1);
+	Context<Field> ctx (F);
+
+	BLAS1::copy (ctx, v1, v2);
 }
 
 template <class Field, class Vector1, class Vector2>
@@ -139,8 +140,6 @@ template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const
 {
-	VectorDomain<Field> VD (F);
-
 	typedef BitVector<typename Vector1::Endianness> TmpVector;
 	typedef BitSubvector<typename TmpVector::iterator, typename TmpVector::const_iterator> TmpSubvector;
 	typedef BitSubvector<typename Vector2::const_iterator, typename Vector2::const_iterator> ConstTmpSubvector;
@@ -151,7 +150,9 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 	ConstTmpSubvector v1 (in.begin () + src_idx, in.begin () + (src_idx + size));
 	TmpSubvector v2 (tmp.begin () + dest_idx_offset, tmp.begin () + (dest_idx_offset + size));
 
-	VD.copy (v2, v1);
+	Context<Field> ctx (F);
+
+	BLAS1::copy (ctx, v1, v2);
 
 	typename TmpVector::word_iterator i = tmp.wordBegin ();
 	size_t idx = dest_idx >> WordTraits<typename Vector1::word_type>::logof_size;
@@ -171,12 +172,12 @@ template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const
 {
-	VectorDomain<Field> VD (F);
-
 	SparseSubvector<Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
-	VD.copy (v2, v1);
+	Context<Field> ctx (F);
+
+	BLAS1::copy (ctx, v1, v2);
 }
 
 template <class Field, class Matrix>

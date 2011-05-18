@@ -14,6 +14,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/vector/vector-traits.h"
+#include "linbox/matrix/matrix-traits.h"
 
 namespace LinBox
 {

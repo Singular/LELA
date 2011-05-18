@@ -14,7 +14,8 @@
 #include "test-common.h"
 
 #include "linbox/field/gf2.h"
-#include "linbox/vector/vector-domain.h"
+#include "linbox/blas/context.h"
+#include "linbox/blas/level1.h"
 #include "linbox/vector/sparse-subvector-hybrid.h"
 
 using namespace LinBox;
@@ -23,7 +24,7 @@ typedef GF2 Field;
 
 bool testAdd ()
 {
-	commentator.start ("Testing VD.add", __FUNCTION__);
+	commentator.start ("Testing BLAS1::axpy", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -31,7 +32,7 @@ bool testAdd ()
 	bool pass = true;
 
 	Field F (2);
-	VectorDomain<Field> VD (F);
+	Context<Field> ctx (F);
 
 	Vector<GF2>::Hybrid u, v, w, t;
 
@@ -44,19 +45,20 @@ bool testAdd ()
 	v.push_back (Vector<GF2>::Hybrid::value_type (0, 1 | (1 << 1)));
 	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1 << 1));
 
-	VD.add (w, u, v);
+	BLAS1::copy (ctx, u, w);
+	BLAS1::axpy (ctx, F.one (), v, w);
 
 	report << "Test 1:" << std::endl;
 	report << "    u = ";
-	VD.write (report, u) << std::endl;
+	BLAS1::write (ctx, report, u) << std::endl;
 	report << "    v = ";
-	VD.write (report, v) << std::endl;
+	BLAS1::write (ctx, report, v) << std::endl;
 	report << "u + v = ";
-	VD.write (report, w) << std::endl;
+	BLAS1::write (ctx, report, w) << std::endl;
 	report << "    t = ";
-	VD.write (report, t) << std::endl;
+	BLAS1::write (ctx, report, t) << std::endl;
 
-	if (!VD.areEqual (w, t)) {
+	if (!BLAS1::equal (ctx, w, t)) {
 		error << "ERROR (Test 1): VectorDomain reports u + v != t" << std::endl;
 		pass = false;
 	}
@@ -71,19 +73,20 @@ bool testAdd ()
 	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 	t.push_back (Vector<GF2>::Hybrid::value_type (1, 1));
 
-	VD.add (w, u, v);
+	BLAS1::copy (ctx, u, w);
+	BLAS1::axpy (ctx, F.one (), v, w);
 
 	report << "Test 2:" << std::endl;
 	report << "    u = ";
-	VD.write (report, u) << std::endl;
+	BLAS1::write (ctx, report, u) << std::endl;
 	report << "    v = ";
-	VD.write (report, v) << std::endl;
+	BLAS1::write (ctx, report, v) << std::endl;
 	report << "u + v = ";
-	VD.write (report, w) << std::endl;
+	BLAS1::write (ctx, report, w) << std::endl;
 	report << "    t = ";
-	VD.write (report, t) << std::endl;
+	BLAS1::write (ctx, report, t) << std::endl;
 
-	if (!VD.areEqual (w, t)) {
+	if (!BLAS1::equal (ctx, w, t)) {
 		error << "ERROR (Test 2): VectorDomain reports u + v != t" << std::endl;
 		pass = false;
 	}
@@ -98,19 +101,20 @@ bool testAdd ()
 	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 	t.push_back (Vector<GF2>::Hybrid::value_type (1, 1));
 
-	VD.add (w, u, v);
+	BLAS1::copy (ctx, u, w);
+	BLAS1::axpy (ctx, F.one (), v, w);
 
 	report << "Test 3:" << std::endl;
 	report << "    u = ";
-	VD.write (report, u) << std::endl;
+	BLAS1::write (ctx, report, u) << std::endl;
 	report << "    v = ";
-	VD.write (report, v) << std::endl;
+	BLAS1::write (ctx, report, v) << std::endl;
 	report << "u + v = ";
-	VD.write (report, w) << std::endl;
+	BLAS1::write (ctx, report, w) << std::endl;
 	report << "    t = ";
-	VD.write (report, t) << std::endl;
+	BLAS1::write (ctx, report, t) << std::endl;
 
-	if (!VD.areEqual (w, t)) {
+	if (!BLAS1::equal (ctx, w, t)) {
 		error << "ERROR (Test 3): VectorDomain reports u + v != t" << std::endl;
 		pass = false;
 	}
@@ -123,19 +127,20 @@ bool testAdd ()
 	v.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 
-	VD.add (w, u, v);
+	BLAS1::copy (ctx, u, w);
+	BLAS1::axpy (ctx, F.one (), v, w);
 
 	report << "Test 4:" << std::endl;
 	report << "    u = ";
-	VD.write (report, u) << std::endl;
+	BLAS1::write (ctx, report, u) << std::endl;
 	report << "    v = ";
-	VD.write (report, v) << std::endl;
+	BLAS1::write (ctx, report, v) << std::endl;
 	report << "u + v = ";
-	VD.write (report, w) << std::endl;
+	BLAS1::write (ctx, report, w) << std::endl;
 	report << "    t = ";
-	VD.write (report, t) << std::endl;
+	BLAS1::write (ctx, report, t) << std::endl;
 
-	if (!VD.areEqual (w, t)) {
+	if (!BLAS1::equal (ctx, w, t)) {
 		error << "ERROR (Test 4): VectorDomain reports u + v != t" << std::endl;
 		pass = false;
 	}
@@ -148,19 +153,20 @@ bool testAdd ()
 	u.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 	t.push_back (Vector<GF2>::Hybrid::value_type (0, 1));
 
-	VD.add (w, u, v);
+	BLAS1::copy (ctx, u, w);
+	BLAS1::axpy (ctx, F.one (), v, w);
 
 	report << "Test 5:" << std::endl;
 	report << "    u = ";
-	VD.write (report, u) << std::endl;
+	BLAS1::write (ctx, report, u) << std::endl;
 	report << "    v = ";
-	VD.write (report, v) << std::endl;
+	BLAS1::write (ctx, report, v) << std::endl;
 	report << "u + v = ";
-	VD.write (report, w) << std::endl;
+	BLAS1::write (ctx, report, w) << std::endl;
 	report << "    t = ";
-	VD.write (report, t) << std::endl;
+	BLAS1::write (ctx, report, t) << std::endl;
 
-	if (!VD.areEqual (w, t)) {
+	if (!BLAS1::equal (ctx, w, t)) {
 		error << "ERROR (Test 5): VectorDomain reports u + v != t" << std::endl;
 		pass = false;
 	}
@@ -178,19 +184,20 @@ bool testAdd ()
 
 	t.push_back (Vector<GF2>::Hybrid::value_type (0, 2 | 4));
 
-	VD.add (w, u, v);
+	BLAS1::copy (ctx, u, w);
+	BLAS1::axpy (ctx, F.one (), v, w);
 
 	report << "Test 6:" << std::endl;
 	report << "    u = ";
-	VD.write (report, u) << std::endl;
+	BLAS1::write (ctx, report, u) << std::endl;
 	report << "    v = ";
-	VD.write (report, v) << std::endl;
+	BLAS1::write (ctx, report, v) << std::endl;
 	report << "u + v = ";
-	VD.write (report, w) << std::endl;
+	BLAS1::write (ctx, report, w) << std::endl;
 	report << "    t = ";
-	VD.write (report, t) << std::endl;
+	BLAS1::write (ctx, report, t) << std::endl;
 
-	if (!VD.areEqual (w, t)) {
+	if (!BLAS1::equal (ctx, w, t)) {
 		error << "ERROR (Test 6): VectorDomain reports u + v != t" << std::endl;
 		pass = false;
 	}
@@ -202,14 +209,14 @@ bool testAdd ()
 
 bool testFirstNonzeroEntry ()
 {
-	commentator.start ("Testing VD.firstNonzeroEntry", __FUNCTION__);
+	commentator.start ("Testing BLAS1::head", __FUNCTION__);
 
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 
 	bool pass = true;
 
 	Field F (2);
-	VectorDomain<Field> VD (F);
+	Context<Field> ctx (F);
 
 	bool a;
 
@@ -219,10 +226,10 @@ bool testFirstNonzeroEntry ()
 
 	v.push_back (Vector<GF2>::Hybrid::value_type (2, Vector<GF2>::Hybrid::Endianness::e_j (0)));
 
-	idx = VD.firstNonzeroEntry (a, v);
+	idx = BLAS1::head (ctx, a, v);
 
 	if (idx != 2 * WordTraits<Vector<GF2>::Hybrid::word_type>::bits) {
-		error << "ERROR (Test 1): VD.firstNonzeroEntry (a, v) = " << idx
+		error << "ERROR (Test 1): BLAS1::head (ctx, a, v) = " << idx
 		      << " (should be " << 2 * 8 * sizeof (Vector<GF2>::Hybrid::word_type) << ")" << std::endl;
 		pass = false;
 	}
@@ -231,10 +238,10 @@ bool testFirstNonzeroEntry ()
 
 	v.push_back (Vector<GF2>::Hybrid::value_type (2, Vector<GF2>::Hybrid::Endianness::e_j (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 2)));
 
-	idx = VD.firstNonzeroEntry (a, v);
+	idx = BLAS1::head (ctx, a, v);
 
 	if (idx != 5 * WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 2) {
-		error << "ERROR (Test 2): VD.firstNonzeroEntry (a, v) = " << idx
+		error << "ERROR (Test 2): BLAS1::head (ctx, a, v) = " << idx
 		      << " (should be " << 2 * 8 * sizeof (Vector<GF2>::Hybrid::word_type) + 16 << ")" << std::endl;
 		pass = false;
 	}
@@ -243,10 +250,10 @@ bool testFirstNonzeroEntry ()
 
 	v.push_back (Vector<GF2>::Hybrid::value_type (3, Vector<GF2>::Hybrid::Endianness::e_j (WordTraits<Vector<GF2>::Hybrid::word_type>::bits - 1)));
 
-	idx = VD.firstNonzeroEntry (a, v);
+	idx = BLAS1::head (ctx, a, v);
 
 	if (idx != 3 * WordTraits<Vector<GF2>::Hybrid::word_type>::bits + (WordTraits<Vector<GF2>::Hybrid::word_type>::bits - 1)) {
-		error << "ERROR (Test 3): VD.firstNonzeroEntry (a, v) = " << idx
+		error << "ERROR (Test 3): BLAS1::head (ctx, a, v) = " << idx
 		      << " (should be " << 3 * 8 * sizeof (Vector<GF2>::Hybrid::word_type) + (8 * sizeof (Vector<GF2>::Hybrid::word_type) - 1) << ")" << std::endl;
 		pass = false;
 	}

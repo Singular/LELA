@@ -11,6 +11,7 @@
  */
 
 #include "linbox/util/commentator.h"
+#include "linbox/blas/context.h"
 #include "linbox/field/gf2.h"
 #include "linbox/field/modular.h"
 #include "linbox/matrix/dense.h"
@@ -42,7 +43,7 @@ void runBenchmarks (const Field &F)
 {
 	typedef typename Field::Element Element;
 
-	MatrixDomain<Field> MD (F);
+	Context<Field> ctx (F);
 
 	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 	typename Field::Element a;
@@ -58,7 +59,7 @@ void runBenchmarks (const Field &F)
 		DenseMatrix<Element> M2 (stream2);
 
 		commentator.start ("gemm (dense)", "gemm");
-		MD.gemm (a, M1, M2, F.zero (), C);
+		BLAS3::gemm (ctx, a, M1, M2, F.zero (), C);
 		commentator.stop ("done");
 	}
 
@@ -78,26 +79,26 @@ void runBenchmarks (const Field &F)
 		M2.transpose (M2Tp);
 
 		commentator.start ("gemm (SparseVector)", "gemm");
-		MD.gemm (a, M1, M2Tp, F.zero (), D1);
+		BLAS3::gemm (ctx, a, M1, M2Tp, F.zero (), D1);
 		commentator.stop ("done");
 
 		commentator.start ("gemm (SparseVector transpose)", "gemm");
-		MD.gemm (a, M1, M2T, F.zero (), D);
+		BLAS3::gemm (ctx, a, M1, M2T, F.zero (), D);
 		commentator.stop ("done");
 
 		report << "Origial M2^T:" << std::endl;
-		MD.write (report, M2T);
+		BLAS3::write (ctx, report, M2T);
 
 		report << "Copy of M2^T:" << std::endl;
-		MD.write (report, M2Tp);
+		BLAS3::write (ctx, report, M2Tp);
 
 		report << "Original product:" << std::endl;
-		MD.write (report, D1);
+		BLAS3::write (ctx, report, D1);
 
 		report << "Check product:" << std::endl;
-		MD.write (report, D);
+		BLAS3::write (ctx, report, D);
 
-		if (!MD.areEqual (D, D1))
+		if (!BLAS3::equal (ctx, D, D1))
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "Products are not equal!" << std::endl;
 	}

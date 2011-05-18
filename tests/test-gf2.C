@@ -23,10 +23,10 @@
 
 #include "linbox/field/gf2.h"
 #include "linbox/field/modular.h"
+#include "linbox/blas/context.h"
 
 #include "test-generic-for-quad.h"
-// #include "test-generic.h"
-// #include "test-vector-domain.h"
+#include "test-vector-domain.h"
 
 using namespace LinBox;
 using LinBox::uint16;
@@ -43,14 +43,14 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	Vector<GF2>::Dense v1, v2;
 
 	Modular<uint16> MF (2);
-	VectorDomain<Modular<uint16> > MF_VD (MF);
 
 	LinBox::Vector<Modular<uint16> >::Dense w1 (stream1.dim ()), w2 (stream1.dim ());
 
 	uint16 sigma;
 	bool rho;
 
-	LinBox::VectorDomain<GF2> VD (F);
+	Context<GF2> ctx (F);
+	Context<Modular<uint16> > ctx_MF (MF);
 
 	v1.resize (stream1.dim ());
 	v2.resize (stream2.dim ());
@@ -85,17 +85,17 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1:  ";
-		VD.write (report, v1) << std::endl;
+		BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Input vector 2:  ";
-		VD.write (report, v2) << std::endl;
+		BLAS1::write (ctx, report, v2) << std::endl;
 
 		timer.start ();
-		VD.dot (rho, v1, v2);
+		BLAS1::dot (ctx, rho, v1, v2);
 		timer.stop ();
 		totaltime += timer.realtime ();
 
-		MF_VD.dot (sigma, w1, w2);
+		BLAS1::dot (ctx_MF, sigma, w1, w2);
 		sigma &= 1;
 
 		report << "True dot product: ";
@@ -137,7 +137,6 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	Vector<GF2>::Sparse v2;
 
 	Modular<uint16> MF (2);
-	VectorDomain<Modular<uint16> > MF_VD (MF);
 
 	LinBox::Vector<Modular<uint16> >::Dense w1 (stream1.dim ());
 	LinBox::Vector<Modular<uint16> >::Sparse w2;
@@ -145,7 +144,8 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 	uint16 sigma;
 	bool rho;
 
-	LinBox::VectorDomain<GF2> VD (F);
+	Context<GF2> ctx (F);
+	Context<Modular<uint16> > ctx_MF (MF);
 
 	v1.resize (stream1.dim ());
 
@@ -177,17 +177,17 @@ static bool testDotProductGF2 (const GF2 &F, const char *, //desc,
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1:  ";
-		VD.write (report, v1) << std::endl;
+		BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Input vector 2:  ";
-		VD.write (report, v2) << std::endl;
+		BLAS1::write (ctx, report, v2) << std::endl;
 
 		timer.start ();
-		VD.dot (rho, v1, v2);
+		BLAS1::dot (ctx, rho, v1, v2);
 		timer.stop ();
 		totaltime += timer.realtime ();
 
-		MF_VD.dot (sigma, w1, w2);
+		BLAS1::dot (ctx_MF, sigma, w1, w2);
 		sigma &= 1;
 
 		report << "True dot product: ";
@@ -271,19 +271,18 @@ int main (int argc, char **argv)
 	if (!testDotProductGF2 (F, "dense/dense", stream1, stream2)) pass = false;
 	if (!testDotProductGF2 (F, "dense/sparse", stream1, stream3)) pass = false;
 
-	if (!testAddMul (F, "dense", stream1, stream2)) pass = false;
-	if (!testAddMul (F, "sparse", stream3, stream4)) pass = false;
+	Context<GF2> ctx (F);
 
-	if (!testSubMul (F, "dense", stream1, stream2)) pass = false;
-	if (!testSubMul (F, "sparse", stream3, stream4)) pass = false;
+	if (!testScal (ctx, "dense", stream1)) pass = false;
+	if (!testScal (ctx, "sparse", stream3)) pass = false;
 
-	if (!testAXPY (F, "dense", stream1, stream2)) pass = false;
-	if (!testAXPY (F, "sparse", stream3, stream4)) pass = false;
+	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;
+	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;
 
-	if (!testCopyEqual (F, "dense/dense", stream1, stream2)) pass = false;
-	if (!testCopyEqual (F, "dense/sparse", stream1, stream3)) pass = false;
-	if (!testCopyEqual (F, "sparse/dense", stream3, stream1)) pass = false;
-	if (!testCopyEqual (F, "sparse/sparse", stream3, stream4)) pass = false;
+	if (!testCopyEqual (ctx, "dense/dense", stream1, stream2)) pass = false;
+	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream3)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream1)) pass = false;
+	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream4)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass), (const char *) 0, "main");
 

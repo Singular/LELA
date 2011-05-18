@@ -101,7 +101,6 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 
 	Context<Field> ctx (F);
 
-	MatrixDomain<Field> MD (F);
 	GaussJordan<Field> GJ (ctx);
 
 	typedef typename GaussJordan<Field>::SparseMatrix Matrix;

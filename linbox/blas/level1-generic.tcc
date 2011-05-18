@@ -11,6 +11,7 @@
 #define __BLAS_LEVEL1_GENERIC_TCC
 
 #include "linbox/blas/level1-generic.h"
+#include "linbox/util/debug.h"
 
 namespace LinBox
 {
