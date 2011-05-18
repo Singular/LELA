@@ -22,21 +22,21 @@
 #include "linbox/field/gf2.h"
 #include "linbox/util/commentator.h"
 #include "linbox/matrix/m4ri-matrix.h"
-#include "linbox/matrix/matrix-domain-gf2.h"
-#include "linbox/vector/vector-domain-gf2.h"
+#include "linbox/blas/level1.h"
+#include "linbox/blas/level3.h"
 
 namespace LinBox
 {
 
 // Specialisation of EchelonForm to GF2 to take advantage of M4RI-routines
 template <>
-class EchelonForm<GF2>
+class EchelonForm<GF2, M4RIModule>
 {
-	const GF2 &_F;
-	GaussJordan<GF2> _GJ;
+	Context<GF2, M4RIModule> &_ctx;
+	GaussJordan<GF2, M4RIModule> _GJ;
 
 	DenseMatrix<bool> _L;
-	MatrixDomain<GF2>::Permutation _P;
+	GaussJordan<GF2, M4RIModule>::Permutation _P;
 
 	// Map pointers to matrices to computed ranks
 	std::map<const void *, size_t> _rank_table;
@@ -44,7 +44,7 @@ class EchelonForm<GF2>
 public:
 	enum Method { METHOD_STANDARD_GJ, METHOD_ASYMPTOTICALLY_FAST_GJ, METHOD_M4RI };
 
-	EchelonForm (const GF2 &F) : _F (F), _GJ (F) {}
+	EchelonForm (Context<GF2, M4RIModule> &ctx) : _ctx (ctx), _GJ (ctx) {}
 
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
@@ -113,10 +113,7 @@ public:
 			return _rank_table[&A];
 		else {
 			// Not computed yet, so we compute it ourselves. Assume matrix is in row-echelon form.
-			VectorDomain<GF2> VD (_F);
-			MatrixDomain<GF2> MD (_F);
-
-			if (MD.isZero (A)) {
+			if (BLAS3::is_zero (_ctx, A)) {
 				_rank_table[&A] = 0;
 				return 0;
 			}
@@ -125,7 +122,7 @@ public:
 
 			size_t r = A.rowdim ();
 
-			while (VD.isZero (*i)) {
+			while (BLAS1::is_zero (_ctx, *i)) {
 				--i; --r;
 			}
 

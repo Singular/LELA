@@ -1,4 +1,5 @@
-CXXFLAGS = -g -O2
+CXX = clang
+CXXFLAGS = -g -O0
 CPPFLAGS = -DDETAILED_PROFILE -DDEBUG
 INCLUDES = -I..
 LIBS = ../linbox/.libs/liblinbox.a -lgmp -lgivaro -lpng -lm4ri -Wl,-rpath,/usr/local/lib
@@ -14,10 +15,10 @@ test-solver.o: test-solver.C solver.h
 test-matrix-domain-gf2.o: test-matrix-domain-gf2.C
 
 %.o : %.C
-	g++ -c $(CXXFLAGS) $(INCLUDES) $(CPPFLAGS) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $(CPPFLAGS) $< -o $@
 
 % : %.o
-	g++ $(CXXFLAGS) $^ $(LIBS) -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
 clean:
 	rm -f $(TARGETS) *.o *.out *~

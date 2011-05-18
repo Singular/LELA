@@ -123,16 +123,16 @@ void smallTest () {
 	size_t rank;
 	Field::Element det;
 
-	MD.copy (C, A);
+	BLAS3::copy (ctx, A, C);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << std::endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	Solver.RowEchelonForm (A, A, rank, det);
 
 	report << "Output matrix:" << std::endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "Computed rank: " << rank << std::endl
 	       << "Computed determinant: ";
@@ -144,11 +144,11 @@ void smallTest () {
 	GJ.StandardRowEchelonForm (C, L, P, rank1, det1, true, false);
 
 	report << "True reduced row-echelon form:" << std::endl;
-	MD.write (report, C);
+	BLAS3::write (ctx, report, C);
 
 	report << "True rank: " << rank1 << std::endl;
 
-	if (!MD.areEqual (A, C))
+	if (!BLAS3::equal (ctx, A, C))
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << "ERROR: Output-matrices are not equal!" << std::endl;
 	if (rank != rank1)
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << "ERROR: Computed ranks are not equal!" << std::endl;
@@ -191,7 +191,7 @@ void CheckHybridMatrix (const SparseMatrix &A)
 
 void fileTest (char *filename, char *output) {
 	Field F (2);
-	MatrixDomain<Field> MD (F);
+	Context<Field> ctx (F);
 
 	SparseMatrix A;
 
@@ -205,7 +205,7 @@ void fileTest (char *filename, char *output) {
 		return;
 	}
 
-	MD.read (ifile, A, FORMAT_PNG);
+	BLAS3::read (ctx, ifile, A, FORMAT_PNG);
 
 	size_t total = ComputeMemoryUsage (A);
 
@@ -214,7 +214,6 @@ void fileTest (char *filename, char *output) {
 
 	CheckHybridMatrix (A);
 
-	Context<Field> ctx (F);
 	F4Solver<Field> Solver (ctx);
 
 	size_t rank;
@@ -229,7 +228,7 @@ void fileTest (char *filename, char *output) {
 	CheckHybridMatrix (A);
 
 	std::ofstream f (output);
-	MD.write (f, A, FORMAT_PNG);
+	BLAS3::write (ctx, f, A, FORMAT_PNG);
 
 	commentator.stop ("done");
 }

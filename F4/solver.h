@@ -39,7 +39,7 @@ namespace F4 {
 	class F4Solver {
 	public:
 		typedef typename Field::Element Element;
-		typedef typename GaussJordan<Field>::Sparseatrix SparseMatrix;
+		typedef typename GaussJordan<Field>::SparseMatrix SparseMatrix;
 		typedef typename GaussJordan<Field>::DenseMatrix DenseMatrix;
 
 	private:
@@ -117,7 +117,7 @@ namespace F4 {
 					}
 				}
 
-				F.mulin (det, a);
+				ctx.F.mulin (det, a);
 			}
 
 			if (height > 0) {
@@ -207,7 +207,7 @@ namespace F4 {
 			MatrixPart<const SparseMatrix> X_sources_1[] = { MatrixPart<const SparseMatrix> (X) };
 			MatrixPart<const SparseMatrix> *X_sources[] = { X_sources_1 };
 
-			X_splicer.splice (F, X_sources, X_targets);
+			X_splicer.splice (ctx.F, X_sources, X_targets);
 
 			reportUI << "Matrix A:" << std::endl;
 			BLAS3::write (ctx, reportUI, A);
@@ -229,8 +229,8 @@ namespace F4 {
 
 			commentator.start ("Constructing D - C A^-1 B");
 
-			BLAS3::trsm (ctx, F.one (), A, B, UpperTriangular, true);
-			BLAS3::gemm (ctx, F.minusOne (), C, B, F.one (), D);
+			BLAS3::trsm (ctx, ctx.F.one (), A, B, UpperTriangular, true);
+			BLAS3::gemm (ctx, ctx.F.minusOne (), C, B, ctx.F.one (), D);
 
 			commentator.stop (MSG_DONE);
 
@@ -287,8 +287,8 @@ namespace F4 {
 			B_splicer.clearHorizontalBlocks ();
 			B_splicer.addHorizontalBlock (Block (0, 0, 0, 0, B.rowdim ()));
 
-			B_splicer.splice (F, B_sources, B_targets);
-			D_splicer.splice (F, D_sources, D_targets);
+			B_splicer.splice (ctx.F, B_sources, B_targets);
+			D_splicer.splice (ctx.F, D_sources, D_targets);
 
 			reportUI << "Matrix B1:" << std::endl;
 			BLAS3::write (ctx, reportUI, B1);
@@ -301,8 +301,8 @@ namespace F4 {
 
 			commentator.start ("Constructing B2 - B1 D1^-1 D2");
 
-			BLAS3::trsm (ctx, F.one (), D1, D2, UpperTriangular, true);			
-			BLAS3::gemm (ctx, F.minusOne (), B1, D2, F.one (), B2);
+			BLAS3::trsm (ctx, ctx.F.one (), D1, D2, UpperTriangular, true);			
+			BLAS3::gemm (ctx, ctx.F.minusOne (), B1, D2, ctx.F.one (), B2);
 
 			commentator.stop (MSG_DONE);
 
@@ -336,9 +336,9 @@ namespace F4 {
 			MatrixPart<SparseMatrix> R_targets_1[] = { MatrixPart<SparseMatrix> (R) };
 			MatrixPart<SparseMatrix> *R_targets[] = { R_targets_1 };
 
-			BLAS3::scal (ctx, F.zero (), R);
+			BLAS3::scal (ctx, ctx.F.zero (), R);
 
-			composed_splicer.splice (F, R_sources, R_targets);
+			composed_splicer.splice (ctx.F, R_sources, R_targets);
 
 			commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 		}

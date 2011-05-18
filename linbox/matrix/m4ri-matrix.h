@@ -30,10 +30,6 @@ namespace LinBox
 
 class MatrixDomainM4RI;
 
-// Forward declaration
-template <class Field>
-class EchelonForm;
-
 class M4RIMatrix;
 
 /** Wrapper for dense zero-one matrices in M4RI
@@ -266,7 +262,6 @@ class M4RIMatrixBase
 
 	friend class RowIteratorPT<word *, const word *, M4RIMatrixBase *>;
 	friend class RowIteratorPT<const word *, const word *, const M4RIMatrixBase *>;
-	friend class EchelonForm<GF2>;
 
 	M4RIMatrixBase (Rep rep) : _rep (rep) {}
 
@@ -323,7 +318,6 @@ private:
 
 	friend class Submatrix<M4RIMatrix>;
 	friend class Submatrix<const M4RIMatrix>;
-	friend class EchelonForm<GF2>;
 };
 
 template <class Submatrix>
