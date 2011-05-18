@@ -213,6 +213,9 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	return C;
 }
 
+template <class Field, class Modules, class Matrix>
+Matrix &_scal (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A);
+
 template <class Field, class Matrix1, class Matrix2>
 Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)

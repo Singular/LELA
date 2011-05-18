@@ -1098,12 +1098,10 @@ template <>
 class Modular<float> : public FieldInterface
 {
 
-protected:
+public:
 
 	float modulus;
 	unsigned long lmodulus;
-
-public:	       
 
 	typedef float Element;
 	typedef ModularRandIter<float> RandIter;
@@ -1397,7 +1395,6 @@ public:
 
 	typedef double Element;
 
-public:	       
 	typedef ModularRandIter<double> RandIter;
 	typedef NonzeroRandIter<Modular<double>, ModularRandIter<double> > NonZeroRandIter;
 
@@ -1670,7 +1667,7 @@ inline integer& Modular<integer>::init (integer& x, const double& y) const
 template <class Element>
 struct ZpModule : public GenericModule
 {
-	mutable std::vector<Element> _tmp;
+	mutable std::vector<uint64> _tmp;
 };
 
 template <>

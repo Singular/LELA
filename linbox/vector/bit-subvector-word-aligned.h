@@ -115,7 +115,7 @@ class BitSubvectorWordAligned
 		if (n < _bit_len)
 			return *iterator (_begin + n / WordTraits<word_type>::bits, n & WordTraits<word_type>::pos_mask);
 		else 
-			throw std::out_of_range(); //out of range error message.
+			throw std::out_of_range (std::string ("n"));
 	}
 
 	inline const_reference at (size_type n) const
@@ -123,7 +123,7 @@ class BitSubvectorWordAligned
 		if (n < _bit_len)
 			return *const_iterator (_begin + n / WordTraits<word_type>::bits, n & WordTraits<word_type>::pos_mask);
 		else 
-			throw std::out_of_range(); //out of range error message
+			throw std::out_of_range (std::string ("n"));
 	}
 
 	BitSubvectorWordAligned &operator = (const BitSubvectorWordAligned &sub)

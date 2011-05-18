@@ -33,10 +33,9 @@ Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
-	std::vector<uint32>::iterator l, l_end;
+	std::vector<uint64>::iterator l, l_end;
 
-	if (M._tmp.size () < y.size ())
-		M._tmp.resize (y.size ());
+	M._tmp.resize (y.size ());
 
 	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
 
@@ -52,7 +51,7 @@ Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
 
 		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), F._k);
 
-		for (l =M._tmp.begin (); l != l_end; ++l)
+		for (l = M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
 
 	} while (j_end != j_stop);
@@ -78,10 +77,9 @@ Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
-	std::vector<uint32>::iterator l, l_end;
+	std::vector<uint64>::iterator l, l_end;
 
-	if (M._tmp.size () < y.size ())
-		M._tmp.resize (y.size ());
+	M._tmp.resize (y.size ());
 
 	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
 
@@ -123,8 +121,6 @@ Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j = x.begin () + start_idx, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
-	// Dan Roche, 7-1-04
-	// std::vector<uint32>::iterator l, l_end;
 	std::vector<uint64>::iterator l, l_end;
 
 	if (M._tmp.size () < y.size ())
@@ -144,7 +140,7 @@ Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
 
 		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), F._k);
 
-		for (l =M._tmp.begin (); l != l_end; ++l)
+		for (l = M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
 
 	} while (j_end != j_stop);

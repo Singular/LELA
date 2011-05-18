@@ -611,7 +611,7 @@ class GF2 : public FieldInterface
 // Specialization of canonical vector types
 
 template <>
-class RawVector<bool>
+struct RawVector<bool>
 {
     public:
 	typedef BitVector<BigEndian<uint64> > Dense;
@@ -652,10 +652,10 @@ struct AllModules<GF2> : public GenericModule {};
 
 } // namespace LinBox
 
-#include "linbox/randiter/gf2.h"
-
 #include "linbox/blas/level1-gf2.h"
 #include "linbox/blas/level2-gf2.h"
+
+#include "linbox/randiter/gf2.h"
 
 #ifdef __LINBOX_HAVE_M4RI
 #  include "linbox/blas/level3-m4ri.h"

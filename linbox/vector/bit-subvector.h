@@ -104,7 +104,7 @@ class BitSubvector
 		if ( _begin <= p && p < _end ) 
 			return *p;
 		else 
-			throw std::out_of_range(); //out of range error message.
+			throw std::out_of_range (std::string ("n"));
 	}
 
 	inline const_reference at (size_type n) const
@@ -113,7 +113,7 @@ class BitSubvector
 		if ( _begin <= p && p < _end)
 			return *p;
 		else 
-			throw std::out_of_range(); //out of range error message
+			throw std::out_of_range (std::string ("n"));
 	}
 
 	BitSubvector &operator = (const BitSubvector &sub)

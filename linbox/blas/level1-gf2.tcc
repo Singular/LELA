@@ -334,12 +334,20 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 	return y;
 }
 
+template <class Vector>
+void fast_copy (const GF2 &F, GenericModule &M, HybridVector<typename Vector::Endianness, typename Vector::index_type, typename Vector::word_type> &v, Vector &w)
+	{ _copy (F, M, v, w); }
+
+template <class Endianness, class index_type, class word_type>
+void fast_copy (const GF2 &F, GenericModule &M, HybridVector<Endianness, index_type, word_type> &v, HybridVector<Endianness, index_type, word_type> &w)
+	{ std::swap (v, w); }
+
 template <class Vector1, class Vector2>
 Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	if (a) {
-		Vector2 res;
+		HybridVector<typename Vector2::Endianness, typename Vector2::index_type, typename Vector2::word_type> res;
 
 		typename Vector2::iterator i = y.begin ();
 		typename Vector1::const_iterator j = x.begin ();
@@ -362,7 +370,7 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 			}
 		}
 
-		std::swap (y, res);
+		fast_copy (F, M, res, y);
 	}
 
 	return y;
@@ -380,6 +388,9 @@ Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end
 
 	return v;
 }
+
+template <class Field, class Modules, class Iterator, class Vector>
+Vector &_permute (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v);
 
 template <class Modules, class Iterator, class Vector>
 Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::HybridZeroOneVectorTag)

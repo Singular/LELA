@@ -41,9 +41,6 @@ class Subvector //: public Vector // for types
     public:
 	// Types
 	typedef typename std::iterator_traits<Iterator>::value_type value_type;
-	// should allocator_type even be offered?
-	//include <memory>
-	//typedef allocator<value_type>	allocator_type;
 	typedef typename VectorCategories::DenseVectorTag VectorCategory;
     
 	typedef size_t                                              size_type;
@@ -182,48 +179,172 @@ class Subvector //: public Vector // for types
 	iterator _end;	 // a subiterator of wrapped vector
 	
 }; // template <class Vector> class Subvector
-  
-// Vector traits for Subvector wrapper
-template <typename Iterator, typename ConstIterator> 
-struct DefaultVectorTraits<Subvector<Iterator, ConstIterator> >
-{ 
-	typedef VectorCategories::DenseVectorTag VectorCategory; 
-};
-  
-  /*     Equality and unequality operators may be desirable, both for raw vectors of elements
-	 and for vectors over a field with non-unique element representations.   In the latter
-	 case a vector domain can provide it thru it's areEqual predicate.  The following
-	 thought makes the valid point that raw vector equality could easily be misused.  
-	 I remain agnostic on the subject.   -bds
 
- 	 These and also < type operator comparisons are inappropriate for use
-	 by linbox programmers, since we are interested in comparing vectors
-	 of field elements not vectors of underlying representation type.
-	 Not wishing to use these functions, we don't bother to implement them.
-	 template<class Iterator>
-	 bool operator==(const Subvector<Iterator>& sub1, const Subvector<Iterator>& sub2) const;
-	 
-	 template<class Iterator>
-	 bool operator!=(const Subvector<Iterator>& sub1, const Subvector<Iterator>& sub2) const;
-  */
+/** \brief Mutable subvector 
+ *
+ * This is a mutable version of @ref Subvector, providing operations
+ * which invalidate iterators. It is not available for const vectors.
+ */
+template <typename Vector> 
+class MutableSubvector
+{
+    public:
+	// Types
+	typedef typename VectorCategories::DenseVectorTag VectorCategory;
 
+	typedef size_t                                                   size_type;
+	typedef typename Vector::iterator                                iterator;
+	typedef typename Vector::const_iterator                          const_iterator;
+	typedef typename std::iterator_traits<iterator>::value_type      value_type;
+	typedef typename std::iterator_traits<iterator>::difference_type difference_type;
+	typedef typename std::iterator_traits<iterator>::pointer	 pointer;
+	typedef typename std::iterator_traits<iterator>::reference	 reference;
+	typedef const reference	                                         const_reference; 
+
+	typedef std::reverse_iterator<iterator>                          reverse_iterator;
+	typedef std::reverse_iterator<const_iterator>                    const_reverse_iterator;
+
+	MutableSubvector (Vector &v, iterator begin, iterator end)
+		: _v (v), _idx_begin (begin - v.begin ()), _idx_end (end - v.begin ()) {}
+	
+	~MutableSubvector () {}
+	
+	// Iterators
+	
+	iterator               begin  (void)       { return _v.begin () + _idx_begin; }
+	const_iterator         begin  (void) const { return _v.begin () + _idx_begin; }
+	iterator               end    (void)       { return _v.begin () + _idx_end; }
+	const_iterator         end    (void) const { return _v.begin () + _idx_end; }
+	
+	reverse_iterator       rbegin (void)       { return reverse_iterator (_v.begin () + _idx_end); }
+	const_reverse_iterator rbegin (void) const { return reverse_iterator (_v.begin () + _idx_end); }
+	reverse_iterator       rend   (void)       { return reverse_iterator (_v.begin () + _idx_begin); }
+	const_reverse_iterator rend   (void) const { return reverse_iterator (_v.begin () + _idx_begin); }
+	
+	// Element access
+	
+	reference       operator[] (size_type n)       { return _v[_idx_begin + n]; }
+	const_reference operator[] (size_type n) const { return _v[_idx_begin + n]; }
+	
+	reference at (size_type n)
+	{   
+		if (n < _idx_end - _idx_begin) 
+			return _v[_idx_begin + n];
+		else 
+			throw std::out_of_range ("n");
+	}
+	
+	const_reference at (size_type n) const 
+	{
+		if (n < _idx_end - _idx_begin) 
+			return _v[_idx_begin + n];
+		else 
+			throw std::out_of_range ("n");
+	}
+	
+	reference       front (void)       { return _v[_idx_begin]; }
+	const_reference front (void) const { return _v[_idx_begin]; }
+	reference       back  (void)       { return _v[_idx_end - 1]; }
+	const_reference back  (void) const { return _v[_idx_end - 1]; }
+	
+	template<class Container>
+	MutableSubvector &operator = (const Container &x)
+	{
+		typename Container::const_iterator q = x.begin ();
+		iterator p_end = _v.begin () + _idx_end;
+		
+		for (iterator p = _v.begin () + _idx_begin; p != p_end; ++p, ++q)
+			*p = *q;
+		
+		return *this;
+	}
+
+	size_type size     (void) const { return _idx_end - _idx_begin; }
+	bool      empty    (void) const { return _idx_end == _idx_begin; }
+	size_type max_size (void) const { return _v.max_size () - (_v.size () - _idx_end) - _idx_begin; }
+	size_type capacity (void) const { return _v.capacity () - (_v.size () - _idx_end) - _idx_begin; }
+
+	iterator insert (iterator position, const value_type &x)
+	{
+		position = _v.insert (position, x);
+		++_idx_end;
+		return position;
+	}
+
+	void insert (iterator position, size_type n, const value_type &x)
+	{
+		_v.insert (position, n, x);
+		_idx_end += n;
+	}	
+
+	template <class InputIterator>
+	void insert (iterator position, InputIterator first, InputIterator last)
+	{
+		size_type old_size = _v.size ();
+		_v.insert (position, first, last);
+		_idx_end += _v.size () - old_size;
+	}
+
+	void erase (iterator position)
+	{
+		position = _v.erase (position);
+		--_idx_end;
+		return position;
+	}
+
+	void erase (iterator first, iterator last)
+	{
+		_idx_end -= last - first;
+		first = _v.erase (first, last);
+		return first;
+	}
+
+	void push_back (const value_type &x)
+		{ insert (end (), x); }
+
+	void pop_back ()
+		{ erase (end () - 1); }
+
+	void resize (size_type n)
+	{
+		if (n > size ()) {
+			_v.resize (n + _idx_begin + _v.size () - _idx_end);
+			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_end + n));
+		} else if (n < size ()) {
+			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_end + n));
+			_v.resize (n + _idx_begin + _v.size () - _idx_end);
+		}
+
+		_idx_end = _idx_begin + n;
+	}
+
+	void reserve (size_type n)
+		{ _v.reserve (n + _idx_begin + _v.size () - _idx_end); }
+	
+	void swap (MutableSubvector& x)
+		{ std::swap (_v, x._v); std::swap (_idx_begin, x._idx_begin); std::swap (_idx_end, x._idx_end); }
+
+    protected:
+	template <class V2>
+	friend class MutableSubvector;
+	
+	Vector &_v;
+	difference_type _idx_begin, _idx_end;
+
+}; // template <class Vector> class MutableSubvector
+  
 } // namespace LinBox
-
 
 namespace std {
 
-	template<class TP>
-       		void swap (TP&, TP&);
+template<class Iterator, class ConstIterator>
+void swap (LinBox::Subvector<Iterator, ConstIterator> &x, LinBox::Subvector<Iterator, ConstIterator> &y)
+	{ x.swap (y); }
 
+template<class Vector>
+void swap (LinBox::MutableSubvector<Vector> &x, LinBox::MutableSubvector<Vector> &y)
+	{ x.swap (y); }
 
-	template<class Iterator, class ConstIterator>
-	void swap ( LinBox::Subvector<Iterator, ConstIterator>& x, 
-		    LinBox::Subvector<Iterator, ConstIterator>& y ) {
-
-		x. swap (y);
-
-		
-	}
 }
 	
 #endif //__LINBOX_subvector_H

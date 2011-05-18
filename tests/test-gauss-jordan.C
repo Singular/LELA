@@ -13,9 +13,10 @@
 
 #include "test-common.h"
 
+#include <linbox/blas/context.h>
+#include <linbox/field/gf2.h>
 #include <linbox/field/modular.h>
 #include <linbox/matrix/dense.h>
-#include <linbox/matrix/matrix-domain.h>
 #include <linbox/vector/stream.h>
 #include <linbox/algorithms/gauss-jordan.h>
 
@@ -41,44 +42,44 @@ bool testDenseGJ (const Field &F, size_t m, size_t n)
 
 	typename GaussJordan<Field>::Permutation P;
 
-	GaussJordan<Field> GJ (F);
+	Context<Field> ctx (F);
+
+	GaussJordan<Field> GJ (ctx);
 	size_t rank;
 	typename Field::Element det;
 
-	MatrixDomain<Field> MD (F);
-
-	MD.copy (R, A);
+	BLAS3::copy (ctx, A, R);
 
 	GJ.DenseRowEchelonForm (R, U, P, rank, det);
 
 	report << "A = " << std::endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
 	report << "U = " << std::endl;
-	MD.write (report, U);
+	BLAS3::write (ctx, report, U);
 
 	report << "P = ";
-	MD.writePermutation (report, P.begin (), P.end ()) << std::endl;
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 
 	report << "R = " << std::endl;
-	MD.write (report, R);
+	BLAS3::write (ctx, report, R);
 
-	MD.permuteRows (A, P.begin (), P.end ());
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), A);
 
 	report << "PA = " << std::endl;
-	MD.write (report, A);
+	BLAS3::write (ctx, report, A);
 
-	MD.gemm (F.one (), U, A, F.zero (), UPA);
+	BLAS3::gemm (ctx, F.one (), U, A, F.zero (), UPA);
 
 	report << "UPA = " << std::endl;
-	MD.write (report, UPA);
+	BLAS3::write (ctx, report, UPA);
 
 	report << "Computed rank = " << rank << std::endl;
 	report << "Computed det = ";
 	F.write (report, det);
 	report << std::endl;
 
-	if (!MD.areEqual (UPA, R)) {
+	if (!BLAS3::equal (ctx, UPA, R)) {
 		error << "ERROR: UPA != R" << std::endl;
 		pass = false;
 	}
@@ -98,8 +99,10 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 
 	bool pass = true;
 
+	Context<Field> ctx (F);
+
 	MatrixDomain<Field> MD (F);
-	GaussJordan<Field> GJ (F);
+	GaussJordan<Field> GJ (ctx);
 
 	typedef typename GaussJordan<Field>::SparseMatrix Matrix;
 
@@ -109,7 +112,7 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 	typename GaussJordan<Field>::DenseMatrix U (m, m);
 	typename GaussJordan<Field>::DenseMatrix UPA (m, n);
 
-	MD.copy (Aorig, A);
+	BLAS3::copy (ctx, A, Aorig);
 
 	typename GaussJordan<Field>::Permutation P;
 
@@ -117,33 +120,33 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 	typename Field::Element det;
 
 	report << "A = " << std::endl;
-	MD.write (report, A, FORMAT_PRETTY);
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
 
 	GJ.StandardRowEchelonForm (A, U, P, rank, det, true, true);
 
 	report << "R = " << std::endl;
-	MD.write (report, A, FORMAT_PRETTY);
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
 
 	report << "U = " << std::endl;
-	MD.write (report, U);
+	BLAS3::write (ctx, report, U);
 
 	report << "P = ";
-	MD.writePermutation (report, P.begin (), P.end ()) << std::endl;
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 
-	MD.permuteRows (Aorig, P.begin (), P.end ());
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), Aorig);
 	report << "PA = " << std::endl;
-	MD.write (report, Aorig, FORMAT_PRETTY);
+	BLAS3::write (ctx, report, Aorig, FORMAT_PRETTY);
 
-	MD.gemm (F.one (), U, Aorig, F.zero (), UPA);
+	BLAS3::gemm (ctx, F.one (), U, Aorig, F.zero (), UPA);
 	report << "UPA = " << std::endl;
-	MD.write (report, UPA);
+	BLAS3::write (ctx, report, UPA);
 
 	report << "Computed rank = " << rank << std::endl;
 	report << "Computed det = ";
 	F.write (report, det);
 	report << std::endl;
 
-	if (!MD.areEqual (UPA, A)) {
+	if (!BLAS3::equal (ctx, UPA, A)) {
 		error << "UPA != R, not okay" << std::endl;
 		pass = false;
 	}

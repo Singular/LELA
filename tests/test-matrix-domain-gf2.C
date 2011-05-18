@@ -16,11 +16,10 @@
 #include "linbox/matrix/dense-zero-one.h"
 #include "linbox/matrix/sparse-zero-one.h"
 #include "linbox/vector/stream.h"
+#include "linbox/field/gf2.h"
 
 #include "test-common.h"
 #include "test-matrix-domain.h"
-
-#include "linbox/field/gf2.h"
 
 using namespace LinBox;
 

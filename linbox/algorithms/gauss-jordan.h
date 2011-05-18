@@ -28,13 +28,6 @@
 namespace LinBox
 {
 
-template <>
-struct GF2VectorTraits<Subvector<Vector<GF2>::Hybrid::iterator> >
-{ 
-	typedef Subvector<Vector<GF2>::Hybrid::iterator> VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
-
 template <class Field>
 class Adaptor {
 public:

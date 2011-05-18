@@ -209,7 +209,6 @@ void Splicer::attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const
 	typename Matrix1::RowIterator i_A = A.rowBegin () + horiz_block.destIndex ();
 	typename Matrix1::RowIterator i_A_end = A.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
 	typename Matrix2::ConstRowIterator i_S = S.rowBegin () + horiz_block.sourceIndex ();
-	typename Matrix2::ConstRowIterator i_S_end = S.rowBegin () + (horiz_block.sourceIndex () + horiz_block.size ());
 
 	for (; i_A != i_A_end; ++i_A, ++i_S)
 		attach_block (F, *i_A, *i_S, vert_block.sourceIndex (), vert_block.destIndex (), vert_block.size ());
@@ -221,7 +220,6 @@ void Splicer::attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const
 	typename Matrix1::ColIterator i_A = A.colBegin () + vert_block.destIndex ();
 	typename Matrix1::ColIterator i_A_end = A.colBegin () + (vert_block.destIndex () + vert_block.size ());
 	typename Matrix2::ConstColIterator i_S = S.colBegin () + vert_block.sourceIndex ();
-	typename Matrix2::ConstColIterator i_S_end = S.colBegin () + (vert_block.sourceIndex () + vert_block.size ());
 
 	for (; i_A != i_A_end; ++i_A, ++i_S)
 		attach_block (F, *i_A, *i_S, horiz_block.sourceIndex (), horiz_block.destIndex (), horiz_block.size ());
@@ -238,8 +236,6 @@ void Splicer::splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::RowM
 	commentator.start ("Splicing matrices", __FUNCTION__);
 
 	typename std::vector<Block>::const_iterator horiz_block, vert_block;
-
-	MatrixDomain<Field> MD (F);
 
 	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block) {
 		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block) {
@@ -277,8 +273,6 @@ void Splicer::splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::ColM
 	commentator.start ("Splicing matrices", __FUNCTION__);
 
 	typename std::vector<Block>::const_iterator horiz_block, vert_block;
-
-	MatrixDomain<Field> MD (F);
 
 	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block) {
 		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block) {

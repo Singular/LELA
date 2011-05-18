@@ -1428,39 +1428,6 @@ testBB(Field& F)
 
 /// @name Generic field tests
 //@{
-/** Random number test
- *
- * Test that the random iterator over the given field works.
- *
- * Test up to five times, accepting any one, to increase probability of 
- * passing statistical tests.
- */
-template <class Field>
-bool testRandomIterator (const Field &F, const char *text,
-			 unsigned int num_trials,
-			 unsigned int num_categories,
-			 unsigned int hist_len) 
-{
-	std::ostringstream str;
-
-	str << "Testing " << text << "::RandIter" << std::ends;
-
-	LinBox::commentator.start (str.str ().c_str (), "testRandomIterator");
-
-	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
-
-	/* This test either passes or runs forever */
-	for (int i = 1; 
-	     !  testRandomIteratorStep (F, text, num_trials, num_categories, hist_len) ;
-	     ++i ){
-		if (0 == i % 10)  
-			report << "Warning! Probable failure of uniformity" << std::endl;
-		};
-
-	LinBox::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
-	return true;
-
-}
 
 /* Random number test
  *
@@ -1592,6 +1559,39 @@ bool testRandomIteratorStep (const Field &F,
 	//LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRandomIteratorStep");
 	return ret;
 }
+
+/** Random number test
+ *
+ * Test that the random iterator over the given field works.
+ *
+ * Test up to five times, accepting any one, to increase probability of 
+ * passing statistical tests.
+ */
+template <class Field>
+bool testRandomIterator (const Field &F, const char *text,
+			 unsigned int num_trials,
+			 unsigned int num_categories,
+			 unsigned int hist_len) 
+{
+	std::ostringstream str;
+
+	str << "Testing " << text << "::RandIter" << std::ends;
+
+	LinBox::commentator.start (str.str ().c_str (), "testRandomIterator");
+
+	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	/* This test either passes or runs forever */
+	for (int i = 1; !testRandomIteratorStep (F, text, num_trials, num_categories, hist_len); ++i) {
+		if (0 == i % 10)
+			report << "Warning! Probable failure of uniformity" << std::endl;
+	};
+
+	LinBox::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
+	return true;
+
+}
+
 //@}
 /// @name Vector operation tests
 //@{

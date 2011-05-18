@@ -1024,29 +1024,6 @@ bool testRanditerBasic(const Field &F, const char *name, unsigned int iterations
 	 return ret;
  }
 
- 
- /* Convenience function to run all of the field tests on a given field */
-
- template <class Field>
- bool runFieldTests (const Field &F, const char *desc, unsigned int iterations, size_t n, bool runCharacteristicTest = true) 
- // n is not used.
- {	ostringstream str;
-
-	 str << "Testing " << desc << " field" << ends;
-	 char * st = new char[str.str().size()];
-	 strcpy (st, str.str().c_str());
-	 commentator.start (st, "runFieldTests");
-	 bool ret =  runBasicRingTests(F, desc, iterations, runCharacteristicTest)
-		 && testInvDivConsistency(F, desc, iterations) 
-		 && testFieldInversion (F, desc, iterations)
-		 && testFieldCommutativity (F, desc, iterations)
-		 && testFreshmansDream(F, desc, iterations);
-
-	 commentator.stop (MSG_STATUS (ret));
-	 delete[] st;
-	 return ret;
-}
-
 template <class Field>
 bool runBasicRingTests (const Field &F, const char *desc, unsigned int iterations, bool runCharacteristicTest = true) 
 {
@@ -1081,45 +1058,31 @@ bool runBasicRingTests (const Field &F, const char *desc, unsigned int iteration
 	return pass;
 }
 
+ 
+ /* Convenience function to run all of the field tests on a given field */
+
+ template <class Field>
+ bool runFieldTests (const Field &F, const char *desc, unsigned int iterations, size_t n, bool runCharacteristicTest = true) 
+ // n is not used.
+ {	ostringstream str;
+
+	 str << "Testing " << desc << " field" << ends;
+	 char * st = new char[str.str().size()];
+	 strcpy (st, str.str().c_str());
+	 commentator.start (st, "runFieldTests");
+	 bool ret =  runBasicRingTests(F, desc, iterations, runCharacteristicTest)
+		 && testInvDivConsistency(F, desc, iterations) 
+		 && testFieldInversion (F, desc, iterations)
+		 && testFieldCommutativity (F, desc, iterations)
+		 && testFreshmansDream(F, desc, iterations);
+
+	 commentator.stop (MSG_STATUS (ret));
+	 delete[] st;
+	 return ret;
+}
+
 /// @name Generic field tests
 //@{
-/** Random number test
- *
- * Test that the random iterator over the given field works.
- *
- * Test up to five times, accepting any one, to increase probability of 
- * passing statistical tests.
- */
-template <class Field>
-bool testRandomIterator (const Field &F, const char *text,
-			 unsigned int num_trials,
-			 unsigned int num_categories,
-			 unsigned int hist_len) 
-{
-	std::ostringstream str;
-
-	str << "Testing " << text << "::RandIter" << std::ends;
-	char * st = new char[str.str().size()];
-	strcpy (st, str.str().c_str());
-
-	LinBox::commentator.start (st, "testRandomIterator");
-
-	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
-
-	/* This test either passes or runs a lot of times */
-	for (int i = 1; 
-	     (!  testRandomIteratorStep (F, text, num_trials, num_categories, hist_len)) && (i < 20) ;
-	     ++i ){
-		if (0 == i % 10)  
-			report << "Warning! Probable failure of uniformity" << std::endl;
-		};
-
-	LinBox::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
-
-	delete[] st;
-	return true;
-
-}
 
 /* Random number test
  *
@@ -1238,6 +1201,44 @@ bool testRandomIteratorStep (const Field &F,
 
 	//LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRandomIteratorStep");
 	return ret;
+}
+
+/** Random number test
+ *
+ * Test that the random iterator over the given field works.
+ *
+ * Test up to five times, accepting any one, to increase probability of 
+ * passing statistical tests.
+ */
+template <class Field>
+bool testRandomIterator (const Field &F, const char *text,
+			 unsigned int num_trials,
+			 unsigned int num_categories,
+			 unsigned int hist_len) 
+{
+	std::ostringstream str;
+
+	str << "Testing " << text << "::RandIter" << std::ends;
+	char * st = new char[str.str().size()];
+	strcpy (st, str.str().c_str());
+
+	LinBox::commentator.start (st, "testRandomIterator");
+
+	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	/* This test either passes or runs a lot of times */
+	for (int i = 1; 
+	     (!  testRandomIteratorStep (F, text, num_trials, num_categories, hist_len)) && (i < 20) ;
+	     ++i ){
+		if (0 == i % 10)  
+			report << "Warning! Probable failure of uniformity" << std::endl;
+		};
+
+	LinBox::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
+
+	delete[] st;
+	return true;
+
 }
 
 //@}

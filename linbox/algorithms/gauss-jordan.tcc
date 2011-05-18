@@ -19,6 +19,10 @@
 #include "linbox/blas/level1.h"
 #include "linbox/blas/level3.h"
 
+#include "linbox/matrix/sparse-zero-one.h"
+
+#include "linbox/algorithms/gauss-jordan.h"
+
 #ifdef DETAILED_PROFILE
 #  define TIMER_DECLARE(part) LinBox::UserTimer part##_timer; double part##_time = 0.0;
 #  define TIMER_START(part) part##_timer.start ()
@@ -40,10 +44,10 @@
 namespace LinBox
 {
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-					     VectorCategories::DenseVectorTag) const
+int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+						      VectorCategories::DenseVectorTag) const
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -51,17 +55,17 @@ int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, siz
 		int k = start_row;
 
 		for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k)
-			if (!F.isZero ((*i)[col]))
+			if (!ctx.F.isZero ((*i)[col]))
 				return k;
 	}
 
 	return -1;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-					     VectorCategories::DenseZeroOneVectorTag) const
+int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+						      VectorCategories::DenseZeroOneVectorTag) const
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -76,10 +80,10 @@ int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, siz
 	return -1;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-					     VectorCategories::SparseVectorTag) const
+int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+						      VectorCategories::SparseVectorTag) const
 {
 	typename SparseMatrix::ConstRowIterator i;
 
@@ -103,10 +107,10 @@ int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, siz
 	return pivot;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-					     VectorCategories::SparseZeroOneVectorTag) const
+int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+						      VectorCategories::SparseZeroOneVectorTag) const
 {
 	typename SparseMatrix::RowIterator i;
 
@@ -130,10 +134,10 @@ int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, siz
 	return pivot;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix>
-int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-					     VectorCategories::HybridZeroOneVectorTag) const
+int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+						      VectorCategories::HybridZeroOneVectorTag) const
 {
 	typename SparseMatrix::ConstRowIterator i;
 	typename Field::Element a;
@@ -159,28 +163,28 @@ int GaussJordan<Field>::GetPivotSpecialised (const Matrix &A, int start_row, siz
 	return pivot;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix>
-void GaussJordan<Field>::SetIdentity (Matrix &U, size_t start_row) const
+void GaussJordan<Field, Modules>::SetIdentity (Matrix &U, size_t start_row) const
 {
-	StandardBasisStream<Field, typename Matrix::Row> stream (F, U.coldim ());
+	StandardBasisStream<Field, typename Matrix::Row> stream (ctx.F, U.coldim ());
 	typename Matrix::RowIterator i = U.rowBegin () + start_row;
 
 	for (; i != U.rowEnd (); ++i)
 		stream >> *i;
 }
 
-template <class Field>
-void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
-					       int           k,
-					       Element       d_0,
-					       DenseMatrix  &U,
-					       Permutation  &P,
-					       size_t       &r,
-					       int          &h,
-					       Element      &d,
-					       DenseMatrix  &S,
-					       DenseMatrix  &T) const
+template <class Field, class Modules>
+void GaussJordan<Field, Modules>::GaussJordanTransform (DenseMatrix  &A,
+							int           k,
+							Element       d_0,
+							DenseMatrix  &U,
+							Permutation  &P,
+							size_t       &r,
+							int          &h,
+							Element      &d,
+							DenseMatrix  &S,
+							DenseMatrix  &T) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -200,7 +204,7 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 
 		r = 0;
 		h = A.rowdim () - k;
-		F.assign (d, d_0);
+		ctx.F.assign (d, d_0);
 	}
 	else if (A.coldim () <= _cutoff) {
 		// DEBUG
@@ -264,9 +268,9 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
 
 		BLAS3::copy (ctx, A_22, T);
-		BLAS3::gemm (ctx, F.one (), U_21, T, F.one (),  A_21);
-		BLAS3::gemm (ctx, F.one (), U_22, T, F.zero (), A_22);
-		BLAS3::gemm (ctx, F.one (), U_23, T, F.one (),  A_23);
+		BLAS3::gemm (ctx, ctx.F.one (), U_21, T, ctx.F.one (),  A_21);
+		BLAS3::gemm (ctx, ctx.F.one (), U_22, T, ctx.F.zero (), A_22);
+		BLAS3::gemm (ctx, ctx.F.one (), U_23, T, ctx.F.one (),  A_23);
 
 		Permutation P_2;
 
@@ -313,9 +317,9 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 		S.resize (r_2, r_1);
 		BLAS3::copy (ctx, P_2U_23, S);
 
-		BLAS3::gemm (ctx, F.one (), U_312, S, F.one (), U_212);
-		BLAS3::gemm (ctx, F.one (), U_33, S, F.zero (), P_2U_23);
-		BLAS3::gemm (ctx, F.one (), U_34, S, F.one (), P_2U_24);
+		BLAS3::gemm (ctx, ctx.F.one (), U_312, S, ctx.F.one (), U_212);
+		BLAS3::gemm (ctx, ctx.F.one (), U_33, S, ctx.F.zero (), P_2U_23);
+		BLAS3::gemm (ctx, ctx.F.one (), U_34, S, ctx.F.one (), P_2U_24);
 
 		// DEBUG
 		// report << "U_3P_2U_23 =" << std::endl;
@@ -337,14 +341,14 @@ void GaussJordan<Field>::GaussJordanTransform (DenseMatrix  &A,
 	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
 }
 
-template <class Field>
-void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
-					 Element                  d_0,
-					 Submatrix<DenseMatrix>  &U,
-					 Permutation             &P,
-					 size_t                  &r,
-					 int                     &h,
-					 Element                 &d) const
+template <class Field, class Modules>
+void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
+						  Element                  d_0,
+						  Submatrix<DenseMatrix>  &U,
+						  Permutation             &P,
+						  size_t                  &r,
+						  int                     &h,
+						  Element                 &d) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -362,7 +366,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 
 		r = 0;
 		h = A.rowdim ();
-		F.assign (d, d_0);
+		ctx.F.assign (d, d_0);
 	}
 	else if (A.coldim () <= _cutoff) {
 		// DEBUG
@@ -419,8 +423,8 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 
 		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
 
-		BLAS3::gemm (ctx, F.one (), U_12, A_21, F.one (), A_22);
-		BLAS3::trmm (ctx, F.one (), U_11, A_21, LowerTriangular, true);
+		BLAS3::gemm (ctx, ctx.F.one (), U_12, A_21, ctx.F.one (), A_22);
+		BLAS3::trmm (ctx, ctx.F.one (), U_11, A_21, LowerTriangular, true);
 
 		Permutation P_2;
 
@@ -447,7 +451,7 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 		// BLAS3::write_permutation (report, P_2) << std::endl;
 
 		BLAS3::permute_rows (ctx, P_2.begin (), P_2.end (), U_12);
-		BLAS3::trmm (ctx, F.one (), U_22, U_12, LowerTriangular, true);
+		BLAS3::trmm (ctx, ctx.F.one (), U_22, U_12, LowerTriangular, true);
 				
 		// DEBUG
 		// report << "P_2U_2 =" << std::endl;
@@ -479,17 +483,30 @@ void GaussJordan<Field>::GaussTransform (DenseMatrix             &A,
 	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
 }
 
-template <class Field>
-template <class Vector>
-Vector &GaussJordan<Field>::FastAxpy (Vector &v, const typename Field::Element &a, const Vector &w, size_t idx) const
+template <>
+class MutableSubvector<Vector<GF2>::Hybrid> : public MutableSubvector<SparseVector<Vector<GF2>::Hybrid::word_type, std::vector<Vector<GF2>::Hybrid::index_type>, std::vector<Vector<GF2>::Hybrid::word_type> > >
 {
-	Subvector<typename Vector::iterator> t (v.begin () + idx, v.end ())
+public:
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+	typedef Vector<GF2>::Hybrid::Endianness Endianness;
+	typedef Vector<GF2>::Hybrid::index_type index_type;
+	typedef Vector<GF2>::Hybrid::word_type word_type;
+
+	MutableSubvector (Vector<GF2>::Hybrid &v, Vector<GF2>::Hybrid::iterator begin, Vector<GF2>::Hybrid::iterator end)
+		: MutableSubvector<SparseVector<Vector<GF2>::Hybrid::word_type, std::vector<Vector<GF2>::Hybrid::index_type>, std::vector<Vector<GF2>::Hybrid::word_type> > > (v, begin, end) {}
+};
+
+template <class Field, class Modules>
+template <class Vector>
+Vector &GaussJordan<Field, Modules>::FastAxpy (Vector &v, const typename Field::Element &a, const Vector &w, size_t idx) const
+{
+	MutableSubvector<Vector> t (v, v.begin () + idx, v.end ());
 	BLAS1::axpy (ctx, a, w, t);
 	return v;
 }
 
-template <class Field>
-bool GaussJordan<Field>::testFastAxpyHybridVector () const
+template <class Field, class Modules>
+bool GaussJordan<Field, Modules>::testFastAxpyHybridVector () const
 {
 	commentator.start ("Testing FastAxpy", __FUNCTION__);
 
@@ -566,10 +583,10 @@ bool GaussJordan<Field>::testFastAxpyHybridVector () const
 	return pass;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-							  VectorCategories::DenseVectorTag) const
+Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+								   VectorCategories::DenseVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -598,14 +615,14 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
 			size_t col = BLAS1::head (ctx, a, *j_A);
 
-			if (!F.isZero ((*i_A)[col])) {
+			if (!ctx.F.isZero ((*i_A)[col])) {
 				// DEBUG
 				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
 
 				BLAS1::axpy (ctx, ctx.F.one (), *j_A, *i_A);
 
 				if (compute_L)
-					BLAS::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
+					BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
 			}
 		}
 
@@ -623,10 +640,10 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	return A;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-							  VectorCategories::SparseVectorTag) const
+Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+								   VectorCategories::SparseVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -653,7 +670,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 				++i;
 
 			if (i != i_stop && i->first == j_A->front ().first) {
-				F.neg (negx, i->second);
+				ctx.F.neg (negx, i->second);
 
 				BLAS1::axpy (ctx, negx, *j_A, *i_A);
 
@@ -662,7 +679,7 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 			}
 		}
 
-		F.inv (xinv, i_A->front ().second);
+		ctx.F.inv (xinv, i_A->front ().second);
 		BLAS1::scal (ctx, xinv, *i_A);
 
 		if (compute_L) {
@@ -679,10 +696,10 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	return A;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-							  VectorCategories::SparseZeroOneVectorTag) const
+Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+								   VectorCategories::SparseZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -739,10 +756,10 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	return A;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-							  VectorCategories::HybridZeroOneVectorTag) const
+Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+								   VectorCategories::HybridZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -839,10 +856,10 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	return A;
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-							  VectorCategories::DenseZeroOneVectorTag) const
+Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+								   VectorCategories::DenseZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -896,13 +913,13 @@ Matrix1 &GaussJordan<Field>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L
 	return A;
 }
 
-template <class Field>
-void GaussJordan<Field>::DenseRowEchelonForm (DenseMatrix &A,
-					      DenseMatrix &U,
-					      Permutation &P,
-					      size_t      &rank,
-					      Element     &det,
-					      bool         reduced)
+template <class Field, class Modules>
+void GaussJordan<Field, Modules>::DenseRowEchelonForm (DenseMatrix &A,
+						       DenseMatrix &U,
+						       Permutation &P,
+						       size_t      &rank,
+						       Element     &det,
+						       bool         reduced)
 {
 	linbox_check (U.rowdim () == A.rowdim ());
 	linbox_check (U.rowdim () == U.coldim ());
@@ -917,26 +934,26 @@ void GaussJordan<Field>::DenseRowEchelonForm (DenseMatrix &A,
 	if (reduced) {
 		DenseMatrix S, T;
 
-		GaussJordanTransform (A, 0, F.one (), U, P, rank, h, det, S, T);
+		GaussJordanTransform (A, 0, ctx.F.one (), U, P, rank, h, det, S, T);
 	} else {
 		Submatrix<DenseMatrix> Up (U, 0, 0, U.rowdim (), U.coldim ());
 
-		GaussTransform (A, F.one (), Up, P, rank, h, det);
+		GaussTransform (A, ctx.F.one (), Up, P, rank, h, det);
 	}
 
 	commentator.stop (MSG_DONE, NULL, "GaussJordan::DenseRowEchelonForm");
 }
 
-template <class Field>
+template <class Field, class Modules>
 template <class Matrix1, class Matrix2>
-void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
-						 Matrix2       &L,
-						 Permutation   &P,
-						 size_t        &rank,
-						 Element       &det,
-						 bool           reduced,
-						 bool           compute_L,
-						 size_t         start_row) const
+void GaussJordan<Field, Modules>::StandardRowEchelonForm (Matrix1       &A,
+							  Matrix2       &L,
+							  Permutation   &P,
+							  size_t        &rank,
+							  Element       &det,
+							  bool           reduced,
+							  bool           compute_L,
+							  size_t         start_row) const
 {
 	commentator.start ("Standard row-echelon form", __FUNCTION__, A.rowdim () / PROGRESS_STEP);
 
@@ -952,8 +969,8 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 	int k = start_row;
 	Element a, x, xinv, negxinv, negaxinv;
 
-	F.init (a, 0);
-	F.init (x, 0);
+	ctx.F.assign (a, ctx.F.zero ());
+	ctx.F.assign (x, ctx.F.zero ());
 
 	typename Matrix2::RowIterator i_L, j_L;
 
@@ -962,7 +979,7 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 
 	P.clear ();
 	rank = 0;
-	F.init (det, 1);
+	ctx.F.init (det, 1);
 
 	for (i_A = A.rowBegin () + k, i_L = L.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A, ++i_L) {
 		TIMER_START(GetPivot);
@@ -1003,10 +1020,10 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 
 		BLAS1::head (ctx, x, *i_A);
 
-		F.mulin (det, x);
+		ctx.F.mulin (det, x);
 
-		F.inv (xinv, x);
-		F.neg (negxinv, xinv);
+		ctx.F.inv (xinv, x);
+		ctx.F.neg (negxinv, xinv);
 
 		TIMER_START(ElimBelow);
 		j_L = i_L;
@@ -1017,7 +1034,7 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 				// DEBUG
 				// report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
 
-				F.mul (negaxinv, negxinv, a);
+				ctx.F.mul (negaxinv, negxinv, a);
 				BLAS1::axpy (ctx, negaxinv, *i_A, *j_A);
 
 				if (compute_L)
@@ -1042,8 +1059,8 @@ void GaussJordan<Field>::StandardRowEchelonForm (Matrix1       &A,
 	commentator.stop (MSG_DONE);
 }
 
-template <class Field>
-void GaussJordan<Field>::RunTests () const
+template <class Field, class Modules>
+void GaussJordan<Field, Modules>::RunTests () const
 {
 	commentator.start ("GaussJordan: Running internal tests", __FUNCTION__);
 	bool pass = testFastAxpyHybridVector ();
