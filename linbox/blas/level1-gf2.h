@@ -76,7 +76,7 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 template <class Vector1, class Vector2>
 Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
 		    VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
-	{ y.resize (x.size ()); std::copy (x.begin (), x.end (), y.begin ()); return y; }
+	{ y.assign (x.begin (), x.end ()); return y; }
 
 template <class Vector1, class Vector2>
 Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
@@ -93,7 +93,7 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 template <class Vector1, class Vector2>
 Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
 		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
-	{ y.resize (x.size ()); std::copy (x.begin (), x.end (), y.begin ()); return y; }
+	{ y.assign (x.begin (), x.end ()); return y; }
 
 template <class Vector1, class Vector2>
 Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,

@@ -302,8 +302,9 @@ class MutableSubvector
 	void resize (size_type n)
 	{
 		if (n > size ()) {
+			size_type old_size = _v.size ();
 			_v.resize (n + _idx_begin + _v.size () - _idx_end);
-			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_begin + n));
+			std::copy (_v.begin () + _idx_end, _v.begin () + old_size, _v.begin () + (_idx_begin + n));
 		} else if (n < size ()) {
 			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_begin + n));
 			_v.resize (n + _idx_begin + _v.size () - _idx_end);
@@ -312,12 +313,34 @@ class MutableSubvector
 		_idx_end = _idx_begin + n;
 	}
 
+	template <class InputIterator>
+	void assign (InputIterator first, InputIterator last)
+		{ assign_spec (first, last, typename std::iterator_traits<InputIterator>::iterator_category ()); }
+
+	void clear () { resize (0); }
+
 	void reserve (size_type n)
 		{ _v.reserve (n + _idx_begin + _v.size () - _idx_end); }
 	
     protected:
 	template <class V2>
 	friend class MutableSubvector;
+
+	template <class InputIterator>
+	void assign_spec (InputIterator first, InputIterator last, std::input_iterator_tag)
+	{
+		clear ();
+
+		while (first != last)
+			insert (_v.begin () + _idx_end, *first++);
+	}
+
+	template <class InputIterator>
+	void assign_spec (InputIterator first, InputIterator last, std::forward_iterator_tag)
+	{
+		resize (last - first);
+		std::copy (first, last, _v.begin () + _idx_begin);
+	}
 	
 	Vector &_v;
 	difference_type _idx_begin, _idx_end;
@@ -331,15 +354,24 @@ namespace std {
 template<class Iterator, class ConstIterator>
 void swap (LinBox::Subvector<Iterator, ConstIterator> &x, LinBox::Subvector<Iterator, ConstIterator> &y)
 {
+	linbox_check (x.size () == y.size ());
+
 	typename LinBox::Subvector<Iterator, ConstIterator>::iterator i_x, i_y;
 
-	for (i_x = x.begin (), i_y = y.begin (); i_x != x.end () && i_y != y.end (); ++i_x, ++i_y)
+	for (i_x = x.begin (), i_y = y.begin (); i_x != x.end (); ++i_x, ++i_y)
 		std::swap (*i_x, *i_y);
 }
 
 template<class Vector>
 void swap (LinBox::MutableSubvector<Vector> &x, LinBox::MutableSubvector<Vector> &y)
-	{ x.swap (y); }
+{
+	linbox_check (x.size () == y.size ());
+
+	typename LinBox::MutableSubvector<Vector>::iterator i_x, i_y;
+
+	for (i_x = x.begin (), i_y = y.begin (); i_x != x.end (); ++i_x, ++i_y)
+		std::swap (*i_x, *i_y);
+}
 
 }
 	
