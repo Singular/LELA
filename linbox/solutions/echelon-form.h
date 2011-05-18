@@ -28,7 +28,7 @@ class EchelonForm
 	GaussJordan<Field, Modules> _GJ;
 
 	DenseMatrix<typename Field::Element> _L;
-	typename MatrixDomain<Field>::Permutation _P;
+	typename GaussJordan<Field, Modules>::Permutation _P;
 
 	// Map pointers to matrices to computed ranks
 	std::map<const void *, size_t> _rank_table;
