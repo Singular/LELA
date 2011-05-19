@@ -30,18 +30,18 @@ class SparseVectorProperty {
 	friend class SparseVector;
 
 public:
-	typedef typename std::iterator_traits<Iterator>::value_type T;
+	typedef typename std::iterator_traits<Iterator>::value_type value_type;
 
 	SparseVectorProperty () {}
 	SparseVectorProperty (Iterator i) : _i (i) {}
 
-	T &operator = (const T &v)
-		{ return *_i = v; }
+	SparseVectorProperty &operator = (const value_type &v)
+		{ *_i = v; return *this; }
 
 	operator typename std::iterator_traits<Iterator>::reference ()
 		{ return *_i; }
 
-	operator const typename std::iterator_traits<Iterator>::reference () const
+	operator value_type () const
 		{ return *_i; }
 };
 
@@ -288,10 +288,10 @@ public:
 	inline reference       operator[] (size_type n)       { return *(begin () + n); }
 	inline const_reference operator[] (size_type n) const { return *(begin () + n); }
 
-	inline reference       at (size_type n)
+	inline reference at (size_type n)
 	{
 		if (n >= size ())
-			throw std::out_of_range ("LinBox::SparseVector");
+			throw std::out_of_range ("n");
 		else
 			return (*this)[n];
 	}
@@ -299,19 +299,19 @@ public:
 	inline const_reference at (size_type n) const
 	{
 		if (n >= size ())
-			throw std::out_of_range ("LinBox::SparseVector");
+			throw std::out_of_range ("n");
 		else
 			return (*this)[n];
 	}
 
-	inline reference       front     (void)       { return *(begin ()); }
-	inline const_reference front     (void) const { return *(begin ()); }
-	inline reference       back      (void)       { return *(end () - 1); }
-	inline const_reference back      (void) const { return *(end () - 1); }
+	inline reference       front     ()       { return *(begin ()); }
+	inline const_reference front     () const { return *(begin ()); }
+	inline reference       back      ()       { return *(end () - 1); }
+	inline const_reference back      () const { return *(end () - 1); }
 
-	inline size_type       size      (void) const { return _idx_end - _idx_begin;  }
-	inline bool            empty     (void) const { return _idx_end == _idx_begin; }
-	inline size_type       max_size  (void) const { return _idx_end - _idx_begin;  }
+	inline size_type       size      () const { return _idx_end - _idx_begin;  }
+	inline bool            empty     () const { return _idx_end == _idx_begin; }
+	inline size_type       max_size  () const { return _idx_end - _idx_begin;  }
 
 	inline bool operator == (const ConstSparseVector &v) const
 		{ return (_idx_begin == v._idx_begin) && (_idx_end == v._idx_end) && (_elt_begin == v._elt_begin); }

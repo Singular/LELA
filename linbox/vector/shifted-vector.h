@@ -13,37 +13,170 @@
 
 #include <iterator>
 
+#include "linbox/vector/sparse.h"
+
 namespace LinBox
 {
 
-template <class Vector>
-class ShiftedVectorConstIterator;
-
-// This class mimics a vector but shifts all of its elements by a fixed value. Used for sparse subvectors.
 template <class Iterator>
-class ShiftedVector
+class ShiftedProperty {
+public:
+	typedef typename std::iterator_traits<Iterator>::value_type value_type;
+
+private:
+	Iterator _i;
+	value_type _shift;
+
+	template <class Vector>
+	friend class ShiftedVector;
+
+	template <class It>
+	friend class ShiftedVectorIterator;
+
+public:
+	ShiftedProperty () {}
+	ShiftedProperty (Iterator i, value_type shift)
+		: _i (i), _shift (shift)
+		{}
+
+	ShiftedProperty &operator = (const value_type &v)
+		{ *_i = v + _shift; return *this; }
+
+	operator value_type () const
+		{ return *_i - _shift; }
+};
+
+template <class Iterator>
+class ShiftedVectorIterator
+{
+    public:
+	typedef std::random_access_iterator_tag iterator_category;
+	typedef ShiftedProperty<Iterator> reference;
+	typedef const ShiftedProperty<Iterator> const_reference;
+	typedef ShiftedProperty<Iterator> *pointer;
+	typedef typename std::iterator_traits<Iterator>::value_type value_type;
+	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
+
+	ShiftedVectorIterator () {}
+	ShiftedVectorIterator (Iterator pos, value_type shift) : _ref (pos, shift) {}
+
+	template <class It>
+	ShiftedVectorIterator (ShiftedVectorIterator<It> i)
+		: _ref (i._ref._i, i._ref._shift)
+		{}
+
+	ShiftedVectorIterator &operator = (const ShiftedVectorIterator &i)
+	{
+		_ref._i = i._ref._i;
+		_ref._shift = i._ref._shift;
+		return *this;
+	}
+
+	template <class It>
+	ShiftedVectorIterator &operator = (const ShiftedVectorIterator<It> &i)
+	{
+		_ref._i = i._ref._i;
+		_ref._shift = i._ref._shift;
+		return *this;
+	}
+
+	ShiftedVectorIterator &operator ++ () 
+		{ ++_ref._i; return *this; }
+
+	ShiftedVectorIterator operator ++ (int) 
+	{
+		ShiftedVectorIterator tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	ShiftedVectorIterator operator + (difference_type i) const
+		{ return ShiftedVectorIterator (_ref._i + i, _ref._shift); }
+
+	ShiftedVectorIterator &operator += (difference_type i) 
+		{ _ref._i += i; return *this; }
+
+	ShiftedVectorIterator &operator -- () 
+		{ --_ref._i; return *this; }
+
+	ShiftedVectorIterator operator -- (int) 
+	{
+		ShiftedVectorIterator tmp (*this);
+		--*this;
+		return tmp;
+	}
+
+	ShiftedVectorIterator operator - (difference_type i) const
+		{ return *this + -i; }
+
+	ShiftedVectorIterator &operator -= (difference_type i) 
+		{ return *this += -i; }
+
+	template <class It>
+	difference_type operator - (const ShiftedVectorIterator<It> &i) const 
+		{ return _ref._i - i._ref._i; }
+
+	reference operator [] (long i)
+		{ return *(*this + i); }
+
+	reference operator * ()
+		{ return _ref; }
+
+	const reference operator * () const
+		{ return _ref; }
+
+	bool operator == (const ShiftedVectorIterator &c) const 
+		{ return (_ref._i == c._ref._i) && (_ref._shift == c._ref._shift); }
+
+	template <class It>
+	bool operator == (const ShiftedVectorIterator<It> &c) const 
+		{ return (_ref._i == c._ref._i) && (_ref._shift == c._ref._shift); }
+
+	bool operator != (const ShiftedVectorIterator &c) const 
+		{ return (_ref._i != c._ref._i) || (_ref._shift != c._ref._shift); }
+
+	template <class It>
+	bool operator != (const ShiftedVectorIterator<It> &c) const 
+		{ return (_ref._i != c._ref._i) || (_ref._shift != c._ref._shift); }
+
+    private:
+	template <class It>
+	friend class ShiftedVectorIterator;
+
+	template <class Vector>
+	friend class ShiftedVector;
+
+	reference _ref;
+};
+
+/** Shifted vector (const version)
+ *
+ * This class mimics an STL-vector but shifted all elements by a fixed amount
+ */
+template <class Iterator>
+class ConstShiftedVector
 {
 public:
 	typedef typename std::iterator_traits<Iterator>::value_type value_type;
-	typedef size_t size_type;
-	typedef long   difference_type;
+	typedef size_t      size_type;
+	typedef ptrdiff_t   difference_type;
 
-	typedef ShiftedVectorConstIterator<Iterator> const_iterator;
+	typedef ShiftedVectorIterator<Iterator> const_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	friend class ShiftedVectorConstIterator<Iterator>;
+	friend class ShiftedVectorIterator<Iterator>;
 
-	ShiftedVector () {}
-	ShiftedVector (Iterator begin, Iterator end, value_type shift)
+	ConstShiftedVector () {}
+	ConstShiftedVector (Iterator begin, Iterator end, value_type shift)
 		: _begin (begin), _end (end), _shift (shift)
 		{}
 
 	template <class It>
-	ShiftedVector (const ShiftedVector<It> &v)
+	ConstShiftedVector (const ConstShiftedVector<It> &v)
 		: _begin (v._begin), _end (v._end), _shift (v._shift)
 		{}
 
-	ShiftedVector &operator = (const ShiftedVector &v)
+	ConstShiftedVector &operator = (const ConstShiftedVector &v)
 	{
 		_begin = v._begin;
 		_end = v._end;
@@ -52,7 +185,7 @@ public:
 	}
 
 	template <class It>
-	ShiftedVector &operator = (const ShiftedVector<It> &v)
+	ConstShiftedVector &operator = (const ConstShiftedVector<It> &v)
 	{
 		_begin = v._begin;
 		_end = v._end;
@@ -71,115 +204,101 @@ public:
 
 protected:
 	template <class It>
-	friend class ShiftedVector;
+	friend class ConstShiftedVector;
 
 	Iterator _begin, _end;
 	value_type _shift;
 };
 
-template <class Iterator>
-class ShiftedVectorConstIterator
+/** Shifted vector (mutable version)
+ *
+ * This class mimics an STL-vector but shifted all elements by a fixed amount
+ */
+template <class Vector>
+class ShiftedVector
 {
-    public:
-	typedef std::random_access_iterator_tag iterator_category;
-	typedef typename std::iterator_traits<Iterator>::value_type reference;
-	typedef typename std::iterator_traits<Iterator>::pointer pointer;
-	typedef typename std::iterator_traits<Iterator>::value_type value_type;
-	typedef ptrdiff_t difference_type;
+public:
+	typedef typename std::iterator_traits<typename Vector::iterator>::value_type      value_type;
+	typedef typename std::iterator_traits<typename Vector::iterator>::reference       reference;
+	typedef const typename std::iterator_traits<typename Vector::iterator>::reference const_reference;
+	typedef size_t      size_type;
+	typedef ptrdiff_t   difference_type;
 
-	ShiftedVectorConstIterator () {}
-	ShiftedVectorConstIterator (Iterator pos, value_type shift) : _pos (pos), _shift (shift) {}
+	typedef ShiftedVectorIterator<typename Vector::iterator> iterator;
+	typedef ShiftedVectorIterator<typename Vector::const_iterator> const_iterator;
+	typedef std::reverse_iterator<iterator> reverse_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	template <class It>
-	ShiftedVectorConstIterator (ShiftedVectorConstIterator<It> i)
-		: _pos (i._pos), _shift (i._shift)
+	ShiftedVector () {}
+	ShiftedVector (Vector &v, value_type shift)
+		: _v (v), _shift (shift)
 		{}
 
-	ShiftedVectorConstIterator &operator = (const ShiftedVectorConstIterator &i) {
-		_pos = i._pos;
-		_shift = i._shift;
-		return *this;
+	inline const_iterator              begin  ()       { return iterator (_v.begin (), _shift); }
+	inline const_iterator              end    ()       { return iterator (_v.end (), _shift); }
+	inline const_iterator              begin  () const { return const_iterator (_v.begin (), _shift); }
+	inline const_iterator              end    () const { return const_iterator (_v.end (), _shift); }
+
+	inline const_reverse_iterator      rbegin ()       { return reverse_iterator (end ()); }
+	inline const_reverse_iterator      rend   ()       { return reverse_iterator (begin ()); }
+	inline const_reverse_iterator      rbegin () const { return const_reverse_iterator (end ()); }
+	inline const_reverse_iterator      rend   () const { return const_reverse_iterator (begin ()); }
+
+	inline reference       operator[] (size_type n)       { return *(begin () + n); }
+	inline const_reference operator[] (size_type n) const { return *(begin () + n); }
+
+	inline reference at (size_type n)
+	{
+		if (n >= size ())
+			throw std::out_of_range ("n");
+		else
+			return (*this)[n];
 	}
+
+	inline const_reference at (size_type n) const
+	{
+		if (n >= size ())
+			throw std::out_of_range ("n");
+		else
+			return (*this)[n];
+	}
+
+	inline reference       front     ()       { return *(begin ()); }
+	inline const_reference front     () const { return *(begin ()); }
+	inline reference       back      ()       { return *(end () - 1); }
+	inline const_reference back      () const { return *(end () - 1); }
+
+	inline void            push_back (const value_type &x)  { _v.push_back (x); }
+	inline void            clear     ()            { _v.clear (); }
+	inline void            resize    (size_type s) { _v.resize (s); }
+
+	template <class InputIterator>
+	void assign (InputIterator first, InputIterator last)
+		{ _v.assign (first, last); }
+
+	inline iterator insert (iterator pos, const value_type &x)
+		{ return _v.insert (pos._pos, x); }
 
 	template <class It>
-	ShiftedVectorConstIterator &operator = (const ShiftedVectorConstIterator<It> &i) {
-		_pos = i._pos;
-		_shift = i._shift;
-		return *this;
-	}
+	void insert (iterator pos, It begin, It end)
+		{ _v.insert (pos._pos, begin, end); }
 
-	ShiftedVectorConstIterator &operator ++ () 
-	{
-		++_pos;
-		return *this;
-	}
-
-	ShiftedVectorConstIterator operator ++ (int) 
-	{
-		ShiftedVectorConstIterator tmp (*this);
-		++*this;
-		return tmp;
-	}
-
-	ShiftedVectorConstIterator operator + (difference_type i) const
-	{
-		return ShiftedVectorConstIterator (_pos + i, _shift);
-	}
-
-	ShiftedVectorConstIterator &operator += (difference_type i) 
-	{
-		_pos += i;
-		return *this;
-	}
-
-	ShiftedVectorConstIterator &operator -- () 
-	{
-		--_pos;
-		return *this;
-	}
-
-	ShiftedVectorConstIterator operator -- (int) 
-	{
-		ShiftedVectorConstIterator tmp (*this);
-		--*this;
-		return tmp;
-	}
-
-	ShiftedVectorConstIterator operator - (difference_type i) const
-		{ return *this + -i; }
-
-	ShiftedVectorConstIterator &operator -= (difference_type i) 
-		{ return *this += -i; }
+	inline iterator erase (iterator pos)
+		{ return _v.erase (pos._pos); }
 
 	template <class It>
-	difference_type operator - (const ShiftedVectorConstIterator<It> &i) const 
-		{ return _pos - i._pos; }
+	void erase (It begin, It end)
+		{ _v.erase (begin, end); }
 
-	reference operator [] (long i) const
-		{ return *(*this + i) - _shift; }
+	inline size_type       size      () const { return _v.size ();  }
+	inline bool            empty     () const { return _v.empty (); }
+	inline size_type       max_size  () const { return _v.max_size ();  }
 
-	value_type operator * () const
-		{ return *_pos - _shift; }
+	inline bool operator == (const ShiftedVector &v) const
+		{ return (&_v == &v._v) && (_shift == v._shift); }
 
-	bool operator == (const ShiftedVectorConstIterator &c) const 
-		{ return (_pos == c._pos) && (_shift == c._shift); }
-
-	template <class It>
-	bool operator == (const ShiftedVectorConstIterator<It> &c) const 
-		{ return (_pos == c._pos) && (_shift == c._shift); }
-
-	bool operator != (const ShiftedVectorConstIterator &c) const 
-		{ return (_pos != c._pos) || (_shift != c._shift); }
-
-	template <class It>
-	bool operator != (const ShiftedVectorConstIterator<It> &c) const 
-		{ return (_pos != c._pos) || (_shift != c._shift); }
-
-    private:
-	template <class It>
-	friend class ShiftedVectorConstIterator;
-
-	Iterator _pos;
+protected:
+	Vector &_v;
 	value_type _shift;
 };
 

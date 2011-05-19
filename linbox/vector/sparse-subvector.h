@@ -52,33 +52,33 @@ class SparseSubvector
 	~SparseSubvector () {}
 }; // template <class Vector, Trait> class SparseSubvector
 
-// Specialisation of SparseSubvector to sparse format
+// Specialisation of SparseSubvector to const vector in sparse format
 
 template <class Vector>
-class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
-	: public ConstSparseVector<typename ShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator>
+class SparseSubvector<const Vector, VectorCategories::SparseVectorTag>
+	: public ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator>
 {
     public:
-	typedef ConstSparseVector<typename ShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator> parent_type;
+	typedef ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator> parent_type;
 
 	SparseSubvector () {}
-	SparseSubvector (Vector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
+	SparseSubvector (const Vector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
 		typename Vector::const_index_iterator begin = std::lower_bound (v.index_begin (), v.index_end (), start);
 		typename Vector::const_index_iterator end = std::lower_bound (v.index_begin (), v.index_end (), finish);
 		
-		_idx = ShiftedVector<typename Vector::const_index_iterator> (begin, end, start);
+		_idx = ConstShiftedVector<typename Vector::const_index_iterator> (begin, end, start);
 		parent_type::_idx_begin = _idx.begin ();
 		parent_type::_idx_end = _idx.end ();
 		parent_type::_elt_begin = v.element_begin () + (begin - v.index_begin ());
 	}
 
-	SparseSubvector (SparseSubvector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
+	SparseSubvector (const SparseSubvector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
 		typename Vector::const_index_iterator begin = std::lower_bound (v._idx._start, v._idx._end, v._idx._shift + start);
 		typename Vector::const_index_iterator end = std::lower_bound (v._idx._start, v._idx._end, v._idx._shift + finish);
 		
-		_idx = ShiftedVector<typename Vector::const_index_iterator> (begin, end, v._idx._shift + start);
+		_idx = ConstShiftedVector<typename Vector::const_index_iterator> (begin, end, v._idx._shift + start);
 		parent_type::_idx_begin = _idx.begin ();
 		parent_type::_idx_end = _idx.end ();
 		parent_type::_elt_begin = v.element_begin () + (begin - v.index_begin ());
@@ -95,27 +95,27 @@ class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 
     private:
 
-	ShiftedVector<typename Vector::const_index_iterator> _idx;
+	ConstShiftedVector<typename Vector::const_index_iterator> _idx;
 
 }; // template <class Vector> class SparseSubvector<Vector, SparseVectorTag>
 
-// Specialisation of SparseSubvector to sparse zero-one format
+// Specialisation of SparseSubvector to const vector in sparse zero-one format
 
 template <class Vector>
-class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public ShiftedVector<typename Vector::const_iterator>
+class SparseSubvector<const Vector, VectorCategories::SparseZeroOneVectorTag> : public ConstShiftedVector<typename Vector::const_iterator>
 {
     public:
-	typedef ShiftedVector<typename Vector::const_iterator> parent_type;
+	typedef ConstShiftedVector<typename Vector::const_iterator> parent_type;
 
 	SparseSubvector () {}
-	SparseSubvector (Vector &v, typename Vector::value_type start, typename Vector::value_type finish)
+	SparseSubvector (const Vector &v, typename Vector::value_type start, typename Vector::value_type finish)
 		: parent_type (std::lower_bound (v.begin (), v.end (), start), std::lower_bound (v.begin (), v.end (), finish), start)
 		{}
-	SparseSubvector (SparseSubvector &v, typename Vector::value_type start, typename Vector::value_type finish)
+	SparseSubvector (const SparseSubvector &v, typename Vector::value_type start, typename Vector::value_type finish)
 		: parent_type (std::lower_bound (v._v.begin (), v._v.end (), start + v._shift), std::lower_bound (v._v.begin (), v._v.end (), finish + v._shift), start + v._shift)
 		{}
 	SparseSubvector (const SparseSubvector &v)
-		: ShiftedVector<typename Vector::const_iterator> (v)
+		: parent_type (v)
 		{}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
