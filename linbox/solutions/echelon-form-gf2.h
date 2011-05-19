@@ -18,9 +18,9 @@
 
 #include <m4ri/m4ri.h>
 
-#include "linbox/solutions/echelon-form.h"
-#include "linbox/field/gf2.h"
 #include "linbox/util/commentator.h"
+#include "linbox/field/gf2.h"
+#include "linbox/solutions/echelon-form.h"
 #include "linbox/matrix/m4ri-matrix.h"
 #include "linbox/blas/level1.h"
 #include "linbox/blas/level3.h"
@@ -49,7 +49,12 @@ public:
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
 	{
-		commentator.start ("Row-echelon form", __FUNCTION__);
+		static const char *method_names[] = { "standard", "recursive", "M4RI" };
+
+		std::ostringstream str;
+		str << "Row-echelon form (method: " << method_names[method] << ")" << std::ends;
+
+		commentator.start (str.str ().c_str (), __FUNCTION__);
 
 		size_t rank;
 		bool d;
@@ -71,9 +76,14 @@ public:
 	}
 
 	// Specialisation for M4RI-matrices
-	M4RIMatrix &RowEchelonForm (M4RIMatrix &A, bool reduced = false, Method method = METHOD_M4RI)
+	DenseMatrix<bool> &RowEchelonForm (DenseMatrix<bool> &A, bool reduced = false, Method method = METHOD_M4RI)
 	{
-		commentator.start ("Row-echelon form", __FUNCTION__);
+		static const char *method_names[] = { "standard", "recursive", "M4RI" };
+
+		std::ostringstream str;
+		str << "Row-echelon form (method: " << method_names[method] << ")" << std::ends;
+
+		commentator.start (str.str ().c_str (), __FUNCTION__);
 
 		size_t rank;
 		bool d;

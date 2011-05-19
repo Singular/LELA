@@ -239,7 +239,7 @@ int main (int argc, char **argv)
 {
 	commentator.setBriefReportParameters (Commentator::OUTPUT_PIPE, false, false, false);
 	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (0);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (3);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDetailLevel (Commentator::LEVEL_NORMAL);

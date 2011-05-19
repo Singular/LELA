@@ -414,15 +414,14 @@ public:
 	DenseMatrix ()
 	{}
 
-	/** Constructor.
-	 * @param  m  row dimension
-	 * @param  n  column dimension
-	 */
 	DenseMatrix (size_t m, size_t n)
 		: M4RIMatrix (m, n)
 	{}
 
-	///
+	DenseMatrix (DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+		: M4RIMatrix (M, beg_row, beg_col, m, n)
+	{}
+
 	DenseMatrix (const DenseMatrix &M)
 		: M4RIMatrix (M)
 	{}
