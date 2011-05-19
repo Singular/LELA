@@ -361,6 +361,12 @@ public:
 	typedef std::reverse_iterator<iterator> reverse_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
+	typedef IndexVector index_vector;
+	typedef typename IndexVector::value_type index_type;
+
+	typedef ElementVector element_vector;
+	typedef Element element_type;
+
 	typedef typename iterator::value_type value_type;
 	typedef size_t size_type;
 
@@ -500,7 +506,7 @@ public:
 	void swap (SparseVector &v)
 		{ std::swap (_idx, v._idx); std::swap (_elt, v._elt); }
 
-private:
+protected:
 	template <class V, class T>
 	friend class SparseSubvector;
 
