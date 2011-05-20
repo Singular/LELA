@@ -174,11 +174,21 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	return y;
 }
 
+template <class Field, class Vector>
+void fast_copy (const Field &F, GenericModule &M, SparseVector<typename Field::Element, std::vector<typename Vector::index_type>, std::vector<typename Vector::element_type> > &v, Vector &w)
+	{ _copy (F, M, v, w); }
+
+template <class Field, class index_type>
+void fast_copy (const Field &F, GenericModule &M,
+		SparseVector<typename Field::Element, std::vector<index_type>, std::vector<typename Field::Element> > &v,
+		SparseVector<typename Field::Element, std::vector<index_type>, std::vector<typename Field::Element> > &w)
+	{ std::swap (v, w); }
+
 template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
-	Vector2 tmp;
+	SparseVector<typename Field::Element, std::vector<typename Vector2::index_type>, std::vector<typename Vector2::element_type> > tmp;
 
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
@@ -206,7 +216,7 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 		j++;
 	}
 
-	std::swap (tmp, y);
+	fast_copy (F, M, tmp, y);
 
 	return y;
 }

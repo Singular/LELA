@@ -27,6 +27,8 @@ template <class Vector>
 class SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>
 {
     public:
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+
 	typedef typename Vector::index_type index_type;
 	typedef typename Vector::word_type word_type;
 	typedef std::pair<index_type, word_type> value_type;

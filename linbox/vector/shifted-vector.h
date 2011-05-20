@@ -60,8 +60,7 @@ class ShiftedVectorIterator
 	ShiftedVectorIterator () {}
 	ShiftedVectorIterator (Iterator pos, value_type shift) : _ref (pos, shift) {}
 
-	template <class It>
-	ShiftedVectorIterator (ShiftedVectorIterator<It> i)
+	ShiftedVectorIterator (const ShiftedVectorIterator &i)
 		: _ref (i._ref._i, i._ref._shift)
 		{}
 
@@ -231,18 +230,28 @@ public:
 
 	ShiftedVector () {}
 	ShiftedVector (Vector &v, value_type shift)
-		: _v (v), _shift (shift)
+		: _v (&v), _shift (shift)
 		{}
 
-	inline const_iterator              begin  ()       { return iterator (_v.begin (), _shift); }
-	inline const_iterator              end    ()       { return iterator (_v.end (), _shift); }
-	inline const_iterator              begin  () const { return const_iterator (_v.begin (), _shift); }
-	inline const_iterator              end    () const { return const_iterator (_v.end (), _shift); }
+	ShiftedVector (const ShiftedVector &v)
+		: _v (v._v), _shift (v._shift) {}
 
-	inline const_reverse_iterator      rbegin ()       { return reverse_iterator (end ()); }
-	inline const_reverse_iterator      rend   ()       { return reverse_iterator (begin ()); }
-	inline const_reverse_iterator      rbegin () const { return const_reverse_iterator (end ()); }
-	inline const_reverse_iterator      rend   () const { return const_reverse_iterator (begin ()); }
+	ShiftedVector &operator = (const ShiftedVector &v)
+	{
+		_v = v._v;
+		_shift = v._shift;
+		return *this;
+	}
+
+	inline iterator               begin  ()       { return iterator (_v->begin (), _shift); }
+	inline iterator               end    ()       { return iterator (_v->end (), _shift); }
+	inline const_iterator         begin  () const { return const_iterator (_v->begin (), _shift); }
+	inline const_iterator         end    () const { return const_iterator (_v->end (), _shift); }
+
+	inline reverse_iterator       rbegin ()       { return reverse_iterator (end ()); }
+	inline reverse_iterator       rend   ()       { return reverse_iterator (begin ()); }
+	inline const_reverse_iterator rbegin () const { return const_reverse_iterator (end ()); }
+	inline const_reverse_iterator rend   () const { return const_reverse_iterator (begin ()); }
 
 	inline reference       operator[] (size_type n)       { return *(begin () + n); }
 	inline const_reference operator[] (size_type n) const { return *(begin () + n); }
@@ -268,40 +277,44 @@ public:
 	inline reference       back      ()       { return *(end () - 1); }
 	inline const_reference back      () const { return *(end () - 1); }
 
-	inline void            push_back (const value_type &x)  { _v.push_back (x); }
-	inline void            clear     ()            { _v.clear (); }
-	inline void            resize    (size_type s) { _v.resize (s); }
+	inline void            push_back (const value_type &x)  { _v->push_back (x); }
+	inline void            clear     ()            { _v->clear (); }
+	inline void            resize    (size_type s) { _v->resize (s); }
 
 	template <class InputIterator>
 	void assign (InputIterator first, InputIterator last)
-		{ _v.assign (first, last); }
+		{ _v->assign (first, last); }
 
 	inline iterator insert (iterator pos, const value_type &x)
-		{ return _v.insert (pos._pos, x); }
+		{ return _v->insert (pos._pos, x); }
 
 	template <class It>
 	void insert (iterator pos, It begin, It end)
-		{ _v.insert (pos._pos, begin, end); }
+		{ _v->insert (pos._pos, begin, end); }
 
 	inline iterator erase (iterator pos)
-		{ return _v.erase (pos._pos); }
+		{ return _v->erase (pos._pos); }
 
 	template <class It>
 	void erase (It begin, It end)
-		{ _v.erase (begin, end); }
+		{ _v->erase (begin, end); }
 
-	inline size_type       size      () const { return _v.size ();  }
-	inline bool            empty     () const { return _v.empty (); }
-	inline size_type       max_size  () const { return _v.max_size ();  }
+	inline size_type       size      () const { return _v->size ();  }
+	inline bool            empty     () const { return _v->empty (); }
+	inline size_type       max_size  () const { return _v->max_size ();  }
 
 	inline bool operator == (const ShiftedVector &v) const
 		{ return (&_v == &v._v) && (_shift == v._shift); }
 
-protected:
-	template <class V, class T>
-	class SparseSubvector;
+	Vector       &parent     ()       { return *_v; }
+	const Vector &parent     () const { return *_v; }
+	value_type    shift      () const { return _shift; }
 
-	Vector &_v;
+	void          set_parent (Vector &v)        { _v = &v; }
+	void          set_shift  (value_type shift) { _shift = shift; }
+
+protected:
+	Vector *_v;
 	value_type _shift;
 };
 

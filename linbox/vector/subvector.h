@@ -199,22 +199,33 @@ class MutableSubvector
 	typedef std::reverse_iterator<iterator>                          reverse_iterator;
 	typedef std::reverse_iterator<const_iterator>                    const_reverse_iterator;
 
-	MutableSubvector (Vector &v, iterator begin, iterator end)
-		: _v (v), _idx_begin (begin - v.begin ()), _idx_end (end - v.begin ()) {}
-	
+	MutableSubvector () {}
+
+	MutableSubvector (Vector &v, typename Vector::iterator begin, typename Vector::iterator end)
+		: _v (&v), _idx_begin (begin - v.begin ()), _idx_end (end - v.begin ()) {}
+
+	MutableSubvector (const MutableSubvector &v)
+		: _v (v._v), _idx_begin (v._idx_begin), _idx_end (v._idx_end) {}
+
 	~MutableSubvector () {}
+
+	MutableSubvector &operator = (const MutableSubvector &v)
+	{
+		_v = v._v;
+		_idx_begin = v._idx_begin;
+		_idx_end = v._idx_end;
+		return *this;
+	}
 	
-	// Iterators
+	iterator               begin  ()       { return _v->begin () + _idx_begin; }
+	const_iterator         begin  () const { return _v->begin () + _idx_begin; }
+	iterator               end    ()       { return _v->begin () + _idx_end; }
+	const_iterator         end    () const { return _v->begin () + _idx_end; }
 	
-	iterator               begin  ()       { return _v.begin () + _idx_begin; }
-	const_iterator         begin  () const { return _v.begin () + _idx_begin; }
-	iterator               end    ()       { return _v.begin () + _idx_end; }
-	const_iterator         end    () const { return _v.begin () + _idx_end; }
-	
-	reverse_iterator       rbegin ()       { return reverse_iterator (_v.begin () + _idx_end); }
-	const_reverse_iterator rbegin () const { return reverse_iterator (_v.begin () + _idx_end); }
-	reverse_iterator       rend   ()       { return reverse_iterator (_v.begin () + _idx_begin); }
-	const_reverse_iterator rend   () const { return reverse_iterator (_v.begin () + _idx_begin); }
+	reverse_iterator       rbegin ()       { return reverse_iterator (_v->begin () + _idx_end); }
+	const_reverse_iterator rbegin () const { return reverse_iterator (_v->begin () + _idx_end); }
+	reverse_iterator       rend   ()       { return reverse_iterator (_v->begin () + _idx_begin); }
+	const_reverse_iterator rend   () const { return reverse_iterator (_v->begin () + _idx_begin); }
 	
 	// Element access
 	
@@ -246,9 +257,9 @@ class MutableSubvector
 	MutableSubvector &operator = (const Container &x)
 	{
 		typename Container::const_iterator q = x.begin ();
-		iterator p_end = _v.begin () + _idx_end;
+		iterator p_end = _v->begin () + _idx_end;
 		
-		for (iterator p = _v.begin () + _idx_begin; p != p_end; ++p, ++q)
+		for (iterator p = _v->begin () + _idx_begin; p != p_end; ++p, ++q)
 			*p = *q;
 		
 		return *this;
@@ -256,33 +267,33 @@ class MutableSubvector
 
 	size_type size     () const { return _idx_end - _idx_begin; }
 	bool      empty    () const { return _idx_end == _idx_begin; }
-	size_type max_size () const { return _v.max_size () - (_v.size () - _idx_end) - _idx_begin; }
-	size_type capacity () const { return _v.capacity () - (_v.size () - _idx_end) - _idx_begin; }
+	size_type max_size () const { return _v->max_size () - (_v->size () - _idx_end) - _idx_begin; }
+	size_type capacity () const { return _v->capacity () - (_v->size () - _idx_end) - _idx_begin; }
 
 	iterator insert (iterator position, const value_type &x)
 	{
-		position = _v.insert (position, x);
+		position = _v->insert (position, x);
 		++_idx_end;
 		return position;
 	}
 
 	void insert (iterator position, size_type n, const value_type &x)
 	{
-		_v.insert (position, n, x);
+		_v->insert (position, n, x);
 		_idx_end += n;
 	}	
 
 	template <class InputIterator>
 	void insert (iterator position, InputIterator first, InputIterator last)
 	{
-		size_type old_size = _v.size ();
-		_v.insert (position, first, last);
-		_idx_end += _v.size () - old_size;
+		size_type old_size = _v->size ();
+		_v->insert (position, first, last);
+		_idx_end += _v->size () - old_size;
 	}
 
 	void erase (iterator position)
 	{
-		position = _v.erase (position);
+		position = _v->erase (position);
 		--_idx_end;
 		return position;
 	}
@@ -290,7 +301,7 @@ class MutableSubvector
 	void erase (iterator first, iterator last)
 	{
 		_idx_end -= last - first;
-		first = _v.erase (first, last);
+		first = _v->erase (first, last);
 		return first;
 	}
 
@@ -303,12 +314,12 @@ class MutableSubvector
 	void resize (size_type n)
 	{
 		if (n > size ()) {
-			size_type old_size = _v.size ();
-			_v.resize (n + _idx_begin + _v.size () - _idx_end);
-			std::copy (_v.begin () + _idx_end, _v.begin () + old_size, _v.begin () + (_idx_begin + n));
+			size_type old_size = _v->size ();
+			_v->resize (n + _idx_begin + _v->size () - _idx_end);
+			std::copy (_v->begin () + _idx_end, _v->begin () + old_size, _v->begin () + (_idx_begin + n));
 		} else if (n < size ()) {
-			std::copy (_v.begin () + _idx_end, _v.end (), _v.begin () + (_idx_begin + n));
-			_v.resize (n + _idx_begin + _v.size () - _idx_end);
+			std::copy (_v->begin () + _idx_end, _v->end (), _v->begin () + (_idx_begin + n));
+			_v->resize (n + _idx_begin + _v->size () - _idx_end);
 		}
 
 		_idx_end = _idx_begin + n;
@@ -321,7 +332,13 @@ class MutableSubvector
 	void clear () { resize (0); }
 
 	void reserve (size_type n)
-		{ _v.reserve (n + _idx_begin + _v.size () - _idx_end); }
+		{ _v->reserve (n + _idx_begin + _v->size () - _idx_end); }
+
+	// Direct access to internals -- only for use by SparseSubvector
+	Vector &parent     () const { return *_v; }
+	void set_parent    (Vector &v)                 { _v         = &v; }
+	void set_idx_begin (difference_type idx_begin) { _idx_begin = idx_begin; }
+	void set_idx_end   (difference_type idx_end)   { _idx_end   = idx_end; }
 	
     protected:
 	template <class V2>
@@ -336,17 +353,17 @@ class MutableSubvector
 		clear ();
 
 		while (first != last)
-			insert (_v.begin () + _idx_end, *first++);
+			insert (_v->begin () + _idx_end, *first++);
 	}
 
 	template <class InputIterator>
 	void assign_spec (InputIterator first, InputIterator last, std::forward_iterator_tag)
 	{
 		resize (last - first);
-		std::copy (first, last, _v.begin () + _idx_begin);
+		std::copy (first, last, _v->begin () + _idx_begin);
 	}
 	
-	Vector &_v;
+	Vector *_v;
 	difference_type _idx_begin, _idx_end;
 
 }; // template <class Vector> class MutableSubvector

@@ -513,8 +513,11 @@ protected:
 	template <class V, class T>
 	friend class SparseSubvector;
 
-	ConstIndexIterator index_begin () const { return _idx.begin (); }
-	ConstIndexIterator index_end () const { return _idx.end (); }
+	IndexIterator        index_begin   ()       { return _idx.begin (); }
+	IndexIterator        index_end     ()       { return _idx.end (); }
+	ConstIndexIterator   index_begin   () const { return _idx.begin (); }
+	ConstIndexIterator   index_end     () const { return _idx.end (); }
+	ElementIterator      element_begin ()       { return _elt.begin (); }
 	ConstElementIterator element_begin () const { return _elt.begin (); }
 
 	IndexVector _idx;

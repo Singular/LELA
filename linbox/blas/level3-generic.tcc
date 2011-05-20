@@ -16,6 +16,7 @@
 #include "linbox/blas/level2.h"
 #include "linbox/blas/level3-generic.h"
 #include "linbox/matrix/transpose.h"
+#include "linbox/matrix/submatrix.h"
 
 namespace LinBox
 {
@@ -216,6 +217,12 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 template <class Field, class Modules, class Matrix>
 Matrix &_scal (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A);
 
+template <class Field, class Modules, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &_gemm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C);
+
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &_trmm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne);
+
 template <class Field, class Matrix1, class Matrix2>
 Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
@@ -226,116 +233,95 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	if (F.isZero (a))
 		return _scal (F, M, a, B);
 
-	typename Field::Element ai;
+	if (A.rowdim () == 1) {
+		if (diagIsOne)
+			return _scal (F, M, a, B);
+		else {
+			typename Field::Element ai;
 
-	if (diagIsOne)
-		F.assign (ai, a);
-
-	TransposeMatrix<Matrix2> BT (B);
-
-	if (type == LowerTriangular) {
-		typename Matrix2::RowIterator i_B = B.rowEnd ();
-		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
-
-		size_t idx = B.rowdim ();
-
-		if (idx == 0)   // Nothing to do
-			return B;
-
-		do {
-			--i_B; --i_A; --idx;
-
-			if (!diagIsOne) {
-				if (VectorWrapper::getEntry (*i_A, ai, idx))
-					F.mulin (ai, a);
-				else
-					F.assign (ai, F.zero ());
+			if (!A.getEntry (ai, 0, 0))
+				return _scal (F, M, F.zero (), B);
+			else {
+				F.mulin (ai, a);
+				return _scal (F, M, ai, B);
 			}
-
-			BLAS2::_gemv (F, M, a, BT, *i_A, ai, *i_B, 0, idx);
-		} while (idx != 0);
-	}
-	else if (type == UpperTriangular) {
-		typename Matrix2::RowIterator i_B;
-		typename Matrix1::ConstRowIterator i_A;
-
-		size_t idx = 0;
-
-		for (i_B = B.rowBegin (), i_A = A.rowBegin (); i_B != B.rowEnd (); ++i_B, ++i_A, ++idx) {
-			if (!diagIsOne) {
-				if (VectorWrapper::getEntry (*i_A, ai, idx))
-					F.mulin (ai, a);
-				else
-					F.assign (ai, F.zero ());
-			}
-
-			BLAS2::_gemv (F, M, a, BT, *i_A, ai, *i_B, idx + 1, B.rowdim ());
 		}
-	}
+	} else {
+		size_t l = A.rowdim () / 2;
+		Submatrix<const typename RealMatrixType<Matrix1>::Type> A11 (A, 0, 0, l, l);
+		Submatrix<const typename RealMatrixType<Matrix1>::Type> A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
-	return B;
+		Submatrix<typename RealMatrixType<Matrix2>::Type> B1 (B, 0, 0, l, B.coldim ());
+		Submatrix<typename RealMatrixType<Matrix2>::Type> B2 (B, l, 0, B.rowdim () - l, B.coldim ());
+
+		if (type == LowerTriangular) {
+			Submatrix<const typename RealMatrixType<Matrix1>::Type> A21 (A, l, 0, A.rowdim () - l, l);
+			_trmm (F, M, a, A22, B2, type, diagIsOne);
+			_gemm (F, M, a, A21, B1, F.one (), B2);
+			_trmm (F, M, a, A11, B1, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			Submatrix<const typename RealMatrixType<Matrix1>::Type> A12 (A, 0, l, l, A.coldim () - l);
+			_trmm (F, M, a, A11, B1, type, diagIsOne);
+			_gemm (F, M, a, A12, B2, F.one (), B1);
+			_trmm (F, M, a, A22, B2, type, diagIsOne);
+		}
+
+		return B;
+	}
 }
+
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &_trsm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne);
 
 template <class Field, class Matrix1, class Matrix2>
 Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
-	linbox_check (A.coldim () == A.rowdim ());
+	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
-	typename Field::Element ai, ai_inv, neg_ai_inv;
+	if (F.isZero (a))
+		return _scal (F, M, a, B);
 
-	if (diagIsOne) {
-		F.assign (neg_ai_inv, F.minusOne ());
-		F.assign (ai_inv, a);
-	}
+	if (A.rowdim () == 1) {
+		if (diagIsOne)
+			return _scal (F, M, a, B);
+		else {
+			typename Field::Element ai;
 
-	TransposeMatrix<Matrix2> BT (B);
-
-	if (type == LowerTriangular) {
-		typename Matrix1::ConstRowIterator i_A;
-		typename Matrix2::RowIterator i_B;
-		size_t idx = 0;
-
-		for (i_A = A.rowBegin (), i_B = B.rowBegin (); i_A != A.rowEnd (); ++i_A, ++i_B, ++idx) {
-			if (!diagIsOne) {
-				if (!VectorWrapper::getEntry (*i_A, ai, idx))
-					continue; // FIXME This should throw an error
-
-				F.inv (ai_inv, ai);
-				F.neg (neg_ai_inv, ai_inv);
-				F.mulin (ai_inv, a);
+			if (!A.getEntry (ai, 0, 0))
+				// FIXME: Should return an error
+				return _scal (F, M, F.zero (), B);
+			else {
+				F.invin (ai);
+				F.mulin (ai, a);
+				return _scal (F, M, ai, B);
 			}
-
-			BLAS2::_gemv (F, M, neg_ai_inv, BT, *i_A, ai_inv, *i_B, 0, idx);
 		}
+	} else {
+		size_t l = A.rowdim () / 2;
+		Submatrix<const typename RealMatrixType<Matrix1>::Type> A11 (A, 0, 0, l, l);
+		Submatrix<const typename RealMatrixType<Matrix1>::Type> A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
+
+		Submatrix<typename RealMatrixType<Matrix2>::Type> B1 (B, 0, 0, l, B.coldim ());
+		Submatrix<typename RealMatrixType<Matrix2>::Type> B2 (B, l, 0, B.rowdim () - l, B.coldim ());
+
+		if (type == LowerTriangular) {
+			Submatrix<const typename RealMatrixType<Matrix1>::Type> A21 (A, l, 0, A.rowdim () - l, l);
+			_trsm (F, M, a, A11, B1, type, diagIsOne);
+			_gemm (F, M, F.minusOne (), A21, B1, a, B2);
+			_trsm (F, M, F.one (), A22, B2, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			Submatrix<const typename RealMatrixType<Matrix1>::Type> A12 (A, 0, l, l, A.coldim () - l);
+			_trsm (F, M, a, A22, B2, type, diagIsOne);
+			_gemm (F, M, F.minusOne (), A12, B2, a, B1);
+			_trsm (F, M, F.one (), A11, B1, type, diagIsOne);
+		}
+
+		return B;
 	}
-	else if (type == UpperTriangular) {
-		typename Matrix1::ConstRowIterator i_A = A.rowEnd ();
-		typename Matrix2::RowIterator i_B = B.rowEnd ();
-
-		size_t idx = A.rowdim ();
-
-		if (idx == 0)   // Nothing to do
-			return B;
-
-		do {
-			--i_A; --i_B; --idx;
-
-			if (!diagIsOne) {
-				if (!VectorWrapper::getEntry (*i_A, ai, idx))
-					continue; // FIXME This should throw an error
-
-				F.inv (ai_inv, ai);
-				F.neg (neg_ai_inv, ai_inv);
-				F.mulin (ai_inv, a);
-			}
-
-			BLAS2::_gemv (F, M, neg_ai_inv, BT, *i_A, ai_inv, *i_B, idx + 1, A.coldim ());
-		} while (idx != 0);
-	}
-
-	return B;
 }
 
 template <class Field, class Modules, class Iterator, class Matrix>

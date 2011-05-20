@@ -45,6 +45,8 @@ template <class Vector, class Trait> // N.B. default argument in forward-declara
 class SparseSubvector
 {
     public:
+	typedef Trait VectorCategory; 
+
 	SparseSubvector ();
 	SparseSubvector (Vector &v, size_t start, size_t end);
 	SparseSubvector (SparseSubvector &v, size_t start, size_t end);
@@ -60,6 +62,7 @@ class SparseSubvector<const Vector, VectorCategories::SparseVectorTag>
 	: public ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator>
 {
     public:
+	typedef VectorCategories::SparseVectorTag VectorCategory; 
 	typedef ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator> parent_type;
 
 	SparseSubvector () {}
@@ -104,31 +107,40 @@ class SparseSubvector<const Vector, VectorCategories::SparseVectorTag>
 
 template <class Vector>
 class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
-	: public SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<Vector> >, MutableSubvector<typename Vector::element_vector> >
+	: public SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<typename Vector::index_vector> >, MutableSubvector<typename Vector::element_vector> >
 {
-	MutableSubvector<Vector> _idx_v;
+	MutableSubvector<typename Vector::index_vector> _idx_v;
 
     public:
-	typedef SparseVector<typename Vector::element_type, ShiftedVector<Vector>, typename Vector::element_vector> parent_type;
+	typedef VectorCategories::SparseVectorTag VectorCategory; 
+	typedef SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<typename Vector::index_vector> >, MutableSubvector<typename Vector::element_vector> > parent_type;
 
 	SparseSubvector () {}
 	SparseSubvector (Vector &v, typename Vector::index_type start, typename Vector::index_type finish)
-		: _idx_v (v._idx, std::lower_bound (v.index_begin (), v.index_end (), start), std::lower_bound (v.index_begin (), v.index_end (), finish)),
-		  parent_type::_elt (v._elt, v.element_begin () + (_idx_v.begin () - v.index_begin ()), v.element_begin () + (_idx_v.end () - v.index_begin ())),
-		  parent_type::_idx (_idx_v, start)
-	{}
+		: _idx_v (v._idx, std::lower_bound (v.index_begin (), v.index_end (), start), std::lower_bound (v.index_begin (), v.index_end (), finish))
+	{
+		parent_type::_elt.set_parent (v._elt);
+		parent_type::_elt.set_idx_begin (_idx_v.begin () - v.index_begin ());
+		parent_type::_elt.set_idx_end (_idx_v.end () - v.index_begin ());
+		parent_type::_idx.set_parent (_idx_v);
+		parent_type::_idx.set_shift (start);
+	}
 
 	SparseSubvector (SparseSubvector &v, typename Vector::index_type start, typename Vector::index_type finish)
-		: _idx_v (v._idx_v._v._v, std::lower_bound (v._idx_v._v._v.begin (), v._idx_v._v._v.end (), v._idx_v._shift + start),
-			  std::lower_bound (v._idx_v._v._v.begin (), v._idx_v._v._v.end (), v._idx_v._shift + finish)),
-		  parent_type::_elt (v._elt, v._elt_v._v.begin () + (_idx_v.begin () - v._idx_v._v._v.begin ()), v._elt_v._v.begin () + (_idx_v.end () - v._idx_v._v._v.begin ())),
-		  parent_type::_idx (_idx_v, start)
-	{}
+		: _idx_v (v._idx_v.parent (), std::lower_bound (v._idx_v.parent ().begin (), v._idx_v.parent ().end (), v._idx.shift () + start),
+			  std::lower_bound (v._idx_v.parent ().begin (), v._idx_v.parent ().end (), v._idx.shift () + finish))
+	{
+		parent_type::_elt.set_parent (v._elt);
+		parent_type::_elt.set_idx_begin (_idx_v.begin () - v._idx_v.parent ().begin ());
+		parent_type::_elt.set_idx_end (_idx_v.end () - v._idx_v.parent ().begin ());
+		parent_type::_idx.set_parent (_idx_v);
+		parent_type::_idx.set_shift (start);
+	}
 
 	~SparseSubvector () {}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
-		{ _idx_v = v._idx_v; this->parent_type::operator = (v); return *this; }
+		{ _idx_v = v._idx_v; this->parent_type::operator = (v); parent_type::_idx.set_parent (_idx_v); return *this; }
 
 }; // template <class Vector> class SparseSubvector<Vector, SparseVectorTag>
 
@@ -138,6 +150,7 @@ template <class Vector>
 class SparseSubvector<const Vector, VectorCategories::SparseZeroOneVectorTag> : public ConstShiftedVector<typename Vector::const_iterator>
 {
     public:
+	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
 	typedef ConstShiftedVector<typename Vector::const_iterator> parent_type;
 
 	SparseSubvector () {}
@@ -165,6 +178,7 @@ class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public
 	MutableSubvector<Vector> _v;
 
     public:
+	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
 	typedef ShiftedVector<Vector> parent_type;
 
 	SparseSubvector () {}
@@ -191,6 +205,7 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 	: public SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 {
     public:
+	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
 	typedef typename Vector::Endianness Endianness;
 	typedef typename Vector::index_type index_type;
 	typedef typename Vector::word_type word_type;
@@ -218,49 +233,6 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }
 
 }; // template <class Vector> class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
-
-// Vector traits for SparseVector wrapper
-template <class Vector, class Trait>
-struct DefaultVectorTraits<SparseSubvector<Vector, Trait> >
-{ 
-	typedef SparseSubvector<Vector, Trait> VectorType;
-	typedef Trait VectorCategory; 
-};
-
-template <class Vector, class Trait>
-struct DefaultVectorTraits<const SparseSubvector<Vector, Trait> >
-{ 
-	typedef const SparseSubvector<Vector, Trait> VectorType;
-	typedef Trait VectorCategory; 
-};
-
-template <class Vector, class Trait>
-struct GF2VectorTraits<SparseSubvector<Vector, Trait> >
-{ 
-	typedef SparseSubvector<Vector, Trait> VectorType;
-	typedef Trait VectorCategory; 
-};
-
-template <class Vector, class Trait>
-struct GF2VectorTraits<const SparseSubvector<Vector, Trait> >
-{ 
-	typedef const SparseSubvector<Vector, Trait> VectorType;
-	typedef Trait VectorCategory; 
-};
-
-template <class Vector>
-struct GF2VectorTraits<SparseSubvector<Vector, HybridSubvectorWordAlignedTag> >
-{ 
-	typedef SparseSubvector<Vector, HybridSubvectorWordAlignedTag> VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
-
-template <class Vector>
-struct GF2VectorTraits<const SparseSubvector<Vector, HybridSubvectorWordAlignedTag> >
-{ 
-	typedef const SparseSubvector<Vector, HybridSubvectorWordAlignedTag> VectorType;
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-};
 
 } // namespace LinBox
 
