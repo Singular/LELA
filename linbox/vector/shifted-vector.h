@@ -298,6 +298,9 @@ public:
 		{ return (&_v == &v._v) && (_shift == v._shift); }
 
 protected:
+	template <class V, class T>
+	class SparseSubvector;
+
 	Vector &_v;
 	value_type _shift;
 };

@@ -293,9 +293,9 @@ bool testSparseSubvectorHybrid ()
 	v.push_back (Vector<GF2>::Hybrid::value_type (0, pattern[0]));
 	v.push_back (Vector<GF2>::Hybrid::value_type (1, pattern[1]));
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v1 (v, offset, offset + len);
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v1 (v, offset, offset + len);
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v1 = v1.begin ();
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v1 = v1.begin ();
 
 	if (i_v1->first != 0) {
 		error << "ERROR: First index should be 0, is " << std::dec << i_v1->first << std::endl;
@@ -336,9 +336,9 @@ bool testSparseSubvectorHybrid ()
 
 	v.push_back (Vector<GF2>::Hybrid::value_type (1, pattern[0]));
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v2 (v, offset, offset + len);
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v2 (v, offset, offset + len);
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v2 = v2.begin ();
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v2 = v2.begin ();
 
 	if (i_v2->first != 0) {
 		error << "ERROR: First index should be 0, is " << std::dec << i_v2->first << std::endl;
@@ -385,9 +385,9 @@ bool testSparseSubvectorHybrid ()
 	v.push_back (Vector<GF2>::Hybrid::value_type (0, pattern[0]));
 	v.push_back (Vector<GF2>::Hybrid::value_type (2, pattern[1]));
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v3 (v, offset, WordTraits<Vector<GF2>::Hybrid::word_type>::bits + offset + len);
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v3 (v, offset, WordTraits<Vector<GF2>::Hybrid::word_type>::bits + offset + len);
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v3 = v3.begin ();
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v3 = v3.begin ();
 
 	if (i_v3->first != 0) {
 		error << "ERROR: First index should be 0, is " << std::dec << i_v3->first << std::endl;
@@ -452,9 +452,9 @@ bool testSparseSubvectorHybrid ()
 
 	v.push_back (Vector<GF2>::Hybrid::value_type (0, pattern[0]));
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v4 (v, offset, WordTraits<Vector<GF2>::Hybrid::word_type>::bits + offset + len);
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag> v4 (v, offset, WordTraits<Vector<GF2>::Hybrid::word_type>::bits + offset + len);
 
-	SparseSubvector<Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v4 = v4.begin ();
+	SparseSubvector<const Vector<GF2>::Hybrid, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v4 = v4.begin ();
 
 	if (i_v4->first != 0) {
 		error << "ERROR: First index should be 0, is " << std::dec << i_v4->first << std::endl;

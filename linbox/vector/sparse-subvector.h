@@ -107,8 +107,6 @@ class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 	: public SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<Vector> >, MutableSubvector<typename Vector::element_vector> >
 {
 	MutableSubvector<Vector> _idx_v;
-	ShiftedVector<MutableSubvector<Vector> > _idx_v_shifted;
-	MutableSubvector<typename Vector::element_vector> _elt_v;
 
     public:
 	typedef SparseVector<typename Vector::element_type, ShiftedVector<Vector>, typename Vector::element_vector> parent_type;
@@ -117,20 +115,20 @@ class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 	SparseSubvector (Vector &v, typename Vector::index_type start, typename Vector::index_type finish)
 		: _idx_v (v._idx, std::lower_bound (v.index_begin (), v.index_end (), start), std::lower_bound (v.index_begin (), v.index_end (), finish)),
 		  parent_type::_elt (v._elt, v.element_begin () + (_idx_v.begin () - v.index_begin ()), v.element_begin () + (_idx_v.end () - v.index_begin ())),
-		  parent_type::_idx (_idx_v, start),
+		  parent_type::_idx (_idx_v, start)
 	{}
 
 	SparseSubvector (SparseSubvector &v, typename Vector::index_type start, typename Vector::index_type finish)
 		: _idx_v (v._idx_v._v._v, std::lower_bound (v._idx_v._v._v.begin (), v._idx_v._v._v.end (), v._idx_v._shift + start),
 			  std::lower_bound (v._idx_v._v._v.begin (), v._idx_v._v._v.end (), v._idx_v._shift + finish)),
 		  parent_type::_elt (v._elt, v._elt_v._v.begin () + (_idx_v.begin () - v._idx_v._v._v.begin ()), v._elt_v._v.begin () + (_idx_v.end () - v._idx_v._v._v.begin ())),
-		  parent_type::_idx (_idx_v, start),
+		  parent_type::_idx (_idx_v, start)
 	{}
 
 	~SparseSubvector () {}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
-		{ _idx_v = v._idx_v; _idx_v_shifted = v._idx_v_shifted; _elt_v = v._elt_v; this->parent_type::operator = (v); return *this; }
+		{ _idx_v = v._idx_v; this->parent_type::operator = (v); return *this; }
 
 }; // template <class Vector> class SparseSubvector<Vector, SparseVectorTag>
 
@@ -186,10 +184,10 @@ class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public
 	~SparseSubvector () {}
 }; // template <class Vector> class SparseSubvector<Vector, SparseZeroOneVectorTag>
 
-// Specialisation of SparseSubvector to word-aligned hybrid format
+// Specialisation of SparseSubvector to (non-const) hybrid vector
 
 template <class Vector>
-class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
+class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 	: public SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 {
     public:
@@ -198,13 +196,19 @@ class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 	typedef typename Vector::word_type word_type;
 
 	SparseSubvector () {}
-	SparseSubvector (Vector &v, index_type start, index_type finish)
-		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start, finish)
-	{}
+	SparseSubvector (Vector &v, size_t start, size_t finish)
+		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start >> WordTraits<word_type>::logof_size, finish >> WordTraits<word_type>::logof_size)
+	{
+		linbox_check (start & WordTraits<word_type>::pos_mask == 0);
+		linbox_check (finish & WordTraits<word_type>::pos_mask == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
+	}
 
-	SparseSubvector (SparseSubvector &v, index_type start, index_type finish)
-		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start, finish)
-	{}
+	SparseSubvector (SparseSubvector &v, size_t start, size_t finish)
+		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start >> WordTraits<word_type>::logof_size, finish >> WordTraits<word_type>::logof_size)
+	{
+		linbox_check (start & WordTraits<word_type>::pos_mask == 0);
+		linbox_check (finish & WordTraits<word_type>::pos_mask == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
+	}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
 		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }

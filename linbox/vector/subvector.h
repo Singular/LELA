@@ -327,6 +327,9 @@ class MutableSubvector
 	template <class V2>
 	friend class MutableSubvector;
 
+	template <class V, class T>
+	class SparseSubvector;
+
 	template <class InputIterator>
 	void assign_spec (InputIterator first, InputIterator last, std::input_iterator_tag)
 	{

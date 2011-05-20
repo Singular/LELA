@@ -104,8 +104,8 @@ template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const
 {
-	SparseSubvector<Vector2, VectorCategories::HybridZeroOneVectorTag> v1 (in, src_idx, src_idx + size);
-	typename SparseSubvector<Vector2, VectorCategories::HybridZeroOneVectorTag>::iterator i_v1;
+	SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag> v1 (in, src_idx, src_idx + size);
+	typename SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag>::iterator i_v1;
 
 	for (i_v1 = v1.begin (); i_v1 != v1.end (); ++i_v1)
 		append_word (out, dest_idx + (i_v1->first << WordTraits<typename Vector2::word_type>::logof_size), i_v1->second);
@@ -115,7 +115,7 @@ template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const
 {
-	SparseSubvector<Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	SparseSubvector<const Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
 	Context<Field> ctx (F);
@@ -172,7 +172,7 @@ template <class Field, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const
 {
-	SparseSubvector<Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	SparseSubvector<const Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
 	Context<Field> ctx (F);
