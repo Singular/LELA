@@ -138,6 +138,10 @@ class ShiftedVectorIterator
 	bool operator != (const ShiftedVectorIterator<It> &c) const 
 		{ return (_ref._i != c._ref._i) || (_ref._shift != c._ref._shift); }
 
+	template <class It>
+	operator ShiftedVectorIterator<It> () const
+		{ return ShiftedVectorIterator<It> (_ref._i, _ref._shift); }
+
     private:
 	template <class It>
 	friend class ShiftedVectorIterator;
@@ -159,6 +163,8 @@ public:
 	typedef typename std::iterator_traits<Iterator>::value_type value_type;
 	typedef size_t      size_type;
 	typedef ptrdiff_t   difference_type;
+	typedef typename std::iterator_traits<Iterator>::reference reference;
+	typedef const reference const_reference;
 
 	typedef ShiftedVectorIterator<Iterator> const_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
@@ -197,6 +203,9 @@ public:
 
 	inline const_reverse_iterator      rbegin     (void) const { return const_reverse_iterator (end ()); }
 	inline const_reverse_iterator      rend       (void) const { return const_reverse_iterator (begin ()); }
+
+	inline value_type front     () const { return *(begin ()); }
+	inline value_type back      () const { return *(end () - 1); }
 
 	inline size_t size () const { return _end - _begin; }
 	inline bool empty () const { return _end == _begin; }
@@ -272,10 +281,8 @@ public:
 			return (*this)[n];
 	}
 
-	inline reference       front     ()       { return *(begin ()); }
-	inline const_reference front     () const { return *(begin ()); }
-	inline reference       back      ()       { return *(end () - 1); }
-	inline const_reference back      () const { return *(end () - 1); }
+	inline value_type front () const { return *(begin ()); }
+	inline value_type back  () const { return *(end () - 1); }
 
 	inline void            push_back (const value_type &x)  { _v->push_back (x); }
 	inline void            clear     ()            { _v->clear (); }

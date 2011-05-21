@@ -198,8 +198,8 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 		    VectorCategories::HybridZeroOneVectorTag,
 		    VectorCategories::GenericVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+	// linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
+	// linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
 
 	typename Matrix::ConstColIterator i_A;
 	typename Vector1::const_iterator i_x;

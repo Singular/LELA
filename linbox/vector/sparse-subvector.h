@@ -179,21 +179,22 @@ class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public
 
     public:
 	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
-	typedef ShiftedVector<Vector> parent_type;
+	typedef ShiftedVector<MutableSubvector<Vector> > parent_type;
 
 	SparseSubvector () {}
 	SparseSubvector (Vector &v, typename Vector::value_type start, typename Vector::value_type finish)
-		: _v (v, std::lower_bound (v.begin (), v.end (), start), std::lower_bound (v.begin (), v.end (), finish)), parent_type (_v, start)
-		{}
+		: _v (v, std::lower_bound (v.begin (), v.end (), start), std::lower_bound (v.begin (), v.end (), finish))
+		{ parent_type::set_parent (_v); parent_type::set_shift (start); }
 	SparseSubvector (SparseSubvector &v, typename Vector::value_type start, typename Vector::value_type finish)
-		: _v (v, std::lower_bound (v._v.begin (), v._v.end (), start + v._shift), std::lower_bound (v._v.begin (), v._v.end (), finish + v._shift)), parent_type (_v, start)
-		{}
+		: _v (v._v.parent (), std::lower_bound (v._v.begin (), v._v.end (), start + v._shift), std::lower_bound (v._v.begin (), v._v.end (), finish + v._shift))
+		{ parent_type::set_parent (_v); parent_type::set_shift (start + v._shift); }
+
 	SparseSubvector (const SparseSubvector &v)
-		: _v (v._v), parent_type (v)
-		{}
+		: _v (v._v)
+		{ parent_type::set_parent (_v); parent_type::set_shift (v._shift); }
 
 	SparseSubvector &operator = (const SparseSubvector &v)
-		{ _v = v._v; parent_type::operator = (v); return *this; }
+		{ _v = v._v; parent_type::set_shift (v._shift); parent_type::set_parent (_v); return *this; }
 
 	~SparseSubvector () {}
 }; // template <class Vector> class SparseSubvector<Vector, SparseZeroOneVectorTag>
@@ -212,17 +213,19 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 
 	SparseSubvector () {}
 	SparseSubvector (Vector &v, size_t start, size_t finish)
-		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start >> WordTraits<word_type>::logof_size, finish >> WordTraits<word_type>::logof_size)
+		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start >> WordTraits<word_type>::logof_size,
+									      (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)
 	{
-		linbox_check (start & WordTraits<word_type>::pos_mask == 0);
-		linbox_check (finish & WordTraits<word_type>::pos_mask == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
+		linbox_check ((start & WordTraits<word_type>::pos_mask) == 0);
+		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
 	}
 
 	SparseSubvector (SparseSubvector &v, size_t start, size_t finish)
-		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start >> WordTraits<word_type>::logof_size, finish >> WordTraits<word_type>::logof_size)
+		: SparseSubvector<Vector, VectorCategories::SparseVectorTag> (v, start >> WordTraits<word_type>::logof_size,
+									      (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)
 	{
-		linbox_check (start & WordTraits<word_type>::pos_mask == 0);
-		linbox_check (finish & WordTraits<word_type>::pos_mask == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
+		linbox_check ((start & WordTraits<word_type>::pos_mask) == 0);
+		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
 	}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
