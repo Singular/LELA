@@ -238,6 +238,16 @@ class Submatrix
 		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
 		{}
 
+	// Parametrised version
+	template <class M2>
+	Submatrix (const Submatrix<M2, SFTrait, Trait> &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
+		{}
+
 	/** Copy constructor
 	 * @param _M Submatrix to copy
 	 */
@@ -355,6 +365,9 @@ class Submatrix
 
     protected:
 
+	template <class M2, class SFT2, class T2>
+	friend class Submatrix;
+
 	Matrix *_M;
 	size_t _beg_row;
 	size_t _end_row;
@@ -393,6 +406,15 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 		{}
 
 	Submatrix (const Submatrix &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
+		{}
+
+	template <class M2>
+	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::RowMatrixTag> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -456,6 +478,9 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 
     protected:
 
+	template <class M2, class SFT2, class T2>
+	friend class Submatrix;
+
 	Matrix *_M;
 	size_t _beg_row;
 	size_t _end_row;
@@ -496,6 +521,15 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 		{}
 
 	Submatrix (const Submatrix &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
+		{}
+
+	template <class M2>
+	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::ColMatrixTag> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -558,6 +592,9 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 	inline size_t startCol () const { return _beg_col; }
 
     protected:
+
+	template <class M2, class SFT2, class T2>
+	friend class Submatrix;
 
 	Matrix *_M;
 	size_t _beg_row;

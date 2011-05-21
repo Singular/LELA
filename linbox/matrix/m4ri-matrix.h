@@ -27,8 +27,6 @@
 namespace LinBox
 {
 
-class MatrixDomainM4RI;
-
 class M4RIMatrix;
 
 /** Wrapper for dense zero-one matrices in M4RI
@@ -257,8 +255,6 @@ class M4RIMatrixBase
 
     protected:
 
-	friend class MatrixDomainM4RI;
-
 	friend class RowIteratorPT<word *, const word *, M4RIMatrixBase *>;
 	friend class RowIteratorPT<const word *, const word *, const M4RIMatrixBase *>;
 
@@ -370,7 +366,7 @@ class Submatrix<M4RIMatrix> : public Submatrix<M4RIMatrixBase>
 		{}
 
     private:
-	friend class MatrixDomainM4RI;
+	friend class Submatrix<const M4RIMatrix>;
 
 	M4RIMatrix _rep;
 };
@@ -401,9 +397,16 @@ class Submatrix<const M4RIMatrix> : public Submatrix<const M4RIMatrixBase>
 		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
 		{}
 
-    private:
-	friend class MatrixDomainM4RI;
+	Submatrix (const Submatrix<M4RIMatrix> &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: Submatrix<const M4RIMatrixBase> (SM, row, col, rowdim, coldim),
+		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
+		{}
 
+    private:
 	const M4RIMatrix _rep;
 };
 
@@ -473,6 +476,14 @@ class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix>
 		{}
 
 	Submatrix (const Submatrix &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: Submatrix<const M4RIMatrix> (SM, row, col, rowdim, coldim)
+		{}
+
+	Submatrix (const Submatrix<DenseMatrix<bool> > &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
