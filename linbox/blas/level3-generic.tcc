@@ -230,10 +230,13 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
+	if (A.rowdim () == 0)
+		return B;
+
 	if (F.isZero (a))
 		return _scal (F, M, a, B);
 
-	if (A.rowdim () == 1) {
+	else if (A.rowdim () == 1) {
 		if (diagIsOne)
 			return _scal (F, M, a, B);
 		else {
@@ -280,6 +283,9 @@ Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
+
+	if (A.rowdim () == 0)
+		return B;
 
 	if (F.isZero (a))
 		return _scal (F, M, a, B);
