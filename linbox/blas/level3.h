@@ -259,7 +259,7 @@ std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Matrix &A, F
 
 /// Version specifying the field and module directly rather than in a Context object
 template <class Field, class Modules, class Matrix>
-std::ostream &_write (const Field &F, Modules &M, std::ostream &os, const Matrix &A, FileFormatTag format = FORMAT_PRETTY)
+std::ostream &_write (const Field &F, Modules &M, std::ostream &os, const Matrix &A, FileFormatTag format)
 	{ return write_impl (F, M, os, A, format); }
 
 template <class Field, class Modules, class Matrix>

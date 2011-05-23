@@ -508,6 +508,12 @@ class DenseMatrix
 	Vector &columnDensity (Vector &v) const
 		{ std::fill (v.begin (), v.end (), _rows); return v; }
 
+	/** Get the displacement from one row to the next
+	 * @returns Number of words from one row to the next in memory
+	 */
+	size_t disp () const
+		{ return _disp; }
+
     protected:
 
 	std::vector<Element> _rep;
@@ -548,8 +554,8 @@ class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<
 	typedef typename DenseMatrix<Element>::Col Subvector;
 
 	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-				    Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
+		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + M.startRow (),
+				    Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + (M.startRow () + M.rowdim ())); }
 };
 
 template <class Element, class Submatrix>
@@ -560,8 +566,8 @@ class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<
 	typedef typename DenseMatrix<Element>::ConstCol Subvector;
 
 	Subvector MakeSubvector (const Submatrix &M, IteratorType &pos)
-		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + M.startRow (),
-				    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().coldim ()) + (M.startRow () + M.rowdim ())); }
+		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + M.startRow (),
+				    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + (M.startRow () + M.rowdim ())); }
 };
 
 } // namespace LinBox

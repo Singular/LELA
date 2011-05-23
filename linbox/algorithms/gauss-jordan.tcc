@@ -358,7 +358,6 @@ void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
 	// BLAS3::write (ctx, report, A);
 	// report << "U =" << std::endl;
 	// BLAS3::write (ctx, report, U);
-	// report << "k = " << k << ", d_0 = " << d_0 << std::endl;
 
 	if (BLAS3::is_zero (ctx, A)) {
 		// DEBUG
@@ -407,9 +406,9 @@ void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
 		// report << "U =" << std::endl;
 		// BLAS3::write (ctx, report, U);
 		// report << "P = ";
-		// BLAS3::write_permutation (report, P) << std::endl;
-		// report << "R =" << std::endl;
-		// BLAS3::write (ctx, report, R);
+		// BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
+		// report << "A =" << std::endl;
+		// BLAS3::write (ctx, report, A);
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
@@ -422,7 +421,6 @@ void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
 		DenseMatrix A_22 (A, r_1, m_1, A.rowdim () - r_1, m_2);
 
 		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
-
 		BLAS3::gemm (ctx, ctx.F.one (), U_12, A_21, ctx.F.one (), A_22);
 		BLAS3::trmm (ctx, ctx.F.one (), U_11, A_21, LowerTriangular, true);
 
@@ -430,8 +428,8 @@ void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
 
 		// DEBUG
 		// report << "Status before second recursive call:" << std::endl;
-		// report << "B =" << std::endl;
-		// BLAS3::write (ctx, report, R_2);
+		// report << "A_22 =" << std::endl;
+		// BLAS3::write (ctx, report, A_22);
 
 		GaussTransform (A_22, d_1, U_22, P_2, r_2, h_2, d);
 
@@ -448,7 +446,7 @@ void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
 		// report << "U_2 =" << std::endl;
 		// BLAS3::write (ctx, report, U);
 		// report << "P_2 = ";
-		// BLAS3::write_permutation (report, P_2) << std::endl;
+		// BLAS1::write_permutation (report, P_2.begin (), P_2.end ()) << std::endl;
 
 		BLAS3::permute_rows (ctx, P_2.begin (), P_2.end (), U_12);
 		BLAS3::trmm (ctx, ctx.F.one (), U_22, U_12, LowerTriangular, true);

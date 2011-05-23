@@ -232,10 +232,8 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 
 	if (A.rowdim () == 0)
 		return B;
-
-	if (F.isZero (a))
+	else if (F.isZero (a))
 		return _scal (F, M, a, B);
-
 	else if (A.rowdim () == 1) {
 		if (diagIsOne)
 			return _scal (F, M, a, B);
@@ -286,11 +284,9 @@ Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 
 	if (A.rowdim () == 0)
 		return B;
-
-	if (F.isZero (a))
+	else if (F.isZero (a))
 		return _scal (F, M, a, B);
-
-	if (A.rowdim () == 1) {
+	else if (A.rowdim () == 1) {
 		if (diagIsOne)
 			return _scal (F, M, a, B);
 		else {
