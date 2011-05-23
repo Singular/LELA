@@ -648,11 +648,11 @@ struct AllModules<GF2> : public GenericModule {};
 #include "linbox/blas/level1-gf2.h"
 #include "linbox/blas/level2-gf2.h"
 
-#include "linbox/randiter/gf2.h"
-
 #ifdef __LINBOX_HAVE_M4RI
 #  include "linbox/blas/level3-m4ri.h"
 #endif // __LINBOX_HAVE_M4RI
+
+#include "linbox/randiter/gf2.h"
 
 #endif // __LINBOX_field_gf2_H
 

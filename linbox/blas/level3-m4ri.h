@@ -17,11 +17,14 @@
 #include <m4ri/m4ri.h>
 
 #include "linbox/blas/context.h"
-#include "linbox/blas/level3.h"
 #include "linbox/blas/level3-generic.h"
 #include "linbox/matrix/matrix-traits.h"
 #include "linbox/matrix/m4ri-matrix.h"
 #include "linbox/field/gf2.h"
+
+#ifdef __BLAS_LEVEL3_H
+#  warning "linbox/blas/level3.h has already been included by this point. The M4RI-specialisations may not work."
+#endif // __BLAS_LEVEL3_H
 
 namespace LinBox
 {
