@@ -21,10 +21,10 @@
 #include <vector>
 
 #include "linbox/util/commentator.h"
+#include "linbox/field/gf2.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level2.h"
 #include "linbox/blas/level3.h"
-#include "linbox/field/gf2.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/submatrix.h"

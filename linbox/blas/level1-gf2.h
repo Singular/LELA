@@ -109,6 +109,10 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 
 template <class Vector1, class Vector2>
 Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
+		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+
+template <class Vector1, class Vector2>
+Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
 
 template <class Vector>
@@ -207,8 +211,6 @@ std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vect
 } // namespace BLAS1
 
 } // namespace LinBox
-
-#include "linbox/blas/level1-gf2.tcc"
 
 #endif // __BLAS_LEVEL1_GF2_H
 

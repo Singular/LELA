@@ -223,8 +223,8 @@ Matrix3 &_gemm (const Field &F, Modules &M, const typename Field::Element &a, co
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &_trmm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne);
 
-template <class Field, class Matrix1, class Matrix2>
-Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -275,8 +275,8 @@ Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Elem
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &_trsm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne);
 
-template <class Field, class Matrix1, class Matrix2>
-Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &trsm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());

@@ -12,7 +12,7 @@
 
 #include "linbox/field/modular.h"
 #include "linbox/blas/context.h"
-#include "linbox/blas/level2-generic.h"
+#include "linbox/matrix/matrix-traits.h"
 
 namespace LinBox
 {
@@ -86,8 +86,6 @@ Vector2 &gemv_impl (const Modular<uint32> &F, ZpModule<uint32> &M,
 } // namespace BLAS2
 
 } // namespace LinBox
-
-#include "linbox/blas/level2-modular.tcc"
 
 #endif // __BLAS_LEVEL2_MODULAR_H
 

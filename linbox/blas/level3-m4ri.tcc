@@ -47,6 +47,9 @@ DenseMatrix<bool> &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMa
 	return B;
 }
 
+template <class Field, class Modules, class Matrix>
+Matrix &_scal (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A);
+
 DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
@@ -70,6 +73,54 @@ DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 	return C;
 }
 
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const Submatrix<DenseMatrix<bool> > &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+{
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
+		return C;
+
+	if (a) {
+		if (b)
+			mzd_addmul (C._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
+		else
+			mzd_mul (C._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
+	}
+	else if (!b)
+		_scal (F, M, false, C);
+
+	return C;
+}
+
+Submatrix<DenseMatrix<bool> > &gemm_impl (const GF2 &F, M4RIModule &M,
+					  bool a, const Submatrix<DenseMatrix<bool> > &A,
+					  const Submatrix<DenseMatrix<bool> > &B, bool b, Submatrix<DenseMatrix<bool> > &C,
+					  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+{
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
+		return C;
+
+	if (a) {
+		if (b)
+			mzd_addmul (C._rep._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
+		else
+			mzd_mul (C._rep._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
+	}
+	else if (!b)
+		_scal (F, M, false, C);
+
+	return C;
+}
+
+#if 0
 DenseMatrix<bool> &trmm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
@@ -113,6 +164,7 @@ DenseMatrix<bool> &trmm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMa
 
 	return B;
 }
+#endif
 
 DenseMatrix<bool> &trsm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)

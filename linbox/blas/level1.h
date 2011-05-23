@@ -12,7 +12,6 @@
 #include <iostream>
 
 #include "linbox/blas/context.h"
-#include "linbox/blas/level1-generic.h"
 #include "linbox/vector/vector-traits.h"
 
 namespace LinBox

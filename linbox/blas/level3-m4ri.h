@@ -17,10 +17,9 @@
 #include <m4ri/m4ri.h>
 
 #include "linbox/blas/context.h"
-#include "linbox/blas/level3-generic.h"
 #include "linbox/matrix/matrix-traits.h"
 #include "linbox/matrix/m4ri-matrix.h"
-#include "linbox/field/gf2.h"
+#include "linbox/matrix/submatrix.h"
 
 #ifdef __BLAS_LEVEL3_H
 #  warning "linbox/blas/level3.h has already been included by this point. The M4RI-specialisations may not work."
@@ -45,6 +44,15 @@ DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const Submatrix<DenseMatrix<bool> > &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+
+Submatrix<DenseMatrix<bool> > &gemm_impl (const GF2 &F, M4RIModule &M,
+					  bool a, const Submatrix<DenseMatrix<bool> > &A,
+					  const Submatrix<DenseMatrix<bool> > &B, bool b, Submatrix<DenseMatrix<bool> > &C,
+					  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+
 DenseMatrix<bool> &trmm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
@@ -67,8 +75,6 @@ bool is_zero_impl (const GF2 &F, M4RIModule &M, const DenseMatrix<bool> &A, Matr
 } // namespace BLAS3
 
 } // namespace LinBox
-
-#include "linbox/blas/level3-m4ri.tcc"
 
 #endif // __BLAS_LEVEL3_M4RI_H
 

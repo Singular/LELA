@@ -113,8 +113,6 @@ Matrix &ger_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, cons
 
 } // namespace LinBox
 
-#include "linbox/blas/level2-gf2.tcc"
-
 #endif // __BLAS_LEVEL2_GF2_H
 
 // Local Variables:

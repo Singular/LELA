@@ -1687,9 +1687,17 @@ struct AllModules<Modular<Element> > : public ZpModule<Element> {};
 
 } // namespace LinBox
 
-#include "linbox/randiter/modular.h"
 #include "linbox/blas/level1-modular.h"
 #include "linbox/blas/level2-modular.h"
+
+#include "linbox/blas/level1-generic.h"
+#include "linbox/blas/level2-generic.h"
+#include "linbox/blas/level3-generic.h"
+
+#include "linbox/blas/level1-modular.tcc"
+#include "linbox/blas/level2-modular.tcc"
+
+#include "linbox/randiter/modular.h"
 
 #endif // __LINBOX_field_modular_H
 

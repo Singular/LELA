@@ -12,7 +12,6 @@
 
 #include "linbox/field/modular.h"
 #include "linbox/blas/context.h"
-#include "linbox/blas/level1-generic.h"
 
 namespace LinBox
 {
@@ -88,8 +87,6 @@ double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, co
 } // namespace BLAS1
 
 } // namespace LinBox
-
-#include "linbox/blas/level1-modular.tcc"
 
 #endif // __BLAS_LEVEL1_MODULAR_H
 

@@ -365,10 +365,10 @@ class Submatrix<M4RIMatrix> : public Submatrix<M4RIMatrixBase>
 		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
 		{}
 
+	M4RIMatrix _rep;
+
     private:
 	friend class Submatrix<const M4RIMatrix>;
-
-	M4RIMatrix _rep;
 };
 
 template<>
@@ -406,7 +406,6 @@ class Submatrix<const M4RIMatrix> : public Submatrix<const M4RIMatrixBase>
 		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
 		{}
 
-    private:
 	const M4RIMatrix _rep;
 };
 

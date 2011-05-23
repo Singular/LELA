@@ -100,12 +100,12 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 		    MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
 	{ return gemm_impl (F, M, a, A, B, b, C, MatrixCategories::RowMatrixTag (), MatrixCategories::ColMatrixTag (), MatrixCategories::RowMatrixTag ()); }
 
-template <class Field, class Matrix1, class Matrix2>
-Matrix2 &trmm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
-template <class Field, class Matrix1, class Matrix2>
-Matrix2 &trsm_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+template <class Field, class Modules, class Matrix1, class Matrix2>
+Matrix2 &trsm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
 template <class Field, class Modules, class Iterator, class Matrix>

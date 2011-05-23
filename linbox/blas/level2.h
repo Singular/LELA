@@ -10,7 +10,6 @@
 #define __BLAS_LEVEL2_H
 
 #include "linbox/blas/context.h"
-#include "linbox/blas/level2-generic.h"
 
 namespace LinBox
 {
