@@ -9,6 +9,7 @@
 #include "linbox/field/gf2.h"
 #include "linbox/field/modular.h"
 #include "linbox/blas/context.h"
+#include "linbox/blas/level1.h"
 #include "linbox/blas/level3.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"

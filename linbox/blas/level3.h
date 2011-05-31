@@ -1,6 +1,7 @@
 /* linbox/blas/level3.h
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
+ * BLAS Level 3 public interface
  * ------------------------------------
  *
  * See COPYING for license information.
@@ -11,6 +12,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/matrix/matrix-traits.h"
+#include "linbox/blas/level3-ll.tcc"
 
 namespace LinBox
 {
@@ -32,13 +34,6 @@ namespace BLAS3
  * @returns Reference to B
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &_copy (const Field &F, Modules &M, const Matrix1 &A, Matrix2 &B)
-	{ return copy_impl (F, M, A, B,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory ()); }
-
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &copy (Context<Field, Modules> &ctx, const Matrix1 &A, Matrix2 &B)
 	{ return _copy (ctx.F, ctx.M, A, B); }
@@ -51,11 +46,6 @@ Matrix2 &copy (Context<Field, Modules> &ctx, const Matrix1 &A, Matrix2 &B)
  * @returns Reference to A
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix>
-Matrix &_scal (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A)
-	{ return scal_impl (F, M, a, A, typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
-
 template <class Field, class Modules, class Matrix>
 Matrix &scal (Context<Field, Modules> &ctx, const typename Field::Element &a, Matrix &A)
 	{ return _scal (ctx.F, ctx.M, a, A); }
@@ -67,13 +57,6 @@ Matrix &scal (Context<Field, Modules> &ctx, const typename Field::Element &a, Ma
  * @param A Matrix, to be replaced by result of computation
  * @returns Reference to A
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &_axpy (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B)
-	{ return axpy_impl (F, M, a, A, B,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &axpy (Context<Field, Modules> &ctx, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B)
@@ -91,14 +74,6 @@ Matrix2 &axpy (Context<Field, Modules> &ctx, const typename Field::Element &a, c
  * @returns Reference to y
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &_gemm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C)
-	{ return gemm_impl (F, M, a, A, B, b, C,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory (),
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix3>::MatrixCategory>::MatrixCategory ()); }
-
 template <class Field, class Modules, class Matrix1, class Matrix2, class Matrix3>
 Matrix3 &gemm (Context<Field, Modules> &ctx, const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C)
 	{ return _gemm (ctx.F, ctx.M, a, A, B, b, C); }
@@ -114,13 +89,6 @@ Matrix3 &gemm (Context<Field, Modules> &ctx, const typename Field::Element &a, c
  * @param diagIsOne Whether to assume that the entries on the diagonal of A are one
  * @returns Reference to y
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trmm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
-	{ return trmm_impl (F, M, a, A, B, type, diagIsOne,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &trmm (Context<Field, Modules> &ctx, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
@@ -139,13 +107,6 @@ Matrix2 &trmm (Context<Field, Modules> &ctx, const typename Field::Element &a, c
  * @returns Reference to y
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trsm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
-	{ return trsm_impl (F, M, a, A, B, type, diagIsOne,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
-
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &trsm (Context<Field, Modules> &ctx, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
 	{ return _trsm (ctx.F, ctx.M, a, A, B, type, diagIsOne); }
@@ -159,11 +120,6 @@ Matrix2 &trsm (Context<Field, Modules> &ctx, const typename Field::Element &a, c
  */
 
 template <class Field, class Modules, class Iterator, class Matrix>
-Matrix &_permute_rows (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A)
-	{ return permute_rows_impl (F, M, P_begin, P_end, A,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
-
-template <class Field, class Modules, class Iterator, class Matrix>
 Matrix &permute_rows (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end, Matrix &A)
 	{ return _permute_rows (ctx.F, ctx.M, P_begin, P_end, A); }
 
@@ -174,11 +130,6 @@ Matrix &permute_rows (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P
  * @param A Matrix A, to be replaced by result of computation
  * @returns Reference to A
  */
-
-template <class Field, class Modules, class Iterator, class Matrix>
-Matrix &_permute_cols (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A)
-	{ return permute_cols_impl (F, M, P_begin, P_end, A,
-				     typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
 
 template <class Field, class Modules, class Iterator, class Matrix>
 Matrix &permute_cols (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end, Matrix &A)
@@ -197,13 +148,6 @@ Matrix &permute_cols (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P
  * @returns true if equal, false otherwise
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix1, class Matrix2>
-bool _equal (const Field &F, Modules &M, const Matrix1 &A, const Matrix2 &B)
-	{ return equal_impl (F, M, A, B,
-			     typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-			     typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
-
 template <class Field, class Modules, class Matrix1, class Matrix2>
 bool equal (Context<Field, Modules> &ctx, const Matrix1 &A, const Matrix2 &B)
 	{ return _equal (ctx.F, ctx.M, A, B); }
@@ -214,11 +158,6 @@ bool equal (Context<Field, Modules> &ctx, const Matrix1 &A, const Matrix2 &B)
  * @param A Matrix
  * @returns true if A is zero, false otherwise
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix>
-bool _is_zero (const Field &F, Modules &M, const Matrix &A)
-	{ return is_zero_impl (F, M, A, typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
 
 template <class Field, class Modules, class Matrix>
 bool is_zero (Context<Field, Modules> &ctx, const Matrix &A)
@@ -238,11 +177,6 @@ bool is_zero (Context<Field, Modules> &ctx, const Matrix &A)
  * @returns Reference to is
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix>
-std::istream &_read (const Field &F, Modules &M, std::istream &is, Matrix &A, FileFormatTag format = FORMAT_DETECT)
-	{ return read_impl (F, M, is, A, format); }
-
 template <class Field, class Modules, class Matrix>
 std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Matrix &A, FileFormatTag format = FORMAT_DETECT)
 	{ return _read (ctx.F, ctx.M, is, A, format); }
@@ -255,11 +189,6 @@ std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Matrix &A, F
  * @param format Format in which to write matrix, default FORMAT_PRETTY
  * @returns Reference to os
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix>
-std::ostream &_write (const Field &F, Modules &M, std::ostream &os, const Matrix &A, FileFormatTag format)
-	{ return write_impl (F, M, os, A, format); }
 
 template <class Field, class Modules, class Matrix>
 std::ostream &write (Context<Field, Modules> &ctx, std::ostream &os, const Matrix &A, FileFormatTag format = FORMAT_PRETTY)

@@ -1,6 +1,7 @@
 /* linbox/blas/level2.h
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
+ * BLAS Level 2 public interface
  * ------------------------------------
  *
  * See COPYING for license information.
@@ -10,6 +11,7 @@
 #define __BLAS_LEVEL2_H
 
 #include "linbox/blas/context.h"
+#include "linbox/blas/level2-ll.tcc"
 
 namespace LinBox
 {
@@ -38,22 +40,6 @@ namespace BLAS2
  * @returns Reference to y
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv (const Field                   &F,
-		Modules                       &M,
-		const typename Field::Element &a,
-		const Matrix                  &A,
-		const Vector1                 &x,
-		const typename Field::Element &b,
-		Vector2                       &y,
-		size_t                         start_idx = 0,
-		size_t                         end_idx = (size_t) -1)
-	{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
-
 template <class Field, class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &gemv (Context<Field, Modules>       &ctx,
 	       const typename Field::Element &a,
@@ -76,13 +62,6 @@ Vector2 &gemv (Context<Field, Modules>       &ctx,
  * @returns Reference to y
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &_trmv (const Field &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
-	{ return trmv_impl (F, M, A, x, type, diagIsOne,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
-			    typename VectorTraits<Field, Vector>::VectorCategory ()); }
-
 template <class Field, class Modules, class Matrix, class Vector>
 Vector &trmv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 	{ return _trmv (ctx.F, ctx.M, A, x, type, diagIsOne); }
@@ -98,13 +77,6 @@ Vector &trmv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, Triangul
  * @param diagIsOne Whether to assume that the entries on the diagonal of A are one
  * @returns Reference to y
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &_trsv (const Field &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
-	{ return trsv_impl (F, M, A, x, type, diagIsOne,
-			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
-			    typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 template <class Field, class Modules, class Matrix, class Vector>
 Vector &trsv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
@@ -122,14 +94,6 @@ Vector &trsv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, Triangul
  * @param A Matrix A, to be replaced by result of calculation
  * @returns Reference to A
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector1, class Vector2, class Matrix>
-Matrix &_ger (const Field &F, Modules &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
-	{ return ger_impl (F, M, a, x, y, A,
-			   typename VectorTraits<Field, Vector1>::VectorCategory (),
-			   typename VectorTraits<Field, Vector2>::VectorCategory (),
-			   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
 
 template <class Field, class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &ger (Context<Field, Modules> &ctx, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)

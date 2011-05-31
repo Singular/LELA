@@ -14,7 +14,8 @@
 #include <iostream>
 
 #include "linbox/blas/level2-gf2.h"
-#include "linbox/blas/level1.h"
+#include "linbox/blas/level1-ll.h"
+#include "linbox/blas/level2-ll.h"
 
 namespace LinBox
 {

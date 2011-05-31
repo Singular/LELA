@@ -399,6 +399,10 @@ private:
 	
 } // namespace LinBox
 
+#include "linbox/blas/level1-generic.tcc"
+#include "linbox/blas/level2-generic.tcc"
+#include "linbox/blas/level3-generic.tcc"
+
 #include "linbox/randiter/unparametric.h"
 
 #endif // __LINBOX_field_unparametric_H

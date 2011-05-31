@@ -12,9 +12,10 @@
 
 #include <algorithm>
 
-#include "linbox/blas/level1.h"
-#include "linbox/blas/level2.h"
 #include "linbox/blas/level3-generic.h"
+#include "linbox/blas/level1-ll.h"
+#include "linbox/blas/level2-ll.h"
+#include "linbox/blas/level3-ll.h"
 #include "linbox/matrix/transpose.h"
 #include "linbox/matrix/submatrix.h"
 
@@ -214,15 +215,6 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	return C;
 }
 
-template <class Field, class Modules, class Matrix>
-Matrix &_scal (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A);
-
-template <class Field, class Modules, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &_gemm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C);
-
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trmm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne);
-
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
@@ -271,9 +263,6 @@ Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a
 		return B;
 	}
 }
-
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trsm (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne);
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
 Matrix2 &trsm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,

@@ -19,6 +19,7 @@
 #include "linbox/vector/stream.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level1.h"
+#include "linbox/blas/level3.h"
 
 #include "test-common.h" 
 

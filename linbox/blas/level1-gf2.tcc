@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include "linbox/blas/level1-gf2.h"
-#include "linbox/blas/level1-generic.h"
+#include "linbox/blas/level1-ll.h"
 
 namespace LinBox
 {
@@ -396,9 +396,6 @@ Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end
 
 	return v;
 }
-
-template <class Field, class Modules, class Iterator, class Vector>
-Vector &_permute (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v);
 
 template <class Modules, class Iterator, class Vector>
 Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::HybridZeroOneVectorTag)

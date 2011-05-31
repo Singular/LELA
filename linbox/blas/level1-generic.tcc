@@ -12,6 +12,7 @@
 
 #include "linbox/blas/level1-generic.h"
 #include "linbox/util/debug.h"
+#include "linbox/blas/level1-ll.h"
 
 namespace LinBox
 {
@@ -138,15 +139,6 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 
 	return y;
 }
-
-template <class Field, class Modules, class Vector1, class Vector2>
-Vector2 &_copy (const Field &F, Modules &M, const Vector1 &x, Vector2 &y);
-
-template <class Field, class Modules, class Vector>
-Vector &_scal (const Field &F, Modules &M, const typename Field::Element &a, Vector &x);
-
-template <class Field, class Modules, class Vector1, class Vector2>
-Vector2 &_axpy (const Field &F, Modules &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y);
 
 template <class Field, class Vector1, class Vector2>
 Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,

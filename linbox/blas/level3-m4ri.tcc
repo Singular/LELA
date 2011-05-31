@@ -11,6 +11,7 @@
 #define __BLAS_LEVEL3_M4RI_TCC
 
 #include "linbox/blas/level3-m4ri.h"
+#include "linbox/blas/level3-ll.h"
 
 namespace LinBox
 {
@@ -46,9 +47,6 @@ DenseMatrix<bool> &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMa
 
 	return B;
 }
-
-template <class Field, class Modules, class Matrix>
-Matrix &_scal (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A);
 
 DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,

@@ -1,6 +1,7 @@
 /* linbox/blas/level1.h
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
+ * BLAS Level 1 public interface
  * ------------------------------------
  *
  * See COPYING for license information.
@@ -13,6 +14,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/vector/vector-traits.h"
+#include "linbox/blas/level1-ll.tcc"
 
 namespace LinBox
 {
@@ -41,14 +43,6 @@ namespace BLAS1
  * @returns Reference to res
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class reference, class Field, class Modules, class Vector1, class Vector2>
-reference &_dot (const Field &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-		 size_t start_idx, size_t end_idx)
-	{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-			   typename VectorTraits<Field, Vector1>::VectorCategory (),
-			   typename VectorTraits<Field, Vector2>::VectorCategory ()); }
-
 template <class reference, class Field, class Modules, class Vector1, class Vector2>
 reference &dot (Context<Field, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y,
 		size_t start_idx = 0, size_t end_idx = (size_t) -1)
@@ -63,11 +57,6 @@ reference &dot (Context<Field, Modules> &ctx, reference &res, const Vector1 &x, 
  * @param y Second vector
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector>
-void _swap (const Field &F, Modules &M, Vector &x, Vector &y)
-	{ swap_impl (F, M, x, y, typename VectorTraits<Field, Vector>::VectorCategory ()); }
-
 template <class Field, class Modules, class Vector>
 void swap (Context<Field, Modules> &ctx, Vector &x, Vector &y)
 	{ _swap (ctx.F, ctx.M, x, y); }
@@ -81,13 +70,6 @@ void swap (Context<Field, Modules> &ctx, Vector &x, Vector &y)
  * @param y Destination vector
  * @returns Reference to y
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector1, class Vector2>
-Vector2 &_copy (const Field &F, Modules &M, const Vector1 &x, Vector2 &y)
-	{ return copy_impl (F, M, x, y,
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
 
 template <class Field, class Modules, class Vector1, class Vector2>
 Vector2 &copy (Context<Field, Modules> &ctx, const Vector1 &x, Vector2 &y)
@@ -104,13 +86,6 @@ Vector2 &copy (Context<Field, Modules> &ctx, const Vector1 &x, Vector2 &y)
  * @returns Reference to y
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector1, class Vector2>
-Vector2 &_axpy (const Field &F, Modules &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y)
-	{ return axpy_impl (F, M, a, x, y,
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
-
 template <class Field, class Modules, class Vector1, class Vector2>
 Vector2 &axpy (Context<Field, Modules> &ctx, const typename Field::Element &a, const Vector1 &x, Vector2 &y)
 	{ return _axpy (ctx.F, ctx.M, a, x, y); }
@@ -121,12 +96,6 @@ Vector2 &axpy (Context<Field, Modules> &ctx, const typename Field::Element &a, c
  * @param a Field::Element scalar a
  * @param x Vector x, to be replaced by result of calculation
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector>
-Vector &_scal (const Field &F, Modules &M, const typename Field::Element &a, Vector &x)
-	{ return scal_impl (F, M, a, x,
-			    typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 template <class Field, class Modules, class Vector>
 Vector &scal (Context<Field, Modules> &ctx, const typename Field::Element &a, Vector &x)
@@ -139,11 +108,6 @@ Vector &scal (Context<Field, Modules> &ctx, const typename Field::Element &a, Ve
  * @param v Vector v, to be replaced by result of computation
  * @returns Reference to v
  */
-
-template <class Field, class Modules, class Iterator, class Vector>
-Vector &_permute (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v)
-	{ return permute_impl (F, M, P_begin, P_end, v,
-			       typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 template <class Field, class Modules, class Iterator, class Vector>
 Vector &permute (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end, Vector &v)
@@ -164,13 +128,6 @@ Vector &permute (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end,
  * @returns true if equal, false otherwise
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector1, class Vector2>
-bool _equal (const Field &F, Modules &M, const Vector1 &x, const Vector2 &y)
-	{ return equal_impl (F, M, x, y,
-			     typename VectorTraits<Field, Vector1>::VectorCategory (),
-			     typename VectorTraits<Field, Vector2>::VectorCategory ()); }
-
 template <class Field, class Modules, class Vector1, class Vector2>
 bool equal (Context<Field, Modules> &ctx, const Vector1 &x, const Vector2 &y)
 	{ return _equal (ctx.F, ctx.M, x, y); }
@@ -181,11 +138,6 @@ bool equal (Context<Field, Modules> &ctx, const Vector1 &x, const Vector2 &y)
  * @param x Vector
  * @returns true if x is zero, false otherwise
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector>
-bool _is_zero (const Field &F, Modules &M, const Vector &x)
-	{ return is_zero_impl (F, M, x, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 template <class Field, class Modules, class Vector>
 bool is_zero (Context<Field, Modules> &ctx, const Vector &x)
@@ -198,11 +150,6 @@ bool is_zero (Context<Field, Modules> &ctx, const Vector &x)
  * @param x Vector
  * @returns Index of first nonzero element, or -1 if the vector is zero
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector>
-int _head (const Field &F, Modules &M, typename Field::Element &a, const Vector &x)
-	{ return head_impl (F, M, a, x, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 template <class Field, class Modules, class Vector>
 int head (Context<Field, Modules> &ctx, typename Field::Element &a, const Vector &x)
@@ -221,11 +168,6 @@ int head (Context<Field, Modules> &ctx, typename Field::Element &a, const Vector
  * @returns Reference to is
  */
 
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector>
-std::istream &_read (const Field &F, Modules &M, std::istream &is, Vector &v)
-	{ return read_impl (F, M, is, v, typename VectorTraits<Field, Vector>::VectorCategory ()); }
-
 template <class Field, class Modules, class Vector>
 std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Vector &v)
 	{ return _read (ctx.F, ctx.M, is, v); }
@@ -237,11 +179,6 @@ std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Vector &v)
  * @param v Vector to be written
  * @returns Reference to os
  */
-
-/// Version specifying the field and module directly rather than in a Context object
-template <class Field, class Modules, class Vector>
-std::ostream &_write (const Field &F, Modules &M, std::ostream &os, const Vector &v)
-	{ return write_impl (F, M, os, v, typename VectorTraits<Field, Vector>::VectorCategory ()); }
 
 template <class Field, class Modules, class Vector>
 std::ostream &write (Context<Field, Modules> &ctx, std::ostream &os, const Vector &v)

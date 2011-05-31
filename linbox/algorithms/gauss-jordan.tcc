@@ -17,6 +17,7 @@
 
 #include "linbox/vector/subvector.h"
 #include "linbox/blas/level1.h"
+#include "linbox/blas/level2.h"
 #include "linbox/blas/level3.h"
 
 #include "linbox/matrix/sparse-zero-one.h"
