@@ -13,7 +13,6 @@
 #include <iostream>
 
 #include "linbox/blas/context.h"
-#include "linbox/vector/vector-traits.h"
 
 namespace LinBox
 {
