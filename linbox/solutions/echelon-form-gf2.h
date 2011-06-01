@@ -30,13 +30,13 @@ namespace LinBox
 
 // Specialisation of EchelonForm to GF2 to take advantage of M4RI-routines
 template <>
-class EchelonForm<GF2, M4RIModule>
+class EchelonForm<GF2, AllModules<GF2> >
 {
-	Context<GF2, M4RIModule> &_ctx;
-	GaussJordan<GF2, M4RIModule> _GJ;
+	Context<GF2, AllModules<GF2> > &_ctx;
+	GaussJordan<GF2, AllModules<GF2> > _GJ;
 
 	DenseMatrix<bool> _L;
-	GaussJordan<GF2, M4RIModule>::Permutation _P;
+	GaussJordan<GF2, AllModules<GF2> >::Permutation _P;
 
 	// Map pointers to matrices to computed ranks
 	std::map<const void *, size_t> _rank_table;
@@ -44,7 +44,7 @@ class EchelonForm<GF2, M4RIModule>
 public:
 	enum Method { METHOD_STANDARD_GJ, METHOD_ASYMPTOTICALLY_FAST_GJ, METHOD_M4RI };
 
-	EchelonForm (Context<GF2, M4RIModule> &ctx) : _ctx (ctx), _GJ (ctx) {}
+	EchelonForm (Context<GF2, AllModules<GF2> > &ctx) : _ctx (ctx), _GJ (ctx) {}
 
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
