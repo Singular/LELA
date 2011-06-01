@@ -269,6 +269,8 @@ class M4RIMatrix : public M4RIMatrixBase
 {
 public:
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
+	typedef LinBox::Submatrix<M4RIMatrix> SubmatrixType;
+	typedef LinBox::Submatrix<const M4RIMatrix> ConstSubmatrixType;
 	
 	///
 	M4RIMatrix ()
@@ -345,6 +347,8 @@ class Submatrix<M4RIMatrix> : public Submatrix<M4RIMatrixBase>
     public:
 	typedef M4RIMatrix Matrix;
 	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
+	typedef LinBox::Submatrix<M4RIMatrix> SubmatrixType;
+	typedef LinBox::Submatrix<const M4RIMatrix> ConstSubmatrixType;
  
 	Submatrix () : _rep (NULL) {}
 	Submatrix (Matrix &M,
@@ -377,6 +381,8 @@ class Submatrix<const M4RIMatrix> : public Submatrix<const M4RIMatrixBase>
     public:
 	typedef const M4RIMatrix Matrix;
 	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
+	typedef LinBox::Submatrix<M4RIMatrix> SubmatrixType;
+	typedef LinBox::Submatrix<const M4RIMatrix> ConstSubmatrixType;
  
 	Submatrix () : _rep (NULL) {}
 	Submatrix (const Matrix &M,
@@ -405,6 +411,9 @@ class Submatrix<const M4RIMatrix> : public Submatrix<const M4RIMatrixBase>
 		: Submatrix<const M4RIMatrixBase> (SM, row, col, rowdim, coldim),
 		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
 		{}
+
+	Submatrix (const Submatrix<M4RIMatrix> &SM)
+		: Submatrix<const M4RIMatrixBase> (SM), _rep (SM._rep) {}
 
 	const M4RIMatrix _rep;
 };

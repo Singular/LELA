@@ -15,7 +15,6 @@
 #include "linbox/util/commentator.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level3.h"
-#include "linbox/matrix/submatrix.h"
 #include "linbox/matrix/transpose.h"
 
 using namespace LinBox;
@@ -382,7 +381,7 @@ bool testSubmatrixDim (const Field &F, Matrix &M, size_t row_begin, size_t col_b
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 
-	Submatrix<Matrix> Mp (M, row_begin, col_begin, rowdim, coldim);
+	typename Matrix::ConstSubmatrixType Mp (M, row_begin, col_begin, rowdim, coldim);
 
 	Context<Field> ctx (F);
 

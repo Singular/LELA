@@ -72,7 +72,7 @@ DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 }
 
 DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const Submatrix<DenseMatrix<bool> > &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
+			      bool a, const DenseMatrix<bool>::ConstSubmatrixType &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -94,14 +94,93 @@ DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 	return C;
 }
 
-Submatrix<DenseMatrix<bool> > &gemm_impl (const GF2 &F, M4RIModule &M,
-					  bool a, const Submatrix<DenseMatrix<bool> > &A,
-					  const Submatrix<DenseMatrix<bool> > &B, bool b, Submatrix<DenseMatrix<bool> > &C,
-					  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
+					     bool a, const DenseMatrix<bool>::ConstSubmatrixType &A,
+					     const DenseMatrix<bool> &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
+					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (B.coldim () == C.coldim ());
+
+	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
+		return C;
+
+	if (a) {
+		if (b)
+			mzd_addmul (C._rep._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
+		else
+			mzd_mul (C._rep._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
+	}
+	else if (!b)
+		_scal (F, M, false, C);
+
+	return C;
+}
+
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+{
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	if (B._rep._rep->offset != 0)
+		return _gemm (F, static_cast<GenericModule &> (M), a, A, B, b, C);
+
+	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
+		return C;
+
+	if (a) {
+		if (b)
+			mzd_addmul (C._rep, A._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
+		else
+			mzd_mul (C._rep, A._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
+	}
+	else if (!b)
+		_scal (F, M, false, C);
+
+	return C;
+}
+
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const DenseMatrix<bool>::ConstSubmatrixType &A, const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+{
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	if (B._rep._rep->offset != 0)
+		return _gemm (F, static_cast<GenericModule &> (M), a, A, B, b, C);
+
+	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
+		return C;
+
+	if (a) {
+		if (b)
+			mzd_addmul (C._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
+		else
+			mzd_mul (C._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
+	}
+	else if (!b)
+		_scal (F, M, false, C);
+
+	return C;
+}
+
+DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
+					     bool a, const DenseMatrix<bool>::ConstSubmatrixType &A,
+					     const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
+					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+{
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	if (B._rep._rep->offset != 0)
+		return _gemm (F, static_cast<GenericModule &> (M), a, A, B, b, C);
 
 	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
 		return C;

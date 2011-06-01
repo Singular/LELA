@@ -23,7 +23,6 @@
 #include "linbox/field/gf2.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
-#include "linbox/matrix/submatrix.h"
 
 namespace LinBox
 {
@@ -140,7 +139,7 @@ private:
 	// Matrix Canonical Forms", Ph.D thesis by Arne Storjohann.
 	void GaussTransform (DenseMatrix             &A,
 			     Element                  d_0,
-			     Submatrix<DenseMatrix>  &U,
+			     typename DenseMatrix::SubmatrixType &U,
 			     Permutation             &P,
 			     size_t                  &r,
 			     int                     &h,

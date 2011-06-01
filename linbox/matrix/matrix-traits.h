@@ -59,19 +59,6 @@ template <> struct MatrixIteratorTypes<MatrixCategories::ZeroOneColMatrixTag>
 	typedef MatrixCategories::ColMatrixTag MatrixCategory;
 };
 
-/** Real matrix-type
- *
- * This data-type gives the underlying matrix-type of a virtual matrix
- * (such as a submatrix or a transpose matrix) built on top of an
- * actual matrix. It can be used in generic code to construct a new
- * matrix of the same underlying type.
- */
-template <class Matrix>
-struct RealMatrixType
-{
-	typedef Matrix Type;
-};
-
 } // namespace LinBox
 
 #endif // __LINBOX_MATRIX_TRAITS_H

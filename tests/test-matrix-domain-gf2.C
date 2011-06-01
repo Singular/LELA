@@ -113,9 +113,9 @@ int main (int argc, char **argv)
 	stream_v1p >> v1p;
 	stream_v2p >> v2p;
 
-	Submatrix<DenseMatrix<Field::Element> > M10 (M1, 4, 4, l - 8, m - 8);
-	Submatrix<DenseMatrix<Field::Element> > M11 (M2, 4, 4, m - 8, n - 8);
-	Submatrix<DenseMatrix<Field::Element> > M12 (M3, 4, 4, n - 8, p - 8);
+	DenseMatrix<Field::Element>::SubmatrixType M10 (M1, 4, 4, l - 8, m - 8);
+	DenseMatrix<Field::Element>::SubmatrixType M11 (M2, 4, 4, m - 8, n - 8);
+	DenseMatrix<Field::Element>::SubmatrixType M12 (M3, 4, 4, n - 8, p - 8);
 
 	if (!testMatrixDomainSubmatrix (ctx, "dense (submatrix)", M10, M11, M12, v1p, v2p, iterations,
 					MatrixTraits<DenseMatrix<Field::Element> >::MatrixCategory ()))

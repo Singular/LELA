@@ -217,7 +217,7 @@ void GaussJordan<Field, Modules>::GaussJordanTransform (DenseMatrix  &A,
 		// report << "U before elimination:" << std::endl;
 		// BLAS3::write (ctx, report, U);
 
-		Submatrix<DenseMatrix> Up (U, 0, k, U.rowdim (), U.coldim () - k);
+		typename DenseMatrix::SubmatrixType Up (U, 0, k, U.rowdim (), U.coldim () - k);
 
 		StandardRowEchelonForm (A, Up, P, r, d, true, true, k);
 
@@ -255,10 +255,10 @@ void GaussJordan<Field, Modules>::GaussJordanTransform (DenseMatrix  &A,
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
-		Submatrix<DenseMatrix> U_2  (U, 0,       k, U.rowdim (),           r_1);
-		Submatrix<DenseMatrix> U_21 (U, 0,       k, k,                     r_1);
-		Submatrix<DenseMatrix> U_22 (U, k,       k, r_1,                   r_1);
-		Submatrix<DenseMatrix> U_23 (U, r_1 + k, k, U.rowdim () - r_1 - k, r_1);
+		typename DenseMatrix::SubmatrixType U_2  (U, 0,       k, U.rowdim (),           r_1);
+		typename DenseMatrix::SubmatrixType U_21 (U, 0,       k, k,                     r_1);
+		typename DenseMatrix::SubmatrixType U_22 (U, k,       k, r_1,                   r_1);
+		typename DenseMatrix::SubmatrixType U_23 (U, r_1 + k, k, U.rowdim () - r_1 - k, r_1);
 
 		T.resize (r_1, m_2);
 
@@ -291,13 +291,13 @@ void GaussJordan<Field, Modules>::GaussJordanTransform (DenseMatrix  &A,
 		// report << "r_2 = " << r_2 << std::endl;
 		// report << "d = " << d << std::endl;
 
-		Submatrix<DenseMatrix> P_2U_2       (U,  0,             k,       U.rowdim (),                  r_1);
-		Submatrix<DenseMatrix> U_212        (U,  0,             k,       k + r_1,                      r_1);
-		Submatrix<DenseMatrix> P_2U_23      (U,  k + r_1,       k,       r_2,                          r_1);
-		Submatrix<DenseMatrix> P_2U_24      (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
-		Submatrix<DenseMatrix> U_312        (U,  0,             k + r_1, k + r_1,                      r_2);
-		Submatrix<DenseMatrix> U_33         (U,  k + r_1,       k + r_1, r_2,                          r_2);
-		Submatrix<DenseMatrix> U_34         (U,  k + r_1 + r_2, k + r_1, U.rowdim () - r_1 - r_2 - k,  r_2);
+		typename DenseMatrix::SubmatrixType P_2U_2       (U,  0,             k,       U.rowdim (),                  r_1);
+		typename DenseMatrix::SubmatrixType U_212        (U,  0,             k,       k + r_1,                      r_1);
+		typename DenseMatrix::SubmatrixType P_2U_23      (U,  k + r_1,       k,       r_2,                          r_1);
+		typename DenseMatrix::SubmatrixType P_2U_24      (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
+		typename DenseMatrix::SubmatrixType U_312        (U,  0,             k + r_1, k + r_1,                      r_2);
+		typename DenseMatrix::SubmatrixType U_33         (U,  k + r_1,       k + r_1, r_2,                          r_2);
+		typename DenseMatrix::SubmatrixType U_34         (U,  k + r_1 + r_2, k + r_1, U.rowdim () - r_1 - r_2 - k,  r_2);
 
 		// DEBUG
 		// report << "U_2 =" << std::endl;
@@ -345,7 +345,7 @@ void GaussJordan<Field, Modules>::GaussJordanTransform (DenseMatrix  &A,
 template <class Field, class Modules>
 void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
 						  Element                  d_0,
-						  Submatrix<DenseMatrix>  &U,
+						  typename DenseMatrix::SubmatrixType  &U,
 						  Permutation             &P,
 						  size_t                  &r,
 						  int                     &h,
@@ -413,9 +413,9 @@ void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
-		Submatrix<DenseMatrix> U_11 (U, 0,   0,   r_1,               r_1);
-		Submatrix<DenseMatrix> U_12 (U, r_1, 0,   U.rowdim () - r_1, r_1);
-		Submatrix<DenseMatrix> U_22 (U, r_1, r_1, U.rowdim () - r_1, U.coldim () - r_1);
+		typename DenseMatrix::SubmatrixType U_11 (U, 0,   0,   r_1,               r_1);
+		typename DenseMatrix::SubmatrixType U_12 (U, r_1, 0,   U.rowdim () - r_1, r_1);
+		typename DenseMatrix::SubmatrixType U_22 (U, r_1, r_1, U.rowdim () - r_1, U.coldim () - r_1);
 
 		DenseMatrix A_2  (A, 0,   m_1, A.rowdim (),       m_2);
 		DenseMatrix A_21 (A, 0,   m_1, r_1,               m_2);
@@ -935,7 +935,7 @@ void GaussJordan<Field, Modules>::DenseRowEchelonForm (DenseMatrix &A,
 
 		GaussJordanTransform (A, 0, ctx.F.one (), U, P, rank, h, det, S, T);
 	} else {
-		Submatrix<DenseMatrix> Up (U, 0, 0, U.rowdim (), U.coldim ());
+		typename DenseMatrix::SubmatrixType Up (U, 0, 0, U.rowdim (), U.coldim ());
 
 		GaussTransform (A, ctx.F.one (), Up, P, rank, h, det);
 	}
@@ -1000,7 +1000,7 @@ void GaussJordan<Field, Modules>::StandardRowEchelonForm (Matrix1       &A,
 			BLAS3::permute_rows (ctx, &t, &t + 1, A);
 
 			if (compute_L) {
-				Submatrix<typename RealMatrixType<Matrix2>::Type> Lp (L, 0, 0, L.rowdim (), k - start_row);
+				typename Matrix2::SubmatrixType Lp (L, 0, 0, L.rowdim (), k - start_row);
 				BLAS3::permute_rows (ctx, &t, &t + 1, Lp);
 			}
 

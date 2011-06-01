@@ -28,6 +28,7 @@
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/raw-iterator.h"
 #include "linbox/matrix/submatrix.h"
+#include "linbox/matrix/matrix-traits.h"
 
 namespace LinBox
 {
@@ -280,9 +281,12 @@ class DenseMatrix
 
 	typedef _Element Element;
 	typedef typename RawVector<Element>::Dense Rep;
-        typedef DenseMatrix<_Element> Self_t;
 	typedef MatrixCategories::RowColMatrixTag MatrixCategory;
+        typedef DenseMatrix<_Element> Self_t;
 	typedef DenseMatrixTag<Element> Tag;
+
+	typedef Self_t SubmatrixType;
+	typedef const Self_t ConstSubmatrixType;
 
 	typedef Subvector<typename Rep::iterator, typename Rep::const_iterator> Row;
 	typedef Subvector<typename Rep::const_iterator> ConstRow;  
@@ -306,7 +310,7 @@ class DenseMatrix
 
 	///
 	DenseMatrix ()
-		: _rows (0), _cols (0), _disp (0)
+		: _rows (0), _cols (0), _disp (0), _start_row (0), _start_col (0)
 	{}
 
 	/** Constructor.
@@ -314,7 +318,7 @@ class DenseMatrix
 	 * @param  n  column dimension
 	 */
 	DenseMatrix (size_t m, size_t n)
-		: _rep (m * n), _rows (m), _cols (n), _disp (n), _ptr (&_rep[0])
+		: _rep (m * n), _rows (m), _cols (n), _disp (n), _start_row (0), _start_col (0), _ptr (&_rep[0])
 	{
 		_rep_begin = _rep.begin ();
 		_rep_end = _rep.end ();
@@ -327,15 +331,16 @@ class DenseMatrix
 	 * @param  m  row dimension
 	 * @param  n  column dimension
 	 */
-	DenseMatrix (DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+	DenseMatrix (const DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: _rep_begin (M._rep_begin + (beg_row * M._disp + beg_col)),
 		  _rep_end (M._rep_begin + ((beg_row + m) * M._disp + beg_col + n)),
-		  _rows (m), _cols (n), _disp (M._disp)
+		  _rows (m), _cols (n), _disp (M._disp), _start_row (M._start_row + beg_row), _start_col (M._start_col + beg_col)
 		{ _ptr = &*_rep_begin; }
 
 	///
 	DenseMatrix (const DenseMatrix &M)
-		: _rep (M._rep), _rep_begin (M._rep_begin), _rep_end (M._rep_end), _rows (M._rows), _cols (M._cols), _disp (M._disp)
+		: _rep (M._rep), _rep_begin (M._rep_begin), _rep_end (M._rep_end), _rows (M._rows), _cols (M._cols), _disp (M._disp),
+		  _start_row (M._start_row), _start_col (M._start_col)
 	{
 		if (!_rep.empty ()) {
 			_rep_begin = _rep.begin ();
@@ -345,7 +350,7 @@ class DenseMatrix
 	}
 
 	DenseMatrix (VectorStream<Row> &vs)
-		: _rep (vs.size () * vs.dim ()), _rows (vs.size ()), _cols (vs.dim ()), _disp (vs.dim ()), _ptr (&_rep[0])
+		: _rep (vs.size () * vs.dim ()), _rows (vs.size ()), _cols (vs.dim ()), _disp (vs.dim ()), _start_row (0), _start_col (0), _ptr (&_rep[0])
 	{
 		_rep_begin = _rep.begin ();
 		_rep_end = _rep.end ();
@@ -363,6 +368,8 @@ class DenseMatrix
 		_rows = M._rows;
 		_cols = M._cols;
 		_disp = M._disp;
+		_start_row = M._start_row;
+		_start_col = M._start_col;
 		_ptr  = &*_rep_begin;
 
 		if (!_rep.empty ()) {
@@ -514,6 +521,12 @@ class DenseMatrix
 	size_t disp () const
 		{ return _disp; }
 
+	/** Return the starting row in the parent-matrix */
+	size_t startRow () const { return _start_row; }
+
+	/** Return the starting column in the parent-matrix */
+	size_t startCol () const { return _start_col; }
+
     protected:
 
 	std::vector<Element> _rep;
@@ -521,6 +534,7 @@ class DenseMatrix
 	typename std::vector<Element>::iterator _rep_begin, _rep_end;
 
 	size_t   _rows, _cols, _disp;
+	size_t   _start_row, _start_col;
 	Element *_ptr;
 };
 

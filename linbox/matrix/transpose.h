@@ -21,6 +21,7 @@
 #include "linbox/vector/subvector.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/submatrix.h"
 
 #undef _A
 
@@ -60,6 +61,7 @@ class TransposeMatrix
     public:
 
 	typedef typename Matrix::Element Element;
+	typedef TransposeMatrix<Matrix, Trait> Self_t;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RowIterator ColIterator;
@@ -73,6 +75,8 @@ class TransposeMatrix
 	typedef typename Matrix::Row Column;
 	typedef typename Matrix::Row Col;
 	typedef typename Matrix::Col Row;
+
+	typedef Submatrix<Self_t> SubmatrixType;
 
 	/** Constructor.
 	 * @param  A  Underlying matrix of which to construct the transpose
@@ -195,6 +199,8 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
     public:
 
 	typedef typename Matrix::Element Element;
+	typedef TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag> Self_t;
+	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RowIterator ColIterator;
@@ -208,6 +214,8 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
 	typedef typename Matrix::Row Column;
 	typedef typename Matrix::Row Col;
 	typedef typename Matrix::Col Row;
+
+	typedef Submatrix<Self_t> SubmatrixType;
 
 	TransposeMatrix (Matrix &A) : _A (A) {}
 	TransposeMatrix (const TransposeMatrix &M) : _A (M._A) {}
@@ -251,6 +259,8 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
     public:
 
 	typedef typename Matrix::Element Element;
+	typedef TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag> Self_t;
+	typedef typename MatrixCategories::ColMatrixTag MatrixCategory;
 
 	typedef typename Matrix::RowIterator ColIterator;
 	typedef typename Matrix::RawIterator RawIterator;
@@ -261,6 +271,8 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
 
 	typedef typename Matrix::Row Column;
 	typedef typename Matrix::Row Col;
+
+	typedef Submatrix<Self_t> SubmatrixType;
 
 	//TransposeMatrix () {}
 	TransposeMatrix (Matrix &A) : _A (A) {}
@@ -300,6 +312,8 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
     public:
 
 	typedef typename Matrix::Element Element;
+	typedef TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag> Self_t;
+	typedef typename MatrixCategories::RowMatrixTag MatrixCategory;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RawIterator RawIterator;
@@ -309,6 +323,8 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
 	typedef typename Matrix::ConstRawIndexedIterator ConstRawIndexedIterator;
 
 	typedef typename Matrix::Col Row;
+
+	typedef Submatrix<Self_t> SubmatrixType;
 
 	TransposeMatrix (Matrix &A) : _A (A) {}
 	TransposeMatrix (const TransposeMatrix &M) : _A (M._A) {}
@@ -337,54 +353,6 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
     protected:
 
 	const Matrix &_A;
-};
-
-template <class Matrix>
-struct MatrixTraits< TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag> >
-{ 
-	typedef TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag> MatrixType;
-	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory; 
-};
-
-template <class Matrix>
-struct MatrixTraits< TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag > >
-{ 
-	typedef TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag> MatrixType;
-	typedef typename MatrixCategories::ColMatrixTag MatrixCategory; 
-};
-
-template <class Matrix>
-struct MatrixTraits< TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag > >
-{ 
-	typedef TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag> MatrixType;
-	typedef typename MatrixCategories::RowMatrixTag MatrixCategory; 
-};
-
-template <class Matrix>
-struct MatrixTraits<const TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag> >
-{ 
-	typedef const TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag> MatrixType;
-	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory; 
-};
-
-template <class Matrix>
-struct MatrixTraits<const TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag> >
-{ 
-	typedef const TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag> MatrixType;
-	typedef typename MatrixCategories::ColMatrixTag MatrixCategory; 
-};
-
-template <class Matrix>
-struct MatrixTraits<const TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag> >
-{ 
-	typedef const TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag> MatrixType;
-	typedef typename MatrixCategories::RowMatrixTag MatrixCategory; 
-};
-
-template <class Matrix>
-struct RealMatrixType<TransposeMatrix<Matrix> >
-{
-	typedef Matrix Type;
 };
 
 } // namespace LinBox

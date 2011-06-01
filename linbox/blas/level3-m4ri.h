@@ -45,13 +45,65 @@ DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
 DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const Submatrix<DenseMatrix<bool> > &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
+			      bool a, const DenseMatrix<bool>::ConstSubmatrixType &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
 
-Submatrix<DenseMatrix<bool> > &gemm_impl (const GF2 &F, M4RIModule &M,
-					  bool a, const Submatrix<DenseMatrix<bool> > &A,
-					  const Submatrix<DenseMatrix<bool> > &B, bool b, Submatrix<DenseMatrix<bool> > &C,
-					  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const DenseMatrix<bool>::SubmatrixType &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+	{ return gemm_impl (F, M, a, DenseMatrix<bool>::ConstSubmatrixType (A), B, b, C,
+			    MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+
+DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
+					     bool a, const DenseMatrix<bool>::ConstSubmatrixType &A,
+					     const DenseMatrix<bool> &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
+					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+
+DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
+					     bool a, const DenseMatrix<bool>::SubmatrixType &A,
+					     const DenseMatrix<bool> &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
+					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+	{ return gemm_impl (F, M, a, DenseMatrix<bool>::ConstSubmatrixType (A), B, b, C,
+			    MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool>::SubmatrixType &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+	{ return gemm_impl (F, M, a, A, DenseMatrix<bool>::ConstSubmatrixType (B), b, C,
+			    MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const DenseMatrix<bool>::ConstSubmatrixType &A, const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+
+DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
+			      bool a, const DenseMatrix<bool>::SubmatrixType &A, const DenseMatrix<bool>::SubmatrixType &B, bool b, DenseMatrix<bool> &C,
+			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+	{ return gemm_impl (F, M, a, DenseMatrix<bool>::ConstSubmatrixType (A), DenseMatrix<bool>::ConstSubmatrixType (B), b, C,
+			    MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+
+DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
+					     bool a, const DenseMatrix<bool>::ConstSubmatrixType &A,
+					     const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
+					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+
+DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
+					     bool a, const DenseMatrix<bool>::SubmatrixType &A,
+					     const DenseMatrix<bool>::SubmatrixType &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
+					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+	{ return gemm_impl (F, M, a, DenseMatrix<bool>::ConstSubmatrixType (A), DenseMatrix<bool>::ConstSubmatrixType (B), b, C,
+			    MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+
+DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
+					     bool a, const DenseMatrix<bool>::ConstSubmatrixType &A,
+					     const DenseMatrix<bool>::SubmatrixType &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
+					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+	{ return gemm_impl (F, M, a, A, DenseMatrix<bool>::ConstSubmatrixType (B), b, C,
+			    MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
 
 DenseMatrix<bool> &trmm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);

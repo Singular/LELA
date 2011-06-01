@@ -175,6 +175,9 @@ class Submatrix
         typedef Submatrix<Matrix, SFTrait, Trait> Self_t;
 	typedef typename Matrix::Tag Tag;
 
+	typedef LinBox::Submatrix<Matrix, SFTrait, Trait> SubmatrixType;
+	typedef LinBox::Submatrix<const Matrix, SFTrait, Trait> ConstSubmatrixType;
+
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
 	typedef typename Matrix::Element Element;
@@ -253,6 +256,19 @@ class Submatrix
 	 */
 	Submatrix (const Submatrix &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
+
+	/** Parametrised copy constructor
+	 * @param _M Submatrix to copy
+	 */
+	template <class M2>
+	Submatrix (const Submatrix<M2, SFTrait, Trait> &SM)
+		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
+
+	/** Parametrised conversion
+	 */
+	template <class M2>
+	operator Submatrix<M2, SFTrait, Trait> () const
+		{ return Submatrix<M2, SFTrait, Trait> (static_cast<M2> (*_M), _beg_row, _beg_col, _end_row - _beg_row, _end_col - _beg_col); }
 
 	/** Assignment operator
 	 * Assign the given submatrix to this one
@@ -386,6 +402,9 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
         typedef Submatrix<Matrix, SFTrait, MatrixCategories::RowMatrixTag> Self_t;
 	typedef typename Matrix::Tag Tag;
 
+	typedef LinBox::Submatrix<Matrix, SFTrait, MatrixCategories::RowMatrixTag> SubmatrixType;
+	typedef LinBox::Submatrix<const Matrix, SFTrait, MatrixCategories::RowMatrixTag> ConstSubmatrixType;
+
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
 	typedef typename Matrix::Element Element;
@@ -423,6 +442,10 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 		{}
 
 	Submatrix (const Submatrix &SM)
+		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
+
+	template <class M2>
+	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::RowMatrixTag> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	Submatrix &operator = (const Submatrix &SM)
@@ -499,6 +522,9 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
         typedef Submatrix<Matrix, SFTrait, MatrixCategories::ColMatrixTag> Self_t;
 	typedef typename Matrix::Tag Tag;
 
+	typedef LinBox::Submatrix<Matrix, SFTrait, MatrixCategories::ColMatrixTag> SubmatrixType;
+	typedef LinBox::Submatrix<const Matrix, SFTrait, MatrixCategories::ColMatrixTag> ConstSubmatrixType;
+
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
 	typedef typename Matrix::Element Element;
@@ -538,6 +564,10 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 		{}
 
 	Submatrix (const Submatrix &SM)
+		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
+
+	template <class M2>
+	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::ColMatrixTag> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	Submatrix &operator = (const Submatrix &SM)
@@ -601,12 +631,6 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 	size_t _end_row;
 	size_t _beg_col;
 	size_t _end_col;
-};
-
-template <class Matrix, class SubvectorFactory, class Trait>
-struct RealMatrixType<Submatrix<Matrix, SubvectorFactory, Trait> >
-{
-	typedef Matrix Type;
 };
 
 } // namespace LinBox

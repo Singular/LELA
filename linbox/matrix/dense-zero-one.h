@@ -143,6 +143,9 @@ class DenseZeroOneMatrix
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
 	typedef DenseZeroOneMatrixTag<Iterator, ConstIterator, Endianness> Tag;
 
+	typedef LinBox::Submatrix<Self_t> SubmatrixType;
+	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
+
 	typedef DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness> RowIterator;
 	typedef DenseZeroOneMatrixRowIterator<ConstIterator, ConstIterator, Endianness> ConstRowIterator;
 

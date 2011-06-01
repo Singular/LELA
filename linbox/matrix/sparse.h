@@ -80,10 +80,14 @@ class SparseMatrix
 
 	typedef _Element Element;
 	typedef _Row Row;
+	typedef SparseMatrix<Element, Row, Trait> Self_t;
 	typedef const Row ConstRow;
 	typedef typename _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<Element, Row, Trait> Tag;
+
+	typedef LinBox::Submatrix<Self_t> Submatrix;
+	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
         struct rebind
@@ -273,10 +277,14 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag>
 
 	typedef _Element Element;
 	typedef _Row Row;
+	typedef SparseMatrix<Element, Row, VectorCategories::SparseVectorTag> Self_t;
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<Element, Row, VectorCategories::SparseVectorTag> Tag;
+
+	typedef LinBox::Submatrix<Self_t> SubmatrixType;
+	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
 
 	template <typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other>
         struct rebind

@@ -26,10 +26,14 @@ public:
 	
 	typedef _Element Element;
 	typedef _Row Row;
+	typedef SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag> Self_t;
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<bool, Row, VectorCategories::SparseZeroOneVectorTag> Tag;
+
+	typedef LinBox::Submatrix<Self_t> SubmatrixType;
+	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
@@ -134,10 +138,16 @@ public:
 
 	typedef _Element Element;
 	typedef _Row Row;
+	typedef SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag> Self_t;
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<bool, Row, VectorCategories::HybridZeroOneVectorTag> Tag;
+
+	typedef LinBox::Submatrix<Self_t> SubmatrixType;
+	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
+	typedef LinBox::Submatrix<Self_t, HybridSubvectorWordAlignedTag> WordAlignedSubmatrixType;
+	typedef LinBox::Submatrix<const Self_t, HybridSubvectorWordAlignedTag> ConstWordAlignedSubmatrixType;
 
 	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
 	struct rebind

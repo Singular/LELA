@@ -241,20 +241,20 @@ Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a
 		}
 	} else {
 		size_t l = A.rowdim () / 2;
-		Submatrix<const typename RealMatrixType<Matrix1>::Type> A11 (A, 0, 0, l, l);
-		Submatrix<const typename RealMatrixType<Matrix1>::Type> A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
+		typename Matrix1::ConstSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix1::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
-		Submatrix<typename RealMatrixType<Matrix2>::Type> B1 (B, 0, 0, l, B.coldim ());
-		Submatrix<typename RealMatrixType<Matrix2>::Type> B2 (B, l, 0, B.rowdim () - l, B.coldim ());
+		typename Matrix2::SubmatrixType B1 (B, 0, 0, l, B.coldim ());
+		typename Matrix2::SubmatrixType B2 (B, l, 0, B.rowdim () - l, B.coldim ());
 
 		if (type == LowerTriangular) {
-			Submatrix<const typename RealMatrixType<Matrix1>::Type> A21 (A, l, 0, A.rowdim () - l, l);
+			typename Matrix1::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
 			_trmm (F, M, a, A22, B2, type, diagIsOne);
 			_gemm (F, M, a, A21, B1, F.one (), B2);
 			_trmm (F, M, a, A11, B1, type, diagIsOne);
 		}
 		else if (type == UpperTriangular) {
-			Submatrix<const typename RealMatrixType<Matrix1>::Type> A12 (A, 0, l, l, A.coldim () - l);
+			typename Matrix1::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
 			_trmm (F, M, a, A11, B1, type, diagIsOne);
 			_gemm (F, M, a, A12, B2, F.one (), B1);
 			_trmm (F, M, a, A22, B2, type, diagIsOne);
@@ -292,20 +292,20 @@ Matrix2 &trsm_impl (const Field &F, Modules &M, const typename Field::Element &a
 		}
 	} else {
 		size_t l = A.rowdim () / 2;
-		Submatrix<const typename RealMatrixType<Matrix1>::Type> A11 (A, 0, 0, l, l);
-		Submatrix<const typename RealMatrixType<Matrix1>::Type> A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
+		typename Matrix1::ConstSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix1::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
-		Submatrix<typename RealMatrixType<Matrix2>::Type> B1 (B, 0, 0, l, B.coldim ());
-		Submatrix<typename RealMatrixType<Matrix2>::Type> B2 (B, l, 0, B.rowdim () - l, B.coldim ());
+		typename Matrix2::SubmatrixType B1 (B, 0, 0, l, B.coldim ());
+		typename Matrix2::SubmatrixType B2 (B, l, 0, B.rowdim () - l, B.coldim ());
 
 		if (type == LowerTriangular) {
-			Submatrix<const typename RealMatrixType<Matrix1>::Type> A21 (A, l, 0, A.rowdim () - l, l);
+			typename Matrix1::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
 			_trsm (F, M, a, A11, B1, type, diagIsOne);
 			_gemm (F, M, F.minusOne (), A21, B1, a, B2);
 			_trsm (F, M, F.one (), A22, B2, type, diagIsOne);
 		}
 		else if (type == UpperTriangular) {
-			Submatrix<const typename RealMatrixType<Matrix1>::Type> A12 (A, 0, l, l, A.coldim () - l);
+			typename Matrix1::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
 			_trsm (F, M, a, A22, B2, type, diagIsOne);
 			_gemm (F, M, F.minusOne (), A12, B2, a, B1);
 			_trsm (F, M, F.one (), A11, B1, type, diagIsOne);
