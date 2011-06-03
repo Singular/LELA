@@ -169,7 +169,7 @@ private:
 	class PivotRowCompare
 	{
 	public:
-		inline bool operator () (const typename Vector::index_type &x, const Vector &v1) const
+		inline bool operator () (const typename Vector::index_type x, const Vector &v1) const
 			{ return x < v1.front ().first; }
 	};
 

@@ -29,9 +29,65 @@ namespace LinBox
 
 class M4RIMatrix;
 
-/** Wrapper for dense zero-one matrices in M4RI
+/** Base class for wrapper for dense zero-one matrices in M4RI
+ *
+ * This is a base class providing just the M4RI-wrapper. Use @ref
+ * M4RIMatrix instead.
  */
 class M4RIMatrixBase
+{
+    public:
+
+	typedef bool Element;
+	typedef mzd_t *Rep;
+        typedef M4RIMatrixBase Self_t;
+	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
+	struct Tag {};
+
+	virtual ~M4RIMatrixBase () { if (_rep != NULL) mzd_free (_rep); }
+
+	size_t rowdim () const
+		{ return _rep->nrows; }
+
+	size_t coldim () const
+		{ return _rep->ncols; }
+
+	void resize (size_t m, size_t n)
+		// { if (_rep != NULL) mzd_free (_rep); _rep = mzd_init (m, n); }
+		{ _rep = mzd_init (m, n); }
+
+	void setEntry (size_t i, size_t j, bool a_ij)
+		{ if (a_ij) mzd_write_bit (_rep, i, j, TRUE); else mzd_write_bit (_rep, i, j, FALSE); }
+
+	void eraseEntry (size_t i, size_t j) {}
+
+	bool getEntry (Element &x, size_t i, size_t j) const
+		{ x = (mzd_read_bit (_rep, i, j) == TRUE) ? true : false; return true; }
+
+	template <class Vector>
+	Vector &columnDensity (Vector &v) const
+		{ std::fill (v.begin (), v.end (), _rep->nrows); return v; }
+
+	Rep    _rep;
+
+    protected:
+
+	M4RIMatrixBase (Rep rep) : _rep (rep) {}
+
+    private:
+
+	M4RIMatrixBase (const M4RIMatrixBase &M);
+};
+
+// Forward declaration
+class M4RISubmatrix;
+
+/** Wrapper for dense zero-one-matrices in M4RI
+ *
+ * This class wraps a dense matrix from M4RI into LinBox-matrix. It
+ * provides row-iterators but not column-iterators.
+ */
+class M4RIMatrix : public M4RIMatrixBase
 {
 	template <class Iterator, class ConstIterator, class MatrixPointer>
 	class RowIteratorPT
@@ -141,72 +197,51 @@ class M4RIMatrixBase
 		friend class RowIteratorPT;
 	};
 
-    public:
-
-	typedef bool Element;
-	typedef mzd_t *Rep;
-        typedef M4RIMatrixBase Self_t;
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
-	struct Tag {};
-
+public:
+	typedef M4RISubmatrix SubmatrixType;
+	typedef const M4RISubmatrix ConstSubmatrixType;
+	typedef M4RIMatrix WordAlignedSubmatrixType;
+	typedef const M4RIMatrix ConstWordAlignedSubmatrixType;
+	
 	typedef BitSubvectorWordAligned<word *, const word *, BigEndian<word> > Row;  
 	typedef BitSubvectorWordAligned<const word *, const word *, BigEndian<word> > ConstRow;
 
 	typedef RowIteratorPT<word *, const word *, M4RIMatrixBase *> RowIterator;
 	typedef RowIteratorPT<const word *, const word *, const M4RIMatrixBase *> ConstRowIterator;
 
-	virtual ~M4RIMatrixBase () { if (_rep != NULL) mzd_free (_rep); }
+	M4RIMatrix ()
+		: M4RIMatrixBase (NULL)
+	{}
 
-	/** Get the number of rows in the matrix
-	 * @returns Number of rows in matrix
-	 */
-	size_t rowdim () const
-		{ return _rep->nrows; }
+	M4RIMatrix (size_t m, size_t n)
+		: M4RIMatrixBase (mzd_init (m, n)), _start_row (0), _start_col (0)
+	{}
 
-	/** Get the number of columns in the matrix
-	 * @returns Number of columns in matrix
-	 */
-	size_t coldim () const
-		{ return _rep->ncols; }
+	M4RIMatrix (M4RIMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+		: M4RIMatrixBase (mzd_init_window (M._rep, beg_row, beg_col, beg_row + m, beg_col + n)),
+		  _start_row (M.startRow () + beg_row),
+		  _start_col (M.startCol () + beg_col)
+		{ linbox_check (_rep->offset == 0); }
 
-	/** Resize the matrix to the given dimensions
-	 * The state of the matrix's entries after a call to this method is
-	 * undefined
-	 * @param m Number of rows
-	 * @param n Number of columns
-	 */
-	void resize (size_t m, size_t n)
-		// { if (_rep != NULL) mzd_free (_rep); _rep = mzd_init (m, n); }
-		{ _rep = mzd_init (m, n); }
+	M4RIMatrix (const M4RIMatrix &M)
+		: M4RIMatrixBase (mzd_init_window (M._rep, 0, 0, M.rowdim (), M.coldim ())),
+		  _start_row (M.startRow ()), _start_col (M.startCol ())
+	{}
 
-	/** Set the entry at the (i, j) position to a_ij.
-	 * @param i Row number, 0...rowdim () - 1
-	 * @param j Column number 0...coldim () - 1
-	 * @param a_ij Element to set
-	 */
-	void setEntry (size_t i, size_t j, bool a_ij)
-		{ if (a_ij) mzd_write_bit (_rep, i, j, TRUE); else mzd_write_bit (_rep, i, j, FALSE); }
+	M4RIMatrix (VectorStream<Row> &vs)
+		: M4RIMatrixBase (mzd_init (vs.size (), vs.dim ())), _start_row (0), _start_col (0)
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
 
-	/** Does nothing. Provided for compatibility
-	 * @param i
-	 * @param j
-	 */
-	void eraseEntry (size_t i, size_t j) {}
-
-	/** Copy the (i, j) entry into x, and return a reference to x.
-	 * @param x Element in which to store result
-	 * @param i Row index
-	 * @param j Column index
-	 * @returns true
-	 */
-	bool getEntry (Element &x, size_t i, size_t j) const
-		{ x = (mzd_read_bit (_rep, i, j) == TRUE) ? true : false; return true; }
-
-	/** @name Column of rows iterator
-	 * The column of rows iterator traverses the rows of the
-	 * matrix in ascending order. Dereferencing the iterator yields
-	 * a row vector in dense format
-	 */
+	M4RIMatrix &operator = (const M4RIMatrix &M)
+	{
+		_rep = M._rep;
+		_start_row = M._start_row;
+		_start_col = M._start_col;
+		return *this;
+	}
 
 	inline RowIterator rowBegin ()
 		{ return RowIterator (this, 0); }
@@ -217,23 +252,11 @@ class M4RIMatrixBase
 	inline ConstRowIterator rowEnd () const
 		{ return ConstRowIterator (this, rowdim ()); }
 
-	/** Retrieve a reference to a row.
-	 * Since rows may also be indexed, this allows A[i][j] notation
-	 * to be used.
-	 * @param i Row index
-	 */
 	Row operator[] (size_t i)
 		{ return Row (_rep->rows[i], _rep->rows[i] + _rep->width, _rep->ncols); }
 
 	ConstRow operator[] (size_t i) const
 		{ return ConstRow (_rep->rows[i], _rep->rows[i] + _rep->width, _rep->ncols); }
-
-	/** Compute column density
-	 */
-
-	template <class Vector>
-	Vector &columnDensity (Vector &v) const
-		{ std::fill (v.begin (), v.end (), _rep->nrows); return v; }
 
 	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
 	typedef RawIterator ConstRawIterator;
@@ -251,171 +274,215 @@ class M4RIMatrixBase
         ConstRawIndexedIterator rawIndexedEnd() const
 		{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
-	Rep    _rep;
+	size_t startRow () const { return _start_row; }
+	size_t startCol () const { return _start_col; }
 
-    protected:
-
-	friend class RowIteratorPT<word *, const word *, M4RIMatrixBase *>;
-	friend class RowIteratorPT<const word *, const word *, const M4RIMatrixBase *>;
-
-	M4RIMatrixBase (Rep rep) : _rep (rep) {}
-
-    private:
-
-	M4RIMatrixBase (const M4RIMatrixBase &M);
+private:
+	size_t _start_row, _start_col;
 };
 
-class M4RIMatrix : public M4RIMatrixBase
+class M4RISubmatrix : public M4RIMatrixBase
 {
+	template <class Iterator, class MatrixPointer>
+	class RowIteratorPT
+	{
+	public:
+
+		typedef BitSubvector<Iterator> value_type;
+
+		typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
+		typedef typename Iterator::word_type word_type;
+
+		RowIteratorPT (MatrixPointer M, size_t idx)
+			: _M (M), _idx (idx), _last_offset ((M->_rep->offset + M->_rep->ncols) & WordTraits<word_type>::pos_mask)
+			{ make_row (); }
+    
+		RowIteratorPT () {}
+    
+		RowIteratorPT (const RowIteratorPT &rowp)
+			: _M (rowp._M), _idx (rowp._idx), _last_offset (rowp._last_offset), _row (rowp._row) {}
+
+		template <class It, class MP>
+		RowIteratorPT (const RowIteratorPT<It, MP> &rowp)
+			: _M (rowp._M), _idx (rowp._idx), _last_offset (rowp._last_offset), _row (rowp._row) {}
+    
+		template <class It, class MP>
+		RowIteratorPT &operator = (const RowIteratorPT<It, MP> &rowp)
+		{
+			_M = rowp._M;
+			_idx = rowp._idx;
+			_last_offset = rowp._last_offset;
+			_row = rowp._row;
+			return *this;
+		}
+    
+		RowIteratorPT &operator ++ ()
+		{
+			++_idx;
+			make_row ();
+			return *this;
+		}
+    
+		RowIteratorPT operator ++ (int)
+		{
+			RowIteratorPT tmp (*this);
+			++*this;
+			return tmp;
+		}
+    
+		RowIteratorPT &operator -- ()
+		{
+			--_idx;
+			make_row ();
+			return *this;
+		}
+
+		RowIteratorPT operator -- (int)
+		{
+			RowIteratorPT tmp (*this);
+			--*this;
+			return tmp;
+		}
+
+		RowIteratorPT operator+ (int i) const
+			{ return RowIteratorPT (_M, _idx + i); }
+
+		difference_type operator- (const RowIteratorPT &c) const
+			{ return c._idx - _idx; }
+
+		RowIteratorPT &operator += (int i)
+		{
+			_idx += i;
+			make_row ();
+			return *this;
+		}
+
+		value_type operator [] (int i) const
+			{ return value_type (Iterator (_M->_rep->rows[_idx + i], _M->_rep->offset),
+					     Iterator (_M->_rep->rows[_idx + i] + _M->_rep->width - ((_last_offset == 0) ? 0 : 1), _last_offset)); }
+
+		value_type *operator -> ()
+			{ return &_row; }
+
+		value_type &operator * ()
+			{ return _row; }
+
+		bool operator == (const RowIteratorPT& c) const
+			{ return _idx == c._idx; }
+
+		template <class It, class MP>
+		bool operator == (const RowIteratorPT<It, MP> &c) const
+			{ return _idx == c._idx; }
+
+		bool operator != (const RowIteratorPT& c) const
+			{ return _idx != c._idx; }
+
+		template <class It, class MP>
+		bool operator != (const RowIteratorPT<It, MP> &c) const
+			{ return _idx != c._idx; }
+
+	private:
+		inline void make_row ()
+		{
+			if (_M->_rep->rows != NULL)
+				_row = value_type (Iterator (_M->_rep->rows[_idx], _M->_rep->offset),
+						   Iterator (_M->_rep->rows[_idx] + _M->_rep->width - ((_last_offset == 0) ? 0 : 1), _last_offset));
+		}
+
+		MatrixPointer _M;
+		size_t _idx, _last_offset;
+		value_type _row;
+
+		template <class It, class MP>
+		friend class RowIteratorPT;
+	};
+
 public:
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
-	typedef LinBox::Submatrix<M4RIMatrix> SubmatrixType;
-	typedef LinBox::Submatrix<const M4RIMatrix> ConstSubmatrixType;
+	typedef M4RISubmatrix SubmatrixType;
+	typedef const M4RISubmatrix ConstSubmatrixType;
 	
-	///
-	M4RIMatrix ()
+	typedef BitSubvector<BitVectorIterator<word *, const word *, BigEndian<word> > > Row;
+	typedef BitSubvector<BitVectorIterator<const word *, const word *, BigEndian<word> > > ConstRow;
+
+	typedef RowIteratorPT<BitVectorIterator<word *, const word *, BigEndian<word> >, M4RIMatrixBase *> RowIterator;
+	typedef RowIteratorPT<BitVectorIterator<const word *, const word *, BigEndian<word> >, const M4RIMatrixBase *> ConstRowIterator;
+
+	M4RISubmatrix ()
 		: M4RIMatrixBase (NULL)
 	{}
 
-	/** Constructor.
-	 * @param  m  row dimension
-	 * @param  n  column dimension
-	 */
-	M4RIMatrix (size_t m, size_t n)
-		: M4RIMatrixBase (mzd_init (m, n))
+	M4RISubmatrix (const M4RIMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+		: M4RIMatrixBase (mzd_init_window (M._rep, beg_row, beg_col, beg_row + m, beg_col + n)),
+		  _start_row (M.startRow () + beg_row),
+		  _start_col (M.startCol () + beg_col)
 	{}
 
-	/** Construct a dense submatrix of a given dense matrix
-	 */
-	M4RIMatrix (M4RIMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
-		: M4RIMatrixBase (mzd_init_window (M._rep, beg_row, beg_col, beg_row + m, beg_col + n))
+	M4RISubmatrix (const M4RISubmatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+		: M4RIMatrixBase (mzd_init_window (M._rep, beg_row, beg_col, beg_row + m, beg_col + n)),
+		  _start_row (M.startRow () + beg_row),
+		  _start_col (M.startCol () + beg_col)
 	{}
 
-	///
-	M4RIMatrix (const M4RIMatrix &M)
-		: M4RIMatrixBase (mzd_init_window (M._rep, 0, 0, M.rowdim (), M.coldim ()))
+	M4RISubmatrix (const M4RISubmatrix &M)
+		: M4RIMatrixBase (mzd_init_window (M._rep, 0, 0, M.rowdim (), M.coldim ())),
+		  _start_row (M.startRow ()),
+		  _start_col (M.startCol ())
 	{}
 
-	M4RIMatrix (VectorStream<Row> &vs)
-		: M4RIMatrixBase (mzd_init (vs.size (), vs.dim ()))
-	{
-		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
-			vs >> *i;
-	}
-
-	M4RIMatrix &operator = (const M4RIMatrix &M)
+	M4RISubmatrix &operator = (const M4RISubmatrix &M)
 	{
 		_rep = M._rep;
+		_start_row = M._start_row;
+		_start_col = M._start_col;
 		return *this;
 	}
 
+	inline RowIterator rowBegin ()
+		{ return RowIterator (this, 0); }
+	inline RowIterator rowEnd ()
+		{ return RowIterator (this, rowdim ()); }
+	inline ConstRowIterator rowBegin () const
+		{ return ConstRowIterator (this, 0); }
+	inline ConstRowIterator rowEnd () const
+		{ return ConstRowIterator (this, rowdim ()); }
+
+	Row operator[] (size_t i)
+	{
+		size_t last_offset = (_rep->offset + _rep->ncols) & WordTraits<word>::pos_mask;
+
+		return Row (BitVectorIterator<word *, const word *, BigEndian<word> > (_rep->rows[i], _rep->offset),
+			    BitVectorIterator<word *, const word *, BigEndian<word> > (_rep->rows[i] + _rep->width - ((last_offset == 0) ? 0 : 1), last_offset));
+	}
+
+	ConstRow operator[] (size_t i) const
+	{
+		size_t last_offset = (_rep->offset + _rep->ncols) & WordTraits<word>::pos_mask;
+
+		return ConstRow (BitVectorIterator<const word *, const word *, BigEndian<word> > (_rep->rows[i], _rep->offset),
+				 BitVectorIterator<const word *, const word *, BigEndian<word> > (_rep->rows[i] + _rep->width - ((last_offset == 0) ? 0 : 1), last_offset));
+	}
+
+	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
+	typedef RawIterator ConstRawIterator;
+    
+	ConstRawIterator rawBegin () const
+		{ return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const
+		{ return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
+
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
+
+	ConstRawIndexedIterator rawIndexedBegin() const
+		{ return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        ConstRawIndexedIterator rawIndexedEnd() const
+		{ return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
+
+	size_t startRow () const { return _start_row; }
+	size_t startCol () const { return _start_col; }
+
 private:
-
-	M4RIMatrix (Rep rep) : M4RIMatrixBase (rep) {}
-
-	friend class Submatrix<M4RIMatrix>;
-	friend class Submatrix<const M4RIMatrix>;
-};
-
-template <class Submatrix>
-class SubvectorFactory<M4RIMatrixBase::Tag, Submatrix, M4RIMatrixBase::RowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef M4RIMatrixBase::RowIterator IteratorType;
-	typedef BitSubvector<BitVectorIterator<word *, const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
-
-template <class Submatrix>
-class SubvectorFactory<M4RIMatrixBase::Tag, Submatrix, M4RIMatrixBase::ConstRowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef M4RIMatrixBase::ConstRowIterator IteratorType;
-	typedef BitSubvector<BitVectorConstIterator<const word *, BigEndian<word> >, BitVectorConstIterator<const word *, BigEndian<word> > > Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
-
-/* Specialisation of Submatrix to M4RIMatrix using facilities in M4RI */
-
-template<>
-class Submatrix<M4RIMatrix> : public Submatrix<M4RIMatrixBase>
-{
-    public:
-	typedef M4RIMatrix Matrix;
-	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
-	typedef LinBox::Submatrix<M4RIMatrix> SubmatrixType;
-	typedef LinBox::Submatrix<const M4RIMatrix> ConstSubmatrixType;
- 
-	Submatrix () : _rep (NULL) {}
-	Submatrix (Matrix &M,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<M4RIMatrixBase> (M, row, col, rowdim, coldim),
-		  _rep (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim))
-		{}
-
-	Submatrix (const Submatrix &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<M4RIMatrixBase> ((Submatrix<M4RIMatrixBase> &) SM, row, col, rowdim, coldim),
-		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
-		{}
-
-	M4RIMatrix _rep;
-
-    private:
-	friend class Submatrix<const M4RIMatrix>;
-};
-
-template<>
-class Submatrix<const M4RIMatrix> : public Submatrix<const M4RIMatrixBase>
-{
-    public:
-	typedef const M4RIMatrix Matrix;
-	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
-	typedef LinBox::Submatrix<M4RIMatrix> SubmatrixType;
-	typedef LinBox::Submatrix<const M4RIMatrix> ConstSubmatrixType;
- 
-	Submatrix () : _rep (NULL) {}
-	Submatrix (const Matrix &M,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<const M4RIMatrixBase> (M, row, col, rowdim, coldim),
-		  _rep (mzd_init_window (M._rep, row, col, row + rowdim, col + coldim))
-		{}
-
-	Submatrix (const Submatrix &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<const M4RIMatrixBase> (SM, row, col, rowdim, coldim),
-		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
-		{}
-
-	Submatrix (const Submatrix<M4RIMatrix> &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<const M4RIMatrixBase> (SM, row, col, rowdim, coldim),
-		  _rep (mzd_init_window (SM._rep._rep, row, col, row + rowdim, col + coldim))
-		{}
-
-	Submatrix (const Submatrix<M4RIMatrix> &SM)
-		: Submatrix<const M4RIMatrixBase> (SM), _rep (SM._rep) {}
-
-	const M4RIMatrix _rep;
+	size_t _start_row, _start_col;
 };
 
 template <>
@@ -440,64 +507,6 @@ public:
 	DenseMatrix (VectorStream<Row> &vs)
 		: M4RIMatrix (vs)
 	{}
-};
-
-template <>
-class Submatrix<DenseMatrix<bool> > : public Submatrix<M4RIMatrix>
-{
-    public:
-	typedef DenseMatrix<bool> Matrix;
-	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
- 
-	Submatrix () {}
-	Submatrix (Matrix &M,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<M4RIMatrix> (M, row, col, rowdim, coldim)
-		{}
-
-	Submatrix (const Submatrix &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<M4RIMatrix> (SM, row, col, rowdim, coldim)
-		{}
-};
-
-template <>
-class Submatrix<const DenseMatrix<bool> > : public Submatrix<const M4RIMatrix>
-{
-    public:
-	typedef DenseMatrix<bool> Matrix;
-	typedef MatrixCategories::ZeroOneRowMatrixTag Trait;
- 
-	Submatrix () {}
-	Submatrix (const Matrix &M,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<const M4RIMatrix> (M, row, col, rowdim, coldim)
-		{}
-
-	Submatrix (const Submatrix &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<const M4RIMatrix> (SM, row, col, rowdim, coldim)
-		{}
-
-	Submatrix (const Submatrix<DenseMatrix<bool> > &SM,
-		   size_t row,
-		   size_t col,
-		   size_t rowdim,
-		   size_t coldim)
-		: Submatrix<const M4RIMatrix> (SM, row, col, rowdim, coldim)
-		{}
 };
 
 } // namespace LinBox

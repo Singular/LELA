@@ -19,7 +19,7 @@ namespace LinBox
 namespace BLAS3
 {
 
-DenseMatrix<bool> &scal_impl (const GF2 &F, M4RIModule &M, bool a, DenseMatrix<bool> &A, MatrixCategories::RowMatrixTag)
+M4RIMatrixBase &scal_impl (const GF2 &F, M4RIModule &M, bool a, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag)
 {
 	size_t i;
 
@@ -33,7 +33,7 @@ DenseMatrix<bool> &scal_impl (const GF2 &F, M4RIModule &M, bool a, DenseMatrix<b
 }
 
 
-DenseMatrix<bool> &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B,
+M4RIMatrixBase &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -48,9 +48,9 @@ DenseMatrix<bool> &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMa
 	return B;
 }
 
-DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+M4RIMatrixBase &gemm_impl (const GF2 &F, M4RIModule &M,
+			   bool a, const M4RIMatrixBase &A, const M4RIMatrix &B, bool b, M4RIMatrixBase &C,
+			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (A.coldim () == B.rowdim ());
@@ -64,132 +64,6 @@ DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
 			mzd_addmul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
 		else
 			mzd_mul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
-	}
-	else if (!b)
-		_scal (F, M, false, C);
-
-	return C;
-}
-
-DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const DenseMatrix<bool>::ConstSubmatrixType &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-{
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
-		return C;
-
-	if (a) {
-		if (b)
-			mzd_addmul (C._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
-		else
-			mzd_mul (C._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
-	}
-	else if (!b)
-		_scal (F, M, false, C);
-
-	return C;
-}
-
-DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
-					     bool a, const DenseMatrix<bool>::ConstSubmatrixType &A,
-					     const DenseMatrix<bool> &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
-					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-{
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
-		return C;
-
-	if (a) {
-		if (b)
-			mzd_addmul (C._rep._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
-		else
-			mzd_mul (C._rep._rep, A._rep._rep, B._rep, STRASSEN_MUL_CUTOFF);
-	}
-	else if (!b)
-		_scal (F, M, false, C);
-
-	return C;
-}
-
-DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool> &C,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-{
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	if (B._rep._rep->offset != 0)
-		return _gemm (F, static_cast<GenericModule &> (M), a, A, B, b, C);
-
-	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
-		return C;
-
-	if (a) {
-		if (b)
-			mzd_addmul (C._rep, A._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
-		else
-			mzd_mul (C._rep, A._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
-	}
-	else if (!b)
-		_scal (F, M, false, C);
-
-	return C;
-}
-
-DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const DenseMatrix<bool>::ConstSubmatrixType &A, const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool> &C,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-{
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	if (B._rep._rep->offset != 0)
-		return _gemm (F, static_cast<GenericModule &> (M), a, A, B, b, C);
-
-	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
-		return C;
-
-	if (a) {
-		if (b)
-			mzd_addmul (C._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
-		else
-			mzd_mul (C._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
-	}
-	else if (!b)
-		_scal (F, M, false, C);
-
-	return C;
-}
-
-DenseMatrix<bool>::SubmatrixType &gemm_impl (const GF2 &F, M4RIModule &M,
-					     bool a, const DenseMatrix<bool>::ConstSubmatrixType &A,
-					     const DenseMatrix<bool>::ConstSubmatrixType &B, bool b, DenseMatrix<bool>::SubmatrixType &C,
-					     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-{
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	if (B._rep._rep->offset != 0)
-		return _gemm (F, static_cast<GenericModule &> (M), a, A, B, b, C);
-
-	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
-		return C;
-
-	if (a) {
-		if (b)
-			mzd_addmul (C._rep._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
-		else
-			mzd_mul (C._rep._rep, A._rep._rep, B._rep._rep, STRASSEN_MUL_CUTOFF);
 	}
 	else if (!b)
 		_scal (F, M, false, C);
@@ -243,7 +117,7 @@ DenseMatrix<bool> &trmm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMa
 }
 #endif
 
-DenseMatrix<bool> &trsm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
+M4RIMatrixBase &trsm_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B, TriangularMatrixType type, bool diagIsOne,
 			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -282,7 +156,7 @@ mzp_t *make_m4ri_permutation (Iterator P_start, Iterator P_end, size_t len)
 }
 
 template <class Iterator>
-DenseMatrix<bool> &permute_rows_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, DenseMatrix<bool> &A, MatrixCategories::RowMatrixTag)
+M4RIMatrixBase &permute_rows_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag)
 {
 	mzp_t *P = make_m4ri_permutation (P_begin, P_end, A.rowdim ());
 	mzd_apply_p_left (A._rep, P);
@@ -291,7 +165,7 @@ DenseMatrix<bool> &permute_rows_impl (const GF2 &F, M4RIModule &M, Iterator P_be
 }
 
 template <class Iterator>
-DenseMatrix<bool> &permute_cols_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, DenseMatrix<bool> &A, MatrixCategories::RowMatrixTag)
+M4RIMatrixBase &permute_cols_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag)
 {
 	mzp_t *P = make_m4ri_permutation (P_begin, P_end, A.coldim ());
 	mzd_apply_p_right (A._rep, P);

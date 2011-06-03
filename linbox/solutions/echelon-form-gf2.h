@@ -117,7 +117,7 @@ public:
 	size_t rank (const Matrix &A) const
 		{ return _rank_table[&A]; }
 
-	size_t rank (const M4RIMatrix &A)
+	size_t rank (const DenseMatrix<bool> &A)
 	{
 		if (_rank_table.find (&A) != _rank_table.end ())
 			return _rank_table[&A];
@@ -128,7 +128,7 @@ public:
 				return 0;
 			}
 
-			M4RIMatrix::ConstRowIterator i = A.rowBegin () + (A.rowdim () - 1);
+			DenseMatrix<bool>::ConstRowIterator i = A.rowBegin () + (A.rowdim () - 1);
 
 			size_t r = A.rowdim ();
 

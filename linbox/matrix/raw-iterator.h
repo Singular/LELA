@@ -170,7 +170,7 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseZeroOneVectorTag>
 	typedef typename Iterator::value_type Vector;
 
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::reference reference;
-	typedef const reference const_reference;
+	typedef typename Vector::const_iterator::const_reference const_reference;
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type value_type;
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 
