@@ -443,7 +443,7 @@ public:
 	inline const_reference back      () const      { return *(end () - 1); }
 
 	template <class T>
-	inline void            push_back (const T &v)  { _idx.push_back (v.first); _elt.push_back (v.second); }
+	inline void            push_back (T v)         { _idx.push_back (v.first); _elt.push_back (v.second); }
 	inline void            clear     ()            { _idx.clear (); _elt.clear (); }
 	inline void            resize    (size_type s) { _idx.resize (s); _elt.resize (s); }
 

@@ -130,7 +130,7 @@ public:
 	 * @param  x field base element (reference returned).
 	 * @param  y field base element.
 	 */
-	Element &assign (Element &x, const Element &y) const { return x = y; }
+	Element &assign (Element &x, Element y) const { return x = y; }
 
 	/*- Cardinality.
 	 * Return integer representing cardinality of the domain.

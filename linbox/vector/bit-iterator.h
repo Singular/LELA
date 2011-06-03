@@ -45,6 +45,7 @@ struct WordTraits {
 template <>
 struct WordTraits<uint8> {
 	typedef uint8 Word;
+	typedef uint16 DoubleWord;
 	static const unsigned int bits = 8;
 	static const unsigned int logof_size = 3;
 	static const unsigned int pos_mask = 0x07;
@@ -62,6 +63,7 @@ struct WordTraits<uint8> {
 template <>
 struct WordTraits<unsigned int> {
 	typedef unsigned int Word;
+	typedef uint64 DoubleWord;
 	static const unsigned int bits = 32;
 	static const unsigned int logof_size = 5;
 	static const unsigned int pos_mask = 0x1F;
@@ -79,6 +81,7 @@ struct WordTraits<unsigned int> {
 template <>
 struct WordTraits<unsigned int> {
 	typedef unsigned int Word;
+	typedef uint128 DoubleWord;
 	static const unsigned int bits = 64;
 	static const unsigned int logof_size = 6;
 	static const unsigned int pos_mask = 0x3F;
@@ -100,6 +103,7 @@ struct WordTraits<unsigned int> {
 template <>
 struct WordTraits<unsigned long> {
 	typedef unsigned long Word;
+	typedef uint64 DoubleWord;
 	static const unsigned int bits = 32;
 	static const unsigned int logof_size = 5;
 	static const unsigned int pos_mask = 0x1F;
@@ -117,6 +121,7 @@ struct WordTraits<unsigned long> {
 template <>
 struct WordTraits<unsigned long> {
 	typedef unsigned long Word;
+	typedef uint128 DoubleWord;
 	static const unsigned int bits = 64;
 	static const unsigned int logof_size = 6;
 	static const unsigned int pos_mask = 0x3F;
@@ -138,6 +143,7 @@ struct WordTraits<unsigned long> {
 template <>
 struct WordTraits<unsigned long long> {
 	typedef unsigned long long Word;
+	typedef uint128 DoubleWord;
 	static const unsigned int bits = 64;
 	static const unsigned int logof_size = 6;
 	static const unsigned int pos_mask = 0x3F;
@@ -156,6 +162,7 @@ struct WordTraits<unsigned long long> {
 template <>
 struct WordTraits<unsigned long long> {
 	typedef unsigned long long Word;
+	typedef uint256 DoubleWord;
 	static const unsigned int bits = 128;
 	static const unsigned int logof_size = 7;
 	static const unsigned int pos_mask = 0x7F;

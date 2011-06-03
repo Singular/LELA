@@ -58,6 +58,14 @@ typedef unsigned __LINBOX_INT32 uint32;
 
 typedef unsigned __LINBOX_INT64 uint64;
 
+#ifdef __LINBOX_UINT128
+typedef __LINBOX_UINT128 uint128;
+#endif // __LINBOX_UINT128
+
+#ifdef __LINBOX_UINT256
+typedef __LINBOX_UINT256 uint256;
+#endif // __LINBOX_UINT256
+
 template <class T>
 T abs (const T &a) { return a <= 0 ? a * -1 : a; }
 

@@ -45,6 +45,8 @@ AC_CHECK_SIZEOF(int, 32)
 AC_CHECK_SIZEOF(long, 32)
 AC_CHECK_SIZEOF(long long, 64)
 AC_CHECK_SIZEOF(__int64, 64)
+AC_CHECK_SIZEOF(__uint128_t, 128)
+AC_CHECK_SIZEOF(__uint256_t, 256)
 
 # check endianness of the architecture
 AC_C_BIGENDIAN(
@@ -62,11 +64,15 @@ case $ac_cv_sizeof_char in
      TWO_BYTES=2;
      FOUR_BYTES=4;
      EIGHT_BYTES=8;
+     SIXTEEN_BYTES=16;
+     THIRTY_TWO_BYTES=32;
      ;;
   8)
      TWO_BYTES=16;
      FOUR_BYTES=32;
      EIGHT_BYTES=64;
+     SIXTEEN_BYTES=128;
+     THIRTY_TWO_BYTES=256;
 esac
 
 case $TWO_BYTES in
@@ -108,10 +114,28 @@ case $EIGHT_BYTES in
      ;;
 esac
 
+case $SIXTEEN_BYTES in
+  $ac_cv_sizeof___uint128_t)
+     LINBOX_UINT128="__uint128_t";
+     ;;
+esac
+
+case $THIRTY_TWO_BYTES in
+  $ac_cv_sizeof___uint256_t)
+     LINBOX_UINT256="__uint256_t";
+     ;;
+esac
+
 AC_DEFINE_UNQUOTED(INT8, $LINBOX_INT8, Canonical 8-bit data type)
 AC_DEFINE_UNQUOTED(INT16, $LINBOX_INT16, Canonical 16-bit data type)
 AC_DEFINE_UNQUOTED(INT32, $LINBOX_INT32, Canonical 32-bit data type)
 AC_DEFINE_UNQUOTED(INT64, $LINBOX_INT64, Canonical 64-bit data type)
+if test "x$LINBOX_UINT128" != "x"; then
+  AC_DEFINE_UNQUOTED(UINT128, $LINBOX_UINT128, Canonical 128-bit data type)
+fi
+if test "x$LINBOX_UINT256" != "x"; then
+  AC_DEFINE_UNQUOTED(UINT256, $LINBOX_UINT256, Canonical 256-bit data type)
+fi
 
 # Feature checks
 LB_MISC
