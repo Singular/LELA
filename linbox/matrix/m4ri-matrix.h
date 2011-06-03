@@ -20,7 +20,6 @@
 #include "linbox/vector/bit-subvector-word-aligned.h"
 #include "linbox/vector/bit-iterator.h"
 #include "linbox/vector/bit-subvector.h"
-#include "linbox/matrix/submatrix.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/raw-iterator.h"
 

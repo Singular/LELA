@@ -217,7 +217,7 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 									      (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)
 	{
 		linbox_check ((start & WordTraits<word_type>::pos_mask) == 0);
-		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
+		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > (size_t) (v.back ().first << WordTraits<word_type>::logof_size));
 	}
 
 	SparseSubvector (SparseSubvector &v, size_t start, size_t finish)
@@ -225,7 +225,7 @@ class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
 									      (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)
 	{
 		linbox_check ((start & WordTraits<word_type>::pos_mask) == 0);
-		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > v.back ().first << WordTraits<word_type>::logof_size);
+		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > (size_t) (v.back ().first << WordTraits<word_type>::logof_size));
 	}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
