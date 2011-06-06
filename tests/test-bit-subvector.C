@@ -10,6 +10,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 
 #include "test-common.h"
 
@@ -72,10 +73,12 @@ bool testConstIterator (size_t n, size_t k)
 				error << "ERROR: Pattern should be " << std::hex << check << std::endl;
 				error << "ERROR: Detected " << std::hex << *i << std::endl;
 				pass = false;
+				goto end_test;
 			}
 		}
 	}
 
+end_test:
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
@@ -113,7 +116,8 @@ int testIterator (size_t n, size_t k)
 				error << "ERROR: word_iterator and const_word_iterator don't agree" << std::endl;
 				error << "ERROR: word_iterator: " << std::hex << *i << std::endl;
 				error << "ERROR: const_word_iterator: " << std::hex << *j << std::endl;
-				return -1;
+				pass = false;
+				goto end_test;
 			}
 
 			uint64 val = *j;
@@ -125,12 +129,14 @@ int testIterator (size_t n, size_t k)
 				error << "ERROR: Pattern should be 0 after clearing" << std::endl;
 				error << "ERROR: Detected " << std::hex << *k << std::endl;
 				pass = false;
+				goto end_test;
 			}
 
 			*i ^= val;
 		}
 	}
 
+end_test:
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
@@ -241,20 +247,31 @@ bool testWordLength (size_t n, size_t k)
 
 bool runTests () 
 {
+	bool pass = true;
+
 	size_t n, k;
+
+	std::ostringstream str;
 
 	testMask ();
 	
 	for (n = 256; n < 256 + WordTraits<uint64>::bits; ++n) {
 		for (k = 128; k < 128 + WordTraits<uint64>::bits; ++k) {
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
-				<< ": Running tests for main vector-length " << n << ", subvector-length " << k << std::endl;
-			if (testWordLength (n, k) == -1 || testConstIterator (n, k) == -1 || testIterator (n, k) == -1)
-				return false;
+			str << "Running tests for main vector-length " << n << ", subvector-length " << k << std::ends;
+			commentator.start (str.str ().c_str (), __FUNCTION__);
+			pass = testWordLength (n, k);
+			pass = testConstIterator (n, k) && pass;
+			pass = testIterator (n, k) && pass;
+			commentator.stop (MSG_STATUS (pass));
+
+			if (!pass)
+				goto end_test;
 		}
 	}
 
-	return true;
+end_test:
+
+	return pass;
 }
 
 int main (int argc, char **argv)
