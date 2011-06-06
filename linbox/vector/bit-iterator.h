@@ -192,14 +192,40 @@ class BigEndian {
 public:
 	typedef _word word;
 
+	union word_pair {
+		struct {
+#ifdef __LINBOX_HAVE_LITTLE_ENDIAN
+			word high;
+			word low;
+#elif __LINBOX_HAVE_BIG_ENDIAN
+			word low;
+			word high;
+#endif // __LINBOX_HAVE_LITTLE_ENDIAN
+		} parts;
+
+		typename WordTraits<word>::DoubleWord full;
+
+		void init () { parts.low = parts.high = 0; }
+
+		void advance () { parts.low = parts.high; }
+
+		template <class iterator>
+		void read_next (iterator i)
+			{ parts.low = parts.high; parts.high = *i; }
+	};
+
 	// Constant representing a one in the position zero in the word
 	static const word e_0 = 1ULL << (WordTraits<word>::bits - 1);
 
 	// Shift the given word pos positions to the right
 	static inline word shift_right (word w, uint8 pos) { return w >> pos; }
 
+	static inline typename WordTraits<word>::DoubleWord shift_right (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w >> pos; }
+
 	// Shift the given word pos positions to the left
 	static inline word shift_left (word w, uint8 pos) { return w << pos; }
+
+	static inline typename WordTraits<word>::DoubleWord shift_left (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w << pos; }
 
 	// Return a word with all positions from pos onwards set to one and the rest set to zero
 	static inline word mask_right (uint8 pos) { return (((e_0 >> pos) << 1) - 1); }
@@ -227,14 +253,40 @@ class LittleEndian {
 public:
 	typedef _word word;
 
+	union word_pair {
+		struct {
+#ifdef __LINBOX_HAVE_LITTLE_ENDIAN
+			word low;
+			word high;
+#elif __LINBOX_HAVE_BIG_ENDIAN
+			word high;
+			word low;
+#endif // __LINBOX_HAVE_LITTLE_ENDIAN
+		} parts;
+
+		typename WordTraits<word>::DoubleWord full;
+
+		void init () { parts.low = parts.high = 0; }
+
+		void advance () { parts.low = parts.high; }
+
+		template <class iterator>
+		void read_next (iterator i)
+			{ parts.low = parts.high; parts.high = *i; }
+	};
+
 	// Constant representing a one in the position zero in the word
 	static const word e_0 = 1ULL;
 
 	// Shift the given word pos positions to the right
 	static inline word shift_right (word w, uint8 pos) { return w << pos; }
 
+	static inline typename WordTraits<word>::DoubleWord shift_right (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w << pos; }
+
 	// Shift the given word pos positions to the left
 	static inline word shift_left (word w, uint8 pos) { return w >> pos; }
+
+	static inline typename WordTraits<word>::DoubleWord shift_left (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w >> pos; }
 
 	// Return a word with all positions from pos onwards set to one and the rest set to zero
 	static inline word mask_right (uint8 pos) { return ~((e_0 << pos) - 1); }
