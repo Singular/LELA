@@ -106,28 +106,28 @@ int testIterator (size_t n, size_t k)
 		BitSubvector<BitVector<Endianness>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
 
 		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i;
-		BitSubvector<BitVector<Endianness>::iterator>::const_word_iterator j, k;
+		BitSubvector<BitVector<Endianness>::iterator>::const_word_iterator j1, j2;
 
 		flip = ((offset / WordTraits<uint64>::bits) % 2 == 0) ? 0 : 1;
 				
-		for (i = vp.wordBegin (), j = vp.wordBegin (), k = vp.wordBegin (); i != vp.wordEnd (); ++i, ++j, ++k, flip = 1 - flip) {
-			if (*j != *i) {
-				error << "ERROR: error at offset " << offset << std::endl;
+		for (i = vp.wordBegin (), j1 = vp.wordBegin (), j2 = vp.wordBegin (); i != vp.wordEnd (); ++i, ++j1, ++j2, flip = 1 - flip) {
+			if (*j1 != *i) {
+				error << "ERROR: error at offset " << offset << " (n = " << n << ", k = " << k << ")" << std::endl;
 				error << "ERROR: word_iterator and const_word_iterator don't agree" << std::endl;
 				error << "ERROR: word_iterator: " << std::hex << *i << std::endl;
-				error << "ERROR: const_word_iterator: " << std::hex << *j << std::endl;
+				error << "ERROR: const_word_iterator: " << std::hex << *j1 << std::endl;
 				pass = false;
 				goto end_test;
 			}
 
-			uint64 val = *j;
+			uint64 val = *j1;
 			
 			*i ^= val;
 			
-			if (*k != 0) {
-				error << "ERROR: error at offset " << offset << std::endl;
+			if (*j2 != 0) {
+				error << "ERROR: error at offset " << offset << " (n = " << n << ", k = " << k << ")" << std::endl;
 				error << "ERROR: Pattern should be 0 after clearing" << std::endl;
-				error << "ERROR: Detected " << std::hex << *k << std::endl;
+				error << "ERROR: Detected " << std::hex << *j2 << std::endl;
 				pass = false;
 				goto end_test;
 			}
@@ -156,33 +156,25 @@ int testMask ()
 	BitVector<Endianness> v (n);
 
 	BitVector<Endianness>::word_iterator w;
+	
+	size_t offset;
 	unsigned int flip = 0;
 	
-	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
-		*w = pattern[flip];
-
-	size_t offset;
-	
-	for (offset = 0; offset < WordTraits<uint64>::bits; ++offset) {
+	for (offset = 0; offset < WordTraits<uint64>::bits; ++offset, flip = 1 - flip) {
 		BitSubvector<BitVector<Endianness>::iterator> vp1 (v.begin () + offset, v.begin () + (offset + k));
-		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset + k, v.begin () + (offset + k + WordTraits<uint64>::bits));
+		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset, v.begin () + (offset + WordTraits<uint64>::bits));
 
 		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i = vp1.wordBegin ();
 		BitSubvector<BitVector<Endianness>::const_iterator>::const_word_iterator j = vp2.wordBegin ();
 
-		*i ^= pattern[0];
+		*i = pattern[flip];
 
-		if (k + offset >= WordTraits<uint64>::bits)
-			flip = 1;
-		else
-			flip = 0;
-
-		uint64 check = connect (pattern[flip], pattern[1 - flip], (k + offset) % WordTraits<uint64>::bits);
+		uint64 check = pattern[flip] & Endianness::mask_left (k);
 
 		if (*j != check) {
 			error << "ERROR: error at offset " << offset << std::endl;
 			error << "ERROR: Pattern should be " << std::hex << check << std::endl;
-			error << "ERROR: Detected " << std::hex << *i << std::endl;
+			error << "ERROR: Detected " << std::hex << *j << std::endl;
 			pass = false;
 		}
 	}
