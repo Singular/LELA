@@ -49,6 +49,7 @@
 #include <utility>
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 #include "linbox/linbox-config.h"
 #include "linbox/util/debug.h"
@@ -82,7 +83,7 @@ class SparseMatrix
 	typedef _Row Row;
 	typedef SparseMatrix<Element, Row, Trait> Self_t;
 	typedef const Row ConstRow;
-	typedef typename _SP_BB_VECTOR_<Row> Rep;
+	typedef std::vector<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<Element, Row, Trait> Tag;
 
@@ -279,7 +280,7 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag>
 	typedef _Row Row;
 	typedef SparseMatrix<Element, Row, VectorCategories::SparseVectorTag> Self_t;
 	typedef const Row ConstRow;
-	typedef _SP_BB_VECTOR_<Row> Rep;
+	typedef std::vector<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<Element, Row, VectorCategories::SparseVectorTag> Tag;
 

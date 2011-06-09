@@ -424,7 +424,7 @@ public:
 	inline reference       at (size_type n)
 	{
 		if (n >= size ())
-			throw std::out_of_range ("LinBox::SparseVector");
+			throw std::out_of_range ("n");
 		else
 			return (*this)[n];
 	}
@@ -432,7 +432,7 @@ public:
 	inline const_reference at (size_type n) const
 	{
 		if (n >= size ())
-			throw std::out_of_range ("LinBox::SparseVector");
+			throw std::out_of_range ("n");
 		else
 			return (*this)[n];
 	}

@@ -11,6 +11,8 @@
 #ifndef __LINBOX_matrix_sparse_zero_one_H
 #define __LINBOX_matrix_sparse_zero_one_H
 
+#include <vector>
+
 #include "linbox/matrix/sparse.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/sparse-subvector.h"
@@ -28,7 +30,7 @@ public:
 	typedef _Row Row;
 	typedef SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag> Self_t;
 	typedef const Row ConstRow;
-	typedef _SP_BB_VECTOR_<Row> Rep;
+	typedef std::vector<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<bool, Row, VectorCategories::SparseZeroOneVectorTag> Tag;
 
