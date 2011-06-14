@@ -138,6 +138,16 @@ private:
 
 } // namespace LinBox
 
+namespace std
+{
+
+// Specialisation of std::swap to sparse vectors
+template <class Endianness, class IndexType, class WordType>
+void swap (LinBox::HybridVector<Endianness, IndexType, WordType> &v1, LinBox::HybridVector<Endianness, IndexType, WordType> &v2)
+	{ v1.swap (v2); }
+
+} // namespace std
+
 #endif // __LINBOX_VECTOR_HYBRID_H
 
 // Local Variables:

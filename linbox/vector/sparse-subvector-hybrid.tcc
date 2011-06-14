@@ -97,14 +97,23 @@ void SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::co
 	}
 
 	if (!_ref_second_valid) {
-		if (shift == 0)
-			_ref.second = _pos->second;
-		else if (virtual_index < col_index)
-			_ref.second = Endianness::shift_right (_pos->second, WordTraits<word_type>::bits - shift);
-		else if ((_pos + 1 == _v->_end && _v->_end_is_end) || (_pos + 1)->first > _pos->first + 1)
-			_ref.second = Endianness::shift_left (_pos->second, shift);
-		else
-			_ref.second = Endianness::shift_left (_pos->second, shift) | Endianness::shift_right ((_pos + 1)->second, WordTraits<word_type>::bits - shift);
+		typename Endianness::word_pair w;
+
+		if (virtual_index < col_index) {
+			w.parts.low = 0ULL;
+			w.parts.high = _pos->second;
+		}
+		else if ((_pos + 1)->first > _pos->first + 1) {
+			w.parts.low = _pos->second;
+			w.parts.high = 0ULL;
+		}
+		else {
+			w.parts.low = _pos->second;
+			w.parts.high = (_pos + 1)->second;
+		}
+
+		w.full = Endianness::shift_left (w.full, shift);
+		_ref.second = w.parts.low;
 
 		if ((static_cast<size_t> (_ref.first) + 1) << WordTraits<word_type>::logof_size > _v->_finish - _v->_start)
 			_ref.second &= Endianness::mask_left ((_v->_finish - _v->_start) & WordTraits<word_type>::pos_mask);

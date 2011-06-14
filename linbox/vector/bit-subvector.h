@@ -15,6 +15,7 @@
 #include <vector>
 #include <stdexcept>
 
+#include "linbox/util/debug.h"
 #include "linbox/vector/vector-traits.h"
 #include "linbox/vector/bit-vector.h"
 
@@ -43,6 +44,7 @@ class BitSubvector
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	class word_reference;
+	class word_end_reference;
 	class word_iterator;
 	class const_word_iterator;
 
@@ -69,7 +71,7 @@ class BitSubvector
 		: _begin (begin), _end (end) { set_end_word (); }
 		
 	BitSubvector (const BitSubvector &v) 
-		: _begin (v._begin), _end (v._end), _end_word (v._end_word), _end_marker (v._end_marker) {}
+		: _begin (v._begin), _end (v._end), _end_word (v._end_word), _end_mask (v._end_mask) {}
 
 	~BitSubvector () {}
 
@@ -83,10 +85,10 @@ class BitSubvector
 	inline reverse_iterator            rend       (void)       { return reverse_iterator (_begin); }
 	inline const_reverse_iterator      rend       (void) const { return const_reverse_iterator (_begin); }
 
-	inline word_iterator               wordBegin  (void)       { return word_iterator (*this, _begin.word ()); }
-	inline const_word_iterator         wordBegin  (void) const { return const_word_iterator (*this, _begin.word ()); }
-	inline word_iterator               wordEnd    (void)       { return word_iterator (*this, _end_word); }
-	inline const_word_iterator         wordEnd    (void) const { return const_word_iterator (*this, _end_word); }
+	inline word_iterator               wordBegin  (void)       { return word_iterator (_begin.word (), _begin.pos ()); }
+	inline const_word_iterator         wordBegin  (void) const { return const_word_iterator (_begin.word (), _begin.pos ()); }
+	inline word_iterator               wordEnd    (void)       { return word_iterator (_end_word, _begin.pos ()); }
+	inline const_word_iterator         wordEnd    (void) const { return const_word_iterator (_end_word, _begin.pos ()); }
 
 	inline reverse_word_iterator       wordRbegin (void)       { return reverse_word_iterator (wordEnd ()); }
 	inline const_reverse_word_iterator wordRbegin (void) const { return const_reverse_word_iterator (wordEnd ()); }
@@ -117,12 +119,17 @@ class BitSubvector
 	}
 
 	BitSubvector &operator = (const BitSubvector &sub)
-		{ _begin = sub._begin; _end = sub._end; _end_word = sub._end_word; _end_marker = sub._end_marker; return *this; }
+		{ _begin = sub._begin; _end = sub._end; _end_word = sub._end_word; _end_mask = sub._end_mask; return *this; }
 
 	inline reference       front (void)       { return *_begin; }
 	inline const_reference front (void) const { return *_begin; }
 	inline reference       back  (void)       { return *(_end - 1); }
 	inline const_reference back  (void) const { return *(_end - 1); }
+
+	inline word_reference     front_word (void)       { return *wordBegin (); }
+	inline word_type          front_word (void) const { return *wordBegin (); }
+	inline word_end_reference back_word  (void)       { return word_end_reference (_end_word, _begin.pos (), _end_mask); }
+	inline word_type          back_word  (void) const { return (word_type) word_end_reference (_end_word, _begin.pos (), _end_mask); }
 
 	inline size_type size      (void) const { return _end - _begin;    }
 	inline bool      empty     (void) const { return _end == _begin;   }
@@ -135,19 +142,33 @@ class BitSubvector
 
     protected:
 
+	// BitVector::iterators pointing to the beginning and end of the bit-subvector, respectively
 	Iterator     _begin;
 	Iterator     _end;
 
-	typename Iterator::word_iterator _end_word, _end_marker;
+	// Points to word which is past the end for the word-iterator and from which back_word is constructed
+	typename Iterator::word_iterator _end_word;
+
+	// Mask to apply to back_word based on position of end-iterator
+	word_type _end_mask;
+
+	// Note: We adopt the convention that the word_iterator always
+	// ends *before* the last word and back_word never has a mask
+	// of zero (unless the whole subvector is empty), even when
+	// the size of the vector is a multiple of
+	// WordTraits<word_type>::bits
 
 	void set_end_word ()
 	{
-		_end_marker = _end_word = _end.word ();
+		if (_begin != _end && _begin.pos () >= _end.pos ())
+			_end_word = _end.word () - 1;
+		else
+			_end_word = _end.word ();
 
-		if (_end.pos () > _begin.pos ())
-			++_end_word;
-		if (_end.pos () > 0)
-			++_end_marker;
+		_end_mask = Endianness::mask_left ((_end.pos () - _begin.pos ()) & WordTraits<word_type>::pos_mask);
+
+		if (_begin != _end && _end_mask == 0)
+			_end_mask = (word_type) -1;
 	}
 
     public:
@@ -162,7 +183,15 @@ class BitSubvector
 
 		word_reference (typename Iterator::word_iterator position, uint8 shift)
 			: _pos (position), _shift (shift)
-			{}
+		{
+			_m.parts.low = (word_type) -1;
+			_m.parts.high = 0ULL;
+			_m.full = Endianness::shift_right (_m.full, _shift);
+		}
+
+		word_reference (const word_reference &ref)
+			: _pos (ref._pos), _shift (ref._shift)
+			{ _m.full = ref._m.full; }
 
 		~word_reference () {}
 
@@ -174,6 +203,116 @@ class BitSubvector
 
 		word_reference &operator = (word v)
 		{
+			typename Endianness::word_pair w;
+
+			w.parts.low = v;
+			w.parts.high = 0ULL;
+
+			w.full = Endianness::shift_right (w.full, _shift);
+
+			*_pos = (*_pos & ~_m.parts.low) | w.parts.low;
+			_pos[1] = (_pos[1] & ~_m.parts.high) | w.parts.high;
+
+			return *this;
+		}
+
+		word_reference &operator &= (word_reference &a)
+			{ return *this &= (word) a; }
+
+		word_reference &operator &= (word v) 
+			{ return *this = (word) *this & v; }
+
+		word_reference &operator |= (word_reference &a) 
+			{ return *this |= (word) a; }
+
+		word_reference &operator |= (word v) 
+		{
+			typename Endianness::word_pair w;
+
+			w.parts.low = v;
+			w.parts.high = 0ULL;
+
+			w.full = Endianness::shift_right (w.full, _shift);
+
+			*_pos |= w.parts.low;
+			_pos[1] |= w.parts.high;
+
+			return *this;
+		}
+
+		word_reference &operator ^= (word_reference &a) 
+			{ return *this ^= ((word) a); }
+
+		word_reference &operator ^= (word v) 
+		{
+			typename Endianness::word_pair w;
+
+			w.parts.low = v;
+			w.parts.high = 0ULL;
+
+			w.full = Endianness::shift_right (w.full, _shift);
+
+			*_pos ^= w.parts.low;
+			_pos[1] ^= w.parts.high;
+
+			return *this;
+		}
+
+		operator word (void) const
+		{
+			typename Endianness::word_pair v;
+
+			v.parts.low = *_pos;
+			v.parts.high = _pos[1];
+			v.full = Endianness::shift_left (v.full, _shift);
+
+			return v.parts.low;
+		}
+
+	private:
+		friend class word_iterator;
+		friend class const_word_iterator;
+		friend class const_word_reference;
+
+		/* Semantics: _pos and _pos + 1 must always point to a
+		 * valid position in memory. If _pos + 1 is past the
+		 * end, the corresponding word_iterator is too.
+		 */
+		typename Iterator::word_iterator _pos;
+
+		/* Masks to be used when assigning to _pos */
+		typename Endianness::word_pair _m;
+
+		/* Offset of word-reference in bits */
+		uint8 _shift;
+	};
+
+	class word_end_reference
+	{
+	public:
+		typedef typename std::iterator_traits<typename Iterator::word_iterator>::value_type word;
+		typedef typename Iterator::Endianness Endianness;
+
+		word_end_reference () {}
+
+		word_end_reference (typename Iterator::word_iterator position, uint8 shift, word mask)
+			: _pos (position), _shift (shift), _mask (mask)
+			{}
+
+		word_end_reference (const word_end_reference &w)
+			: _pos (w._pos), _shift (w._shift), _mask (w._mask)
+			{}
+
+		~word_end_reference () {}
+
+		word_end_reference &operator = (const word_end_reference &a)
+		{
+			*this = (word) a;
+			return *this;
+		}
+
+		word_end_reference &operator = (word v)
+		{
 			typename Endianness::word_pair w, m;
 
 			w.parts.low = v & _mask;
@@ -181,49 +320,52 @@ class BitSubvector
 			m.parts.low = _mask;
 			m.parts.high = 0ULL;
 
-			if (_shift != 0) {
-				w.full = Endianness::shift_right (w.full, _shift);
-				m.full = Endianness::shift_right (m.full, _shift);
-
-				if (m.parts.high != 0)
-					_pos[1] = (_pos[1] & ~m.parts.high) | w.parts.high;
-			}
+			w.full = Endianness::shift_right (w.full, _shift);
+			m.full = Endianness::shift_right (m.full, _shift);
 
 			*_pos = (*_pos & ~m.parts.low) | w.parts.low;
+
+			if (m.parts.high != 0)
+				_pos[1] = (_pos[1] & ~m.parts.high) | w.parts.high;
 
 			return *this;
 		}
 
-		word_reference &operator &= (word_reference &a)
+		word_end_reference &operator &= (word_end_reference &a)
 			{ return *this = (word) *this & (word) a; }
 
-		word_reference &operator &= (word v) 
+		word_end_reference &operator &= (word v) 
 			{ return *this = (word) *this & v; }
 
-		word_reference &operator |= (word_reference &a) 
+		word_end_reference &operator |= (word_end_reference &a) 
 			{ return *this = (word) *this | (word) a; }
 
-		word_reference &operator |= (word v) 
+		word_end_reference &operator |= (word v) 
 			{ return *this = (word) *this | v; }
 
-		word_reference &operator ^= (word_reference &a) 
+		word_end_reference &operator ^= (word_end_reference &a) 
 			{ return *this = ((word) *this) ^ ((word) a); }
 
-		word_reference &operator ^= (word v) 
+		word_end_reference &operator ^= (word v) 
 			{ return *this = ((word) *this) ^ v; }
 
 		operator word (void) const
 		{
-			if (_shift != 0) {
-				typename Endianness::word_pair v;
+			typename Endianness::word_pair w, m;
 
-				v.parts.low = *_pos;
-				v.parts.high = _just_this_word ? 0 : _pos[1];
-				v.full = Endianness::shift_left (v.full, _shift);
+			m.parts.low = _mask;
+			m.parts.high = 0ULL;
 
-				return v.parts.low & _mask;
-			} else
-				return *_pos & _mask;
+			m.full = Endianness::shift_right (m.full, _shift);
+
+			w.parts.low = *_pos;
+
+			if (m.parts.high != 0)
+				w.parts.high = _pos[1];
+
+			w.full = Endianness::shift_left (w.full, _shift);
+
+			return w.parts.low & _mask;
 		}
 
 	private:
@@ -233,9 +375,7 @@ class BitSubvector
 
 		typename Iterator::word_iterator _pos;
 		uint8 _shift;
-
 		word _mask;
-		bool _just_this_word;
 	};
 
 	class word_iterator
@@ -249,25 +389,22 @@ class BitSubvector
 		typedef typename Iterator::Endianness Endianness;
 
 		word_iterator () {}
-		word_iterator (BitSubvector<Iterator, ConstIterator> &v, typename Iterator::word_iterator pos)
-			: _v (&v), _ref (pos, v._begin.pos ()) { init_mask (); }
+		word_iterator (typename Iterator::word_iterator pos, uint8 shift)
+			: _ref (pos, shift) {}
 		word_iterator (const word_iterator &i)
-			: _v (i._v), _ref (i._ref._pos, i._ref._shift) { init_mask (); }
+			: _ref (i._ref._pos, i._ref._shift) {}
 
 		word_iterator &operator = (const word_iterator &i)
 		{
-			_v = i._v;
 			_ref._pos = i._ref._pos;
+			_ref._m.full = i._ref._m.full;
 			_ref._shift = i._ref._shift;
-			_ref._mask = i._ref._mask;
-			_ref._just_this_word = i._ref._just_this_word;
 			return *this;
 		}
 
 		word_iterator &operator ++ () 
 		{
 			++_ref._pos;
-			update_mask ();
 			return *this;
 		}
 
@@ -279,19 +416,17 @@ class BitSubvector
 		}
 
 		word_iterator operator + (difference_type i) const
-			{ return word_iterator (*const_cast<BitSubvector<Iterator, ConstIterator> *> (_v), _ref._pos + i); }
+			{ return word_iterator (_ref._pos + i, _ref._shift); }
 
 		word_iterator &operator += (difference_type i) 
 		{
 			_ref._pos += i;
-			init_mask ();
 			return *this;
 		}
 
 		word_iterator &operator -- () 
 		{
 			--_ref._pos;
-			init_mask ();
 			return *this;
 		}
 
@@ -332,25 +467,7 @@ class BitSubvector
 	private:
 		friend class const_word_iterator;
 
-		BitSubvector<Iterator, ConstIterator> *_v;
 		word_reference _ref;
-
-		inline void init_mask ()
-		{
-			_ref._mask = (value_type) 0 - (value_type) 1;
-			update_mask ();
-		}
-
-		inline void update_mask ()
-		{
-			if (((_ref._pos - _v->_begin.word () + 1) << WordTraits<value_type>::logof_size) > _v->_end - _v->_begin)
-				_ref._mask = Endianness::mask_left ((_v->_end - _v->_begin) & WordTraits<value_type>::pos_mask);
-
-			if (_ref._pos + 1 == _v->_end_marker)
-				_ref._just_this_word = true;
-			else
-				_ref._just_this_word = false;
-		}
 	};
 
 	class const_word_iterator
@@ -364,34 +481,30 @@ class BitSubvector
 		typedef typename Iterator::Endianness Endianness;
 
 		const_word_iterator () {}
-		const_word_iterator (const BitSubvector<Iterator, ConstIterator> &v, typename Iterator::const_word_iterator pos)
-			: _v (&v), _pos (pos), _ref_valid (false) {}
+		const_word_iterator (typename Iterator::const_word_iterator pos, uint8 shift)
+			: _pos (pos), _shift (shift) {}
 		const_word_iterator (const const_word_iterator  &i)
-			: _v (i._v), _pos (i._pos), _ref_valid (i._ref_valid) { _ref.full = i._ref.full; }
+			: _pos (i._pos), _shift (i._shift) {}
 		const_word_iterator (const word_iterator  &i)
-			: _v (i._v), _pos (i._ref._pos), _ref_valid (false) {}
+			: _pos (i._ref._pos), _shift (i._ref._shift) {}
 
 		const_word_iterator &operator = (const const_word_iterator  &i)
 		{
-			_v = i._v;
 			_pos = i._pos;
-			_ref.full = i._ref.full;
-			_ref_valid = i._ref_valid;
+			_shift = i._shift;
 			return *this;
 		}
 
 		const_word_iterator &operator = (const word_iterator  &i)
 		{
-			_v = i._v;
 			_pos = i._ref._pos;
-			_ref_valid = false;
+			_shift = i._ref._shift;
 			return *this;
 		}
 
 		const_word_iterator &operator ++ () 
 		{
 			++_pos;
-			_ref_valid = false;
 			return *this;
 		}
 
@@ -403,19 +516,17 @@ class BitSubvector
 		}
 
 		const_word_iterator operator + (difference_type i) const
-			{ return const_word_iterator (*_v, _pos + i); }
+			{ return const_word_iterator (_pos + i, _shift); }
 
 		const_word_iterator &operator += (difference_type i) 
 		{
 			_pos += i;
-			_ref_valid = false;
 			return *this;
 		}
 
 		const_word_iterator &operator -- () 
 		{
 			--_pos;
-			_ref_valid = false;
 			return *this;
 		}
 
@@ -439,7 +550,13 @@ class BitSubvector
 			{ return *(*this + i); }
 
 		value_type operator * ()
-			{ update_ref (); return _ref.parts.low; }
+		{
+			typename Endianness::word_pair w;
+			w.parts.low = *_pos;
+			w.parts.high = _pos[1];
+			w.full = Endianness::shift_left (w.full, _shift);
+			return w.parts.low;
+		}
 
 		bool operator == (const word_iterator &c) const 
 			{ return (_pos == c._ref._pos); }
@@ -456,29 +573,9 @@ class BitSubvector
 	private:
 		friend class word_iterator;
 
-		const BitSubvector<Iterator, ConstIterator> *_v;
+		/* Semantics: see word_reference::_pos */
 		typename Iterator::const_word_iterator _pos;
-		typename Endianness::word_pair _ref;
-		bool _ref_valid;
-
-		inline void update_ref ()
-		{
-			if (!_ref_valid) {
-				_ref.parts.low = *_pos;
-
-				if (_pos + 1 != (_v->_end.pos () ? (_v->_end.word () + 1) : _v->_end.word ()))
-					_ref.parts.high = _pos[1];
-				else
-					_ref.parts.high = 0ULL;
-
-				_ref.full = Endianness::shift_left (_ref.full, _v->_begin.pos ());
-
-				if (((_pos - _v->_begin.word () + 1) << WordTraits<value_type>::logof_size) > _v->_end - _v->_begin)
-					_ref.parts.low &= Endianness::mask_left ((_v->_end - _v->_begin) & WordTraits<value_type>::pos_mask);
-
-				_ref_valid = true;
-			}
-		}
+		uint8 _shift;
 	};
 
 }; // template <class Iterator> class BitSubvector
@@ -490,6 +587,8 @@ namespace std {
 template<class Iterator, class ConstIterator>
 void swap (LinBox::BitSubvector<Iterator, ConstIterator> &x, LinBox::BitSubvector<Iterator, ConstIterator> &y)
 {
+	linbox_check (x.size () == y.size ());
+
 	typename LinBox::BitSubvector<Iterator, ConstIterator>::word_iterator i_x, i_y;
 
 	for (i_x = x.wordBegin (), i_y = y.wordBegin (); i_x != x.wordEnd () && i_y != y.wordEnd (); ++i_x, ++i_y) {
@@ -497,6 +596,10 @@ void swap (LinBox::BitSubvector<Iterator, ConstIterator> &x, LinBox::BitSubvecto
 		*i_x = *i_y;
 		*i_y = word;
 	}
+
+	typename Iterator::word_type word = x.back_word ();
+	x.back_word () = y.back_word ();
+	y.back_word () = word;
 }
 
 } // namespace std

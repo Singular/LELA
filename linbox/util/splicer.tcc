@@ -157,15 +157,25 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 	typename TmpVector::word_iterator i = tmp.wordBegin ();
 	size_t idx = dest_idx >> WordTraits<typename Vector1::word_type>::logof_size;
 
-	if (!out.empty () && out.back ().first == idx) {
-		out.back ().second |= *i;
-		++i;
-		++idx;
-	}
+	if (i == tmp.wordEnd ()) {
+		if (!out.empty () && out.back ().first == idx)
+			out.back ().second |= tmp.back_word ();
+		else if (tmp.back_word ())
+			out.push_back (typename Vector1::value_type (idx, tmp.back_word ()));
+	} else {
+		if (!out.empty () && out.back ().first == idx) {
+			out.back ().second |= *i;
+			++i;
+			++idx;
+		}
 
-	for (; i != tmp.wordEnd (); ++i, ++idx)
-		if (*i)
-			out.push_back (typename Vector1::value_type (idx, *i));
+		for (; i != tmp.wordEnd (); ++i, ++idx)
+			if (*i)
+				out.push_back (typename Vector1::value_type (idx, *i));
+
+		if (tmp.back_word ())
+			out.push_back (typename Vector1::value_type (idx, tmp.back_word ()));
+	}
 }
 
 template <class Field, class Vector1, class Vector2>

@@ -99,8 +99,8 @@ class BitSubvectorWordAligned
 
 	inline word_iterator               wordBegin  (void)       { return _begin; }
 	inline const_word_iterator         wordBegin  (void) const { return _begin; }
-	inline word_iterator               wordEnd    (void)       { return _end; }
-	inline const_word_iterator         wordEnd    (void) const { return _end; }
+	inline word_iterator               wordEnd    (void)       { return (_begin == _end) ? _end : _end - 1; }
+	inline const_word_iterator         wordEnd    (void) const { return (_begin == _end) ? _end : _end - 1; }
 
 	inline reverse_word_iterator       wordRbegin (void)       { return reverse_word_iterator (wordEnd ()); }
 	inline const_reverse_word_iterator wordRbegin (void) const { return const_reverse_word_iterator (wordEnd ()); }
@@ -138,8 +138,8 @@ class BitSubvectorWordAligned
 
 	inline word_type       &front_word (void)       { return *_begin; }
 	inline const word_type &front_word (void) const { return *_begin; }
-	inline word_type       &back_word  (void)       { return *_end; }
-	inline const word_type &back_word  (void) const { return *_end; }
+	inline word_type       &back_word  (void)       { return *(_end - 1); }
+	inline const word_type &back_word  (void) const { return *(_end - 1); }
 
 	inline size_type size      (void) const { return _bit_len; }
 	inline bool      empty     (void) const { return _bit_len == 0; }
@@ -174,6 +174,8 @@ void swap (LinBox::BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> 
 
 	for (i_x = x.wordBegin (), i_y = y.wordBegin (); i_x != x.wordEnd () && i_y != y.wordEnd (); ++i_x, ++i_y)
 		std::swap (*i_x, *i_y);
+
+	std::swap (x.back_word (), y.back_word ());
 }
 
 } // namespace std

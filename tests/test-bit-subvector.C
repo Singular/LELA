@@ -37,7 +37,7 @@ uint64 connect (uint64 word1, uint64 word2, int shift)
 
 bool testConstIterator (size_t n, size_t k)
 {
-	commentator.start ("Testing BitSubvectorConstWordIterator", __FUNCTION__);
+	commentator.start ("Testing BitSubvector::const_word_iterator", __FUNCTION__);
 
 	bool pass = true;
 
@@ -50,6 +50,8 @@ bool testConstIterator (size_t n, size_t k)
 	
 	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
 		*w = pattern[flip];
+
+	v.back_word () = pattern[flip];
 
 	size_t offset;
 	
@@ -86,7 +88,7 @@ end_test:
 
 int testIterator (size_t n, size_t k)
 {
-	commentator.start ("Testing BitSubvectorWordIterator", __FUNCTION__);
+	commentator.start ("Testing BitSubvector::word_iterator", __FUNCTION__);
 
 	bool pass = true;
 
@@ -99,6 +101,8 @@ int testIterator (size_t n, size_t k)
 	
 	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
 		*w = pattern[flip];
+
+	v.back_word () = pattern[flip];
 
 	size_t offset;
 	
@@ -142,9 +146,9 @@ end_test:
 	return pass;
 }
 
-int testMask ()
+int testBackWord ()
 {
-	commentator.start ("Testing end-of-vector-mask", __FUNCTION__);
+	commentator.start ("Testing back_word", __FUNCTION__);
 
 	bool pass = true;
 
@@ -164,17 +168,21 @@ int testMask ()
 		BitSubvector<BitVector<Endianness>::iterator> vp1 (v.begin () + offset, v.begin () + (offset + k));
 		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset, v.begin () + (offset + WordTraits<uint64>::bits));
 
-		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i = vp1.wordBegin ();
-		BitSubvector<BitVector<Endianness>::const_iterator>::const_word_iterator j = vp2.wordBegin ();
-
-		*i = pattern[flip];
+		vp1.back_word () = pattern[flip];
 
 		uint64 check = pattern[flip] & Endianness::mask_left (k);
 
-		if (*j != check) {
-			error << "ERROR: error at offset " << offset << std::endl;
+		if (vp1.back_word () != check) {
+			error << "ERROR: error at offset " << std::dec << offset << " (rereading back_word)" << std::endl;
 			error << "ERROR: Pattern should be " << std::hex << check << std::endl;
-			error << "ERROR: Detected " << std::hex << *j << std::endl;
+			error << "ERROR: Detected " << std::hex << vp1.back_word () << std::endl;
+			pass = false;
+		}
+
+		if (vp2.front_word () != check) {
+			error << "ERROR: error at offset " << std::dec << offset << " (checking against a const subvector)" << std::endl;
+			error << "ERROR: Pattern should be " << std::hex << check << std::endl;
+			error << "ERROR: Detected " << std::hex << vp2.front_word () << std::endl;
 			pass = false;
 		}
 	}
@@ -206,6 +214,8 @@ bool testWordLength (size_t n, size_t k)
 
 	if (k % WordTraits<uint64>::bits != 0)
 		++correct_len;
+
+	--correct_len; // New semantics
 	
 	for (offset = 0; offset <= n - k; ++offset) {
 		BitSubvector<BitVector<Endianness>::iterator> vp (v.begin () + offset, v.begin () + (offset + k));
@@ -221,6 +231,7 @@ bool testWordLength (size_t n, size_t k)
 			error << "ERROR: error at offset " << offset << std::endl;
 			error << "ERROR: length for word_iterator should be " << correct_len << std::endl;
 			error << "ERROR: but computed " << len << std::endl;
+			pass = false;
 		}
 
 		for (j = vp.wordBegin (), len = 0; j != vp.wordEnd (); ++j, ++len);
@@ -229,6 +240,7 @@ bool testWordLength (size_t n, size_t k)
 			error << "ERROR: error at offset " << offset << std::endl;
 			error << "ERROR: length for const_word_iterator should be " << correct_len << std::endl;
 			error << "ERROR: but computed " << len << std::endl;
+			pass = false;
 		}
 	}
 
@@ -245,7 +257,7 @@ bool runTests ()
 
 	std::ostringstream str;
 
-	testMask ();
+	testBackWord ();
 	
 	for (n = 256; n < 256 + WordTraits<uint64>::bits; ++n) {
 		for (k = 128; k < 128 + WordTraits<uint64>::bits; ++k) {

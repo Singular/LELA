@@ -191,6 +191,7 @@ template <class Field, class Vector>
 Vector &StandardBasisStream<Field, Vector, VectorCategories::DenseZeroOneVectorTag >::get (Vector &v) 
 {
 	std::fill (v.wordBegin (), v.wordEnd (), 0);
+	v.back_word () = 0;
 
 	v[_j] = true;
 

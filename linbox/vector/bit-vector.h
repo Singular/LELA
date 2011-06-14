@@ -26,6 +26,15 @@ namespace LinBox
  * parallel. It is similar to the STL bit_vector except that it provides the
  * aforementioned additional iterator.
  \ingroup vector
+ *
+ * Notes about semantics:
+ *  - word_iterator is guaranteed to iterate up to the *penultimate* word, not
+ *    the last word
+ *  - back_word gives a reference to the last word. It is not necessarily
+ *    *(word_end () - 1)
+ *  - Therefore, code working on BitVectors (as well as BitSubvectors) should
+ *    iterate through the word_iterator and then do the same operation on 
+ *    back_word ().
  */
 
 template <class _Endianness = DefaultEndianness>
@@ -91,8 +100,8 @@ class BitVector
 
 	inline word_iterator               wordBegin  (void)       { return _v.begin (); }
 	inline const_word_iterator         wordBegin  (void) const { return _v.begin (); }
-	inline word_iterator               wordEnd    (void)       { return _v.end (); }
-	inline const_word_iterator         wordEnd    (void) const { return _v.end (); }
+	inline word_iterator               wordEnd    (void)       { return _v.empty () ? _v.end () : _v.end () - 1; }
+	inline const_word_iterator         wordEnd    (void) const { return _v.empty () ? _v.end () : _v.end () - 1; }
 
 	inline reverse_word_iterator       wordRbegin (void)       { return _v.rbegin (); }
 	inline const_reverse_word_iterator wordRbegin (void) const { return _v.rbegin (); }

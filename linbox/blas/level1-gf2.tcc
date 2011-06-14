@@ -41,20 +41,20 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
 	typename Vector1::const_word_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
 		x.wordEnd () : x.wordBegin () + ((end_idx + WordTraits<typename Vector1::word_type>::bits - 1) >> WordTraits<typename Vector1::word_type>::logof_size);
 
-	if (i == i_end)
+	if (x.empty ())
 		return res = false;
-	else if (i == i_end - 1)
-		t = *i & *j &
+	else if (i == i_end)
+		t = x.back_word () & y.back_word () &
 			Vector1::Endianness::mask_right (start_idx & WordTraits<typename Vector1::word_type>::pos_mask) &
 			Vector1::Endianness::mask_left (end_idx & WordTraits<typename Vector1::word_type>::pos_mask);
 	else {
 		if ((start_idx & WordTraits<typename Vector1::word_type>::pos_mask) != 0)
 			t = *i++ & *j++ & Vector1::Endianness::mask_right (start_idx & WordTraits<typename Vector1::word_type>::pos_mask);
 
-		while (i != i_end - 1)
+		while (i != i_end)
 			t ^= *i++ & *j++;
         
-		t ^= *i & *j & Vector1::Endianness::mask_left (end_idx & WordTraits<typename Vector1::word_type>::pos_mask);
+		t ^= x.back_word () & y.back_word () & Vector1::Endianness::mask_left (end_idx & WordTraits<typename Vector1::word_type>::pos_mask);
 	}
 
         return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
@@ -190,6 +190,9 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 		if (*i)
 			y.push_back (typename Vector1::value_type (idx, *i));
 
+	if (x.back_word ())
+		y.push_back (typename Vector1::value_type (idx, x.back_word ()));
+
 	return y;
 }
 
@@ -202,6 +205,7 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	typename Vector1::const_iterator i;
 
 	std::fill (y.wordBegin (), y.wordEnd (), 0);
+	y.back_word () = 0;
 
 	for (i = x.begin (); i != x.end (); ++i)
         	y[*i] = true;
@@ -236,9 +240,14 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	typename Vector1::const_iterator i;
 
 	std::fill (y.wordBegin (), y.wordEnd (), 0);
+	y.back_word () = 0;
 
-	for (i = x.begin (); i != x.end (); ++i)
-        	*(y.wordBegin () + i->first) = i->second;
+	for (i = x.begin (); i != x.end (); ++i) {
+		if (i->first < y.size () >> WordTraits<typename Vector2::word_type>::logof_size)
+			*(y.wordBegin () + i->first) = i->second;
+		else
+			y.back_word () = i->second;
+	}
 
 	return y;
 }
@@ -274,6 +283,8 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 
 		for (; i != y.wordEnd (); ++i, ++j)
 			*i ^= *j;
+
+		y.back_word () ^= x.back_word ();
 	}
 
 	return y;
@@ -343,8 +354,12 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 		typename Vector1::const_iterator i;
 		typename Vector2::word_iterator j = y.wordBegin ();
 
-		for (i = x.begin (); i != x.end (); ++i)
-			*(j + i->first) ^= i->second;
+		for (i = x.begin (); i != x.end (); ++i) {
+			if (i->first < y.size () >> WordTraits<typename Vector2::word_type>::logof_size)
+				*(j + i->first) ^= i->second;
+			else
+				y.back_word () ^= i->second;
+		}
 	}
 
 	return y;
@@ -413,11 +428,17 @@ template <class Vector1, class Vector2>
 bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
 		 VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
+	if (x.size () != y.size ())
+		return false;
+
 	typename Vector1::const_word_iterator i = x.wordBegin ();
 	typename Vector2::const_word_iterator j = y.wordBegin ();
 
 	for (; j != y.wordEnd (); ++j, ++i)
 		if (*i != *j) return false;
+
+	if (x.back_word () != y.back_word ())
+		return false;
 
 	return true;
 }
@@ -488,8 +509,15 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 			++idx;
 			++i;
 
-			if (i == x.wordEnd ())
+			if (i == x.wordEnd () && (j->first != idx || j->second != x.back_word ()))
 				return false;
+		}
+
+		if (i == x.wordEnd ()) {
+			if (j->second != x.back_word ())
+				return false;
+
+			break;
 		}
 
 		if (*i++ != j->second)
@@ -557,6 +585,9 @@ bool is_zero_impl (const GF2 &F, GenericModule &M, const Vector &x, VectorCatego
 
 	for (i = x.wordBegin (); i != x.wordEnd (); ++i)
 		if (*i) return false;
+
+	if (x.back_word ())
+		return false;
 
 	return true;
 }

@@ -121,13 +121,13 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 	report << "A = " << std::endl;
 	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
 
-	GJ.StandardRowEchelonForm (A, U, P, rank, det, true, true);
+	GJ.StandardRowEchelonForm (A, U, P, rank, det, false, true);
 
 	report << "R = " << std::endl;
 	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
 
 	report << "U = " << std::endl;
-	BLAS3::write (ctx, report, U);
+	BLAS3::write (ctx, report, U, FORMAT_PRETTY);
 
 	report << "P = ";
 	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
