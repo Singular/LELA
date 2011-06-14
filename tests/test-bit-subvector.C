@@ -48,7 +48,7 @@ bool testConstIterator (size_t n, size_t k)
 	BitVector<Endianness>::word_iterator w;
 	unsigned int flip = 0;
 	
-	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
+	for (w = v.word_begin (); w != v.word_end (); ++w, flip = 1 - flip)
 		*w = pattern[flip];
 
 	v.back_word () = pattern[flip];
@@ -64,7 +64,7 @@ bool testConstIterator (size_t n, size_t k)
 
 		size_t idx = 0;
 				
-		for (i = vp.wordBegin (); i != vp.wordEnd (); ++i, flip = 1 - flip, idx += WordTraits<uint64>::bits) {
+		for (i = vp.word_begin (); i != vp.word_end (); ++i, flip = 1 - flip, idx += WordTraits<uint64>::bits) {
 			uint64 check = connect (pattern[flip], pattern[1-flip], offset % WordTraits<uint64>::bits);
 
 			if (idx + WordTraits<uint64>::bits > k)
@@ -99,7 +99,7 @@ int testIterator (size_t n, size_t k)
 	BitVector<Endianness>::word_iterator w;
 	unsigned int flip = 0;
 	
-	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
+	for (w = v.word_begin (); w != v.word_end (); ++w, flip = 1 - flip)
 		*w = pattern[flip];
 
 	v.back_word () = pattern[flip];
@@ -114,7 +114,7 @@ int testIterator (size_t n, size_t k)
 
 		flip = ((offset / WordTraits<uint64>::bits) % 2 == 0) ? 0 : 1;
 				
-		for (i = vp.wordBegin (), j1 = vp.wordBegin (), j2 = vp.wordBegin (); i != vp.wordEnd (); ++i, ++j1, ++j2, flip = 1 - flip) {
+		for (i = vp.word_begin (), j1 = vp.word_begin (), j2 = vp.word_begin (); i != vp.word_end (); ++i, ++j1, ++j2, flip = 1 - flip) {
 			if (*j1 != *i) {
 				error << "ERROR: error at offset " << offset << " (n = " << n << ", k = " << k << ")" << std::endl;
 				error << "ERROR: word_iterator and const_word_iterator don't agree" << std::endl;
@@ -205,7 +205,7 @@ bool testWordLength (size_t n, size_t k)
 	BitVector<Endianness>::word_iterator w;
 	unsigned int flip = 0;
 	
-	for (w = v.wordBegin (); w != v.wordEnd (); ++w, flip = 1 - flip)
+	for (w = v.word_begin (); w != v.word_end (); ++w, flip = 1 - flip)
 		*w = pattern[flip];
 
 	size_t offset;
@@ -225,7 +225,7 @@ bool testWordLength (size_t n, size_t k)
 
 		size_t len;
 
-		for (i = vp.wordBegin (), len = 0; i != vp.wordEnd (); ++i, ++len);
+		for (i = vp.word_begin (), len = 0; i != vp.word_end (); ++i, ++len);
 		
 		if (len != correct_len) {
 			error << "ERROR: error at offset " << offset << std::endl;
@@ -234,7 +234,7 @@ bool testWordLength (size_t n, size_t k)
 			pass = false;
 		}
 
-		for (j = vp.wordBegin (), len = 0; j != vp.wordEnd (); ++j, ++len);
+		for (j = vp.word_begin (), len = 0; j != vp.word_end (); ++j, ++len);
 		
 		if (len != correct_len) {
 			error << "ERROR: error at offset " << offset << std::endl;

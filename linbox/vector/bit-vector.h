@@ -98,15 +98,15 @@ class BitVector
 	inline const_reverse_iterator      rend       (void) const
 		{ return const_reverse_iterator (begin () - 1UL); }
 
-	inline word_iterator               wordBegin  (void)       { return _v.begin (); }
-	inline const_word_iterator         wordBegin  (void) const { return _v.begin (); }
-	inline word_iterator               wordEnd    (void)       { return _v.empty () ? _v.end () : _v.end () - 1; }
-	inline const_word_iterator         wordEnd    (void) const { return _v.empty () ? _v.end () : _v.end () - 1; }
+	inline word_iterator               word_begin  (void)       { return _v.begin (); }
+	inline const_word_iterator         word_begin  (void) const { return _v.begin (); }
+	inline word_iterator               word_end    (void)       { return _v.empty () ? _v.end () : _v.end () - 1; }
+	inline const_word_iterator         word_end    (void) const { return _v.empty () ? _v.end () : _v.end () - 1; }
 
-	inline reverse_word_iterator       wordRbegin (void)       { return _v.rbegin (); }
-	inline const_reverse_word_iterator wordRbegin (void) const { return _v.rbegin (); }
-	inline reverse_word_iterator       wordRend   (void)       { return _v.rend (); }
-	inline const_reverse_word_iterator wordRend   (void) const { return _v.rend (); }
+	inline reverse_word_iterator       word_rbegin (void)       { return _v.rbegin (); }
+	inline const_reverse_word_iterator word_rbegin (void) const { return _v.rbegin (); }
+	inline reverse_word_iterator       word_rend   (void)       { return _v.rend (); }
+	inline const_reverse_word_iterator word_rend   (void) const { return _v.rend (); }
 
 	// Element access
 

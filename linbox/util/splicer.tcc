@@ -154,10 +154,10 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 
 	BLAS1::copy (ctx, v1, v2);
 
-	typename TmpVector::word_iterator i = tmp.wordBegin ();
+	typename TmpVector::word_iterator i = tmp.word_begin ();
 	size_t idx = dest_idx >> WordTraits<typename Vector1::word_type>::logof_size;
 
-	if (i == tmp.wordEnd ()) {
+	if (i == tmp.word_end ()) {
 		if (!out.empty () && out.back ().first == idx)
 			out.back ().second |= tmp.back_word ();
 		else if (tmp.back_word ())
@@ -169,7 +169,7 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 			++idx;
 		}
 
-		for (; i != tmp.wordEnd (); ++i, ++idx)
+		for (; i != tmp.word_end (); ++i, ++idx)
 			if (*i)
 				out.push_back (typename Vector1::value_type (idx, *i));
 

@@ -35,11 +35,11 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
 		return res = false;
 
 	typename Vector1::word_type t = 0;
-	typename Vector1::const_word_iterator i = x.wordBegin () + (start_idx >> WordTraits<typename Vector1::word_type>::logof_size);
-	typename Vector2::const_word_iterator j = y.wordBegin () + (start_idx >> WordTraits<typename Vector1::word_type>::logof_size);
+	typename Vector1::const_word_iterator i = x.word_begin () + (start_idx >> WordTraits<typename Vector1::word_type>::logof_size);
+	typename Vector2::const_word_iterator j = y.word_begin () + (start_idx >> WordTraits<typename Vector1::word_type>::logof_size);
 
 	typename Vector1::const_word_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.wordEnd () : x.wordBegin () + ((end_idx + WordTraits<typename Vector1::word_type>::bits - 1) >> WordTraits<typename Vector1::word_type>::logof_size);
+		x.word_end () : x.word_begin () + ((end_idx + WordTraits<typename Vector1::word_type>::bits - 1) >> WordTraits<typename Vector1::word_type>::logof_size);
 
 	if (x.empty ())
 		return res = false;
@@ -92,7 +92,7 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
 	linbox_check (start_idx <= x.size ());
 
 	typename Vector1::word_type t = 0;
-	typename Vector1::const_word_iterator i = x.wordBegin ();
+	typename Vector1::const_word_iterator i = x.word_begin ();
 	typename Vector2::const_iterator j = (start_idx == 0) ?
 		y.begin () : std::lower_bound (y.begin (), y.end (), start_idx >> WordTraits<typename Vector2::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
 
@@ -186,7 +186,7 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 
 	y.clear ();
 
-	for (i = x.wordBegin (); i != x.wordEnd (); ++i, ++idx)
+	for (i = x.word_begin (); i != x.word_end (); ++i, ++idx)
 		if (*i)
 			y.push_back (typename Vector1::value_type (idx, *i));
 
@@ -204,7 +204,7 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 
 	typename Vector1::const_iterator i;
 
-	std::fill (y.wordBegin (), y.wordEnd (), 0);
+	std::fill (y.word_begin (), y.word_end (), 0);
 	y.back_word () = 0;
 
 	for (i = x.begin (); i != x.end (); ++i)
@@ -239,12 +239,12 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 {
 	typename Vector1::const_iterator i;
 
-	std::fill (y.wordBegin (), y.wordEnd (), 0);
+	std::fill (y.word_begin (), y.word_end (), 0);
 	y.back_word () = 0;
 
 	for (i = x.begin (); i != x.end (); ++i) {
 		if (i->first < y.size () >> WordTraits<typename Vector2::word_type>::logof_size)
-			*(y.wordBegin () + i->first) = i->second;
+			*(y.word_begin () + i->first) = i->second;
 		else
 			y.back_word () = i->second;
 	}
@@ -278,10 +278,10 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 	linbox_check (y.size () == x.size ());
 
 	if (a) {
-		typename Vector2::word_iterator i = y.wordBegin ();
-		typename Vector1::const_word_iterator j = x.wordBegin ();
+		typename Vector2::word_iterator i = y.word_begin ();
+		typename Vector1::const_word_iterator j = x.word_begin ();
 
-		for (; i != y.wordEnd (); ++i, ++j)
+		for (; i != y.word_end (); ++i, ++j)
 			*i ^= *j;
 
 		y.back_word () ^= x.back_word ();
@@ -352,7 +352,7 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 
 	if (a) {
 		typename Vector1::const_iterator i;
-		typename Vector2::word_iterator j = y.wordBegin ();
+		typename Vector2::word_iterator j = y.word_begin ();
 
 		for (i = x.begin (); i != x.end (); ++i) {
 			if (i->first < y.size () >> WordTraits<typename Vector2::word_type>::logof_size)
@@ -431,10 +431,10 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	if (x.size () != y.size ())
 		return false;
 
-	typename Vector1::const_word_iterator i = x.wordBegin ();
-	typename Vector2::const_word_iterator j = y.wordBegin ();
+	typename Vector1::const_word_iterator i = x.word_begin ();
+	typename Vector2::const_word_iterator j = y.word_begin ();
 
-	for (; j != y.wordEnd (); ++j, ++i)
+	for (; j != y.word_end (); ++j, ++i)
 		if (*i != *j) return false;
 
 	if (x.back_word () != y.back_word ())
@@ -499,7 +499,7 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	if (x.empty () && !y.empty ())
 		return false;
 
-	typename Vector1::const_word_iterator i = x.wordBegin ();
+	typename Vector1::const_word_iterator i = x.word_begin ();
 	typename Vector2::const_iterator j = y.begin ();
 	typename Vector2::index_type idx = 0;
 
@@ -509,11 +509,11 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 			++idx;
 			++i;
 
-			if (i == x.wordEnd () && (j->first != idx || j->second != x.back_word ()))
+			if (i == x.word_end () && (j->first != idx || j->second != x.back_word ()))
 				return false;
 		}
 
-		if (i == x.wordEnd ()) {
+		if (i == x.word_end ()) {
 			if (j->second != x.back_word ())
 				return false;
 
@@ -526,7 +526,7 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 		++idx;
 	}
 
-	for (; i != x.wordEnd (); ++i)
+	for (; i != x.word_end (); ++i)
 		if (*i) return false;
 
 	return true;
@@ -583,7 +583,7 @@ bool is_zero_impl (const GF2 &F, GenericModule &M, const Vector &x, VectorCatego
 {
 	typename Vector::const_word_iterator i;
 
-	for (i = x.wordBegin (); i != x.wordEnd (); ++i)
+	for (i = x.word_begin (); i != x.word_end (); ++i)
 		if (*i) return false;
 
 	if (x.back_word ())

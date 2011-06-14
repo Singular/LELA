@@ -131,7 +131,7 @@ inline bool BitVector<Endianness>::operator == (const BitVector<Endianness> &v) 
 
 	if (_size != v._size) return false;
 
-	for (i = wordBegin (), j = v.wordBegin (); i != wordEnd (); ++i, ++j)
+	for (i = word_begin (), j = v.word_begin (); i != word_end (); ++i, ++j)
 		if (*i != *j) return false;
 
 	mask = (1UL << (_size & (8 * sizeof (word_type) - 1UL))) - 1UL;

@@ -85,15 +85,15 @@ class BitSubvector
 	inline reverse_iterator            rend       (void)       { return reverse_iterator (_begin); }
 	inline const_reverse_iterator      rend       (void) const { return const_reverse_iterator (_begin); }
 
-	inline word_iterator               wordBegin  (void)       { return word_iterator (_begin.word (), _begin.pos ()); }
-	inline const_word_iterator         wordBegin  (void) const { return const_word_iterator (_begin.word (), _begin.pos ()); }
-	inline word_iterator               wordEnd    (void)       { return word_iterator (_end_word, _begin.pos ()); }
-	inline const_word_iterator         wordEnd    (void) const { return const_word_iterator (_end_word, _begin.pos ()); }
+	inline word_iterator               word_begin  (void)       { return word_iterator (_begin.word (), _begin.pos ()); }
+	inline const_word_iterator         word_begin  (void) const { return const_word_iterator (_begin.word (), _begin.pos ()); }
+	inline word_iterator               word_end    (void)       { return word_iterator (_end_word, _begin.pos ()); }
+	inline const_word_iterator         word_end    (void) const { return const_word_iterator (_end_word, _begin.pos ()); }
 
-	inline reverse_word_iterator       wordRbegin (void)       { return reverse_word_iterator (wordEnd ()); }
-	inline const_reverse_word_iterator wordRbegin (void) const { return const_reverse_word_iterator (wordEnd ()); }
-	inline reverse_word_iterator       wordRend   (void)       { return reverse_word_iterator (wordBegin ()); }
-	inline const_reverse_word_iterator wordRend   (void) const { return const_reverse_word_iterator (wordBegin ()); }
+	inline reverse_word_iterator       word_rbegin (void)       { return reverse_word_iterator (word_end ()); }
+	inline const_reverse_word_iterator word_rbegin (void) const { return const_reverse_word_iterator (word_end ()); }
+	inline reverse_word_iterator       word_rend   (void)       { return reverse_word_iterator (word_begin ()); }
+	inline const_reverse_word_iterator word_rend   (void) const { return const_reverse_word_iterator (word_begin ()); }
 
 	// Element access
 
@@ -126,8 +126,8 @@ class BitSubvector
 	inline reference       back  (void)       { return *(_end - 1); }
 	inline const_reference back  (void) const { return *(_end - 1); }
 
-	inline word_reference     front_word (void)       { return *wordBegin (); }
-	inline word_type          front_word (void) const { return *wordBegin (); }
+	inline word_reference     front_word (void)       { return *word_begin (); }
+	inline word_type          front_word (void) const { return *word_begin (); }
 	inline word_end_reference back_word  (void)       { return word_end_reference (_end_word, _begin.pos (), _end_mask); }
 	inline word_type          back_word  (void) const { return (word_type) word_end_reference (_end_word, _begin.pos (), _end_mask); }
 
@@ -591,7 +591,7 @@ void swap (LinBox::BitSubvector<Iterator, ConstIterator> &x, LinBox::BitSubvecto
 
 	typename LinBox::BitSubvector<Iterator, ConstIterator>::word_iterator i_x, i_y;
 
-	for (i_x = x.wordBegin (), i_y = y.wordBegin (); i_x != x.wordEnd () && i_y != y.wordEnd (); ++i_x, ++i_y) {
+	for (i_x = x.word_begin (), i_y = y.word_begin (); i_x != x.word_end () && i_y != y.word_end (); ++i_x, ++i_y) {
 		typename Iterator::word_type word = *i_x;
 		*i_x = *i_y;
 		*i_y = word;

@@ -59,7 +59,7 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
 template <class Vector1, class Vector2>
 Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
-	{ std::copy (x.wordBegin (), x.wordEnd (), y.wordBegin ()); y.back_word () = x.back_word (); return y; }
+	{ std::copy (x.word_begin (), x.word_end (), y.word_begin ()); y.back_word () = x.back_word (); return y; }
 
 template <class Vector1, class Vector2>
 Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
@@ -117,7 +117,7 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 
 template <class Vector>
 Vector &scal_impl (const GF2 &F, GenericModule &M, bool a, Vector &x, VectorCategories::DenseZeroOneVectorTag)
-	{ if (!a) { std::fill (x.wordBegin (), x.wordEnd (), 0); x.back_word () = 0; } return x; }
+	{ if (!a) { std::fill (x.word_begin (), x.word_end (), 0); x.back_word () = 0; } return x; }
 
 template <class Vector>
 Vector &scal_impl (const GF2 &F, GenericModule &M, bool a, Vector &x, VectorCategories::SparseZeroOneVectorTag)

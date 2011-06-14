@@ -66,7 +66,7 @@ void MatrixReader<Field>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t
 	size_t count;
 	png_byte t;
 
-	typename Vector::word_iterator i = v.wordBegin () + (start >> WordTraits<word_type>::logof_size);
+	typename Vector::word_iterator i = v.word_begin () + (start >> WordTraits<word_type>::logof_size);
 	word_type mask = Vector::Endianness::e_j (start & WordTraits<word_type>::pos_mask);
 
 	for (count = 0, t = BigEndian<png_byte>::e_0; count < stop; t >>= 1, mask = Vector::Endianness::shift_right (mask, 1), ++count)

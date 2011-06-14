@@ -59,7 +59,7 @@ class DenseZeroOneMatrixRowIterator
     
 	DenseZeroOneMatrixRowIterator& operator ++ ()
 	{
-		_row = Row (_row.wordBegin () + _disp, _row.wordEnd () + _disp, _row.size ());
+		_row = Row (_row.word_begin () + _disp, _row.word_end () + _disp, _row.size ());
 		return *this;
 	}
     
@@ -72,7 +72,7 @@ class DenseZeroOneMatrixRowIterator
     
         DenseZeroOneMatrixRowIterator& operator -- ()
         {
-                _row = Row (_row.wordBegin () - _disp, _row.wordEnd () - _disp, _row.size ());
+                _row = Row (_row.word_begin () - _disp, _row.word_end () - _disp, _row.size ());
                 return *this;
         }
 
@@ -84,22 +84,22 @@ class DenseZeroOneMatrixRowIterator
         }
 
 	DenseZeroOneMatrixRowIterator operator + (int i) const
-		{ return DenseZeroOneMatrixRowIterator (const_cast<Row *> (&_row)->wordBegin () + _disp * i, _row.word_size (), _row.size (), _disp); }
+		{ return DenseZeroOneMatrixRowIterator (const_cast<Row *> (&_row)->word_begin () + _disp * i, _row.word_size (), _row.size (), _disp); }
 
 	difference_type operator- (const DenseZeroOneMatrixRowIterator &c) const
 	{
-		return (c._row.wordBegin () - _row.wordBegin ()) / _disp;
+		return (c._row.word_begin () - _row.word_begin ()) / _disp;
 	}
 
 	DenseZeroOneMatrixRowIterator& operator += (int i)
 	{
-		_row = Row (_row.wordBegin () + _disp * i, _row.wordEnd () + _disp * i, _row.size ());
+		_row = Row (_row.word_begin () + _disp * i, _row.word_end () + _disp * i, _row.size ());
 		return *this;
 	}
 
 	Row operator[] (int i) const
-		{ return Row (const_cast<Row&> (_row).wordBegin () + _disp * i,
-			      const_cast<Row&> (_row).wordEnd () + _disp * i, _row.size ()); }
+		{ return Row (const_cast<Row&> (_row).word_begin () + _disp * i,
+			      const_cast<Row&> (_row).word_end () + _disp * i, _row.size ()); }
 
 	Row *operator -> ()
 		{ return &_row; }
@@ -108,18 +108,18 @@ class DenseZeroOneMatrixRowIterator
 		{ return _row; }
 
 	bool operator == (const DenseZeroOneMatrixRowIterator& c) const
-		{ return (_row.wordBegin () == c._row.wordBegin ()) && (_row.wordEnd () == c._row.wordEnd ()) && (_disp == c._disp); }
+		{ return (_row.word_begin () == c._row.word_begin ()) && (_row.word_end () == c._row.word_end ()) && (_disp == c._disp); }
 
 	template <class It, class CIt>
 	bool operator == (const DenseZeroOneMatrixRowIterator<It, CIt, Endianness> &c) const
-		{ return (_row.wordBegin () != c._row.wordBegin ()) || (_row.wordEnd () != c._row.wordEnd ()) || (_disp != c._disp); }
+		{ return (_row.word_begin () != c._row.word_begin ()) || (_row.word_end () != c._row.word_end ()) || (_disp != c._disp); }
 
 	bool operator != (const DenseZeroOneMatrixRowIterator& c) const
-		{ return (_row.wordBegin () != c._row.wordBegin ()) || (_row.wordEnd () != c._row.wordEnd ()) || (_disp != c._disp); }
+		{ return (_row.word_begin () != c._row.word_begin ()) || (_row.word_end () != c._row.word_end ()) || (_disp != c._disp); }
 
 	template <class It, class CIt>
 	bool operator != (const DenseZeroOneMatrixRowIterator<It, CIt, Endianness> &c) const
-		{ return (_row.wordBegin () != c._row.wordBegin ()) || (_row.wordEnd () != c._row.wordEnd ()) || (_disp != c._disp); }
+		{ return (_row.word_begin () != c._row.word_begin ()) || (_row.word_end () != c._row.word_end ()) || (_disp != c._disp); }
 
     private:
 	Row _row;
@@ -166,7 +166,7 @@ class DenseZeroOneMatrix
 	 */
 	DenseZeroOneMatrix (size_t m, size_t n)
 		: _rows (m), _cols (n)
-		{ init_disp_rep (m, n); _begin = _rep.wordBegin (); }
+		{ init_disp_rep (m, n); _begin = _rep.word_begin (); }
 
 	/** Construct a word-aligned dense submatrix of a given dense matrix
 	 */
@@ -194,7 +194,7 @@ class DenseZeroOneMatrix
 	{
 		init_disp_rep (vs.size (), vs.dim ());
 
-		_begin = _rep.wordBegin ();
+		_begin = _rep.word_begin ();
 
 		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
 			vs >> *i;
@@ -249,7 +249,7 @@ class DenseZeroOneMatrix
 		_cols = n;
 		_disp = (!(n & WordTraits<word_type>::pos_mask)) ? (n >> WordTraits<word_type>::logof_size) : ((n >> WordTraits<word_type>::logof_size) + 1);
 		_rep.resize (m * _disp * WordTraits<word_type>::bits);
-		_begin = _rep.wordBegin ();
+		_begin = _rep.word_begin ();
 	}
 
 	/** Set the entry at the (i, j) position to a_ij.

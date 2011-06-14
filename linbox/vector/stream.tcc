@@ -190,7 +190,7 @@ Vector &StandardBasisStream<Field, Vector, VectorCategories::SparseVectorTag>::g
 template <class Field, class Vector>
 Vector &StandardBasisStream<Field, Vector, VectorCategories::DenseZeroOneVectorTag >::get (Vector &v) 
 {
-	std::fill (v.wordBegin (), v.wordEnd (), 0);
+	std::fill (v.word_begin (), v.word_end (), 0);
 	v.back_word () = 0;
 
 	v[_j] = true;
