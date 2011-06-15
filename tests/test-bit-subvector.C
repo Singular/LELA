@@ -60,15 +60,15 @@ bool testConstIterator (size_t n, size_t k)
 
 		BitSubvector<BitVector<Endianness>::const_iterator>::const_word_iterator i;
 
-		flip = ((offset / WordTraits<uint64>::bits) % 2 == 0) ? 0 : 1;
+		flip = ((offset / WordTraits<BitVector<Endianness>::word_type>::bits) % 2 == 0) ? 0 : 1;
 
 		size_t idx = 0;
 				
-		for (i = vp.word_begin (); i != vp.word_end (); ++i, flip = 1 - flip, idx += WordTraits<uint64>::bits) {
-			uint64 check = connect (pattern[flip], pattern[1-flip], offset % WordTraits<uint64>::bits);
+		for (i = vp.word_begin (); i != vp.word_end (); ++i, flip = 1 - flip, idx += WordTraits<BitVector<Endianness>::word_type>::bits) {
+			BitVector<Endianness>::word_type check = connect (pattern[flip], pattern[1-flip], offset % WordTraits<BitVector<Endianness>::word_type>::bits);
 
-			if (idx + WordTraits<uint64>::bits > k)
-				check &= Endianness::mask_left (k % WordTraits<uint64>::bits);
+			if (idx + WordTraits<BitVector<Endianness>::word_type>::bits > k)
+				check &= Endianness::mask_left (k % WordTraits<BitVector<Endianness>::word_type>::bits);
 			
 			if (*i != check) {
 				error << "ERROR: error at offset " << offset << std::endl;
@@ -112,7 +112,7 @@ int testIterator (size_t n, size_t k)
 		BitSubvector<BitVector<Endianness>::iterator>::word_iterator i;
 		BitSubvector<BitVector<Endianness>::iterator>::const_word_iterator j1, j2;
 
-		flip = ((offset / WordTraits<uint64>::bits) % 2 == 0) ? 0 : 1;
+		flip = ((offset / WordTraits<BitVector<Endianness>::word_type>::bits) % 2 == 0) ? 0 : 1;
 				
 		for (i = vp.word_begin (), j1 = vp.word_begin (), j2 = vp.word_begin (); i != vp.word_end (); ++i, ++j1, ++j2, flip = 1 - flip) {
 			if (*j1 != *i) {
@@ -124,7 +124,7 @@ int testIterator (size_t n, size_t k)
 				goto end_test;
 			}
 
-			uint64 val = *j1;
+			BitVector<Endianness>::word_type val = *j1;
 			
 			*i ^= val;
 			
@@ -154,7 +154,7 @@ int testBackWord ()
 
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 
-	static const int n = 3 * WordTraits<uint64>::bits;
+	static const int n = 3 * WordTraits<BitVector<Endianness>::word_type>::bits;
 	static const int k = 16;
 
 	BitVector<Endianness> v (n);
@@ -164,13 +164,13 @@ int testBackWord ()
 	size_t offset;
 	unsigned int flip = 0;
 	
-	for (offset = 0; offset < WordTraits<uint64>::bits; ++offset, flip = 1 - flip) {
+	for (offset = 0; offset < WordTraits<BitVector<Endianness>::word_type>::bits; ++offset, flip = 1 - flip) {
 		BitSubvector<BitVector<Endianness>::iterator> vp1 (v.begin () + offset, v.begin () + (offset + k));
-		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset, v.begin () + (offset + WordTraits<uint64>::bits));
+		BitSubvector<BitVector<Endianness>::const_iterator> vp2 (v.begin () + offset, v.begin () + (offset + WordTraits<BitVector<Endianness>::word_type>::bits));
 
 		vp1.back_word () = pattern[flip];
 
-		uint64 check = pattern[flip] & Endianness::mask_left (k);
+		BitVector<Endianness>::word_type check = pattern[flip] & Endianness::mask_left (k);
 
 		if (vp1.back_word () != check) {
 			error << "ERROR: error at offset " << std::dec << offset << " (rereading back_word)" << std::endl;
@@ -210,9 +210,9 @@ bool testWordLength (size_t n, size_t k)
 
 	size_t offset;
 
-	size_t correct_len = k / WordTraits<uint64>::bits;
+	size_t correct_len = k / WordTraits<BitVector<Endianness>::word_type>::bits;
 
-	if (k % WordTraits<uint64>::bits != 0)
+	if (k % WordTraits<BitVector<Endianness>::word_type>::bits != 0)
 		++correct_len;
 
 	--correct_len; // New semantics
@@ -259,8 +259,8 @@ bool runTests ()
 
 	testBackWord ();
 	
-	for (n = 256; n < 256 + WordTraits<uint64>::bits; ++n) {
-		for (k = 128; k < 128 + WordTraits<uint64>::bits; ++k) {
+	for (n = 256; n < 256 + WordTraits<BitVector<Endianness>::word_type>::bits; ++n) {
+		for (k = 128; k < 128 + WordTraits<BitVector<Endianness>::word_type>::bits; ++k) {
 			str << "Running tests for main vector-length " << n << ", subvector-length " << k << std::ends;
 			commentator.start (str.str ().c_str (), __FUNCTION__);
 			pass = testWordLength (n, k);
