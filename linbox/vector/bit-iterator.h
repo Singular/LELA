@@ -143,9 +143,7 @@ struct WordTraits<unsigned long> {
 template <>
 struct WordTraits<unsigned long long> {
 	typedef unsigned long long Word;
-#ifdef __LINBOX_UINT128
 	typedef uint128 DoubleWord;
-#endif // __LINBOX_UINT128
 	static const unsigned int bits = 64;
 	static const unsigned int logof_size = 6;
 	static const unsigned int pos_mask = 0x3F;

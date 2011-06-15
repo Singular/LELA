@@ -23,4 +23,5 @@ pkgincludesub_HEADERS=\
 	timer.h		\
 	field-axpy.h	\
 	splicer.h	\
-	splicer.tcc
+	splicer.tcc	\
+	double-word.h

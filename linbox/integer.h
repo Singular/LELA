@@ -16,6 +16,7 @@
 #define __LINBOX_integer_H
 
 #include "linbox/linbox-config.h"
+#include "linbox/util/double-word.h"
 
 #include <gmpxx.h>
 
@@ -60,6 +61,8 @@ typedef unsigned __LINBOX_INT64 uint64;
 
 #ifdef __LINBOX_UINT128
 typedef __LINBOX_UINT128 uint128;
+#else
+typedef DoubleWord<unsigned __LINBOX_INT64> uint128;
 #endif // __LINBOX_UINT128
 
 #ifdef __LINBOX_UINT256
