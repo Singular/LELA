@@ -53,7 +53,7 @@ struct DoubleWord {
 		else if (shift >= sizeof (word) * 8)
 			return make_double_word (0, _low << (shift - sizeof (word) * 8));
 		else
-			return make_double_word ((_low << shift) | (_high >> (sizeof (word) * 8 - shift)), _high << shift);
+			return make_double_word (_low << shift, (_low >> (sizeof (word) * 8 - shift)) | (_high << shift));
 	}
 
 	DoubleWord operator >> (unsigned int shift) const
@@ -63,7 +63,7 @@ struct DoubleWord {
 		else if (shift >= sizeof (word) * 8)
 			return make_double_word (_high >> (shift - sizeof (word) * 8), 0);
 		else
-			return make_double_word (_low >> shift, (_low << (sizeof (word) * 8 - shift)) | (_high >> shift));
+			return make_double_word ((_low >> shift) | (_high << (sizeof (word) * 8 - shift)), _high >> shift);
 	}
 
 	DoubleWord &operator &= (const DoubleWord &w)
@@ -82,8 +82,8 @@ struct DoubleWord {
 			_high = _low << (shift - sizeof (word) * 8);
 		}
 		else if (shift > 0) {
-			_low = (_low << shift) | (_high >> (sizeof (word) * 8 - shift));
-			_high <<= shift;
+			_low <<= shift;
+			_high = (_high << shift) | (_low >> (sizeof (word) * 8 - shift));
 		}
 
 		return *this;
@@ -96,8 +96,8 @@ struct DoubleWord {
 			_high = 0;
 		}
 		else if (shift > 0) {
-			_low >>= shift;
-			_high = (_low << (sizeof (word) * 8 - shift)) | (_high >> shift);
+			_low = (_low >> shift) | (_high << (sizeof (word) * 8 - shift));
+			_high >>= shift;
 		}
 
 		return *this;
