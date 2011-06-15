@@ -1664,6 +1664,8 @@ inline integer& Modular<integer>::init (integer& x, const double& y) const
 	return x = tmp;
 }
 
+struct BLASModule : public GenericModule {};
+
 template <class Element>
 struct ZpModule : public GenericModule
 {
@@ -1671,13 +1673,13 @@ struct ZpModule : public GenericModule
 };
 
 template <>
-struct ZpModule<float> : public GenericModule
+struct ZpModule<float> : public BLASModule
 {
 	size_t _nmax;
 };
 
 template <>
-struct ZpModule<double> : public GenericModule
+struct ZpModule<double> : public BLASModule
 {
 	size_t _nmax;
 };
@@ -1686,6 +1688,12 @@ template <class Element>
 struct AllModules<Modular<Element> > : public ZpModule<Element> {};
 
 } // namespace LinBox
+
+#ifdef __LINBOX_BLAS_AVAILABLE
+#  include "linbox/blas/level1-cblas.h"
+#  include "linbox/blas/level2-cblas.h"
+#  include "linbox/blas/level3-cblas.h"
+#endif
 
 #include "linbox/blas/level1-modular.h"
 #include "linbox/blas/level2-modular.h"
