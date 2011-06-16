@@ -40,8 +40,9 @@ BASIC_TESTS =  \
 	test-bit-subvector	\
 	test-hybrid-vector	\
         test-vector-domain      \
-        test-unparametric-ring \
-	test-gauss-jordan
+        test-unparametric-ring	\
+	test-gauss-jordan	\
+	test-faugere-lachartre
 
 # a benchmarker, not to be included in check.
 BENCHMARKS =                    \
@@ -142,6 +143,10 @@ test_blas_domain_SOURCES=                \
 test_gauss_jordan_SOURCES = \
 	test-common.C		\
 	test-gauss-jordan.C
+
+test_faugere_lachartre_SOURCES = \
+	test-common.C		\
+	test-faugere-lachartre.C
 
 benchmark_matrix_domain_SOURCES = \
 	benchmark-matrix-domain.C \

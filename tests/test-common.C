@@ -69,6 +69,9 @@ void printHelpMessage (const char *program, Argument *args, bool printDefaults)
 			case TYPE_DOUBLE:
 				cout << *(double *) args[i].data;
 				break;
+			case TYPE_STRING:
+				cout << args[i].data;
+				break;
 			}
 			std::cout << ")";		
 		}
@@ -154,6 +157,11 @@ void parseArguments (int argc, char **argv, Argument *args, bool printDefaults)
 					*(double *) current->data = atof (argv[i+1]);
 					i++;
 					break;
+
+				case TYPE_STRING:
+					current->data = argv[i+1];
+					i++;
+					break;
 				}
 			} else {
 				std::cerr << "ERROR: Bad argument " << argv[i] << std::endl;
@@ -187,6 +195,9 @@ std::ostream& writeCommandString (std::ostream& os, Argument *args, char* progra
 			break;
 		case TYPE_DOUBLE:
 			os << ' ' << *(double *) args[i].data;
+			break;
+		case TYPE_STRING:
+			os << ' ' << args[i].data;
 			break;
 		}
 	}

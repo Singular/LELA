@@ -1,55 +1,52 @@
-/* -*- mode: c++;-*-
- * test-solver.C
- * Test code to reduce F4-matrix to row-echelon form
- * Written by Bradford Hovinen <hovinen@math.uni-hannover.de>
+/* tests/test-faugere-lachartre.C
  * Copyright 2010 Bradford Hovinen
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * This file is licensed under the terms of the GNU General Public
- * License version 2.0 or greater
+ * ---------------------------------------------------------
+ *
+ * See COPYING for license information.
+ *
+ * Test for implementation of algorithm of Faugère and Lachartre
  */
 
 #include <iostream>
 #include <ctime>
 
+#include "test-common.h"
+
 #include "linbox/util/commentator.h"
 #include "linbox/ring/gf2.h"
 #include "linbox/randiter/mersenne-twister.h"
-
-#include "solver.h"
+#include "linbox/algorithms/faugere-lachartre.h"
 
 using namespace LinBox;
-using namespace F4;
 
 typedef GF2 Ring;
 
 static const double nonzero_density = 0.1;
 
-namespace F4Tests {
-
 typedef Adaptor<Ring>::Endianness Endianness;
-typedef GaussJordan<Ring>::SparseMatrix SparseMatrix;
-typedef GaussJordan<Ring>::SparseMatrix::Row SparseVector;
 
 // Generate a random sparse vector in which all nonzero entries occur after column col and the entry at col is guaranteed to be one
 
-void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, MersenneTwister &MT)
+void randomVectorStartingAt (GaussJordan<Ring>::SparseMatrix::Row &v, size_t col, size_t coldim, MersenneTwister &MT)
 {
 	size_t t;
-	SparseVector::index_type idx;
+	GaussJordan<Ring>::SparseMatrix::Row::index_type idx;
 
-	SparseVector::word_type w;
-	SparseVector::word_type mask;
+	GaussJordan<Ring>::SparseMatrix::Row::word_type w;
+	GaussJordan<Ring>::SparseMatrix::Row::word_type mask;
 
-	SparseVector::index_type colstart = col >> WordTraits<SparseVector::word_type>::logof_size;
-	SparseVector::index_type colend = coldim >> WordTraits<SparseVector::word_type>::logof_size;
+	GaussJordan<Ring>::SparseMatrix::Row::index_type colstart = col >> WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size;
+	GaussJordan<Ring>::SparseMatrix::Row::index_type colend = coldim >> WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size;
 
 	v.clear ();
 
 	for (idx = colstart; idx <= colend; ++idx) {
 		w = 0ULL;
 
-		if (static_cast<size_t> (idx) << WordTraits<SparseVector::word_type>::logof_size <= col) {
-			t = col & WordTraits<SparseVector::word_type>::pos_mask;
+		if (static_cast<size_t> (idx) << WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size <= col) {
+			t = col & WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::pos_mask;
 			mask = Endianness::e_j (t);
 			w |= mask;  // Force leading entry to be one
 		} else {
@@ -57,20 +54,20 @@ void randomVectorStartingAt (SparseVector &v, size_t col, size_t coldim, Mersenn
 			mask = Endianness::e_0;
 		}
 
-		for (; mask != 0 && (static_cast<size_t> (idx) << WordTraits<SparseVector::word_type>::logof_size) + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
+		for (; mask != 0 && (static_cast<size_t> (idx) << WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size) + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
 			if (MT.randomDoubleRange (0.0, 1.0) < nonzero_density)
 				w |= mask;
 
 		if (w != 0) {
-			v.push_back (SparseVector::value_type (idx, w));
+			v.push_back (GaussJordan<Ring>::SparseMatrix::Row::value_type (idx, w));
 		}
 	}
 }
 
-void createRandomF4Matrix (SparseMatrix &A)
+void createRandomF4Matrix (GaussJordan<Ring>::SparseMatrix &A)
 {
 	MersenneTwister MT (time (NULL));
-	SparseMatrix::RowIterator i_A;
+	GaussJordan<Ring>::SparseMatrix::RowIterator i_A;
 
 	size_t col = 0;
 
@@ -103,13 +100,15 @@ void createRandomF4Matrix (SparseMatrix &A)
 
 // Small version of the test, for debugging
 
-void smallTest () {
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
+bool smallTest () {
+	bool pass = true;
+
+	commentator.start ("Testing Faugère-Lachartre implementation", __FUNCTION__);
 
 	size_t m = 64;
 	size_t n = 96;
 
-	SparseMatrix A (m, n), C (m, n);
+	GaussJordan<Ring>::SparseMatrix A (m, n), C (m, n);
 	GaussJordan<Ring>::DenseMatrix L (m, m);
 	GaussJordan<Ring>::Permutation P;
 
@@ -117,7 +116,7 @@ void smallTest () {
 
 	Ring F (2);
 	Context<Ring> ctx (F);
-	F4Solver<Ring> Solver (ctx);
+	FaugereLachartre<Ring> Solver (ctx);
 	GaussJordan<Ring> GJ (ctx);
 
 	size_t rank;
@@ -148,17 +147,26 @@ void smallTest () {
 
 	report << "True rank: " << rank1 << std::endl;
 
-	if (!BLAS3::equal (ctx, A, C))
+	if (!BLAS3::equal (ctx, A, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << "ERROR: Output-matrices are not equal!" << std::endl;
-	if (rank != rank1)
+		pass = false;
+	}
+
+	if (rank != rank1) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << "ERROR: Computed ranks are not equal!" << std::endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
 }
 
 // Get and print memory-usage of a sparse matrix
 
-size_t ComputeMemoryUsage (const SparseMatrix &A) 
+size_t ComputeMemoryUsage (const GaussJordan<Ring>::SparseMatrix &A) 
 {
-	SparseMatrix::ConstRowIterator i;
+	GaussJordan<Ring>::SparseMatrix::ConstRowIterator i;
 
 	size_t total_len = 0;
 
@@ -170,9 +178,9 @@ size_t ComputeMemoryUsage (const SparseMatrix &A)
 
 // Check hybrid-vector to make sure it is valid
 
-void CheckHybridMatrix (const SparseMatrix &A)
+void CheckHybridMatrix (const GaussJordan<Ring>::SparseMatrix &A)
 {
-	SparseMatrix::ConstRowIterator i;
+	GaussJordan<Ring>::SparseMatrix::ConstRowIterator i;
 
 	commentator.start ("Checking that rows of matrix are valid", __FUNCTION__);
 
@@ -193,9 +201,9 @@ void fileTest (char *filename, char *output) {
 	Ring F (2);
 	Context<Ring> ctx (F);
 
-	SparseMatrix A;
+	GaussJordan<Ring>::SparseMatrix A;
 
-	commentator.start ("Testing F4-solver with PNG-file", __FUNCTION__);
+	commentator.start ("Testing Faugère-Lachartre with PNG-file", __FUNCTION__);
 
 	std::ifstream ifile (filename);
 
@@ -214,7 +222,7 @@ void fileTest (char *filename, char *output) {
 
 	CheckHybridMatrix (A);
 
-	F4Solver<Ring> Solver (ctx);
+	FaugereLachartre<Ring> Solver (ctx);
 
 	size_t rank;
 	Ring::Element det;
@@ -233,26 +241,39 @@ void fileTest (char *filename, char *output) {
 	commentator.stop ("done");
 }
 
-} // namespace F4Tests
-
 int main (int argc, char **argv)
 {
-	commentator.setBriefReportParameters (Commentator::OUTPUT_PIPE, false, false, false);
+	bool pass = true;
+
+	static bool runFileTest = false;
+	static char *inputFile = NULL;
+	static char *outputFile = NULL;
+
+	static Argument args[] = {
+		{ 'f', "-f", "Run file-test", TYPE_NONE, &runFileTest },
+		{ 'i', "-i", "Input-file for file-test", TYPE_STRING, &inputFile },
+		{ 'o', "-o", "Output-file for file-test", TYPE_STRING, &outputFile },
+		{ '\0' }
+	};
+
+	parseArguments (argc, argv, args);
+
+	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
 	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (0);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (PROGRESS_REPORT).setMaxDepth (3);
-	commentator.setBriefReportStream (commentator.cnull);
-	commentator.setReportStream (std::cout);
 
-	if (argc == 2 && !strcmp (argv[1], "-s"))
-		F4Tests::smallTest ();
-	else if (argc == 4 && !strcmp (argv[1], "-f"))
-		F4Tests::fileTest (argv[2], argv[3]);
-	else {
-		std::cout << "Usage: test-solver -s|{-f <png-input> <matrix-output>}" << std::endl;
-		return 0;
-	}
+	commentator.start ("Faugère-Lachartre test suite", "FaugereLachartre");
+
+	if (runFileTest)
+		fileTest (inputFile, outputFile);
+	else
+		pass = smallTest ();
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass ? 0 : -1;
 }
