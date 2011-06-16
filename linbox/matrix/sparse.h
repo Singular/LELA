@@ -62,10 +62,6 @@ class SparseMatrix
 	typedef LinBox::Submatrix<Self_t> Submatrix;
 	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
 
-	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
-        struct rebind
-        { typedef SparseMatrix<typename _Tp1::Element, _R1, Trait> other; };
-
 	/** Default constructor. Builds empty matrix
 	 */
         SparseMatrix () : _m (0), _n (0) {}
@@ -258,12 +254,6 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag>
 
 	typedef LinBox::Submatrix<Self_t> SubmatrixType;
 	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
-
-	template <typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other>
-        struct rebind
-	{
-		typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseVectorTag> other;
-	};
 
         SparseMatrix () : _m (0), _n (0) {}
 

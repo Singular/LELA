@@ -40,10 +40,6 @@ public:
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
 
-	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
-        struct rebind
-        { typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::SparseZeroOneVectorTag> other; };
-
         SparseMatrix () : _m (0), _n (0) {}
 	SparseMatrix (size_t m, size_t n)
 		: _A (m), _m (m), _n (n) {}
@@ -150,10 +146,6 @@ public:
 	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
 	typedef LinBox::Submatrix<Self_t, HybridSubvectorWordAlignedTag> WordAlignedSubmatrixType;
 	typedef LinBox::Submatrix<const Self_t, HybridSubvectorWordAlignedTag> ConstWordAlignedSubmatrixType;
-
-	template<typename _Tp1, typename _R1 = typename Rebind<_Row,_Tp1>::other >
-	struct rebind
-	{ typedef SparseMatrix<typename _Tp1::Element, _R1, VectorCategories::HybridZeroOneVectorTag> other; };
 
         SparseMatrix () : _m (0), _n (0) {}
 	SparseMatrix (size_t m, size_t n)

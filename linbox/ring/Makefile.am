@@ -6,7 +6,6 @@ pkgincludesubdir=$(pkgincludedir)/field
 BASIC_HDRS =			\
 	ring-interface.h	\
 	traits.h		\
-	rebind.h		\
 	abstract.h		\
 	archetype.h		\
 	envelope.h		\

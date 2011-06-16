@@ -33,7 +33,6 @@
 #include <algorithm>    // STL algorithms
 
 #include "linbox/ring/archetype.h"
-#include "linbox/ring/rebind.h"
 #include "linbox/vector/bit-iterator.h"
 
 namespace LinBox
@@ -462,18 +461,6 @@ struct Vector : public RawVector<typename Field::Element>
 	{
                 typedef Vector<U> other;
 	};
-};
-
-template<class T, class U>
-struct Rebind< std::vector<T>, U >
-{
-	typedef typename Vector<U>::Dense other;
-};
-
-template<class T, class U>
-struct Rebind< std::pair<std::vector<size_t>, std::vector<T> >,U >
-{
-	typedef typename Vector<U>::Sparse other;
 };
 
 //@} Vector traits
