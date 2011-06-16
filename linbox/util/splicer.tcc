@@ -39,7 +39,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 	typename Vector2::const_iterator i_end = in.begin () + (src_idx + size);
 
 	for (; i != i_end; ++i, ++dest_idx)
-		out.push_back (typename Vector1::value_type (dest_idx, *i->second));
+		out.push_back (typename Vector1::value_type (dest_idx, *i));
 }
 
 template <class Ring, class Vector1, class Vector2>

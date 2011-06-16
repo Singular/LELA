@@ -17,6 +17,8 @@
 #include "linbox/algorithms/faugere-lachartre.h"
 #include "linbox/blas/level1.h"
 #include "linbox/blas/level3.h"
+#include "linbox/solutions/echelon-form.h"
+#include "linbox/solutions/echelon-form-gf2.h"
 
 #ifndef PROGRESS_STEP
 #  define PROGRESS_STEP 1024
@@ -24,6 +26,10 @@
 
 namespace LinBox
 {
+
+template <class Ring, class Modules>
+FaugereLachartre<Ring, Modules>::FaugereLachartre (Context<Ring, Modules> &_ctx)
+	: ctx (_ctx), EF (_ctx) {}
 
 template <class Ring, class Modules>
 template <class Matrix>
@@ -125,10 +131,8 @@ void FaugereLachartre<Ring, Modules>::setup_splicer (Splicer &splicer, Splicer &
 }
 
 template <class Ring, class Modules>
-void FaugereLachartre<Ring, Modules>::RowEchelonForm (typename FaugereLachartre<Ring, Modules>::SparseMatrix &R,
-						      const typename FaugereLachartre<Ring, Modules>::SparseMatrix &X,
-						      size_t &rank,
-						      typename Ring::Element &det)
+template <class Matrix>
+void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det)
 {
 	commentator.start ("Reduction of F4-matrix to reduced row-echelon form", __FUNCTION__);
 
@@ -155,10 +159,10 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (typename FaugereLachartre<
 
 	MatrixPart<DenseMatrix> *X_targets[] = { X_targets_inner_1, X_targets_inner_2 };
 
-	MatrixPart<const SparseMatrix> X_sources_1[] = { MatrixPart<const SparseMatrix> (X) };
-	MatrixPart<const SparseMatrix> *X_sources[] = { X_sources_1 };
+	MatrixPart<const Matrix> X_sources_1[] = { MatrixPart<const Matrix> (X) };
+	MatrixPart<const Matrix> *X_sources[] = { X_sources_1 };
 
-	X_splicer.splice (ctx.F, X_sources, X_targets);
+	X_splicer.splice<Ring, const Matrix, DenseMatrix> (ctx.F, X_sources, X_targets);
 
 	reportUI << "Matrix A:" << std::endl;
 	BLAS3::write (ctx, reportUI, A);
@@ -238,8 +242,8 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (typename FaugereLachartre<
 	B_splicer.clearHorizontalBlocks ();
 	B_splicer.addHorizontalBlock (Block (0, 0, 0, 0, B.rowdim ()));
 
-	B_splicer.splice (ctx.F, B_sources, B_targets);
-	D_splicer.splice (ctx.F, D_sources, D_targets);
+	B_splicer.splice<Ring, DenseMatrix, DenseMatrix> (ctx.F, B_sources, B_targets);
+	D_splicer.splice<Ring, DenseMatrix, DenseMatrix> (ctx.F, D_sources, D_targets);
 
 	reportUI << "Matrix B1:" << std::endl;
 	BLAS3::write (ctx, reportUI, B1);
@@ -284,12 +288,12 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (typename FaugereLachartre<
 
 	MatrixPart<DenseMatrix> *R_sources[] = { R_sources_inner_1, R_sources_inner_2, R_sources_inner_3 };
 
-	MatrixPart<SparseMatrix> R_targets_1[] = { MatrixPart<SparseMatrix> (R) };
-	MatrixPart<SparseMatrix> *R_targets[] = { R_targets_1 };
+	MatrixPart<Matrix> R_targets_1[] = { MatrixPart<Matrix> (R) };
+	MatrixPart<Matrix> *R_targets[] = { R_targets_1 };
 
 	BLAS3::scal (ctx, ctx.F.zero (), R);
 
-	composed_splicer.splice (ctx.F, R_sources, R_targets);
+	composed_splicer.splice<Ring, DenseMatrix, Matrix> (ctx.F, R_sources, R_targets);
 
 	commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 }

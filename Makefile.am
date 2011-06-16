@@ -2,7 +2,7 @@
 # This file is part of LinBox
 # see COPYING for licence
 
-SUBDIRS=linbox macros tests doc
+SUBDIRS=linbox util macros tests doc
 
 docs:doc/linbox-html/index.html
 

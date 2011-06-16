@@ -259,7 +259,6 @@ int main (int argc, char **argv)
 	parseArguments (argc, argv, args);
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
-	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (0);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);

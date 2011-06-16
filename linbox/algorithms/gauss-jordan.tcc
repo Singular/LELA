@@ -113,7 +113,7 @@ template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 						      VectorCategories::SparseZeroOneVectorTag) const
 {
-	typename SparseMatrix::RowIterator i;
+	typename Matrix::ConstRowIterator i;
 
 	size_t min_nonzero = (size_t) -1, pivot = -1, k = start_row, s;
 	col = A.coldim ();
@@ -698,7 +698,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								   VectorCategories::SparseZeroOneVectorTag) const
+								  VectorCategories::SparseZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -724,8 +724,8 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 				prev_idx = i_A->size ();
 
 			// We must start over each time because the operations below invalidate iterators...
-			std::reverse_iterator<typename SparseMatrix::Row::iterator> i_idx (i_A->begin () + prev_idx);
-			std::reverse_iterator<typename SparseMatrix::Row::iterator> i_stop (i_A->begin ());
+			std::reverse_iterator<typename Matrix1::Row::iterator> i_idx (i_A->begin () + prev_idx);
+			std::reverse_iterator<typename Matrix1::Row::iterator> i_stop (i_A->begin ());
 
 			while (i_idx != i_stop && *i_idx > j_A->front ()) {
 				++i_idx;

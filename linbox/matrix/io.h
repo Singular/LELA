@@ -11,9 +11,14 @@
 
 #include <iostream>
 
+#include "linbox/linbox-config.h"
+
 #ifdef __LINBOX_HAVE_LIBPNG
 #  include <png.h>
 #endif
+
+#include "linbox/vector/traits.h"
+#include "linbox/matrix/traits.h"
 
 namespace LinBox
 {

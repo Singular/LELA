@@ -15,6 +15,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/algorithms/gauss-jordan.h"
+#include "linbox/algorithms/faugere-lachartre.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/util/error.h"
 
@@ -22,25 +23,26 @@ namespace LinBox
 {
 
 /** Solution for computing the echelon-form of a matrix */
-template <class Field, class Modules = AllModules<Field> >
+template <class Ring, class Modules = AllModules<Ring> >
 class EchelonForm
 {
-	GaussJordan<Field, Modules> _GJ;
+	Context<Ring, Modules> _ctx;
+	GaussJordan<Ring, Modules> _GJ;
 
-	DenseMatrix<typename Field::Element> _L;
-	typename GaussJordan<Field, Modules>::Permutation _P;
+	DenseMatrix<typename Ring::Element> _L;
+	typename GaussJordan<Ring, Modules>::Permutation _P;
 
 	// Map pointers to matrices to computed ranks
 	std::map<const void *, size_t> _rank_table;
 
 public:
-	enum Method { METHOD_STANDARD_GJ, METHOD_ASYMPTOTICALLY_FAST_GJ };
+	enum Method { METHOD_UNKNOWN, METHOD_STANDARD_GJ, METHOD_ASYMPTOTICALLY_FAST_GJ, METHOD_FAUGERE_LACHARTRE };
 
 	/** Constructor
 	 *
-	 * @param F Field over which to compute
+	 * @param F Ring over which to compute
 	 */
-	EchelonForm (Context<Field, Modules> &ctx) : _GJ (ctx) {}
+	EchelonForm (Context<Ring, Modules> &ctx) : _ctx (ctx), _GJ (ctx) {}
 
 	/** Compute the (possibly reduced) row-echelon form of a matrix
 	 *
@@ -52,7 +54,7 @@ public:
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
 	{
-		static const char *method_names[] = { "standard", "recursive", "M4RI" };
+		static const char *method_names[] = { "standard", "recursive", "M4RI", "Faugère-Lachartre" };
 
 		std::ostringstream str;
 		str << "Row-echelon form (method: " << method_names[method] << ")" << std::ends;
@@ -60,12 +62,20 @@ public:
 		commentator.start (str.str ().c_str (), __FUNCTION__);
 
 		size_t rank;
-		typename Field::Element d;
+		typename Ring::Element d;
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
 			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			break;
+
+		case METHOD_FAUGERE_LACHARTRE:
+			{
+				// Must do it this way to avoid an infinite loop of inclusion...
+				FaugereLachartre<Ring, Modules> FL (_ctx);
+				FL.RowEchelonForm (A, A, rank, d);
+			}
 			break;
 
 		default:
@@ -80,9 +90,9 @@ public:
 	}
 
 	// Specialisation for dense matrices
-	DenseMatrix<typename Field::Element> &RowEchelonForm (DenseMatrix<typename Field::Element> &A, bool reduced = false, Method method = METHOD_ASYMPTOTICALLY_FAST_GJ)
+	DenseMatrix<typename Ring::Element> &RowEchelonForm (DenseMatrix<typename Ring::Element> &A, bool reduced = false, Method method = METHOD_ASYMPTOTICALLY_FAST_GJ)
 	{
-		static const char *method_names[] = { "standard", "recursive", "M4RI" };
+		static const char *method_names[] = { "standard", "recursive", "M4RI", "Faugère-Lachartre" };
 
 		std::ostringstream str;
 		str << "Row-echelon form (method: " << method_names[method] << ")" << std::ends;
@@ -90,7 +100,7 @@ public:
 		commentator.start (str.str ().c_str (), __FUNCTION__);
 
 		size_t rank;
-		typename Field::Element d;
+		typename Ring::Element d;
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
@@ -101,6 +111,14 @@ public:
 		case METHOD_ASYMPTOTICALLY_FAST_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
 			_GJ.DenseRowEchelonForm (A, _L, _P, rank, d, reduced);
+			break;
+
+		case METHOD_FAUGERE_LACHARTRE:
+			{
+				// Must do it this way to avoid an infinite loop of inclusion...
+				FaugereLachartre<Ring, Modules> FL (_ctx);
+				FL.RowEchelonForm (A, A, rank, d);
+			}
 			break;
 
 		default:

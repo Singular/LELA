@@ -767,6 +767,9 @@ class Modular<uint8> : public RingInterface, public ModularBase<uint8>
 		return r;
 	}
 
+	static inline Element getMaxModulus()
+		{ return Element ((1ULL << (sizeof(Element) * 8 - 1)) - 1); } 
+
 	// Number of times one can perform an axpy into a long long
 	// before modding out is mandatory.
 	size_t _k;
@@ -921,6 +924,9 @@ class Modular<uint16> : public RingInterface, public ModularBase<uint16>
 		return r;
 	}
 
+	static inline Element getMaxModulus()
+		{ return Element ((1ULL << (sizeof(Element) * 8 - 1)) - 1); } 
+
 	// Number of times one can perform an axpy into a long long
 	// before modding out is mandatory.
 	size_t _k;
@@ -1069,6 +1075,9 @@ class Modular<uint32> : public RingInterface, public ModularBase<uint32>
 		if ((int32) r < 0) r += ModularBase<Element>::_modulus;
 		return r;
 	}
+
+	static inline Element getMaxModulus()
+		{ return Element ((1ULL << (sizeof(Element) * 8 - 1)) - 1); } 
 
 	Element _two_64;
 

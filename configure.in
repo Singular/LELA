@@ -196,6 +196,7 @@ linbox/matrix/Makefile
 linbox/randiter/Makefile
 linbox/util/Makefile
 linbox/vector/Makefile
+util/Makefile
 tests/Makefile
 tests/data/Makefile
 macros/Makefile

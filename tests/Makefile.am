@@ -16,9 +16,6 @@ SUBDIRS = data
 AM_CPPFLAGS= $(GMP_CFLAGS) $(NTL_CFLAGS) $(GIVARO_CFLAGS) $(LIDIA_CFLAGS)
 LDADD = $(BLAS_LIBS) $(NTL_LIBS) $(GIVARO_LIBS) $(GMP_LIBS)  $(LIDIA_LIBS) $(M4RI_LIBS) $(top_builddir)/linbox/liblinbox.la
 
-EXTRA_DIST=\
-test-common.C
-
 # Put an entry for your test-mycomponent.C here (or in one of the other test groups).  
 # Don't forget to add a test_mycomponent_SOURCES entry below.
 #
@@ -49,10 +46,6 @@ BENCHMARKS =                    \
         benchmark-rings        \
 	benchmark-matrix-domain	\
         benchmark-blas-domain
-
-NON_COMPILING_TESTS = \
-        test-ffpack             \
-        test-blas-domain        
 
 EXTRA_PROGRAMS = $(NON_COMPILING_TESTS) $(BENCHMARKS)
 
@@ -132,14 +125,6 @@ test_hybrid_vector_SOURCES = \
 	test-hybrid-vector.C \
 	test-common.C
 
-test_blas_domain_SOURCES=                \
-        test-common.C   \
-        test-blas-domain.C
-
-# test_ffpack_SOURCES=                \
-#         test-common.C   \
-#         test-ffpack.C
-
 test_gauss_jordan_SOURCES = \
 	test-common.C		\
 	test-gauss-jordan.C
@@ -151,6 +136,6 @@ test_faugere_lachartre_SOURCES = \
 benchmark_matrix_domain_SOURCES = \
 	benchmark-matrix-domain.C \
 	test-common.C		\
-	test-matrix-domain.h>
+	test-matrix-domain.h
 
 benchmark_matrix_domain_CXXFLAGS = ${BENCHMARK_CXXFLAGS}

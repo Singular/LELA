@@ -16,12 +16,14 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/algorithms/gauss-jordan.h"
-#include "linbox/solutions/echelon-form.h"
-#include "linbox/solutions/echelon-form-gf2.h"
 #include "linbox/util/splicer.h"
 
 namespace LinBox
 {
+
+// Forward-declaration
+template <class Ring, class Modules>
+class EchelonForm;
 
 /**
  * \brief Implementation of algorithm for computing reduced row-echelon form
@@ -52,8 +54,7 @@ public:
 	 *
 	 * @param _ctx Context-object for matrix-calculations
 	 */
-	FaugereLachartre (Context<Ring, Modules> &_ctx)
-		: ctx (_ctx), EF (_ctx) {}
+	FaugereLachartre (Context<Ring, Modules> &_ctx);
 
 	/** 
 	 * \brief Convert the matrix A into reduced
@@ -64,7 +65,7 @@ public:
 	 * as A. May be the same matrix as A, in which case A
 	 * is replaced by its reduced row-echelon form.
 	 *
-	 * @param A Matrix to be converted to row-echelon
+	 * @param X Matrix to be converted to row-echelon
 	 * form. Not altered, unless R is the same matrix.
 	 *
 	 * @param rank Integer-reference into which to store
@@ -73,7 +74,8 @@ public:
 	 * @param det Ring-element-reference into which to
 	 * store computed determinant of pivot-submatrix
 	 */
-	void RowEchelonForm (SparseMatrix &R, const SparseMatrix &X, size_t &rank, Element &det);
+	template <class Matrix>
+	void RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, Element &det);
 };
 
 } // namespace LinBox

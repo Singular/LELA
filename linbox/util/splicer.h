@@ -365,6 +365,19 @@ public:
 
 	template <class Ring, class Matrix1, class Matrix2>
 	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::ColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::ColMatrixTag> **output) const;
+
+	template <class Ring, class Matrix1, class Matrix2>
+	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const
+		{ splice (F, reinterpret_cast<MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **> (input), output); }
+
+	template <class Ring, class Matrix1, class Matrix2>
+	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowColMatrixTag> **output) const
+		{ splice (F, input, reinterpret_cast<MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **> (output)); }
+
+	template <class Ring, class Matrix1, class Matrix2>
+	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowColMatrixTag> **output) const
+		{ splice (F, reinterpret_cast<MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **> (input),
+			  reinterpret_cast<MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **> (output)); }
 };
 
 } // namespace LinBox

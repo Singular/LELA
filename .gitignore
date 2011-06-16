@@ -25,6 +25,9 @@ linbox/linbox-config.h
 linbox/randiter/libranditer.la
 linbox/stamp-h1
 linbox/util/libutil.la
+util/convert
+util/equal
+util/row-echelon-form
 macros/libtool.m4
 macros/ltoptions.m4
 macros/ltsugar.m4
