@@ -54,7 +54,7 @@ public:
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
 	{
-		static const char *method_names[] = { "standard", "recursive", "M4RI", "Faugère-Lachartre" };
+		static const char *method_names[] = { "unknown", "standard", "recursive", "M4RI", "Faugère-Lachartre" };
 
 		std::ostringstream str;
 		str << "Row-echelon form (method: " << method_names[method] << ")" << std::ends;
@@ -92,7 +92,7 @@ public:
 	// Specialisation for dense matrices
 	DenseMatrix<typename Ring::Element> &RowEchelonForm (DenseMatrix<typename Ring::Element> &A, bool reduced = false, Method method = METHOD_ASYMPTOTICALLY_FAST_GJ)
 	{
-		static const char *method_names[] = { "standard", "recursive", "M4RI", "Faugère-Lachartre" };
+		static const char *method_names[] = { "unknown", "standard", "recursive", "M4RI", "Faugère-Lachartre" };
 
 		std::ostringstream str;
 		str << "Row-echelon form (method: " << method_names[method] << ")" << std::ends;
