@@ -162,97 +162,11 @@ bool smallTest () {
 	return pass;
 }
 
-// Get and print memory-usage of a sparse matrix
-
-size_t ComputeMemoryUsage (const GaussJordan<Ring>::SparseMatrix &A) 
-{
-	GaussJordan<Ring>::SparseMatrix::ConstRowIterator i;
-
-	size_t total_len = 0;
-
-	for (i = A.rowBegin (); i != A.rowEnd (); ++i)
-		total_len += i->size ();
-
-	return total_len;
-}
-
-// Check hybrid-vector to make sure it is valid
-
-void CheckHybridMatrix (const GaussJordan<Ring>::SparseMatrix &A)
-{
-	GaussJordan<Ring>::SparseMatrix::ConstRowIterator i;
-
-	commentator.start ("Checking that rows of matrix are valid", __FUNCTION__);
-
-	for (i = A.rowBegin (); i != A.rowEnd (); ++i) {
-		if (!VectorWrapper::isValid<GF2> (*i)) {
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "Error at row " << i - A.rowBegin () << std::endl;
-			commentator.stop ("FAILED");
-		}
-	}
-
-	commentator.stop ("passed");
-}
-
-// Real test using data from a PNG-file
-
-void fileTest (char *filename, char *output) {
-	Ring F (2);
-	Context<Ring> ctx (F);
-
-	GaussJordan<Ring>::SparseMatrix A;
-
-	commentator.start ("Testing Faugère-Lachartre with PNG-file", __FUNCTION__);
-
-	std::ifstream ifile (filename);
-
-	if (!ifile.good ()) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "Could not open file " << filename << std::endl;
-		return;
-	}
-
-	BLAS3::read (ctx, ifile, A, FORMAT_PNG);
-
-	size_t total = ComputeMemoryUsage (A);
-
-	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
-		<< "Total length of row-vectors: " << total << std::endl;
-
-	CheckHybridMatrix (A);
-
-	FaugereLachartre<Ring> Solver (ctx);
-
-	size_t rank;
-	Ring::Element det;
-
-	Solver.RowEchelonForm (A, A, rank, det);
-
-	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
-		<< "Computed rank: " << rank << std::endl << "Computed determinant: ";
-	F.write (commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION), det) << std::endl;
-
-	CheckHybridMatrix (A);
-
-	std::ofstream f (output);
-	BLAS3::write (ctx, f, A, FORMAT_PNG);
-
-	commentator.stop ("done");
-}
-
 int main (int argc, char **argv)
 {
 	bool pass = true;
 
-	static bool runFileTest = false;
-	static char *inputFile = NULL;
-	static char *outputFile = NULL;
-
 	static Argument args[] = {
-		{ 'f', "-f", "Run file-test", TYPE_NONE, &runFileTest },
-		{ 'i', "-i", "Input-file for file-test", TYPE_STRING, &inputFile },
-		{ 'o', "-o", "Output-file for file-test", TYPE_STRING, &outputFile },
 		{ '\0' }
 	};
 
@@ -267,10 +181,7 @@ int main (int argc, char **argv)
 
 	commentator.start ("Faugère-Lachartre test suite", "FaugereLachartre");
 
-	if (runFileTest)
-		fileTest (inputFile, outputFile);
-	else
-		pass = smallTest ();
+	pass = smallTest ();
 
 	commentator.stop (MSG_STATUS (pass));
 
