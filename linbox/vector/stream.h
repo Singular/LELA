@@ -14,7 +14,7 @@
 #include <vector>
 #include <cmath>
 
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 #include "linbox/util/debug.h"
 #include "linbox/randiter/nonzero.h"
 #include "linbox/randiter/mersenne-twister.h"

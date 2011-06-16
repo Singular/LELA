@@ -17,7 +17,7 @@
 #include <vector>
 #include <stdexcept>
 
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 #include "linbox/vector/shifted-vector.h"
 #include "linbox/vector/sparse.h"
 #include "linbox/vector/subvector.h"

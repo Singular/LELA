@@ -16,7 +16,7 @@
 #include <stdexcept>
 
 #include "linbox/util/debug.h"
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 #include "linbox/vector/bit-vector.h"
 
 namespace LinBox

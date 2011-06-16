@@ -9,8 +9,8 @@
 
 #include <iostream>
 
-#include "linbox/vector/vector-traits.h"
-#include "linbox/matrix/matrix-traits.h"
+#include "linbox/vector/traits.h"
+#include "linbox/matrix/traits.h"
 
 namespace LinBox
 {

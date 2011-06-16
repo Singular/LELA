@@ -11,7 +11,6 @@
 #define __BLAS_LEVEL3_H
 
 #include "linbox/blas/context.h"
-#include "linbox/matrix/matrix-traits.h"
 #include "linbox/blas/level3-ll.tcc"
 
 namespace LinBox

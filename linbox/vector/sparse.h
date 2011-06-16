@@ -10,7 +10,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 
 namespace LinBox
 {
@@ -339,7 +339,7 @@ protected:
  * This class represents a sparse vector (stored as a pair of vectors)
  * as a vector of (column-index, entry)-pairs.
  */
-template <class Element, class IndexVector, class ElementVector> // N.B. default argument in forward-declaration in vector-traits.h
+template <class Element, class IndexVector, class ElementVector> // N.B. default argument in forward-declaration in traits.h
 class SparseVector
 {
 public:

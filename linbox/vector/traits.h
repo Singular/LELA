@@ -1,4 +1,4 @@
-/* linbox/vector/vector-traits.h
+/* linbox/vector/traits.h
  * Copyright 1999-2001 William J Turner,
  *           2001-2002 Bradford Hovinen
  *

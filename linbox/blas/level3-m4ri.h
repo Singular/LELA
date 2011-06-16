@@ -18,7 +18,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/blas/level3-ll.h"
-#include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/traits.h"
 #include "linbox/matrix/m4ri-matrix.h"
 #include "linbox/matrix/submatrix.h"
 

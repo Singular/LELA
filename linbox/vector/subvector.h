@@ -17,7 +17,7 @@
 #include <iterator>
 #include <stdexcept>
 
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 #include "linbox/vector/subiterator.h"
 
 namespace LinBox

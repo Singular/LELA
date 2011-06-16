@@ -6,7 +6,7 @@ pkgincludesubdir=$(pkgincludedir)/matrix
 BASIC_HDRS =			\
 	archetype.h		\
 	matrix-category.h	\
-	matrix-traits.h		\
+	traits.h		\
 	io.h			\
 	io.tcc			\
 	io-png.tcc		\

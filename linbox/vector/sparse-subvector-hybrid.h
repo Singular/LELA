@@ -15,7 +15,7 @@
 
 #include <vector>
 
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 #include "linbox/vector/sparse-subvector.h"
 
 namespace LinBox

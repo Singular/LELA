@@ -24,7 +24,7 @@
 
 #include "linbox/util/debug.h"
 #include "linbox/matrix/sparse.h"
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 #include "linbox/matrix/submatrix.h"
 #include "linbox/util/commentator.h"
 

@@ -7,12 +7,11 @@ EXTRA_DIST=			\
 	vector.doxy
 
 pkgincludesub_HEADERS=		\
-	vector-traits.h		\
+	traits.h		\
 	subvector.h		\
 	subiterator.h		\
 	sparse.h		\
 	hybrid.h		\
-	reverse.h		\
 	stream.h		\
 	stream.tcc		\
 	bit-iterator.h		\

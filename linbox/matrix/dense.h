@@ -28,7 +28,7 @@
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/raw-iterator.h"
 #include "linbox/matrix/submatrix.h"
-#include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/traits.h"
 
 namespace LinBox
 {

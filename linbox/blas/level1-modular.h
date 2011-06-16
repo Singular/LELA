@@ -12,6 +12,7 @@
 
 #include "linbox/ring/modular.h"
 #include "linbox/blas/context.h"
+#include "linbox/vector/traits.h"
 
 namespace LinBox
 {

@@ -13,7 +13,7 @@
 #include <algorithm>
 
 #include "linbox/blas/context.h"
-#include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/traits.h"
 #include "linbox/matrix/io.h"
 
 namespace LinBox

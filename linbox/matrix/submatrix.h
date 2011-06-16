@@ -18,7 +18,7 @@
 #define __MATRIX_SUBMATRIX_H
 
 #include "linbox/util/debug.h"
-#include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/traits.h"
 #include "linbox/matrix/raw-iterator.h"
 
 namespace LinBox

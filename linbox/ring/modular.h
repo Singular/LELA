@@ -24,13 +24,13 @@
 #include <iostream>
 #include <climits>
 #include <cmath>
+#include <vector>
 
+#include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/util/debug.h"
 #include "linbox/blas/context.h"
 #include "linbox/ring/ring-interface.h"
-#include "linbox/vector/vector-traits.h"
-#include "linbox/linbox-config.h"
 #include "linbox/ring/traits.h"
 #include "linbox/randiter/nonzero.h"
 

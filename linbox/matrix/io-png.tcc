@@ -17,7 +17,7 @@
 #include <png.h>
 
 #include "linbox/matrix/io.h"
-#include "linbox/vector/vector-traits.h"
+#include "linbox/vector/traits.h"
 #include "linbox/vector/bit-iterator.h"
 #include "linbox/vector/hybrid.h"
 

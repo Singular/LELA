@@ -6,34 +6,6 @@
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  * 
  * --------------------------------------------------------
- * 2003-01-11  Bradford Hovinen  <bghovinen@math.uwaterloo.ca>
- *
- * Move from blackbox/sparse-base.h to matrix/sparse.h
- * ------------------------------------
- * 2002-11-28  Bradford Hovinen  <bghovinen@math.uwaterloo.ca>
- *
- *   - Renamed ColOfRowsIterator to RowIterator
- *   - Named template argument _Row rather than Row; add a typedef to Row
- *   - Named template argument _Element rather than Row; add a typedef to Element
- *   - Renamed RawIndexIterator as RawIndexedIterator, and adjusted to match
- *     interface in DenseMatrixBase
- * ------------------------------------
- * 2002-08-06  Bradford Hovinen  <hovinen@cis.udel.edu>
- *
- * Renamed to sparse-base.h from sparse0-base.h
- * ------------------------------------
- * Modified by Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Refactoring:
- *   - Eliminated SparseMatrixAux and moved that functionality into Sparse0
- *   - Made SparseMatrixBase parameterized only on the element type
- *   - New read/write implementations for SparseMatrixBase, supporting multiple
- *     formats
- *   - Eliminated Gaussian elimination code
- *   - Added iterators, including ColOfRowsIterator, RawIterator, and
- *     RawIndexIterator
- *   - Eliminated operator []; added getEntry; changed put_value to setEntry
- * ------------------------------------
  *
  * See COPYING for license information.
  */
@@ -53,8 +25,8 @@
 
 #include "linbox/linbox-config.h"
 #include "linbox/util/debug.h"
-#include "linbox/vector/vector-traits.h"
-#include "linbox/matrix/matrix-traits.h"
+#include "linbox/vector/traits.h"
+#include "linbox/matrix/traits.h"
 #include "linbox/vector/sparse-subvector.h"
 
 namespace LinBox

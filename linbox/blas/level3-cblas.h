@@ -20,7 +20,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/ring/unparametric.h"
-#include "linbox/matrix/matrix-traits.h"
+#include "linbox/matrix/traits.h"
 #include "linbox/matrix/dense.h"
 
 namespace LinBox
