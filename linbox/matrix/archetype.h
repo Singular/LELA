@@ -1,7 +1,7 @@
 /* linbox/matrix/archetype.h
- * Copyright (C) 2001 B. David Saunders,
- *               2001-2002 Bradford Hovinen,
- *               2002 Zhendong Wan
+ * Copyright 2001 B. David Saunders,
+ *           2001-2002 Bradford Hovinen,
+ *           2002 Zhendong Wan
  *
  * Written by B. David Saunders <saunders@cis.udel.edu>,
  *            Bradford Hovinen <hovinen@cis.udel.edu>,
@@ -46,6 +46,7 @@ class MatrixArchetype
     public:
 
 	typedef _Element Element;
+	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory;
 
 	/** Empty Constructor.
 	 */
@@ -232,16 +233,15 @@ class MatrixArchetype
 	size_t                _rows, _cols;
 };
 
-template <class Element>
-struct MatrixTraits< MatrixArchetype<Element> >
-{ 
-	typedef MatrixArchetype<Element> MatrixType;
-	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory;
-};
-
 } // namespace LinBox
 
 #endif // __LINBOX_matrix_archetype_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
