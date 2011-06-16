@@ -20,6 +20,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/vector/vector-traits.h"
+#include "linbox/field/unparametric.h"
 #include "linbox/matrix/matrix-traits.h"
 #include "linbox/matrix/dense.h"
 
@@ -30,7 +31,7 @@ namespace BLAS2
 {
 
 template <class Vector1, class Vector2>
-Vector2 &gemv_impl (const Modular<float> &F, BLASModule &M,
+Vector2 &gemv_impl (const UnparametricField<float> &F, BLASModule &M,
 		    float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
@@ -44,7 +45,7 @@ Vector2 &gemv_impl (const Modular<float> &F, BLASModule &M,
 }
 
 template <class Vector>
-Vector &trmv_impl (const Modular<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+Vector &trmv_impl (const UnparametricField<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
 		   VectorCategories::DenseVectorTag)
 {
@@ -57,7 +58,7 @@ Vector &trmv_impl (const Modular<float> &F, BLASModule &M, const DenseMatrix<flo
 }
 
 template <class Vector>
-Vector &trsv_impl (const Modular<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+Vector &trsv_impl (const UnparametricField<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
 		   VectorCategories::DenseVectorTag)
 {
@@ -70,7 +71,7 @@ Vector &trsv_impl (const Modular<float> &F, BLASModule &M, const DenseMatrix<flo
 }
 
 template <class Vector1, class Vector2>
-DenseMatrix<float> &ger_impl (const Modular<float> &F, BLASModule &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
+DenseMatrix<float> &ger_impl (const UnparametricField<float> &F, BLASModule &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
 			      VectorCategories::DenseVectorTag,
 			      VectorCategories::DenseVectorTag,
 			      MatrixCategories::RowColMatrixTag)
@@ -82,7 +83,7 @@ DenseMatrix<float> &ger_impl (const Modular<float> &F, BLASModule &M, float a, c
 }
 
 template <class Vector1, class Vector2>
-Vector2 &gemv_impl (const Modular<double> &F, BLASModule &M,
+Vector2 &gemv_impl (const UnparametricField<double> &F, BLASModule &M,
 		    double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
@@ -96,7 +97,7 @@ Vector2 &gemv_impl (const Modular<double> &F, BLASModule &M,
 }
 
 template <class Vector>
-Vector &trmv_impl (const Modular<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+Vector &trmv_impl (const UnparametricField<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
 		   VectorCategories::DenseVectorTag)
 {
@@ -109,7 +110,7 @@ Vector &trmv_impl (const Modular<double> &F, BLASModule &M, const DenseMatrix<do
 }
 
 template <class Vector>
-Vector &trsv_impl (const Modular<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+Vector &trsv_impl (const UnparametricField<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
 		   VectorCategories::DenseVectorTag)
 {
@@ -122,7 +123,7 @@ Vector &trsv_impl (const Modular<double> &F, BLASModule &M, const DenseMatrix<do
 }
 
 template <class Vector1, class Vector2>
-DenseMatrix<double> &ger_impl (const Modular<double> &F, BLASModule &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
+DenseMatrix<double> &ger_impl (const UnparametricField<double> &F, BLASModule &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
 			       VectorCategories::DenseVectorTag,
 			       VectorCategories::DenseVectorTag,
 			       MatrixCategories::RowColMatrixTag)

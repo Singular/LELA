@@ -19,6 +19,7 @@
 #include <cblas.h>
 
 #include "linbox/blas/context.h"
+#include "linbox/field/unparametric.h"
 #include "linbox/matrix/matrix-traits.h"
 #include "linbox/matrix/dense.h"
 
@@ -28,7 +29,7 @@ namespace LinBox
 namespace BLAS3
 {
 
-DenseMatrix<float> &gemm_impl (const Modular<float> &F, BLASModule &M,
+DenseMatrix<float> &gemm_impl (const UnparametricField<float> &F, BLASModule &M,
 			       float a, const DenseMatrix<float> &A, const DenseMatrix<float> &B, float b, DenseMatrix<float> &C,
 			       MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
 {
@@ -40,7 +41,7 @@ DenseMatrix<float> &gemm_impl (const Modular<float> &F, BLASModule &M,
 	return C;
 }
 
-DenseMatrix<float> &trmm_impl (const Modular<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
+DenseMatrix<float> &trmm_impl (const UnparametricField<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
 			       TriangularMatrixType type, bool diagIsOne,
 			       MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
 {
@@ -52,7 +53,7 @@ DenseMatrix<float> &trmm_impl (const Modular<float> &F, BLASModule &M, float a, 
 	return B;
 }
 
-DenseMatrix<float> &trsm_impl (const Modular<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
+DenseMatrix<float> &trsm_impl (const UnparametricField<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
 			       TriangularMatrixType type, bool diagIsOne,
 			       MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
 {
@@ -64,7 +65,7 @@ DenseMatrix<float> &trsm_impl (const Modular<float> &F, BLASModule &M, float a, 
 	return B;
 }
 
-DenseMatrix<double> &gemm_impl (const Modular<double> &F, BLASModule &M,
+DenseMatrix<double> &gemm_impl (const UnparametricField<double> &F, BLASModule &M,
 				double a, const DenseMatrix<double> &A, const DenseMatrix<double> &B, double b, DenseMatrix<double> &C,
 				MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
 {
@@ -76,7 +77,7 @@ DenseMatrix<double> &gemm_impl (const Modular<double> &F, BLASModule &M,
 	return C;
 }
 
-DenseMatrix<double> &trmm_impl (const Modular<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
+DenseMatrix<double> &trmm_impl (const UnparametricField<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
 				TriangularMatrixType type, bool diagIsOne,
 				MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
 {
@@ -88,7 +89,7 @@ DenseMatrix<double> &trmm_impl (const Modular<double> &F, BLASModule &M, double 
 	return B;
 }
 
-DenseMatrix<double> &trsm_impl (const Modular<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
+DenseMatrix<double> &trsm_impl (const UnparametricField<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
 				TriangularMatrixType type, bool diagIsOne,
 				MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
 {

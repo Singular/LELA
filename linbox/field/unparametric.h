@@ -29,11 +29,12 @@
 #include <algorithm>
 #include <cmath>
 
-#include "linbox/integer.h"
-#include <linbox/field/field-interface.h>
-#include "linbox/randiter/unparametric.h"
 #include "linbox/linbox-config.h"
-#include <linbox/field/field-traits.h>
+#include "linbox/integer.h"
+#include "linbox/randiter/unparametric.h"
+#include "linbox/field/field-interface.h"
+#include "linbox/field/field-traits.h"
+#include "linbox/blas/context.h"
 
 namespace LinBox 
 {
@@ -397,13 +398,25 @@ private:
 
 };
 	
+struct BLASModule : public GenericModule {};
+
+template <>
+struct AllModules<UnparametricField<float> > : public BLASModule {};
+
+template <>
+struct AllModules<UnparametricField<double> > : public BLASModule {};
+
 } // namespace LinBox
+
+#ifdef __LINBOX_BLAS_AVAILABLE
+#  include "linbox/blas/level1-cblas.h"
+#  include "linbox/blas/level2-cblas.h"
+#  include "linbox/blas/level3-cblas.h"
+#endif
 
 #include "linbox/blas/level1-generic.tcc"
 #include "linbox/blas/level2-generic.tcc"
 #include "linbox/blas/level3-generic.tcc"
-
-#include "linbox/randiter/unparametric.h"
 
 #endif // __LINBOX_field_unparametric_H
 

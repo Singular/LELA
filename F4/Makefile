@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -g -O2
 CPPFLAGS = -DDETAILED_PROFILE -DDEBUG
 INCLUDES = -I..
-LIBS = ../linbox/.libs/liblinbox.a -lgmp -lgivaro -lpng -lm4ri -Wl,-rpath,/usr/local/lib
+LIBS = ../linbox/.libs/liblinbox.a -lgmp -lgivaro -lpng -lm4ri -lblas -Wl,-rpath,/usr/local/lib
 
 TARGETS = test-solver test-matrix-domain-gf2 
 
