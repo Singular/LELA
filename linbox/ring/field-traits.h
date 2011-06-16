@@ -1,4 +1,4 @@
-/* linbox/field/field-traits.h
+/* linbox/ring/field-traits.h
  * Copyright (C) June 2004 Dan Roche
  * see COPYING for permissions etc.
  */

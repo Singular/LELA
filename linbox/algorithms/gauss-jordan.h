@@ -20,7 +20,7 @@
 #include "linbox/util/commentator.h"
 #include "linbox/util/timer.h"
 #include "linbox/blas/context.h"
-#include "linbox/field/gf2.h"
+#include "linbox/ring/gf2.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
 

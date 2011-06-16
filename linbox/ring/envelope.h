@@ -1,4 +1,4 @@
-/* linbox/field/envelope.h
+/* linbox/ring/envelope.h
  * Copyright (C) 1999-2001 William J Turner,
  *               2001 Bradford Hovinen
  *
@@ -34,7 +34,7 @@
 
 #include "linbox/integer.h"
 #include "linbox/element/envelope.h"
-#include "linbox/field/abstract.h"
+#include "linbox/ring/abstract.h"
 #include "linbox/element/abstract.h"
 #include "linbox/randiter/abstract.h"
 #include "linbox/randiter/envelope.h"

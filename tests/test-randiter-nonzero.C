@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "linbox/util/commentator.h"
-#include "linbox/field/modular.h"
+#include "linbox/ring/modular.h"
 #include "linbox/randiter/modular.h"
 #include "linbox/randiter/nonzero.h"
 

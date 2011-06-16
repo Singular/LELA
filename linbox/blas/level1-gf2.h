@@ -15,7 +15,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/blas/level1-generic.h"
-#include "linbox/field/gf2.h"
+#include "linbox/ring/gf2.h"
 #include "linbox/vector/vector-traits.h"
 
 namespace LinBox

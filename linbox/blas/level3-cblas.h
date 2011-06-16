@@ -19,7 +19,7 @@
 #include <cblas.h>
 
 #include "linbox/blas/context.h"
-#include "linbox/field/unparametric.h"
+#include "linbox/ring/unparametric.h"
 #include "linbox/matrix/matrix-traits.h"
 #include "linbox/matrix/dense.h"
 

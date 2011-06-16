@@ -13,7 +13,7 @@
 
 #include "test-common.h"
 
-#include "linbox/field/gf2.h"
+#include "linbox/ring/gf2.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level1.h"
 #include "linbox/blas/level3.h"

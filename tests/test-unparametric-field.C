@@ -20,7 +20,7 @@
 #include <fstream>
 #include <vector>
 
-#include "linbox/field/unparametric.h"
+#include "linbox/ring/unparametric.h"
 
 #include "test-common.h"
 #include "test-generic.h"

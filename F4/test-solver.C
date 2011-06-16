@@ -12,7 +12,7 @@
 #include <ctime>
 
 #include "linbox/util/commentator.h"
-#include "linbox/field/gf2.h"
+#include "linbox/ring/gf2.h"
 #include "linbox/randiter/mersenne-twister.h"
 
 #include "solver.h"

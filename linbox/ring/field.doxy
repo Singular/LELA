@@ -1,6 +1,6 @@
-/** \defgroup field linbox/field
+/** \defgroup ring linbox/ring
 
-\brief %LinBox fields, field wrappers, field construction tools.
+\brief %LinBox rings, ring-wrappers, ring-construction-tools.
 
 %LinBox fields implement the concept
 which is specified in the field archetype.  

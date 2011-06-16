@@ -1,4 +1,4 @@
-/* linbox/field/archetype.h
+/* linbox/ring/archetype.h
  * Copyright (C) 1999-2005 William J Turner,
  *               2001 Bradford Hovinen
  *
@@ -36,9 +36,9 @@
 #define __LINBOX_field_archetype_H
 
 #include <iostream>
-#include "linbox/field/field-interface.h"
-#include "linbox/field/abstract.h"
-#include "linbox/field/envelope.h"
+#include "linbox/ring/field-interface.h"
+#include "linbox/ring/abstract.h"
+#include "linbox/ring/envelope.h"
 #include "linbox/element/archetype.h"
 #include "linbox/element/abstract.h"
 #include "linbox/element/envelope.h"

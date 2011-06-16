@@ -10,7 +10,7 @@
 #ifndef __BLAS_LEVEL1_MODULAR_H
 #define __BLAS_LEVEL1_MODULAR_H
 
-#include "linbox/field/modular.h"
+#include "linbox/ring/modular.h"
 #include "linbox/blas/context.h"
 
 namespace LinBox

@@ -17,7 +17,7 @@
 #include <fstream>
 #include <vector>
 
-#include "linbox/field/gmp-rational.h"
+#include "linbox/ring/gmp-rational.h"
 
 #include "test-common.h"
 #include "test-generic.h"

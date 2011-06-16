@@ -6,32 +6,32 @@
 
 #include "linbox/linbox-config.h"
 #include "linbox/util/timer.h"
-// #include "linbox/field/givaro-gfq.h"
+// #include "linbox/ring/givaro-gfq.h"
 
 #ifdef __LINBOX_HAVE_NTL
-#include "linbox/field/ntl-lzz_p.h"
-#include "linbox/field/ntl-ZZ.h"
-#include "linbox/field/ntl-ZZ_p.h"
-#include "linbox/field/ntl-pid-lzz_p.h"
-#include "linbox/field/PIR-ntl-ZZ_p.h"
+#include "linbox/ring/ntl-lzz_p.h"
+#include "linbox/ring/ntl-ZZ.h"
+#include "linbox/ring/ntl-ZZ_p.h"
+#include "linbox/ring/ntl-pid-lzz_p.h"
+#include "linbox/ring/PIR-ntl-ZZ_p.h"
 #endif
 
-#include "linbox/field/modular.h"
-#include "linbox/field/modular-int32.h"
-#include "linbox/field/modular-int.h"
-#include "linbox/field/modular-double.h"
-#include "linbox/field/field-traits.h"
+#include "linbox/ring/modular.h"
+#include "linbox/ring/modular-int32.h"
+#include "linbox/ring/modular-int.h"
+#include "linbox/ring/modular-double.h"
+#include "linbox/ring/field-traits.h"
 #include "linbox/vector/stream.h"
 #include "linbox/integer.h"
-#include "linbox/field/PIR-modular-int32.h"
-// #include "linbox/field/gf2.h"
-#include "linbox/field/gmp-rational.h"
-#include "linbox/field/local2_32.h"
-#include "linbox/field/modular-byte.h"
-#include "linbox/field/modular-short.h"
+#include "linbox/ring/PIR-modular-int32.h"
+// #include "linbox/ring/gf2.h"
+#include "linbox/ring/gmp-rational.h"
+#include "linbox/ring/local2_32.h"
+#include "linbox/ring/modular-byte.h"
+#include "linbox/ring/modular-short.h"
 
 #ifdef __LINBOX_HAVE_LIDIA
-#include "linbox/field/lidia.h"
+#include "linbox/ring/lidia.h"
 #endif
 
 #include <iostream>

@@ -24,8 +24,8 @@
 #ifndef __LINBOX_randiter_archetype_H
 #define __LINBOX_randiter_archetype_H
 
-#include "linbox/field/archetype.h"
-#include "linbox/field/abstract.h"
+#include "linbox/ring/archetype.h"
+#include "linbox/ring/abstract.h"
 #include "linbox/element/abstract.h"
 #include "linbox/randiter/abstract.h"
 

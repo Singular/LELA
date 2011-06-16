@@ -1,4 +1,4 @@
-/* linbox/field/unparametric.h
+/* linbox/ring/unparametric.h
  * Copyright (C) 1999-2005 William J Turner,
  *               2001 Bradford Hovinen
  *
@@ -32,8 +32,8 @@
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/randiter/unparametric.h"
-#include "linbox/field/field-interface.h"
-#include "linbox/field/field-traits.h"
+#include "linbox/ring/field-interface.h"
+#include "linbox/ring/field-traits.h"
 #include "linbox/blas/context.h"
 
 namespace LinBox 

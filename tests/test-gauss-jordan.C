@@ -14,8 +14,8 @@
 #include "test-common.h"
 
 #include <linbox/blas/context.h>
-#include <linbox/field/gf2.h>
-#include <linbox/field/modular.h>
+#include <linbox/ring/gf2.h>
+#include <linbox/ring/modular.h>
 #include <linbox/matrix/dense.h>
 #include <linbox/vector/stream.h>
 #include <linbox/algorithms/gauss-jordan.h>

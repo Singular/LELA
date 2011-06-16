@@ -32,8 +32,8 @@
 #include <map>          // STL maps
 #include <algorithm>    // STL algorithms
 
-#include "linbox/field/archetype.h"
-#include "linbox/field/rebind.h"
+#include "linbox/ring/archetype.h"
+#include "linbox/ring/rebind.h"
 #include "linbox/vector/bit-iterator.h"
 
 namespace LinBox

@@ -1,4 +1,4 @@
-/* linbox/field/abstract.h
+/* linbox/ring/abstract.h
  * Copyright (C) 1999-2001 William J Turner,
  *               2001 Bradford Hovinen
  *
@@ -44,7 +44,7 @@ namespace LinBox
 /** \brief field base class.
  *  \ingroup field
  *
- * Found in the file \URL{linbox/field/abstract.h}.
+ * Found in the file \URL{linbox/ring/abstract.h}.
  * Abstract base class used to implement the field archetype to minimize
  * code bloat.  All public member functions of this class are purely
  * virtual and must be implemented by all derived classes.

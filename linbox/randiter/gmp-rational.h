@@ -23,7 +23,7 @@
 #ifndef __LINBOX_randiter_gmp_rational_H
 #define __LINBOX_randiter_gmp_rational_H
 
-#include "linbox/field/gmp-rational.h"
+#include "linbox/ring/gmp-rational.h"
 #include "linbox/element/gmp-rational.h"
 #include "linbox/element/abstract.h"
 #include "linbox/element/envelope.h"

@@ -10,7 +10,7 @@
 #ifndef __BLAS_LEVEL2_MODULAR_H
 #define __BLAS_LEVEL2_MODULAR_H
 
-#include "linbox/field/modular.h"
+#include "linbox/ring/modular.h"
 #include "linbox/blas/context.h"
 #include "linbox/matrix/matrix-traits.h"
 

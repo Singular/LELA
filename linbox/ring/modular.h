@@ -1,4 +1,4 @@
-/* linbox/field/modular.h
+/* linbox/ring/modular.h
  * Copyright (C) 1999-2001 William J Turner,
  *               2001 Bradford Hovinen
  *
@@ -28,11 +28,11 @@
 #include "linbox/integer.h"
 #include "linbox/util/debug.h"
 #include "linbox/blas/context.h"
-#include "linbox/field/field-interface.h"
+#include "linbox/ring/field-interface.h"
 #include "linbox/util/field-axpy.h"
 #include "linbox/vector/vector-traits.h"
 #include "linbox/linbox-config.h"
-#include "linbox/field/field-traits.h"
+#include "linbox/ring/field-traits.h"
 #include "linbox/randiter/nonzero.h"
 
 namespace LinBox 

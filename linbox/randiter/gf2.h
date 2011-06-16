@@ -16,7 +16,7 @@
 
 #include "time.h"
 #include "linbox/integer.h"
-#include "linbox/field/modular.h"
+#include "linbox/ring/modular.h"
 #include "linbox/element/abstract.h"
 #include "linbox/element/envelope.h"
 #include "linbox/util/commentator.h"

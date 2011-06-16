@@ -21,7 +21,7 @@
 
 #include "linbox/blas/context.h"
 #include "linbox/vector/vector-traits.h"
-#include "linbox/field/unparametric.h"
+#include "linbox/ring/unparametric.h"
 
 namespace LinBox
 {

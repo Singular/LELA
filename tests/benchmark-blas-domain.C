@@ -18,7 +18,7 @@
 #include <linbox/integer.h>
 #include <linbox/matrix/dense.h>
 #include <linbox/matrix/blas-matrix.h>
-#include <linbox/field/modular.h>
+#include <linbox/ring/modular.h>
 #include <linbox/randiter/nonzero.h>
 #include <linbox/util/commentator.h>
 #include <linbox/algorithms/blas-domain.h>

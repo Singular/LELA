@@ -6,8 +6,8 @@
  * See COPYING for license information.
  */
 
-#include "linbox/field/gf2.h"
-#include "linbox/field/modular.h"
+#include "linbox/ring/gf2.h"
+#include "linbox/ring/modular.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level1.h"
 #include "linbox/blas/level3.h"

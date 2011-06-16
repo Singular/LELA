@@ -12,7 +12,7 @@
 #ifndef __LINBOX_randiter_nonzero_H
 #define __LINBOX_randiter_nonzero_H
 
-#include "linbox/field/archetype.h"
+#include "linbox/ring/archetype.h"
 #include "linbox/randiter/archetype.h"
 #include "linbox/element/archetype.h"
 #include "linbox/element/abstract.h"

@@ -19,7 +19,7 @@
 #include <m4ri/m4ri.h>
 
 #include "linbox/util/commentator.h"
-#include "linbox/field/gf2.h"
+#include "linbox/ring/gf2.h"
 #include "linbox/solutions/echelon-form.h"
 #include "linbox/matrix/m4ri-matrix.h"
 #include "linbox/blas/level1.h"

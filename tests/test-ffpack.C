@@ -27,8 +27,8 @@
 #include "linbox/linbox-config.h"
 #include <iostream>
 #include <linbox/integer.h>
-//#include "linbox/field/givaro-zpz.h"
-#include "linbox/field/modular.h"
+//#include "linbox/ring/givaro-zpz.h"
+#include "linbox/ring/modular.h"
 #include "linbox/ffpack/ffpack.h"
 #include <vector>
 #include "test-common.h"

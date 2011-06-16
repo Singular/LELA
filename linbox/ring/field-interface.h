@@ -1,4 +1,4 @@
-/* linbox/field/field-interface.h
+/* linbox/ring/field-interface.h
  * Copyright (C) 2002 David Saunders
  *
  * For licensing information see COPYING

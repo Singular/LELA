@@ -12,7 +12,7 @@
 
 #include "linbox/util/commentator.h"
 #include "linbox/blas/context.h"
-#include "linbox/field/modular.h"
+#include "linbox/ring/modular.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
 #include "linbox/vector/stream.h"

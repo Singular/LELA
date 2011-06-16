@@ -32,7 +32,7 @@ AC_TRY_RUN([	#include <iostream>
 		#define __LINBOX_CONFIGURATION
 		#include <linbox/config-blas.h>
 		#include <linbox/linbox-config.h>
-		#include <linbox/field/modular-double.h>
+		#include <linbox/ring/modular-double.h>
 		#include <linbox/fflas/fflas.h>
 		#include <linbox/util/timer.h>
 

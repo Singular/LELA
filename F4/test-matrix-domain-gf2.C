@@ -8,7 +8,7 @@
  * License version 2.0 or greater
  */
 
-#include "linbox/field/gf2.h"
+#include "linbox/ring/gf2.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/dense-zero-one.h"
 #include "linbox/matrix/matrix-domain-gf2.h"

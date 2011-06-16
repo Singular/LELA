@@ -1,4 +1,4 @@
-/* linbox/field/gf2.h
+/* linbox/ring/gf2.h
  * Copyright 2003-2007 The LinBox group
  *
  * Authors : B. Hovinen, JG Dumas, C. Pernet
@@ -19,11 +19,11 @@
 #include "linbox/util/debug.h"
 #include "linbox/blas/context.h"
 #include "linbox/integer.h"
-#include "linbox/field/field-interface.h"
+#include "linbox/ring/field-interface.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/hybrid.h"
 #include "linbox/vector/sparse-subvector-hybrid.h"
-#include "linbox/field/field-traits.h"
+#include "linbox/ring/field-traits.h"
 
 #ifdef __LINBOX_HAVE_M4RI
 #  include "linbox/matrix/m4ri-matrix.h"

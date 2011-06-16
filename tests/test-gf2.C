@@ -21,8 +21,8 @@
 #include <vector>
 #include <queue>
 
-#include "linbox/field/gf2.h"
-#include "linbox/field/modular.h"
+#include "linbox/ring/gf2.h"
+#include "linbox/ring/modular.h"
 #include "linbox/blas/context.h"
 
 #include "test-generic-for-quad.h"

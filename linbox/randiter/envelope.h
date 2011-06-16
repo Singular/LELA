@@ -25,7 +25,7 @@
 #define __LINBOX_randiter_envelope_H
 
 #include <iostream>
-#include "linbox/field/envelope.h"
+#include "linbox/ring/envelope.h"
 #include "linbox/element/envelope.h"
 #include "linbox/randiter/abstract.h"
 

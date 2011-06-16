@@ -1,4 +1,4 @@
-/* linbox/field/gmp-rational.h
+/* linbox/ring/gmp-rational.h
  * Copyright (C) 2001, 2002 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>
@@ -17,11 +17,11 @@
 #include <gmp.h>
 
 #include "linbox/integer.h"
-#include "linbox/field/field-interface.h"
+#include "linbox/ring/field-interface.h"
 #include "linbox/element/gmp-rational.h"
 #include "linbox/linbox-config.h"
 #include "linbox/util/debug.h"
-#include <linbox/field/field-traits.h>
+#include <linbox/ring/field-traits.h>
 
 // Namespace in which all LinBox library code resides
 namespace LinBox

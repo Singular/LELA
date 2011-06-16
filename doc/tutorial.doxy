@@ -110,7 +110,7 @@ must first choose the class (representation type) of field and then instantiate
 your specific field.
 
 \code
-#include <linbox/field/modular.h>
+#include <linbox/ring/modular.h>
 
 
 typedef Modular<short> Field;
@@ -181,7 +181,7 @@ for ( ... )
 
 Putting it all together, we may have a program looking like this.
 \code
-#include <linbox/field/modular.h>
+#include <linbox/ring/modular.h>
 #include <linbox/blackbox/dense.h>
 #include <linbox/solutions/det.h>
 

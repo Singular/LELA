@@ -193,7 +193,7 @@ linbox/blas/Makefile
 linbox/fflas/Makefile
 linbox/ffpack/Makefile
 linbox/element/Makefile
-linbox/field/Makefile
+linbox/ring/Makefile
 linbox/matrix/Makefile
 linbox/randiter/Makefile
 linbox/util/Makefile

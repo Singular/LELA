@@ -22,7 +22,7 @@
 #include "linbox/linbox-config.h"
 
 #include "linbox/util/commentator.h"
-#include "linbox/field/unparametric.h"
+#include "linbox/ring/unparametric.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level1.h"
 #include "linbox/vector/subvector.h"

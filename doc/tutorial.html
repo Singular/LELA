@@ -103,7 +103,7 @@ For the field, you must first choose the class (representation type) of field an
 instantiate your specific field.
 
 <pre>
-#include &lt;linbox/field/modular.h>
+#include &lt;linbox/ring/modular.h>
 
 typedef Modular&lt;short> Field;
 Field F(101);
@@ -111,8 +111,8 @@ Field F(101);
 It is a good idea to use a typedef, making it easy to change representations later.
 The <em>Modular</em> field representations are LinBox's own and contain some useful
 optimizations.  Another possibility is use of NTL's zz_p class.  The linbox wrapper of
-that, called NTL_zz_p is found in <tt>linbox/field/NTL-zz_p.h</tt>.  Or use 
-a Givaro table based representation, <tt>GivaroGFq</tt> in <tt>linbox/field/givaro-gfq.h</tt>.
+that, called NTL_zz_p is found in <tt>linbox/ring/NTL-zz_p.h</tt>.  Or use 
+a Givaro table based representation, <tt>GivaroGFq</tt> in <tt>linbox/ring/givaro-gfq.h</tt>.
 ...and there are many other options.  The program <tt>tests/test-fields.C</tt> will provide some
 timing data on the basic functions of each representation.
 In linbox, a Field class and the class representing the field entries are distinct types.  The 
@@ -163,7 +163,7 @@ for ( ... )
 
 Putting it all together, we may have a program looking like this.
 <pre>
-#include <linbox/field/modular.h>
+#include <linbox/ring/modular.h>
 #include <linbox/blackbox/dense.h>
 #include <linbox/solutions/determinant.h>
 using namespace LinBox;

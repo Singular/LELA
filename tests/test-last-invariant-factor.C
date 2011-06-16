@@ -23,9 +23,9 @@
 /** \file test-last-invariant-factor.C
  */
 
-#include <linbox/field/PID-integer.h>
+#include <linbox/ring/PID-integer.h>
 #include <linbox/randiter/random-prime.h>
-#include <linbox/field/modular-int32.h>
+#include <linbox/ring/modular-int32.h>
 #include <linbox/blackbox/dense.h>
 #include <linbox/algorithms/matrix-rank.h>
 #include <linbox/algorithms/last-invariant-factor.h>
