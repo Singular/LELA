@@ -41,14 +41,14 @@ class GMPRationalRandIter;;
 template <class Ring>
 struct ClassifyRing;
 
-class GMPRationalRing;
+class GMPRationalField;
 
 template<>
-struct ClassifyRing<GMPRationalRing> {
+struct ClassifyRing<GMPRationalField> {
 	typedef RingCategories::RationalTag categoryTag;
 };
 
-class GMPRationalRing : public RingInterface
+class GMPRationalField : public RingInterface
 {
     private:
 
@@ -79,7 +79,7 @@ class GMPRationalRing : public RingInterface
 	 * construct multiple ring objects
 	 */
 
-	GMPRationalRing (const GMPRationalRing &) 
+	GMPRationalField (const GMPRationalField &) 
 		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 		{}
 
@@ -87,13 +87,13 @@ class GMPRationalRing : public RingInterface
 	 * 
 	 * Also vacuous, since there is no de-initialization system
 	 */
-	~GMPRationalRing (void) {}
+	~GMPRationalField (void) {}
     
 	/** Assignment operator.
 	 * 
 	 * Also vacuous
 	 */
-	GMPRationalRing &operator= (const GMPRationalRing &)
+	GMPRationalField &operator= (const GMPRationalField &)
 		{ return *this; }
     
 	/** Initialization of ring element from an integer.
@@ -647,7 +647,7 @@ class GMPRationalRing : public RingInterface
 
 	//@} Common Object Interface
 
-	GMPRationalRing (int p = 0, int exp = 1)
+	GMPRationalField (int p = 0, int exp = 1)
 		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 	{
 		if (p != 0)
@@ -697,7 +697,7 @@ private:
 
 	Element _zero, _one, _minus_one;
 
-}; // class GMPRationalRing
+}; // class GMPRationalField
 
 } // namespace LinBox
 

@@ -37,10 +37,10 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start("GMP rational ring test suite", "GMPRationalRing");
+	commentator.start("GMP rational ring test suite", "GMPRationalField");
 	bool pass = true;
 
-	GMPRationalRing F;
+	GMPRationalField F;
 
 	// Make sure some more detailed messages get printed
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);

@@ -41,7 +41,7 @@ class GMPRationalRandIter
     
 	typedef GMPRationalElement Element;
     
-	GMPRationalRandIter (const GMPRationalRing &F,
+	GMPRationalRandIter (const GMPRationalField &F,
 			     const integer &size = 0,
 			     const integer &seed = 0)
 		: _F (F), _size (size), _seed (seed)
@@ -140,12 +140,12 @@ class GMPRationalRandIter
 		Element tmp;
 
 		random (tmp);
-		return (a = ElementEnvelope <GMPRationalRing> (tmp));
+		return (a = ElementEnvelope <GMPRationalField> (tmp));
 	}
 
     private:
 
-	GMPRationalRing _F;
+	GMPRationalField _F;
 
 	integer _size;
 	integer _seed;

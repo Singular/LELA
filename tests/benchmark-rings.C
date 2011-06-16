@@ -334,7 +334,7 @@ int main(int argc, char** argv) {
     doTest< LidiaGfq >( "LidiaGfq", prime, exp, iterations, fulltest );
 #endif
 //	doTest< GF2 >( "GF2", prime, exp, iterations, fulltest );
-    doTest< GMPRationalRing >( "GMPRationalRing", prime, exp, iterations, fulltest ); 
+    doTest< GMPRationalField >( "GMPRationalField", prime, exp, iterations, fulltest ); 
 	//if (prime == 2)
     	doTest< PIRModular<int32> >( "PIRModular<int32>", prime, exp, iterations, fulltest );
     doTest< Local2_32 >( "Local2_32", prime, exp, iterations, fulltest );

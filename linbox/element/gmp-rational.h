@@ -30,7 +30,7 @@ namespace LinBox
 {
 
 // Forward declarations
-class GMPRationalRing;
+class GMPRationalField;
 class GMPRationalRandIter;
 
 /** \brief elements of GMP_Rationals.
@@ -142,7 +142,7 @@ class GMPRationalElement
     
     private:
 
-	friend class GMPRationalRing;
+	friend class GMPRationalField;
 	friend class GMPRationalRandIter;
 
 	/** @name Implementation-Specific Data.
