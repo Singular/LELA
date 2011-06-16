@@ -86,7 +86,7 @@ tests/test-charpoly
 tests/test-givaro-zpz
 tests/test-givaro-zpzuns
 tests/test-optimization
-tests/test-unparametric-field
+tests/test-unparametric-ring
 tests/test-hybrid-vector
 tests/test-bit-subvector
 tests/test-gauss-jordan

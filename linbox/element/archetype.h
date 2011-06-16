@@ -30,10 +30,10 @@ namespace LinBox
 {
 
 // Forward declarations
-class FieldArchetype;
+class RingArchetype;
 class RandIterArchetype;
 
-/** @brief Field and Ring element interface specification and archetypical instance class.
+/** @brief Ring and Ring element interface specification and archetypical instance class.
     \ingroup element
 
     * Element classes must contain public default constructor, copy constructor,
@@ -51,33 +51,33 @@ class ElementArchetype
 {
 public:
 
-	/** @name Common Object Interface for LinBox Field elements.
+	/** @name Common Object Interface for LinBox Ring elements.
 	 * These methods are required of all \ref{LinBox} 
-	 * {@link Fields field} elements.
+	 * {@link Rings ring} elements.
 	 */
 	//@{
 
 	/** Default constructor.
 	 * This constructor is required to allow 
-	 * {@link Fields field} elements to be primitive C++ types.
-	 * Because constructor does not know what {@link Fields field} 
+	 * {@link Rings ring} elements to be primitive C++ types.
+	 * Because constructor does not know what {@link Rings ring} 
 	 * the element belongs to, it cannot actually construct the element.
 	 * In this implementation, the constructor it sets {\tt \_elem\_ptr}
 	 * to the null pointer.  Initialization of the element is done through
-	 * the field function init where the field is known.
+	 * the ring function init where the ring is known.
 	 */
 	ElementArchetype (void) { _elem_ptr = 0; }
 
 	/** Copy constructor.
 	 * This constructor is required to allow 
-	 * {@link Fields field} elements to be primitive C++ types, 
-	 * and to allow field elements to be passed by value into 
+	 * {@link Rings ring} elements to be primitive C++ types, 
+	 * and to allow ring elements to be passed by value into 
 	 * functions.
-	 * Constructs {@link Fields field} element by copying the 
-	 * {@link Fields field} element.
+	 * Constructs {@link Rings ring} element by copying the 
+	 * {@link Rings ring} element.
 	 * In this implementation, this means copying the element to
 	 * which {\tt a.\_elem\_ptr} points.
-	 * @param  a field element.
+	 * @param  a ring element.
 	 */
 	ElementArchetype (const ElementArchetype &a) 
 	{ 
@@ -88,7 +88,7 @@ public:
 	}
 
 	/** Destructor.
-	 * In this implementation, this destroys element by deleting field 
+	 * In this implementation, this destroys element by deleting ring 
 	 * element to which {\tt \_elem\_ptr} points.
 	 */
 	~ElementArchetype ()
@@ -97,8 +97,8 @@ public:
 	/** Assignment operator.
 	 * Assigns element a to element.  
 	 * In this implementation, this is done 
-	 * by copying field element to which {\tt \_elem\_ptr} points.
-	 * @param  a field element.
+	 * by copying ring element to which {\tt \_elem\_ptr} points.
+	 * @param  a ring element.
 	 */
 	ElementArchetype &operator=(const ElementArchetype &a)
 	{
@@ -113,13 +113,13 @@ public:
 	//@} Common Object Interface
 
 	/** @name Implementation-Specific Methods.
-	 * These methods are not required of all LinBox field elements
+	 * These methods are not required of all LinBox ring elements
 	 * and are included only for this implementation of the archetype.
 	 */
 	//@{
 
 	/** Constructor.
-	 * Constructs field element from pointer to \ref{ElementAbstract}
+	 * Constructs ring element from pointer to \ref{ElementAbstract}
 	 * Not part of the interface.
 	 * Creates new copy of element object in dynamic memory.
 	 * @param  elem\_ptr  pointer to \ref{ElementAbstract}
@@ -132,17 +132,16 @@ public:
 private:
 
 	friend class RingArchetype;
-	friend class FieldArchetype;
 	friend class RandIterArchetype;
     
 	/** @name Implementation-Specific Data.
-	 * This data is not required of all LinBox field elements
+	 * This data is not required of all LinBox ring elements
 	 * and is included only for this implementation of the archetype.
 	 */
 	//@{
     
-	/** Pointer to parameterized field element.
-	 * Not part of the common object interface for \ref{LinBox} field elements.
+	/** Pointer to parameterized ring element.
+	 * Not part of the common object interface for \ref{LinBox} ring elements.
 	 * Included to avoid code bloat.
 	 */
 	mutable ElementAbstract *_elem_ptr;

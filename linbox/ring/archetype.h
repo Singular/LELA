@@ -32,11 +32,11 @@
  */
 
 
-#ifndef __LINBOX_field_archetype_H
-#define __LINBOX_field_archetype_H
+#ifndef __LINBOX_ring_archetype_H
+#define __LINBOX_ring_archetype_H
 
 #include <iostream>
-#include "linbox/ring/field-interface.h"
+#include "linbox/ring/ring-interface.h"
 #include "linbox/ring/abstract.h"
 #include "linbox/ring/envelope.h"
 #include "linbox/element/archetype.h"
@@ -54,35 +54,35 @@ namespace LinBox
 // Forward declarations
 class RandIterArchetype;
 
-/** \brief field specification and archetypical instance.
-    \ingroup field
+/** \brief ring specification and archetypical instance.
+    \ingroup ring
     *
-    * The %FieldArchetype and its encapsulated
-    * element class contain pointers to the \ref FieldAbstract 
-    * and its encapsulated field element, respectively.
-    * %FieldAbstract  then uses virtual member functions to
-    * define operations on its encapsulated field element.  This field 
-    * element has no knowledge of the field properties being used on it 
-    * which means the field object must supply these operations.
+    * The %RingArchetype and its encapsulated
+    * element class contain pointers to the \ref RingAbstract 
+    * and its encapsulated ring element, respectively.
+    * %RingAbstract  then uses virtual member functions to
+    * define operations on its encapsulated ring element.  This ring 
+    * element has no knowledge of the ring properties being used on it 
+    * which means the ring object must supply these operations.
     *
     * It does not contain elements zero and one because they can be created 
     * whenever necessary, although it might be beneficial from an efficiency
     * stand point to include them.  However, because of archetype use three,
     * the elements themselves cannot be contained, but rather pointers to them.
     */
-class FieldArchetype : public FieldInterface
+class RingArchetype : public RingInterface
 {
 public:
 
-	/** @name Common Object Interface for a LinBox Field.
-	 * These methods are required of all \ref{LinBox} fields.
+	/** @name Common Object Interface for a LinBox Ring.
+	 * These methods are required of all \ref{LinBox} rings.
 	 */
 	//@{
     
-	/// the type in which field elements are represented.
+	/// the type in which ring elements are represented.
 	typedef ElementArchetype Element;
 
-	/// An object of this type is a generator of random field elements.
+	/// An object of this type is a generator of random ring elements.
 	typedef RandIterArchetype RandIter;
     
 	/// @name Object Management
@@ -90,56 +90,56 @@ public:
     
 	/** \brief Copy constructor.
 	 *
-	 * Each field class is expected to provide a copy constructor.
-	 * This is required to allow field objects to be passed by value into functions.
+	 * Each ring class is expected to provide a copy constructor.
+	 * This is required to allow ring objects to be passed by value into functions.
 	 *
 	 * In this archetype implementation, this means copying the
-	 * field to which <tt> F._field_ptr</tt> points, the
+	 * ring to which <tt> F._ring_ptr</tt> points, the
 	 * element to which <tt> F._elem_ptr</tt> points, and the
 	 * random element generator to which
 	 * <tt> F._randIter_ptr</tt> points.
 	 */
-	FieldArchetype (const FieldArchetype &F) 
+	RingArchetype (const RingArchetype &F) 
 	{ 
-		if (F._field_ptr != 0) _field_ptr = F._field_ptr->clone (); 
+		if (F._ring_ptr != 0) _ring_ptr = F._ring_ptr->clone (); 
 		if (F._elem_ptr != 0) _elem_ptr = F._elem_ptr->clone ();
 		if (F._randIter_ptr != 0) _randIter_ptr = F._randIter_ptr->clone ();
 	}
 
 	/** \brief Destructor.
 	 *
-	 * This destroys the field object, but it does not
-	 * destroy any field element objects.  
+	 * This destroys the ring object, but it does not
+	 * destroy any ring element objects.  
 	 *
 	 * In this archetype implementation, destruction is deletion of
-	 * the field object to which <tt> _field_ptr</tt>
-	 * points, the field element to which <tt>
+	 * the ring object to which <tt> _ring_ptr</tt>
+	 * points, the ring element to which <tt>
 	 * _elem_ptr</tt> points, and the random element
 	 * generator to which <tt> _randIter_ptr</tt> points.
 	 */
-	~FieldArchetype (void) 
+	~RingArchetype (void) 
 	{
-		if (_field_ptr != 0) delete _field_ptr;
+		if (_ring_ptr != 0) delete _ring_ptr;
 		if (_elem_ptr != 0) delete _elem_ptr; 
 		if (_randIter_ptr != 0) delete _randIter_ptr;
 	}
     
 	/** \brief Assignment operator.
 	 *
-	 * In this archetype implementation, this means copying the field
-	 * to which <tt> F._field_ptr</tt> points, the element to which
+	 * In this archetype implementation, this means copying the ring
+	 * to which <tt> F._ring_ptr</tt> points, the element to which
 	 * <tt> F._elem_ptr</tt> points, and the random element
 	 * generator to which <tt> F._randIter_ptr</tt> points.
 	 *
-	 * @param F <tt> FieldArchetype</tt> object.
+	 * @param F <tt> RingArchetype</tt> object.
 	 */
-	FieldArchetype &operator=(const FieldArchetype &F)
+	RingArchetype &operator=(const RingArchetype &F)
 	{
 		if (this != &F) { // guard against self-assignment
-			if (_field_ptr != 0) delete _field_ptr;
+			if (_ring_ptr != 0) delete _ring_ptr;
 			if (_elem_ptr != 0) delete _elem_ptr;
 			if (_randIter_ptr != 0) delete _randIter_ptr;
-			if (F._field_ptr != 0) _field_ptr = F._field_ptr->clone (); 
+			if (F._ring_ptr != 0) _ring_ptr = F._ring_ptr->clone (); 
 			if (F._elem_ptr != 0) _elem_ptr = F._elem_ptr->clone ();
 			if (F._randIter_ptr != 0) _randIter_ptr = F._randIter_ptr->clone ();
 		}
@@ -147,50 +147,50 @@ public:
 		return *this;
 	}
     
-	/** \brief Initialization of field element from an integer.
+	/** \brief Initialization of ring element from an integer.
 	 *
 	 * x becomes the image of n under the natural map from the integers
-	 * to the prime subfield.  It is the result obtained from adding n 1's 
-	 * in the field.
+	 * to the prime subring.  It is the result obtained from adding n 1's 
+	 * in the ring.
 
-	 * This function assumes the output field element x
+	 * This function assumes the output ring element x
 	 * has already been constructed, but that it is not
 	 * necessarily already initialized. In this
 	 * archetype implementation, this means the <tt> _elem_ptr</tt> of
 	 * x exists, but that it may be the null pointer.
 	 *
 	 * @return reference to x.
-	 * @param x output field element.
+	 * @param x output ring element.
 	 * @param n input integer.
 	 */
 	Element &init (Element &x, const integer &n = 0 ) const
 	{
 		if (x._elem_ptr != 0) delete x._elem_ptr;
 		x._elem_ptr = _elem_ptr->clone ();
-		_field_ptr->init (*x._elem_ptr, n);
+		_ring_ptr->init (*x._elem_ptr, n);
 		return x;
 	}
   
-	/** \brief Conversion of field element to an integer.
+	/** \brief Conversion of ring element to an integer.
 	 *
-	 The meaning of conversion is specific to each field class.
-	 However, if x is in the prime subfield, the integer n returned is such 
+	 The meaning of conversion is specific to each ring class.
+	 However, if x is in the prime subring, the integer n returned is such 
 	 that an init from n will reproduce x.  Most often, 0 &leq; n &lt; characteristic.
 
 	 *
 	 * @return reference to n.
 	 * @param n output integer.
-	 * @param x input field element.
+	 * @param x input ring element.
 	 */
 	integer &convert (integer &n, const Element &y = 0) const
 	{
-		_field_ptr->convert (n, *y._elem_ptr);
+		_ring_ptr->convert (n, *y._elem_ptr);
 		return n;
 	}
     
-	/** \brief  Assignment of one field element to another.
+	/** \brief  Assignment of one ring element to another.
 	 *
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this archetype implementation, this means for both x and
@@ -198,50 +198,50 @@ public:
 	 * null.
 	 *
 	 * @return reference to x
-	 * @param  x destination field element.
-	 * @param  y source field element.
+	 * @param  x destination ring element.
+	 * @param  y source ring element.
 	 */
 	Element &assign (Element &x, const Element &y) const
 	{
 		if (x._elem_ptr == 0) 
 			x._elem_ptr = _elem_ptr->clone ();
 
-		_field_ptr->assign (*x._elem_ptr, *y._elem_ptr);
+		_ring_ptr->assign (*x._elem_ptr, *y._elem_ptr);
 		return x;
 	}
     
 	/** \brief Cardinality.
 	 *
-	 * Return c, integer representing cardinality of the field.
-	 * c becomes a non-negative integer for all fields with finite
-	 * cardinality, and -1 to signify a field of infinite cardinality.
+	 * Return c, integer representing cardinality of the ring.
+	 * c becomes a non-negative integer for all rings with finite
+	 * cardinality, and -1 to signify a ring of infinite cardinality.
 	 */
 	integer &cardinality (integer &c) const 
-		{ return _field_ptr->cardinality (c); }
+		{ return _ring_ptr->cardinality (c); }
     
 	/** \brief Characteristic.
 	 *
-	 * Return c, integer representing characteristic of the field
-	 * (the least positive n such that the sum of n copies of x is 0 for all field elements x).
-	 * c becomes a positive integer for all fields with finite characteristic,
-	 * and 0 to signify a field of infinite characteristic.
+	 * Return c, integer representing characteristic of the ring
+	 * (the least positive n such that the sum of n copies of x is 0 for all ring elements x).
+	 * c becomes a positive integer for all rings with finite characteristic,
+	 * and 0 to signify a ring of infinite characteristic.
 	 */
 	integer &characteristic (integer &c) const
-		{ return _field_ptr->characteristic (c); }
+		{ return _ring_ptr->characteristic (c); }
     
 	//@} Object Management
     
 	/** @name Arithmetic Operations 
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field elements will
+	 * before the operation is called.  Uninitialized ring elements will
 	 * give undefined results.
 	 */
 	//@{
     
 	/** \brief Equality of two elements.
 	 *
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for both x and
@@ -249,15 +249,15 @@ public:
 	 * null.
 	 *
 	 * @return boolean true if equal, false if not.
-	 * @param  x field element
-	 * @param  y field element
+	 * @param  x ring element
+	 * @param  y ring element
 	 */
 	bool areEqual (const Element &x, const Element &y) const
-		{ return _field_ptr->areEqual (*x._elem_ptr, *y._elem_ptr); }
+		{ return _ring_ptr->areEqual (*x._elem_ptr, *y._elem_ptr); }
     
 	/** \brief Addition, x <-- y + z.
 	 *
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for x, y, and z, 
@@ -267,13 +267,13 @@ public:
 	 */
 	Element &add (Element &x, const Element &y, const Element &z) const
 	{
-		_field_ptr->add (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
+		_ring_ptr->add (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
 		return x;
 	}
     
 	/** \brief Subtraction, x <-- y - z.
 	 *
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for x, y, and z,
@@ -284,13 +284,13 @@ public:
 	 */
 	Element &sub (Element &x, const Element &y, const Element &z) const
 	{
-		_field_ptr->sub (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
+		_ring_ptr->sub (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
 		return x;
 	}
     
 	/** \brief Multiplication, x <-- y * z.
 	 *
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for x, y, and z,
@@ -301,13 +301,13 @@ public:
 	 */
 	Element &mul (Element &x, const Element &y, const Element &z) const
 	{
-		_field_ptr->mul (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
+		_ring_ptr->mul (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
 		return x;
 	}
     
 	/** Division, x <-- y / z.
 	 *
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for x, y, and z,
@@ -318,13 +318,13 @@ public:
 	 */
 	Element &div (Element &x, const Element &y, const Element &z) const
 	{
-		_field_ptr->div (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
+		_ring_ptr->div (*x._elem_ptr, *y._elem_ptr, *z._elem_ptr);
 		return x;
 	}
     
 	/** \brief Additive Inverse (Negation), x <-- - y.
 	 *
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for both x and y
@@ -335,14 +335,14 @@ public:
 	 */
 	Element &neg (Element &x, const Element &y) const
 	{
-		_field_ptr->neg (*x._elem_ptr, *y._elem_ptr);
+		_ring_ptr->neg (*x._elem_ptr, *y._elem_ptr);
 		return x;
 	}
     
 	/** \brief Multiplicative Inverse, x <-- 1 / y.
 	 *
-	 * Requires that y is a unit (i.e. nonzero in a field).
-	 * This function assumes both field elements have already been 
+	 * Requires that y is a unit (i.e. nonzero in a ring).
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for both x and y
@@ -353,14 +353,14 @@ public:
 	 */
 	Element &inv (Element &x, const Element &y) const
 	{
-		_field_ptr->inv (*x._elem_ptr, *y._elem_ptr);
+		_ring_ptr->inv (*x._elem_ptr, *y._elem_ptr);
 		return x;
 	}
     
     
-	/** \brief Field element AXPY, r  <-- a * x + y.
+	/** \brief Ring element AXPY, r  <-- a * x + y.
 	 *
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * @return reference to r.
 	 */
@@ -369,7 +369,7 @@ public:
 		       const Element &x, 
 		       const Element &y) const
 	{
-		_field_ptr->axpy (*r._elem_ptr, *a._elem_ptr, *x._elem_ptr,  *y._elem_ptr);
+		_ring_ptr->axpy (*r._elem_ptr, *a._elem_ptr, *x._elem_ptr,  *y._elem_ptr);
 		return r;
 	}
 
@@ -379,63 +379,63 @@ public:
 	 */
 	//@{
 	/** Zero equality.
-	 * Test if field element is equal to zero.
-	 * This function assumes the field element has already been 
+	 * Test if ring element is equal to zero.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means the <tt>_elem_ptr</tt> 
 	 * of x exists and does not point to null.
 	 *
 	 * @return boolean true if equals zero, false if not.
-	 * @param  x field element.
+	 * @param  x ring element.
 	 */
 	bool isZero (const Element &x) const 
-		{ return _field_ptr->isZero (*x._elem_ptr); }
+		{ return _ring_ptr->isZero (*x._elem_ptr); }
     
 	/** One equality.
-	 * Test if field element is equal to one.
-	 * This function assumes the field element has already been 
+	 * Test if ring element is equal to one.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means the <tt> _elem_ptr</tt> 
 	 *of x exists and does not point to null.
 	 *
 	 * @return boolean true if equals one, false if not.
-	 * @param  x field element.
+	 * @param  x ring element.
 	 */
 	bool isOne (const Element &x) const 
-		{ return _field_ptr->isOne (*x._elem_ptr); }
+		{ return _ring_ptr->isOne (*x._elem_ptr); }
 	//@}
 
 	/** @name Inplace Arithmetic Operations 
 	 * x <- x op y; x <- op x
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field elements will
+	 * before the operation is called.  Uninitialized ring elements will
 	 * give undefined results.
 	 */
 	//@{
     
 	/** Inplace Addition.
 	 * x += y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for both x and y
 	 * <tt> _elem_ptr</tt> exists and does not point to null.
 	 *
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &addin (Element &x, const Element &y) const
 	{
-		_field_ptr->addin (*x._elem_ptr, *y._elem_ptr);
+		_ring_ptr->addin (*x._elem_ptr, *y._elem_ptr);
 		return x;
 	}
     
 	/** Inplace Subtraction.
 	 * x -= y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for both x and y
@@ -443,18 +443,18 @@ public:
 	 * null.
 	 *
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &subin (Element &x, const Element &y) const
 	{
-		_field_ptr->subin (*x._elem_ptr, *y._elem_ptr);
+		_ring_ptr->subin (*x._elem_ptr, *y._elem_ptr);
 		return x;
 	}
  
 	/** Inplace Multiplication.
 	 * x *= y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for both x and y
@@ -462,18 +462,18 @@ public:
 	 * null.
 	 *
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &mulin (Element &x, const Element &y) const
 	{
-		_field_ptr->mulin (*x._elem_ptr, *y._elem_ptr);
+		_ring_ptr->mulin (*x._elem_ptr, *y._elem_ptr);
 		return x;
 	}
    
 	/** Inplace Division.
 	 * x /= y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for both x and y
@@ -481,18 +481,18 @@ public:
 	 * null.
 	 *
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &divin (Element &x, const Element &y) const
 	{
-		_field_ptr->divin (*x._elem_ptr, *y._elem_ptr);
+		_ring_ptr->divin (*x._elem_ptr, *y._elem_ptr);
 		return x;
 	}
     
 	/** Inplace Additive Inverse (Inplace Negation).
 	 * x = - x
-	 * This function assumes the field element has already been 
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means the <tt>
@@ -500,17 +500,17 @@ public:
 	 * null.
 	 *
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
+	 * @param  x ring element (reference returned).
 	 */
 	Element &negin (Element &x) const
 	{
-		_field_ptr->negin (*x._elem_ptr);
+		_ring_ptr->negin (*x._elem_ptr);
 		return x;
 	}
     
 	/** Inplace Multiplicative Inverse.
 	 * x = 1 / x
-	 * This function assumes the field elementhas already been 
+	 * This function assumes the ring elementhas already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means the <tt>
@@ -518,26 +518,26 @@ public:
 	 * null.
 	 *
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
+	 * @param  x ring element (reference returned).
 	 */
 	Element &invin (Element &x) const
 	{
-		_field_ptr->invin (*x._elem_ptr);
+		_ring_ptr->invin (*x._elem_ptr);
 		return x;
 	}
     
 	/** Inplace AXPY.
 	 * r  += a * x
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
 	 */
 	Element &axpyin (Element &r, const Element &a, const Element &x) const
 	{
-		_field_ptr->axpyin (*r._elem_ptr, *a._elem_ptr, *x._elem_ptr);
+		_ring_ptr->axpyin (*r._elem_ptr, *a._elem_ptr, *x._elem_ptr);
 		return r;
 	}
 
@@ -546,104 +546,104 @@ public:
 	/** @name Input/Output Operations */
 	//@{
     
-	/** Print field.
-	 * @return output stream to which field is written.
-	 * @param  os  output stream to which field is written.
+	/** Print ring.
+	 * @return output stream to which ring is written.
+	 * @param  os  output stream to which ring is written.
 	 */
 	std::ostream &write (std::ostream &os) const
-		{ return _field_ptr->write (os); }
+		{ return _ring_ptr->write (os); }
     
-	/** Read field.
-	 * @return input stream from which field is read.
-	 * @param  is  input stream from which field is read.
+	/** Read ring.
+	 * @return input stream from which ring is read.
+	 * @param  is  input stream from which ring is read.
 	 */
 	std::istream &read (std::istream &is)
-		{ return _field_ptr->read (is); }
+		{ return _ring_ptr->read (is); }
     
-	/** Print field element.
-	 * This function assumes the field element has already been 
+	/** Print ring element.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for the <tt>
 	 * _elem_ptr</tt> for x exists and does not point to
 	 * null.
 	 *
-	 * @return output stream to which field element is written.
-	 * @param  os  output stream to which field element is written.
-	 * @param  x   field element.
+	 * @return output stream to which ring element is written.
+	 * @param  os  output stream to which ring element is written.
+	 * @param  x   ring element.
 	 */
 	std::ostream &write (std::ostream &os, const Element &x) const 
-		{ return _field_ptr->write (os, *x._elem_ptr); }
+		{ return _ring_ptr->write (os, *x._elem_ptr); }
     
-	/** Read field element.
-	 * This function assumes the field element has already been 
+	/** Read ring element.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 *
 	 * In this implementation, this means for the <tt>
 	 * _elem_ptr</tt> for x exists and does not point to
 	 * null.
 	 *
-	 * @return input stream from which field element is read.
-	 * @param  is  input stream from which field element is read.
-	 * @param  x   field element.
+	 * @return input stream from which ring element is read.
+	 * @param  is  input stream from which ring element is read.
+	 * @param  x   ring element.
 	 */
 	std::istream &read (std::istream &is, Element &x) const
-		{ return _field_ptr->read (is, *x._elem_ptr); }
+		{ return _ring_ptr->read (is, *x._elem_ptr); }
     
 	//@} Input/Output Operations
 	/** @name Standard elements
 	 */
 	//@{
 	
-	/// Return a reference to the zero-element of the field
+	/// Return a reference to the zero-element of the ring
 	const Element &zero () const;
 
-	/// Return a reference to the one-element of the field
+	/// Return a reference to the one-element of the ring
 	const Element &one () const;
 
-	/// Return a reference to the negative of the one-element of the field
+	/// Return a reference to the negative of the one-element of the ring
 	const Element &minusOne () const;
 
 	//@}
 	//@} Common Object Interface
     
 	/** @name Implementation-Specific Methods.
-	 * These methods are not required of all \ref{LinBox Fields}
+	 * These methods are not required of all \ref{LinBox Rings}
 	 * and are included only for this implementation of the archetype.
 	 */
 	//@{
 
 	/** Constructor.
-	 * Constructs field from pointer to \ref{FieldAbstract} and its
+	 * Constructs ring from pointer to \ref{RingAbstract} and its
 	 * encapsulated element and random element generator.
 	 * Not part of the interface.
-	 * Creates new copies of field, element, and random iterator generator
+	 * Creates new copies of ring, element, and random iterator generator
 	 * objects in dynamic memory.
-	 * @param  field_ptr pointer to \ref{FieldAbstract}.
+	 * @param  ring_ptr pointer to \ref{RingAbstract}.
 	 * @param  elem_ptr  pointer to \ref{ElementAbstract}, which is the
-	 *                    encapsulated element of \ref{FieldAbstract}.
+	 *                    encapsulated element of \ref{RingAbstract}.
 	 * @param  randIter_ptr  pointer to \ref{RandIterAbstract}, which is the
 	 *                        encapsulated random iterator generator
-	 *                        of \ref{FieldAbstract}.
+	 *                        of \ref{RingAbstract}.
 	 */
-	FieldArchetype (FieldAbstract    *field_ptr,
+	RingArchetype (RingAbstract    *ring_ptr,
 			ElementAbstract  *elem_ptr,
 			RandIterAbstract *randIter_ptr = 0)
-		: _field_ptr (field_ptr->clone ()), 
+		: _ring_ptr (ring_ptr->clone ()), 
 		  _elem_ptr (elem_ptr->clone ())
 		{ if (randIter_ptr != 0) _randIter_ptr = randIter_ptr->clone (); }
 
     
 	/** Constructor.
-	 * Constructs field from ANYTHING matching the interface
-	 * using the enveloppe as a \ref{FieldAbstract} and its
+	 * Constructs ring from ANYTHING matching the interface
+	 * using the enveloppe as a \ref{RingAbstract} and its
 	 * encapsulated element and random element generator if needed.
-	 * @param  field_ptr pointer to field matching the interface
+	 * @param  ring_ptr pointer to ring matching the interface
 	 * @param  elem_ptr  pointer to element matching the interface
 	 * @param  randIter_ptr  pointer to random matching the interface
 	 */
-	template<class Field_qcq>
-	FieldArchetype (Field_qcq *f)
+	template<class Ring_qcq>
+	RingArchetype (Ring_qcq *f)
 		{ constructor (f, f); }
 	
 	//@} Implementation-Specific Methods
@@ -653,11 +653,11 @@ protected:
 	friend class ElementArchetype;
 	friend class RandIterArchetype;
     
-	/** Pointer to FieldAbstract object.
+	/** Pointer to RingAbstract object.
 	 * Not part of the interface.
 	 * Included to allow for archetype use three.
 	 */
-	mutable FieldAbstract *_field_ptr;
+	mutable RingAbstract *_ring_ptr;
     
 	/** Pointer to ElementAbstract object.
 	 * Not part of the interface.
@@ -672,50 +672,50 @@ protected:
 	mutable RandIterAbstract *_randIter_ptr;
 
 	/** Template method for constructing archetype from a derived class of 
-	 * FieldAbstract.
+	 * RingAbstract.
 	 * This class is needed to help the constructor differentiate between 
-	 * classes derived from FieldAbstract and classes that aren't.
+	 * classes derived from RingAbstract and classes that aren't.
 	 * Should be called with the same argument to both parameters?
-	 * @param	trait	pointer to FieldAbstract or class derived from it
-	 * @param	field_ptr	pointer to class derived from FieldAbstract
+	 * @param	trait	pointer to RingAbstract or class derived from it
+	 * @param	ring_ptr	pointer to class derived from RingAbstract
 	 */
-	template<class Field_qcq>
-	void constructor (FieldAbstract *trait, 
-			  Field_qcq      *field_ptr)
+	template<class Ring_qcq>
+	void constructor (RingAbstract *trait, 
+			  Ring_qcq      *ring_ptr)
 	{
-		_field_ptr    = field_ptr->clone ();
-		_elem_ptr     = static_cast<ElementAbstract*>  (new typename Field_qcq::Element ());
-		_randIter_ptr = static_cast<RandIterAbstract*> (new typename Field_qcq::RandIter (*field_ptr));
+		_ring_ptr    = ring_ptr->clone ();
+		_elem_ptr     = static_cast<ElementAbstract*>  (new typename Ring_qcq::Element ());
+		_randIter_ptr = static_cast<RandIterAbstract*> (new typename Ring_qcq::RandIter (*ring_ptr));
 	}
 	 
 	/** Template method for constructing archetype from a class not derived 
-	 * from FieldAbstract.
+	 * from RingAbstract.
 	 * This class is needed to help the constructor differentiate between 
-	 * classes derived from FieldAbstract and classes that aren't.
+	 * classes derived from RingAbstract and classes that aren't.
 	 * Should be called with the same argument to both parameters?
-	 * @param	trait	pointer to class not derived from FieldAbstract
-	 * @param	field_ptr	pointer to class not derived from FieldAbstract
+	 * @param	trait	pointer to class not derived from RingAbstract
+	 * @param	ring_ptr	pointer to class not derived from RingAbstract
 	 */
-	template<class Field_qcq>
+	template<class Ring_qcq>
 		void constructor (void      *trait, 
-				  Field_qcq *field_ptr)
+				  Ring_qcq *ring_ptr)
 	{
-		FieldEnvelope< Field_qcq > EnvF (*field_ptr);
-		constructor (static_cast<FieldAbstract*> (&EnvF), &EnvF) ;
+		RingEnvelope< Ring_qcq > EnvF (*ring_ptr);
+		constructor (static_cast<RingAbstract*> (&EnvF), &EnvF) ;
 	}
 
 
 	/** Only authorize inhertied classes to use the empty constructor
 	 **/
-	FieldArchetype() {}
+	RingArchetype() {}
 
-}; // class FieldArchetype
+}; // class RingArchetype
   
 } // namespace LinBox
 
 #include "linbox/randiter/archetype.h"
 
-#endif // __LINBOX_field_archetype_H
+#endif // __LINBOX_ring_archetype_H
 
 // Local Variables:
 // mode: C++

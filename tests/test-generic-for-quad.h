@@ -20,7 +20,6 @@
 
 #include "linbox/util/timer.h"
 #include "linbox/util/commentator.h"
-#include "linbox/util/field-axpy.h"
 #include "linbox/vector/stream.h"
 #include "linbox/integer.h"
 

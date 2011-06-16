@@ -30,7 +30,7 @@ namespace LinBox
 {
 
 // Forward declarations
-class GMPRationalField;
+class GMPRationalRing;
 class GMPRationalRandIter;
 
 /** \brief elements of GMP_Rationals.
@@ -40,39 +40,39 @@ class GMPRationalElement
 {
     public:
 
-	/** @name Common Object Interface for LinBox Field elements.
+	/** @name Common Object Interface for LinBox Ring elements.
 	 * These methods are required of all \ref{LinBox} 
-	 * {@link Fields field} elements.
+	 * {@link Rings ring} elements.
 	 */
 	//@{
 
 	/** Default constructor.
 	 * This constructor is required to allow 
-	 * {@link Fields field} elements to be primitive C++ types.
-	 * Because constructor does not know what {@link Fields field} 
+	 * {@link Rings ring} elements to be primitive C++ types.
+	 * Because constructor does not know what {@link Rings ring} 
 	 * the element belongs to, it cannot actually construct the element.
 	 * In this implementation, the constructor it sets _elem_ptr
 	 * to the null pointer.  Initialization of the element is done through
-	 * the field function init where the field is known.
+	 * the ring function init where the ring is known.
 	 */
 	GMPRationalElement(void) { mpq_init (rep); }
 
 	/** Copy constructor.
 	 * This constructor is required to allow 
-	 * {@link Fields field} elements to be primitive C++ types, 
-	 * and to allow field elements to be passed by value into 
+	 * {@link Rings ring} elements to be primitive C++ types, 
+	 * and to allow ring elements to be passed by value into 
 	 * functions.
-	 * Constructs {@link Fields field} element by copying the 
-	 * {@link Fields field} element.
+	 * Constructs {@link Rings ring} element by copying the 
+	 * {@link Rings ring} element.
 	 * In this implementation, this means copying the element to
 	 * which a._elem_ptr points.
-	 * @param  a field element.
+	 * @param  a ring element.
 	 */
 	GMPRationalElement(const GMPRationalElement& a) 
 	{ mpq_init (rep); mpq_set (rep, a.rep); }
 
 	/** Destructor.
-	 * In this implementation, this destroys element by deleting field 
+	 * In this implementation, this destroys element by deleting ring 
 	 * element to which _elem_ptr points.
 	 */
 	~GMPRationalElement() { mpq_clear (rep); }
@@ -80,8 +80,8 @@ class GMPRationalElement
 	/** Assignment operator.
 	 * Assigns element a to element.  
 	 * In this implementation, this is done 
-	 * by copying field element to which _elem_ptr points.
-	 * @param  a field element.
+	 * by copying ring element to which _elem_ptr points.
+	 * @param  a ring element.
 	 */
 	GMPRationalElement& operator=(const GMPRationalElement& a)
 	{
@@ -94,13 +94,13 @@ class GMPRationalElement
 	//@} Common Object Interface
 
 	/** @name Implementation-Specific Methods.
-	 * These methods are not required of all LinBox field elements
+	 * These methods are not required of all LinBox ring elements
 	 * and are included only for this implementation of the archetype.
 	 */
 	//@{
 
 	/** Constructor.
-	 * Constructs field element from an mpq_t
+	 * Constructs ring element from an mpq_t
 	 * Not part of the interface.
 	 * Creates new copy of element object in dynamic memory.
 	 * @param  elem_ptr  pointer to \ref{ElementAbstract}
@@ -142,17 +142,17 @@ class GMPRationalElement
     
     private:
 
-	friend class GMPRationalField;
+	friend class GMPRationalRing;
 	friend class GMPRationalRandIter;
 
 	/** @name Implementation-Specific Data.
-	 * This data is not required of all LinBox field elements
+	 * This data is not required of all LinBox ring elements
 	 * and is included only for this implementation of the archetype.
 	 */
 	//@{
     
-	/** Pointer to parameterized field element.
-	 * Not part of the common object interface for \ref{LinBox} field elements.
+	/** Pointer to parameterized ring element.
+	 * Not part of the common object interface for \ref{LinBox} ring elements.
 	 * Included to avoid code bloat.
 	 */
 	mutable mpq_t rep;

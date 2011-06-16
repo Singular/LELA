@@ -34,17 +34,17 @@ namespace LinBox
 
 class ElementArchetype;
 
-/** \brief Random field element generator archetype.
+/** \brief Random ring element generator archetype.
  *
- * This encapsulated class is a generator of random field elements for 
- * the encapsulating field.
- * It is required to contain constructors from a field object and
+ * This encapsulated class is a generator of random ring elements for 
+ * the encapsulating ring.
+ * It is required to contain constructors from a ring object and
  * two integers.  The first integer being a cardinality of a set to 
  * draw the random elements from, and the second being a seed for the 
  * random number generator.
  * It is also required to contain a copy constructor, a destructor, and
- * an operator () which acts on a reference to a field element.  In this 
- * operator (), the random element is placed into the input field element 
+ * an operator () which acts on a reference to a ring element.  In this 
+ * operator (), the random element is placed into the input ring element 
  * and also returned as a reference.
  */
 class RandIterArchetype
@@ -52,44 +52,44 @@ class RandIterArchetype
 public:
     
 	/** @name Common Object Interface.
-	 * These methods are required of all \Ref{LinBox} field element generators.
+	 * These methods are required of all \Ref{LinBox} ring element generators.
 	 */
 	//@{
     
 	/// element type
 	typedef ElementArchetype Element;
     
-	/** Constructor from field, sampling size, and seed.
-	 * The random field element iterator works in the
-	 * field F, is seeded by seed, and it returns any one
+	/** Constructor from ring, sampling size, and seed.
+	 * The random ring element iterator works in the
+	 * ring F, is seeded by seed, and it returns any one
 	 * element with probability no more than 1/min (size,
 	 * F.cardinality (c)).
 	 *
 	 * A sampling size of zero means to sample from the
-	 * entire field.  A seed of zero means to use some
+	 * entire ring.  A seed of zero means to use some
 	 * arbitrary seed for the generator.  In this
-	 * implementation, this means copying the field to
-	 * which {\tt F.\_field\_ptr} points, the element to
+	 * implementation, this means copying the ring to
+	 * which {\tt F.\_ring\_ptr} points, the element to
 	 * which {\tt F.\_elem\_ptr} points, and the random
 	 * element generator to which {\tt F.\_randIter\_ptr} points.
 	 *
-	 * @param F LinBox field archetype object in which to do arithmetic
+	 * @param F LinBox ring archetype object in which to do arithmetic
 	 * @param size constant integer reference of sample size from which to 
 	 *             sample (default = 0)
 	 * @param seed constant integer reference from which to seed random number 
 	 *             generator (default = 0)
 	 */
-	RandIterArchetype (const FieldArchetype &F, 
+	RandIterArchetype (const RingArchetype &F, 
 			   const integer &size = 0, 
 			   const integer &seed = 0)
-		{ _randIter_ptr = F._randIter_ptr->construct (*F._field_ptr, size, seed); }
+		{ _randIter_ptr = F._randIter_ptr->construct (*F._ring_ptr, size, seed); }
 
 	/** Copy constructor.
-	 * Constructs RandIterArchetype object by copying the random field
+	 * Constructs RandIterArchetype object by copying the random ring
 	 * element generator.
 	 * This is required to allow generator objects to be passed by value
 	 * into functions.
-	 * In this implementation, this means copying the random field element
+	 * In this implementation, this means copying the random ring element
 	 * generator to which {\tt R.\_randIter\_ptr} points.
 	 * @param  R RandIterArchetype object.
 	 */
@@ -99,14 +99,14 @@ public:
 
 	/** Constructor.
 	 * Constructs RandIterArchetype  from ANYTHING matching the interface
-	 * using the enveloppe as a \Ref{FieldAbstract} and its
+	 * using the enveloppe as a \Ref{RingAbstract} and its
 	 * encapsulated element and random element generator if needed.
-	 * @param  field\_ptr pointer to field matching the interface
+	 * @param  ring\_ptr pointer to ring matching the interface
 	 * @param  elem\_ptr  pointer to element matching the interface
 	 * @param  randIter\_ptr  pointer to random matching the interface
 	 */
-	template<class Field_qcq>
-	RandIterArchetype (Field_qcq *f, 
+	template<class Ring_qcq>
+	RandIterArchetype (Ring_qcq *f, 
 			   const integer &size = 0, 
 			   const integer &seed = 0) 
 		{ constructor (f, f, size, seed); }
@@ -115,7 +115,7 @@ public:
 
 	/** Destructor.
 	 *
-	 * This destructs the random field element generator
+	 * This destructs the random ring element generator
 	 * object.  In this implementation, this destroys the
 	 * generator by deleting the random generator object
 	 * to which {\tt \_randIter\_ptr} points.
@@ -141,10 +141,10 @@ public:
 		return *this;
 	}
  
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
+	/** Random ring element creator.
+	 * This returns a random ring element from the information supplied
 	 * at the creation of the generator.
-	 * @return reference to random field element
+	 * @return reference to random ring element
 	 */
 	Element &random (Element &a) const
 	{
@@ -156,13 +156,13 @@ public:
     
 	/** @name Implementation-Specific Methods.
 	 * These methods are not required of all 
-	 * \Ref{LinBox Random field element generators}
+	 * \Ref{LinBox Random ring element generators}
 	 * and are included only for this implementation of the archetype.
 	 */
 	//@{
     
 	/** Constructor.
-	 * Constructs field from pointer to \Ref{RandIterAbstract}.
+	 * Constructs ring from pointer to \Ref{RandIterAbstract}.
 	 * Not part of the interface.
 	 * Creates new copies of random iterator generator object in dynamic memory.
 	 * @param  randIter_ptr  pointer to \Ref{RandIterAbstract}
@@ -181,39 +181,39 @@ private:
 	mutable RandIterAbstract *_randIter_ptr;
 
 	/** Template method for constructing archetype from a derived class of 
-	 * FieldAbstract.
+	 * RingAbstract.
 	 * This class is needed to help the constructor differentiate between 
-	 * classes derived from FieldAbstract and classes that aren't.
+	 * classes derived from RingAbstract and classes that aren't.
 	 * Should be called with the same argument to both parameters?
-	 * @param	trait	pointer to FieldAbstract or class derived from it
-	 * @param	field_ptr	pointer to class derived from FieldAbstract
+	 * @param	trait	pointer to RingAbstract or class derived from it
+	 * @param	ring_ptr	pointer to class derived from RingAbstract
 	 */
-	template<class Field_qcq>
-	void constructor (FieldAbstract *trait, 
-			  Field_qcq     *field_ptr, 
+	template<class Ring_qcq>
+	void constructor (RingAbstract *trait, 
+			  Ring_qcq     *ring_ptr, 
 			  const integer &size = 0, 
 			  const integer &seed = 0)
 	{
-		typename Field_qcq::RandIter FRI(*field_ptr);
-		_randIter_ptr = FRI->construct (*field_ptr, size, seed);
+		typename Ring_qcq::RandIter FRI(*ring_ptr);
+		_randIter_ptr = FRI->construct (*ring_ptr, size, seed);
 	}
 	 
 	/** Template method for constructing archetype from a class not derived 
-	 * from FieldAbstract.
+	 * from RingAbstract.
 	 * This class is needed to help the constructor differentiate between 
-	 * classes derived from FieldAbstract and classes that aren't.
+	 * classes derived from RingAbstract and classes that aren't.
 	 * Should be called with the same argument to both parameters?
-	 * @param	trait	pointer to class not derived from FieldAbstract
-	 * @param	field\_ptr	pointer to class not derived from FieldAbstract
+	 * @param	trait	pointer to class not derived from RingAbstract
+	 * @param	ring\_ptr	pointer to class not derived from RingAbstract
 	 */
-	template<class Field_qcq>
+	template<class Ring_qcq>
 	void constructor (void      *trait, 
-			  Field_qcq *field_ptr, 
+			  Ring_qcq *ring_ptr, 
 			  const integer &size = 0, 
 			  const integer &seed = 0)
 	{
-		FieldEnvelope<Field_qcq> EnvF (*field_ptr);
-		constructor (static_cast<FieldAbstract*> (&EnvF), &EnvF, size, seed) ;
+		RingEnvelope<Ring_qcq> EnvF (*ring_ptr);
+		constructor (static_cast<RingAbstract*> (&EnvF), &EnvF, size, seed) ;
 	}
 
 }; // class RandIterArchetype

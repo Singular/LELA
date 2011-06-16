@@ -30,7 +30,7 @@ namespace BLAS1
 {
 
 template <class Vector1, class Vector2>
-float dot_impl (const UnparametricField<float> &F, BLASModule &M, float &res, const Vector1 &x, const Vector2 &y,
+float dot_impl (const UnparametricRing<float> &F, BLASModule &M, float &res, const Vector1 &x, const Vector2 &y,
 		size_t start_idx, size_t end_idx,
 		VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
@@ -39,7 +39,7 @@ float dot_impl (const UnparametricField<float> &F, BLASModule &M, float &res, co
 }
 
 template <class Vector1, class Vector2>
-double dot_impl (const UnparametricField<double> &F, BLASModule &M, double &res, const Vector1 &x, const Vector2 &y,
+double dot_impl (const UnparametricRing<double> &F, BLASModule &M, double &res, const Vector1 &x, const Vector2 &y,
 		 size_t start_idx, size_t end_idx,
 		 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
@@ -48,7 +48,7 @@ double dot_impl (const UnparametricField<double> &F, BLASModule &M, double &res,
 }
 
 template <class Vector1, class Vector2>
-Vector2 &copy_impl (const UnparametricField<float> &F, BLASModule &M, const Vector1 &x, Vector2 &y,
+Vector2 &copy_impl (const UnparametricRing<float> &F, BLASModule &M, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (x.size () == y.size ());
@@ -57,7 +57,7 @@ Vector2 &copy_impl (const UnparametricField<float> &F, BLASModule &M, const Vect
 }
 
 template <class Vector1, class Vector2>
-Vector2 &copy_impl (const UnparametricField<double> &F, BLASModule &M, const Vector1 &x, Vector2 &y,
+Vector2 &copy_impl (const UnparametricRing<double> &F, BLASModule &M, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (x.size () == y.size ());
@@ -66,7 +66,7 @@ Vector2 &copy_impl (const UnparametricField<double> &F, BLASModule &M, const Vec
 }
 
 template <class Vector1, class Vector2>
-Vector2 &axpy_impl (const UnparametricField<float> &F, BLASModule &M, float a, const Vector1 &x, Vector2 &y,
+Vector2 &axpy_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (x.size () == y.size ());
@@ -75,7 +75,7 @@ Vector2 &axpy_impl (const UnparametricField<float> &F, BLASModule &M, float a, c
 }
 
 template <class Vector1, class Vector2>
-Vector2 &axpy_impl (const UnparametricField<double> &F, BLASModule &M, double a, const Vector1 &x, Vector2 &y,
+Vector2 &axpy_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (x.size () == y.size ());
@@ -84,7 +84,7 @@ Vector2 &axpy_impl (const UnparametricField<double> &F, BLASModule &M, double a,
 }
 
 template <class Vector>
-Vector &scal_impl (const UnparametricField<double> &F, BLASModule &M, float a, Vector &x, VectorCategories::DenseVectorTag)
+Vector &scal_impl (const UnparametricRing<double> &F, BLASModule &M, float a, Vector &x, VectorCategories::DenseVectorTag)
 {
 	cblas_sscal (x.size (), a, &x[0], &x[1] - &x[0]);
 	return x;

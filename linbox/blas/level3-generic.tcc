@@ -25,8 +25,8 @@ namespace LinBox
 namespace BLAS3
 {
 
-template <class Field, class Matrix1, class Matrix2>
-Matrix2 &copy_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 &B,
+template <class Ring, class Matrix1, class Matrix2>
+Matrix2 &copy_impl (const Ring &F, GenericModule &M, const Matrix1 &A, Matrix2 &B,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -44,8 +44,8 @@ Matrix2 &copy_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 	return B;
 }
 
-template <class Field, class Matrix1, class Matrix2>
-Matrix2 &copy_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 &B,
+template <class Ring, class Matrix1, class Matrix2>
+Matrix2 &copy_impl (const Ring &F, GenericModule &M, const Matrix1 &A, Matrix2 &B,
 		    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -63,8 +63,8 @@ Matrix2 &copy_impl (const Field &F, GenericModule &M, const Matrix1 &A, Matrix2 
 	return B;
 }
 
-template <class Field, class Modules, class Matrix>
-Matrix &scal_impl (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring, class Modules, class Matrix>
+Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::RowIterator i;
 
@@ -74,8 +74,8 @@ Matrix &scal_impl (const Field &F, Modules &M, const typename Field::Element &a,
 	return A;
 }
 
-template <class Field, class Modules, class Matrix>
-Matrix &scal_impl (const Field &F, Modules &M, const typename Field::Element &a, Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring, class Modules, class Matrix>
+Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ColIterator i;
 
@@ -85,8 +85,8 @@ Matrix &scal_impl (const Field &F, Modules &M, const typename Field::Element &a,
 	return A;
 }
 
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &axpy_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+template <class Ring, class Modules, class Matrix1, class Matrix2>
+Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -104,8 +104,8 @@ Matrix2 &axpy_impl (const Field &F, Modules &M, const typename Field::Element &a
 	return B;
 }
 
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &axpy_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B,
+template <class Ring, class Modules, class Matrix1, class Matrix2>
+Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
 		    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -123,9 +123,9 @@ Matrix2 &axpy_impl (const Field &F, Modules &M, const typename Field::Element &a
 	return B;
 }
 
-template <class Field, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
+template <class Ring, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -143,9 +143,9 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	return C;
 }
 
-template <class Field, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
+template <class Ring, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 		    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -162,9 +162,9 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 }
 
 // FIXME: This assumes that the rows of C are dense!!!
-template <class Field, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
+template <class Ring, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -175,7 +175,7 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	typename Matrix2::ConstColIterator j;
 	typename Matrix3::RowIterator l1;
 	typename Matrix3::Row::iterator l2;
-	typename Field::Element d;
+	typename Ring::Element d;
 
 	for (i = A.rowBegin (), l1 = C.rowBegin (); i != A.rowEnd (); ++i, ++l1) {
 		for (j = B.colBegin (), l2 = l1->begin (); j != B.colEnd (); ++j, ++l2) {
@@ -189,9 +189,9 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 }
 
 // FIXME: This assumes that the rows of C are dense!!!
-template <class Field, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Field::Element &b, Matrix3 &C,
+template <class Ring, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -202,7 +202,7 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	typename Matrix2::ConstColIterator j;
 	typename Matrix3::ColIterator l1;
 	typename Matrix3::Col::iterator l2;
-	typename Field::Element d;
+	typename Ring::Element d;
 
 	for (j = B.colBegin (), l1 = C.colBegin (); j != B.colEnd (); ++j, ++l1) {
 		for (i = A.rowBegin (), l2 = l1->begin (); i != A.rowEnd (); ++i, ++l2) {
@@ -215,8 +215,8 @@ Matrix3 &gemm_impl (const Field &F, GenericModule &M,
 	return C;
 }
 
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+template <class Ring, class Modules, class Matrix1, class Matrix2>
+Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -230,7 +230,7 @@ Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a
 		if (diagIsOne)
 			return _scal (F, M, a, B);
 		else {
-			typename Field::Element ai;
+			typename Ring::Element ai;
 
 			if (!A.getEntry (ai, 0, 0))
 				return _scal (F, M, F.zero (), B);
@@ -264,8 +264,8 @@ Matrix2 &trmm_impl (const Field &F, Modules &M, const typename Field::Element &a
 	}
 }
 
-template <class Field, class Modules, class Matrix1, class Matrix2>
-Matrix2 &trsm_impl (const Field &F, Modules &M, const typename Field::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+template <class Ring, class Modules, class Matrix1, class Matrix2>
+Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
@@ -279,7 +279,7 @@ Matrix2 &trsm_impl (const Field &F, Modules &M, const typename Field::Element &a
 		if (diagIsOne)
 			return _scal (F, M, a, B);
 		else {
-			typename Field::Element ai;
+			typename Ring::Element ai;
 
 			if (!A.getEntry (ai, 0, 0))
 				// FIXME: Should return an error
@@ -315,8 +315,8 @@ Matrix2 &trsm_impl (const Field &F, Modules &M, const typename Field::Element &a
 	}
 }
 
-template <class Field, class Modules, class Iterator, class Matrix>
-Matrix &permute_rows_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring, class Modules, class Iterator, class Matrix>
+Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::RowIterator j, k;
 
@@ -330,8 +330,8 @@ Matrix &permute_rows_impl (const Field &F, Modules &M, Iterator P_begin, Iterato
 	return A;
 }
 
-template <class Field, class Modules, class Iterator, class Matrix>
-Matrix &permute_rows_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring, class Modules, class Iterator, class Matrix>
+Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ColIterator j;
 
@@ -341,8 +341,8 @@ Matrix &permute_rows_impl (const Field &F, Modules &M, Iterator P_begin, Iterato
 	return A;
 }
 
-template <class Field, class Modules, class Iterator, class Matrix>
-Matrix &permute_cols_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring, class Modules, class Iterator, class Matrix>
+Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::RowIterator j;
 
@@ -352,8 +352,8 @@ Matrix &permute_cols_impl (const Field &F, Modules &M, Iterator P_begin, Iterato
 	return A;
 }
 
-template <class Field, class Modules, class Iterator, class Matrix>
-Matrix &permute_cols_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring, class Modules, class Iterator, class Matrix>
+Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ColIterator j, k;
 
@@ -367,8 +367,8 @@ Matrix &permute_cols_impl (const Field &F, Modules &M, Iterator P_begin, Iterato
 	return A;
 }
 
-template <class Field, class Matrix1, class Matrix2>
-bool equal_impl (const Field &F, GenericModule &M, const Matrix1 &A, const Matrix2 &B,
+template <class Ring, class Matrix1, class Matrix2>
+bool equal_impl (const Ring &F, GenericModule &M, const Matrix1 &A, const Matrix2 &B,
 		 MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -387,8 +387,8 @@ bool equal_impl (const Field &F, GenericModule &M, const Matrix1 &A, const Matri
 	return true;
 }
 
-template <class Field, class Matrix1, class Matrix2>
-bool equal_impl (const Field &F, GenericModule &M, const Matrix1 &A, const Matrix2 &B,
+template <class Ring, class Matrix1, class Matrix2>
+bool equal_impl (const Ring &F, GenericModule &M, const Matrix1 &A, const Matrix2 &B,
 		 MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -407,8 +407,8 @@ bool equal_impl (const Field &F, GenericModule &M, const Matrix1 &A, const Matri
 	return true;
 }
 
-template <class Field, class Matrix>
-bool is_zero_impl (const Field &F, GenericModule &M, const Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring, class Matrix>
+bool is_zero_impl (const Ring &F, GenericModule &M, const Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -421,8 +421,8 @@ bool is_zero_impl (const Field &F, GenericModule &M, const Matrix &A, MatrixCate
 	return true;
 }
 
-template <class Field, class Matrix>
-bool is_zero_impl (const Field &F, GenericModule &M, const Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring, class Matrix>
+bool is_zero_impl (const Ring &F, GenericModule &M, const Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ConstColIterator i;
 

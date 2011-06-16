@@ -27,12 +27,12 @@
 namespace LinBox
 {
 
-template <class Field>
+template <class Ring>
 class Adaptor {
 public:
-	typedef typename Vector<Field>::Sparse SparseVector;
-	typedef LinBox::SparseMatrix<typename Field::Element, SparseVector> SparseMatrix;
-	typedef LinBox::DenseMatrix<typename Field::Element> DenseMatrix;
+	typedef typename Vector<Ring>::Sparse SparseVector;
+	typedef LinBox::SparseMatrix<typename Ring::Element, SparseVector> SparseMatrix;
+	typedef LinBox::DenseMatrix<typename Ring::Element> DenseMatrix;
 	static const size_t cutoff = 1;
 };
 
@@ -58,21 +58,21 @@ public:
  *
  * This class depends on the following template-parameters:
  *
- * @param Field The field in which arithmetic takes
- * place. Must satisfy the field-archetype in LinBox.
+ * @param Ring The ring in which arithmetic takes
+ * place. Must satisfy the ring-archetype in LinBox.
  */
-template <class Field, class Modules = AllModules<Field> >
+template <class Ring, class Modules = AllModules<Ring> >
 class GaussJordan
 {
 public:
-	typedef typename Field::Element Element;
+	typedef typename Ring::Element Element;
 	typedef std::pair<uint32, uint32> Transposition;
 	typedef std::vector<Transposition> Permutation;
-	typedef typename Adaptor<Field>::SparseMatrix SparseMatrix;
-	typedef typename Adaptor<Field>::DenseMatrix DenseMatrix;
+	typedef typename Adaptor<Ring>::SparseMatrix SparseMatrix;
+	typedef typename Adaptor<Ring>::DenseMatrix DenseMatrix;
 
 private:
-	Context<Field, Modules> &ctx;
+	Context<Ring, Modules> &ctx;
 
 	const size_t _cutoff;
 
@@ -82,7 +82,7 @@ private:
 	// -1. Otherwise fill in col with the pivot-column.
 	template <class Matrix>
 	int GetPivot (const Matrix &A, int start_row, size_t &col) const
-		{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Field, typename Matrix::Row>::VectorCategory ()); }
+		{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Ring, typename Matrix::Row>::VectorCategory ()); }
 
 	// Find the first nonzero element in the given column
 	// starting at the row of the same index. Return -1 if
@@ -149,7 +149,7 @@ private:
 	// advantage of knowledge of where in v the entries of
 	// w start
 	template <class Vector>
-	Vector &FastAxpy (Vector &v, const typename Field::Element &a, const Vector &w, size_t idx) const;
+	Vector &FastAxpy (Vector &v, const typename Ring::Element &a, const Vector &w, size_t idx) const;
 
 	bool testFastAxpyHybridVector () const;
 
@@ -185,10 +185,10 @@ public:
 	/**
 	 * \brief Constructor
 	 *
-	 * @param _F Field over which operations take place
+	 * @param _F Ring over which operations take place
 	 */
-	GaussJordan (Context<Field, Modules> &_ctx)
-		: ctx (_ctx), _cutoff (Adaptor<Field>::cutoff)
+	GaussJordan (Context<Ring, Modules> &_ctx)
+		: ctx (_ctx), _cutoff (Adaptor<Ring>::cutoff)
 		{}
 
 	/**
@@ -216,7 +216,7 @@ public:
 	 * @param rank Integer into which to store the
 	 * computed rank
 	 *
-	 * @param det Field-element into which to store the
+	 * @param det Ring-element into which to store the
 	 * computed determinant
 	 *
 	 * @param reduced Whether the output should be in reduced
@@ -265,7 +265,7 @@ public:
 	 * @param rank An integer into which to store the
 	 * computed rank of A.
 	 *
-	 * @param det A field-element into which to store the
+	 * @param det A ring-element into which to store the
 	 * computed determinant of the submatrix of A formed
 	 * by taking pivot-rows and -columns.
 	 *
@@ -313,7 +313,7 @@ public:
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row = 0) const
 		{ return ReduceRowEchelonSpecialised (A, L, compute_L, rank, start_row,
-						      typename VectorTraits<Field, typename Matrix1::Row>::VectorCategory ()); }
+						      typename VectorTraits<Ring, typename Matrix1::Row>::VectorCategory ()); }
 
 	/** Run internal tests
 	 */

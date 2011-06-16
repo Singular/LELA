@@ -18,8 +18,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_field_modular_H
-#define __LINBOX_field_modular_H
+#ifndef __LINBOX_ring_modular_H
+#define __LINBOX_ring_modular_H
 
 #include <iostream>
 #include <climits>
@@ -28,11 +28,10 @@
 #include "linbox/integer.h"
 #include "linbox/util/debug.h"
 #include "linbox/blas/context.h"
-#include "linbox/ring/field-interface.h"
-#include "linbox/util/field-axpy.h"
+#include "linbox/ring/ring-interface.h"
 #include "linbox/vector/vector-traits.h"
 #include "linbox/linbox-config.h"
-#include "linbox/ring/field-traits.h"
+#include "linbox/ring/traits.h"
 #include "linbox/randiter/nonzero.h"
 
 namespace LinBox 
@@ -51,16 +50,16 @@ struct ClassifyRing<Modular<Element> >
 };
 
 /** @name ModularBase 
- * \brief Base for prime fields where the elements are represented by various primitive types 
+ * \brief Base for prime rings where the elements are represented by various primitive types 
  * (and their operations).
- * Normally use it's children.  This class is of interest for the developer of a new field representation.
+ * Normally use it's children.  This class is of interest for the developer of a new ring representation.
  *
  * 
- * This parameterized field can be used to construct any prime
- * field. Typical use would be Modular<integer> for integers modulo a
+ * This parameterized ring can be used to construct any prime
+ * ring. Typical use would be Modular<integer> for integers modulo a
  * large prime, Modular<long, long long> for integers modulo a wordsize
  * prime, etc. for integers modulo a half-wordsize prime.
- \ingroup field
+ \ingroup ring
 */
 template <class _Element>
 class ModularBase 
@@ -86,33 +85,33 @@ public:
 	ModularBase (void) {}
 
 	/*- Constructor from an element type.
-	 * Sets the modulus of the field throug the static member of the 
+	 * Sets the modulus of the ring throug the static member of the 
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
 	ModularBase (unsigned long modulus) : _modulus (modulus) {}
 
 	/*- Constructor from an integer.
-	 * Sets the modulus of the field throug the static member of the 
+	 * Sets the modulus of the ring throug the static member of the 
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
 	ModularBase (const integer &modulus) : _modulus (modulus) {}
 
 	/*- Copy constructor.
-	 * Constructs Modular object by copying the field.
-	 * This is required to allow field objects to be passed by value
+	 * Constructs Modular object by copying the ring.
+	 * This is required to allow ring objects to be passed by value
 	 * into functions.
 	 * @param  F Modular object.
 	 */
 	ModularBase (const ModularBase<Element> &F) : _modulus (F._modulus) {}
  
-	/*- Conversion of field base element to a template class T.
-	 * This function assumes the output field base element x has already been
+	/*- Conversion of ring base element to a template class T.
+	 * This function assumes the output ring base element x has already been
 	 * constructed, but that it is not already initialized.
 	 * @return reference to template class T.
 	 * @param x template class T to contain output (reference returned).
-	 * @param y constant field base element.
+	 * @param y constant ring base element.
 	 */
 	integer &convert (integer &x, const Element &y) const
 		{ return x = y; }
@@ -123,12 +122,12 @@ public:
 	float &convert (float &x, const Element &y) const
 		{return  x = (float) y;}
 	
-	/*- Assignment of one field base element to another.
-	 * This function assumes both field base elements have already been
+	/*- Assignment of one ring base element to another.
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &assign (Element &x, Element y) const { return x = y; }
 
@@ -156,37 +155,37 @@ public:
 	/*- @name Arithmetic Operations
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field base elements will
+	 * before the operation is called.  Uninitialized ring base elements will
 	 * give undefined results.
 	 */
 	//@{
 
 	/*- Equality of two elements.
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return boolean true if equal, false if not.
-	 * @param  x field base element
-	 * @param  y field base element
+	 * @param  x ring base element
+	 * @param  y ring base element
 	 */
 	bool areEqual (const Element &x, const Element &y) const
 		{ return x == y; }
 
 	/*- Zero equality.
-	 * Test if field base element is equal to zero.
-	 * This function assumes the field base element has already been
+	 * Test if ring base element is equal to zero.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return boolean true if equals zero, false if not.
-	 * @param  x field base element.
+	 * @param  x ring base element.
 	 */
 	bool isZero (const Element &x) const
 		{ return x == 0; }
  
 	/*- One equality.
-	 * Test if field base element is equal to one.
-	 * This function assumes the field base element has already been
+	 * Test if ring base element is equal to one.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return boolean true if equals one, false if not.
-	 * @param  x field base element.
+	 * @param  x ring base element.
 	 */
 	bool isOne (const Element &x) const
 		{ return x == 1; }
@@ -197,36 +196,36 @@ public:
 	/*- @name Input/Output Operations */
 	//@{
 
-	/*- Print field.
-	 * @return output stream to which field is written.
-	 * @param  os  output stream to which field is written.
+	/*- Print ring.
+	 * @return output stream to which ring is written.
+	 * @param  os  output stream to which ring is written.
 	 */
 	std::ostream &write (std::ostream &os) const 
-		{ return os << "Modular field, mod " << _modulus; }
+		{ return os << "Modular ring, mod " << _modulus; }
 
-	/*- Read field.
-	 * @return input stream from which field is read.
-	 * @param  is  input stream from which field is read.
+	/*- Read ring.
+	 * @return input stream from which ring is read.
+	 * @param  is  input stream from which ring is read.
 	 */
 	std::istream &read (std::istream &is) { return is >> _modulus; }
 
 
-	/*- Print field base element.
-	 * This function assumes the field base element has already been
+	/*- Print ring base element.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
-	 * @return output stream to which field base element is written.
-	 * @param  os  output stream to which field base element is written.
-	 * @param  x   field base element.
+	 * @return output stream to which ring base element is written.
+	 * @param  os  output stream to which ring base element is written.
+	 * @param  x   ring base element.
 	 */
 	std::ostream &write (std::ostream &os, const Element &x) const
 		{ return os << integer (x); }
 
-	/*- Read field base element.
-	 * This function assumes the field base element has already been
+	/*- Read ring base element.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
-	 * @return input stream from which field base element is read.
-	 * @param  is  input stream from which field base element is read.
-	 * @param  x   field base element.
+	 * @return input stream from which ring base element is read.
+	 * @param  is  input stream from which ring base element is read.
+	 * @param  x   ring base element.
 	 */
 	std::istream &read (std::istream &is, Element &x) const
 	{
@@ -242,13 +241,13 @@ public:
 
 	//@}
 
-	/// Return the zero-element of the field
+	/// Return the zero-element of the ring
 	Element zero () const { return 0; }
 
-	/// Return the one-element of the field
+	/// Return the one-element of the ring
 	Element one () const { return 1; }
 
-	/// Return the negative of the one-element of the field
+	/// Return the negative of the one-element of the ring
 	Element minusOne () const { return _modulus - 1; }
 
 	/// Modulus
@@ -264,14 +263,14 @@ public:
  *
  * The primality of the modulus will not be checked, so it is the
  * programmer's responsibility to supply a prime modulus. This class
- * implements a field of unparameterized integers modulo a prime
- * integer. Field has (non-static) member to contain modulus of field.
+ * implements a ring of unparameterized integers modulo a prime
+ * integer. Ring has (non-static) member to contain modulus of ring.
  */
 
-/** @brief Prime fields of positive characteristic implemented directly in LinBox.
+/** @brief Prime rings of positive characteristic implemented directly in LinBox.
  * 
- * This parameterized field can be used to construct prime
- * fields. Typical use would be Modular<integer> for integers modulo a
+ * This parameterized ring can be used to construct prime
+ * rings. Typical use would be Modular<integer> for integers modulo a
  * large prime, Modular<uint32>, modular<int>, or modular<double> for
  * integers modulo a wordsize prime.  Each of those has specialized
  * performance features suitable to certain applications.
@@ -284,7 +283,7 @@ class Modular : public ModularBase<_Element>
 	typedef typename ModularBase<_Element>::RandIter RandIter;
 
 	/*- @name Object Management
-	 * @brief see \ref{FieldArchetype} for member specs.
+	 * @brief see \ref{RingArchetype} for member specs.
 	 */
 	//@{
  
@@ -294,14 +293,14 @@ class Modular : public ModularBase<_Element>
 	Modular () {}
 
 	/*- Constructor from an element type
-	 * Sets the modulus of the field throug the static member of the 
+	 * Sets the modulus of the ring throug the static member of the 
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
 	Modular (unsigned long modulus) : ModularBase<_Element> (modulus) {}
 
 	/*- Constructor from an integer
-	 * Sets the modulus of the field throug the static member of the 
+	 * Sets the modulus of the ring throug the static member of the 
 	 * element type.
 	 * @param modulus constant reference to integer prime modulus
 	 */
@@ -323,14 +322,14 @@ class Modular : public ModularBase<_Element>
 		{ return Element ((1ULL << (sizeof(Element) * 8 - 1)) - 1); } 
 
 
-	/*- Initialization of field base element from an integer.
+	/*- Initialization of ring base element from an integer.
 	 * Behaves like C++ allocator construct.
-	 * This function assumes the output field base element x has already been
+	 * This function assumes the output ring base element x has already been
 	 * constructed, but that it is not already initialized.
 	 * This is not a specialization of the template function because
 	 * such a specialization is not allowed inside the class declaration.
-	 * @return reference to field base element.
-	 * @param x field base element to contain output (reference returned).
+	 * @return reference to ring base element.
+	 * @param x ring base element to contain output (reference returned).
 	 * @param y integer.
 	 */
 	Element &init (Element &x, const integer &y = 0) const
@@ -354,14 +353,14 @@ class Modular : public ModularBase<_Element>
 		return x;
 	}
 
-	/*- Initialization of field base element from a double.
+	/*- Initialization of ring base element from a double.
 	 * Behaves like C++ allocator construct.
-	 * This function assumes the output field base element x has already been
+	 * This function assumes the output ring base element x has already been
 	 * constructed, but that it is not already initialized.
 	 * This is not a specialization of the template function because
 	 * such a specialization is not allowed inside the class declaration.
-	 * @return reference to field base element.
-	 * @param x field base element to contain output (reference returned).
+	 * @return reference to ring base element.
+	 * @param x ring base element to contain output (reference returned).
 	 * @param y integer.
 	 */
 	Element &init (Element &x, const double &y) const
@@ -380,22 +379,22 @@ class Modular : public ModularBase<_Element>
 
 	//@}  
 	/*- @name Arithmetic Operations
-	 * @brief see \ref{FieldArchetype} for member specs.
+	 * @brief see \ref{RingArchetype} for member specs.
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field base elements will
+	 * before the operation is called.  Uninitialized ring base elements will
 	 * give undefined results.
 	 */
 	//@{
 
 	/*- Addition.
 	 * x = y + z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &add (Element &x, const Element &y, const Element &z) const
 	{
@@ -406,12 +405,12 @@ class Modular : public ModularBase<_Element>
  
 	/* Subtraction.
 	 * x = y - z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &sub (Element &x, const Element &y, const Element &z) const
 	{ 
@@ -422,24 +421,24 @@ class Modular : public ModularBase<_Element>
  
 	/* Multiplication.
 	 * x = y * z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &mul (Element &x, const Element &y, const Element &z) const
 		{ return x = (y * z) % ModularBase<Element>::_modulus; }
  
 	/* Division.
 	 * x = y / z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &div (Element &x, const Element &y, const Element &z) const
 	{ 
@@ -450,22 +449,22 @@ class Modular : public ModularBase<_Element>
  
 	/* Additive Inverse (Negation).
 	 * x = - y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &neg (Element &x, const Element &y) const
 		{ if (y == 0) return x = y; else return x = ModularBase<Element>::_modulus - y; }
  
 	/* Multiplicative Inverse.
 	 * x = 1 / y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &inv (Element &x, const Element &y) const
 	{
@@ -494,13 +493,13 @@ class Modular : public ModularBase<_Element>
 
 	/* Natural AXPY.
 	 * r  = a * x + y
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
-	 * @param  y field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
+	 * @param  y ring element.
 	 */
 	Element &axpy (Element &r, 
 		       const Element &a, 
@@ -515,18 +514,18 @@ class Modular : public ModularBase<_Element>
 	//@} Arithmetic Operations
  
 	/*- @name Inplace Arithmetic Operations
-	 * @brief see \ref{FieldArchetype} for member specs.
+	 * @brief see \ref{RingArchetype} for member specs.
 	 * x <- x op y; x <- op x
 	 */
 	//@{
 
 	/*- Inplace Addition.
 	 * x += y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &addin (Element &x, const Element &y) const
 	{ 
@@ -537,11 +536,11 @@ class Modular : public ModularBase<_Element>
  
 	/* Inplace Subtraction.
 	 * x -= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &subin (Element &x, const Element &y) const
 	{
@@ -552,11 +551,11 @@ class Modular : public ModularBase<_Element>
  
 	/* Inplace Multiplication.
 	 * x *= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &mulin (Element &x, const Element &y) const
 	{
@@ -567,11 +566,11 @@ class Modular : public ModularBase<_Element>
  
 	/* Inplace Division.
 	 * x /= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &divin (Element &x, const Element &y) const
 	{
@@ -582,33 +581,33 @@ class Modular : public ModularBase<_Element>
  
 	/* Inplace Additive Inverse (Inplace Negation).
 	 * x = - x
-	 * This function assumes the field base element has already been
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
+	 * @param  x ring base element (reference returned).
 	 */
 	Element &negin (Element &x) const
 		{ if (x == 0) return x; else return x = ModularBase<Element>::_modulus - x; }
  
 	/* Inplace Multiplicative Inverse.
 	 * x = 1 / x
-	 * This function assumes the field base elementhas already been
+	 * This function assumes the ring base elementhas already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
+	 * @param  x ring base element (reference returned).
 	 */
 	Element &invin (Element &x) const
 		{ return inv (x, x); }
 
 	/* Inplace AXPY.
 	 * r  += a * x
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * Purely virtual
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
 	 */
 	Element &axpyin (Element &r, const Element &a, const Element &x) const
 	{ 
@@ -619,19 +618,15 @@ class Modular : public ModularBase<_Element>
 
 	//@} Inplace Arithmetic Operations
 
-    private:
-
-	friend class FieldAXPY<Modular<Element> >;
-
 }; // class Modular
 
 /** @brief Allows compact storage when the modulus is less than 2^8. 
 	
     Requires 1 < the modulus < 2^8, normally prime.
-    See FieldArchetype for member specifications.
+    See RingArchetype for member specifications.
 */
 template <>
-class Modular<uint8> : public FieldInterface, public ModularBase<uint8>
+class Modular<uint8> : public RingInterface, public ModularBase<uint8>
 {
     public:
 
@@ -785,7 +780,7 @@ class Modular<uint8> : public FieldInterface, public ModularBase<uint8>
 
 /** @brief Specialization of class Modular for uint16 element type */
 template <>
-class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
+class Modular<uint16> : public RingInterface, public ModularBase<uint16>
 {
     public:
 
@@ -939,7 +934,7 @@ class Modular<uint16> : public FieldInterface, public ModularBase<uint16>
 
 /** @brief Specialization of class Modular for uint32 element type */
 template <>
-class Modular<uint32> : public FieldInterface, public ModularBase<uint32>
+class Modular<uint32> : public RingInterface, public ModularBase<uint32>
 {
     public:
 
@@ -1095,7 +1090,7 @@ template <class Element>
 class ModularRandIter;
 
 template <>
-class Modular<float> : public FieldInterface
+class Modular<float> : public RingInterface
 {
 
 public:
@@ -1123,7 +1118,7 @@ public:
 
 		integer max;
 
-		if (modulus > FieldTraits<Modular<float> >::maxModulus (max).get_d ())
+		if (modulus > RingTraits<Modular<float> >::maxModulus (max).get_d ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 	}
 
@@ -1135,7 +1130,7 @@ public:
 
 		integer max;
 
-		if (modulus > FieldTraits<Modular<float> >::maxModulus (max).get_d ())
+		if (modulus > RingTraits<Modular<float> >::maxModulus (max).get_d ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 	}
 
@@ -1147,7 +1142,7 @@ public:
 
 		integer max;
 
-		if ((float) modulus > FieldTraits<Modular<float> >::maxModulus (max).get_d ())
+		if ((float) modulus > RingTraits<Modular<float> >::maxModulus (max).get_d ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 	}
 
@@ -1160,7 +1155,7 @@ public:
 
 		integer max;
 
-		if (modulus > FieldTraits<Modular<float> >::maxModulus (max).get_d ())
+		if (modulus > RingTraits<Modular<float> >::maxModulus (max).get_d ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 	}
 
@@ -1385,7 +1380,7 @@ public:
 }; // class Modular<float>
 
 template <>
-class Modular<double> : public FieldInterface
+class Modular<double> : public RingInterface
 {
 
 public:	       
@@ -1415,7 +1410,7 @@ public:
 
 		integer max;
 
-		if (modulus > FieldTraits<Modular<double> >::maxModulus (max).get_d ())
+		if (modulus > RingTraits<Modular<double> >::maxModulus (max).get_d ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 	}
 
@@ -1428,7 +1423,7 @@ public:
 
 		integer max;
 
-		if (modulus > FieldTraits<Modular<double> >::maxModulus (max).get_d ())
+		if (modulus > RingTraits<Modular<double> >::maxModulus (max).get_d ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 	}
 
@@ -1441,7 +1436,7 @@ public:
 
 		integer max;
 
-		if ((double) modulus > FieldTraits<Modular<double> >::maxModulus (max).get_d ())
+		if ((double) modulus > RingTraits<Modular<double> >::maxModulus (max).get_d ())
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "modulus is too big");
 	}
 
@@ -1699,7 +1694,7 @@ struct AllModules<Modular<Element> > : public ZpModule<Element> {};
 
 #include "linbox/randiter/modular.h"
 
-#endif // __LINBOX_field_modular_H
+#endif // __LINBOX_ring_modular_H
 
 // Local Variables:
 // mode: C++

@@ -31,8 +31,8 @@
 
 using namespace LinBox;
 
-template <class Field>
-static bool testSubvector(Field &F, size_t n); 
+template <class Ring>
+static bool testSubvector(Ring &F, size_t n); 
 
 int main(int argc, char** argv)
 {	
@@ -50,9 +50,9 @@ int main(int argc, char** argv)
     bool pass = true;
  
     // call tests
-    typedef LinBox::UnparametricField<int> Field;
-    Field F;
-    pass = testSubvector<Field> (F, n);
+    typedef LinBox::UnparametricRing<int> Ring;
+    Ring F;
+    pass = testSubvector<Ring> (F, n);
  
     // finish
 	commentator.stop("Subvector test suite");
@@ -66,8 +66,8 @@ int main(int argc, char** argv)
 
 using namespace LinBox;
 
-template <class Field>
-static bool testSubvector(Field &F, size_t n) 
+template <class Ring>
+static bool testSubvector(Ring &F, size_t n) 
 {
 	// commentator setup
 	const char *  title = "Subvector test";
@@ -78,7 +78,7 @@ static bool testSubvector(Field &F, size_t n)
 	report << "This test currently neglects several members including constructors." << endl;
 	bool ret = true;
 
-	typedef typename Field::Element Element;
+	typedef typename Ring::Element Element;
 	typedef std::vector<Element>	Vector;
 	typedef typename Vector::iterator       Iter;
 	typedef Subiterator<typename Vector::iterator>	Subiter;
@@ -89,7 +89,7 @@ static bool testSubvector(Field &F, size_t n)
 	typedef typename Subvect::reverse_iterator	ReverseIterator;
 	typedef typename Subvect::reverse_iterator	ReverseSubiterator;
 
-	Context<Field> ctx (F);
+	Context<Ring> ctx (F);
 
 	Vector v(n);
 	for (size_t z = 0; z < n; z++) v[z] = z;

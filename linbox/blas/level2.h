@@ -30,22 +30,22 @@ namespace BLAS2
  * computation of the product of only part of vector x by the
  * respective part of the matrix A.
  *
- * @param a Field::Element scalar a
+ * @param a Ring::Element scalar a
  * @param A Matrix A
  * @param x Vector x
- * @param b Field::Element scalar b
+ * @param b Ring::Element scalar b
  * @param y Vector y, to be replaced by result of calculation
  * @param start_idx Starting index in vector x of product
  * @param end_idx Ending index in vector x of product (-1 for the whole vector)
  * @returns Reference to y
  */
 
-template <class Field, class Modules, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv (Context<Field, Modules>       &ctx,
-	       const typename Field::Element &a,
+template <class Ring, class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv (Context<Ring, Modules>       &ctx,
+	       const typename Ring::Element &a,
 	       const Matrix                  &A,
 	       const Vector1                 &x,
-	       const typename Field::Element &b,
+	       const typename Ring::Element &b,
 	       Vector2                       &y,
 	       size_t                         start_idx = 0,
 	       size_t                         end_idx = (size_t) -1)
@@ -62,8 +62,8 @@ Vector2 &gemv (Context<Field, Modules>       &ctx,
  * @returns Reference to y
  */
 
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &trmv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+template <class Ring, class Modules, class Matrix, class Vector>
+Vector &trmv (Context<Ring, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 	{ return _trmv (ctx.F, ctx.M, A, x, type, diagIsOne); }
 
 /** Triangular matrix-vector solve, x <- A^-1 x, where A is triangular
@@ -78,8 +78,8 @@ Vector &trmv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, Triangul
  * @returns Reference to y
  */
 
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &trsv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+template <class Ring, class Modules, class Matrix, class Vector>
+Vector &trsv (Context<Ring, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 	{ return _trsv (ctx.F, ctx.M, A, x, type, diagIsOne); }
 
 /** General rank-1 update, A <- a x y^T + A
@@ -88,15 +88,15 @@ Vector &trsv (Context<Field, Modules> &ctx, const Matrix &A, Vector &x, Triangul
  * of different representations (e.g. x is sparse and y is dense) are
  * not implemented.
  *
- * @param a Field::Element scalar a
+ * @param a Ring::Element scalar a
  * @param x Vector x
  * @param y Vector y
  * @param A Matrix A, to be replaced by result of calculation
  * @returns Reference to A
  */
 
-template <class Field, class Modules, class Vector1, class Vector2, class Matrix>
-Matrix &ger (Context<Field, Modules> &ctx, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
+template <class Ring, class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &ger (Context<Ring, Modules> &ctx, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
 	{ return _ger (ctx.F, ctx.M, a, x, y, A); }
 
 } // namespace BLAS2

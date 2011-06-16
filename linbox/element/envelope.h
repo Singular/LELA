@@ -32,9 +32,8 @@ namespace LinBox
 {
 
 // Forward declarations
-template <class Field> class RingEnvelope;
-template <class Field> class FieldEnvelope;
-template <class Field> class RandIterEnvelope;
+template <class Ring> class RingEnvelope;
+template <class Ring> class RandIterEnvelope;
 
 /** \brief Adaptor from archetypical interface to abstract interface, a technicality.
 
@@ -43,11 +42,11 @@ template <class Field> class RandIterEnvelope;
  * A concrete instance of ElementArchetype representing
  * the adapted class can then be constructed.
  * 
- * All this is in support of the FieldArchetype system.
+ * All this is in support of the RingArchetype system.
  \ingroup element
 
 */
-template <class Field>
+template <class Ring>
 class ElementEnvelope : public ElementAbstract
 {
 public:
@@ -56,10 +55,10 @@ public:
 	 */
 	ElementEnvelope () {}
 
-	/** Constructor from the Field element to be wrapped.
-	 * @param elem Field element object to be wrapped.
+	/** Constructor from the Ring element to be wrapped.
+	 * @param elem Ring element object to be wrapped.
 	 */
-	ElementEnvelope (const typename Field::Element &elem) : _elem (elem) {}
+	ElementEnvelope (const typename Ring::Element &elem) : _elem (elem) {}
 
 	/** Copy constructor.
 	 * Constructs ElementEnvelope object by copying the element
@@ -67,7 +66,7 @@ public:
 	 * This is required to allow element objects to be passed by value
 	 * into functions.
 	 * In this implementation, this means copying the element {\tt E.\_elem}.
-	 * @param  E FieldEnvelope object.
+	 * @param  E RingEnvelope object.
 	 */
 	ElementEnvelope (const ElementAbstract &E)
 		: _elem (static_cast<const ElementEnvelope&>(E)._elem) {}
@@ -81,7 +80,7 @@ public:
 
 	/** Assignment operator.
 	 * @return reference to self
-	 * @param  x parameterized field base element
+	 * @param  x parameterized ring base element
 	 */
 	ElementAbstract &operator= (const ElementAbstract &E)
 	{
@@ -97,11 +96,10 @@ public:
 private:
 
 	// Friend declarations
-	friend class RingEnvelope<Field>;
-	friend class FieldEnvelope<Field>;
-	friend class RandIterEnvelope<Field>;
+	friend class RingEnvelope<Ring>;
+	friend class RandIterEnvelope<Ring>;
 
-	typename Field::Element _elem;
+	typename Ring::Element _elem;
 
 }; // class ElementEnvelope
 

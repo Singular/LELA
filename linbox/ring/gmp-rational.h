@@ -8,8 +8,8 @@
  * See COPYING for license information
  */
 
-#ifndef __LINBOX_field_gmp_rational_H
-#define __LINBOX_field_gmp_rational_H
+#ifndef __LINBOX_ring_gmp_rational_H
+#define __LINBOX_ring_gmp_rational_H
 
 #include <iostream>
 #include <cctype>
@@ -17,11 +17,11 @@
 #include <gmp.h>
 
 #include "linbox/integer.h"
-#include "linbox/ring/field-interface.h"
+#include "linbox/ring/ring-interface.h"
 #include "linbox/element/gmp-rational.h"
 #include "linbox/linbox-config.h"
 #include "linbox/util/debug.h"
-#include <linbox/ring/field-traits.h>
+#include "linbox/ring/traits.h"
 
 // Namespace in which all LinBox library code resides
 namespace LinBox
@@ -31,24 +31,24 @@ namespace LinBox
 class GMPRationalRandIter;;
 
 /**
- * \brief Field of rational numbers using GMP
- \ingroup field
+ * \brief Ring of rational numbers using GMP
+ \ingroup ring
  *
  * This is a wrapper for the GMP rational number facility, built to the
- * interface of the field archetype. 
+ * interface of the ring archetype. 
  */
 
 template <class Ring>
 struct ClassifyRing;
 
-class GMPRationalField;
+class GMPRationalRing;
 
 template<>
-struct ClassifyRing<GMPRationalField> {
+struct ClassifyRing<GMPRationalRing> {
 	typedef RingCategories::RationalTag categoryTag;
 };
 
-class GMPRationalField : public FieldInterface
+class GMPRationalRing : public RingInterface
 {
     private:
 
@@ -57,8 +57,8 @@ class GMPRationalField : public FieldInterface
 
     public:
 
-	/** @name Common Object Interface for a LinBox Field.
-	 * These methods are required of all \ref{LinBox} fields.
+	/** @name Common Object Interface for a LinBox Ring.
+	 * These methods are required of all \ref{LinBox} rings.
 	 */
 	//@{
     
@@ -75,11 +75,11 @@ class GMPRationalField : public FieldInterface
     
 	/** Copy constructor.
 	 *
-	 * Vacuous, since this field is unparametric so there is no need to
-	 * construct multiple field objects
+	 * Vacuous, since this ring is unparametric so there is no need to
+	 * construct multiple ring objects
 	 */
 
-	GMPRationalField (const GMPRationalField &) 
+	GMPRationalRing (const GMPRationalRing &) 
 		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 		{}
 
@@ -87,23 +87,23 @@ class GMPRationalField : public FieldInterface
 	 * 
 	 * Also vacuous, since there is no de-initialization system
 	 */
-	~GMPRationalField (void) {}
+	~GMPRationalRing (void) {}
     
 	/** Assignment operator.
 	 * 
 	 * Also vacuous
 	 */
-	GMPRationalField &operator= (const GMPRationalField &)
+	GMPRationalRing &operator= (const GMPRationalRing &)
 		{ return *this; }
     
-	/** Initialization of field element from an integer.
+	/** Initialization of ring element from an integer.
 	 * Behaves like C++ allocator construct.
-	 * This function assumes the output field element x has already been 
+	 * This function assumes the output ring element x has already been 
 	 * constructed, but that it is not necessarily already initialized.
 	 * In this implementation, this means the _elem_ptr of x exists, but
 	 * that it may be the null pointer.
-	 * @return reference to field element.
-	 * @param x field element to contain output (reference returned).
+	 * @return reference to ring element.
+	 * @param x ring element to contain output (reference returned).
 	 * @param y constant reference to integer.
 	 */
 	Element &init (Element &x, const integer &y = 0) const
@@ -115,7 +115,7 @@ class GMPRationalField : public FieldInterface
 	}
 
 	/*
-	 * aniau@astronet.pl: 06/2009 Initialization of field element from numerator and denominator
+	 * aniau@astronet.pl: 06/2009 Initialization of ring element from numerator and denominator
 	 * */
 	Element &init (Element &x, const integer &num, const integer &den) const
 	{
@@ -126,8 +126,8 @@ class GMPRationalField : public FieldInterface
 	        return x;
 	}
   
-	/** Conversion of field element to an integer.
-	 * This function assumes the output field element x has already been 
+	/** Conversion of ring element to an integer.
+	 * This function assumes the output ring element x has already been 
 	 * constructed, but that it is not already initialized.
 	 * In this implementation, this means the _elem_ptr of y exists, and
 	 * that it is not the null pointer.
@@ -136,7 +136,7 @@ class GMPRationalField : public FieldInterface
 	 *
 	 * @return reference to integer.
 	 * @param x reference to integer to contain output (reference returned).
-	 * @param y constant reference to field element.
+	 * @param y constant reference to ring element.
 	 */
 	integer &convert (integer &x, const Element &y = 0) const
 	{
@@ -164,14 +164,14 @@ class GMPRationalField : public FieldInterface
 		return x;
 	}
     
-	/** Assignment of one field element to another.
-	 * This function assumes both field elements have already been 
+	/** Assignment of one ring element to another.
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y, 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 *
 	 * FIXME: Is this x := y? I am assuming so.
 	 */
@@ -194,33 +194,33 @@ class GMPRationalField : public FieldInterface
 	/** @name Arithmetic Operations 
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field elements will
+	 * before the operation is called.  Uninitialized ring elements will
 	 * give undefined results.
 	 */
 	//@{
 
 	/** Equality of two elements.
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y, 
 	 * _elem_ptr exists and does not point to null.
 	 * @return boolean true if equal, false if not.
-	 * @param  x field element
-	 * @param  y field element
+	 * @param  x ring element
+	 * @param  y ring element
 	 */
 	bool areEqual (const Element &x, const Element &y) const
 	{ return mpq_equal (x.rep, y.rep); }
 
 	/** Addition.
 	 * x = y + z
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for x, y, and z, 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	Element &add (Element &x, const Element &y, const Element &z) const
 	{
@@ -230,14 +230,14 @@ class GMPRationalField : public FieldInterface
     
 	/** Subtraction.
 	 * x = y - z
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for x, y, and z, 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	Element &sub (Element &x, const Element &y, const Element &z) const
 	{
@@ -247,14 +247,14 @@ class GMPRationalField : public FieldInterface
     
 	/** Multiplication.
 	 * x = y * z
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for x, y, and z, 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	Element &mul (Element &x, const Element &y, const Element &z) const
 	{
@@ -264,14 +264,14 @@ class GMPRationalField : public FieldInterface
     
 	/** Division.
 	 * x = y / z
-	 * This function assumes all the field elements have already been 
+	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for x, y, and z, 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	Element &div (Element &x, const Element &y, const Element &z) const
 	{
@@ -281,13 +281,13 @@ class GMPRationalField : public FieldInterface
 
 	/** Additive Inverse (Negation).
 	 * x = - y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &neg (Element &x, const Element &y) const
 	{
@@ -297,13 +297,13 @@ class GMPRationalField : public FieldInterface
 
 	/** Multiplicative Inverse.
 	 * x = 1 / y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &inv (Element &x, const Element &y) const
 	{
@@ -316,44 +316,44 @@ class GMPRationalField : public FieldInterface
 	/** @name Inplace Arithmetic Operations 
 	 * x <- x op y; x <- op x
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field elements will
+	 * before the operation is called.  Uninitialized ring elements will
 	 * give undefined results.
 	 */
 	//@{
     
 	/** Zero equality.
-	 * Test if field element is equal to zero.
-	 * This function assumes the field element has already been 
+	 * Test if ring element is equal to zero.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 * In this implementation, this means the _elem_ptr of x
 	 * exists and does not point to null.
 	 * @return boolean true if equals zero, false if not.
-	 * @param  x field element.
+	 * @param  x ring element.
 	 */
 	bool isZero (const Element &x) const 
 	{ return mpq_sgn (x.rep) == 0; }
     
 	/** One equality.
-	 * Test if field element is equal to one.
-	 * This function assumes the field element has already been 
+	 * Test if ring element is equal to one.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 * In this implementation, this means the _elem_ptr of x
 	 * exists and does not point to null.
 	 * @return boolean true if equals one, false if not.
-	 * @param  x field element.
+	 * @param  x ring element.
 	 */
 	bool isOne (const Element &x) const 
 	{ return mpq_cmp_ui (x.rep, 1L, 1L) == 0; }
     
 	/** Inplace Addition.
 	 * x += y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &addin (Element &x, const Element &y) const
 	{
@@ -363,13 +363,13 @@ class GMPRationalField : public FieldInterface
 
 	/** Inplace Subtraction.
 	 * x -= y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &subin (Element &x, const Element &y) const
 	{
@@ -379,13 +379,13 @@ class GMPRationalField : public FieldInterface
  
 	/** Inplace Multiplication.
 	 * x *= y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &mulin (Element &x, const Element &y) const
 	{
@@ -410,13 +410,13 @@ class GMPRationalField : public FieldInterface
 
 	/** Inplace Division.
 	 * x /= y
-	 * This function assumes both field elements have already been 
+	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for both x and y 
 	 * _elem_ptr exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	Element &divin (Element &x, const Element &y) const
 	{
@@ -426,12 +426,12 @@ class GMPRationalField : public FieldInterface
     
 	/** Inplace Additive Inverse (Inplace Negation).
 	 * x = - x
-	 * This function assumes the field element has already been 
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 * In this implementation, this means the _elem_ptr of x
 	 * exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
+	 * @param  x ring element (reference returned).
 	 */
 	Element &negin (Element &x) const
 	{
@@ -441,12 +441,12 @@ class GMPRationalField : public FieldInterface
 
 	/** Inplace Multiplicative Inverse.
 	 * x = 1 / x
-	 * This function assumes the field elementhas already been 
+	 * This function assumes the ring elementhas already been 
 	 * constructed and initialized.
 	 * In this implementation, this means the _elem_ptr of x
 	 * exists and does not point to null.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
+	 * @param  x ring element (reference returned).
 	 */
 	Element &invin (Element &x) const
 	{
@@ -459,9 +459,9 @@ class GMPRationalField : public FieldInterface
 	/** @name Input/Output Operations */
 	//@{
     
-	/** Print field.
-	 * @return output stream to which field is written.
-	 * @param  os  output stream to which field is written.
+	/** Print ring.
+	 * @return output stream to which ring is written.
+	 * @param  os  output stream to which ring is written.
 	 *
 	 * This does not do much...
 	 */
@@ -471,9 +471,9 @@ class GMPRationalField : public FieldInterface
 		return os;
 	}
     
-	/** Read field.
-	 * @return input stream from which field is read.
-	 * @param  is  input stream from which field is read.
+	/** Read ring.
+	 * @return input stream from which ring is read.
+	 * @param  is  input stream from which ring is read.
 	 *
 	 * This does not do much either...
 	 *
@@ -482,14 +482,14 @@ class GMPRationalField : public FieldInterface
 	 */
 	std::istream &read (std::istream &is) { return is; }
     
-	/** Print field element.
-	 * This function assumes the field element has already been 
+	/** Print ring element.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for the _elem_ptr for x 
 	 * exists and does not point to null.
-	 * @return output stream to which field element is written.
-	 * @param  os  output stream to which field element is written.
-	 * @param  x   field element.
+	 * @return output stream to which ring element is written.
+	 * @param  os  output stream to which ring element is written.
+	 * @param  x   ring element.
 	 */
 	std::ostream &write (std::ostream &os, const Element &x) const 
 	{
@@ -510,14 +510,14 @@ class GMPRationalField : public FieldInterface
 		return os;
 	}
 
-	/** Read field element.
-	 * This function assumes the field element has already been 
+	/** Read ring element.
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 * In this implementation, this means for the _elem_ptr for x 
 	 * exists and does not point to null.
-	 * @return input stream from which field element is read.
-	 * @param  is  input stream from which field element is read.
-	 * @param  x   field element.
+	 * @return input stream from which ring element is read.
+	 * @param  is  input stream from which ring element is read.
+	 * @param  x   ring element.
 	 *
 	 * FIXME: Avoid the magical limit on size here
 	 * FIXME: Right now it skips over everything until it finds something that
@@ -647,7 +647,7 @@ class GMPRationalField : public FieldInterface
 
 	//@} Common Object Interface
 
-	GMPRationalField (int p = 0, int exp = 1)
+	GMPRationalRing (int p = 0, int exp = 1)
 		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 	{
 		if (p != 0)
@@ -684,26 +684,26 @@ class GMPRationalField : public FieldInterface
                 return bs;
         }
 
-	/// Return a reference to the zero-element of the field
+	/// Return a reference to the zero-element of the ring
 	const Element &zero () const { return _zero; }
 
-	/// Return a reference to the one-element of the field
+	/// Return a reference to the one-element of the ring
 	const Element &one () const { return _one; }
 
-	/// Return a reference to the negative of the one-element of the field
+	/// Return a reference to the negative of the one-element of the ring
 	const Element &minusOne () const { return _minus_one; }
 
 private:
 
 	Element _zero, _one, _minus_one;
 
-}; // class GMPRationalField
+}; // class GMPRationalRing
 
 } // namespace LinBox
 
 #include "linbox/randiter/gmp-rational.h"
 
-#endif // __LINBOX_field_gmp_rational_H
+#endif // __LINBOX_ring_gmp_rational_H
 
 // Local Variables:
 // mode: C++

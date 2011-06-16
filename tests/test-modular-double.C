@@ -48,7 +48,7 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start("Modular<double> field test suite", "Modular<double>");
+	commentator.start("Modular<double> ring test suite", "Modular<double>");
 	bool pass = true;
 
 	//Modular<double> F2 (2); 
@@ -64,20 +64,20 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	std::ostream& report = commentator.report();
-	report << "Field F2" << std::endl;
-	//if (!runFieldTests (F2,  "Modular<double>",  iterations, n, false)) pass = false;
-	report << "Field F3" << std::endl;
-	if (!runFieldTests (F3,  "Modular<double>",  iterations, n, false)) pass = false;
-	report << "Field F5" << std::endl;
-	if (!runFieldTests (F5,  "Modular<double>",  iterations, n, false)) pass = false;
-	report << "Field F7" << std::endl;
-	if (!runFieldTests (F7,  "Modular<double>",  iterations, n, false)) pass = false;
-	report << "Field F11" << std::endl;
-	if (!runFieldTests (F11,  "Modular<double>",  iterations, n, false)) pass = false;
-	report << "Field F" << std::endl;
-	if (!runFieldTests (F,  "Modular<double>",  iterations, n, false)) pass = false;
-	report << "Field G" << std::endl;
-	if (!runFieldTests (G,  "Modular<double>",  iterations, n, false)) pass = false;
+	report << "Ring F2" << std::endl;
+	//if (!runRingTests (F2,  "Modular<double>",  iterations, n, false)) pass = false;
+	report << "Ring F3" << std::endl;
+	if (!runRingTests (F3,  "Modular<double>",  iterations, n, false)) pass = false;
+	report << "Ring F5" << std::endl;
+	if (!runRingTests (F5,  "Modular<double>",  iterations, n, false)) pass = false;
+	report << "Ring F7" << std::endl;
+	if (!runRingTests (F7,  "Modular<double>",  iterations, n, false)) pass = false;
+	report << "Ring F11" << std::endl;
+	if (!runRingTests (F11,  "Modular<double>",  iterations, n, false)) pass = false;
+	report << "Ring F" << std::endl;
+	if (!runRingTests (F,  "Modular<double>",  iterations, n, false)) pass = false;
+	report << "Ring G" << std::endl;
+	if (!runRingTests (G,  "Modular<double>",  iterations, n, false)) pass = false;
 
 	commentator.stop(MSG_STATUS (pass));
 	return pass ? 0 : -1;

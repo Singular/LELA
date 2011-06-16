@@ -32,10 +32,10 @@ namespace BLAS1
  * of the dot-product of just part of the vectors.
  *
  * The vectors x and y may be of different types which different
- * representations, but must be defined over the same field.
+ * representations, but must be defined over the same ring.
  *
  * @param ctx @ref Context object for calculation
- * @param res Field-element in which to place output
+ * @param res Ring-element in which to place output
  * @param x First vector
  * @param y Second vector
  * @param start_idx Starting index in vector
@@ -43,8 +43,8 @@ namespace BLAS1
  * @returns Reference to res
  */
 
-template <class reference, class Field, class Modules, class Vector1, class Vector2>
-reference &dot (Context<Field, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y,
+template <class reference, class Ring, class Modules, class Vector1, class Vector2>
+reference &dot (Context<Ring, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y,
 		size_t start_idx = 0, size_t end_idx = (size_t) -1)
 	{ return _dot (ctx.F, ctx.M, res, x, y, start_idx, end_idx); }
 
@@ -57,13 +57,13 @@ reference &dot (Context<Field, Modules> &ctx, reference &res, const Vector1 &x, 
  * @param y Second vector
  */
 
-template <class Field, class Modules, class Vector>
-void swap (Context<Field, Modules> &ctx, Vector &x, Vector &y)
+template <class Ring, class Modules, class Vector>
+void swap (Context<Ring, Modules> &ctx, Vector &x, Vector &y)
 	{ _swap (ctx.F, ctx.M, x, y); }
 
 /** Copy x into y
  *
- * x and y may be of different types, but must be defined over the same field
+ * x and y may be of different types, but must be defined over the same ring
  *
  * @param ctx @ref Context object for calculation
  * @param x Origin vector
@@ -71,34 +71,34 @@ void swap (Context<Field, Modules> &ctx, Vector &x, Vector &y)
  * @returns Reference to y
  */
 
-template <class Field, class Modules, class Vector1, class Vector2>
-Vector2 &copy (Context<Field, Modules> &ctx, const Vector1 &x, Vector2 &y)
+template <class Ring, class Modules, class Vector1, class Vector2>
+Vector2 &copy (Context<Ring, Modules> &ctx, const Vector1 &x, Vector2 &y)
 	{ return _copy (ctx.F, ctx.M, x, y); }
 
 /** y -> ax + y
  *
- * x and y may be of different types, but must be defined over the same field
+ * x and y may be of different types, but must be defined over the same ring
  *
  * @param ctx @ref Context object for calculation
- * @param a Field::Element scalar a
+ * @param a Ring::Element scalar a
  * @param x Vector x
  * @param y Vector y, to be replaced by result of calculation
  * @returns Reference to y
  */
 
-template <class Field, class Modules, class Vector1, class Vector2>
-Vector2 &axpy (Context<Field, Modules> &ctx, const typename Field::Element &a, const Vector1 &x, Vector2 &y)
+template <class Ring, class Modules, class Vector1, class Vector2>
+Vector2 &axpy (Context<Ring, Modules> &ctx, const typename Ring::Element &a, const Vector1 &x, Vector2 &y)
 	{ return _axpy (ctx.F, ctx.M, a, x, y); }
 
 /** x -> ax
  *
  * @param ctx @ref Context object for calculation
- * @param a Field::Element scalar a
+ * @param a Ring::Element scalar a
  * @param x Vector x, to be replaced by result of calculation
  */
 
-template <class Field, class Modules, class Vector>
-Vector &scal (Context<Field, Modules> &ctx, const typename Field::Element &a, Vector &x)
+template <class Ring, class Modules, class Vector>
+Vector &scal (Context<Ring, Modules> &ctx, const typename Ring::Element &a, Vector &x)
 	{ return _scal (ctx.F, ctx.M, a, x); }
 
 /** Permute entries of v, v <- Pv, where P is a permutation
@@ -109,8 +109,8 @@ Vector &scal (Context<Field, Modules> &ctx, const typename Field::Element &a, Ve
  * @returns Reference to v
  */
 
-template <class Field, class Modules, class Iterator, class Vector>
-Vector &permute (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end, Vector &v)
+template <class Ring, class Modules, class Iterator, class Vector>
+Vector &permute (Context<Ring, Modules> &ctx, Iterator P_begin, Iterator P_end, Vector &v)
 	{ return _permute (ctx.F, ctx.M, P_begin, P_end, v); }
 
 //@} Operations on vectors
@@ -120,7 +120,7 @@ Vector &permute (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end,
 
 /** Test whether x and y are equal
  *
- * x and y may be of different types, but must be defined over the same field
+ * x and y may be of different types, but must be defined over the same ring
  *
  * @param ctx @ref Context object for calculation
  * @param x First vector
@@ -128,8 +128,8 @@ Vector &permute (Context<Field, Modules> &ctx, Iterator P_begin, Iterator P_end,
  * @returns true if equal, false otherwise
  */
 
-template <class Field, class Modules, class Vector1, class Vector2>
-bool equal (Context<Field, Modules> &ctx, const Vector1 &x, const Vector2 &y)
+template <class Ring, class Modules, class Vector1, class Vector2>
+bool equal (Context<Ring, Modules> &ctx, const Vector1 &x, const Vector2 &y)
 	{ return _equal (ctx.F, ctx.M, x, y); }
 
 /** Test whether x is the zero vector
@@ -139,20 +139,20 @@ bool equal (Context<Field, Modules> &ctx, const Vector1 &x, const Vector2 &y)
  * @returns true if x is zero, false otherwise
  */
 
-template <class Field, class Modules, class Vector>
-bool is_zero (Context<Field, Modules> &ctx, const Vector &x)
+template <class Ring, class Modules, class Vector>
+bool is_zero (Context<Ring, Modules> &ctx, const Vector &x)
 	{ return _is_zero (ctx.F, ctx.M, x); }
 
 /** Find the first nonzero element of the vector and return its index, or -1 if the vector is zero
  *
  * @param ctx @ref Context object for calculation
- * @param a Field::Element into which to store first nonzero element
+ * @param a Ring::Element into which to store first nonzero element
  * @param x Vector
  * @returns Index of first nonzero element, or -1 if the vector is zero
  */
 
-template <class Field, class Modules, class Vector>
-int head (Context<Field, Modules> &ctx, typename Field::Element &a, const Vector &x)
+template <class Ring, class Modules, class Vector>
+int head (Context<Ring, Modules> &ctx, typename Ring::Element &a, const Vector &x)
 	{ return _head (ctx.F, ctx.M, a, x); }
 
 //@} Queries on vectors
@@ -168,8 +168,8 @@ int head (Context<Field, Modules> &ctx, typename Field::Element &a, const Vector
  * @returns Reference to is
  */
 
-template <class Field, class Modules, class Vector>
-std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Vector &v)
+template <class Ring, class Modules, class Vector>
+std::istream &read (Context<Ring, Modules> &ctx, std::istream &is, Vector &v)
 	{ return _read (ctx.F, ctx.M, is, v); }
 
 /** Write the given vector to the given stream
@@ -180,8 +180,8 @@ std::istream &read (Context<Field, Modules> &ctx, std::istream &is, Vector &v)
  * @returns Reference to os
  */
 
-template <class Field, class Modules, class Vector>
-std::ostream &write (Context<Field, Modules> &ctx, std::ostream &os, const Vector &v)
+template <class Ring, class Modules, class Vector>
+std::ostream &write (Context<Ring, Modules> &ctx, std::ostream &os, const Vector &v)
 	{ return _write (ctx.F, ctx.M, os, v); }
 
 /** Output the given permutation to the given stream

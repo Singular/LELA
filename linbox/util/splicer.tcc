@@ -20,8 +20,8 @@
 namespace LinBox
 {
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorWrapper::CompareSparseEntries ());
@@ -31,8 +31,8 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 		out.push_back (typename Vector1::value_type (i->first - src_idx + dest_idx, i->second));
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag) const
 {
 	typename Vector2::const_iterator i = in.begin () + src_idx;
@@ -42,8 +42,8 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 		out.push_back (typename Vector1::value_type (dest_idx, *i->second));
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag) const
 {
 	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorWrapper::CompareSparseEntries ());
@@ -53,8 +53,8 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 		out[i->first - src_idx + dest_idx] = i->second;
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const
 {
 	typedef BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> DestSubvector;
@@ -63,13 +63,13 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 	SourceSubvector v1 (in.begin () + src_idx, in.begin () + (src_idx + size));
 	DestSubvector v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
-	Context<Field> ctx (F);
+	Context<Ring> ctx (F);
 
 	BLAS1::copy (ctx, v1, v2);
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const
 {
 	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx);
@@ -100,8 +100,8 @@ void Splicer::append_word (Vector &v, size_t index, typename Vector::word_type w
 	}
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const
 {
 	SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag> v1 (in, src_idx, src_idx + size);
@@ -111,20 +111,20 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 		append_word (out, dest_idx + (i_v1->first << WordTraits<typename Vector2::word_type>::logof_size), i_v1->second);
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const
 {
-	SparseSubvector<const Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
-	Context<Field> ctx (F);
+	Context<Ring> ctx (F);
 
 	BLAS1::copy (ctx, v1, v2);
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const
 {
 	typename Vector2::const_iterator i = in.begin () + src_idx;
@@ -136,8 +136,8 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 			out.push_back (idx);
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const
 {
 	typedef BitVector<typename Vector1::Endianness> TmpVector;
@@ -150,7 +150,7 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 	ConstTmpSubvector v1 (in.begin () + src_idx, in.begin () + (src_idx + size));
 	TmpSubvector v2 (tmp.begin () + dest_idx_offset, tmp.begin () + (dest_idx_offset + size));
 
-	Context<Field> ctx (F);
+	Context<Ring> ctx (F);
 
 	BLAS1::copy (ctx, v1, v2);
 
@@ -178,20 +178,20 @@ void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vect
 	}
 }
 
-template <class Field, class Vector1, class Vector2>
-void Splicer::attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const
 {
-	SparseSubvector<const Vector2, typename VectorTraits<Field, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
-	Context<Field> ctx (F);
+	Context<Ring> ctx (F);
 
 	BLAS1::copy (ctx, v1, v2);
 }
 
-template <class Field, class Matrix>
-void Splicer::attach_identity (const Field &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const
+template <class Ring, class Matrix>
+void Splicer::attach_identity (const Ring &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const
 {
 	typename Matrix::RowIterator i_A = A.rowBegin () + horiz_block.destIndex ();
 	typename Matrix::RowIterator i_A_end = A.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
@@ -202,8 +202,8 @@ void Splicer::attach_identity (const Field &F, Matrix &A, const Block &horiz_blo
 			attach_e_i (F, *i_A, vert_block.sourceToDestIndex (idx));
 }
 
-template <class Field, class Matrix>
-void Splicer::attach_identity (const Field &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const
+template <class Ring, class Matrix>
+void Splicer::attach_identity (const Ring &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix::ColIterator i_A = A.colBegin () + vert_block.destIndex ();
 	typename Matrix::ColIterator i_A_end = A.colBegin () + (vert_block.destIndex () + vert_block.size ());
@@ -214,8 +214,8 @@ void Splicer::attach_identity (const Field &F, Matrix &A, const Block &horiz_blo
 			attach_e_i (F, *i_A, horiz_block.sourceToDestIndex (idx));
 }
 
-template <class Field, class Matrix1, class Matrix2>
-void Splicer::attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const
+template <class Ring, class Matrix1, class Matrix2>
+void Splicer::attach_source (const Ring &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const
 {
 	typename Matrix1::RowIterator i_A = A.rowBegin () + horiz_block.destIndex ();
 	typename Matrix1::RowIterator i_A_end = A.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
@@ -225,8 +225,8 @@ void Splicer::attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const
 		attach_block (F, *i_A, *i_S, vert_block.sourceIndex (), vert_block.destIndex (), vert_block.size ());
 }
 
-template <class Field, class Matrix1, class Matrix2>
-void Splicer::attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const
+template <class Ring, class Matrix1, class Matrix2>
+void Splicer::attach_source (const Ring &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const
 {
 	typename Matrix1::ColIterator i_A = A.colBegin () + vert_block.destIndex ();
 	typename Matrix1::ColIterator i_A_end = A.colBegin () + (vert_block.destIndex () + vert_block.size ());
@@ -236,8 +236,8 @@ void Splicer::attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const
 		attach_block (F, *i_A, *i_S, horiz_block.sourceIndex (), horiz_block.destIndex (), horiz_block.size ());
 }
 
-template <class Field, class Matrix1, class Matrix2>
-void Splicer::splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const
+template <class Ring, class Matrix1, class Matrix2>
+void Splicer::splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const
 {
 	linbox_check (!_horiz_blocks.empty ());
 	linbox_check (!_vert_blocks.empty ());
@@ -273,8 +273,8 @@ void Splicer::splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::RowM
 	commentator.stop (MSG_DONE);
 }
 
-template <class Field, class Matrix1, class Matrix2>
-void Splicer::splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::ColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::ColMatrixTag> **output) const
+template <class Ring, class Matrix1, class Matrix2>
+void Splicer::splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::ColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::ColMatrixTag> **output) const
 {
 	linbox_check (!_horiz_blocks.empty ());
 	linbox_check (!_vert_blocks.empty ());

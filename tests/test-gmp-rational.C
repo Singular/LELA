@@ -37,18 +37,18 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start("GMP rational field test suite", "GMPRationalField");
+	commentator.start("GMP rational ring test suite", "GMPRationalRing");
 	bool pass = true;
 
-	GMPRationalField F;
+	GMPRationalRing F;
 
 	// Make sure some more detailed messages get printed
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	if (!runFieldTests (F,  "GMP Rational",  iterations, n, false)) pass = false;
+	if (!runRingTests (F,  "GMP Rational",  iterations, n, false)) pass = false;
 
-	commentator.stop("GMP rational field test suite");
+	commentator.stop("GMP rational ring test suite");
 	return pass ? 0 : -1;
 }
 /* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */

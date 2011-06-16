@@ -29,11 +29,11 @@ namespace LinBox
 
 /** \brief Abstract element base class, a technicality.
 
- * The element class of \ref{FieldAbstract}.
- * This element has no knowledge of the field to which it belongs. 
- * All operations and functions requiring knolwedge of the field,
+ * The element class of \ref{RingAbstract}.
+ * This element has no knowledge of the ring to which it belongs. 
+ * All operations and functions requiring knolwedge of the ring,
  * such as addition and other arithmetic operations, are supplied
- * by the field and not the element class.
+ * by the ring and not the element class.
  \ingroup element
 */
 class ElementAbstract 

@@ -35,21 +35,21 @@ namespace F4 {
 	 *
 	 * This implementation uses LinBox for underlying matrix-arithmetic; see http://www.linalg.org/
 	 */
-        template <class Field, class Modules = AllModules<Field> >
+        template <class Ring, class Modules = AllModules<Ring> >
 	class F4Solver {
 	public:
-		typedef typename Field::Element Element;
-		typedef typename GaussJordan<Field>::SparseMatrix SparseMatrix;
-		typedef typename GaussJordan<Field>::DenseMatrix DenseMatrix;
+		typedef typename Ring::Element Element;
+		typedef typename GaussJordan<Ring>::SparseMatrix SparseMatrix;
+		typedef typename GaussJordan<Ring>::DenseMatrix DenseMatrix;
 
 	private:
-		Context<Field, Modules> &ctx;
-		EchelonForm<Field, Modules> EF;
+		Context<Ring, Modules> &ctx;
+		EchelonForm<Ring, Modules> EF;
 
 		const double threshold;
 
 		template <class Matrix>
-		void setup_splicer (Splicer &splicer, Splicer &reconst_splicer, const Matrix &A, size_t &num_pivot_rows, typename Field::Element &det) const
+		void setup_splicer (Splicer &splicer, Splicer &reconst_splicer, const Matrix &A, size_t &num_pivot_rows, typename Ring::Element &det) const
 		{
 			commentator.start ("Finding pivot-rows", __FUNCTION__);
 
@@ -57,7 +57,7 @@ namespace F4 {
 			int last_col = -1, col, first_col_in_block = 0, height = 0, dest_col_tr = 0, dest_col_res = 0;
 			int row = 0, first_row_in_block = 0, dest_row_tr = 0, dest_row_res = 0;
 			bool last_was_same_col = false;
-			typename Field::Element a;
+			typename Ring::Element a;
 
 			num_pivot_rows = 0;
 
@@ -150,14 +150,14 @@ namespace F4 {
 		/**
 		 * \brief Construct a new F4Solver
 		 *
-		 * @param _F Field over which to do computations
+		 * @param _F Ring over which to do computations
 		 *
 		 * @param _threshold Real number between 0 and 1. If
 		 * the portion of nonzero entries in a row is at least
 		 * this value, then the row is considered to be
 		 * dense. Default 0.2.
 		 */
-		F4Solver (Context<Field, Modules> &_ctx, double _threshold = 0.2)
+		F4Solver (Context<Ring, Modules> &_ctx, double _threshold = 0.2)
 			: ctx (_ctx), EF (_ctx), threshold (_threshold) {}
 
 		/** 
@@ -175,7 +175,7 @@ namespace F4 {
 		 * @param rank Integer-reference into which to store
 		 * computed rank
 		 *
-		 * @param det Field-element-reference into which to
+		 * @param det Ring-element-reference into which to
 		 * store computed determinant of pivot-submatrix
 		 */
 		void RowEchelonForm (SparseMatrix &R, const SparseMatrix &X, size_t &rank, Element &det) {

@@ -41,21 +41,21 @@
 namespace LinBox 
 { 
 
-/** \brief field base class.
- *  \ingroup field
+/** \brief ring base class.
+ *  \ingroup ring
  *
  * Found in the file \URL{linbox/ring/abstract.h}.
- * Abstract base class used to implement the field archetype to minimize
+ * Abstract base class used to implement the ring archetype to minimize
  * code bloat.  All public member functions of this class are purely
  * virtual and must be implemented by all derived classes.
  *
- * If a template is instantiated on the field archetype, we can change the
- * field it is using by changing the derived class of this class.  This allows
- * us to change the field used in a template without having to reinstantiate
+ * If a template is instantiated on the ring archetype, we can change the
+ * ring it is using by changing the derived class of this class.  This allows
+ * us to change the ring used in a template without having to reinstantiate
  * it.  This minimizes code bloat, but it also introduces indirection through
  * the use of pointers and virtual functions which is inefficient.
  */
-class FieldAbstract
+class RingAbstract
 {
 public:
 
@@ -67,7 +67,7 @@ public:
  
 	/** @name Object Management
 	 * There are no public constructors for this class.
-	 * It should only be used in tandem with \ref{FieldArchetype}.
+	 * It should only be used in tandem with \ref{RingArchetype}.
 	 */
 	//@{
 
@@ -75,7 +75,7 @@ public:
 	 * Required because of virtual member functions.
 	 * Virtual.
 	 */
-	virtual ~FieldAbstract (void) {}
+	virtual ~RingAbstract (void) {}
 
 	/** Virtual copy constructor.
 	 * Required because constructors cannot be virtual.
@@ -84,43 +84,43 @@ public:
 	 * This function is not part of the common object interface.
 	 * @return pointer to new object in dynamic memory.
 	 */
-	virtual FieldAbstract* clone () const = 0;
+	virtual RingAbstract* clone () const = 0;
 
 	/** Assignment operator.
 	 * Purely virtual.
 	 * @return reference to self
-	 * @param F constant reference to FieldAbstract object
+	 * @param F constant reference to RingAbstract object
 	 */
-	virtual FieldAbstract &operator= (const FieldAbstract &F) = 0;
+	virtual RingAbstract &operator= (const RingAbstract &F) = 0;
 
-	/** Initialization of field element from an integer.
+	/** Initialization of ring element from an integer.
 	 * Behaves like C++ allocator construct.
-	 * This function assumes the output field element x has already been
+	 * This function assumes the output ring element x has already been
 	 * constructed, but that it is not already initialized.
 	 * Purely virtual.
-	 * @return reference to field element.
-	 * @param x field element to contain output (reference returned).
+	 * @return reference to ring element.
+	 * @param x ring element to contain output (reference returned).
 	 * @param y integer.
 	 */
 	virtual Element &init (Element &x, const integer &y) const = 0;
  
-	/** Conversion of field element to an integer.
-	 * This function assumes the output field element x has already been
+	/** Conversion of ring element to an integer.
+	 * This function assumes the output ring element x has already been
 	 * constructed, but that it is not already initialized.
 	 * Purely virtual.
 	 * @return reference to integer.
 	 * @param x reference to interger to contain output (reference returned).
-	 * @param y constant field element.
+	 * @param y constant ring element.
 	 */
 	virtual integer &convert (integer &x, const Element &y) const = 0;
  
-	/** Assignment of one field element to another.
-	 * This function assumes both field elements have already been
+	/** Assignment of one ring element to another.
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	virtual Element &assign (Element &x, const Element &y) const = 0;
 
@@ -148,30 +148,30 @@ public:
 	/** @name Arithmetic Operations
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field elements will
+	 * before the operation is called.  Uninitialized ring elements will
 	 * give undefined results.
 	 */
 	//@{
 
 	/** Equality of two elements.
-	 * This function assumes both field elements have already been
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return boolean true if equal, false if not.
-	 * @param  x field element
-	 * @param  y field element
+	 * @param  x ring element
+	 * @param  y ring element
 	 */
 	virtual bool areEqual (const Element &x, const Element &y) const = 0;
 
 	/** Addition.
 	 * x = y + z
-	 * This function assumes all the field elements have already been
+	 * This function assumes all the ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	virtual Element &add (Element       &x,
 			      const Element &y,
@@ -179,13 +179,13 @@ public:
  
 	/** Subtraction.
 	 * x = y - z
-	 * This function assumes all the field elements have already been
+	 * This function assumes all the ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	virtual Element &sub (Element       &x,
 			      const Element &y,
@@ -193,13 +193,13 @@ public:
  
 	/** Multiplication.
 	 * x = y * z
-	 * This function assumes all the field elements have already been
+	 * This function assumes all the ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	virtual Element &mul (Element       &x,
 			      const Element &y,
@@ -207,49 +207,49 @@ public:
  
 	/** Division.
 	 * x = y / z
-	 * This function assumes all the field elements have already been
+	 * This function assumes all the ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
-	 * @param  z field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
+	 * @param  z ring element.
 	 */
 	virtual Element &div (Element &x,
 			      const Element &y, const Element &z) const = 0;
  
 	/** Additive Inverse (Negation).
 	 * x = - y
-	 * This function assumes both field elements have already been
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	virtual Element &neg (Element &x, const Element &y) const = 0;
  
 	/** Multiplicative Inverse.
 	 * x = 1 / y
-	 * This function assumes both field elements have already been
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	virtual Element &inv (Element &x, const Element &y) const = 0;
 
 	/** Natural AXPY.
 	 * r  = a * x + y
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
-	 * @param  y field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
+	 * @param  y ring element.
 	 */
 	virtual Element &axpy (Element       &r, 
 			       const Element &a, 
@@ -264,98 +264,98 @@ public:
 	//@{
 
 	/** Zero equality.
-	 * Test if field element is equal to zero.
-	 * This function assumes the field element has already been
+	 * Test if ring element is equal to zero.
+	 * This function assumes the ring element has already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return boolean true if equals zero, false if not.
-	 * @param  x field element.
+	 * @param  x ring element.
 	 */
 	virtual bool isZero (const Element &x) const = 0;
  
 	/** One equality.
-	 * Test if field element is equal to one.
-	 * This function assumes the field element has already been
+	 * Test if ring element is equal to one.
+	 * This function assumes the ring element has already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return boolean true if equals one, false if not.
-	 * @param  x field element.
+	 * @param  x ring element.
 	 */
 	virtual bool isOne (const Element &x) const = 0;
 
 	/** Inplace Addition.
 	 * x += y
-	 * This function assumes both field elements have already been
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	virtual Element &addin (Element &x, const Element &y) const = 0;
  
 	/** Inplace Subtraction.
 	 * x -= y
-	 * This function assumes both field elements have already been
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	virtual Element &subin (Element &x, const Element &y) const = 0;
  
 	/** Inplace Multiplication.
 	 * x *= y
-	 * This function assumes both field elements have already been
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	virtual Element &mulin (Element &x, const Element &y) const = 0;
 
 	/** Inplace Division.
 	 * x /= y
-	 * This function assumes both field elements have already been
+	 * This function assumes both ring elements have already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
-	 * @param  y field element.
+	 * @param  x ring element (reference returned).
+	 * @param  y ring element.
 	 */
 	virtual Element &divin (Element &x, const Element &y) const = 0;
  
 	/** Inplace Additive Inverse (Inplace Negation).
 	 * x = - x
-	 * This function assumes the field element has already been
+	 * This function assumes the ring element has already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
+	 * @param  x ring element (reference returned).
 	 */
 	virtual Element &negin (Element &x) const = 0;
  
 	/** Inplace Multiplicative Inverse.
 	 * x = 1 / x
-	 * This function assumes the field elementhas already been
+	 * This function assumes the ring elementhas already been
 	 * constructed and initialized.
 	 * Purely virtual.
 	 * @return reference to x.
-	 * @param  x field element (reference returned).
+	 * @param  x ring element (reference returned).
 	 */
 	virtual Element &invin (Element &x) const = 0;
 
 	/** Inplace AXPY.
 	 * r  += a * x
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * Purely virtual
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
 	 */
 	virtual Element &axpyin (Element       &r, 
 				 const Element &a, 
@@ -367,37 +367,37 @@ public:
 	/** @name Input/Output Operations */
 	//@{
 
-	/** Print field.
+	/** Print ring.
 	 * Purely virtual.
-	 * @return output stream to which field is written.
-	 * @param  os  output stream to which field is written.
+	 * @return output stream to which ring is written.
+	 * @param  os  output stream to which ring is written.
 	 */
 	virtual std::ostream &write (std::ostream &os) const = 0;
  
-	/** Read field.
+	/** Read ring.
 	 * Purely virtual.
-	 * @return input stream from which field is read.
-	 * @param  is  input stream from which field is read.
+	 * @return input stream from which ring is read.
+	 * @param  is  input stream from which ring is read.
 	 */
 	virtual std::istream &read (std::istream &is) = 0;
 
-	/** Print field element.
-	 * This function assumes the field element has already been
+	/** Print ring element.
+	 * This function assumes the ring element has already been
 	 * constructed and initialized.
 	 * Purely virtual.
-	 * @return output stream to which field element is written.
-	 * @param  os  output stream to which field element is written.
-	 * @param  x   field element.
+	 * @return output stream to which ring element is written.
+	 * @param  os  output stream to which ring element is written.
+	 * @param  x   ring element.
 	 */
 	virtual std::ostream &write (std::ostream &os, const Element &x) const = 0;
  
-	/** Read field element.
-	 * This function assumes the field element has already been
+	/** Read ring element.
+	 * This function assumes the ring element has already been
 	 * constructed and initialized.
 	 * Purely virtual.
-	 * @return input stream from which field element is read.
-	 * @param  is  input stream from which field element is read.
-	 * @param  x   field element.
+	 * @return input stream from which ring element is read.
+	 * @param  is  input stream from which ring element is read.
+	 * @param  x   ring element.
 	 */
 	virtual std::istream &read (std::istream &is, Element &x) const = 0;
 
@@ -417,14 +417,14 @@ protected:
 	 * Required by derived classes, but protected because this class should
 	 * never be constructed by itself.
 	 */
-	FieldAbstract () {}
+	RingAbstract () {}
  
 private:
 
-	/// FieldArchetype is friend.
-	friend class FieldArchetype;
+	/// RingArchetype is friend.
+	friend class RingArchetype;
 
-}; // class FieldAbstract
+}; // class RingAbstract
 
 } // namespace LinBox
 

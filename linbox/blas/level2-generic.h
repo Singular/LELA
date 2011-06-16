@@ -22,138 +22,138 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowMatrixTag,
 		    VectorCategories::GenericVectorTag,
 		    VectorCategories::DenseVectorTag);
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowMatrixTag,
 		    VectorCategories::GenericVectorTag,
 		    VectorCategories::SparseVectorTag);
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::ColMatrixTag,
 		    VectorCategories::DenseVectorTag,
 		    VectorCategories::GenericVectorTag);
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::ColMatrixTag,
 		    VectorCategories::SparseVectorTag,
 		    VectorCategories::GenericVectorTag);
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
 		    VectorCategories::DenseVectorTag,
 		    VectorCategories::DenseVectorTag)
 	{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 			    MatrixCategories::ColMatrixTag (),
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+			    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
 		    VectorCategories::DenseVectorTag,
 		    VectorCategories::SparseVectorTag)
 	{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 			    MatrixCategories::ColMatrixTag (),
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+			    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
 		    VectorCategories::SparseVectorTag,
 		    VectorCategories::DenseVectorTag)
 	{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 			    MatrixCategories::ColMatrixTag (),
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+			    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
 		    VectorCategories::SparseVectorTag,
 		    VectorCategories::SparseVectorTag)
 	{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 			    MatrixCategories::ColMatrixTag (),
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+			    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
 
-template <class Field, class Matrix, class Vector>
-Vector &trmv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+template <class Ring, class Matrix, class Vector>
+Vector &trmv_impl (const Ring &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowMatrixTag,
 		   VectorCategories::DenseVectorTag);
 
-template <class Field, class Matrix, class Vector>
-Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+template <class Ring, class Matrix, class Vector>
+Vector &trsv_impl (const Ring &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowMatrixTag,
 		   VectorCategories::DenseVectorTag);
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::DenseVectorTag,
 		  VectorCategories::DenseVectorTag,
 		  MatrixCategories::RowMatrixTag);
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::SparseVectorTag,
 		  VectorCategories::SparseVectorTag,
 		  MatrixCategories::RowMatrixTag);
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::DenseVectorTag,
 		  VectorCategories::DenseVectorTag,
 		  MatrixCategories::ColMatrixTag);
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::SparseVectorTag,
 		  VectorCategories::SparseVectorTag,
 		  MatrixCategories::ColMatrixTag);
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::DenseVectorTag,
 		  VectorCategories::DenseVectorTag,
 		  MatrixCategories::RowColMatrixTag)
 	{ return ger_impl (F, M, a, x, y, A,
-			   typename VectorTraits<Field, Vector1>::VectorCategory (),
-			   typename VectorTraits<Field, Vector2>::VectorCategory (),
+			   typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			   typename VectorTraits<Ring, Vector2>::VectorCategory (),
 			   MatrixCategories::RowMatrixTag ()); }
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::SparseVectorTag,
 		  VectorCategories::SparseVectorTag,
 		  MatrixCategories::RowColMatrixTag)
 	{ return ger_impl (F, M, a, x, y, A,
-			   typename VectorTraits<Field, Vector1>::VectorCategory (),
-			   typename VectorTraits<Field, Vector2>::VectorCategory (),
+			   typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			   typename VectorTraits<Ring, Vector2>::VectorCategory (),
 			   MatrixCategories::RowMatrixTag ()); }
 
 } // namespace BLAS2

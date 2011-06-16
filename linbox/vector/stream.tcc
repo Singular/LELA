@@ -14,8 +14,8 @@
 namespace LinBox
 {
 
-template <class Field, class Vector, class RandIter>
-Vector &RandomDenseStream<Field, Vector, RandIter, VectorCategories::DenseVectorTag>::get (Vector &v) 
+template <class Ring, class Vector, class RandIter>
+Vector &RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseVectorTag>::get (Vector &v) 
 {
 	typename Vector::iterator i;
 
@@ -28,8 +28,8 @@ Vector &RandomDenseStream<Field, Vector, RandIter, VectorCategories::DenseVector
 	return v;
 }
 
-template <class Field, class Vector, class RandIter>
-Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::DenseVectorTag>::get (Vector &v)
+template <class Ring, class Vector, class RandIter>
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::DenseVectorTag>::get (Vector &v)
 {
 	double val;
 
@@ -48,10 +48,10 @@ Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::DenseVecto
 	return v;
 }
 
-template <class Field, class Vector, class RandIter>
-Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseVectorTag>::get (Vector &v) 
+template <class Ring, class Vector, class RandIter>
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseVectorTag>::get (Vector &v) 
 {
-	typename Field::Element x;
+	typename Ring::Element x;
 	size_t i = (size_t) -1;
 	double val;
 	int skip;
@@ -73,14 +73,14 @@ Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseVect
 		if (i >= _n) break;
 
 		_r.random (x);
-		v.push_back (std::pair<size_t, typename Field::Element> (i, x));
+		v.push_back (std::pair<size_t, typename Ring::Element> (i, x));
 	}
 
 	return v;
 }
 
-template <class Field, class Vector, class RandIter>
-Vector &RandomDenseStream<Field, Vector, RandIter, VectorCategories::DenseZeroOneVectorTag>::get (Vector &v) 
+template <class Ring, class Vector, class RandIter>
+Vector &RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseZeroOneVectorTag>::get (Vector &v) 
 {
 	typename Vector::iterator i;
 
@@ -93,8 +93,8 @@ Vector &RandomDenseStream<Field, Vector, RandIter, VectorCategories::DenseZeroOn
 	return v;
 }
 
-template <class Field, class Vector, class RandIter>
-Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseZeroOneVectorTag>::get (Vector &v) 
+template <class Ring, class Vector, class RandIter>
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseZeroOneVectorTag>::get (Vector &v) 
 {
 	size_t i = (size_t) -1;
 	double val;
@@ -122,8 +122,8 @@ Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::SparseZero
 	return v;
 }
 
-template <class Field, class Vector, class RandIter>
-Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::HybridZeroOneVectorTag>::get (Vector &v) 
+template <class Ring, class Vector, class RandIter>
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::HybridZeroOneVectorTag>::get (Vector &v) 
 {
 	size_t i = (size_t) -1;
 	double val;
@@ -157,10 +157,10 @@ Vector &RandomSparseStream<Field, Vector, RandIter, VectorCategories::HybridZero
 	return v;
 }
 
-template <class Field, class Vector>
-Vector &StandardBasisStream<Field, Vector, VectorCategories::DenseVectorTag>::get (Vector &v) 
+template <class Ring, class Vector>
+Vector &StandardBasisStream<Ring, Vector, VectorCategories::DenseVectorTag>::get (Vector &v) 
 {
-	static typename Field::Element zero;
+	static typename Ring::Element zero;
 	typename Vector::iterator i;
 	size_t idx;
 
@@ -176,19 +176,19 @@ Vector &StandardBasisStream<Field, Vector, VectorCategories::DenseVectorTag>::ge
 	return v;
 }
 
-template <class Field, class Vector>
-Vector &StandardBasisStream<Field, Vector, VectorCategories::SparseVectorTag>::get (Vector &v) 
+template <class Ring, class Vector>
+Vector &StandardBasisStream<Ring, Vector, VectorCategories::SparseVectorTag>::get (Vector &v) 
 {
 	v.clear ();
 
 	if (_j < _n)
-		v.push_back (std::pair <size_t, typename Field::Element> (_j++, _one));
+		v.push_back (std::pair <size_t, typename Ring::Element> (_j++, _one));
 
 	return v;
 }
 
-template <class Field, class Vector>
-Vector &StandardBasisStream<Field, Vector, VectorCategories::DenseZeroOneVectorTag >::get (Vector &v) 
+template <class Ring, class Vector>
+Vector &StandardBasisStream<Ring, Vector, VectorCategories::DenseZeroOneVectorTag >::get (Vector &v) 
 {
 	std::fill (v.word_begin (), v.word_end (), 0);
 	v.back_word () = 0;
@@ -200,8 +200,8 @@ Vector &StandardBasisStream<Field, Vector, VectorCategories::DenseZeroOneVectorT
 	return v;
 }
 
-template <class Field, class Vector>
-Vector &StandardBasisStream<Field, Vector, VectorCategories::HybridZeroOneVectorTag>::get (Vector &v) 
+template <class Ring, class Vector>
+Vector &StandardBasisStream<Ring, Vector, VectorCategories::HybridZeroOneVectorTag>::get (Vector &v) 
 {
 	typedef WordTraits<typename Vector::word_type> WT;
 

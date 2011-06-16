@@ -45,10 +45,10 @@ int main (int argc, char **argv)
 	static int hist_level = 1;
 
 	static Argument args[] = {
-		{ 'K', "-K Q", "Operate over the \"field\" GF(Q) [1] for integer modulus.", TYPE_INTEGER, &q1 },
-		{ 'Q', "-Q Q", "Operate over the \"field\" GF(Q) [1] for uint32 modulus.", TYPE_INTEGER, &q2 },
-		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint16 modulus.", TYPE_INTEGER, &q3 },
-		{ 'p', "-p P", "Operate over the \"field\" GF(Q) [1] for uint8 modulus.", TYPE_INT, &q4 },
+		{ 'K', "-K Q", "Operate over the \"ring\" GF(Q) [1] for integer modulus.", TYPE_INTEGER, &q1 },
+		{ 'Q', "-Q Q", "Operate over the \"ring\" GF(Q) [1] for uint32 modulus.", TYPE_INTEGER, &q2 },
+		{ 'q', "-q Q", "Operate over the \"ring\" GF(Q) [1] for uint16 modulus.", TYPE_INTEGER, &q3 },
+		{ 'p', "-p P", "Operate over the \"ring\" GF(Q) [1] for uint8 modulus.", TYPE_INT, &q4 },
 		{ 'n', "-n N", "Set dimension of test vectors to NxN.", TYPE_INT,     &n },
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT,     &iterations },
 		{ 't', "-t T", "Number of trials for the random iterator test.", TYPE_INT, &trials },
@@ -72,11 +72,11 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	if (!runFieldTests (F_integer, "Modular<integer>", iterations, n, false)) pass = false;
-	if (!runFieldTests (F_uint32,  "Modular<uint32>",  iterations, n, false)) pass = false;
-	if (!runFieldTests (F_uint16,  "Modular<uint16>",  iterations, n, false)) pass = false;
-	if (!runFieldTests (F_uint8,  "Modular<uint8>",  iterations, n, false)) pass = false;
-	if (!runFieldTests (F_float,  "Modular<float>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F_integer, "Modular<integer>", iterations, n, false)) pass = false;
+	if (!runRingTests (F_uint32,  "Modular<uint32>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F_uint16,  "Modular<uint16>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F_uint8,  "Modular<uint8>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F_float,  "Modular<float>",  iterations, n, false)) pass = false;
 
 	//if (!testRandomIterator (F_integer, "Modular<integer>", trials, categories, hist_level)) pass = false;
 	if (!testRandomIterator (F_uint32,  "Modular<uint32>", trials, categories, hist_level)) pass = false;

@@ -40,12 +40,12 @@ BASIC_TESTS =  \
 	test-bit-subvector	\
 	test-hybrid-vector	\
         test-vector-domain      \
-        test-unparametric-field \
+        test-unparametric-ring \
 	test-gauss-jordan
 
 # a benchmarker, not to be included in check.
 BENCHMARKS =                    \
-        benchmark-fields        \
+        benchmark-rings        \
 	benchmark-matrix-domain	\
         benchmark-blas-domain
 
@@ -81,8 +81,8 @@ test_gmp_rational_SOURCES =               \
         test-generic.h                    \
         test-common.C
 
-test_unparametric_field_SOURCES =        \
-        test-unparametric-field.C        \
+test_unparametric_ring_SOURCES =        \
+        test-unparametric-ring.C        \
         test-generic.h                   \
         test-common.C
 

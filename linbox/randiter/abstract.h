@@ -31,18 +31,18 @@ namespace LinBox
 {
 
 // forward declarations
-class FieldAbstract;
+class RingAbstract;
 class ElementAbstract;
 
-/** Random field element generator.
- * This encapsulated class is a generator of random field elements for 
- * the encapsulating field.
- * It is required to contain constructors from a field object and
+/** Random ring element generator.
+ * This encapsulated class is a generator of random ring elements for 
+ * the encapsulating ring.
+ * It is required to contain constructors from a ring object and
  * two integers.  The first integer being a cardinality of a set to 
  * draw the random elements from, and the second being a seed for the 
  * random number generator.
  * It is also required to contain a copy constructor, a destructor, and
- * random() which acts on a reference to a field element.  
+ * random() which acts on a reference to a ring element.  
  * The random value is written to the argument
  * and also returned as a reference.
  */
@@ -52,22 +52,22 @@ public:
 
 	typedef ElementAbstract Element;
 
-	/** Virtual constructor from field, sampling size, and seed.
+	/** Virtual constructor from ring, sampling size, and seed.
 	 * Required because constructors cannot be virtual.
 	 * Passes construction on to derived classes.
-	 * The random field element iterator works in the field F, is seeded
+	 * The random ring element iterator works in the ring F, is seeded
 	 * by seed, and it returns any one element with probability no more
 	 * than 1/min (size, F.cardinality (c)).
-	 * A sampling size of zero means to sample from the entire field.
+	 * A sampling size of zero means to sample from the entire ring.
 	 * A seed of zero means to use some arbitrary seed for the generator.
 	 * Purely virtual.
-	 * @param F LinBox field archetype object in which to do arithmetic
+	 * @param F LinBox ring archetype object in which to do arithmetic
 	 * @param size constant integer reference of sample size from which to 
 	 *             sample (default = 0)
 	 * @param seed constant integer reference from which to seed random number
 	 *             generator (default = 0)
 	 */
-	virtual RandIterAbstract *construct (const FieldAbstract &F, 
+	virtual RandIterAbstract *construct (const RingAbstract &F, 
 					     const integer &size = 0, 
 					     const integer &seed = 0) const = 0;
 
@@ -90,7 +90,7 @@ public:
 	 */
 	virtual ~RandIterAbstract (void) {}
 
-	/** Random field element creator.
+	/** Random ring element creator.
 	 * Purely virtual.
 	 * @return reference to ElementAbstract object
 	 */

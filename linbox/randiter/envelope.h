@@ -32,51 +32,51 @@
 namespace LinBox 
 { 
 
-/** Random field base element generator.
- * This encapsulated class is a generator of random field base elements for 
- * the encapsulating field.
- * It is required to contain constructors from a field object and
+/** Random ring base element generator.
+ * This encapsulated class is a generator of random ring base elements for 
+ * the encapsulating ring.
+ * It is required to contain constructors from a ring object and
  * two integers.  The first integer being a cardinality of a set to 
  * draw the random elements from, and the second being a seed for the 
  * random number generator.
  * It is also required to contain a copy constructor, a destructor, and
- * an operator() which acts on a reference to a field base element.  In this 
- * operator(), the random element is placed into the input field base element 
+ * an operator() which acts on a reference to a ring base element.  In this 
+ * operator(), the random element is placed into the input ring base element 
  * and also returned as a reference.
  */
-template <class Field>
+template <class Ring>
 class RandIterEnvelope : public RandIterAbstract
 {
 public:
 
 	/// element type
 	//typedef ElementAbstract element;
-	typedef ElementEnvelope<Field> Element;
+	typedef ElementEnvelope<Ring> Element;
 
-	/** Constructor from field, sampling size, and seed.
-	 * The random field element iterator works in the field F, is seeded
+	/** Constructor from ring, sampling size, and seed.
+	 * The random ring element iterator works in the ring F, is seeded
 	 * by seed, and it returns any one element with probability no more
 	 * than 1/min (size, F.cardinality (c)).
-	 * A sampling size of zero means to sample from the entire field.
+	 * A sampling size of zero means to sample from the entire ring.
 	 * A seed of zero means to use some arbitrary seed for the generator.
-	 * @param F LinBox field envelope object in which to do arithmetic
+	 * @param F LinBox ring envelope object in which to do arithmetic
 	 * @param size constant integer reference of sample size from which to 
 	 *             sample (default = 0)
 	 * @param seed constant integer reference from which to seed random number
 	 *             generator (default = 0)
 	 */
-	RandIterEnvelope (const FieldEnvelope<Field> &F, 
+	RandIterEnvelope (const RingEnvelope<Ring> &F, 
 			  const integer &size = 0, 
 			  const integer &seed = 0)
-		: _randIter (F._field, size, seed) {}
+		: _randIter (F._ring, size, seed) {}
 
-	/** Constructor from random field element generator to be wrapped
-	 * @param R random field element generator object to be wrapped
+	/** Constructor from random ring element generator to be wrapped
+	 * @param R random ring element generator object to be wrapped
 	 */
-	RandIterEnvelope (const typename Field::RandIter &R) : _randIter (R) {}
+	RandIterEnvelope (const typename Ring::RandIter &R) : _randIter (R) {}
 
 	/** Copy constructor.
-	 * Constructs RandIterEnvelope object by copying the random field
+	 * Constructs RandIterEnvelope object by copying the random ring
 	 * element generator.
 	 * This is required to allow generator objects to be passed by value
 	 * into functions.
@@ -86,7 +86,7 @@ public:
 
 	/** Destructor.
 	 * Required by abstract base class.
-	 * This destructs the random field element generator object.
+	 * This destructs the random ring element generator object.
 	 */
 	~RandIterEnvelope () {}
     
@@ -103,25 +103,25 @@ public:
 		return *this;
 	}
  
-	/** Virtual constructor from field, sampling size, and seed.
+	/** Virtual constructor from ring, sampling size, and seed.
 	 * Required because constructors cannot be virtual.
 	 * Passes construction on to derived classes.
-	 * The random field element iterator works in the field F, is seeded
+	 * The random ring element iterator works in the ring F, is seeded
 	 * by seed, and it returns any one element with probability no more
 	 * than 1/min (size, F.cardinality (c)).
-	 * A sampling size of zero means to sample from the entire field.
+	 * A sampling size of zero means to sample from the entire ring.
 	 * A seed of zero means to use some arbitrary seed for the generator.
 	 * Required by abstract base class.
-	 * @param F LinBox field abstract object in which to do arithmetic
+	 * @param F LinBox ring abstract object in which to do arithmetic
 	 * @param size constant integer reference of sample size from which to 
 	 *             sample (default = 0)
 	 * @param seed constant integer reference from which to seed random number
 	 *             generator (default = 0)
 	 */
-	RandIterAbstract *construct (const FieldAbstract &F, 
+	RandIterAbstract *construct (const RingAbstract &F, 
 				     const integer &size = 0, 
 				     const integer &seed = 0) const
-		{ return new RandIterEnvelope (static_cast<const FieldEnvelope<Field>&> (F)._field, size, seed); }
+		{ return new RandIterEnvelope (static_cast<const RingEnvelope<Ring>&> (F)._ring, size, seed); }
 
 	/** Virtual copy constructor.
 	 * Required because constructors cannot be virtual.
@@ -132,24 +132,24 @@ public:
 	RandIterAbstract* clone (void) const
 		{ return new RandIterEnvelope (*this); }
 
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
+	/** Random ring element creator.
+	 * This returns a random ring element from the information supplied
 	 * at the creation of the generator.
 	 * Required by abstract base class.
-	 * @return reference to random field element
+	 * @return reference to random ring element
 	 */
 	ElementAbstract &random (ElementAbstract &a) const
 		//{ return  _randIter.random (a); }
 		// GV Thu Apr 18 14:46:46 MEST 2002
 		// modify by P.G. 2004-07-16
 	{
-		_randIter.random(static_cast<ElementEnvelope<Field>&> (a)._elem );
+		_randIter.random(static_cast<ElementEnvelope<Ring>&> (a)._elem );
 		return  a; 
 	}
 
 private:
 
-	typename Field::RandIter _randIter;
+	typename Ring::RandIter _randIter;
 
 }; // class RandIterEnvelope
 

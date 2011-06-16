@@ -36,13 +36,13 @@ class InvalidMatrixInput {};
 class NotImplemented {};
 
 /// Class to read a matrix from an istream
-template <class Field>
+template <class Ring>
 class MatrixReader {
-	const Field &_F;
+	const Ring &_F;
 
 public:
-	/// Construct a new MatrixReader using the field F for element-input
-	MatrixReader (const Field &F) : _F (F) {}
+	/// Construct a new MatrixReader using the ring F for element-input
+	MatrixReader (const Ring &F) : _F (F) {}
 
 	/// Read a matrix from the istream is and place the data in the matrix A
 	template <class Matrix>
@@ -100,7 +100,7 @@ private:
 				      VectorCategories::HybridZeroOneVectorTag) const;
 	template <class Vector>
 	void readPNGBlock (Vector &v, png_byte x, size_t start, size_t stop) const
-		{ readPNGBlockSpecialised (v, x, start, stop, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+		{ readPNGBlockSpecialised (v, x, start, stop, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
 
 	template <class Vector>
 	void readPNGRow (Vector &v, png_bytep row, size_t width) const;
@@ -123,34 +123,34 @@ private:
 #endif // __LINBOX_HAVE_LIBPNG	
 
 	template <class Vector>
-	void appendEntry (Vector &v, size_t index, const typename Field::Element &a) const
-		{ appendEntrySpecialised (v, index, a, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+	void appendEntry (Vector &v, size_t index, const typename Ring::Element &a) const
+		{ appendEntrySpecialised (v, index, a, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::DenseVectorTag) const;
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseVectorTag) const;
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::SparseVectorTag) const
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::SparseVectorTag) const
 		{ if (!_F.isZero (a)) v.push_back (typename std::iterator_traits<typename Vector::iterator>::value_type (index, a)); }
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::DenseZeroOneVectorTag) const;
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseZeroOneVectorTag) const;
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::SparseZeroOneVectorTag) const
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::SparseZeroOneVectorTag) const
 		{ if (!_F.isZero (a)) v.push_back (index); }
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::HybridZeroOneVectorTag) const;
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::HybridZeroOneVectorTag) const;
 };
 
-template <class Field>
+template <class Ring>
 class MatrixWriter {
-	const Field &_F;
+	const Ring &_F;
 
 public:
-	/// Construct a new MatrixWriter using the field F for element-output
-	MatrixWriter (const Field &F) : _F (F) {}
+	/// Construct a new MatrixWriter using the ring F for element-output
+	MatrixWriter (const Ring &F) : _F (F) {}
 
 	template <class Matrix>
 	std::ostream &write (std::ostream &os, const Matrix &A, FileFormatTag format = FORMAT_PRETTY) const;
@@ -200,7 +200,7 @@ private:
 
 	template <class Vector>
 	void copyToPNGData (png_bytep data, const Vector &v, size_t width) const
-		{ copyToPNGDataSpecialised (data, v, width, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+		{ copyToPNGDataSpecialised (data, v, width, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
 
 	template <class Matrix>
 	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::RowMatrixTag) const;

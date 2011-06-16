@@ -152,100 +152,100 @@ class Splicer {
 					unsigned int inner_source,
 					unsigned int only_source) const;
 
-	template <class Field, class Vector>
-	void attach_e_i_specialised (const Field &F, Vector &row, size_t idx, VectorCategories::DenseVectorTag) const
+	template <class Ring, class Vector>
+	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseVectorTag) const
 		{ row[idx] = F.one (); }
 
-	template <class Field, class Vector>
-	void attach_e_i_specialised (const Field &F, Vector &row, size_t idx, VectorCategories::SparseVectorTag) const
+	template <class Ring, class Vector>
+	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseVectorTag) const
 		{ row.push_back (typename Vector::value_type (idx, F.one ())); }
 
-	template <class Field, class Vector>
-	void attach_e_i_specialised (const Field &F, Vector &row, size_t idx, VectorCategories::DenseZeroOneVectorTag) const
+	template <class Ring, class Vector>
+	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseZeroOneVectorTag) const
 		{ row[idx] = F.one (); }
 
-	template <class Field, class Vector>
-	void attach_e_i_specialised (const Field &F, Vector &row, size_t idx, VectorCategories::SparseZeroOneVectorTag) const
+	template <class Ring, class Vector>
+	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseZeroOneVectorTag) const
 		{ row.push_back (typename Vector::value_type (idx)); }
 
-	template <class Field, class Vector>
-	void attach_e_i_specialised (const Field &F, Vector &row, size_t idx, VectorCategories::HybridZeroOneVectorTag) const
+	template <class Ring, class Vector>
+	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::HybridZeroOneVectorTag) const
 		{ row.push_back (typename Vector::value_type
 				 (idx >> WordTraits<typename Vector::word_type>::logof_size,
 				  Vector::Endianness::e_j (idx & WordTraits<typename Vector::word_type>::pos_mask))); }
 
-	template <class Field, class Vector>
-	void attach_e_i (const Field &F, Vector &row, size_t idx) const
-		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Field, Vector>::VectorCategory ()); }
+	template <class Ring, class Vector>
+	void attach_e_i (const Ring &F, Vector &row, size_t idx) const
+		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
 
 	size_t round_up (size_t v, size_t x) const
 		{ return ((v + x - 1) / x) * x; }
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag) const
 		{ std::copy (in.begin () + src_idx, in.begin () + (src_idx + size), out.begin () + dest_idx); }
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const;
 
 	template <class Vector>
 	void append_word (Vector &v, size_t index, typename Vector::word_type word) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block_specialised (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const;
 
-	template <class Field, class Vector1, class Vector2>
-	void attach_block (const Field &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size) const
+	template <class Ring, class Vector1, class Vector2>
+	void attach_block (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size) const
 		{ attach_block_specialised (F, out, in, src_idx, dest_idx, size,
-					    typename VectorTraits<Field, Vector1>::VectorCategory (),
-					    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+					    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+					    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
 
-	template <class Field, class Matrix>
-	void attach_identity (const Field &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
+	template <class Ring, class Matrix>
+	void attach_identity (const Ring &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
 
-	template <class Field, class Matrix>
-	void attach_identity (const Field &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
+	template <class Ring, class Matrix>
+	void attach_identity (const Ring &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
 
-	template <class Field, class Matrix1, class Matrix2>
-	void attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
+	template <class Ring, class Matrix1, class Matrix2>
+	void attach_source (const Ring &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
 
-	template <class Field, class Matrix1, class Matrix2>
-	void attach_source (const Field &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
+	template <class Ring, class Matrix1, class Matrix2>
+	void attach_source (const Ring &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
 
 	bool check_blocks (const std::vector<Block> &blocks, const char *type) const;
 	void consolidate_blocks (std::vector<Block> &blocks);
@@ -347,7 +347,7 @@ public:
 	/** Splice the given set of matrices input into the set of
 	 * matrices output
 	 *
-	 * @param F Field over which matrices are defined. Needed to
+	 * @param F Ring over which matrices are defined. Needed to
 	 * build identity-matrix when requested and to copy vectors.
 	 *
 	 * @param input Array of arrays of @ref MatrixPart objects
@@ -360,11 +360,11 @@ public:
 	 * zero. If the type is not TYPE_MATRIX, then it is ignored by
 	 * this operation.
 	 */
-	template <class Field, class Matrix1, class Matrix2>
-	void splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const;
+	template <class Ring, class Matrix1, class Matrix2>
+	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const;
 
-	template <class Field, class Matrix1, class Matrix2>
-	void splice (const Field &F, MatrixPart<Matrix1, MatrixCategories::ColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::ColMatrixTag> **output) const;
+	template <class Ring, class Matrix1, class Matrix2>
+	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::ColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::ColMatrixTag> **output) const;
 };
 
 } // namespace LinBox

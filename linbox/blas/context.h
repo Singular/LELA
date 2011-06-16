@@ -26,16 +26,16 @@ struct GenericModule {};
 
 /** All modules
  *
- * This module enables all modules available for the given field. It
- * should be specialised for each field based on what is available.
+ * This module enables all modules available for the given ring. It
+ * should be specialised for each ring based on what is available.
  */
-template <class Field>
+template <class Ring>
 struct AllModules : public GenericModule {};
 
 /** Context-object
  *
  * This object encapsulates parameters required to do calculations on
- * a matrix. It stores the field of computation, settings (such as the
+ * a matrix. It stores the ring of computation, settings (such as the
  * cutoff for fast matrix-multiplication), and temporary storage.
  *
  * This object is not designed to be reentrant, therefore there must
@@ -49,15 +49,15 @@ struct AllModules : public GenericModule {};
  * structure. The default is @ref AllModules, which uses all modules
  * available.
  */
-template <class Field, class Modules = AllModules<Field> >
+template <class Ring, class Modules = AllModules<Ring> >
 class Context
 {
 public:
-	const Field &F;
+	const Ring &F;
 	Modules M;
 
-	/// Construct a Context from a field
-	Context (const Field &_F) : F (_F) {}
+	/// Construct a Context from a ring
+	Context (const Ring &_F) : F (_F) {}
 
 	/// Copy-constructor
 	Context (const Context &ctx) : F (ctx.F), M (ctx.M) {}

@@ -13,7 +13,6 @@ pkgincludesub_HEADERS=		\
 	sparse.h		\
 	hybrid.h		\
 	reverse.h		\
-	random.h                \
 	stream.h		\
 	stream.tcc		\
 	bit-iterator.h		\

@@ -20,15 +20,15 @@
 using namespace LinBox;
 using namespace F4;
 
-typedef GF2 Field;
+typedef GF2 Ring;
 
 static const double nonzero_density = 0.1;
 
 namespace F4Tests {
 
-typedef Adaptor<Field>::Endianness Endianness;
-typedef GaussJordan<Field>::SparseMatrix SparseMatrix;
-typedef GaussJordan<Field>::SparseMatrix::Row SparseVector;
+typedef Adaptor<Ring>::Endianness Endianness;
+typedef GaussJordan<Ring>::SparseMatrix SparseMatrix;
+typedef GaussJordan<Ring>::SparseMatrix::Row SparseVector;
 
 // Generate a random sparse vector in which all nonzero entries occur after column col and the entry at col is guaranteed to be one
 
@@ -110,18 +110,18 @@ void smallTest () {
 	size_t n = 96;
 
 	SparseMatrix A (m, n), C (m, n);
-	GaussJordan<Field>::DenseMatrix L (m, m);
-	GaussJordan<Field>::Permutation P;
+	GaussJordan<Ring>::DenseMatrix L (m, m);
+	GaussJordan<Ring>::Permutation P;
 
 	createRandomF4Matrix (A);
 
-	Field F (2);
-	Context<Field> ctx (F);
-	F4Solver<Field> Solver (ctx);
-	GaussJordan<Field> GJ (ctx);
+	Ring F (2);
+	Context<Ring> ctx (F);
+	F4Solver<Ring> Solver (ctx);
+	GaussJordan<Ring> GJ (ctx);
 
 	size_t rank;
-	Field::Element det;
+	Ring::Element det;
 
 	BLAS3::copy (ctx, A, C);
 
@@ -139,7 +139,7 @@ void smallTest () {
 	F.write (report, det) << std::endl;
 
 	size_t rank1;
-	Field::Element det1;
+	Ring::Element det1;
 
 	GJ.StandardRowEchelonForm (C, L, P, rank1, det1, true, false);
 
@@ -190,8 +190,8 @@ void CheckHybridMatrix (const SparseMatrix &A)
 // Real test using data from a PNG-file
 
 void fileTest (char *filename, char *output) {
-	Field F (2);
-	Context<Field> ctx (F);
+	Ring F (2);
+	Context<Ring> ctx (F);
 
 	SparseMatrix A;
 
@@ -214,10 +214,10 @@ void fileTest (char *filename, char *output) {
 
 	CheckHybridMatrix (A);
 
-	F4Solver<Field> Solver (ctx);
+	F4Solver<Ring> Solver (ctx);
 
 	size_t rank;
-	Field::Element det;
+	Ring::Element det;
 
 	Solver.RowEchelonForm (A, A, rank, det);
 

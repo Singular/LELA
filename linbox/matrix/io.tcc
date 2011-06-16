@@ -20,9 +20,9 @@
 namespace LinBox
 {
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::read (std::istream &is, Matrix &A, FileFormatTag format) const
+std::istream &MatrixReader<Ring>::read (std::istream &is, Matrix &A, FileFormatTag format) const
 {
 	if (format == FORMAT_DETECT)
 		format = detectFormat (is);
@@ -70,19 +70,19 @@ std::istream &MatrixReader<Field>::read (std::istream &is, Matrix &A, FileFormat
 	}
 }
 
-template <class Field>
-FileFormatTag MatrixReader<Field>::detectFormat (std::istream &is) const
+template <class Ring>
+FileFormatTag MatrixReader<Ring>::detectFormat (std::istream &is) const
 {
 	throw NotImplemented ();
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readTurner (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readTurner (std::istream &is, Matrix &A) const
 {
 	size_t i, j;
 
-	typename Field::Element x;
+	typename Ring::Element x;
 
 	char buf[BUF_SIZE];
 
@@ -108,9 +108,9 @@ std::istream &MatrixReader<Field>::readTurner (std::istream &is, Matrix &A) cons
 	return is;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readGuillaume (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readGuillaume (std::istream &is, Matrix &A) const
 {
 	size_t m, n, i, j;
 	char c;
@@ -122,7 +122,7 @@ std::istream &MatrixReader<Field>::readGuillaume (std::istream &is, Matrix &A) c
 
 	A.resize (m, n);
 
-	typename Field::Element x;
+	typename Ring::Element x;
 
 	while (is >> i) {
 		if (i == 0 || i == (size_t) -1) {
@@ -145,27 +145,27 @@ std::istream &MatrixReader<Field>::readGuillaume (std::istream &is, Matrix &A) c
 	return is;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readOneBased (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readOneBased (std::istream &is, Matrix &A) const
 {
 	throw NotImplemented ();
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readMaple (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readMaple (std::istream &is, Matrix &A) const
 {
 	throw NotImplemented ();
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readMatlab (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readMatlab (std::istream &is, Matrix &A) const
 {
 	size_t i = 0, j = 0;
 	char c;
-	typename Field::Element a_ij;
+	typename Ring::Element a_ij;
 
 	while (1) {
 		do
@@ -202,19 +202,19 @@ std::istream &MatrixReader<Field>::readMatlab (std::istream &is, Matrix &A) cons
 	return is;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readSage (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readSage (std::istream &is, Matrix &A) const
 {
 	throw NotImplemented ();
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readPretty (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readPretty (std::istream &is, Matrix &A) const
 {
 	size_t i, j;
-	typename Field::Element a_ij;
+	typename Ring::Element a_ij;
 	char c;
 
 	i = 0;
@@ -267,9 +267,9 @@ std::istream &MatrixReader<Field>::readPretty (std::istream &is, Matrix &A) cons
 	return is;
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixReader<Field>::appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::DenseVectorTag) const
+void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseVectorTag) const
 {
 	if (v.size () <= index)
 		v.resize (index + 1);
@@ -277,9 +277,9 @@ void MatrixReader<Field>::appendEntrySpecialised (Vector &v, size_t index, const
 	v[index] = a;
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixReader<Field>::appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::DenseZeroOneVectorTag) const
+void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseZeroOneVectorTag) const
 {
 	if (v.size () <= index)
 		v.resize (index + 1);
@@ -287,16 +287,16 @@ void MatrixReader<Field>::appendEntrySpecialised (Vector &v, size_t index, const
 	v[index] = a;
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixReader<Field>::appendEntrySpecialised (Vector &v, size_t index, const typename Field::Element &a, VectorCategories::HybridZeroOneVectorTag) const
+void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::HybridZeroOneVectorTag) const
 {
 	throw NotImplemented ();
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::write (std::ostream &os, const Matrix &A, FileFormatTag format) const
+std::ostream &MatrixWriter<Ring>::write (std::ostream &os, const Matrix &A, FileFormatTag format) const
 {
 	// Avoid massive unneeded overhead in the case that this
 	// printing is disabled
@@ -345,9 +345,9 @@ std::ostream &MatrixWriter<Field>::write (std::ostream &os, const Matrix &A, Fil
 	return os;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writeTurner (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writeTurner (std::ostream &os, const Matrix &A) const
 {
 	typename Matrix::ConstRawIterator i_elt;
 	typename Matrix::ConstRawIndexedIterator i_idx;
@@ -364,9 +364,9 @@ std::ostream &MatrixWriter<Field>::writeTurner (std::ostream &os, const Matrix &
 	return os;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writeOneBased (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writeOneBased (std::ostream &os, const Matrix &A) const
 {
 	typename Matrix::ConstRawIterator i_elt;
 	typename Matrix::ConstRawIndexedIterator i_idx;
@@ -381,9 +381,9 @@ std::ostream &MatrixWriter<Field>::writeOneBased (std::ostream &os, const Matrix
 	return os;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writeGuillaume (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writeGuillaume (std::ostream &os, const Matrix &A) const
 {
 	os << A.rowdim () << ' ' << A.coldim () << " M" << std::endl;
 	writeOneBased (os, A);
@@ -391,13 +391,13 @@ std::ostream &MatrixWriter<Field>::writeGuillaume (std::ostream &os, const Matri
 	return os;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writeMaple (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writeMaple (std::ostream &os, const Matrix &A) const
 {
 	size_t i, j;
 
-	typename Field::Element a;
+	typename Ring::Element a;
 
 	if (A.rowdim () == 0) {
 		os << "[]";
@@ -428,13 +428,13 @@ std::ostream &MatrixWriter<Field>::writeMaple (std::ostream &os, const Matrix &A
 	return os;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writeMatlab (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writeMatlab (std::ostream &os, const Matrix &A) const
 {
 	size_t i, j;
 
-	typename Field::Element a;
+	typename Ring::Element a;
 
 	if (A.rowdim () == 0) {
 		os << "[]";
@@ -463,9 +463,9 @@ std::ostream &MatrixWriter<Field>::writeMatlab (std::ostream &os, const Matrix &
 	return os;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writeSage (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writeSage (std::ostream &os, const Matrix &A) const
 {
 	size_t i, j;
 
@@ -476,7 +476,7 @@ std::ostream &MatrixWriter<Field>::writeSage (std::ostream &os, const Matrix &A)
 
 	os << "matrix([ ";
 
-	typename Field::Element a;
+	typename Ring::Element a;
 
 	for (i = 0; i < A.rowdim (); ++i) {
 		if (i == 0)
@@ -503,16 +503,16 @@ std::ostream &MatrixWriter<Field>::writeSage (std::ostream &os, const Matrix &A)
 	return os;
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writePretty (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writePretty (std::ostream &os, const Matrix &A) const
 {
 	integer c;
 
 	_F.characteristic (c);
 	unsigned col_width = (int) ceil (log (c.get_d ()) / M_LN10);
 
-	typename Field::Element a;
+	typename Ring::Element a;
 
 	size_t i, j;
 

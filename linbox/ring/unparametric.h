@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
  
-#ifndef __LINBOX_field_unparametric_H
-#define __LINBOX_field_unparametric_H
+#ifndef __LINBOX_ring_unparametric_H
+#define __LINBOX_ring_unparametric_H
 #include <typeinfo>
 
 #include <string>
@@ -32,25 +32,25 @@
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/randiter/unparametric.h"
-#include "linbox/ring/field-interface.h"
-#include "linbox/ring/field-traits.h"
+#include "linbox/ring/ring-interface.h"
+#include "linbox/ring/traits.h"
 #include "linbox/blas/context.h"
 
 namespace LinBox 
 {
 
-/** \brief Unparameterized field adapter.
-    \ingroup field
+/** \brief Unparameterized ring adapter.
+    \ingroup ring
 
-    A field having an interface similar to that of floats is adapted to LinBox.
+    A ring having an interface similar to that of floats is adapted to LinBox.
 
-    Used to generate efficient field classes for unparameterized fields (or hidden parameter fields).
+    Used to generate efficient ring classes for unparameterized rings (or hidden parameter rings).
 	 
-    Some fields are implemented by definition of the C++ arithmetic operators, such as z = x*y, 
-    for z, y, z instances of a type K.   The LinBox field 
+    Some rings are implemented by definition of the C++ arithmetic operators, such as z = x*y, 
+    for z, y, z instances of a type K.   The LinBox ring 
     Unparametric<K> is the adaptation to LinBox.
 
-    For a typical unparametric field, some of the methods must be defined in a specialization. 
+    For a typical unparametric ring, some of the methods must be defined in a specialization. 
 
 */
 
@@ -58,16 +58,16 @@ template <class Ring>
 struct ClassifyRing;
 
 template <class K>
-class UnparametricField;
+class UnparametricRing;
 
 template <class K>
-struct ClassifyRing<UnparametricField<K> >
+struct ClassifyRing<UnparametricRing<K> >
 {
 	typedef RingCategories::GenericTag categoryTag;
 };
 
 template <class K>
-class UnparametricField : public FieldInterface
+class UnparametricRing : public RingInterface
 {
 protected:
 	integer _p;
@@ -75,50 +75,50 @@ protected:
 
 public:
     
-	/** @name Common Object Interface for a LinBox Field.
-	 * These methods and member types are required of all LinBox fields.
-	 * See \ref{FieldArchetype} for detailed specifications.
+	/** @name Common Object Interface for a LinBox Ring.
+	 * These methods and member types are required of all LinBox rings.
+	 * See \ref{RingArchetype} for detailed specifications.
 	 */
 	//@{
     
-	/** The field's element type.
+	/** The ring's element type.
 	 * Type K must provide a default constructor, 
 	 * a copy constructor, a destructor, and an assignment operator.
 	 */
 
 	typedef K Element;    
 
-	/// Type of random field element generators.
+	/// Type of random ring element generators.
 	typedef UnparametricRandIter<K> RandIter;
 
-	/** @name Field Object Basics.
+	/** @name Ring Object Basics.
 	 */
 	//@{
     
-	/** Builds this field to have characteristic q and cardinality q<sup>e</sup>.
+	/** Builds this ring to have characteristic q and cardinality q<sup>e</sup>.
 	 *  This constructor must be defined in a specialization.
 	 */
-	UnparametricField (integer q = 0, size_t e = 1)
+	UnparametricRing (integer q = 0, size_t e = 1)
 		: _p (q),
 		  _card ((q == 0) ? integer (-1) : pow (q.get_d (), e))
 		{}  // assuming q is a prime or zero.
 
-	/// construct this field as copy of F.
-	UnparametricField (const UnparametricField &F)
+	/// construct this ring as copy of F.
+	UnparametricRing (const UnparametricRing &F)
 		: _p (F._p),
 		  _card (F._card)
 		{}
     
 	/// 
-	~UnparametricField () {}
+	~UnparametricRing () {}
     
 	/* Assignment operator.
-	 * Assigns UnparametricField object F to field.
-	 * @param  F UnparametricField object.
+	 * Assigns UnparametricRing object F to ring.
+	 * @param  F UnparametricRing object.
 	 */
-	const UnparametricField &operator=(const UnparametricField &F) const { return *this; }
+	const UnparametricRing &operator=(const UnparametricRing &F) const { return *this; }
 
-	//@} Field Object Basics.
+	//@} Ring Object Basics.
     
 	/** @name Data Object Management.
 	 * first argument is set and the value is also returned.
@@ -157,11 +157,11 @@ public:
 	Element &assign (Element &x, const Element &y) const
 		{ return x = y; }
 
-	/// c := cardinality of this field (-1 if infinite).
+	/// c := cardinality of this ring (-1 if infinite).
 	integer &cardinality (integer &c) const
 		{ return c = _card; }
     
-	/// c := characteristic of this field (zero or prime).
+	/// c := characteristic of this ring (zero or prime).
 	integer &characteristic (integer &c) const
 		{ return c = _p; }
 
@@ -258,32 +258,32 @@ public:
 	/** @name Input/Output Operations */
 	//@{
     
-	/** Print field.
-	 * @return output stream to which field is written.
-	 * @param  os  output stream to which field is written.
+	/** Print ring.
+	 * @return output stream to which ring is written.
+	 * @param  os  output stream to which ring is written.
 	 */
 	std::ostream &write (std::ostream &os) const
-		{ return os << "unparameterized field(" << sizeof (Element) <<',' << typeid (Element).name() << ')'; }
+		{ return os << "unparameterized ring(" << sizeof (Element) <<',' << typeid (Element).name() << ')'; }
     
-	/** Read field.
-	 * @return input stream from which field is read.
-	 * @param  is  input stream from which field is read.
+	/** Read ring.
+	 * @return input stream from which ring is read.
+	 * @param  is  input stream from which ring is read.
 	 */
 	std::istream &read (std::istream &is) const
 		{ return is; }
     
-	/** Print field element.
-	 * @return output stream to which field element is written.
-	 * @param  os  output stream to which field element is written.
-	 * @param  x   field element.
+	/** Print ring element.
+	 * @return output stream to which ring element is written.
+	 * @param  os  output stream to which ring element is written.
+	 * @param  x   ring element.
 	 */
 	std::ostream &write (std::ostream &os, const Element &x) const
 		{ return os << x; }
     
-	/** Read field element.
-	 * @return input stream from which field element is read.
-	 * @param  is  input stream from which field element is read.
-	 * @param  x   field element.
+	/** Read ring element.
+	 * @return input stream from which ring element is read.
+	 * @param  is  input stream from which ring element is read.
+	 * @param  x   ring element.
 	 */
 	std::istream &read (std::istream &is, Element &x) const
 		{ return is >> x; }
@@ -293,64 +293,64 @@ public:
 	//@} Common Object Interface
     
 	/** @name Implementation-Specific Methods.
-	 * These methods are not required of all LinBox fields
-	 * and are included only for the implementation of this field
+	 * These methods are not required of all LinBox rings
+	 * and are included only for the implementation of this ring
 	 * template.
 	 */
 	//@{
     
 	/// Default constructor
-	//UnparametricField (void) {}
+	//UnparametricRing (void) {}
     
-	/** Constructor from field object.
-	 * @param  A unparameterized field object
+	/** Constructor from ring object.
+	 * @param  A unparameterized ring object
 	 */
-	UnparametricField (const K &A) {} 
+	UnparametricRing (const K &A) {} 
     
 	/** Constant access operator.
-	 * @return constant reference to field object
+	 * @return constant reference to ring object
 	 */
 	const K &operator () (void) const { return Element (); }
     
 	/** Access operator.
-	 * @return reference to field object
+	 * @return reference to ring object
 	 */
 	K &operator () (void) { return Element (); }
     
 	//@} Implementation-Specific Methods
 
-}; // template <class K> class UnparametricField
+}; // template <class K> class UnparametricRing
 
-template<class Field>
-class FieldAXPY;
+template<class Ring>
+class RingAXPY;
 
 template<>
-class FieldAXPY<UnparametricField<integer> >
+class RingAXPY<UnparametricRing<integer> >
 {
 public:
-	typedef UnparametricField<integer> Field;
+	typedef UnparametricRing<integer> Ring;
 	typedef integer Element;
 
 	/** Constructor.
-	 * A faxpy object if constructed from a Field and a field element.
+	 * A faxpy object if constructed from a Ring and a ring element.
 	 * Copies of this objects are stored in the faxpy object.
-	 * @param F field F in which arithmetic is done
+	 * @param F ring F in which arithmetic is done
 	 */
-	FieldAXPY (const Field &F)
+	RingAXPY (const Ring &F)
 		: _F (F)
 		{ _y = 0; }
  
 	/** Copy constructor.
 	 * @param faxpy
 	 */
-	FieldAXPY (const FieldAXPY<Field> &faxpy)
+	RingAXPY (const RingAXPY<Ring> &faxpy)
 		: _F (faxpy._F), _y (faxpy._y)
 		{}
  
 	/** Assignment operator
 	 * @param faxpy
 	 */
-	FieldAXPY<Field> &operator = (const FieldAXPY &faxpy)
+	RingAXPY<Ring> &operator = (const RingAXPY &faxpy)
 		{ _y = faxpy._y; return *this; }
  
 	/** Add a*x to y
@@ -375,11 +375,11 @@ public:
 		{ y = _y; return y; }
  
 	/** Assign method.
-	 * Stores new field element for arithmetic.
+	 * Stores new ring element for arithmetic.
 	 * @return reference to self
 	 * @param y_init constant reference to element a
 	 */
-	inline FieldAXPY &assign (const Element& y)
+	inline RingAXPY &assign (const Element& y)
 	{
 		_y = y;
 		return *this;
@@ -390,10 +390,10 @@ public:
 			
 private:
  
-	/// Field in which arithmetic is done
-	Field _F;
+	/// Ring in which arithmetic is done
+	Ring _F;
  
-	/// Field element for arithmetic
+	/// Ring element for arithmetic
 	Element _y;
 
 };
@@ -401,10 +401,10 @@ private:
 struct BLASModule : public GenericModule {};
 
 template <>
-struct AllModules<UnparametricField<float> > : public BLASModule {};
+struct AllModules<UnparametricRing<float> > : public BLASModule {};
 
 template <>
-struct AllModules<UnparametricField<double> > : public BLASModule {};
+struct AllModules<UnparametricRing<double> > : public BLASModule {};
 
 } // namespace LinBox
 
@@ -418,7 +418,7 @@ struct AllModules<UnparametricField<double> > : public BLASModule {};
 #include "linbox/blas/level2-generic.tcc"
 #include "linbox/blas/level3-generic.tcc"
 
-#endif // __LINBOX_field_unparametric_H
+#endif // __LINBOX_ring_unparametric_H
 
 // Local Variables:
 // mode: C++

@@ -41,7 +41,7 @@ class GMPRationalRandIter
     
 	typedef GMPRationalElement Element;
     
-	GMPRationalRandIter (const GMPRationalField &F,
+	GMPRationalRandIter (const GMPRationalRing &F,
 			     const integer &size = 0,
 			     const integer &seed = 0)
 		: _F (F), _size (size), _seed (seed)
@@ -129,23 +129,23 @@ class GMPRationalRandIter
 		return a;
 	}
  
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
+	/** Random ring element creator.
+	 * This returns a random ring element from the information supplied
 	 * at the creation of the generator.
 	 * Required by abstract base class.
-	 * @return reference to random field element
+	 * @return reference to random ring element
 	 */
 	ElementAbstract &random (ElementAbstract &a)  const
 	{
 		Element tmp;
 
 		random (tmp);
-		return (a = ElementEnvelope <GMPRationalField> (tmp));
+		return (a = ElementEnvelope <GMPRationalRing> (tmp));
 	}
 
     private:
 
-	GMPRationalField _F;
+	GMPRationalRing _F;
 
 	integer _size;
 	integer _seed;

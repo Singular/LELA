@@ -22,16 +22,16 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowMatrixTag,
 		    VectorCategories::GenericVectorTag,
 		    VectorCategories::DenseVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.rowdim ()));
 
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
@@ -41,7 +41,7 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Vector2::iterator j = y.begin ();
 
-	typename Field::Element d;
+	typename Ring::Element d;
 
 	for (; i != A.rowEnd (); ++j, ++i) {
 		BLAS1::_dot (F, M, d, x, *i, start_idx, end_idx);
@@ -52,16 +52,16 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 	return y;
 }
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowMatrixTag,
 		    VectorCategories::GenericVectorTag,
 		    VectorCategories::SparseVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.rowdim ()));
 
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
@@ -69,10 +69,10 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 	linbox_check (end_idx <= A.coldim ());
 
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
-	typename Field::Element t;
+	typename Ring::Element t;
 	unsigned int idx = 0;
 
-	typename Vector<Field>::Sparse yp;
+	typename Vector<Ring>::Sparse yp;
 
 	if (F.isZero (b))
 		y.clear ();
@@ -84,22 +84,22 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 		F.mulin (t, a);
 
 		if (!F.isZero (t))
-			yp.push_back (typename Vector<Field>::Sparse::value_type (idx, t));
+			yp.push_back (typename Vector<Ring>::Sparse::value_type (idx, t));
 	}
 
 	return BLAS1::_axpy (F, M, F.one (), yp, y);
 }
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::ColMatrixTag,
 		    VectorCategories::DenseVectorTag,
 		    VectorCategories::GenericVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	if (end_idx == (size_t) -1)
@@ -109,7 +109,7 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector1::const_iterator j = x.begin () + start_idx, j_end = x.begin () + end_idx;
-	typename Field::Element d;
+	typename Ring::Element d;
 
 	BLAS1::_scal (F, M, b, y);
 
@@ -121,16 +121,16 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 	return y;
 }
 
-template <class Field, class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Field &F, GenericModule &M,
-		    const typename Field::Element &a, const Matrix &A, const Vector1 &x, const typename Field::Element &b, Vector2 &y,
+template <class Ring, class Matrix, class Vector1, class Vector2>
+Vector2 &gemv_impl (const Ring &F, GenericModule &M,
+		    const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::ColMatrixTag,
 		    VectorCategories::SparseVectorTag,
 		    VectorCategories::GenericVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.rowdim ()));
 
 	if (end_idx == (size_t) -1)
 		end_idx = A.coldim ();
@@ -139,7 +139,7 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 
 	typename Vector1::const_iterator j =
 		(start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
-	typename Field::Element d;
+	typename Ring::Element d;
 
 	BLAS1::_scal (F, M, b, y);
 
@@ -153,20 +153,20 @@ Vector2 &gemv_impl (const Field &F, GenericModule &M,
 }
 
 // FIXME: Not yet implemented
-template <class Field, class Matrix, class Vector>
-Vector &trmv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+template <class Ring, class Matrix, class Vector>
+Vector &trmv_impl (const Ring &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowMatrixTag,
 		   VectorCategories::DenseVectorTag);
 
-template <class Field, class Matrix, class Vector>
-Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+template <class Ring, class Matrix, class Vector>
+Vector &trsv_impl (const Ring &F, GenericModule &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowMatrixTag,
 		   VectorCategories::DenseVectorTag)
 {
 	linbox_check (A.coldim () == A.rowdim ());
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.rowdim ()));
 
-	typename Field::Element ai, ai_inv, neg_ai_inv, d;
+	typename Ring::Element ai, ai_inv, neg_ai_inv, d;
 
 	if (diagIsOne) {
 		F.assign (neg_ai_inv, F.minusOne ());
@@ -220,19 +220,19 @@ Vector &trsv_impl (const Field &F, GenericModule &M, const Matrix &A, Vector &x,
 	return x;
 }
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::DenseVectorTag,
 		  VectorCategories::DenseVectorTag,
 		  MatrixCategories::RowMatrixTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.coldim ()));
 
 	typename Matrix::RowIterator i_A;
 	typename Vector1::const_iterator i_x;
 
-	typename Field::Element axi;
+	typename Ring::Element axi;
 
 	for (i_A = A.rowBegin (), i_x = x.begin (); i_A != A.rowEnd (); ++i_A, ++i_x) {
 		F.mul (axi, a, *i_x);
@@ -242,18 +242,18 @@ Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Elemen
 	return A;
 }
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::SparseVectorTag,
 		  VectorCategories::SparseVectorTag,
 		  MatrixCategories::RowMatrixTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.coldim ()));
 
 	typename Vector1::const_iterator i_x;
 
-	typename Field::Element axi;
+	typename Ring::Element axi;
 
 	for (i_x = x.begin (); i_x != x.end (); ++i_x) {
 		F.mul (axi, a, i_x->second);
@@ -263,19 +263,19 @@ Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Elemen
 	return A;
 }
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::DenseVectorTag,
 		  VectorCategories::DenseVectorTag,
 		  MatrixCategories::ColMatrixTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.coldim ()));
 
 	typename Matrix::ColIterator i_A;
 	typename Vector2::const_iterator i_y;
 
-	typename Field::Element ayi;
+	typename Ring::Element ayi;
 
 	for (i_A = A.colBegin (), i_y = y.begin (); i_A != A.colEnd (); ++i_A, ++i_y) {
 		F.mul (ayi, a, *i_y);
@@ -285,18 +285,18 @@ Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Elemen
 	return A;
 }
 
-template <class Field, class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+template <class Ring, class Vector1, class Vector2, class Matrix>
+Matrix &ger_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 		  VectorCategories::SparseVectorTag,
 		  VectorCategories::SparseVectorTag,
 		  MatrixCategories::ColMatrixTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, A.rowdim ()));
-	linbox_check (VectorWrapper::hasDim<Field> (y, A.coldim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, A.rowdim ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (y, A.coldim ()));
 
 	typename Vector2::const_iterator i_y;
 
-	typename Field::Element ayi;
+	typename Ring::Element ayi;
 
 	for (i_y = y.begin (); i_y != y.end (); ++i_y) {
 		F.mul (ayi, a, i_y->second);

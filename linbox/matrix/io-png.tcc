@@ -24,8 +24,8 @@
 namespace LinBox
 {
 
-template <class Field>
-bool MatrixReader<Field>::isPNG (std::istream &is) const
+template <class Ring>
+bool MatrixReader<Ring>::isPNG (std::istream &is) const
 {
 	png_byte pngsig[_png_sig_size];
 
@@ -36,16 +36,16 @@ bool MatrixReader<Field>::isPNG (std::istream &is) const
 	return png_sig_cmp (pngsig, 0, _png_sig_size) == 0;
 }
 
-template <class Field>
-void MatrixReader<Field>::PNGReadData (png_structp png_ptr, png_bytep data, png_size_t length)
+template <class Ring>
+void MatrixReader<Ring>::PNGReadData (png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	png_voidp a = png_get_io_ptr (png_ptr);
 	((std::istream *) a)->read ((char *) data, length);
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixReader<Field>::readPNGRow (Vector &v, png_bytep row, size_t width) const
+void MatrixReader<Ring>::readPNGRow (Vector &v, png_bytep row, size_t width) const
 {
 	size_t i;
 
@@ -56,9 +56,9 @@ void MatrixReader<Field>::readPNGRow (Vector &v, png_bytep row, size_t width) co
 		readPNGBlock (v, row[i], i * (8 * sizeof (png_byte)), width % (8 * sizeof (png_byte)));
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixReader<Field>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
 						   VectorCategories::DenseZeroOneVectorTag) const
 {
 	typedef typename std::iterator_traits<typename Vector::word_iterator>::value_type word_type;
@@ -74,9 +74,9 @@ void MatrixReader<Field>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t
 			*i |= mask;
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixReader<Field>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
 						   VectorCategories::SparseZeroOneVectorTag) const
 {
 	size_t idx;
@@ -87,9 +87,9 @@ void MatrixReader<Field>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t
 			v.push_back (start + idx);
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixReader<Field>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
+void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
 						   VectorCategories::HybridZeroOneVectorTag) const
 {
 	typename Vector::index_type idx = start >> WordTraits<typename Vector::word_type>::logof_size;
@@ -108,9 +108,9 @@ void MatrixReader<Field>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t
 	}
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Field>::readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::RowMatrixTag) const
+std::istream &MatrixReader<Ring>::readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::RowMatrixTag) const
 {
 	png_structp png_ptr;
 	png_infop info_ptr, end_ptr;
@@ -200,23 +200,23 @@ std::istream &MatrixReader<Field>::readPNGSpecialised (std::istream &is, Matrix 
 	return is;
 }
 
-template <class Field>
-void MatrixWriter<Field>::PNGWriteData (png_structp png_ptr, png_bytep data, png_size_t length)
+template <class Ring>
+void MatrixWriter<Ring>::PNGWriteData (png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	png_voidp a = png_get_io_ptr (png_ptr);
 	((std::ostream *) a)->write ((char *) data, length);
 }
 
-template <class Field>
-void MatrixWriter<Field>::PNGFlush (png_structp png_ptr)
+template <class Ring>
+void MatrixWriter<Ring>::PNGFlush (png_structp png_ptr)
 {
 	png_voidp a = png_get_io_ptr (png_ptr);
 	((std::ostream *) a)->flush ();
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixWriter<Field>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::DenseZeroOneVectorTag) const
+void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::DenseZeroOneVectorTag) const
 {
 	typename Vector::const_iterator i;
 	size_t idx;
@@ -229,9 +229,9 @@ void MatrixWriter<Field>::copyToPNGDataSpecialised (png_bytep data, const Vector
 	}
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixWriter<Field>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::SparseZeroOneVectorTag) const
+void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::SparseZeroOneVectorTag) const
 {
 	typename Vector::const_iterator i;
 
@@ -241,9 +241,9 @@ void MatrixWriter<Field>::copyToPNGDataSpecialised (png_bytep data, const Vector
 		data[*i / WordTraits<png_byte>::bits] &= ~BigEndian<png_byte>::e_j (*i & WordTraits<png_byte>::pos_mask);
 }
 
-template <class Field>
+template <class Ring>
 template <class Vector>
-void MatrixWriter<Field>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::HybridZeroOneVectorTag) const
+void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::HybridZeroOneVectorTag) const
 {
 	typename Vector::const_iterator i;
 	typename Vector::word_type t;
@@ -263,9 +263,9 @@ void MatrixWriter<Field>::copyToPNGDataSpecialised (png_bytep data, const Vector
 	}
 }
 
-template <class Field>
+template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Field>::writePNGSpecialised (std::ostream &os, const Matrix &A, MatrixCategories::RowMatrixTag) const
+std::ostream &MatrixWriter<Ring>::writePNGSpecialised (std::ostream &os, const Matrix &A, MatrixCategories::RowMatrixTag) const
 {
 	png_structp png_ptr;
 	png_infop info_ptr;

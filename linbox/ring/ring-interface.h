@@ -1,19 +1,19 @@
-/* linbox/ring/field-interface.h
+/* linbox/ring/ring-interface.h
  * Copyright (C) 2002 David Saunders
  *
  * For licensing information see COPYING
  */
 
-#ifndef __LINBOX_field_interface_H
-#define __LINBOX_field_interface_H
+#ifndef __LINBOX_ring_interface_H
+#define __LINBOX_ring_interface_H
 
 namespace LinBox
 {
-// LinBox Field Interface
+// LinBox Ring Interface
 ///
 /*
- * The LinBox {@link Fields field} common object {@link Interfaces interface}.
- * The field interface includes the following public members:
+ * The LinBox {@link Rings ring} common object {@link Interfaces interface}.
+ * The ring interface includes the following public members:
  *
  * Types: {\tt Element} and {\tt RandIter}.
  *
@@ -21,7 +21,7 @@ namespace LinBox
  *   null constructor, copy constructor, destructor, assignment operator, 
  *   {\tt convert(), init(), assign(), characteristic(), cardinality()}.
  *
- * Predicates on field elements:
+ * Predicates on ring elements:
  *   {\tt areEqual(), isZero(), isOne()}.
  *
  * Basic arithmetic functions:
@@ -31,25 +31,25 @@ namespace LinBox
  *   {\tt axpyin(), addin(), negin(), subin(), mulin(), invin(), divin()}.
  *
  * I/O functions:
- *   {\tt read()} and {\tt write()} for I/O of the field itself and for I/O of its elements.
+ *   {\tt read()} and {\tt write()} for I/O of the ring itself and for I/O of its elements.
  *
- * The field archetype class is is the reference instantiation of this 
+ * The ring archetype class is is the reference instantiation of this 
  * interface and contains the generic specifications of the member functions.
- * Documentation in other field classes is more limited. It serves primarily to explain special properties 
+ * Documentation in other ring classes is more limited. It serves primarily to explain special properties 
  * specific to the class of the interface member functions and to explain any constructors 
  * or other functionality unique to the class.
  *
  *  @see Interfaces
 */
 /** 
- * \brief This field base class exists solely to aid documentation organization.
+ * \brief This ring base class exists solely to aid documentation organization.
 
 
- *  For the general field member function documentation consult the {@link FieldArchetype
- FieldArchetype}. For specific properties of individual representations consult the specific field classes.
- \ingourp field
+ *  For the general ring member function documentation consult the {@link RingArchetype
+ RingArchetype}. For specific properties of individual representations consult the specific ring classes.
+ \ingourp ring
  */
-class FieldInterface 
+class RingInterface 
 {
 /*
     public:
@@ -61,7 +61,7 @@ class FieldInterface
 
 } // namespace LinBox
 
-#endif // __LINBOX_field_interface_H
+#endif // __LINBOX_ring_interface_H
 
 // Local Variables:
 // mode: C++

@@ -28,26 +28,26 @@ namespace LinBox
 {
 
 // forward declarations
-template <class K> class UnparametricField;
+template <class K> class UnparametricRing;
 		
-/** Unparameterized random field element generator template.
- * Implements LinBox random field element generator common object interface 
- * for unparameterized fields.
- * Used to generate efficient field classes for unparameterized fields.
- * Constructs LinBox unparameterized random field element generators from 
- * field types K.
- * In particular, constructs LinBox random field element generators for
- * unparameterized fields from field types that
+/** Unparameterized random ring element generator template.
+ * Implements LinBox random ring element generator common object interface 
+ * for unparameterized rings.
+ * Used to generate efficient ring classes for unparameterized rings.
+ * Constructs LinBox unparameterized random ring element generators from 
+ * ring types K.
+ * In particular, constructs LinBox random ring element generators for
+ * unparameterized rings from ring types that
  * adhere to the operations for double, for
  * example UnparametricRandIter< float >.
  * Can be used as a pattern to write a particular
- * field interface, such as, UnparametricRandIter< SaclibQ > as
+ * ring interface, such as, UnparametricRandIter< SaclibQ > as
  * a template specialization.
  * This implementation uses the standard C++ random number generator.  Thus,
- * only one random field element generator can be used at a time since 
+ * only one random ring element generator can be used at a time since 
  * creating a new one will re-seed the built-in generator and affect all 
  * current LinBox generators.
- * @param  K unparameterized field class
+ * @param  K unparameterized ring class
  */
 template <class K>
 class UnparametricRandIter
@@ -55,31 +55,31 @@ class UnparametricRandIter
 public:
 		
 	/** @name Common Object Interface.
-	 * These methods are required of all LinBox random field element generators.
+	 * These methods are required of all LinBox random ring element generators.
 	 */
 	//@{
 	 
-	/** Field element type.
-	 * The field element must contain a default constructor, 
+	/** Ring element type.
+	 * The ring element must contain a default constructor, 
 	 * a copy constructor, a destructor, and an assignment operator.
 	 */
 	typedef K Element;    
 
-	/** Constructor from field, sampling size, and seed.
-	 * The random field element iterator works in the field F, is seeded
+	/** Constructor from ring, sampling size, and seed.
+	 * The random ring element iterator works in the ring F, is seeded
 	 * by seed, and it returns any one element with probability no more
 	 * than 1/min(size, F.cardinality(c)).
-	 * A sampling size of zero means to sample from the entire field.
+	 * A sampling size of zero means to sample from the entire ring.
 	 * A seed of zero means to use some arbitrary seed for the generator.
 	 * This implementation sets the sampling size to be no more than the
-	 * cardinality of the field.
-	 * @param F LinBox field archetype object in which to do arithmetic
+	 * cardinality of the ring.
+	 * @param F LinBox ring archetype object in which to do arithmetic
 	 * @param size constant integer reference of sample size from which to 
 	 *             sample (default = 0)
 	 * @param seed constant integer reference from which to seed random number
 	 *             generator (default = 0)
 	 */
-	UnparametricRandIter (const UnparametricField<K> &F,
+	UnparametricRandIter (const UnparametricRing<K> &F,
 			      const integer &size = 0,
 			      const integer &seed = 0)
 		: _size(size), _seed(seed)
@@ -103,11 +103,11 @@ public:
 	}
 
 	/** Copy constructor.
-	 * Constructs UnparametricRandIter object by copying the random field
+	 * Constructs UnparametricRandIter object by copying the random ring
 	 * element generator.
 	 * This is required to allow generator objects to be passed by value
 	 * into functions.
-	 * In this implementation, this means copying the random field element
+	 * In this implementation, this means copying the random ring element
 	 * generator to which R._randIter_ptr points.
 	 * @param  R UnparametricRandIter object.
 	 */
@@ -115,7 +115,7 @@ public:
 		: _size(R._size), _seed(R._seed) {}
 
 	/** Destructor.
-	 * This destructs the random field element generator object.
+	 * This destructs the random ring element generator object.
 	 * In this implementation, this destroys the generator by deleting 
 	 * the random generator object to which _randIter_ptr points.
 	 */
@@ -137,10 +137,10 @@ public:
 		return *this;
 	}
  
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
+	/** Random ring element creator.
+	 * This returns a random ring element from the information supplied
 	 * at the creation of the generator.
-	 * @return random field element
+	 * @return random ring element
 	 */
 	Element& random (Element& x) const
 	{
@@ -155,7 +155,7 @@ public:
 	 
 	/** @name Implementation-Specific Methods.
 	 * These methods are not required of all 
-	 * \Ref{LinBox Random field element generators}
+	 * \Ref{LinBox Random ring element generators}
 	 * and are included only for this implementation of the archetype.
 	 */
 	//@{

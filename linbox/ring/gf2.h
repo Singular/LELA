@@ -8,8 +8,8 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_field_gf2_H
-#define __LINBOX_field_gf2_H
+#ifndef __LINBOX_ring_gf2_H
+#define __LINBOX_ring_gf2_H
 
 #include <iostream>
 #include <climits>
@@ -19,11 +19,11 @@
 #include "linbox/util/debug.h"
 #include "linbox/blas/context.h"
 #include "linbox/integer.h"
-#include "linbox/ring/field-interface.h"
+#include "linbox/ring/ring-interface.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/hybrid.h"
 #include "linbox/vector/sparse-subvector-hybrid.h"
-#include "linbox/ring/field-traits.h"
+#include "linbox/ring/traits.h"
 
 #ifdef __LINBOX_HAVE_M4RI
 #  include "linbox/matrix/m4ri-matrix.h"
@@ -38,11 +38,11 @@ class GF2RandIter;
 /** 
  * \brief Integers modulo 2
  *
- * This is a tuned implementation of the field of integers modulo
+ * This is a tuned implementation of the ring of integers modulo
  * 2. In particular, when one constructs a VectorDomain object over
- * this field, highly optimized bit operations will be used to make
+ * this ring, highly optimized bit operations will be used to make
  * vector arithmetic very fast.
- \ingroup field
+ \ingroup ring
  */
 
 template <class Ring>
@@ -55,7 +55,7 @@ struct ClassifyRing<GF2> {
 	typedef RingCategories::ModularTag categoryTag;
 };
 
-class GF2 : public FieldInterface
+class GF2 : public RingInterface
 {
     public:
 
@@ -86,8 +86,8 @@ class GF2 : public FieldInterface
 	}
 
 	/** Copy constructor.
-	 * Constructs Modular object by copying the field.
-	 * This is required to allow field objects to be passed by value
+	 * Constructs Modular object by copying the ring.
+	 * This is required to allow ring objects to be passed by value
 	 * into functions.
 	 * @param  F Modular object.
 	 */
@@ -102,14 +102,14 @@ class GF2 : public FieldInterface
 	const GF2 &operator = (const GF2 &) 
 		{ return *this; }
 
-	/** Initialization of field base element from an integer.
+	/** Initialization of ring base element from an integer.
 	 * Behaves like C++ allocator construct.
-	 * This function assumes the output field base element x has already been
+	 * This function assumes the output ring base element x has already been
 	 * constructed, but that it is not already initialized.
 	 * This is not a specialization of the template function because
 	 * such a specialization is not allowed inside the class declaration.
-	 * @return reference to field base element.
-	 * @param x field base element to contain output (reference returned).
+	 * @return reference to ring base element.
+	 * @param x ring base element to contain output (reference returned).
 	 * @param y integer.
 	 */
 	Element &init (Element &x, const int &y = 0) const
@@ -140,12 +140,12 @@ class GF2 : public FieldInterface
 	std::_Bit_reference init (std::_Bit_reference x, const integer &y = 0) const
 		{ return x = y.get_si () & 1; }
 
-	/** Conversion of field base element to a template class T.
-	 * This function assumes the output field base element x has already been
+	/** Conversion of ring base element to a template class T.
+	 * This function assumes the output ring base element x has already been
 	 * constructed, but that it is not already initialized.
 	 * @return reference to template class T.
 	 * @param x template class T to contain output (reference returned).
-	 * @param y constant field base element.
+	 * @param y constant ring base element.
 	 */
 	integer &convert (integer &x, Element y) const
 		{ return x = y; }
@@ -177,12 +177,12 @@ class GF2 : public FieldInterface
 // 	double &convert (double &x, Element y) const
 // 		{ return x = static_cast<double>(y); }
  
-	/** Assignment of one field base element to another.
-	 * This function assumes both field base elements have already been
+	/** Assignment of one ring base element to another.
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &assign (Element &x, Element y) const
 		{ return x = y; }
@@ -218,37 +218,37 @@ class GF2 : public FieldInterface
 	/** @name Arithmetic Operations
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field base elements will
+	 * before the operation is called.  Uninitialized ring base elements will
 	 * give undefined results.
 	 */
 	//@{
 
 	/** Equality of two elements.
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return boolean true if equal, false if not.
-	 * @param  x field base element
-	 * @param  y field base element
+	 * @param  x ring base element
+	 * @param  y ring base element
 	 */
 	bool areEqual (Element x, Element y) const
 		{ return x == y; }
 
 	/** Zero equality.
-	 * Test if field base element is equal to zero.
-	 * This function assumes the field base element has already been
+	 * Test if ring base element is equal to zero.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return boolean true if equals zero, false if not.
-	 * @param  x field base element.
+	 * @param  x ring base element.
 	 */
 	bool isZero (Element x) const
 		{ return !x; }
  
 	/** One equality.
-	 * Test if field base element is equal to one.
-	 * This function assumes the field base element has already been
+	 * Test if ring base element is equal to one.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return boolean true if equals one, false if not.
-	 * @param  x field base element.
+	 * @param  x ring base element.
 	 */
 	bool isOne (Element x) const
 		{ return x; }
@@ -258,36 +258,36 @@ class GF2 : public FieldInterface
 	/** @name Input/Output Operations */
 	//@{
 
-	/** Print field.
-	 * @return output stream to which field is written.
-	 * @param  os  output stream to which field is written.
+	/** Print ring.
+	 * @return output stream to which ring is written.
+	 * @param  os  output stream to which ring is written.
 	 */
 	std::ostream &write (std::ostream &os) const 
 		{ return os << "integers mod 2"; }
 
-	/** Read field.
-	 * @return input stream from which field is read.
-	 * @param  is  input stream from which field is read.
+	/** Read ring.
+	 * @return input stream from which ring is read.
+	 * @param  is  input stream from which ring is read.
 	 */
 	std::istream &read (std::istream &is)
 		{ return is; }
 
-	/** Print field base element.
-	 * This function assumes the field base element has already been
+	/** Print ring base element.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
-	 * @return output stream to which field base element is written.
-	 * @param  os  output stream to which field base element is written.
-	 * @param  x   field base element.
+	 * @return output stream to which ring base element is written.
+	 * @param  os  output stream to which ring base element is written.
+	 * @param  x   ring base element.
 	 */
 	std::ostream &write (std::ostream &os, Element x) const
 		{ return os << x; }
  
-	/** Read field base element.
-	 * This function assumes the field base element has already been
+	/** Read ring base element.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
-	 * @return input stream from which field base element is read.
-	 * @param  is  input stream from which field base element is read.
-	 * @param  x   field base element.
+	 * @return input stream from which ring base element is read.
+	 * @param  is  input stream from which ring base element is read.
+	 * @param  x   ring base element.
 	 */
 	std::istream &read (std::istream &is, Element &x) const
 		{ int v; is >> v; if (v == 0) x = false; else x = true; return is; }
@@ -304,19 +304,19 @@ class GF2 : public FieldInterface
 	/** @name Arithmetic Operations
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field base elements will
+	 * before the operation is called.  Uninitialized ring base elements will
 	 * give undefined results.
 	 */
 	//@{
 
 	/** Addition.
 	 * x = y + z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &add (Element &x, Element y, Element z) const
 		{ return x = y ^ z; }
@@ -330,12 +330,12 @@ class GF2 : public FieldInterface
  
 	/** Subtraction.
 	 * x = y - z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &sub (Element &x, Element y, Element z) const
 		{ return x = y ^ z; }
@@ -349,12 +349,12 @@ class GF2 : public FieldInterface
  
 	/** Multiplication.
 	 * x = y * z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &mul (Element &x, Element y, Element z) const
 		{ return x = y & z; }
@@ -368,12 +368,12 @@ class GF2 : public FieldInterface
  
 	/** Division.
 	 * x = y / z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	Element &div (Element &x, Element y, Element ) const // z is unused!
 		{ return x = y; }
@@ -387,11 +387,11 @@ class GF2 : public FieldInterface
  
 	/** Additive Inverse (Negation).
 	 * x = - y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &neg (Element &x, Element y) const
 		{ return x = y; }
@@ -405,11 +405,11 @@ class GF2 : public FieldInterface
  
 	/** Multiplicative Inverse.
 	 * x = 1 / y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &inv (Element &x, Element y) const
 		{ return x = y; }
@@ -423,13 +423,13 @@ class GF2 : public FieldInterface
 
 	/** Natural AXPY.
 	 * r  = a * x + y
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
-	 * @param  y field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
+	 * @param  y ring element.
 	 */
 	template <class Iterator, class Endianness>
 	BitVectorReference<Iterator, Endianness> axpy (BitVectorReference<Iterator, Endianness> r, 
@@ -456,11 +456,11 @@ class GF2 : public FieldInterface
 
 	/** Inplace Addition.
 	 * x += y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &addin (Element &x, Element y) const
 		{ return x ^= y; }
@@ -474,11 +474,11 @@ class GF2 : public FieldInterface
  
 	/** Inplace Subtraction.
 	 * x -= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &subin (Element &x, Element y) const
 		{ return x ^= y; }
@@ -492,11 +492,11 @@ class GF2 : public FieldInterface
  
 	/** Inplace Multiplication.
 	 * x *= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &mulin (Element &x, Element y) const
 		{ return x &= y; }
@@ -510,11 +510,11 @@ class GF2 : public FieldInterface
  
 	/** Inplace Division.
 	 * x /= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	Element &divin (Element &x, Element ) const //y is unsued !
 		{ return x; }
@@ -528,10 +528,10 @@ class GF2 : public FieldInterface
  
 	/** Inplace Additive Inverse (Inplace Negation).
 	 * x = - x
-	 * This function assumes the field base element has already been
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
+	 * @param  x ring base element (reference returned).
 	 */
 	Element &negin (Element &x) const
 		{ return x; }
@@ -545,10 +545,10 @@ class GF2 : public FieldInterface
  
 	/** Inplace Multiplicative Inverse.
 	 * x = 1 / x
-	 * This function assumes the field base elementhas already been
+	 * This function assumes the ring base elementhas already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
+	 * @param  x ring base element (reference returned).
 	 */
 	Element &invin (Element &x) const
 		{ return x; }
@@ -562,13 +562,13 @@ class GF2 : public FieldInterface
 
 	/** Inplace AXPY.
 	 * r  += a * x
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * Purely virtual
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
 	 */
 	Element &axpyin (Element &r, Element a, Element x) const
 		{ return r ^= a & x; }
@@ -602,13 +602,13 @@ class GF2 : public FieldInterface
 
 	static inline int getMaxModulus() { return 2; }
 
-	/// Return the zero-element of the field
+	/// Return the zero-element of the ring
 	Element zero () const { return false; }
 
-	/// Return the one-element of the field
+	/// Return the one-element of the ring
 	Element one () const { return true; }
 
-	/// Return the negative of the one-element of the field
+	/// Return the negative of the one-element of the ring
 	Element minusOne () const { return true; }
 
 }; // class GF2
@@ -665,7 +665,7 @@ struct AllModules<GF2> : public GenericModule {};
 
 #include "linbox/randiter/gf2.h"
 
-#endif // __LINBOX_field_gf2_H
+#endif // __LINBOX_ring_gf2_H
 
 // Local Variables:
 // mode: C++

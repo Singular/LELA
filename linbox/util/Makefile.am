@@ -21,7 +21,6 @@ pkgincludesub_HEADERS=\
 	error.h		\
 	commentator.h 	\
 	timer.h		\
-	field-axpy.h	\
 	splicer.h	\
 	splicer.tcc	\
 	double-word.h

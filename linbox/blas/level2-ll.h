@@ -19,25 +19,25 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Field, class Modules, class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv (const Field                   &F,
+template <class Ring, class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv (const Ring                   &F,
 		Modules                       &M,
-		const typename Field::Element &a,
+		const typename Ring::Element &a,
 		const Matrix                  &A,
 		const Vector1                 &x,
-		const typename Field::Element &b,
+		const typename Ring::Element &b,
 		Vector2                       &y,
 		size_t                         start_idx = 0,
 		size_t                         end_idx = (size_t) -1);
 
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &_trmv (const Field &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
+template <class Ring, class Modules, class Matrix, class Vector>
+Vector &_trmv (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
 
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &_trsv (const Field &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
+template <class Ring, class Modules, class Matrix, class Vector>
+Vector &_trsv (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
 
-template <class Field, class Modules, class Vector1, class Vector2, class Matrix>
-Matrix &_ger (const Field &F, Modules &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A);
+template <class Ring, class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A);
 
 } // namespace BLAS2
 

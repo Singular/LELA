@@ -1,5 +1,5 @@
 
-/* tests/test-unparametric-field.C
+/* tests/test-unparametric-ring.C
  * Copyright (C) 2002 William J. Turner
  *
  * Written by William J. Turner <wjturner@math.ncsu.edu>
@@ -7,7 +7,7 @@
  * ------------------------------------
  * 2002-04-10 Bradford Hovinen <hovinen@cis.udel.edu>
  *
- * Renamed from test-unparametric-field.cpp to test-unparametric-field.C, so
+ * Renamed from test-unparametric-ring.cpp to test-unparametric-ring.C, so
  * that we are using the same file naming conventions thoughout the library.
  * ------------------------------------
  *
@@ -40,20 +40,20 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start("Unparametric field test suite", "Unparametric");
+	commentator.start("Unparametric ring test suite", "Unparametric");
 	bool pass = true;
 
-	UnparametricField<double> F;
+	UnparametricRing<double> F;
 
 	// Make sure some more detailed messages get printed
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	if (!runFieldTests (F, "UnparametricField<double>", iterations, n, false)) pass = false;
+	if (!runRingTests (F, "UnparametricRing<double>", iterations, n, false)) pass = false;
 
-	FieldArchetype K(new UnparametricField<double>(F));
+	RingArchetype K(new UnparametricRing<double>(F));
 
-	if (!testField<FieldArchetype> (K, "Testing archetype with envelope of UnField field"))
+	if (!testRing<RingArchetype> (K, "Testing archetype with envelope of UnRing ring"))
 		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));

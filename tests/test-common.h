@@ -43,8 +43,8 @@ struct Argument
 // example may be passed as null and will be generated intelligently
 // eg "-b {YN+-}" for bools, "-v v" for all else
 
-template <class Field, class Polynomial>
-void printPolynomial (Field &F, ostream &output, const Polynomial &v) 
+template <class Ring, class Polynomial>
+void printPolynomial (Ring &F, ostream &output, const Polynomial &v) 
 {
 	int i;
 	size_t val;

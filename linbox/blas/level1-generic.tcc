@@ -20,8 +20,8 @@ namespace LinBox
 namespace BLAS1 
 {
 
-template <class Field, class Vector1, class Vector2>
-typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Field::Element &res, const Vector1 &x, const Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+typename Ring::Element &dot_impl (const Ring &F, GenericModule &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
@@ -39,12 +39,12 @@ typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Fi
 	return res;
 }
 
-template <class Field, class Vector1, class Vector2>
-typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Field::Element &res, const Vector1 &x, const Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+typename Ring::Element &dot_impl (const Ring &F, GenericModule &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, y.size ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
 
 	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
@@ -60,8 +60,8 @@ typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Fi
 	return res;
 }
 
-template <class Field, class Vector1, class Vector2>
-typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Field::Element &res, const Vector1 &x, const Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+typename Ring::Element &dot_impl (const Ring &F, GenericModule &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
@@ -87,8 +87,8 @@ typename Field::Element &dot_impl (const Field &F, GenericModule &M, typename Fi
 	return res;
 }
 
-template <class Field, class Vector1, class Vector2>
-Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+Vector2 &copy_impl (const Ring &F, GenericModule &M, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
 {
 	typename Vector1::const_iterator i;
@@ -103,11 +103,11 @@ Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 
 	return y;
 }
 
-template <class Field, class Vector1, class Vector2>
-Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+Vector2 &copy_impl (const Ring &F, GenericModule &M, const Vector1 &x, Vector2 &y,
 		    VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, y.size ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, y.size ()));
 
 	typename Vector1::const_iterator j;
 	typename Vector2::iterator i;
@@ -125,8 +125,8 @@ Vector2 &copy_impl (const Field &F, GenericModule &M, const Vector1 &x, Vector2 
 	return y;
 }
 
-template <class Field, class Vector1, class Vector2>
-Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+Vector2 &axpy_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (y.size () == x.size ());
@@ -140,11 +140,11 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	return y;
 }
 
-template <class Field, class Vector1, class Vector2>
-Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+Vector2 &axpy_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
 {
-	typename Vector<Field>::Dense tmp (x.size ());
+	typename Vector<Ring>::Dense tmp (x.size ());
 	_copy (F, M, x, tmp);
 	_scal (F, M, a, tmp);
 	_axpy (F, M, F.one (), y, tmp);
@@ -152,11 +152,11 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	return y;
 }
 
-template <class Field, class Vector1, class Vector2>
-Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+Vector2 &axpy_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
-	linbox_check (VectorWrapper::hasDim<Field> (x, y.size ()));
+	linbox_check (VectorWrapper::hasDim<Ring> (x, y.size ()));
 
 	typename Vector1::const_iterator j;
 
@@ -166,25 +166,25 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	return y;
 }
 
-template <class Field, class Vector>
-void fast_copy (const Field &F, GenericModule &M, SparseVector<typename Field::Element, std::vector<typename Vector::index_type>, std::vector<typename Vector::element_type> > &v, Vector &w)
+template <class Ring, class Vector>
+void fast_copy (const Ring &F, GenericModule &M, SparseVector<typename Ring::Element, std::vector<typename Vector::index_type>, std::vector<typename Vector::element_type> > &v, Vector &w)
 	{ _copy (F, M, v, w); }
 
-template <class Field, class index_type>
-void fast_copy (const Field &F, GenericModule &M,
-		SparseVector<typename Field::Element, std::vector<index_type>, std::vector<typename Field::Element> > &v,
-		SparseVector<typename Field::Element, std::vector<index_type>, std::vector<typename Field::Element> > &w)
+template <class Ring, class index_type>
+void fast_copy (const Ring &F, GenericModule &M,
+		SparseVector<typename Ring::Element, std::vector<index_type>, std::vector<typename Ring::Element> > &v,
+		SparseVector<typename Ring::Element, std::vector<index_type>, std::vector<typename Ring::Element> > &w)
 	{ std::swap (v, w); }
 
-template <class Field, class Vector1, class Vector2>
-Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Element &a, const Vector1 &x, Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+Vector2 &axpy_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
-	SparseVector<typename Field::Element, std::vector<typename Vector2::index_type>, std::vector<typename Vector2::element_type> > tmp;
+	SparseVector<typename Ring::Element, std::vector<typename Vector2::index_type>, std::vector<typename Vector2::element_type> > tmp;
 
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
-	typename Field::Element c;
+	typename Ring::Element c;
 
 	for (i = x.begin (), j = y.begin (); i != x.end (); i++) {
 		while (j != y.end () && j->first < i->first) {
@@ -213,8 +213,8 @@ Vector2 &axpy_impl (const Field &F, GenericModule &M, const typename Field::Elem
 	return y;
 }
 
-template <class Field, class Vector>
-Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Element &a, Vector &x, VectorCategories::DenseVectorTag)
+template <class Ring, class Vector>
+Vector &scal_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, Vector &x, VectorCategories::DenseVectorTag)
 {
 	typename Vector::iterator i;
 
@@ -224,8 +224,8 @@ Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Eleme
 	return x;
 }
 
-template <class Field, class Vector>
-Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Element &a, Vector &x, VectorCategories::SparseVectorTag)
+template <class Ring, class Vector>
+Vector &scal_impl (const Ring &F, GenericModule &M, const typename Ring::Element &a, Vector &x, VectorCategories::SparseVectorTag)
 {
 	typename Vector::iterator i;
 
@@ -240,8 +240,8 @@ Vector &scal_impl (const Field &F, GenericModule &M, const typename Field::Eleme
 	return x;
 }
 
-template <class Field, class Modules, class Iterator, class Vector>
-Vector &permute_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::DenseVectorTag)
+template <class Ring, class Modules, class Iterator, class Vector>
+Vector &permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::DenseVectorTag)
 {
 	for (; P_begin != P_end; ++P_begin)
 		std::swap (v[P_begin->first], v[P_begin->second]);
@@ -262,8 +262,8 @@ typename Iterator::value_type::first_type image (typename Iterator::value_type::
 	return x;
 }
 
-template <class Field, class Modules, class Iterator, class Vector>
-Vector &permute_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseVectorTag)
+template <class Ring, class Modules, class Iterator, class Vector>
+Vector &permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseVectorTag)
 {
 	typename Vector::iterator j;
 
@@ -275,8 +275,8 @@ Vector &permute_impl (const Field &F, Modules &M, Iterator P_begin, Iterator P_e
 	return v;
 }
 
-template <class Field, class Vector1, class Vector2>
-bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+bool equal_impl (const Ring &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
 		 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	typename Vector1::const_iterator i;
@@ -292,8 +292,8 @@ bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vecto
 	return true;
 }
 
-template <class Field, class Vector1, class Vector2>
-bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+bool equal_impl (const Ring &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
 		 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
 	typename Vector1::const_iterator i;
@@ -313,8 +313,8 @@ bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vecto
 	return true;
 }
 
-template <class Field, class Vector1, class Vector2>
-bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
+template <class Ring, class Vector1, class Vector2>
+bool equal_impl (const Ring &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
 		 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
 	typename Vector1::const_iterator i;
@@ -331,8 +331,8 @@ bool equal_impl (const Field &F, GenericModule &M, const Vector1 &x, const Vecto
 	return true;
 }
 
-template <class Field, class Vector>
-bool is_zero_impl (const Field &F, GenericModule &M, const Vector &x, VectorCategories::DenseVectorTag)
+template <class Ring, class Vector>
+bool is_zero_impl (const Ring &F, GenericModule &M, const Vector &x, VectorCategories::DenseVectorTag)
 {
 	typename Vector::const_iterator i;
 
@@ -343,8 +343,8 @@ bool is_zero_impl (const Field &F, GenericModule &M, const Vector &x, VectorCate
 	return true;
 }
 
-template <class Field, class Vector>
-bool is_zero_impl (const Field &F, GenericModule &M, const Vector &x, VectorCategories::SparseVectorTag)
+template <class Ring, class Vector>
+bool is_zero_impl (const Ring &F, GenericModule &M, const Vector &x, VectorCategories::SparseVectorTag)
 {
 	typename Vector::const_iterator i;
 
@@ -355,8 +355,8 @@ bool is_zero_impl (const Field &F, GenericModule &M, const Vector &x, VectorCate
 	return true;
 }
 
-template <class Field, class Vector>
-int head_impl (const Field &F, GenericModule &M, typename Field::Element &a, const Vector &x, VectorCategories::DenseVectorTag)
+template <class Ring, class Vector>
+int head_impl (const Ring &F, GenericModule &M, typename Ring::Element &a, const Vector &x, VectorCategories::DenseVectorTag)
 {
 	typename Vector::const_iterator i;
 
@@ -370,8 +370,8 @@ int head_impl (const Field &F, GenericModule &M, typename Field::Element &a, con
 	}
 }
 
-template <class Field, class Vector>
-int head_impl (const Field &F, GenericModule &M, typename Field::Element &a, const Vector &x, VectorCategories::SparseVectorTag)
+template <class Ring, class Vector>
+int head_impl (const Ring &F, GenericModule &M, typename Ring::Element &a, const Vector &x, VectorCategories::SparseVectorTag)
 {
 	if (x.empty ())
 		return -1;
@@ -381,8 +381,8 @@ int head_impl (const Field &F, GenericModule &M, typename Field::Element &a, con
 	}
 }
 
-template <class Field, class Modules, class Vector>
-std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v, VectorCategories::DenseVectorTag)
+template <class Ring, class Modules, class Vector>
+std::istream &read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorCategories::DenseVectorTag)
 {
 	typename Vector::iterator i;
 	char c;
@@ -408,10 +408,10 @@ std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v
 	return is;
 }
 
-template <class Field, class Modules, class Vector>
-std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v, VectorCategories::SparseVectorTag)
+template <class Ring, class Modules, class Vector>
+std::istream &read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorCategories::SparseVectorTag)
 {
-	typename Field::Element tmp;
+	typename Ring::Element tmp;
 	char c;
 	int idx;
 
@@ -428,7 +428,7 @@ std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v
 		F.read (is, tmp);
 
 		if (!F.isZero (tmp))
-			v.push_back (std::pair <size_t, typename Field::Element> (idx, tmp));
+			v.push_back (std::pair <size_t, typename Ring::Element> (idx, tmp));
 
 		is >> c;
 		idx++;
@@ -437,8 +437,8 @@ std::istream &read_impl (const Field &F, Modules &M, std::istream &is, Vector &v
 	return is;
 }
 
-template <class Field, class Modules, class Vector>
-std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::DenseVectorTag)
+template <class Ring, class Modules, class Vector>
+std::ostream &write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::DenseVectorTag)
 {
 	typename Vector::const_iterator i;
 
@@ -456,8 +456,8 @@ std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Ve
 	return os;
 }
 
-template <class Field, class Modules, class Vector>
-std::ostream &write_impl (const Field &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::SparseVectorTag)
+template <class Ring, class Modules, class Vector>
+std::ostream &write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::SparseVectorTag)
 {
 	typename Vector::const_iterator i;
 	size_t idx;

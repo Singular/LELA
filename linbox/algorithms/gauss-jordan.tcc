@@ -45,9 +45,9 @@
 namespace LinBox
 {
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix>
-int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 						      VectorCategories::DenseVectorTag) const
 {
 	typename Matrix::ConstRowIterator i;
@@ -63,9 +63,9 @@ int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start
 	return -1;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix>
-int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 						      VectorCategories::DenseZeroOneVectorTag) const
 {
 	typename Matrix::ConstRowIterator i;
@@ -81,9 +81,9 @@ int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start
 	return -1;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix>
-int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 						      VectorCategories::SparseVectorTag) const
 {
 	typename SparseMatrix::ConstRowIterator i;
@@ -108,9 +108,9 @@ int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start
 	return pivot;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix>
-int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 						      VectorCategories::SparseZeroOneVectorTag) const
 {
 	typename SparseMatrix::RowIterator i;
@@ -135,13 +135,13 @@ int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start
 	return pivot;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix>
-int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
+int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
 						      VectorCategories::HybridZeroOneVectorTag) const
 {
 	typename SparseMatrix::ConstRowIterator i;
-	typename Field::Element a;
+	typename Ring::Element a;
 
 	size_t min_blocks = (size_t) -1, pivot = -1, k = start_row, s;
 	col = A.coldim ();
@@ -164,19 +164,19 @@ int GaussJordan<Field, Modules>::GetPivotSpecialised (const Matrix &A, int start
 	return pivot;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix>
-void GaussJordan<Field, Modules>::SetIdentity (Matrix &U, size_t start_row) const
+void GaussJordan<Ring, Modules>::SetIdentity (Matrix &U, size_t start_row) const
 {
-	StandardBasisStream<Field, typename Matrix::Row> stream (ctx.F, U.coldim ());
+	StandardBasisStream<Ring, typename Matrix::Row> stream (ctx.F, U.coldim ());
 	typename Matrix::RowIterator i = U.rowBegin () + start_row;
 
 	for (; i != U.rowEnd (); ++i)
 		stream >> *i;
 }
 
-template <class Field, class Modules>
-void GaussJordan<Field, Modules>::GaussJordanTransform (DenseMatrix  &A,
+template <class Ring, class Modules>
+void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
 							int           k,
 							Element       d_0,
 							DenseMatrix  &U,
@@ -342,8 +342,8 @@ void GaussJordan<Field, Modules>::GaussJordanTransform (DenseMatrix  &A,
 	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
 }
 
-template <class Field, class Modules>
-void GaussJordan<Field, Modules>::GaussTransform (DenseMatrix             &A,
+template <class Ring, class Modules>
+void GaussJordan<Ring, Modules>::GaussTransform (DenseMatrix             &A,
 						  Element                  d_0,
 						  typename DenseMatrix::SubmatrixType  &U,
 						  Permutation             &P,
@@ -495,17 +495,17 @@ public:
 		: MutableSubvector<SparseVector<Vector<GF2>::Hybrid::word_type, std::vector<Vector<GF2>::Hybrid::index_type>, std::vector<Vector<GF2>::Hybrid::word_type> > > (v, begin, end) {}
 };
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Vector>
-Vector &GaussJordan<Field, Modules>::FastAxpy (Vector &v, const typename Field::Element &a, const Vector &w, size_t idx) const
+Vector &GaussJordan<Ring, Modules>::FastAxpy (Vector &v, const typename Ring::Element &a, const Vector &w, size_t idx) const
 {
 	MutableSubvector<Vector> t (v, v.begin () + idx, v.end ());
 	BLAS1::axpy (ctx, a, w, t);
 	return v;
 }
 
-template <class Field, class Modules>
-bool GaussJordan<Field, Modules>::testFastAxpyHybridVector () const
+template <class Ring, class Modules>
+bool GaussJordan<Ring, Modules>::testFastAxpyHybridVector () const
 {
 	commentator.start ("Testing FastAxpy", __FUNCTION__);
 
@@ -582,9 +582,9 @@ bool GaussJordan<Field, Modules>::testFastAxpyHybridVector () const
 	return pass;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 								   VectorCategories::DenseVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
@@ -602,7 +602,7 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 
 	int current_row = rank - 1, elim_row;
 
-	typename Field::Element a;
+	typename Ring::Element a;
 
 	i_A = A.rowBegin () + current_row;
 
@@ -639,9 +639,9 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 	return A;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 								   VectorCategories::SparseVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
@@ -695,9 +695,9 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 	return A;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 								   VectorCategories::SparseZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
@@ -755,9 +755,9 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 	return A;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 								   VectorCategories::HybridZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
@@ -806,7 +806,7 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 
 			if (i->first == j_A->front ().first) {
 				v = j_A->front ().second;
-				mask = Adaptor<Field>::Endianness::first_position (v);
+				mask = Adaptor<Ring>::Endianness::first_position (v);
 
 				if ((i_A->begin () + prev_idx)->second & mask) {
 					// DEBUG
@@ -837,7 +837,7 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 				}
 
 				v = j_A->front ().second;
-				mask = Adaptor<Field>::Endianness::first_position (v);
+				mask = Adaptor<Ring>::Endianness::first_position (v);
 			}
 		}
 
@@ -855,9 +855,9 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 	return A;
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
+Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
 								   VectorCategories::DenseZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
@@ -875,7 +875,7 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 
 	int current_row = rank - 1, elim_row;
 
-	typename Field::Element a;
+	typename Ring::Element a;
 
 	i_A = A.rowBegin () + current_row;
 
@@ -912,8 +912,8 @@ Matrix1 &GaussJordan<Field, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, M
 	return A;
 }
 
-template <class Field, class Modules>
-void GaussJordan<Field, Modules>::DenseRowEchelonForm (DenseMatrix &A,
+template <class Ring, class Modules>
+void GaussJordan<Ring, Modules>::DenseRowEchelonForm (DenseMatrix &A,
 						       DenseMatrix &U,
 						       Permutation &P,
 						       size_t      &rank,
@@ -943,9 +943,9 @@ void GaussJordan<Field, Modules>::DenseRowEchelonForm (DenseMatrix &A,
 	commentator.stop (MSG_DONE, NULL, "GaussJordan::DenseRowEchelonForm");
 }
 
-template <class Field, class Modules>
+template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
-void GaussJordan<Field, Modules>::StandardRowEchelonForm (Matrix1       &A,
+void GaussJordan<Ring, Modules>::StandardRowEchelonForm (Matrix1       &A,
 							  Matrix2       &L,
 							  Permutation   &P,
 							  size_t        &rank,
@@ -1058,8 +1058,8 @@ void GaussJordan<Field, Modules>::StandardRowEchelonForm (Matrix1       &A,
 	commentator.stop (MSG_DONE);
 }
 
-template <class Field, class Modules>
-void GaussJordan<Field, Modules>::RunTests () const
+template <class Ring, class Modules>
+void GaussJordan<Ring, Modules>::RunTests () const
 {
 	commentator.start ("GaussJordan: Running internal tests", __FUNCTION__);
 	bool pass = testFastAxpyHybridVector ();

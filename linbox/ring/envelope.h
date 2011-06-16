@@ -27,8 +27,8 @@
  * ------------------------------------
  */
 
-#ifndef __LINBOX_field_envelope_H
-#define __LINBOX_field_envelope_H
+#ifndef __LINBOX_ring_envelope_H
+#define __LINBOX_ring_envelope_H
 
 #include <iostream>
 
@@ -52,59 +52,59 @@ namespace LinBox
 {
 
 // Forward declarations
-template <class Field> class RandIterEnvelope;
+template <class Ring> class RandIterEnvelope;
 
-/** \brief Derived class used to implement the field archetype
- *  \ingroup field
+/** \brief Derived class used to implement the ring archetype
+ *  \ingroup ring
  *
  * Helps to minimize
  * code bloat.  This class implements all purely virtual member functions
  * of the abstract base class.  This class is used to wrap a
  * LinBox
- * field so that it might be used with the Field archetype.
+ * ring so that it might be used with the Ring archetype.
  */
-template <class Field>
-class FieldEnvelope : public FieldAbstract
+template <class Ring>
+class RingEnvelope : public RingAbstract
 {
 public:
 
 	/** element type.
 	 * It is derived from the class ElementAbstract, and it must contain
-	 * a wrapped field element.
+	 * a wrapped ring element.
 	 */
-	typedef ElementEnvelope<Field> Element;
+	typedef ElementEnvelope<Ring> Element;
 
 	/** Random iterator generator type.
 	 * It is derived from the class RandIterAbstract, and it must contain
-	 * a wrapped field random iterator generator.
+	 * a wrapped ring random iterator generator.
 	 */
-	typedef RandIterEnvelope<Field> RandIter;
+	typedef RandIterEnvelope<Ring> RandIter;
 
 	/** @name Object Management
 	 */
 	//@{
  
 	/** Default constructor.
-	 * In this implementation, this means copying the field {\tt E.\_field}.
+	 * In this implementation, this means copying the ring {\tt E.\_ring}.
 	 */
-	FieldEnvelope (void) {}
+	RingEnvelope (void) {}
 
-	/** Constructor from field to be wrapped.
-	 * @param F Field object to be wrapped.
+	/** Constructor from ring to be wrapped.
+	 * @param F Ring object to be wrapped.
 	 */
-	FieldEnvelope (const Field &F) : _field (F) {}
+	RingEnvelope (const Ring &F) : _ring (F) {}
  
 	/** Copy constructor.
-	 * Constructs FieldEnvelope object by copying the field.
-	 * This is required to allow field objects to be passed by value
+	 * Constructs RingEnvelope object by copying the ring.
+	 * This is required to allow ring objects to be passed by value
 	 * into functions.
-	 * In this implementation, this means copying the field {\tt E.\_field}.
-	 * @param  E FieldEnvelope object.
+	 * In this implementation, this means copying the ring {\tt E.\_ring}.
+	 * @param  E RingEnvelope object.
 	 */
-	FieldEnvelope (const FieldEnvelope &E) : _field (E._field) {}
+	RingEnvelope (const RingEnvelope &E) : _ring (E._ring) {}
 
 #ifdef __LINBOX_XMLENABLED
-FieldEnvelope(Reader &R) : _field(R) {}
+RingEnvelope(Reader &R) : _ring(R) {}
 #endif
 
  
@@ -114,62 +114,62 @@ FieldEnvelope(Reader &R) : _field(R) {}
 	 * This function is not part of the common object interface.
 	 * @return pointer to new object in dynamic memory.
 	 */
-	FieldAbstract* clone () const
-		{ return new FieldEnvelope (*this); }
+	RingAbstract* clone () const
+		{ return new RingEnvelope (*this); }
 
 	/** Assignment operator.
 	 * Required by abstract base class.
-	 * @return reference to FieldAbstract object for self
-	 * @param F constant reference to FieldAbstract object
+	 * @return reference to RingAbstract object for self
+	 * @param F constant reference to RingAbstract object
 	 */
-	FieldAbstract &operator= (const FieldAbstract &F)
+	RingAbstract &operator= (const RingAbstract &F)
 	{
 		if (this != &F) // guard against self-assignment
-			_field = static_cast<const FieldEnvelope&> (F)._field;
+			_ring = static_cast<const RingEnvelope&> (F)._ring;
 
 		return *this;
 	}
 
-	/** Initialization of field base element from an integer.
+	/** Initialization of ring base element from an integer.
 	 * Behaves like C++ allocator construct.
-	 * This function assumes the output field base element x has already been
+	 * This function assumes the output ring base element x has already been
 	 * constructed, but that it is not already initialized.
 	 * This is not a specialization of the template function because
 	 * such a specialization is not allowed inside the class declaration.
-	 * @return reference to field base element.
-	 * @param x field base element to contain output (reference returned).
+	 * @return reference to ring base element.
+	 * @param x ring base element to contain output (reference returned).
 	 * @param y integer.
 	 */
 	ElementAbstract &init (ElementAbstract &x, const integer &y = 0) const
 	{
-		_field.init (static_cast<ElementEnvelope<Field>&> (x)._elem, y);
+		_ring.init (static_cast<ElementEnvelope<Ring>&> (x)._elem, y);
 		return x;
 	}
  
-	/** Conversion of field base element to a template class T.
-	 * This function assumes the output field base element x has already been
+	/** Conversion of ring base element to a template class T.
+	 * This function assumes the output ring base element x has already been
 	 * constructed, but that it is not already initialized.
 	 * @return reference to template class T.
 	 * @param x template class T to contain output (reference returned).
-	 * @param y constant field base element.
+	 * @param y constant ring base element.
 	 */
 	integer &convert (integer &x, const ElementAbstract &y) const
 	{
-		_field.convert (x, static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.convert (x, static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
  
-	/** Assignment of one field base element to another.
-	 * This function assumes both field base elements have already been
+	/** Assignment of one ring base element to another.
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	ElementAbstract &assign (ElementAbstract &x, const ElementAbstract &y) const
 	{
-		_field.assign (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			       static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.assign (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			       static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
 
@@ -181,7 +181,7 @@ FieldEnvelope(Reader &R) : _field(R) {}
 	 * @return integer representing cardinality of the domain
 	 */
 	integer &cardinality (integer &c) const
-		{ return _field.cardinality (c); }
+		{ return _ring.cardinality (c); }
  
 	/** Characteristic.
 	 * Return integer representing characteristic of the domain.
@@ -190,156 +190,156 @@ FieldEnvelope(Reader &R) : _field(R) {}
 	 * @return integer representing characteristic of the domain.
 	 */
 	integer &characteristic (integer &c) const
-		{ return _field.characteristic (c); }
+		{ return _ring.characteristic (c); }
 
 	//@} Object Management
 
 	/** @name Arithmetic Operations
 	 * x <- y op z; x <- op y
 	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized field base elements will
+	 * before the operation is called.  Uninitialized ring base elements will
 	 * give undefined results.
 	 */
 	//@{
 
 	/** Equality of two elements.
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return boolean true if equal, false if not.
-	 * @param  x field base element
-	 * @param  y field base element
+	 * @param  x ring base element
+	 * @param  y ring base element
 	 */
 	bool areEqual (const ElementAbstract &x, const ElementAbstract &y) const
 	{
-		return _field.areEqual (static_cast<const ElementEnvelope<Field>&> (x)._elem,
-					static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		return _ring.areEqual (static_cast<const ElementEnvelope<Ring>&> (x)._elem,
+					static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 	}
 
 	/** Addition.
 	 * x = y + z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	ElementAbstract &add (ElementAbstract &x,
 			      const ElementAbstract &y,
 			      const ElementAbstract &z) const
 	{
-		_field.add (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (y)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (z)._elem);
+		_ring.add (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (y)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (z)._elem);
 		return x;
 	}
  
 	/** Subtraction.
 	 * x = y - z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	ElementAbstract &sub (ElementAbstract &x,
 			      const ElementAbstract &y,
 			      const ElementAbstract &z) const
 	{
-		_field.sub (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (y)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (z)._elem);
+		_ring.sub (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (y)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (z)._elem);
 		return x;
 	}
  
 	/** Multiplication.
 	 * x = y * z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	ElementAbstract &mul (ElementAbstract &x,
 			      const ElementAbstract &y,
 			      const ElementAbstract &z) const
 	{
-		_field.mul (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (y)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (z)._elem);
+		_ring.mul (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (y)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (z)._elem);
 		return x;
 	}
  
 	/** Division.
 	 * x = y / z
-	 * This function assumes all the field base elements have already been
+	 * This function assumes all the ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
-	 * @param  z field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
+	 * @param  z ring base element.
 	 */
 	ElementAbstract &div (ElementAbstract &x,
 			      const ElementAbstract &y,
 			      const ElementAbstract &z) const
 	{
-		_field.div (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (y)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (z)._elem);
+		_ring.div (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (y)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (z)._elem);
 		return x;
 	}
  
 	/** Additive Inverse (Negation).
 	 * x = - y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	ElementAbstract &neg (ElementAbstract &x, const ElementAbstract &y) const
 	{
-		_field.neg (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.neg (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
  
 	/** Multiplicative Inverse.
 	 * x = 1 / y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	ElementAbstract &inv (ElementAbstract &x, const ElementAbstract &y) const
 	{
-		_field.inv (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			    static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.inv (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			    static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
 
 	/** Natural AXPY.
 	 * r  = a * x + y
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
-	 * @param  y field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
+	 * @param  y ring element.
 	 */
 	ElementAbstract &axpy (ElementAbstract &r, 
 			       const ElementAbstract &a, 
 			       const ElementAbstract &x, 
 			       const ElementAbstract &y) const
 	{
-		_field.axpy (static_cast<ElementEnvelope<Field>&> (r)._elem,
-			     static_cast<const ElementEnvelope<Field>&> (a)._elem,
-			     static_cast<const ElementEnvelope<Field>&> (x)._elem,
-			     static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.axpy (static_cast<ElementEnvelope<Ring>&> (r)._elem,
+			     static_cast<const ElementEnvelope<Ring>&> (a)._elem,
+			     static_cast<const ElementEnvelope<Ring>&> (x)._elem,
+			     static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return r;
 	}
  
@@ -351,128 +351,128 @@ FieldEnvelope(Reader &R) : _field(R) {}
 	//@{
 
 	/** Zero equality.
-	 * Test if field base element is equal to zero.
-	 * This function assumes the field base element has already been
+	 * Test if ring base element is equal to zero.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return boolean true if equals zero, false if not.
-	 * @param  x field base element.
+	 * @param  x ring base element.
 	 */
 	bool isZero (const ElementAbstract &x) const
-	{ return _field.isZero (static_cast<const ElementEnvelope<Field>&> (x)._elem); }
+	{ return _ring.isZero (static_cast<const ElementEnvelope<Ring>&> (x)._elem); }
  
 	/** One equality.
-	 * Test if field base element is equal to one.
-	 * This function assumes the field base element has already been
+	 * Test if ring base element is equal to one.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return boolean true if equals one, false if not.
-	 * @param  x field base element.
+	 * @param  x ring base element.
 	 */
 	bool isOne (const ElementAbstract &x) const
-		{ return _field.isOne (static_cast<const ElementEnvelope<Field>&> (x)._elem); }
+		{ return _ring.isOne (static_cast<const ElementEnvelope<Ring>&> (x)._elem); }
 
 	/** Inplace Addition.
 	 * x += y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	ElementAbstract &addin (ElementAbstract &x, const ElementAbstract &y) const
 	{
-		_field.addin (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			      static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.addin (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			      static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
  
 	/** Inplace Subtraction.
 	 * x -= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	ElementAbstract &subin (ElementAbstract &x, const ElementAbstract &y) const
 	{
-		_field.subin (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			      static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.subin (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			      static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
  
 	/** Inplace Multiplication.
 	 * x *= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	ElementAbstract &mulin (ElementAbstract &x, const ElementAbstract &y) const
 	{
-		_field.mulin (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			      static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.mulin (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			      static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
 
 	/** Inplace Division.
 	 * x /= y
-	 * This function assumes both field base elements have already been
+	 * This function assumes both ring base elements have already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
-	 * @param  y field base element.
+	 * @param  x ring base element (reference returned).
+	 * @param  y ring base element.
 	 */
 	ElementAbstract &divin (ElementAbstract &x, 
 				const ElementAbstract &y) const
 	{
-		_field.divin (static_cast<ElementEnvelope<Field>&> (x)._elem,
-			      static_cast<const ElementEnvelope<Field>&> (y)._elem);
+		_ring.divin (static_cast<ElementEnvelope<Ring>&> (x)._elem,
+			      static_cast<const ElementEnvelope<Ring>&> (y)._elem);
 		return x;
 	}
  
 	/** Inplace Additive Inverse (Inplace Negation).
 	 * x = - x
-	 * This function assumes the field base element has already been
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
+	 * @param  x ring base element (reference returned).
 	 */
 	ElementAbstract &negin (ElementAbstract &x) const
 	{
-		_field.negin (static_cast<ElementEnvelope<Field>&> (x)._elem);
+		_ring.negin (static_cast<ElementEnvelope<Ring>&> (x)._elem);
 		return x;
 	}
  
 	/** Inplace Multiplicative Inverse.
 	 * x = 1 / x
-	 * This function assumes the field base elementhas already been
+	 * This function assumes the ring base elementhas already been
 	 * constructed and initialized.
 	 * @return reference to x.
-	 * @param  x field base element (reference returned).
+	 * @param  x ring base element (reference returned).
 	 */
 	ElementAbstract &invin (ElementAbstract &x) const
 	{
-		_field.invin (static_cast<ElementEnvelope<Field>&> (x)._elem);
+		_ring.invin (static_cast<ElementEnvelope<Ring>&> (x)._elem);
 		return x;
 	}
 
 	/** Inplace AXPY.
 	 * r  += a * x
-	 * This function assumes all field elements have already been 
+	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
 	 * @return reference to r.
-	 * @param  r field element (reference returned).
-	 * @param  a field element.
-	 * @param  x field element.
+	 * @param  r ring element (reference returned).
+	 * @param  a ring element.
+	 * @param  x ring element.
 	 */
 	ElementAbstract &axpyin (ElementAbstract &r, 
 				 const ElementAbstract &a, 
 				 const ElementAbstract &x) const
 	{
-		_field.axpyin (static_cast<ElementEnvelope<Field>&> (r)._elem,
-			       static_cast<const ElementEnvelope<Field>&> (a)._elem,
-			       static_cast<const ElementEnvelope<Field>&> (x)._elem);
+		_ring.axpyin (static_cast<ElementEnvelope<Ring>&> (r)._elem,
+			       static_cast<const ElementEnvelope<Ring>&> (a)._elem,
+			       static_cast<const ElementEnvelope<Ring>&> (x)._elem);
 		return r;
 	}
  
@@ -482,75 +482,75 @@ FieldEnvelope(Reader &R) : _field(R) {}
 	/** @name Input/Output Operations */
 	//@{
 
-	/** Print field.
-	 * @return output stream to which field is written.
-	 * @param  os  output stream to which field is written.
+	/** Print ring.
+	 * @return output stream to which ring is written.
+	 * @param  os  output stream to which ring is written.
 	 */
 	std::ostream &write (std::ostream &os) const
-		{ return _field.write (os); }
+		{ return _ring.write (os); }
  
-	/** Read field.
-	 * @return input stream from which field is read.
-	 * @param  is  input stream from which field is read.
+	/** Read ring.
+	 * @return input stream from which ring is read.
+	 * @param  is  input stream from which ring is read.
 	 */
 	std::istream &read (std::istream &is)
-		{ return _field.read (is); }
+		{ return _ring.read (is); }
 
-	/** Print field base element.
-	 * This function assumes the field base element has already been
+	/** Print ring base element.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
-	 * @return output stream to which field base element is written.
-	 * @param  os  output stream to which field base element is written.
-	 * @param  x   field base element.
+	 * @return output stream to which ring base element is written.
+	 * @param  os  output stream to which ring base element is written.
+	 * @param  x   ring base element.
 	 */
 	std::ostream &write (std::ostream &os, const ElementAbstract &x) const
-		{ return _field.write (os, static_cast<const ElementEnvelope<Field>&> (x)._elem); }
+		{ return _ring.write (os, static_cast<const ElementEnvelope<Ring>&> (x)._elem); }
  
-	/** Read field base element.
-	 * This function assumes the field base element has already been
+	/** Read ring base element.
+	 * This function assumes the ring base element has already been
 	 * constructed and initialized.
-	 * @return input stream from which field base element is read.
-	 * @param  is  input stream from which field base element is read.
-	 * @param  x   field base element.
+	 * @return input stream from which ring base element is read.
+	 * @param  is  input stream from which ring base element is read.
+	 * @param  x   ring base element.
 	 */
 	std::istream &read (std::istream &is, ElementAbstract &x) const
-		{ return _field.read (is, static_cast<ElementEnvelope<Field>&> (x)._elem); }
+		{ return _ring.read (is, static_cast<ElementEnvelope<Ring>&> (x)._elem); }
 
 	//@}
 #else
 	std::ostream &write (ostream &os) const
-		{ return _field.write(os); }
+		{ return _ring.write(os); }
 
 	bool toTag (Writer &W) const
-		{ return _field.toTag (W); }
+		{ return _ring.toTag (W); }
 
 	std::ostream &write(ostream &os, const ElementAbstract &x) const
-		{ return _field.write (os, static_cast<const ElementEnvelope<Field>&>(x)._elem); }
+		{ return _ring.write (os, static_cast<const ElementEnvelope<Ring>&>(x)._elem); }
 
 	bool toTag(Writer &W, const ElementAbstract &x) const
-		{ return _field.toTag (W, static_cast<const ElementEnvelope<Field>&>(x)._elem); }
+		{ return _ring.toTag (W, static_cast<const ElementEnvelope<Ring>&>(x)._elem); }
 
 	std::istream &read(istream &is, ElementAbstract &x) const
-		{ return _field.read (is, static_cast<ElementEnvelope<Field>&>(x)._elem); }
+		{ return _ring.read (is, static_cast<ElementEnvelope<Ring>&>(x)._elem); }
 
 	bool fromTag(Reader &R, ElementAbstract &x) const
-		{ return _field.fromTag (R, static_cast<ElementEnvelope<Field>&>(x)._elem); }
+		{ return _ring.fromTag (R, static_cast<ElementEnvelope<Ring>&>(x)._elem); }
 #endif
 
 protected:
 
-	friend class RandIterEnvelope<Field>;
+	friend class RandIterEnvelope<Ring>;
 
-	/// Wrapped field.
-	Field _field;
+	/// Wrapped ring.
+	Ring _ring;
 
-}; // class FieldEnvelope
+}; // class RingEnvelope
 
 } // namespace LinBox
 
 #include "linbox/randiter/envelope.h"
 
-#endif // __LINBOX_field_envelope_H
+#endif // __LINBOX_ring_envelope_H
 
 // Local Variables:
 // mode: C++

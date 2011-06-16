@@ -1,10 +1,10 @@
-/* linbox/ring/field-traits.h
- * Copyright (C) June 2004 Dan Roche
+/* linbox/ring/traits.h
+ * Copyright 2004 Dan Roche
  * see COPYING for permissions etc.
  */
 
-#ifndef __LINBOX_field_traits_H
-#define __LINBOX_field_traits_H
+#ifndef __LINBOX_ring_traits_H
+#define __LINBOX_ring_traits_H
 
 #include <linbox/integer.h>
 
@@ -12,15 +12,15 @@
 namespace LinBox 
 {
 
-/*! \brief some basic information about each field or ring.  
-  \ingroup field
+/*! \brief some basic information about each ring.  
+  \ingroup ring
 
  * It will try
- * to take the information from the field when possible, and use defaults
+ * to take the information from the ring when possible, and use defaults
  * otherwise.
- * maxModulus returns the greatest modulus that is usable for a given field, -1
+ * maxModulus returns the greatest modulus that is usable for a given ring, -1
  * for infinite. goodModulus returns takes an integer and returns true if that
- * integer is a valid modulus for the given field.
+ * integer is a valid modulus for the given ring.
  * maxExponent and goodExponent do the same for the prime power.
  */
 
@@ -38,18 +38,18 @@ public:
 	struct RationalTag : public virtual GenericTag{};
 };
 
-template <class Field>
+template <class Ring>
 struct ClassifyRing {
 typedef	RingCategories::GenericTag categoryTag;
 };
 
-template <class Field>
-struct FieldTraits
+template <class Ring>
+struct RingTraits
 {
-	typedef typename ClassifyRing<Field>::categoryTag categoryTag;
+	typedef typename ClassifyRing<Ring>::categoryTag categoryTag;
 	
 	static integer& maxModulus( integer& i ) {
-		return i = static_cast<integer>(Field::getMaxModulus());
+		return i = static_cast<integer>(Ring::getMaxModulus());
 	}
 	static bool goodModulus( const integer& i ) {
 		integer max;
@@ -70,7 +70,7 @@ struct FieldTraits
 
 } // Namespace LinBox
 
-#endif // __LINBOX_field_traits_H
+#endif // __LINBOX_ring_traits_H
 
 // Local Variables:
 // mode: C++

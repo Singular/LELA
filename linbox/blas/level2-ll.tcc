@@ -19,38 +19,38 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Field, class Modules, class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv (const Field                   &F,
+template <class Ring, class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv (const Ring                   &F,
 		Modules                       &M,
-		const typename Field::Element &a,
+		const typename Ring::Element &a,
 		const Matrix                  &A,
 		const Vector1                 &x,
-		const typename Field::Element &b,
+		const typename Ring::Element &b,
 		Vector2                       &y,
 		size_t                         start_idx,
 		size_t                         end_idx)
 	{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
-			    typename VectorTraits<Field, Vector1>::VectorCategory (),
-			    typename VectorTraits<Field, Vector2>::VectorCategory ()); }
+			    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
 
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &_trmv (const Field &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+template <class Ring, class Modules, class Matrix, class Vector>
+Vector &_trmv (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 	{ return trmv_impl (F, M, A, x, type, diagIsOne,
 			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
-			    typename VectorTraits<Field, Vector>::VectorCategory ()); }
+			    typename VectorTraits<Ring, Vector>::VectorCategory ()); }
 
-template <class Field, class Modules, class Matrix, class Vector>
-Vector &_trsv (const Field &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+template <class Ring, class Modules, class Matrix, class Vector>
+Vector &_trsv (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 	{ return trsv_impl (F, M, A, x, type, diagIsOne,
 			    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
-			    typename VectorTraits<Field, Vector>::VectorCategory ()); }
+			    typename VectorTraits<Ring, Vector>::VectorCategory ()); }
 
-template <class Field, class Modules, class Vector1, class Vector2, class Matrix>
-Matrix &_ger (const Field &F, Modules &M, const typename Field::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
+template <class Ring, class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
 	{ return ger_impl (F, M, a, x, y, A,
-			   typename VectorTraits<Field, Vector1>::VectorCategory (),
-			   typename VectorTraits<Field, Vector2>::VectorCategory (),
+			   typename VectorTraits<Ring, Vector1>::VectorCategory (),
+			   typename VectorTraits<Ring, Vector2>::VectorCategory (),
 			   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
 
 } // namespace BLAS2

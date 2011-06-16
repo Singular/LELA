@@ -15,15 +15,11 @@ BASIC_HDRS =			\
 	sparse.tcc		\
 	transpose.h		\
 	dense.h  		\
-	dense-rows-matrix.h	\
 	dense-zero-one.h	\
 	sparse-zero-one.h	\
 	sparse-zero-one.tcc	\
 	m4ri-matrix.h		\
-	submatrix.h		\
-	blas-matrix.h		\
-	factorized-matrix.h	\
-	factorized-matrix.inl	
+	submatrix.h
 
 NTL_HDRS =
 LIDIA_HDRS = 

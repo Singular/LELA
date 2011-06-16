@@ -1,5 +1,5 @@
 
-/* tests/test-fields.C
+/* tests/test-rings.C
  * Written by Dan Roche
  * Copyright (C) June 2004 Dan Roche, part of LinBox, GNU LGPL. See COPYING for license.
  */
@@ -20,7 +20,7 @@
 #include "linbox/ring/modular-int32.h"
 #include "linbox/ring/modular-int.h"
 #include "linbox/ring/modular-double.h"
-#include "linbox/ring/field-traits.h"
+#include "linbox/ring/traits.h"
 #include "linbox/vector/stream.h"
 #include "linbox/integer.h"
 #include "linbox/ring/PIR-modular-int32.h"
@@ -40,8 +40,8 @@
 
 using namespace LinBox;
 
-/* fieldTest is a template function to test out the performance of a given field on a
- * machine.  Taken are three arguments.  The first is a field class object.  The second
+/* ringTest is a template function to test out the performance of a given ring on a
+ * machine.  Taken are three arguments.  The first is a ring class object.  The second
  * is an array, declared but not necessarily initialized, of ten doubles.  The
  * first nine values will be filled with mops for add, sub, neg, mul, int, div,
  * axpy, dot1, and dot2, respectively.  (Dot1 is dense*dense, Dot2 is dense*sparse).
@@ -49,61 +49,61 @@ using namespace LinBox;
  * The third argument is optional and specifies how many loop iterations to use.
  */
 
-template< class Field >
-void fieldTest( const Field& f, double* array, long iter = 1000000, bool fulltest = false ) {
+template< class Ring >
+void ringTest( const Ring& f, double* array, long iter = 1000000, bool fulltest = false ) {
 
 	long vectorSize = 10000;
 	float sparsity = .01;
 	long sparsity_inv = 100;
 	int i;
 
-	// initialize a few field elements,
-	typedef typename Field::Element Element;
+	// initialize a few ring elements,
+	typedef typename Ring::Element Element;
 	register Element returnValue; f.init(returnValue, 1);
 	register Element s; f.init(s, 0); 
 
 	register Element a, b, c;
-	typename Field::RandIter r(f);
+	typename Ring::RandIter r(f);
 	r.random( a ); r.random( b ); r.random( c ); 
 	std::vector<Element> dv1( vectorSize ), dv2( vectorSize );
 	for (i = 0; i < vectorSize; ++i ) {
 		r.random( dv1[i] );
 		r.random( dv2[i] );
 	}
-	RandomSparseStream<Field> sparse( f, sparsity, vectorSize ); 
-	typename RandomSparseStream<Field>::Vector sv; sparse.get( sv );
+	RandomSparseStream<Ring> sparse( f, sparsity, vectorSize ); 
+	typename RandomSparseStream<Ring>::Vector sv; sparse.get( sv );
 
 /*
 	// initialize and fill array of random elements.
-	typename Field::RandIter r(f);
-	typename Field::Element *elements;
-	elements = new typename Field::Element[ iter * 3 ];
+	typename Ring::RandIter r(f);
+	typename Ring::Element *elements;
+	elements = new typename Ring::Element[ iter * 3 ];
 	for( int i = 0; i < iter*3; i++ ) {
 		do { r.random( elements[i] ); }
 			while( f.isZero( elements[i] ) );
 	}
 
 	// initialize random vector streams
-	RandomDenseStream<Field> dense( f, vectorSize, 2);
-	typename RandomDenseStream<Field>::Vector dv1; dense.get( dv1 );
-	typename RandomDenseStream<Field>::Vector dv2; dense.get( dv2 );
-	RandomSparseStream<Field> sparse( f, sparsity, vectorSize ); 
-	typename RandomSparseStream<Field>::Vector sv; sparse.get( sv );
+	RandomDenseStream<Ring> dense( f, vectorSize, 2);
+	typename RandomDenseStream<Ring>::Vector dv1; dense.get( dv1 );
+	typename RandomDenseStream<Ring>::Vector dv2; dense.get( dv2 );
+	RandomSparseStream<Ring> sparse( f, sparsity, vectorSize ); 
+	typename RandomSparseStream<Ring>::Vector sv; sparse.get( sv );
 
-	RandomDenseStream<Field> dense1( f, vectorSize, iter/vectorSize );
-	RandomDenseStream<Field> dense2( f, vectorSize, iter/vectorSize );
-	RandomSparseStream<Field> sparse( f, sparsity, vectorSize ); 
+	RandomDenseStream<Ring> dense1( f, vectorSize, iter/vectorSize );
+	RandomDenseStream<Ring> dense2( f, vectorSize, iter/vectorSize );
+	RandomSparseStream<Ring> sparse( f, sparsity, vectorSize ); 
 
 	// initialize individual vectors to hold results
-	typename RandomDenseStream<Field>::Vector dv1;
-	typename RandomDenseStream<Field>::Vector dv2;
-	typename RandomSparseStream<Field>::Vector sv;
+	typename RandomDenseStream<Ring>::Vector dv1;
+	typename RandomDenseStream<Ring>::Vector dv2;
+	typename RandomSparseStream<Ring>::Vector sv;
 */
 	VectorWrapper::ensureDim (dv1,vectorSize);
 	VectorWrapper::ensureDim (dv2,vectorSize);
 	VectorWrapper::ensureDim (sv,vectorSize);
 
-	VectorDomain<Field> VD( f );
+	VectorDomain<Ring> VD( f );
 
 	UserTimer timer;
 	double overHeadTime;
@@ -268,13 +268,13 @@ void printTimings( double* timings, bool fulltest = false ) {
 	     << std::setw(11) << timings[6]/(1/(1/timings[0] + 1/timings[3])); // axpy/(mul+add) ratio
 }
 
-template <class Field>
+template <class Ring>
 void doTest(const char* name, integer& p, integer& exp, int64& iter, bool fulltest = false) {
 	static double mops[11];
-	if( FieldTraits<Field>::goodModulus( p ) &&
-	    FieldTraits<Field>::goodExponent( exp ) ) {
-		Field fld( p, exp );
-		fieldTest( fld, mops, iter, fulltest);
+	if( RingTraits<Ring>::goodModulus( p ) &&
+	    RingTraits<Ring>::goodExponent( exp ) ) {
+		Ring fld( p, exp );
+		ringTest( fld, mops, iter, fulltest);
 		// print name
 		std::cout << std::setw(20) << name;
 		printTimings( mops, fulltest);
@@ -299,7 +299,7 @@ int main(int argc, char** argv) {
 	if( argc > 3 ) fulltest = ( argv[3][0] == 1 ); 
 	if( argc > 4 ) exit(1);
 
-	std::cout << std::setw(20) << "Field Name";
+	std::cout << std::setw(20) << "Ring Name";
 	if (fulltest) { std::cout 
 	     << std::setw(12) << "add "
 	     << std::setw(12) << "sub "
@@ -334,7 +334,7 @@ int main(int argc, char** argv) {
     doTest< LidiaGfq >( "LidiaGfq", prime, exp, iterations, fulltest );
 #endif
 //	doTest< GF2 >( "GF2", prime, exp, iterations, fulltest );
-    doTest< GMPRationalField >( "GMPRationalField", prime, exp, iterations, fulltest ); 
+    doTest< GMPRationalRing >( "GMPRationalRing", prime, exp, iterations, fulltest ); 
 	//if (prime == 2)
     	doTest< PIRModular<int32> >( "PIRModular<int32>", prime, exp, iterations, fulltest );
     doTest< Local2_32 >( "Local2_32", prime, exp, iterations, fulltest );

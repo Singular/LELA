@@ -1,4 +1,4 @@
-/* linbox/tests/test-field.h
+/* linbox/tests/test-ring.h
  * Copyright 2001, 2002 Bradford Hovinen
  *
  * See COPYING for license information.
@@ -6,8 +6,8 @@
  * Extracted by bds from test-generic.h, written by Bradford Hovinen <hovinen@cis.udel.edu>
  */
 
-#ifndef __LINBOX_test_field_H
-#define __LINBOX_test_field_H
+#ifndef __LINBOX_test_ring_H
+#define __LINBOX_test_ring_H
 
 #include <iostream>
 //#include <fstream>
@@ -17,7 +17,6 @@
 #include <cmath>
 
 #include "linbox/util/commentator.h"
-#include "linbox/util/field-axpy.h"
 //#include "linbox/vector/stream.h"
 #include "linbox/integer.h"
 
@@ -27,8 +26,8 @@
 using namespace std;
 using namespace LinBox;
 
-template <class Field>
-typename Field::Element& expt (const Field &F, typename Field::Element &res, const typename Field::Element &a, LinBox::integer &n) 
+template <class Ring>
+typename Ring::Element& expt (const Ring &F, typename Ring::Element &res, const typename Ring::Element &a, LinBox::integer &n) 
 {
 	if (n == 0) {
 		F.init (res, 1);
@@ -43,7 +42,7 @@ typename Field::Element& expt (const Field &F, typename Field::Element &res, con
 	} else {
 		n /= 2;
 		expt (F, res, a, n);
-                typename Field::Element tmp;
+                typename Ring::Element tmp;
                 F.init(tmp,0);
 		res = F.mul (tmp, res, res);
 	}
@@ -58,32 +57,32 @@ bool reportError(string rep, bool& flag)
 	return flag = false;
 }
 
-/** Check each field or ring operation.
+/** Check each ring or ring operation.
  *
- * Test various field operations
+ * Test various ring operations
  *
- * F - Field over which to perform computations
+ * F - Ring over which to perform computations
  * title - String to use as the descriptive title of this test
- * fieldp - use true if inv and div must work for all nonzero denominators
+ * ringp - use true if inv and div must work for all nonzero denominators
  *
  * Return true on success and false on failure
  */
 
-template<class Field>
-bool testField (Field &F, const char *title, bool fieldp = true) 
+template<class Ring>
+bool testRing (Ring &F, const char *title, bool ringp = true) 
 {
-	commentator.start (title, "testField", 5);
+	commentator.start (title, "testRing", 5);
 	ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-	typename Field::Element zero, one, two, three;
+	typename Ring::Element zero, one, two, three;
 	F.init(zero, 0); F.init(one, 1); F.init(two, 2); F.init(three, 3);
 
-	typename Field::Element a, b, c, d, e, f;
+	typename Ring::Element a, b, c, d, e, f;
 	F.init(a,0); F.init(b,0); F.init(c,0); F.init(d,0); F.init(e,0); F.init(f,0);
 
 
-	report << "Field self description: " << F.write (report) << endl;
-	//	report << "field Element 2: " << F.write (report, two) << endl;
+	report << "Ring self description: " << F.write (report) << endl;
+	//	report << "ring Element 2: " << F.write (report, two) << endl;
 
 	LinBox::integer n, m;
 	bool pass = true, part_pass = true;
@@ -137,7 +136,7 @@ bool testField (Field &F, const char *title, bool fieldp = true)
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
 
-	commentator.start ("Testing field arithmetic");
+	commentator.start ("Testing ring arithmetic");
 	part_pass = true;
 
 	F.init (b, n-2);
@@ -238,34 +237,34 @@ bool testField (Field &F, const char *title, bool fieldp = true)
 	   istream &read (istream &is)
 	   ostream &write (ostream &os, const Element &x) const 
 	   istream &read (istream &is, Element &x) const
-	   FieldArchetype (FieldAbstract*, ElementAbstract*, RandIterAbstract* = 0)
+	   RingArchetype (RingAbstract*, ElementAbstract*, RandIterAbstract* = 0)
 	*/
 
-	commentator.stop (MSG_STATUS (pass), (const char *) 0, "testField");
+	commentator.stop (MSG_STATUS (pass), (const char *) 0, "testRing");
 	
 	return pass;
 }
 
 
-/** Tests of algebraic properties of fields */
+/** Tests of algebraic properties of rings */
 
 /* Generic test 6: Negation of elements
  *
  * Negates random elements and checks that they are true negatives
  */
 
-template <class Field>
-bool testFieldNegation (const Field &F, const char *name, unsigned int iterations) 
+template <class Ring>
+bool testRingNegation (const Ring &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " negation" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
-	commentator.start (st, "testFieldNegation", iterations);
+	commentator.start (st, "testRingNegation", iterations);
 
-	typename Field::Element a, neg_a, neg_a_a, zero;
+	typename Ring::Element a, neg_a, neg_a_a, zero;
 	F.init(a,0); F.init(neg_a,0); F.init(neg_a_a,0); F.init (zero, 0);
-	typename Field::RandIter r (F);
+	typename Ring::RandIter r (F);
 
 	bool ret = true;
 
@@ -294,7 +293,7 @@ bool testFieldNegation (const Field &F, const char *name, unsigned int iteration
 		commentator.progress ();
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testFieldNegation");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRingNegation");
 	delete[] st;
 	return ret;
 }
@@ -304,19 +303,19 @@ bool testFieldNegation (const Field &F, const char *name, unsigned int iteration
  * Inverts random elements and checks that they are true inverses
  */
 
-template <class Field>
-bool testFieldInversion (const Field &F, const char *name, unsigned int iterations) 
+template <class Ring>
+bool testRingInversion (const Ring &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " inversion" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
-	commentator.start (st, "testFieldInversion", iterations);
+	commentator.start (st, "testRingInversion", iterations);
 
-	typename Field::Element a, ainv, aainv, one;
+	typename Ring::Element a, ainv, aainv, one;
         F.init (a,0); F.init (ainv,0); F.init (aainv,0);
 	F.init (one, 1);
-	typename Field::RandIter r (F);
+	typename Ring::RandIter r (F);
 
 	bool ret = true;
 
@@ -344,34 +343,34 @@ bool testFieldInversion (const Field &F, const char *name, unsigned int iteratio
 		commentator.progress ();
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testFieldInversion");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRingInversion");
 	delete[] st;
 	return ret;
 }
 
 /** @brief Generic test 7a: Distributivity of multiplication over addition
 
- * Given random field elements 'a', 'b', and 'c', checks that
+ * Given random ring elements 'a', 'b', and 'c', checks that
  * (a + b) * c = a * c + b * c  and  c * (a + b) = c * a + c * b
  */
 
 
-template <class Field>
-bool testFieldDistributivity(const Field &F, const char *name, unsigned int iterations) 
+template <class Ring>
+bool testRingDistributivity(const Ring &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " distributivity" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
-	commentator.start (st, "testFieldDistributivity", iterations);
+	commentator.start (st, "testRingDistributivity", iterations);
 
-	typename Field::Element a, b, c, a_b, a_bc, ac, bc, ac_bc, ca_b, ca, cb, ca_cb;
+	typename Ring::Element a, b, c, a_b, a_bc, ac, bc, ac_bc, ca_b, ca, cb, ca_cb;
         F.init (a,0); F.init (b,0); F.init (c,0); 
         F.init (a_b,0); F.init (a_bc,0); F.init (ac,0); F.init (bc,0);
         F.init (ac_bc,0); 
 		F.init (ca_b,0); F.init (ca,0); F.init (cb,0); F.init (ca_cb,0); 
         
-	typename Field::RandIter r (F);
+	typename Ring::RandIter r (F);
 
 	bool ret = true;
 
@@ -416,7 +415,7 @@ bool testFieldDistributivity(const Field &F, const char *name, unsigned int iter
 		commentator.progress ();
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testFieldDistributivity");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRingDistributivity");
 	delete[] st;
 	return ret;
 }
@@ -424,28 +423,28 @@ bool testFieldDistributivity(const Field &F, const char *name, unsigned int iter
 
 /** @brief Generic test 7b: Commutativity of multiplication and addition
 
- * Given random field elements 'a', 'b', checks that
+ * Given random ring elements 'a', 'b', checks that
  * a*b = b*a
  * a+b = b+a
  */
 
 
-template <class Field>
-bool testFieldCommutativity (const Field &F, const char *name, unsigned int iterations) 
+template <class Ring>
+bool testRingCommutativity (const Ring &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " commutativity," << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
-	commentator.start (st, "testFieldCommutativity", iterations);
+	commentator.start (st, "testRingCommutativity", iterations);
 
-	typename Field::Element a, b, ab, ba, a_b, b_a;
+	typename Ring::Element a, b, ab, ba, a_b, b_a;
         F.init (a,0); F.init (b,0);
         F.init (ab,0); F.init (ba,0);
         F.init (a_b,0); F.init (b_a,0);
 
         
-	typename Field::RandIter r (F);
+	typename Ring::RandIter r (F);
 
 	bool ret = true;
 
@@ -491,7 +490,7 @@ bool testFieldCommutativity (const Field &F, const char *name, unsigned int iter
 		commentator.progress ();
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testFieldCommutativity");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRingCommutativity");
 	delete[] st;
 	return ret;
 }
@@ -499,23 +498,23 @@ bool testFieldCommutativity (const Field &F, const char *name, unsigned int iter
 
 /** Generic test 7c: Associativity of addition and multiplication
  *
- * Given random field elements 'a', 'b', and 'c', checks that
+ * Given random ring elements 'a', 'b', and 'c', checks that
  * (a * b) * c = a * (b * c) and (a + b) + c = a + (b + c)
  */
 
-template <class Field>
-bool testFieldAssociativity (const Field &F, const char *name, unsigned int iterations) 
+template <class Ring>
+bool testRingAssociativity (const Ring &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " associativity" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
-	commentator.start (st, "testFieldAssociativity", iterations);
+	commentator.start (st, "testRingAssociativity", iterations);
 
-	typename Field::Element a, b, c, a_b, b_c, a_bc, ab_c;
+	typename Ring::Element a, b, c, a_b, b_c, a_bc, ab_c;
         F.init (a,0); F.init (b,0); F.init (c,0);
         F.init (a_b,0); F.init (b_c,0); F.init (a_bc,0); F.init (ab_c,0);
-	typename Field::RandIter r (F);
+	typename Ring::RandIter r (F);
 
 	bool ret = true;
 
@@ -562,20 +561,20 @@ bool testFieldAssociativity (const Field &F, const char *name, unsigned int iter
 		commentator.progress ();
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testFieldAssociativity");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRingAssociativity");
 	delete[] st;
 	return ret;
 }
 
 /** Generic test 2: Geometric summation
  *
- * Generates a random field element 'a' and raises it through repeated
+ * Generates a random ring element 'a' and raises it through repeated
  * exponentiation to the power n. Takes the sum k of all intermediate values and
  * checks that a^n = (k-1)/(a-1).
  */
 
-template <class Field>
-bool testGeometricSummation (const Field &F, const char *name, unsigned int iterations, unsigned int n) 
+template <class Ring>
+bool testGeometricSummation (const Ring &F, const char *name, unsigned int iterations, unsigned int n) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " geometric summation" << ends;
@@ -583,8 +582,8 @@ bool testGeometricSummation (const Field &F, const char *name, unsigned int iter
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testGeometricSummation", iterations);
 
-	typename Field::Element a, a_n, k, zero, one;
-	typename Field::RandIter r (F);
+	typename Ring::Element a, a_n, k, zero, one;
+	typename Ring::RandIter r (F);
 
 	F.init (zero, 0);
 	F.init (one, 1);
@@ -630,7 +629,7 @@ bool testGeometricSummation (const Field &F, const char *name, unsigned int iter
 		report << "(a^n - 1) / (a - 1) = ";
 		F.write (report, a_n) << endl;
 
-		if (!F.areEqual (k, a_n)) reportError("Field elements are not equal", ret);
+		if (!F.areEqual (k, a_n)) reportError("Ring elements are not equal", ret);
 
 		commentator.stop ("done");
 		commentator.progress ();
@@ -641,26 +640,26 @@ bool testGeometricSummation (const Field &F, const char *name, unsigned int iter
 	return ret;
 }
 
-/** Generic test 3: Test of field characteristic
+/** Generic test 3: Test of ring characteristic
  *
- * Take random field elements and add them p times, where p is the
- * characteristic of the field. Checks that the sum is 0. The test is not too
- * useful when the characteristic of the field is 0, but it should still work
+ * Take random ring elements and add them p times, where p is the
+ * characteristic of the ring. Checks that the sum is 0. The test is not too
+ * useful when the characteristic of the ring is 0, but it should still work
  * correctly.
  */
 
-template <class Field>
-bool testFieldCharacteristic (const Field &F, const char *name, unsigned int iterations) 
+template <class Ring>
+bool testRingCharacteristic (const Ring &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " characteristic" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
-	commentator.start (string(str.str()).c_str(), "testFieldCharacteristic", iterations);
+	commentator.start (string(str.str()).c_str(), "testRingCharacteristic", iterations);
 
 	LinBox::integer p, j;
-	typename Field::Element a, sigma, zero;
-	typename Field::RandIter r (F);
+	typename Ring::Element a, sigma, zero;
+	typename Ring::RandIter r (F);
 
 	F.characteristic (p);
 	F.init (zero, 0);
@@ -669,7 +668,7 @@ bool testFieldCharacteristic (const Field &F, const char *name, unsigned int ite
 	bool ret = true;
 
 	ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Field characteristic: " << p << endl;
+	report << "Ring characteristic: " << p << endl;
 
 	for (unsigned int i = 0; i < iterations; i++) {
 		commentator.startIteration (i);
@@ -695,20 +694,20 @@ bool testFieldCharacteristic (const Field &F, const char *name, unsigned int ite
 		commentator.progress ();
 	}
 
-	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testFieldCharacteristic");
+	commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRingCharacteristic");
 	delete[] st;
 	return ret;
 }
 
 /** Generic test 4: The Freshman's Dream
  *
- * Generates two random field elements 'a' and 'b', and checks whether
- * (a + b)^p = a^p + b^p, where p is the characteristic of the field. Bails out
- * (returning true) if the field is of characteristic 0.
+ * Generates two random ring elements 'a' and 'b', and checks whether
+ * (a + b)^p = a^p + b^p, where p is the characteristic of the ring. Bails out
+ * (returning true) if the ring is of characteristic 0.
  */
 
-template <class Field>
-bool testFreshmansDream (const Field &F, const char *name, unsigned int iterations) 
+template <class Ring>
+bool testFreshmansDream (const Ring &F, const char *name, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing " << name << " Freshman's Dream" << ends;
@@ -721,15 +720,15 @@ bool testFreshmansDream (const Field &F, const char *name, unsigned int iteratio
 	F.characteristic (c);
 
 	if (c == 0) {
-		commentator.stop ("skipping", "Field characteristic is 0, so this test makes no sense", "testFreshmansDream");
+		commentator.stop ("skipping", "Ring characteristic is 0, so this test makes no sense", "testFreshmansDream");
 		delete[] st;
 		return true;
 	}
 
 	bool ret = true;
 
-	typename Field::RandIter r (F);
-	typename Field::Element a, b, a_b, a_b_p, a_p, b_p, a_p_b_p;
+	typename Ring::RandIter r (F);
+	typename Ring::Element a, b, a_b, a_b_p, a_p, b_p, a_p_b_p;
 
         F.init (a,0); F.init (b,0); F.init (a_b,0);
         F.init (a_b_p,0); F.init (a_p,0); F.init (b_p,0); F.init (a_p_b_p,0);
@@ -781,7 +780,7 @@ bool testFreshmansDream (const Field &F, const char *name, unsigned int iteratio
 }
 
 
-/* Tests of field features */ 
+/* Tests of ring features */ 
 
 /** Generic test 7: Consistency of in-place and out-of-place arithmetic
  *
@@ -791,13 +790,13 @@ bool testFreshmansDream (const Field &F, const char *name, unsigned int iteratio
  * Div and inv are checked in a separate function.
  */
 
-template <class Field>
-bool testArithmeticConsistency (const Field &F, const char *name, unsigned int iterations)
+template <class Ring>
+bool testArithmeticConsistency (const Ring &F, const char *name, unsigned int iterations)
 {  return testRingArithmeticConsistency(F, name, iterations) 
 	   && testInvDivConsistency(F, name, iterations); 
 }
-template <class Field>
-bool testRingArithmeticConsistency (const Field &F, const char *name, unsigned int iterations)
+template <class Ring>
+bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned int iterations)
 {
 	std::ostringstream str;
 	str << "Testing " << name << " in-place/out-of-place arithmetic consistency" << ends;
@@ -807,8 +806,8 @@ bool testRingArithmeticConsistency (const Field &F, const char *name, unsigned i
 
 	bool ret = true;
 
-	typename Field::RandIter r (F);
-	typename Field::Element a, b, c1, c2;
+	typename Ring::RandIter r (F);
+	typename Ring::Element a, b, c1, c2;
         F.init (a,0); F.init (b,0); F.init (c1,0); F.init (c2,0);
 
 	for (unsigned int i = 0; i < iterations; i++) {
@@ -875,8 +874,8 @@ bool testRingArithmeticConsistency (const Field &F, const char *name, unsigned i
 	return ret;
 }
 
-template <class Field>
-bool testInvDivConsistency (const Field &F, const char *name, unsigned int iterations)
+template <class Ring>
+bool testInvDivConsistency (const Ring &F, const char *name, unsigned int iterations)
 {
     std::ostringstream str;
     str << "Testing " << name << " in-place/out-of-place inv and div consistency" << ends;
@@ -886,8 +885,8 @@ bool testInvDivConsistency (const Field &F, const char *name, unsigned int itera
 
     bool ret = true;
 
-    typename Field::RandIter r (F);
-    typename Field::Element a, b, c1, c2;
+    typename Ring::RandIter r (F);
+    typename Ring::Element a, b, c1, c2;
     F.init (a,0); F.init (b,0); F.init (c1,0); F.init (c2,0);
 
     for (unsigned int i = 0; i < iterations; i++) {
@@ -942,8 +941,8 @@ bool testInvDivConsistency (const Field &F, const char *name, unsigned int itera
  * same for axpy, axpyin, add/mul
  */
 
-template <class Field>
-bool testAxpyConsistency (const Field &F, const char *name, unsigned int iterations)
+template <class Ring>
+bool testAxpyConsistency (const Ring &F, const char *name, unsigned int iterations)
 {
 	std::ostringstream str;
 	str << "Testing " << name << " axpy/add-mul consistency" << ends;
@@ -953,8 +952,8 @@ bool testAxpyConsistency (const Field &F, const char *name, unsigned int iterati
 
 	bool ret = true;
 
-	typename Field::RandIter r (F);
-	typename Field::Element a, x, y, c1, c2, c3;
+	typename Ring::RandIter r (F);
+	typename Ring::Element a, x, y, c1, c2, c3;
         F.init (a,0); F.init (x,0); F.init (y,0); 
         F.init (c1,0); F.init (c2,0); F.init (c3,0);
 
@@ -998,8 +997,8 @@ bool testAxpyConsistency (const Field &F, const char *name, unsigned int iterati
  * In a loop, generates random element 'a', and fails
  * if it is always zero.
  */
-template <class Field>
-bool testRanditerBasic(const Field &F, const char *name, unsigned int iterations)
+template <class Ring>
+bool testRanditerBasic(const Ring &F, const char *name, unsigned int iterations)
 {
 	bool ret=false;
 	std::ostringstream str;
@@ -1008,8 +1007,8 @@ bool testRanditerBasic(const Field &F, const char *name, unsigned int iterations
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testRanditerBasic", iterations);
 
-	 typename Field::RandIter r (F);
-	 typename Field::Element a;
+	 typename Ring::RandIter r (F);
+	 typename Ring::Element a;
 		 F.init (a,0);
 
 	 if (iterations < 20) iterations = 20;
@@ -1024,8 +1023,8 @@ bool testRanditerBasic(const Field &F, const char *name, unsigned int iterations
 	 return ret;
  }
 
-template <class Field>
-bool runBasicRingTests (const Field &F, const char *desc, unsigned int iterations, bool runCharacteristicTest = true) 
+template <class Ring>
+bool runBasicRingTests (const Ring &F, const char *desc, unsigned int iterations, bool runCharacteristicTest = true) 
 {
 	bool pass = true;
 	ostringstream str;
@@ -1036,13 +1035,13 @@ bool runBasicRingTests (const Field &F, const char *desc, unsigned int iteration
 
 	commentator.start (st, "runBasicRingTests", runCharacteristicTest ? 11 : 10);
 	
-	if (!testField                 (F, string(str.str()).c_str()))                pass = false; commentator.progress ();
-	if (!testFieldNegation         (F, desc, iterations))                    pass = false; commentator.progress ();
-	if (!testFieldDistributivity           (F, desc, iterations))                    pass = false; commentator.progress ();
-	if (!testFieldAssociativity    (F, desc, iterations))                    pass = false; commentator.progress ();
+	if (!testRing                 (F, string(str.str()).c_str()))                pass = false; commentator.progress ();
+	if (!testRingNegation         (F, desc, iterations))                    pass = false; commentator.progress ();
+	if (!testRingDistributivity           (F, desc, iterations))                    pass = false; commentator.progress ();
+	if (!testRingAssociativity    (F, desc, iterations))                    pass = false; commentator.progress ();
 
 	if (runCharacteristicTest) {
-		if (!testFieldCharacteristic (F, desc, iterations))
+		if (!testRingCharacteristic (F, desc, iterations))
 			pass = false;
 
 		commentator.progress ();
@@ -1059,21 +1058,21 @@ bool runBasicRingTests (const Field &F, const char *desc, unsigned int iteration
 }
 
  
- /* Convenience function to run all of the field tests on a given field */
+ /* Convenience function to run all of the ring tests on a given ring */
 
- template <class Field>
- bool runFieldTests (const Field &F, const char *desc, unsigned int iterations, size_t n, bool runCharacteristicTest = true) 
+ template <class Ring>
+ bool runRingTests (const Ring &F, const char *desc, unsigned int iterations, size_t n, bool runCharacteristicTest = true) 
  // n is not used.
  {	ostringstream str;
 
-	 str << "Testing " << desc << " field" << ends;
+	 str << "Testing " << desc << " ring" << ends;
 	 char * st = new char[str.str().size()];
 	 strcpy (st, str.str().c_str());
-	 commentator.start (st, "runFieldTests");
+	 commentator.start (st, "runRingTests");
 	 bool ret =  runBasicRingTests(F, desc, iterations, runCharacteristicTest)
 		 && testInvDivConsistency(F, desc, iterations) 
-		 && testFieldInversion (F, desc, iterations)
-		 && testFieldCommutativity (F, desc, iterations)
+		 && testRingInversion (F, desc, iterations)
+		 && testRingCommutativity (F, desc, iterations)
 		 && testFreshmansDream(F, desc, iterations);
 
 	 commentator.stop (MSG_STATUS (ret));
@@ -1081,16 +1080,16 @@ bool runBasicRingTests (const Field &F, const char *desc, unsigned int iteration
 	 return ret;
 }
 
-/// @name Generic field tests
+/// @name Generic ring tests
 //@{
 
 /* Random number test
  *
- * Test that the random iterator over the given field works
+ * Test that the random iterator over the given ring works
  */
 
-template <class Field>
-bool testRandomIteratorStep (const Field &F,
+template <class Ring>
+bool testRandomIteratorStep (const Ring &F,
 			 const char *text,
 			 unsigned int num_trials,
 			 unsigned int num_categories,
@@ -1110,19 +1109,19 @@ bool testRandomIteratorStep (const Field &F,
 	std::vector<int> categories1 (num_categories, 0);
 	std::vector<int> categories2 (num_categories, 0);
 	std::list<std::vector<int> > diff_categories;
-	std::list<typename Field::Element> x_queue;
+	std::list<typename Ring::Element> x_queue;
 
 	F.cardinality (card);
 
-	typename Field::RandIter iter (F);
-	typename Field::Element x,  d;
+	typename Ring::RandIter iter (F);
+	typename Ring::Element x,  d;
 
 	std::list<std::vector<int> >::iterator diff_cat_iter;
 
 	for (i = 0; i < hist_len; ++i)
 		diff_categories.push_back (std::vector<int> (num_categories, 0));
 
-	// I make the simplifying assumption that field elements are actually
+	// I make the simplifying assumption that ring elements are actually
 	// C++ ints. Otherwise, I don't know how to place the numbers into
 	// categories in any well-defined manner.
 	for (i = 0; i < num_trials; ++i) {
@@ -1133,7 +1132,7 @@ bool testRandomIteratorStep (const Field &F,
 		categories1[ixmodn.get_ui ()]++;
 		categories2[(unsigned int) (ix.get_d () / card.get_d () * num_categories)]++;
 
-		typename std::list<typename Field::Element>::iterator x_queue_iter = x_queue.begin ();
+		typename std::list<typename Ring::Element>::iterator x_queue_iter = x_queue.begin ();
 		diff_cat_iter = diff_categories.begin ();
 
 		for (; x_queue_iter != x_queue.end (); ++x_queue_iter, ++diff_cat_iter) {
@@ -1205,13 +1204,13 @@ bool testRandomIteratorStep (const Field &F,
 
 /** Random number test
  *
- * Test that the random iterator over the given field works.
+ * Test that the random iterator over the given ring works.
  *
  * Test up to five times, accepting any one, to increase probability of 
  * passing statistical tests.
  */
-template <class Field>
-bool testRandomIterator (const Field &F, const char *text,
+template <class Ring>
+bool testRandomIterator (const Ring &F, const char *text,
 			 unsigned int num_trials,
 			 unsigned int num_categories,
 			 unsigned int hist_len) 
@@ -1243,7 +1242,7 @@ bool testRandomIterator (const Field &F, const char *text,
 
 //@}
 
-#endif // __LINBOX_test_field_H
+#endif // __LINBOX_test_ring_H
 
 // Local Variables:
 // mode: C++

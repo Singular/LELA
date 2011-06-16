@@ -59,14 +59,14 @@ namespace LinBox
 	};
 
 	
-	template <class Field>
-	class MatrixContainerTrait<DenseMatrix<Field> > {
+	template <class Ring>
+	class MatrixContainerTrait<DenseMatrix<Ring> > {
 	public:
 		typedef MatrixContainerCategory::Container Type;
 	};
 
-	template <class Field>
-	class MatrixContainerTrait<SparseMatrix<Field> > {
+	template <class Ring>
+	class MatrixContainerTrait<SparseMatrix<Ring> > {
 	public:
 		typedef MatrixContainerCategory::Container Type;
 	};
