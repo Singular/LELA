@@ -12,6 +12,7 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <cstdarg>
 
 #include "linbox/util/commentator.h"
 #include "linbox/integer.h"

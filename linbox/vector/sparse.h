@@ -41,7 +41,7 @@ public:
 	operator typename std::iterator_traits<Iterator>::reference ()
 		{ return *_i; }
 
-	operator value_type () const
+	operator const typename std::iterator_traits<Iterator>::reference () const
 		{ return *_i; }
 };
 

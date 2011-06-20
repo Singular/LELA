@@ -70,7 +70,7 @@ class DenseMatrix
 		RowIteratorPT (const Iterator &p, size_t len, size_t d)
 			: _row (p, p + len), _dis (d) {}
 
-		RowIteratorPT () {}
+		RowIteratorPT () : _dis (0) {}
 
 		RowIteratorPT (const RowIteratorPT &colp)
 			: _row (colp._row), _dis (colp._dis) {}

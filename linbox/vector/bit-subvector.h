@@ -362,6 +362,8 @@ class BitSubvector
 
 			if (m.parts.high != 0)
 				w.parts.high = _pos[1];
+			else
+				w.parts.high = 0ULL;
 
 			w.full = Endianness::shift_left (w.full, _shift);
 

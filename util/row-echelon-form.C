@@ -127,7 +127,7 @@ int inner_run_row_echelon_form (const Ring &R, typename EchelonForm<Ring>::Metho
 		return row_echelon_form<Ring, DenseMatrix<typename Ring::Element> > (R, input, input_format, output, output_format, method, reduced);
 	else if (type == MATRIX_SPARSE)
 		return row_echelon_form<Ring, SparseMatrix<typename Ring::Element> > (R, input, input_format, output, output_format, method, reduced);
-	else if (type == MATRIX_UNKNOWN) {
+	else {
 		std::cerr << ErrorText<Ring>::type << std::endl;
 		return -1;
 	}
