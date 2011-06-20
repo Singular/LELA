@@ -36,12 +36,6 @@ class EchelonForm;
  */
 template <class Ring, class Modules = AllModules<Ring> >
 class FaugereLachartre {
-public:
-	typedef typename Ring::Element Element;
-	typedef typename GaussJordan<Ring>::SparseMatrix SparseMatrix;
-	typedef typename GaussJordan<Ring>::DenseMatrix DenseMatrix;
-
-private:
 	Context<Ring, Modules> &ctx;
 	EchelonForm<Ring, Modules> EF;
 
@@ -75,7 +69,7 @@ public:
 	 * store computed determinant of pivot-submatrix
 	 */
 	template <class Matrix>
-	void RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, Element &det);
+	void RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det);
 };
 
 } // namespace LinBox

@@ -29,24 +29,25 @@ typedef Adaptor<Ring>::Endianness Endianness;
 
 // Generate a random sparse vector in which all nonzero entries occur after column col and the entry at col is guaranteed to be one
 
-void randomVectorStartingAt (GaussJordan<Ring>::SparseMatrix::Row &v, size_t col, size_t coldim, MersenneTwister &MT)
+template <class Vector>
+void randomVectorStartingAt (Vector &v, size_t col, size_t coldim, MersenneTwister &MT)
 {
 	size_t t;
-	GaussJordan<Ring>::SparseMatrix::Row::index_type idx;
+	typename Vector::index_type idx;
 
-	GaussJordan<Ring>::SparseMatrix::Row::word_type w;
-	GaussJordan<Ring>::SparseMatrix::Row::word_type mask;
+	typename Vector::word_type w;
+	typename Vector::word_type mask;
 
-	GaussJordan<Ring>::SparseMatrix::Row::index_type colstart = col >> WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size;
-	GaussJordan<Ring>::SparseMatrix::Row::index_type colend = coldim >> WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size;
+	typename Vector::index_type colstart = col >> WordTraits<typename Vector::word_type>::logof_size;
+	typename Vector::index_type colend = coldim >> WordTraits<typename Vector::word_type>::logof_size;
 
 	v.clear ();
 
 	for (idx = colstart; idx <= colend; ++idx) {
 		w = 0ULL;
 
-		if (static_cast<size_t> (idx) << WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size <= col) {
-			t = col & WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::pos_mask;
+		if (static_cast<size_t> (idx) << WordTraits<typename Vector::word_type>::logof_size <= col) {
+			t = col & WordTraits<typename Vector::word_type>::pos_mask;
 			mask = Endianness::e_j (t);
 			w |= mask;  // Force leading entry to be one
 		} else {
@@ -54,20 +55,21 @@ void randomVectorStartingAt (GaussJordan<Ring>::SparseMatrix::Row &v, size_t col
 			mask = Endianness::e_0;
 		}
 
-		for (; mask != 0 && (static_cast<size_t> (idx) << WordTraits<GaussJordan<Ring>::SparseMatrix::Row::word_type>::logof_size) + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
+		for (; mask != 0 && (static_cast<size_t> (idx) << WordTraits<typename Vector::word_type>::logof_size) + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
 			if (MT.randomDoubleRange (0.0, 1.0) < nonzero_density)
 				w |= mask;
 
 		if (w != 0) {
-			v.push_back (GaussJordan<Ring>::SparseMatrix::Row::value_type (idx, w));
+			v.push_back (typename Vector::value_type (idx, w));
 		}
 	}
 }
 
-void createRandomF4Matrix (GaussJordan<Ring>::SparseMatrix &A)
+template <class Matrix>
+void createRandomF4Matrix (Matrix &A)
 {
 	MersenneTwister MT (time (NULL));
-	GaussJordan<Ring>::SparseMatrix::RowIterator i_A;
+	typename Matrix::RowIterator i_A;
 
 	size_t col = 0;
 
@@ -108,8 +110,8 @@ bool smallTest () {
 	size_t m = 64;
 	size_t n = 96;
 
-	GaussJordan<Ring>::SparseMatrix A (m, n), C (m, n);
-	GaussJordan<Ring>::DenseMatrix L (m, m);
+	SparseMatrix<Ring::Element, Vector<Ring>::Hybrid> A (m, n), C (m, n);
+	DenseMatrix<Ring::Element> L (m, m);
 	GaussJordan<Ring>::Permutation P;
 
 	createRandomF4Matrix (A);

@@ -31,8 +31,6 @@ template <class Ring>
 class Adaptor {
 public:
 	typedef typename Vector<Ring>::Sparse SparseVector;
-	typedef LinBox::SparseMatrix<typename Ring::Element, SparseVector> SparseMatrix;
-	typedef LinBox::DenseMatrix<typename Ring::Element> DenseMatrix;
 	static const size_t cutoff = 1;
 };
 
@@ -41,8 +39,6 @@ class Adaptor<GF2> {
 public:
 	typedef BigEndian<uint64> Endianness;
 	typedef Vector<GF2>::Hybrid SparseVector;
-	typedef LinBox::SparseMatrix<bool, SparseVector> SparseMatrix;
-	typedef LinBox::DenseMatrix<bool> DenseMatrix;
 	static const size_t cutoff = WordTraits<SparseVector::word_type>::bits;
 };
 
@@ -68,8 +64,6 @@ public:
 	typedef typename Ring::Element Element;
 	typedef std::pair<uint32, uint32> Transposition;
 	typedef std::vector<Transposition> Permutation;
-	typedef typename Adaptor<Ring>::SparseMatrix SparseMatrix;
-	typedef typename Adaptor<Ring>::DenseMatrix DenseMatrix;
 
 private:
 	Context<Ring, Modules> &ctx;
@@ -122,28 +116,30 @@ private:
 	// matrix-multiplication. See Chapter 2 of "Algorithms
 	// for Matrix Canonical Forms", Ph.D thesis by Arne
 	// Storjohann.
-	void GaussJordanTransform (DenseMatrix  &A,
+	template <class Matrix1, class Matrix2>
+	void GaussJordanTransform (Matrix1      &A,
 				   int           k,
 				   Element       d_0,
-				   DenseMatrix  &U,
+				   Matrix2      &U,
 				   Permutation  &P,
 				   size_t       &r,
 				   int          &h,
 				   Element      &d,
-				   DenseMatrix  &S,
-				   DenseMatrix  &T) const;
+				   DenseMatrix<typename Ring::Element> &S,
+				   DenseMatrix<typename Ring::Element> &T) const;
 
 	// Internal recursive procedure for the Gauss transform. Uses
 	// a divide and conquer method to maximise use of fast
 	// matrix-multiplication. See Chapter 2 of "Algorithms for
 	// Matrix Canonical Forms", Ph.D thesis by Arne Storjohann.
-	void GaussTransform (DenseMatrix             &A,
-			     Element                  d_0,
-			     typename DenseMatrix::SubmatrixType &U,
-			     Permutation             &P,
-			     size_t                  &r,
-			     int                     &h,
-			     Element                 &d) const;
+	template <class Matrix1, class Matrix2>
+	void GaussTransform (Matrix1     &A,
+			     Element      d_0,
+			     Matrix2     &U,
+			     Permutation &P,
+			     size_t      &r,
+			     int         &h,
+			     Element     &d) const;
 
 	// Optimised version of VD.addin which can take
 	// advantage of knowledge of where in v the entries of
@@ -222,8 +218,9 @@ public:
 	 * @param reduced Whether the output should be in reduced
 	 * row-echelon form or not
 	 */
-	void DenseRowEchelonForm (DenseMatrix &A,
-				  DenseMatrix &U,
+	template <class Matrix1, class Matrix2>
+	void DenseRowEchelonForm (Matrix1     &A,
+				  Matrix2     &U,
 				  Permutation &P,
 				  size_t      &rank,
 				  Element     &det,

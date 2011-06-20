@@ -84,9 +84,9 @@ int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_
 template <class Ring, class Modules>
 template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						      VectorCategories::SparseVectorTag) const
+						     VectorCategories::SparseVectorTag) const
 {
-	typename SparseMatrix::ConstRowIterator i;
+	typename Matrix::ConstRowIterator i;
 
 	size_t min_nonzero = (size_t) -1, pivot = -1, k = start_row;
 	col = A.coldim ();
@@ -138,9 +138,9 @@ int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_
 template <class Ring, class Modules>
 template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						      VectorCategories::HybridZeroOneVectorTag) const
+						     VectorCategories::HybridZeroOneVectorTag) const
 {
-	typename SparseMatrix::ConstRowIterator i;
+	typename Matrix::ConstRowIterator i;
 	typename Ring::Element a;
 
 	size_t min_blocks = (size_t) -1, pivot = -1, k = start_row, s;
@@ -176,16 +176,17 @@ void GaussJordan<Ring, Modules>::SetIdentity (Matrix &U, size_t start_row) const
 }
 
 template <class Ring, class Modules>
-void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
-							int           k,
-							Element       d_0,
-							DenseMatrix  &U,
-							Permutation  &P,
-							size_t       &r,
-							int          &h,
-							Element      &d,
-							DenseMatrix  &S,
-							DenseMatrix  &T) const
+template <class Matrix1, class Matrix2>
+void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
+						       int           k,
+						       Element       d_0,
+						       Matrix2      &U,
+						       Permutation  &P,
+						       size_t       &r,
+						       int          &h,
+						       Element      &d,
+						       DenseMatrix<typename Ring::Element> &S,
+						       DenseMatrix<typename Ring::Element> &T) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -197,7 +198,7 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
 	// BLAS3::write (ctx, report, U);
 	// report << "k = " << k << ", d_0 = " << d_0 << std::endl;
 
-	DenseMatrix Aw (A, k, 0, A.rowdim () - k, A.coldim ());
+	typename Matrix1::SubmatrixType Aw (A, k, 0, A.rowdim () - k, A.coldim ());
 
 	if (BLAS3::is_zero (ctx, Aw)) {
 		// DEBUG
@@ -217,7 +218,7 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
 		// report << "U before elimination:" << std::endl;
 		// BLAS3::write (ctx, report, U);
 
-		typename DenseMatrix::SubmatrixType Up (U, 0, k, U.rowdim (), U.coldim () - k);
+		typename Matrix2::SubmatrixType Up (U, 0, k, U.rowdim (), U.coldim () - k);
 
 		StandardRowEchelonForm (A, Up, P, r, d, true, true, k);
 
@@ -235,8 +236,8 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
 		// report << "A.coldim () > " << _cutoff << std::endl;
 
 		int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
-		DenseMatrix A_1 (A, 0, 0,   A.rowdim (), m_1);
-		DenseMatrix A_2 (A, 0, m_1, A.rowdim (), m_2);
+		typename Matrix1::SubmatrixType A_1 (A, 0, 0,   A.rowdim (), m_1);
+		typename Matrix1::SubmatrixType A_2 (A, 0, m_1, A.rowdim (), m_2);
 
 		size_t r_1, r_2;
 		int h_1, h_2;
@@ -255,16 +256,16 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
-		typename DenseMatrix::SubmatrixType U_2  (U, 0,       k, U.rowdim (),           r_1);
-		typename DenseMatrix::SubmatrixType U_21 (U, 0,       k, k,                     r_1);
-		typename DenseMatrix::SubmatrixType U_22 (U, k,       k, r_1,                   r_1);
-		typename DenseMatrix::SubmatrixType U_23 (U, r_1 + k, k, U.rowdim () - r_1 - k, r_1);
+		typename Matrix2::SubmatrixType U_2  (U, 0,       k, U.rowdim (),           r_1);
+		typename Matrix2::SubmatrixType U_21 (U, 0,       k, k,                     r_1);
+		typename Matrix2::SubmatrixType U_22 (U, k,       k, r_1,                   r_1);
+		typename Matrix2::SubmatrixType U_23 (U, r_1 + k, k, U.rowdim () - r_1 - k, r_1);
 
 		T.resize (r_1, m_2);
 
-		DenseMatrix A_21    (A, 0,       m_1,     k,                     m_2);
-		DenseMatrix A_22    (A, k,       m_1,     r_1,                   m_2);
-		DenseMatrix A_23    (A, k + r_1, m_1,     A.rowdim () - r_1 - k, m_2);
+		typename Matrix1::SubmatrixType A_21 (A, 0,       m_1, k,                     m_2);
+		typename Matrix1::SubmatrixType A_22 (A, k,       m_1, r_1,                   m_2);
+		typename Matrix1::SubmatrixType A_23 (A, k + r_1, m_1, A.rowdim () - r_1 - k, m_2);
 
 		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
 
@@ -291,13 +292,13 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
 		// report << "r_2 = " << r_2 << std::endl;
 		// report << "d = " << d << std::endl;
 
-		typename DenseMatrix::SubmatrixType P_2U_2       (U,  0,             k,       U.rowdim (),                  r_1);
-		typename DenseMatrix::SubmatrixType U_212        (U,  0,             k,       k + r_1,                      r_1);
-		typename DenseMatrix::SubmatrixType P_2U_23      (U,  k + r_1,       k,       r_2,                          r_1);
-		typename DenseMatrix::SubmatrixType P_2U_24      (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
-		typename DenseMatrix::SubmatrixType U_312        (U,  0,             k + r_1, k + r_1,                      r_2);
-		typename DenseMatrix::SubmatrixType U_33         (U,  k + r_1,       k + r_1, r_2,                          r_2);
-		typename DenseMatrix::SubmatrixType U_34         (U,  k + r_1 + r_2, k + r_1, U.rowdim () - r_1 - r_2 - k,  r_2);
+		typename Matrix2::SubmatrixType P_2U_2  (U,  0,             k,       U.rowdim (),                  r_1);
+		typename Matrix2::SubmatrixType U_212   (U,  0,             k,       k + r_1,                      r_1);
+		typename Matrix2::SubmatrixType P_2U_23 (U,  k + r_1,       k,       r_2,                          r_1);
+		typename Matrix2::SubmatrixType P_2U_24 (U,  k + r_1 + r_2, k,       U.rowdim () - r_1 - r_2 - k,  r_1);
+		typename Matrix2::SubmatrixType U_312   (U,  0,             k + r_1, k + r_1,                      r_2);
+		typename Matrix2::SubmatrixType U_33    (U,  k + r_1,       k + r_1, r_2,                          r_2);
+		typename Matrix2::SubmatrixType U_34    (U,  k + r_1 + r_2, k + r_1, U.rowdim () - r_1 - r_2 - k,  r_2);
 
 		// DEBUG
 		// report << "U_2 =" << std::endl;
@@ -343,13 +344,14 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (DenseMatrix  &A,
 }
 
 template <class Ring, class Modules>
-void GaussJordan<Ring, Modules>::GaussTransform (DenseMatrix             &A,
-						  Element                  d_0,
-						  typename DenseMatrix::SubmatrixType  &U,
-						  Permutation             &P,
-						  size_t                  &r,
-						  int                     &h,
-						  Element                 &d) const
+template <class Matrix1, class Matrix2>
+void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
+						 Element      d_0,
+						 Matrix2     &U,
+						 Permutation &P,
+						 size_t      &r,
+						 int         &h,
+						 Element     &d) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -394,7 +396,7 @@ void GaussJordan<Ring, Modules>::GaussTransform (DenseMatrix             &A,
 		// report << "A.coldim () > " << _cutoff << std::endl;
 
 		int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
-		DenseMatrix A_1 (A, 0, 0, A.rowdim (), m_1);
+		typename Matrix1::SubmatrixType A_1 (A, 0, 0, A.rowdim (), m_1);
 
 		size_t r_1, r_2;
 		int h_1, h_2;
@@ -413,13 +415,13 @@ void GaussJordan<Ring, Modules>::GaussTransform (DenseMatrix             &A,
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
-		typename DenseMatrix::SubmatrixType U_11 (U, 0,   0,   r_1,               r_1);
-		typename DenseMatrix::SubmatrixType U_12 (U, r_1, 0,   U.rowdim () - r_1, r_1);
-		typename DenseMatrix::SubmatrixType U_22 (U, r_1, r_1, U.rowdim () - r_1, U.coldim () - r_1);
+		typename Matrix2::SubmatrixType U_11 (U, 0,   0,   r_1,               r_1);
+		typename Matrix2::SubmatrixType U_12 (U, r_1, 0,   U.rowdim () - r_1, r_1);
+		typename Matrix2::SubmatrixType U_22 (U, r_1, r_1, U.rowdim () - r_1, U.coldim () - r_1);
 
-		DenseMatrix A_2  (A, 0,   m_1, A.rowdim (),       m_2);
-		DenseMatrix A_21 (A, 0,   m_1, r_1,               m_2);
-		DenseMatrix A_22 (A, r_1, m_1, A.rowdim () - r_1, m_2);
+		typename Matrix1::SubmatrixType A_2  (A, 0,   m_1, A.rowdim (),       m_2);
+		typename Matrix1::SubmatrixType A_21 (A, 0,   m_1, r_1,               m_2);
+		typename Matrix1::SubmatrixType A_22 (A, r_1, m_1, A.rowdim () - r_1, m_2);
 
 		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
 		BLAS3::gemm (ctx, ctx.F.one (), U_12, A_21, ctx.F.one (), A_22);
@@ -642,7 +644,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								   VectorCategories::SparseVectorTag) const
+								  VectorCategories::SparseVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -662,8 +664,8 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 
 		for (j_A = A.rowBegin () + (rank - 1), j_L = L.rowBegin () + (rank - 1); j_A != i_Ae; --j_A, --j_L) {
 			// We must start over each time because the operations below invalidate iterators...
-			std::reverse_iterator<typename SparseMatrix::Row::iterator> i (i_A->end ());
-			std::reverse_iterator<typename SparseMatrix::Row::iterator> i_stop (i_A->begin ());
+			std::reverse_iterator<typename Matrix1::Row::iterator> i (i_A->end ());
+			std::reverse_iterator<typename Matrix1::Row::iterator> i_stop (i_A->begin ());
 
 			while (i != i_stop && i->first > j_A->front ().first)
 				++i;
@@ -758,7 +760,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								   VectorCategories::HybridZeroOneVectorTag) const
+								  VectorCategories::HybridZeroOneVectorTag) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -828,7 +830,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 
 				if (j_A->front ().first > (*i_A)[prev_idx].first) {
 					j_A = std::upper_bound (A.rowBegin () + current_row + 1, A.rowBegin () + elim_row, (*i_A)[prev_idx].first,
-								PivotRowCompare<typename SparseMatrix::Row> ());
+								PivotRowCompare<typename Matrix1::Row> ());
 					--j_A;
 					elim_row = j_A - A.rowBegin ();
 
@@ -913,12 +915,13 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 }
 
 template <class Ring, class Modules>
-void GaussJordan<Ring, Modules>::DenseRowEchelonForm (DenseMatrix &A,
-						       DenseMatrix &U,
-						       Permutation &P,
-						       size_t      &rank,
-						       Element     &det,
-						       bool         reduced)
+template <class Matrix1, class Matrix2>
+void GaussJordan<Ring, Modules>::DenseRowEchelonForm (Matrix1     &A,
+						      Matrix2     &U,
+						      Permutation &P,
+						      size_t      &rank,
+						      Element     &det,
+						      bool         reduced)
 {
 	linbox_check (U.rowdim () == A.rowdim ());
 	linbox_check (U.rowdim () == U.coldim ());
@@ -931,11 +934,11 @@ void GaussJordan<Ring, Modules>::DenseRowEchelonForm (DenseMatrix &A,
 	P.clear ();
 
 	if (reduced) {
-		DenseMatrix S, T;
+		DenseMatrix<typename Ring::Element> S, T;
 
 		GaussJordanTransform (A, 0, ctx.F.one (), U, P, rank, h, det, S, T);
 	} else {
-		typename DenseMatrix::SubmatrixType Up (U, 0, 0, U.rowdim (), U.coldim ());
+		typename Matrix2::SubmatrixType Up (U, 0, 0, U.rowdim (), U.coldim ());
 
 		GaussTransform (A, ctx.F.one (), Up, P, rank, h, det);
 	}
@@ -946,13 +949,13 @@ void GaussJordan<Ring, Modules>::DenseRowEchelonForm (DenseMatrix &A,
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 void GaussJordan<Ring, Modules>::StandardRowEchelonForm (Matrix1       &A,
-							  Matrix2       &L,
-							  Permutation   &P,
-							  size_t        &rank,
-							  Element       &det,
-							  bool           reduced,
-							  bool           compute_L,
-							  size_t         start_row) const
+							 Matrix2       &L,
+							 Permutation   &P,
+							 size_t        &rank,
+							 Element       &det,
+							 bool           reduced,
+							 bool           compute_L,
+							 size_t         start_row) const
 {
 	commentator.start ("Standard row-echelon form", __FUNCTION__, A.rowdim () / PROGRESS_STEP);
 

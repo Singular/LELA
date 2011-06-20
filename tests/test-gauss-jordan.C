@@ -22,8 +22,8 @@
 
 using namespace LinBox;
 
-template <class Field>
-bool testDenseGJ (const Field &F, size_t m, size_t n)
+template <class Ring>
+bool testDenseGJ (const Ring &F, size_t m, size_t n)
 {
 	commentator.start ("Testing GaussJordan::DenseRowEchelonForm", __FUNCTION__);
 
@@ -32,21 +32,21 @@ bool testDenseGJ (const Field &F, size_t m, size_t n)
 
 	bool pass = true;
 
-	typename GaussJordan<Field>::DenseMatrix R (m, n);
-	typename GaussJordan<Field>::DenseMatrix U (m, m);
-	typename GaussJordan<Field>::DenseMatrix UPA (m, n);
+	DenseMatrix<typename Ring::Element> R (m, n);
+	DenseMatrix<typename Ring::Element> U (m, m);
+	DenseMatrix<typename Ring::Element> UPA (m, n);
 
-	RandomDenseStream<Field, typename GaussJordan<Field>::DenseMatrix::Row> A_stream (F, n, m);
+	RandomDenseStream<Ring, typename DenseMatrix<typename Ring::Element>::Row> A_stream (F, n, m);
 
-	typename GaussJordan<Field>::DenseMatrix A (A_stream);
+	DenseMatrix<typename Ring::Element> A (A_stream);
 
-	typename GaussJordan<Field>::Permutation P;
+	typename GaussJordan<Ring>::Permutation P;
 
-	Context<Field> ctx (F);
+	Context<Ring> ctx (F);
 
-	GaussJordan<Field> GJ (ctx);
+	GaussJordan<Ring> GJ (ctx);
 	size_t rank;
-	typename Field::Element det;
+	typename Ring::Element det;
 
 	BLAS3::copy (ctx, A, R);
 
@@ -89,8 +89,8 @@ bool testDenseGJ (const Field &F, size_t m, size_t n)
 	return pass;
 }
 
-template <class Field>
-bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
+template <class Ring>
+bool testStandardGJ (const Ring &F, size_t m, size_t n, size_t k)
 {
 	commentator.start ("Testing GaussJordan::StandardRowEchelonForm", __FUNCTION__);
 
@@ -99,24 +99,22 @@ bool testStandardGJ (const Field &F, size_t m, size_t n, size_t k)
 
 	bool pass = true;
 
-	Context<Field> ctx (F);
+	Context<Ring> ctx (F);
 
-	GaussJordan<Field> GJ (ctx);
+	GaussJordan<Ring> GJ (ctx);
 
-	typedef typename GaussJordan<Field>::SparseMatrix Matrix;
+	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
 
-	RandomSparseStream<Field, typename Matrix::Row, typename Field::RandIter> A_stream (F, (double) k / (double) n, n, m);
-
-	Matrix A (A_stream), Aorig (m, n);
-	typename GaussJordan<Field>::DenseMatrix U (m, m);
-	typename GaussJordan<Field>::DenseMatrix UPA (m, n);
+	SparseMatrix<typename Ring::Element> A (A_stream), Aorig (m, n);
+	DenseMatrix<typename Ring::Element> U (m, m);
+	DenseMatrix<typename Ring::Element> UPA (m, n);
 
 	BLAS3::copy (ctx, A, Aorig);
 
-	typename GaussJordan<Field>::Permutation P;
+	typename GaussJordan<Ring>::Permutation P;
 
 	size_t rank;
-	typename Field::Element det;
+	typename Ring::Element det;
 
 	report << "A = " << std::endl;
 	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
@@ -170,7 +168,7 @@ int main (int argc, char **argv)
 		{ 'n', "-n N", "Set column-dimension of matrix A to N.", TYPE_INT, &n },
 		{ 'k', "-k K", "K nonzero elements per row/column in sparse matrices.", TYPE_INT, &k },
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT, &iterations },
-		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint32 modulus.", TYPE_INTEGER, &q },
+		{ 'q', "-q Q", "Operate over the ring ZZ/Q [1] for uint32 modulus.", TYPE_INTEGER, &q },
 		{ '\0' }
 	};
 
