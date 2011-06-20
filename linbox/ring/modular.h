@@ -29,6 +29,7 @@
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/util/debug.h"
+#include "linbox/util/property.h"
 #include "linbox/blas/context.h"
 #include "linbox/ring/ring-interface.h"
 #include "linbox/ring/traits.h"
@@ -563,6 +564,14 @@ class Modular : public ModularBase<_Element>
 		x %= ModularBase<Element>::_modulus;
 		return x;
 	}
+
+	template <class Iterator>
+	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
+	{
+		x *= y;
+		x %= ModularBase<Element>::_modulus;
+		return x;
+	}
  
 	/* Inplace Division.
 	 * x /= y
@@ -748,6 +757,13 @@ class Modular<uint8> : public RingInterface, public ModularBase<uint8>
 		return x;
 	}
  
+	template <class Iterator>
+	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
+	{
+		x = ((uint32) x * (uint32) y) % (uint32) ModularBase<Element>::_modulus;
+		return x;
+	}
+
 	Element &divin (Element &x, const Element &y) const
 	{
 		Element temp;
@@ -904,6 +920,13 @@ class Modular<uint16> : public RingInterface, public ModularBase<uint16>
 		x = ((uint32) x * (uint32) y) % (uint32) ModularBase<Element>::_modulus;
 		return x;
 	}
+
+	template <class Iterator>
+	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
+	{
+		x = ((uint32) x * (uint32) y) % (uint32) ModularBase<Element>::_modulus;
+		return x;
+	}
  
 	Element &divin (Element &x, const Element &y) const
 	{
@@ -1056,6 +1079,13 @@ class Modular<uint32> : public RingInterface, public ModularBase<uint32>
 		return x;
 	}
  
+	template <class Iterator>
+	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
+	{
+		x = ((uint64) x * (uint64) y) % (uint64) ModularBase<Element>::_modulus;
+		return x;
+	}
+
 	Element &divin (Element &x, const Element &y) const
 	{
 		Element temp;
@@ -1292,6 +1322,14 @@ public:
 		return x;
 	}
  
+	template <class Iterator>
+	inline Property<Iterator> &mul (Property<Iterator> &x, const Element &y, const Element &z) const
+	{
+		float tmp = y * z;
+		x = fmod (tmp, modulus);
+		return x;
+	}
+
 	inline Element &div (Element &x, const Element &y, const Element &z) const
 	{
 		Element temp;
@@ -1358,6 +1396,10 @@ public:
 	}
  
 	inline Element &mulin (Element &x, const Element &y) const
+		{ return mul (x, x, y); }
+
+	template <class Iterator>
+	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
 		{ return mul (x, x, y); }
  
 	inline Element &divin (Element &x, const Element &y) const
@@ -1557,6 +1599,14 @@ public:
 		x = fmod (tmp, modulus);
 		return x;
 	}
+
+	template <class Iterator>
+	inline Property<Iterator> &mul (Property<Iterator> &x, const Element &y, const Element &z) const
+	{
+		double tmp = y * z;
+		x = fmod (tmp, modulus);
+		return x;
+	}
  
 	inline Element &div (Element &x, const Element &y, const Element &z) const
 	{
@@ -1624,6 +1674,10 @@ public:
 	}
  
 	inline Element &mulin (Element &x, const Element &y) const
+		{ return mul (x, x, y); }
+
+	template <class Iterator>
+	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
 		{ return mul (x, x, y); }
  
 	inline Element &divin (Element &x, const Element &y) const

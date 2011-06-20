@@ -23,4 +23,5 @@ pkgincludesub_HEADERS=\
 	timer.h		\
 	splicer.h	\
 	splicer.tcc	\
-	double-word.h
+	double-word.h	\
+	property.h

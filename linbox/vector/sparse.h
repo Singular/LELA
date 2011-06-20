@@ -10,40 +10,11 @@
 #include <vector>
 #include <algorithm>
 
+#include "linbox/util/property.h"
 #include "linbox/vector/traits.h"
 
 namespace LinBox
 {
-
-/// Class to mimic a C#-style property
-template <class Iterator>
-class SparseVectorProperty {
-	Iterator _i;
-
-	template <class IIt, class EIt, class CIIt, class CEIt>
-	friend class SparseVectorIterator;
-
-	template <class IIt, class EIt, class CIIt, class CEIt>
-	friend class SparseVectorReference;
-
-	template <class Element, class IV, class EV>
-	friend class SparseVector;
-
-public:
-	typedef typename std::iterator_traits<Iterator>::value_type value_type;
-
-	SparseVectorProperty () {}
-	SparseVectorProperty (Iterator i) : _i (i) {}
-
-	SparseVectorProperty &operator = (const value_type &v)
-		{ *_i = v; return *this; }
-
-	operator typename std::iterator_traits<Iterator>::reference ()
-		{ return *_i; }
-
-	operator const typename std::iterator_traits<Iterator>::reference () const
-		{ return *_i; }
-};
 
 /// Reference to an (index, entry)-pair
 template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
@@ -52,8 +23,8 @@ public:
 	typedef typename std::iterator_traits<IndexIterator>::value_type first_type;
 	typedef typename std::iterator_traits<ElementIterator>::value_type second_type;
 
-	SparseVectorProperty<IndexIterator> first;
-	SparseVectorProperty<ElementIterator> second;
+	Property<IndexIterator> first;
+	Property<ElementIterator> second;
 
 	SparseVectorReference () {}
 	SparseVectorReference (IndexIterator idx, ElementIterator elt) : first (idx), second (elt) {}
@@ -78,8 +49,8 @@ public:
 	typedef typename std::iterator_traits<ConstIndexIterator>::value_type first_type;
 	typedef typename std::iterator_traits<ConstElementIterator>::value_type second_type;
 
-	SparseVectorProperty<ConstIndexIterator> first;
-	SparseVectorProperty<ConstElementIterator> second;
+	Property<ConstIndexIterator> first;
+	Property<ConstElementIterator> second;
 
 	SparseVectorReference () {}
 	SparseVectorReference (ConstIndexIterator idx, ConstElementIterator elt) : first (idx), second (elt) {}
