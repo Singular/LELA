@@ -9,17 +9,17 @@ AM_CPPFLAGS= $(GMP_CFLAGS) $(NTL_CFLAGS) $(GIVARO_CFLAGS) $(LIDIA_CFLAGS)
 LDADD = $(BLAS_LIBS) $(NTL_LIBS) $(GIVARO_LIBS) $(GMP_LIBS)  $(LIDIA_LIBS) $(M4RI_LIBS) $(top_builddir)/linbox/liblinbox.la
 
 noinst_PROGRAMS = \
-	row-echelon-form
-#	convert \
-#	equal
+	row-echelon-form \
+	equal
+#	convert
 
 # convert_SOURCES = \
 # 	convert.C	\
 # 	support.C
 
-# equal_SOURCES = \
-# 	equal.C	\
-# 	support.C
+equal_SOURCES = \
+	equal.C	\
+	support.C
 
 row_echelon_form_SOURCES = \
 	row-echelon-form.C	\

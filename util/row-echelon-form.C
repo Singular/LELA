@@ -38,10 +38,20 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 	if (!ifile.good ()) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "Could not open input-file" << std::endl;
+		commentator.stop ("error");
+		commentator.stop ("error");
 		return -1;
 	}
 
-	BLAS3::read (ctx, ifile, A, input_format);
+	try {
+		BLAS3::read (ctx, ifile, A, input_format);
+	}
+	catch (LinboxError e) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << e;
+		commentator.stop ("error");
+		commentator.stop ("error");
+		return -1;
+	}
 
 	commentator.stop (MSG_DONE);
 
@@ -56,6 +66,8 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 	if (!ofile.good ()) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "Could not open output-file" << std::endl;
+		commentator.stop ("error");
+		commentator.stop ("error");
 		return -1;
 	}
 
