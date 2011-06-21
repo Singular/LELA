@@ -57,6 +57,13 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 
 	EchelonForm<Ring> EF (ctx);
 
+	if (reduced)
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
+			<< "Computing reduced form" << std::endl;
+	else
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
+			<< "Computing non-reduced form" << std::endl;
+
 	EF.RowEchelonForm (A, reduced, method);
 
 	commentator.start ("Writing output-matrix");
@@ -197,7 +204,7 @@ int main (int argc, char **argv)
 		{ 'm', "-m", "Method to be used ('standard', 'afast', 'm4ri', or 'f4')", TYPE_STRING, &methodString },
 		{ 'i', "-i", "Input file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png')", TYPE_STRING, &inputFileFormat },
 		{ 'o', "-o", "Output file format ('dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty')", TYPE_STRING, &outputFileFormat },
-		{ 't', "-t", "Type to use for matrix ('dense', 'sparse', 'hybrid')", TYPE_NONE, &reduced },
+		{ 't', "-t", "Type to use for matrix ('dense', 'sparse', 'hybrid')", TYPE_STRING, &matrixType },
 		{ '\0' }
 	};
 
