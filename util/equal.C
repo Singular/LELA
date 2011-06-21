@@ -97,11 +97,11 @@ int main (int argc, char **argv)
 	static char *input2 = NULL;
 
 	static Argument args[] = {
-		{ 'k', "-k", "Ring over which to compute ('gf2', 'modular'; default 'modular')", TYPE_STRING, &ringString },
-		{ 'p', "-p", "Modulus of ring, when ring is 'modular' (default 101)", TYPE_INT, &p },
-		{ 'f', "-f", "Compute using floating point, when ring is 'modular' (default: no)", TYPE_NONE, &floatingPoint },
-		{ '1', "-1", "File format of first input-matrix ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png'; default: guess)", TYPE_STRING, &input1FileFormat },
-		{ '2', "-2", "File format of second input-matrix ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png'; default: guess)", TYPE_STRING, &input2FileFormat },
+		{ 'k', "-k", "Ring over which to compute ('gf2', 'modular')", TYPE_STRING, &ringString },
+		{ 'p', "-p", "Modulus of ring, when ring is 'modular'", TYPE_INT, &p },
+		{ 'f', "-f", "Compute using floating point, when ring is 'modular'", TYPE_NONE, &floatingPoint },
+		{ '1', "-1", "File format of first input-matrix ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png')", TYPE_STRING, &input1FileFormat },
+		{ '2', "-2", "File format of second input-matrix ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png')", TYPE_STRING, &input2FileFormat },
 		{ '\0' }
 	};
 

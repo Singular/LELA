@@ -34,6 +34,70 @@ template <> MatrixType get_matrix_type<Modular<double> > (const char *str);
 
 #endif
 
+/* Display a help message on command usage */
+
+void printHelpMessage (const char *program, Argument *args, bool printDefaults) 
+{
+	int i, l;
+
+	// Skip past libtool prefix in program name
+	if (!strncmp (program, "lt-", strlen ("lt-")))
+		program += strlen ("lt-");
+
+	std::cout << "Usage: " << program << " [options] [<report file>]" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Where [options] are the following:" << std::endl;
+
+	for (i = 0; args[i].c != '\0'; i++) {
+		if (args[i].example != 0) {
+			std::cout << "  " << args[i].example;
+			l = 10 - strlen (args[i].example);
+			do std::cout << ' '; while (--l > 0);
+		}
+		else if (args[i].type == TYPE_NONE)
+			std::cout << "  -" << args[i].c << " {YN+-} ";
+		else 
+			std::cout << "  -" << args[i].c << ' ' << args[i].c << "      ";
+			
+		std::cout << args[i].helpString;
+		if (printDefaults) {
+			l = 54 - strlen (args[i].helpString);
+			do std::cout << ' '; while (--l > 0);
+			std::cout << " (default ";
+			switch (args[i].type) {
+			case TYPE_NONE:
+				std::cout << ((*(bool *)args[i].data)?"ON":"OFF");
+				break;
+			case TYPE_INT:
+				std::cout << *(int *) args[i].data;
+				break;
+			case TYPE_INTEGER:
+				std::cout << *(integer *) args[i].data;
+				break;
+			case TYPE_DOUBLE:
+				std::cout << *(double *) args[i].data;
+				break;
+			case TYPE_STRING:
+				std::cout << *(char **) args[i].data;
+				break;
+			}
+			std::cout << ")";		
+		}
+		std::cout << std::endl;
+	}
+
+	std::cout << "  -h or -?  Display this message" << std::endl;
+	std::cout << "For boolean switches, the argument may be omitted, meaning the switch should be ON" << std::endl;
+	std::cout << std::endl;
+	std::cout << "If <report file> is '-' the report is written to std output.  If <report file> is" << std::endl; 
+	std::cout << "not given, then no detailed reporting is done. This is suitable if you wish only" << std::endl;
+	std::cout << "to determine whether the tests succeeded." << std::endl;
+	std::cout << std::endl;
+	std::cout << "[1] N.B. This program does not verify the primality of Q, and does not use a" << std::endl;
+	std::cout << "    field extension in the event that Q=p^n, n > 1" << std::endl;
+	std::cout << std::endl;
+}
+
 Argument *findArgument (Argument *args, char c) 
 {
 	int i;
@@ -62,12 +126,10 @@ void parseArguments (int argc, char **argv, Argument *args, int freeArgs, ...)
 				std::cout << "Writing report data to cout (intermingled with brief report)" << std::endl << std::endl;
 				std::cout.flush ();
 			}
-#if 0 // FIXME
 			else if (argv[i][1] == 'h' || argv[i][1] == '?') {
 				printHelpMessage (argv[0], args, true);
 				exit (1);
 			}
-#endif
 			else if ((current = findArgument (args, argv[i][1])) != (Argument *) 0) {
 				switch (current->type) {
 				case TYPE_NONE:

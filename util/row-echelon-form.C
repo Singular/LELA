@@ -190,14 +190,14 @@ int main (int argc, char **argv)
 	static char *output = NULL;
 
 	static Argument args[] = {
-		{ 'r', "-r", "Compute the reduced row-echelon form (default: no)", TYPE_NONE, &reduced },
-		{ 'k', "-k", "Ring over which to compute ('gf2', 'modular'; default 'modular')", TYPE_STRING, &ringString },
-		{ 'p', "-p", "Modulus of ring, when ring is 'modular' (default 101)", TYPE_INT, &p },
-		{ 'f', "-f", "Compute using floating point, when ring is 'modular' (default: no)", TYPE_NONE, &floatingPoint },
-		{ 'm', "-m", "Method to be used ('standard', 'afast', 'm4ri', or 'f4'; default f4)", TYPE_STRING, &methodString },
-		{ 'i', "-i", "Input file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png'; default: guess)", TYPE_STRING, &inputFileFormat },
-		{ 'o', "-o", "Output file format ('dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty'; default: dumas)", TYPE_STRING, &outputFileFormat },
-		{ 't', "-t", "Type to use for matrix ('dense', 'sparse', 'hybrid'; default: dense)", TYPE_NONE, &reduced },
+		{ 'r', "-r", "Compute the reduced row-echelon form", TYPE_NONE, &reduced },
+		{ 'k', "-k", "Ring over which to compute ('gf2', 'modular')", TYPE_STRING, &ringString },
+		{ 'p', "-p", "Modulus of ring, when ring is 'modular'", TYPE_INT, &p },
+		{ 'f', "-f", "Compute using floating point, when ring is 'modular'", TYPE_NONE, &floatingPoint },
+		{ 'm', "-m", "Method to be used ('standard', 'afast', 'm4ri', or 'f4')", TYPE_STRING, &methodString },
+		{ 'i', "-i", "Input file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png')", TYPE_STRING, &inputFileFormat },
+		{ 'o', "-o", "Output file format ('dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty')", TYPE_STRING, &outputFileFormat },
+		{ 't', "-t", "Type to use for matrix ('dense', 'sparse', 'hybrid')", TYPE_NONE, &reduced },
 		{ '\0' }
 	};
 
