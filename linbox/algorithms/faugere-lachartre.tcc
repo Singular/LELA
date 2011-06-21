@@ -154,15 +154,18 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	DenseMatrix<typename Ring::Element> C (X.rowdim () - num_pivot_rows, num_pivot_rows);
 	DenseMatrix<typename Ring::Element> D (X.rowdim () - num_pivot_rows, X.coldim () - num_pivot_rows);
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > X_targets_inner_1[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (A), MatrixPart<DenseMatrix<typename Ring::Element> > (B) };
-	MatrixPart<DenseMatrix<typename Ring::Element> > X_targets_inner_2[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (C), MatrixPart<DenseMatrix<typename Ring::Element> > (D) };
+	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, const Matrix> A_part (A), B_part (B), C_part (C), D_part (D);
+	MatrixPartMatrix<Ring, const Matrix, DenseMatrix<typename Ring::Element> > X_part (X);
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > *X_targets[] = { X_targets_inner_1, X_targets_inner_2 };
+	MatrixPart<Ring> *X_targets_inner_1[] = { &A_part, &B_part };
+	MatrixPart<Ring> *X_targets_inner_2[] = { &C_part, &D_part };
 
-	MatrixPart<const Matrix> X_sources_1[] = { MatrixPart<const Matrix> (X) };
-	MatrixPart<const Matrix> *X_sources[] = { X_sources_1 };
+	MatrixPart<Ring> **X_targets[] = { X_targets_inner_1, X_targets_inner_2 };
 
-	X_splicer.splice<Ring, const Matrix, DenseMatrix<typename Ring::Element> > (ctx.F, X_sources, X_targets);
+	MatrixPart<Ring> *X_sources_1[] = { &X_part };
+	MatrixPart<Ring> **X_sources[] = { X_sources_1 };
+
+	X_splicer.splice (ctx.F, X_sources, X_targets);
 
 	reportUI << "Matrix A:" << std::endl;
 	BLAS3::write (ctx, reportUI, A);
@@ -224,26 +227,29 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	DenseMatrix<typename Ring::Element> D1 (num_pivot_rows, num_pivot_rows);
 	DenseMatrix<typename Ring::Element> D2 (num_pivot_rows, D.coldim () - num_pivot_rows);
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > B_targets_inner[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (B1), MatrixPart<DenseMatrix<typename Ring::Element> > (B2) };
-	MatrixPart<DenseMatrix<typename Ring::Element> > D_targets_inner_1[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (D1), MatrixPart<DenseMatrix<typename Ring::Element> > (D2) };
-	MatrixPart<DenseMatrix<typename Ring::Element> > D_targets_inner_2[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_ZERO),
-							MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_ZERO) };
+	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > B1_part (B1), B2_part (B2), D1_part (D1), D2_part (D2);
+	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > B_part_1 (B), D_part_1 (D);
+	MatrixPartZero<Ring> zero_part;
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > *B_targets[] = { B_targets_inner };
-	MatrixPart<DenseMatrix<typename Ring::Element> > *D_targets[] = { D_targets_inner_1, D_targets_inner_2 };
+	MatrixPart<Ring> *B_targets_inner[] = { &B1_part, &B2_part };
+	MatrixPart<Ring> *D_targets_inner_1[] = { &D1_part, &D2_part };
+	MatrixPart<Ring> *D_targets_inner_2[] = { &zero_part, &zero_part };
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > B_sources_1[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (B) };
-	MatrixPart<DenseMatrix<typename Ring::Element> > D_sources_1[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (D) };
+	MatrixPart<Ring> **B_targets[] = { B_targets_inner };
+	MatrixPart<Ring> **D_targets[] = { D_targets_inner_1, D_targets_inner_2 };
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > *B_sources[] = { B_sources_1 };
-	MatrixPart<DenseMatrix<typename Ring::Element> > *D_sources[] = { D_sources_1 };
+	MatrixPart<Ring> *B_sources_1[] = { &B_part_1 };
+	MatrixPart<Ring> *D_sources_1[] = { &D_part_1 };
+
+	MatrixPart<Ring> **B_sources[] = { B_sources_1 };
+	MatrixPart<Ring> **D_sources[] = { D_sources_1 };
 
 	Splicer B_splicer (D_splicer);
 	B_splicer.clearHorizontalBlocks ();
 	B_splicer.addHorizontalBlock (Block (0, 0, 0, 0, B.rowdim ()));
 
-	B_splicer.splice<Ring, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > (ctx.F, B_sources, B_targets);
-	D_splicer.splice<Ring, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > (ctx.F, D_sources, D_targets);
+	B_splicer.splice (ctx.F, B_sources, B_targets);
+	D_splicer.splice (ctx.F, D_sources, D_targets);
 
 	reportUI << "Matrix B1:" << std::endl;
 	BLAS3::write (ctx, reportUI, B1);
@@ -276,24 +282,24 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	reportUI << "Splicer after substitution:" << std::endl << subst_splicer << std::endl;
 	reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > R_sources_inner_1[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_IDENTITY),
-							MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_ZERO),
-							MatrixPart<DenseMatrix<typename Ring::Element> > (B2) };
-	MatrixPart<DenseMatrix<typename Ring::Element> > R_sources_inner_2[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_ZERO),
-							MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_IDENTITY),
-							MatrixPart<DenseMatrix<typename Ring::Element> > (D2) };
-	MatrixPart<DenseMatrix<typename Ring::Element> > R_sources_inner_3[] = { MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_ZERO),
-							MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_ZERO),
-							MatrixPart<DenseMatrix<typename Ring::Element> > (MatrixPart<DenseMatrix<typename Ring::Element> >::TYPE_ZERO) };
+	MatrixPartIdentity<Ring, Matrix> identity_part;
 
-	MatrixPart<DenseMatrix<typename Ring::Element> > *R_sources[] = { R_sources_inner_1, R_sources_inner_2, R_sources_inner_3 };
+	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, Matrix> B2_part_1 (B2), D2_part_1 (D2);
 
-	MatrixPart<Matrix> R_targets_1[] = { MatrixPart<Matrix> (R) };
-	MatrixPart<Matrix> *R_targets[] = { R_targets_1 };
+	MatrixPart<Ring> *R_sources_inner_1[] = { &identity_part, &zero_part, &B2_part_1 };
+	MatrixPart<Ring> *R_sources_inner_2[] = { &zero_part, &identity_part, &D2_part_1 };
+	MatrixPart<Ring> *R_sources_inner_3[] = { &zero_part, &zero_part, &zero_part };
+
+	MatrixPart<Ring> **R_sources[] = { R_sources_inner_1, R_sources_inner_2, R_sources_inner_3 };
+
+	MatrixPartMatrix<Ring, Matrix, DenseMatrix<typename Ring::Element> > R_part (R);
+
+	MatrixPart<Ring> *R_targets_1[] = { &R_part };
+	MatrixPart<Ring> **R_targets[] = { R_targets_1 };
 
 	BLAS3::scal (ctx, ctx.F.zero (), R);
 
-	composed_splicer.splice<Ring, DenseMatrix<typename Ring::Element>, Matrix> (ctx.F, R_sources, R_targets);
+	composed_splicer.splice (ctx.F, R_sources, R_targets);
 
 	commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 }

@@ -68,49 +68,145 @@ public:
 };
 
 /** Class representing a part of a matrix to be spliced by the Splicer */
-template<class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
-class MatrixPart {
+template <class Ring>
+class MatrixPart
+{
 public:
-	/** Type of the matrix-part
-	 *
-	 * A MatrixPart can be zero (TYPE_ZERO), the identity-matrix
-	 * (TYPE_IDENTITY), or an existing matrix (TYPE_MATRIX). When
-	 * splicing, MatrixParts of type TYPE_ZERO are ignored, those
-	 * of type TYPE_IDENTITY are transferred by building the
-	 * appropriate identity-block, and those of type TYPE_MATRIX
-	 * are copied.
-	 */
-	enum Type { TYPE_ZERO, TYPE_IDENTITY, TYPE_MATRIX };
+	/// Copy from another matrix to this
+	virtual void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart *source) = 0;
+};
 
-private:
+/** Zero-matrix */
+template <class Ring>
+class MatrixPartZero : public MatrixPart<Ring>
+{
+public:
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
+};
+
+/** Identity-matrix */
+template <class Ring, class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
+class MatrixPartIdentity : public MatrixPart<Ring>
+{
+public:
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
+};
+
+template <class Ring, class Matrix>
+class MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowMatrixTag> : public MatrixPart<Ring>
+{
+public:
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
+};
+
+template <class Ring, class Matrix>
+class MatrixPartIdentity<Ring, Matrix, MatrixCategories::ColMatrixTag> : public MatrixPart<Ring>
+{
+public:
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
+};
+
+template <class Ring, class Matrix>
+class MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowColMatrixTag> : public MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowMatrixTag> {};
+
+/** Source-matrix */
+template <class Ring, class Matrix, class OtherMatrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
+class MatrixPartMatrix : public MatrixPart<Ring>
+{
+	friend class MatrixPartMatrix<Ring, OtherMatrix, Matrix, Trait>;
+
+protected:
 	Matrix *_A;
-	const Type _type;
 
 public:
 	/** Construct a MatrixPart-object from a matrix
 	 *
 	 * @param A Source-matrix
 	 */
-	MatrixPart (Matrix &A) : _A (&A), _type (TYPE_MATRIX) {}
-
-	/** Construct a MatrixPart-object with no matrix
-	 *
-	 * @param type Type of source. Must be TYPE_ZERO or
-	 * TYPE_IDENTITY.
-	 */
-	MatrixPart (Type type) : _A (NULL), _type (type) {}
+	MatrixPartMatrix (Matrix &A) : _A (&A) {}
 
 	/** Copy-constructor */
-	MatrixPart (const MatrixPart &S) : _A (S._A), _type (S._type) {}
+	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
 
 	/** Assignment-operator */
-	MatrixPart &operator = (const MatrixPart &S) { _A = S._A; _type = S._type; }
+	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
 
-	/** Return the type */
-	Type type () const { return _type; }
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source);
+};
 
-	/** Return the matrix if it exists */
-	Matrix &A () { return *_A; }
+template <class Ring, class Matrix, class OtherMatrix>
+class MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowMatrixTag> : public MatrixPart<Ring>
+{
+	friend class MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::RowMatrixTag>;
+
+protected:
+	Matrix *_A;
+
+public:
+	MatrixPartMatrix (Matrix &A) : _A (&A) {}
+	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
+	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
+
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source);
+};
+
+template <class Ring, class Matrix, class OtherMatrix>
+class MatrixPartMatrix<Ring, const Matrix, OtherMatrix, MatrixCategories::RowMatrixTag> : public MatrixPart<Ring>
+{
+	friend class MatrixPartMatrix<Ring, OtherMatrix, const Matrix, MatrixCategories::RowMatrixTag>;
+
+protected:
+	const Matrix *_A;
+
+public:
+	MatrixPartMatrix (const Matrix &A) : _A (&A) {}
+	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
+	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
+
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
+};
+
+template <class Ring, class Matrix, class OtherMatrix>
+class MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::ColMatrixTag> : public MatrixPart<Ring>
+{
+	friend class MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::ColMatrixTag>;
+
+protected:
+	Matrix *_A;
+
+public:
+	MatrixPartMatrix (Matrix &A) : _A (&A) {}
+	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
+	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
+
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source);
+};
+
+template <class Ring, class Matrix, class OtherMatrix>
+class MatrixPartMatrix<Ring, const Matrix, OtherMatrix, MatrixCategories::ColMatrixTag> : public MatrixPart<Ring>
+{
+	friend class MatrixPartMatrix<Ring, OtherMatrix, const Matrix, MatrixCategories::ColMatrixTag>;
+
+protected:
+	const Matrix *_A;
+
+public:
+	MatrixPartMatrix (const Matrix &A) : _A (&A) {}
+	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
+	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
+
+	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
+};
+
+template <class Ring, class Matrix, class OtherMatrix>
+class MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowColMatrixTag> : public MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowMatrixTag>
+{
+	typedef MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowMatrixTag> parent_type;
+
+public:
+	MatrixPartMatrix (Matrix &A) : parent_type (A) {}
+	MatrixPartMatrix (const MatrixPartMatrix &S) : parent_type (S) {}
+	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { parent_type::operator = (S); return *this; }
 };
 
 /** Class to chop matrices up and splice them together.
@@ -153,99 +249,77 @@ class Splicer {
 					unsigned int only_source) const;
 
 	template <class Ring, class Vector>
-	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseVectorTag) const
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseVectorTag)
 		{ row[idx] = F.one (); }
 
 	template <class Ring, class Vector>
-	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseVectorTag) const
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseVectorTag)
 		{ row.push_back (typename Vector::value_type (idx, F.one ())); }
 
 	template <class Ring, class Vector>
-	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseZeroOneVectorTag) const
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseZeroOneVectorTag)
 		{ row[idx] = F.one (); }
 
 	template <class Ring, class Vector>
-	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseZeroOneVectorTag) const
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseZeroOneVectorTag)
 		{ row.push_back (typename Vector::value_type (idx)); }
 
 	template <class Ring, class Vector>
-	void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::HybridZeroOneVectorTag) const
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::HybridZeroOneVectorTag)
 		{ row.push_back (typename Vector::value_type
 				 (idx >> WordTraits<typename Vector::word_type>::logof_size,
 				  Vector::Endianness::e_j (idx & WordTraits<typename Vector::word_type>::pos_mask))); }
 
-	template <class Ring, class Vector>
-	void attach_e_i (const Ring &F, Vector &row, size_t idx) const
-		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
-
-	size_t round_up (size_t v, size_t x) const
+	static size_t round_up (size_t v, size_t x)
 		{ return ((v + x - 1) / x) * x; }
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag) const
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 		{ std::copy (in.begin () + src_idx, in.begin () + (src_idx + size), out.begin () + dest_idx); }
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
 
 	template <class Vector>
-	void append_word (Vector &v, size_t index, typename Vector::word_type word) const;
+	static void append_word (Vector &v, size_t index, typename Vector::word_type word);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
 
 	template <class Ring, class Vector1, class Vector2>
-	void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag) const;
-
-	template <class Ring, class Vector1, class Vector2>
-	void attach_block (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size) const
-		{ attach_block_specialised (F, out, in, src_idx, dest_idx, size,
-					    typename VectorTraits<Ring, Vector1>::VectorCategory (),
-					    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
-
-	template <class Ring, class Matrix>
-	void attach_identity (const Ring &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
-
-	template <class Ring, class Matrix>
-	void attach_identity (const Ring &F, Matrix &A, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
-
-	template <class Ring, class Matrix1, class Matrix2>
-	void attach_source (const Ring &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::RowMatrixTag) const;
-
-	template <class Ring, class Matrix1, class Matrix2>
-	void attach_source (const Ring &F, Matrix1 &A, const Matrix2 &S, const Block &horiz_block, const Block &vert_block, MatrixCategories::ColMatrixTag) const;
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
 
 	bool check_blocks (const std::vector<Block> &blocks, const char *type) const;
 	void consolidate_blocks (std::vector<Block> &blocks);
@@ -354,30 +428,24 @@ public:
 	 * from which data are copied.
 	 *
 	 * @param output Array of arrays of @ref MatrixPart objects to
-	 * which data are copied. If the type of a MatrixPart is
-	 * TYPE_MATRIX, then its corresponding matrices should already
-	 * be allocated, be of the right size, and be initialised to
-	 * zero. If the type is not TYPE_MATRIX, then it is ignored by
-	 * this operation.
+	 * which data are copied. If the type of an output-matrix is
+	 * MatrixTypeSource, then its corresponding matrix should
+	 * already be allocated to the correct size and set to
+	 * zero. Otherwise it is ignored by this operation.
 	 */
-	template <class Ring, class Matrix1, class Matrix2>
-	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const;
+	template <class Ring>
+	void splice (const Ring &F, MatrixPart<Ring> ***input, MatrixPart<Ring> ***output) const;
 
-	template <class Ring, class Matrix1, class Matrix2>
-	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::ColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::ColMatrixTag> **output) const;
+	/// Functions for attaching pieces to vectors
+	template <class Ring, class Vector>
+	static void attach_e_i (const Ring &F, Vector &row, size_t idx)
+		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
 
-	template <class Ring, class Matrix1, class Matrix2>
-	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **output) const
-		{ splice (F, reinterpret_cast<MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **> (input), output); }
-
-	template <class Ring, class Matrix1, class Matrix2>
-	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowColMatrixTag> **output) const
-		{ splice (F, input, reinterpret_cast<MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **> (output)); }
-
-	template <class Ring, class Matrix1, class Matrix2>
-	void splice (const Ring &F, MatrixPart<Matrix1, MatrixCategories::RowColMatrixTag> **input, MatrixPart<Matrix2, MatrixCategories::RowColMatrixTag> **output) const
-		{ splice (F, reinterpret_cast<MatrixPart<Matrix1, MatrixCategories::RowMatrixTag> **> (input),
-			  reinterpret_cast<MatrixPart<Matrix2, MatrixCategories::RowMatrixTag> **> (output)); }
+	template <class Ring, class Vector1, class Vector2>
+	static void attach_block (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size)
+		{ attach_block_specialised (F, out, in, src_idx, dest_idx, size,
+					    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+					    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
 };
 
 } // namespace LinBox
