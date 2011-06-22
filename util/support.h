@@ -121,6 +121,16 @@ MatrixType get_matrix_type<LinBox::GF2> (const char *str)
 	return MATRIX_UNKNOWN;
 }
 
+LinBox::FileFormatTag guess_format (char *filename)
+{
+	std::ifstream file (filename);
+
+	if (!file.good ())
+		return LinBox::FORMAT_UNKNOWN;
+
+	return LinBox::MatrixReader<LinBox::GF2>::detectFormat (file);
+}
+
 #endif // __SUPPORT_C
 
 /* template <class Ring> */

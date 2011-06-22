@@ -25,7 +25,7 @@ namespace LinBox
 {
 
 template <class Ring>
-bool MatrixReader<Ring>::isPNG (std::istream &is) const
+bool MatrixReader<Ring>::isPNG (std::istream &is)
 {
 	png_byte pngsig[_png_sig_size];
 
@@ -34,15 +34,6 @@ bool MatrixReader<Ring>::isPNG (std::istream &is) const
 	if (!is.good ()) return false;
 
 	return png_sig_cmp (pngsig, 0, _png_sig_size) == 0;
-}
-
-template <class Ring>
-bool MatrixReader<Ring>::isPNG (char *buf, std::streamsize n) const
-{
-	if (n < (std::streamsize) _png_sig_size)
-		return false;
-
-	return png_sig_cmp ((png_byte *) buf, 0, _png_sig_size) == 0;
 }
 
 template <class Ring>

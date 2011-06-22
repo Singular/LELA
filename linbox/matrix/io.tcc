@@ -75,7 +75,7 @@ std::istream &MatrixReader<Ring>::read (std::istream &is, Matrix &A, FileFormatT
 }
 
 template <class Ring>
-bool MatrixReader<Ring>::isDumas (char *buf, std::streamsize n) const
+bool MatrixReader<Ring>::isDumas (char *buf, std::streamsize n)
 {
 	regex_t re;
 
@@ -86,7 +86,7 @@ bool MatrixReader<Ring>::isDumas (char *buf, std::streamsize n) const
 }
 
 template <class Ring>
-bool MatrixReader<Ring>::isTurner (char *buf, std::streamsize n) const
+bool MatrixReader<Ring>::isTurner (char *buf, std::streamsize n)
 {
 	regex_t re;
 
@@ -97,7 +97,7 @@ bool MatrixReader<Ring>::isTurner (char *buf, std::streamsize n) const
 }
 
 template <class Ring>
-bool MatrixReader<Ring>::isMaple (char *buf, std::streamsize n) const
+bool MatrixReader<Ring>::isMaple (char *buf, std::streamsize n)
 {
 	regex_t re;
 
@@ -108,7 +108,7 @@ bool MatrixReader<Ring>::isMaple (char *buf, std::streamsize n) const
 }
 
 template <class Ring>
-bool MatrixReader<Ring>::isMatlab (char *buf, std::streamsize n) const
+bool MatrixReader<Ring>::isMatlab (char *buf, std::streamsize n)
 {
 	regex_t re;
 
@@ -119,7 +119,7 @@ bool MatrixReader<Ring>::isMatlab (char *buf, std::streamsize n) const
 }
 
 template <class Ring>
-bool MatrixReader<Ring>::isSage (char *buf, std::streamsize n) const
+bool MatrixReader<Ring>::isSage (char *buf, std::streamsize n)
 {
 	regex_t re;
 
@@ -130,7 +130,7 @@ bool MatrixReader<Ring>::isSage (char *buf, std::streamsize n) const
 }
 
 template <class Ring>
-bool MatrixReader<Ring>::isPretty (char *buf, std::streamsize n) const
+bool MatrixReader<Ring>::isPretty (char *buf, std::streamsize n)
 {
 	regex_t re;
 
@@ -141,7 +141,7 @@ bool MatrixReader<Ring>::isPretty (char *buf, std::streamsize n) const
 }
 
 template <class Ring>
-FileFormatTag MatrixReader<Ring>::detectFormat (std::istream &is) const
+FileFormatTag MatrixReader<Ring>::detectFormat (std::istream &is)
 {
 	FileFormatTag format = FORMAT_UNKNOWN;
 

@@ -15,6 +15,7 @@
 #include "linbox/ring/modular.h"
 #include "linbox/blas/level1.h"
 #include "linbox/blas/level3.h"
+#include "linbox/matrix/dense.h"
 
 #include "support.h"
 
@@ -102,7 +103,7 @@ int check_equal (const Ring &R, const char *input1, FileFormatTag input1_format,
 
 int main (int argc, char **argv)
 {
-	static const char *ringString = "modular";
+	static const char *ringString = "guess";
 	static integer p = 65521;
 	static bool floatingPoint = false;
 	static const char *input1FileFormat = "guess";
@@ -111,7 +112,7 @@ int main (int argc, char **argv)
 	static char *input2 = NULL;
 
 	static Argument args[] = {
-		{ 'k', "-k", "Ring over which to compute ('gf2', 'modular')", TYPE_STRING, &ringString },
+		{ 'k', "-k", "Ring over which to compute ('guess', 'gf2', 'modular')", TYPE_STRING, &ringString },
 		{ 'p', "-p", "Modulus of ring, when ring is 'modular'", TYPE_INT, &p },
 		{ 'f', "-f", "Compute using floating point, when ring is 'modular'", TYPE_NONE, &floatingPoint },
 		{ '1', "-1", "File format of first input-matrix ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png')", TYPE_STRING, &input1FileFormat },
@@ -131,17 +132,30 @@ int main (int argc, char **argv)
 	FileFormatTag input1_format = get_format_tag (input1FileFormat);
 	FileFormatTag input2_format = get_format_tag (input2FileFormat);
 
-	if (input1_format == FORMAT_UNKNOWN || input1_format == FORMAT_PRETTY) {
+	if (input1_format == FORMAT_UNKNOWN) {
 		std::cerr << "Invalid first input-file-format (use 'guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', or 'png')" << std::endl;
 		return -1;
 	}
 
-	if (input2_format == FORMAT_UNKNOWN || input2_format == FORMAT_PRETTY) {
+	if (input2_format == FORMAT_UNKNOWN) {
 		std::cerr << "Invalid second input-file-format (use 'guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', or 'png')" << std::endl;
 		return -1;
 	}
 
+	if (input1_format == FORMAT_DETECT)
+		input1_format = guess_format (input1);
+
+	if (input2_format == FORMAT_DETECT)
+		input2_format = guess_format (input2);
+
 	RingType ring_type = get_ring_type (ringString);
+
+	if (ring_type == RING_GUESS) {
+		if (input1_format == FORMAT_PNG || input2_format == FORMAT_PNG)
+			ring_type = RING_GF2;
+		else
+			ring_type = RING_MODULAR;
+	}
 
 	if (ring_type == RING_GF2)
 		return check_equal (GF2 (), input1, input1_format, input2, input2_format);

@@ -53,9 +53,9 @@ public:
 	template <class Matrix>
 	std::istream &read (std::istream &is, Matrix &A, FileFormatTag format = FORMAT_DETECT) const;
 
-private:
-	FileFormatTag detectFormat (std::istream &is) const;
+	static FileFormatTag detectFormat (std::istream &is);
 
+private:
 	template <class Matrix>
 	std::istream &readTurner (std::istream &is, Matrix &A) const;
 
@@ -77,19 +77,17 @@ private:
 	template <class Matrix>
 	std::istream &readPretty (std::istream &is, Matrix &A) const;
 
-	bool isDumas (char *buf, std::streamsize n) const;
-	bool isTurner (char *buf, std::streamsize n) const;
-	bool isMaple (char *buf, std::streamsize n) const;
-	bool isMatlab (char *buf, std::streamsize n) const;
-	bool isSage (char *buf, std::streamsize n) const;
-	bool isPretty (char *buf, std::streamsize n) const;
+	static bool isDumas (char *buf, std::streamsize n);
+	static bool isTurner (char *buf, std::streamsize n);
+	static bool isMaple (char *buf, std::streamsize n);
+	static bool isMatlab (char *buf, std::streamsize n);
+	static bool isSage (char *buf, std::streamsize n);
+	static bool isPretty (char *buf, std::streamsize n);
 
 #ifdef __LINBOX_HAVE_LIBPNG
 	static const unsigned _png_sig_size = 8;
 
-	bool isPNG (std::istream &is) const;
-
-	bool isPNG (char *buf, std::streamsize n) const;
+	static bool isPNG (std::istream &is);
 
 	static void PNGReadData (png_structp pngPtr, png_bytep data, png_size_t length);
 
