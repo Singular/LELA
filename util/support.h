@@ -35,7 +35,7 @@ struct Argument
 
 enum RingType
 {
-	RING_UNKNOWN, RING_GF2, RING_MODULAR
+	RING_UNKNOWN, RING_GUESS, RING_GF2, RING_MODULAR
 };
 
 enum MatrixType
@@ -45,6 +45,8 @@ enum MatrixType
 
 RingType get_ring_type (const char *str)
 {
+	if (!strcmp (str, "guess"))
+		return RING_GUESS;
 	if (!strcmp (str, "gf2"))
 		return RING_GF2;
 	if (!strcmp (str, "modular"))

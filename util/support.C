@@ -133,18 +133,8 @@ void parseArguments (int argc, char **argv, Argument *args, const char *freeArgs
 			else if ((current = findArgument (args, argv[i][1])) != (Argument *) 0) {
 				switch (current->type) {
 				case TYPE_NONE:
-					if (argc == i+1 || (argv[i+1][0] == '-' && argv[i+1][1] != '\0')) {
-						// if at last argument, or next argument is a switch, set to true
-						*(bool *) current->data = true;
-						break;
-					}
-					*(bool *) current->data = 
-						(argv[i+1][0] == '+' 
-						 || argv[i+1][0] == 'Y' 
-						 || argv[i+1][0] == 'y' 
-						 || argv[i+1][0] == 'T' 
-						 || argv[i+1][0] == 't') ;
-					i++;
+					// if at last argument, or next argument is a switch, set to true
+					*(bool *) current->data = true;
 					break;
 
 				case TYPE_INT:

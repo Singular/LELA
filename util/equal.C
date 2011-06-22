@@ -103,7 +103,7 @@ int check_equal (const Ring &R, const char *input1, FileFormatTag input1_format,
 int main (int argc, char **argv)
 {
 	static const char *ringString = "modular";
-	static integer p = 101;
+	static integer p = 65521;
 	static bool floatingPoint = false;
 	static const char *input1FileFormat = "guess";
 	static const char *input2FileFormat = "guess";

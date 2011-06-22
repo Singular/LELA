@@ -32,18 +32,6 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 
 	commentator.start ("Converting matrix to row-echelon-form", __FUNCTION__);
 
-	if (output_format == FORMAT_DETECT) {
-		output_format = guess_format_tag (output);
-
-		if (output_format == FORMAT_UNKNOWN) {
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "Could not guess output file-format" << std::endl;
-			commentator.stop ("error");
-		} else
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
-				<< "Writing output in " << format_names[output_format] << " format" << std::endl;
-	}
-
 	Matrix A;
 
 	commentator.start ("Reading input-matrix");
@@ -88,7 +76,9 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 
 	EF.RowEchelonForm (A, reduced, method);
 
-	commentator.start ("Writing output-matrix");
+	std::ostringstream str;
+	str << "Writing output-matrix (format " << format_names[output_format] << ")" << std::ends;
+	commentator.start (str.str ().c_str ());
 
 	std::ofstream ofile (output);
 
@@ -208,8 +198,8 @@ int run_row_echelon_form (const Ring &R, const char *method_string, const char *
 int main (int argc, char **argv)
 {
 	static bool reduced = false;
-	static const char *ringString = "modular";
-	static integer p = 101;
+	static const char *ringString = "guess";
+	static integer p = 65521;
 	static bool floatingPoint = false;
 	static const char *methodString = "f4";
 	static const char *inputFileFormat = "guess";
@@ -220,7 +210,7 @@ int main (int argc, char **argv)
 
 	static Argument args[] = {
 		{ 'r', "-r", "Compute the reduced row-echelon form", TYPE_NONE, &reduced },
-		{ 'k', "-k", "Ring over which to compute ('gf2', 'modular')", TYPE_STRING, &ringString },
+		{ 'k', "-k", "Ring over which to compute ('guess', 'gf2', 'modular')", TYPE_STRING, &ringString },
 		{ 'p', "-p", "Modulus of ring, when ring is 'modular'", TYPE_INT, &p },
 		{ 'f', "-f", "Compute using floating point, when ring is 'modular'", TYPE_NONE, &floatingPoint },
 		{ 'm', "-m", "Method to be used ('standard', 'afast', 'm4ri', or 'f4')", TYPE_STRING, &methodString },
@@ -252,7 +242,23 @@ int main (int argc, char **argv)
 		return -1;
 	}
 
+	if (output_format == FORMAT_DETECT) {
+		output_format = guess_format_tag (output);
+
+		if (output_format == FORMAT_UNKNOWN) {
+			std::cerr << "Could not guess output file-format" << std::endl;
+			return -1;
+		}
+	}
+
 	RingType ring_type = get_ring_type (ringString);
+
+	if (ring_type == RING_GUESS) {
+		if (input_format == FORMAT_PNG || output_format == FORMAT_PNG)
+			ring_type = RING_GF2;
+		else
+			ring_type = RING_MODULAR;
+	}
 
 	if (ring_type == RING_GF2)
 		return run_row_echelon_form (GF2 (), methodString, matrixType, reduced, input, input_format, output, output_format);
