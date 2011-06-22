@@ -37,6 +37,15 @@ bool MatrixReader<Ring>::isPNG (std::istream &is) const
 }
 
 template <class Ring>
+bool MatrixReader<Ring>::isPNG (char *buf, std::streamsize n) const
+{
+	if (n < (std::streamsize) _png_sig_size)
+		return false;
+
+	return png_sig_cmp ((png_byte *) buf, 0, _png_sig_size) == 0;
+}
+
+template <class Ring>
 void MatrixReader<Ring>::PNGReadData (png_structp png_ptr, png_bytep data, png_size_t length)
 {
 	png_voidp a = png_get_io_ptr (png_ptr);

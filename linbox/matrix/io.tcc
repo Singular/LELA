@@ -11,11 +11,15 @@
 
 #include <sstream>
 #include <cmath>
+#include <cctype>
 
+#include <regex.h>
+
+#include "linbox/linbox-config.h"
 #include "linbox/util/commentator.h"
 #include "linbox/matrix/io.h"
 
-#define BUF_SIZE 80
+#define BUF_SIZE 32
 
 namespace LinBox
 {
@@ -39,8 +43,8 @@ std::istream &MatrixReader<Ring>::read (std::istream &is, Matrix &A, FileFormatT
 		return readOneBased (is, A);
 		break;
 
-	case FORMAT_GUILLAUME:
-		return readGuillaume (is, A);
+	case FORMAT_DUMAS:
+		return readDumas (is, A);
 		break;
 
 	case FORMAT_MAPLE:
@@ -71,9 +75,108 @@ std::istream &MatrixReader<Ring>::read (std::istream &is, Matrix &A, FileFormatT
 }
 
 template <class Ring>
+bool MatrixReader<Ring>::isDumas (char *buf, std::streamsize n) const
+{
+	regex_t re;
+
+	if (regcomp (&re, "^[:digit:]+ [:digit:]+ M$", REG_EXTENDED) != 0)
+		throw LinboxError ("regcomp failure (isDumas)");
+
+	return regexec (&re, buf, 0, NULL, 0) == 0;
+}
+
+template <class Ring>
+bool MatrixReader<Ring>::isTurner (char *buf, std::streamsize n) const
+{
+	regex_t re;
+
+	if (regcomp (&re, "^[:digit:]+ [:digit:]+ [:digit:]+$", REG_EXTENDED) != 0)
+		throw LinboxError ("regcomp failure (isTurner)");
+
+	return regexec (&re, buf, 0, NULL, 0) == 0;
+}
+
+template <class Ring>
+bool MatrixReader<Ring>::isMaple (char *buf, std::streamsize n) const
+{
+	regex_t re;
+
+	if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
+		throw LinboxError ("regcomp failure (isMaple)");
+
+	return regexec (&re, buf, 0, NULL, 0) == 0;
+}
+
+template <class Ring>
+bool MatrixReader<Ring>::isMatlab (char *buf, std::streamsize n) const
+{
+	regex_t re;
+
+	if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
+		throw LinboxError ("regcomp failure (isMatlab)");
+
+	return regexec (&re, buf, 0, NULL, 0) == 0;
+}
+
+template <class Ring>
+bool MatrixReader<Ring>::isSage (char *buf, std::streamsize n) const
+{
+	regex_t re;
+
+	if (regcomp (&re, "matrix\\((GF\\([:digit:]+\\),|ZZ|QQ)?[ \t\n]+\\[[ \t\n]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+", REG_EXTENDED) != 0)
+		throw LinboxError ("regcomp failure (isSage)");
+
+	return regexec (&re, buf, 0, NULL, 0) == 0;
+}
+
+template <class Ring>
+bool MatrixReader<Ring>::isPretty (char *buf, std::streamsize n) const
+{
+	regex_t re;
+
+	if (regcomp (&re, "((\\[[:space:]+\\])|(\\[[:space:]+((\\.|[:digit:]+)[:space:]+)*(\\.|[:digit:]+)))", REG_EXTENDED) != 0)
+		throw LinboxError ("regcomp failure (isPretty)");
+
+	return regexec (&re, buf, 0, NULL, 0) == 0;
+}
+
+template <class Ring>
 FileFormatTag MatrixReader<Ring>::detectFormat (std::istream &is) const
 {
-	throw NotImplemented ();
+	FileFormatTag format = FORMAT_UNKNOWN;
+
+	char line[BUF_SIZE];
+
+	is.get (line, BUF_SIZE);
+
+	if (isDumas (line, BUF_SIZE))
+		format = FORMAT_DUMAS;
+	else if (isTurner (line, BUF_SIZE))
+		format = FORMAT_TURNER;
+	else if (isMaple (line, BUF_SIZE))
+		format = FORMAT_MAPLE;
+	else if (isMatlab (line, BUF_SIZE))
+		format = FORMAT_MATLAB;
+	else if (isSage (line, BUF_SIZE))
+		format = FORMAT_SAGE;
+	else if (isPretty (line, BUF_SIZE))
+		format = FORMAT_PRETTY;
+#ifdef __LINBOX_HAVE_LIBPNG
+	else {
+		std::streamsize s = is.gcount ();
+		while (s-- != 0)
+			is.unget ();
+
+		if (isPNG (is))
+			format = FORMAT_PNG;
+	}
+#endif // __LINBOX_HAVE_LIBPNG
+
+	std::streamsize s = is.gcount ();
+	while (s-- != 0)
+		is.unget ();
+
+	return format;
 }
 
 template <class Ring>
@@ -86,7 +189,7 @@ std::istream &MatrixReader<Ring>::readTurner (std::istream &is, Matrix &A) const
 
 	char buf[BUF_SIZE];
 
-	is.getline (buf, 80);
+	is.getline (buf, BUF_SIZE);
 
 	do {
 		std::istringstream str (buf);
@@ -110,7 +213,7 @@ std::istream &MatrixReader<Ring>::readTurner (std::istream &is, Matrix &A) const
 
 template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Ring>::readGuillaume (std::istream &is, Matrix &A) const
+std::istream &MatrixReader<Ring>::readDumas (std::istream &is, Matrix &A) const
 {
 	size_t m, n, i, j;
 	char c;
@@ -312,8 +415,8 @@ std::ostream &MatrixWriter<Ring>::write (std::ostream &os, const Matrix &A, File
 		return writeOneBased (os, A);
 		break;
 
-	case FORMAT_GUILLAUME:
-		return writeGuillaume (os, A);
+	case FORMAT_DUMAS:
+		return writeDumas (os, A);
 		break;
 
 	case FORMAT_MAPLE:
@@ -383,7 +486,7 @@ std::ostream &MatrixWriter<Ring>::writeOneBased (std::ostream &os, const Matrix 
 
 template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Ring>::writeGuillaume (std::ostream &os, const Matrix &A) const
+std::ostream &MatrixWriter<Ring>::writeDumas (std::ostream &os, const Matrix &A) const
 {
 	os << A.rowdim () << ' ' << A.coldim () << " M" << std::endl;
 	writeOneBased (os, A);

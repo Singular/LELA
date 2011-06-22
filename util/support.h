@@ -58,7 +58,7 @@ LinBox::FileFormatTag get_format_tag (const char *str)
 	if (!strcmp (str, "guess"))
 		return LinBox::FORMAT_DETECT;
 	if (!strcmp (str, "dumas"))
-		return LinBox::FORMAT_GUILLAUME;
+		return LinBox::FORMAT_DUMAS;
 	if (!strcmp (str, "turner"))
 		return LinBox::FORMAT_TURNER;
 	if (!strcmp (str, "maple"))
@@ -71,6 +71,26 @@ LinBox::FileFormatTag get_format_tag (const char *str)
 		return LinBox::FORMAT_PNG;
 	if (!strcmp (str, "pretty"))
 		return LinBox::FORMAT_PRETTY;
+
+	return LinBox::FORMAT_UNKNOWN;
+}
+
+// Try to guess the format-tag by looking at the filename
+LinBox::FileFormatTag guess_format_tag (const char *filename)
+{
+	const char *filename_ext = strrchr (filename, '.');
+
+	if (filename_ext == NULL || filename_ext[1] == '\0')
+		return LinBox::FORMAT_UNKNOWN;
+
+	++filename_ext;
+
+	if (!strcmp (filename_ext, "png"))
+		return LinBox::FORMAT_PNG;
+	if (!strcmp (filename_ext, "m"))
+		return LinBox::FORMAT_MATLAB;
+	if (!strcmp (filename_ext, "sage"))
+		return LinBox::FORMAT_SAGE;
 
 	return LinBox::FORMAT_UNKNOWN;
 }

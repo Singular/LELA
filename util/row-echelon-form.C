@@ -25,9 +25,24 @@ template <class Ring, class Matrix>
 int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_format, const char *output, FileFormatTag output_format,
 		      typename EchelonForm<Ring>::Method method, bool reduced)
 {
+	static const char *format_names[] = 
+		{ "detect", "unknown", "Turner", "one-based", "Dumas", "Maple", "Matlab", "Sage", "pretty", "PNG" };
+
 	Context<Ring> ctx (R);
 
 	commentator.start ("Converting matrix to row-echelon-form", __FUNCTION__);
+
+	if (output_format == FORMAT_DETECT) {
+		output_format = guess_format_tag (output);
+
+		if (output_format == FORMAT_UNKNOWN) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "Could not guess output file-format" << std::endl;
+			commentator.stop ("error");
+		} else
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
+				<< "Writing output in " << format_names[output_format] << " format" << std::endl;
+	}
 
 	Matrix A;
 
@@ -48,6 +63,13 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 	}
 	catch (LinboxError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << e;
+		commentator.stop ("error");
+		commentator.stop ("error");
+		return -1;
+	}
+	catch (UnrecognisedFormat) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "Unable to determine format of input-file" << std::endl;
 		commentator.stop ("error");
 		commentator.stop ("error");
 		return -1;
@@ -191,7 +213,7 @@ int main (int argc, char **argv)
 	static bool floatingPoint = false;
 	static const char *methodString = "f4";
 	static const char *inputFileFormat = "guess";
-	static const char *outputFileFormat = "dumas";
+	static const char *outputFileFormat = "guess";
 	static const char *matrixType = "dense";
 	static char *input = NULL;
 	static char *output = NULL;
@@ -202,8 +224,8 @@ int main (int argc, char **argv)
 		{ 'p', "-p", "Modulus of ring, when ring is 'modular'", TYPE_INT, &p },
 		{ 'f', "-f", "Compute using floating point, when ring is 'modular'", TYPE_NONE, &floatingPoint },
 		{ 'm', "-m", "Method to be used ('standard', 'afast', 'm4ri', or 'f4')", TYPE_STRING, &methodString },
-		{ 'i', "-i", "Input file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png')", TYPE_STRING, &inputFileFormat },
-		{ 'o', "-o", "Output file format ('dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty')", TYPE_STRING, &outputFileFormat },
+		{ 'i', "-i", "Input file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty')", TYPE_STRING, &inputFileFormat },
+		{ 'o', "-o", "Output file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty')", TYPE_STRING, &outputFileFormat },
 		{ 't', "-t", "Type to use for matrix ('dense', 'sparse', 'hybrid')", TYPE_STRING, &matrixType },
 		{ '\0' }
 	};
@@ -220,13 +242,13 @@ int main (int argc, char **argv)
 	FileFormatTag input_format = get_format_tag (inputFileFormat);
 	FileFormatTag output_format = get_format_tag (outputFileFormat);
 
-	if (input_format == FORMAT_UNKNOWN || input_format == FORMAT_PRETTY) {
-		std::cerr << "Invalid input-file-format (use 'guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', or 'png')" << std::endl;
+	if (input_format == FORMAT_UNKNOWN) {
+		std::cerr << "Invalid input-file-format (use 'guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png', or 'pretty')" << std::endl;
 		return -1;
 	}
 
-	if (output_format == FORMAT_UNKNOWN || output_format == FORMAT_DETECT) {
-		std::cerr << "Invalid output-file-format (use 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png', or 'pretty')" << std::endl;
+	if (output_format == FORMAT_UNKNOWN) {
+		std::cerr << "Invalid output-file-format (use 'guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png', or 'pretty')" << std::endl;
 		return -1;
 	}
 

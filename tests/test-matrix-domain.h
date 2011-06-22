@@ -1352,7 +1352,7 @@ template <class Field, class Modules, class Matrix>
 bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const Matrix &M, FileFormatTag format)
 {
 	static const char *format_names[] = 
-		{ "detect", "unknown", "Turner", "one-based", "Guillaume", "Maple", "Matlab", "Sage", "pretty", "PNG" };
+		{ "detect", "unknown", "Turner", "one-based", "Dumas", "Maple", "Matlab", "Sage", "pretty", "PNG" };
 
 	ostringstream str;
 	str << "Testing " << text << " read/write (format " << format_names[format] << ")" << std::ends;
@@ -1422,7 +1422,7 @@ bool testReadWrite (Context<Field, Modules> &ctx, const char *text, const Matrix
 	report << "Input matrix M:" << std::endl;
 	BLAS3::write (ctx, report, M);
 
-	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY };
+	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_DUMAS, FORMAT_MATLAB, FORMAT_PRETTY };
 
 	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)
 		pass = testReadWriteFormat (ctx, text, M, formats[i]) && pass;
@@ -1446,9 +1446,9 @@ bool testReadWrite (Context<GF2, Modules> &ctx, const char *text, const Matrix &
 	BLAS3::write (ctx, report, M);
 
 #ifdef __LINBOX_HAVE_LIBPNG
-	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY, FORMAT_PNG };
+	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_DUMAS, FORMAT_MATLAB, FORMAT_PRETTY, FORMAT_PNG };
 #else // !__LINBOX_HAVE_LIBPNG
-	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_GUILLAUME, FORMAT_MATLAB, FORMAT_PRETTY };
+	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_DUMAS, FORMAT_MATLAB, FORMAT_PRETTY };
 #endif // __LINBOX_HAVE_LIBPNG
 
 	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)

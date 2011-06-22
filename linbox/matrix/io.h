@@ -25,7 +25,7 @@ namespace LinBox
 
 /// File-formats for matrix-output
 enum FileFormatTag {
-	FORMAT_DETECT, FORMAT_UNKNOWN, FORMAT_TURNER, FORMAT_ONE_BASED, FORMAT_GUILLAUME, FORMAT_MAPLE, FORMAT_MATLAB, FORMAT_SAGE, FORMAT_PRETTY,
+	FORMAT_DETECT, FORMAT_UNKNOWN, FORMAT_TURNER, FORMAT_ONE_BASED, FORMAT_DUMAS, FORMAT_MAPLE, FORMAT_MATLAB, FORMAT_SAGE, FORMAT_PRETTY,
 #ifdef __LINBOX_HAVE_LIBPNG
 	FORMAT_PNG
 #endif // __LINBOX_HAVE_LIBPNG
@@ -63,7 +63,7 @@ private:
 	std::istream &readOneBased (std::istream &is, Matrix &A) const;
 
 	template <class Matrix>
-	std::istream &readGuillaume (std::istream &is, Matrix &A) const;
+	std::istream &readDumas (std::istream &is, Matrix &A) const;
 
 	template <class Matrix>
 	std::istream &readMaple (std::istream &is, Matrix &A) const;
@@ -77,10 +77,19 @@ private:
 	template <class Matrix>
 	std::istream &readPretty (std::istream &is, Matrix &A) const;
 
+	bool isDumas (char *buf, std::streamsize n) const;
+	bool isTurner (char *buf, std::streamsize n) const;
+	bool isMaple (char *buf, std::streamsize n) const;
+	bool isMatlab (char *buf, std::streamsize n) const;
+	bool isSage (char *buf, std::streamsize n) const;
+	bool isPretty (char *buf, std::streamsize n) const;
+
 #ifdef __LINBOX_HAVE_LIBPNG
 	static const unsigned _png_sig_size = 8;
 
 	bool isPNG (std::istream &is) const;
+
+	bool isPNG (char *buf, std::streamsize n) const;
 
 	static void PNGReadData (png_structp pngPtr, png_bytep data, png_size_t length);
 
@@ -168,7 +177,7 @@ private:
 	std::ostream &writeOneBased (std::ostream &os, const Matrix &A) const;
 
 	template <class Matrix>
-	std::ostream &writeGuillaume (std::ostream &os, const Matrix &A) const;
+	std::ostream &writeDumas (std::ostream &os, const Matrix &A) const;
 
 	template <class Matrix>
 	std::ostream &writeMaple (std::ostream &os, const Matrix &A) const;
@@ -221,7 +230,7 @@ private:
 	template <class Matrix>
 	std::ostream &writePNG (std::ostream &is, const Matrix &A) const
 		{ return writePNGSpecialised (is, A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
-#endif // __LINBOX_HAVE_LIBPNG	
+#endif // __LINBOX_HAVE_LIBPNG
 };
 
 } // namespace LinBox

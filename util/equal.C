@@ -52,6 +52,13 @@ int check_equal (const Ring &R, const char *input1, FileFormatTag input1_format,
 		commentator.stop ("error");
 		return -1;
 	}
+	catch (UnrecognisedFormat) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "Unable to determine format of first input-file" << std::endl;
+		commentator.stop ("error");
+		commentator.stop ("error");
+		return -1;
+	}
 
 	commentator.stop (MSG_DONE);
 
@@ -72,6 +79,13 @@ int check_equal (const Ring &R, const char *input1, FileFormatTag input1_format,
 	}
 	catch (LinboxError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << e;
+		commentator.stop ("error");
+		commentator.stop ("error");
+		return -1;
+	}
+	catch (UnrecognisedFormat) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "Unable to determine format of second input-file" << std::endl;
 		commentator.stop ("error");
 		commentator.stop ("error");
 		return -1;
