@@ -130,6 +130,11 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (PROGRESS_REPORT).setMaxDepth (3);
 
+	if (input1 == NULL || input2 == NULL) {
+		printHelpMessage (argv[0], args, "<first matrix filename> <second matrix filename>", true);
+		return -1;
+	}
+
 	FileFormatTag input1_format = get_format_tag (input1FileFormat);
 	FileFormatTag input2_format = get_format_tag (input2FileFormat);
 

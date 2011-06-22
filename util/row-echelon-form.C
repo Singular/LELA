@@ -224,6 +224,11 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args, "<input-filename> <output-filename>", 2, &input, &output);
 
+	if (input == NULL || output == NULL) {
+		printHelpMessage (argv[0], args, "<first matrix filename> <second matrix filename>", true);
+		return -1;
+	}
+
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
