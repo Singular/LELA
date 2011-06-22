@@ -34,6 +34,18 @@ template <> MatrixType get_matrix_type<Modular<double> > (const char *str);
 
 #endif
 
+/* Strip leading text from program-name */
+
+const char *stripProgram (const char *program)
+{
+	const char *part = strstr (program, "lt-");
+
+	if (part != NULL)
+		return part + strlen ("lt-");
+	else
+		return program;
+}
+
 /* Display a help message on command usage */
 
 void printHelpMessage (const char *program, Argument *args, const char *freeArgsText, bool printDefaults) 
@@ -41,8 +53,7 @@ void printHelpMessage (const char *program, Argument *args, const char *freeArgs
 	int i, l;
 
 	// Skip past libtool prefix in program name
-	if (!strncmp (program, "lt-", strlen ("lt-")))
-		program += strlen ("lt-");
+	program = stripProgram (program);
 
 	std::cout << "Usage: " << program << " [options] " << freeArgsText << " [<report file>]" << std::endl;
 	std::cout << std::endl;
