@@ -85,7 +85,7 @@ void Splicer::append_word (Vector &v, size_t index, typename Vector::word_type w
 	typedef WordTraits<typename Vector::word_type> WT;
 
 	if (v.empty () || v.back ().second != index >> WT::logof_size) {
-		if (index & WT::pos_mask == 0)
+		if ((index & WT::pos_mask) == 0)
 			v.push_back (typename Vector::value_type (index >> WT::logof_size, word));
 		else {
 			v.push_back (typename Vector::value_type (index >> WT::logof_size,
@@ -105,7 +105,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 					VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag> v1 (in, src_idx, src_idx + size);
-	typename SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag>::iterator i_v1;
+	typename SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v1;
 
 	for (i_v1 = v1.begin (); i_v1 != v1.end (); ++i_v1)
 		append_word (out, dest_idx + (i_v1->first << WordTraits<typename Vector2::word_type>::logof_size), i_v1->second);
@@ -175,6 +175,24 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 		if (tmp.back_word ())
 			out.push_back (typename Vector1::value_type (idx, tmp.back_word ()));
+	}
+}
+
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+					VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+{
+	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+
+	typename SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory>::const_iterator i_v1;
+
+	for (i_v1 = v1.begin (); i_v1 != v1.end (); ++i_v1) {
+		typename Vector1::word_type m = Vector1::Endianness::e_j (*i_v1 & WordTraits<typename Vector1::word_type>::pos_mask);
+
+		if (*i_v1 >> WordTraits<typename Vector1::word_type>::logof_size == out.back ().first)
+			out.back ().second |= m;
+		else
+			out.push_back (typename Vector1::value_type (*i_v1 >> WordTraits<typename Vector1::word_type>::logof_size, m));
 	}
 }
 

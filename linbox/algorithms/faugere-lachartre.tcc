@@ -210,6 +210,18 @@ public:
 	}
 };
 
+template <class Ring>
+struct DefaultSparseMatrix
+{
+	typedef SparseMatrix<typename Ring::Element> Type;
+};
+
+template <>
+struct DefaultSparseMatrix<GF2>
+{
+	typedef SparseMatrix<bool, typename Vector<GF2>::Hybrid> Type;
+};
+
 template <class Ring, class Modules>
 template <class Matrix>
 void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det)
@@ -254,9 +266,14 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	// std::ofstream Dout ("D.png");
 	// BLAS3::write (ctx, Dout, D, FORMAT_PNG);
 
-	commentator.start ("Constructing D - C A^-1 B");
+	commentator.start ("Constructing A^-1 B");
 
 	BLAS3::trsm (ctx, ctx.F.one (), A, B, UpperTriangular, true);
+
+	commentator.stop (MSG_DONE);
+
+	commentator.start ("Constructing D - C A^-1 B");
+
 	BLAS3::gemm (ctx, ctx.F.minusOne (), C, B, ctx.F.one (), D);
 
 	commentator.stop (MSG_DONE);
@@ -312,9 +329,14 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	reportUI << "Matrix D2:" << std::endl;
 	BLAS3::write (ctx, reportUI, D2);
 
-	commentator.start ("Constructing B2 - B1 D1^-1 D2");
+	commentator.start ("Constructing D1^-1 D2");
 
 	BLAS3::trsm (ctx, ctx.F.one (), D1, D2, UpperTriangular, true);			
+
+	commentator.stop (MSG_DONE);
+
+	commentator.start ("Constructing B2 - B1 D1^-1 D2");
+
 	BLAS3::gemm (ctx, ctx.F.minusOne (), B1, D2, ctx.F.one (), B2);
 
 	commentator.stop (MSG_DONE);
