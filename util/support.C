@@ -99,14 +99,9 @@ void printHelpMessage (const char *program, Argument *args, const char *freeArgs
 
 	std::cout << "  -v        Verbose output" << std::endl;
 	std::cout << "  -h or -?  Display this message" << std::endl;
-	std::cout << "For boolean switches, the argument may be omitted, meaning the switch should be ON" << std::endl;
 	std::cout << std::endl;
 	std::cout << "If <report file> is '-' the report is written to std output.  If <report file> is" << std::endl; 
-	std::cout << "not given, then no detailed reporting is done. This is suitable if you wish only" << std::endl;
-	std::cout << "to determine whether the tests succeeded." << std::endl;
-	std::cout << std::endl;
-	std::cout << "[1] N.B. This program does not verify the primality of Q, and does not use a" << std::endl;
-	std::cout << "    field extension in the event that Q=p^n, n > 1" << std::endl;
+	std::cout << "not given, then the detailed report is not written." << std::endl;
 	std::cout << std::endl;
 }
 
