@@ -36,7 +36,7 @@ template <> MatrixType get_matrix_type<Modular<double> > (const char *str);
 
 /* Display a help message on command usage */
 
-void printHelpMessage (const char *program, Argument *args, bool printDefaults) 
+void printHelpMessage (const char *program, Argument *args, const char *freeArgsText, bool printDefaults) 
 {
 	int i, l;
 
@@ -44,7 +44,7 @@ void printHelpMessage (const char *program, Argument *args, bool printDefaults)
 	if (!strncmp (program, "lt-", strlen ("lt-")))
 		program += strlen ("lt-");
 
-	std::cout << "Usage: " << program << " [options] [<report file>]" << std::endl;
+	std::cout << "Usage: " << program << " [options] " << freeArgsText << " [<report file>]" << std::endl;
 	std::cout << std::endl;
 	std::cout << "Where [options] are the following:" << std::endl;
 
@@ -110,7 +110,7 @@ Argument *findArgument (Argument *args, char c)
 		return (Argument *) 0;
 }
 
-void parseArguments (int argc, char **argv, Argument *args, int freeArgs, ...)
+void parseArguments (int argc, char **argv, Argument *args, const char *freeArgsText, int freeArgs, ...)
 {
 	int i;
 	Argument *current;
@@ -127,7 +127,7 @@ void parseArguments (int argc, char **argv, Argument *args, int freeArgs, ...)
 				std::cout.flush ();
 			}
 			else if (argv[i][1] == 'h' || argv[i][1] == '?') {
-				printHelpMessage (argv[0], args, true);
+				printHelpMessage (argv[0], args, freeArgsText, true);
 				exit (1);
 			}
 			else if ((current = findArgument (args, argv[i][1])) != (Argument *) 0) {

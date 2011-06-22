@@ -124,8 +124,8 @@ MatrixType get_matrix_type<LinBox::GF2> (const char *str)
 /* template <class Ring> */
 /* MatrixType get_matrix_type (const char *str); */
 
-void parseArguments (int argc, char **argv, Argument *args, int freeArgs, ...);
-void printHelpMessage (const char *program, Argument *args, bool printDefaults = false);
+void parseArguments (int argc, char **argv, Argument *args, const char *freeArgsText, int freeArgs, ...);
+void printHelpMessage (const char *program, Argument *args, const char *freeArgsText, bool printDefaults = false);
 
 #endif // __LINBOX_UTIL_SUPPORT_H
 

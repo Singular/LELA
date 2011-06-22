@@ -230,7 +230,7 @@ int main (int argc, char **argv)
 		{ '\0' }
 	};
 
-	parseArguments (argc, argv, args, 2, &input, &output);
+	parseArguments (argc, argv, args, "<input-filename> <output-filename>", 2, &input, &output);
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
