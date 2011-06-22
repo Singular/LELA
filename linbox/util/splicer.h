@@ -67,148 +67,6 @@ public:
 	inline bool isDestIndexInBlock (size_t idx) const { return idx >= _dest_idx && idx < _dest_idx + _size; }
 };
 
-/** Class representing a part of a matrix to be spliced by the Splicer */
-template <class Ring>
-class MatrixPart
-{
-public:
-	/// Copy from another matrix to this
-	virtual void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart *source) = 0;
-};
-
-/** Zero-matrix */
-template <class Ring>
-class MatrixPartZero : public MatrixPart<Ring>
-{
-public:
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
-};
-
-/** Identity-matrix */
-template <class Ring, class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
-class MatrixPartIdentity : public MatrixPart<Ring>
-{
-public:
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
-};
-
-template <class Ring, class Matrix>
-class MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowMatrixTag> : public MatrixPart<Ring>
-{
-public:
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
-};
-
-template <class Ring, class Matrix>
-class MatrixPartIdentity<Ring, Matrix, MatrixCategories::ColMatrixTag> : public MatrixPart<Ring>
-{
-public:
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
-};
-
-template <class Ring, class Matrix>
-class MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowColMatrixTag> : public MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowMatrixTag> {};
-
-/** Source-matrix */
-template <class Ring, class Matrix, class OtherMatrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
-class MatrixPartMatrix : public MatrixPart<Ring>
-{
-	friend class MatrixPartMatrix<Ring, OtherMatrix, Matrix, Trait>;
-
-protected:
-	Matrix *_A;
-
-public:
-	/** Construct a MatrixPart-object from a matrix
-	 *
-	 * @param A Source-matrix
-	 */
-	MatrixPartMatrix (Matrix &A) : _A (&A) {}
-
-	/** Copy-constructor */
-	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
-
-	/** Assignment-operator */
-	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
-
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source);
-};
-
-template <class Ring, class Matrix, class OtherMatrix>
-class MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowMatrixTag> : public MatrixPart<Ring>
-{
-	friend class MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::RowMatrixTag>;
-
-protected:
-	Matrix *_A;
-
-public:
-	MatrixPartMatrix (Matrix &A) : _A (&A) {}
-	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
-	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
-
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source);
-};
-
-template <class Ring, class Matrix, class OtherMatrix>
-class MatrixPartMatrix<Ring, const Matrix, OtherMatrix, MatrixCategories::RowMatrixTag> : public MatrixPart<Ring>
-{
-	friend class MatrixPartMatrix<Ring, OtherMatrix, const Matrix, MatrixCategories::RowMatrixTag>;
-
-protected:
-	const Matrix *_A;
-
-public:
-	MatrixPartMatrix (const Matrix &A) : _A (&A) {}
-	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
-	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
-
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
-};
-
-template <class Ring, class Matrix, class OtherMatrix>
-class MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::ColMatrixTag> : public MatrixPart<Ring>
-{
-	friend class MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::ColMatrixTag>;
-
-protected:
-	Matrix *_A;
-
-public:
-	MatrixPartMatrix (Matrix &A) : _A (&A) {}
-	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
-	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
-
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source);
-};
-
-template <class Ring, class Matrix, class OtherMatrix>
-class MatrixPartMatrix<Ring, const Matrix, OtherMatrix, MatrixCategories::ColMatrixTag> : public MatrixPart<Ring>
-{
-	friend class MatrixPartMatrix<Ring, OtherMatrix, const Matrix, MatrixCategories::ColMatrixTag>;
-
-protected:
-	const Matrix *_A;
-
-public:
-	MatrixPartMatrix (const Matrix &A) : _A (&A) {}
-	MatrixPartMatrix (const MatrixPartMatrix &S) : _A (S._A) {}
-	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { _A = S._A; return *this; }
-
-	void copy (const Ring &R, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source) {}
-};
-
-template <class Ring, class Matrix, class OtherMatrix>
-class MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowColMatrixTag> : public MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowMatrixTag>
-{
-	typedef MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowMatrixTag> parent_type;
-
-public:
-	MatrixPartMatrix (Matrix &A) : parent_type (A) {}
-	MatrixPartMatrix (const MatrixPartMatrix &S) : parent_type (S) {}
-	MatrixPartMatrix &operator = (const MatrixPartMatrix &S) { parent_type::operator = (S); return *this; }
-};
-
 /** Class to chop matrices up and splice them together.
  *
  * This class maintains a set of data-structures which describe how a
@@ -227,10 +85,9 @@ public:
  * source-representation to the destination-representation.
  *
  * The pair (horizontal id, vertical id) identifies which matrix from
- * the source respectively destination is used. It gives the indices
- * into two-dimensional arrays of type @ref MatrixPart which are
- * passed to @ref splice. The indices are then of the row respectively
- * column where the block begins.
+ * the source respectively destination is used. This may be read from
+ * the corresponding horizontal and vertical @ref Block objects which
+ * are passed to the thunk grid when the method splice runs.
  *
  * Horizontal and vertical blocks must be arranged from left to right
  * respectively top to bottom in both the source- and
@@ -321,6 +178,17 @@ class Splicer {
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 				       VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
 
+	/// Functions for attaching pieces to vectors
+	template <class Ring, class Vector>
+	static void attach_e_i (const Ring &F, Vector &row, size_t idx)
+		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+
+	template <class Ring, class Vector1, class Vector2>
+	static void attach_block (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size)
+		{ attach_block_specialised (F, out, in, src_idx, dest_idx, size,
+					    typename VectorTraits<Ring, Vector1>::VectorCategory (),
+					    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
+
 	bool check_blocks (const std::vector<Block> &blocks, const char *type) const;
 	void consolidate_blocks (std::vector<Block> &blocks);
 	void remove_gaps_from_blocks (std::vector<Block> &blocks);
@@ -328,6 +196,32 @@ class Splicer {
 	void fill_blocks (std::vector<Block> &blocks, unsigned int sid, unsigned int did, size_t dim);
 
 	friend std::ostream &operator << (std::ostream &os, const Splicer &splicer);
+
+	template <class Ring, class Matrix1, class Matrix2>
+	static void copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
+					  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+
+	template <class Ring, class Matrix1, class Matrix2>
+	static void copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
+					  MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag);
+
+	template <class Ring, class Matrix1, class Matrix2>
+	static void copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
+					  MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
+		{ copyBlockSpecialised (R, source, dest, horiz_block, vert_block, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+
+	template <class Ring, class Matrix>
+	static void copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
+					     MatrixCategories::RowMatrixTag);
+
+	template <class Ring, class Matrix>
+	static void copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
+					     MatrixCategories::ColMatrixTag);
+
+	template <class Ring, class Matrix>
+	static void copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
+					     MatrixCategories::RowColMatrixTag)
+		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block, MatrixCategories::RowMatrixTag ()); }
 
 public:
 	/// @name Management of the blocks
@@ -421,31 +315,47 @@ public:
 	/** Splice the given set of matrices input into the set of
 	 * matrices output
 	 *
-	 * @param F Ring over which matrices are defined. Needed to
-	 * build identity-matrix when requested and to copy vectors.
-	 *
-	 * @param input Array of arrays of @ref MatrixPart objects
-	 * from which data are copied.
-	 *
-	 * @param output Array of arrays of @ref MatrixPart objects to
-	 * which data are copied. If the type of an output-matrix is
-	 * MatrixTypeSource, then its corresponding matrix should
-	 * already be allocated to the correct size and set to
-	 * zero. Otherwise it is ignored by this operation.
+	 * @param grid Thunk which performs copying-operations. It
+	 * should have the signature grid (horizontal_block,
+	 * vertical_block) (horizontal_block and vertical_block
+	 * instances of type @ref Block) and should perform the actual
+	 * copying according to the information in those blocks. The
+	 * static methods @ref copyBlock and @ref copyIdentity are
+	 * available to assist.
 	 */
-	template <class Ring>
-	void splice (const Ring &F, MatrixPart<Ring> ***input, MatrixPart<Ring> ***output) const;
+	template <class Grid>
+	void splice (Grid grid) const;
 
-	/// Functions for attaching pieces to vectors
-	template <class Ring, class Vector>
-	static void attach_e_i (const Ring &F, Vector &row, size_t idx)
-		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+	/** Copy from the source-matrix to the destination-matrix
+	 * according to the information in horiz_block and
+	 * vert_block. To be used inside a Grid-object in @ref splice
+	 *
+	 * @param R Ring over which to operate
+	 * @param source Source-matrix
+	 * @param dest Destination-matrix
+	 * @param horiz_block Horizontal block
+	 * @param vert_block Vertical block
+	 */
+	template <class Ring, class Matrix1, class Matrix2>
+	static void copyBlock (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block)
+		{ copyBlockSpecialised (R, source, dest, horiz_block, vert_block,
+					typename MatrixTraits<Matrix1>::MatrixCategory (),
+					typename MatrixTraits<Matrix2>::MatrixCategory ()); }
 
-	template <class Ring, class Vector1, class Vector2>
-	static void attach_block (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size)
-		{ attach_block_specialised (F, out, in, src_idx, dest_idx, size,
-					    typename VectorTraits<Ring, Vector1>::VectorCategory (),
-					    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
+	/** Copy a part of the identity-matrix to the
+	 * destination-matrix according to the information in
+	 * horiz_block and vert_block. To be used inside a Grid-object
+	 * in @ref splice
+	 *
+	 * @param R Ring over which to operate
+	 * @param dest Destination-matrix
+	 * @param horiz_block Horizontal block
+	 * @param vert_block Vertical block
+	 */
+	template <class Ring, class Matrix>
+	static void copyIdentity (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block)
+		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block,
+					   typename MatrixTraits<Matrix>::MatrixCategory ()); }
 };
 
 } // namespace LinBox

@@ -130,6 +130,86 @@ void FaugereLachartre<Ring, Modules>::setup_splicer (Splicer &splicer, Splicer &
 	commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 }
 
+template <class Ring, class Matrix1, class Matrix2, class Matrix3>
+class MatrixGrid1
+{
+	const Ring &_R;
+	Matrix1 &_X;
+	Matrix2 &_A;
+	Matrix3 &_B, &_C, &_D;
+
+public:
+	MatrixGrid1 (const Ring &R, Matrix1 &X, Matrix2 &A, Matrix3 &B, Matrix3 &C, Matrix3 &D)
+		: _R (R), _X (X), _A (A), _B (B), _C (C), _D (D)
+		{}
+
+	void operator () (const Block &horiz_block, const Block &vert_block)
+	{
+		if (horiz_block.dest () == 0) {
+			if (vert_block.dest () == 0)
+				Splicer::copyBlock (_R, _X, _A, horiz_block, vert_block);
+			else
+				Splicer::copyBlock (_R, _X, _B, horiz_block, vert_block);
+		} else {
+			if (vert_block.dest () == 0)
+				Splicer::copyBlock (_R, _X, _C, horiz_block, vert_block);
+			else
+				Splicer::copyBlock (_R, _X, _D, horiz_block, vert_block);
+		}
+	}
+};
+
+template <class Ring, class Matrix>
+class MatrixGrid2
+{
+	const Ring &_R;
+	Matrix &_B, &_B1, &_B2;
+
+public:
+	MatrixGrid2 (const Ring &R, Matrix &B, Matrix &B1, Matrix &B2)
+		: _R (R), _B (B), _B1 (B1), _B2 (B2)
+		{}
+
+	void operator () (const Block &horiz_block, const Block &vert_block)
+	{
+		if (horiz_block.dest () == 0) {
+			if (vert_block.dest () == 0)
+				Splicer::copyBlock (_R, _B, _B1, horiz_block, vert_block);
+			else
+				Splicer::copyBlock (_R, _B, _B2, horiz_block, vert_block);
+		}
+	}
+};
+
+template <class Ring, class Matrix1, class Matrix2>
+class MatrixGrid3
+{
+	const Ring &_R;
+	Matrix1 &_B2, &_D2;
+	Matrix2 &_X;
+
+public:
+	MatrixGrid3 (const Ring &R, Matrix1 &B2, Matrix1 &D2, Matrix2 &X)
+		: _R (R), _B2 (B2), _D2 (D2), _X (X)
+		{}
+
+	void operator () (const Block &horiz_block, const Block &vert_block)
+	{
+		if (horiz_block.source () == 0) {
+			if (vert_block.source () == 0)
+				Splicer::copyIdentity (_R, _X, horiz_block, vert_block);
+			else if (vert_block.source () == 2)
+				Splicer::copyBlock (_R, _B2, _X, horiz_block, vert_block);
+		}
+		else if (horiz_block.source () == 1) {
+			if (vert_block.source () == 1)
+				Splicer::copyIdentity (_R, _X, horiz_block, vert_block);
+			else if (vert_block.source () == 2)
+				Splicer::copyBlock (_R, _D2, _X, horiz_block, vert_block);
+		}
+	}
+};
+
 template <class Ring, class Modules>
 template <class Matrix>
 void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det)
@@ -154,18 +234,7 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	DenseMatrix<typename Ring::Element> C (X.rowdim () - num_pivot_rows, num_pivot_rows);
 	DenseMatrix<typename Ring::Element> D (X.rowdim () - num_pivot_rows, X.coldim () - num_pivot_rows);
 
-	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, const Matrix> A_part (A), B_part (B), C_part (C), D_part (D);
-	MatrixPartMatrix<Ring, const Matrix, DenseMatrix<typename Ring::Element> > X_part (X);
-
-	MatrixPart<Ring> *X_targets_inner_1[] = { &A_part, &B_part };
-	MatrixPart<Ring> *X_targets_inner_2[] = { &C_part, &D_part };
-
-	MatrixPart<Ring> **X_targets[] = { X_targets_inner_1, X_targets_inner_2 };
-
-	MatrixPart<Ring> *X_sources_1[] = { &X_part };
-	MatrixPart<Ring> **X_sources[] = { X_sources_1 };
-
-	X_splicer.splice (ctx.F, X_sources, X_targets);
+	X_splicer.splice (MatrixGrid1<Ring, const Matrix, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > (ctx.F, X, A, B, C, D));
 
 	reportUI << "Matrix A:" << std::endl;
 	BLAS3::write (ctx, reportUI, A);
@@ -227,29 +296,12 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	DenseMatrix<typename Ring::Element> D1 (num_pivot_rows, num_pivot_rows);
 	DenseMatrix<typename Ring::Element> D2 (num_pivot_rows, D.coldim () - num_pivot_rows);
 
-	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > B1_part (B1), B2_part (B2), D1_part (D1), D2_part (D2);
-	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > B_part_1 (B), D_part_1 (D);
-	MatrixPartZero<Ring> zero_part;
-
-	MatrixPart<Ring> *B_targets_inner[] = { &B1_part, &B2_part };
-	MatrixPart<Ring> *D_targets_inner_1[] = { &D1_part, &D2_part };
-	MatrixPart<Ring> *D_targets_inner_2[] = { &zero_part, &zero_part };
-
-	MatrixPart<Ring> **B_targets[] = { B_targets_inner };
-	MatrixPart<Ring> **D_targets[] = { D_targets_inner_1, D_targets_inner_2 };
-
-	MatrixPart<Ring> *B_sources_1[] = { &B_part_1 };
-	MatrixPart<Ring> *D_sources_1[] = { &D_part_1 };
-
-	MatrixPart<Ring> **B_sources[] = { B_sources_1 };
-	MatrixPart<Ring> **D_sources[] = { D_sources_1 };
-
 	Splicer B_splicer (D_splicer);
 	B_splicer.clearHorizontalBlocks ();
 	B_splicer.addHorizontalBlock (Block (0, 0, 0, 0, B.rowdim ()));
 
-	B_splicer.splice (ctx.F, B_sources, B_targets);
-	D_splicer.splice (ctx.F, D_sources, D_targets);
+	B_splicer.splice (MatrixGrid2<Ring, DenseMatrix<typename Ring::Element> > (ctx.F, B, B1, B2));
+	D_splicer.splice (MatrixGrid2<Ring, DenseMatrix<typename Ring::Element> > (ctx.F, D, D1, D2));
 
 	reportUI << "Matrix B1:" << std::endl;
 	BLAS3::write (ctx, reportUI, B1);
@@ -282,24 +334,9 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	reportUI << "Splicer after substitution:" << std::endl << subst_splicer << std::endl;
 	reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
 
-	MatrixPartIdentity<Ring, Matrix> identity_part;
-
-	MatrixPartMatrix<Ring, DenseMatrix<typename Ring::Element>, Matrix> B2_part_1 (B2), D2_part_1 (D2);
-
-	MatrixPart<Ring> *R_sources_inner_1[] = { &identity_part, &zero_part, &B2_part_1 };
-	MatrixPart<Ring> *R_sources_inner_2[] = { &zero_part, &identity_part, &D2_part_1 };
-	MatrixPart<Ring> *R_sources_inner_3[] = { &zero_part, &zero_part, &zero_part };
-
-	MatrixPart<Ring> **R_sources[] = { R_sources_inner_1, R_sources_inner_2, R_sources_inner_3 };
-
-	MatrixPartMatrix<Ring, Matrix, DenseMatrix<typename Ring::Element> > R_part (R);
-
-	MatrixPart<Ring> *R_targets_1[] = { &R_part };
-	MatrixPart<Ring> **R_targets[] = { R_targets_1 };
-
 	BLAS3::scal (ctx, ctx.F.zero (), R);
 
-	composed_splicer.splice (ctx.F, R_sources, R_targets);
+	composed_splicer.splice (MatrixGrid3<Ring, DenseMatrix<typename Ring::Element>, Matrix> (ctx.F, B2, D2, R));
 
 	commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 }

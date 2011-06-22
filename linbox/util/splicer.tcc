@@ -190,86 +190,58 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 	BLAS1::copy (ctx, v1, v2);
 }
 
-template <class Ring, class Matrix, class OtherMatrix>
-void MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::RowMatrixTag>::copy (const Ring &F, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source)
+template <class Ring, class Matrix1, class Matrix2>
+void Splicer::copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
+				    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
-	MatrixPartZero<Ring> *zero_part = dynamic_cast<MatrixPartZero<Ring> *> (source);
+	typename Matrix2::RowIterator i_A = dest.rowBegin () + horiz_block.destIndex ();
+	typename Matrix2::RowIterator i_A_end = dest.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
+	typename Matrix1::ConstRowIterator i_S = source.rowBegin () + horiz_block.sourceIndex ();
 
-	if (zero_part != NULL)
-		return;
-
-	MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowMatrixTag> *ident_part = dynamic_cast <MatrixPartIdentity<Ring, Matrix, MatrixCategories::RowMatrixTag> *> (source);
-
-	if (ident_part != NULL) {
-		typename Matrix::RowIterator i_A = _A->rowBegin () + horiz_block.destIndex ();
-		typename Matrix::RowIterator i_A_end = _A->rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
-		size_t idx = horiz_block.sourceIndex ();
-
-		for (; i_A != i_A_end; ++i_A, ++idx)
-			if (vert_block.isSourceIndexInBlock (idx))
-				Splicer::attach_e_i (F, *i_A, vert_block.sourceToDestIndex (idx));
-
-		return;
-	}
-
-	MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::RowMatrixTag> *source_part =
-		dynamic_cast<MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::RowMatrixTag> *> (source);
-
-	if (source_part != NULL) {
-		typename Matrix::RowIterator i_A = _A->rowBegin () + horiz_block.destIndex ();
-		typename Matrix::RowIterator i_A_end = _A->rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
-		typename OtherMatrix::ConstRowIterator i_S = source_part->_A->rowBegin () + horiz_block.sourceIndex ();
-
-		for (; i_A != i_A_end; ++i_A, ++i_S)
-			Splicer::attach_block (F, *i_A, *i_S, vert_block.sourceIndex (), vert_block.destIndex (), vert_block.size ());
-
-		return;
-	}
-
-	throw PreconditionFailed (__FUNCTION__, __FILE__, __LINE__, "Unrecognised source-type (incompatible matrix)");
+	for (; i_A != i_A_end; ++i_A, ++i_S)
+		attach_block (R, *i_A, *i_S, vert_block.sourceIndex (), vert_block.destIndex (), vert_block.size ());
 }
 
-template <class Ring, class Matrix, class OtherMatrix>
-void MatrixPartMatrix<Ring, Matrix, OtherMatrix, MatrixCategories::ColMatrixTag>::copy (const Ring &F, const Block &horiz_block, const Block &vert_block, MatrixPart<Ring> *source)
+template <class Ring, class Matrix1, class Matrix2>
+void Splicer::copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
+				    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
-	MatrixPartZero<Ring> *zero_part = dynamic_cast<MatrixPartZero<Ring> *> (source);
+	typename Matrix2::ColIterator i_A = dest.colBegin () + vert_block.destIndex ();
+	typename Matrix2::ColIterator i_A_end = dest.colBegin () + (vert_block.destIndex () + vert_block.size ());
+	typename Matrix1::ConstColIterator i_S = source.colBegin () + vert_block.sourceIndex ();
 
-	if (zero_part != NULL)
-		return;
-
-	MatrixPartIdentity<Ring, Matrix, MatrixCategories::ColMatrixTag> *ident_part = dynamic_cast <MatrixPartIdentity<Ring, Matrix, MatrixCategories::ColMatrixTag> *> (source);
-
-	if (ident_part != NULL) {
-		typename Matrix::ColIterator i_A = _A->colBegin () + vert_block.destIndex ();
-		typename Matrix::ColIterator i_A_end = _A->colBegin () + (vert_block.destIndex () + vert_block.size ());
-		size_t idx = vert_block.sourceIndex ();
-
-		for (; i_A != i_A_end; ++i_A, ++idx)
-			if (vert_block.isSourceIndexInBlock (idx))
-				Splicer::attach_e_i (F, *i_A, horiz_block.sourceToDestIndex (idx));
-
-		return;
-	}
-
-	MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::ColMatrixTag> *source_part =
-		dynamic_cast<MatrixPartMatrix<Ring, OtherMatrix, Matrix, MatrixCategories::ColMatrixTag> *> (source);
-
-	if (source_part != NULL) {
-		typename Matrix::ColIterator i_A = _A->colBegin () + vert_block.destIndex ();
-		typename Matrix::ColIterator i_A_end = _A->colBegin () + (vert_block.destIndex () + vert_block.size ());
-		typename OtherMatrix::ConstColIterator i_S = source_part->_A->colBegin () + vert_block.sourceIndex ();
-
-		for (; i_A != i_A_end; ++i_A, ++i_S)
-			Splicer::attach_block (F, *i_A, *i_S, horiz_block.sourceIndex (), horiz_block.destIndex (), horiz_block.size ());
-
-		return;
-	}
-
-	throw PreconditionFailed (__FUNCTION__, __FILE__, __LINE__, "Unrecognised source-type (incompatible matrix)");
+	for (; i_A != i_A_end; ++i_A, ++i_S)
+		attach_block (R, *i_A, *i_S, horiz_block.sourceIndex (), horiz_block.destIndex (), horiz_block.size ());
 }
 
-template <class Ring>
-void Splicer::splice (const Ring &F, MatrixPart<Ring> ***input, MatrixPart<Ring> ***output) const
+template <class Ring, class Matrix>
+void Splicer::copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
+				       MatrixCategories::RowMatrixTag)
+{
+	typename Matrix::RowIterator i_A = dest.rowBegin () + horiz_block.destIndex ();
+	typename Matrix::RowIterator i_A_end = dest.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
+	size_t idx = horiz_block.sourceIndex ();
+
+	for (; i_A != i_A_end; ++i_A, ++idx)
+		if (vert_block.isSourceIndexInBlock (idx))
+			Splicer::attach_e_i (R, *i_A, vert_block.sourceToDestIndex (idx));
+}
+
+template <class Ring, class Matrix>
+void Splicer::copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
+				       MatrixCategories::ColMatrixTag)
+{
+	typename Matrix::ColIterator i_A = dest.colBegin () + vert_block.destIndex ();
+	typename Matrix::ColIterator i_A_end = dest.colBegin () + (vert_block.destIndex () + vert_block.size ());
+	size_t idx = vert_block.sourceIndex ();
+
+	for (; i_A != i_A_end; ++i_A, ++idx)
+		if (vert_block.isSourceIndexInBlock (idx))
+			Splicer::attach_e_i (R, *i_A, horiz_block.sourceToDestIndex (idx));
+}
+
+template <class Grid>
+void Splicer::splice (Grid grid) const
 {
 	linbox_check (!_horiz_blocks.empty ());
 	linbox_check (!_vert_blocks.empty ());
@@ -282,7 +254,7 @@ void Splicer::splice (const Ring &F, MatrixPart<Ring> ***input, MatrixPart<Ring>
 
 	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block)
 		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block)
-			output[horiz_block->dest ()][vert_block->dest ()]->copy (F, *horiz_block, *vert_block, input[horiz_block->source ()][vert_block->source ()]);
+			grid (*horiz_block, *vert_block);
 
 	commentator.stop (MSG_DONE);
 }
