@@ -86,6 +86,7 @@ void printHelpMessage (const char *program, Argument *args, const char *freeArgs
 		std::cout << std::endl;
 	}
 
+	std::cout << "  -v        Verbose output" << std::endl;
 	std::cout << "  -h or -?  Display this message" << std::endl;
 	std::cout << "For boolean switches, the argument may be omitted, meaning the switch should be ON" << std::endl;
 	std::cout << std::endl;
@@ -121,9 +122,15 @@ void parseArguments (int argc, char **argv, Argument *args, const char *freeArgs
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
 			if (argv[i][1] == 0) {
-				commentator.setBriefReportStream (std::cout);
 				commentator.setReportStream (std::cout);
-				std::cout << "Writing report data to cout (intermingled with brief report)" << std::endl << std::endl;
+				std::cout << "Writing report data to cout" << std::endl << std::endl;
+				std::cout.flush ();
+			}
+			if (argv[i][1] == 'v') {
+				commentator.setBriefReportStream (std::cout);
+				commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, true, true, true);
+				commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (4);
+				commentator.getMessageClass (BRIEF_REPORT).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 				std::cout.flush ();
 			}
 			else if (argv[i][1] == 'h' || argv[i][1] == '?') {
@@ -169,7 +176,6 @@ void parseArguments (int argc, char **argv, Argument *args, const char *freeArgs
 				*(va_arg (arg_list, char **)) = argv[i];
 				--freeArgs;
 			} else {
-				commentator.setBriefReportStream(std::cout);
 				commentator.setDefaultReportFile (argv[i]);
 				std::cout << "Writing report data to " << argv[i] << std::endl << std::endl;
 				std::cout.flush ();

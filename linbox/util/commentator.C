@@ -476,7 +476,7 @@ void Commentator::finishActivityReport (Activity &activity, const char *msg)
 	unsigned int i;
 
 	if (_format == OUTPUT_CONSOLE) {
-		if (!messageClass.isPrinted (_activities.size () + 1, LEVEL_UNIMPORTANT, activity._fn)) {
+		if (!messageClass.isPrinted (_activities.size () + 1, LEVEL_NORMAL, activity._fn)) {
 			if (_show_progress)
 				for (i = 0; i < _last_line_len; i++)
 					messageClass._stream << '\b';
@@ -488,7 +488,7 @@ void Commentator::finishActivityReport (Activity &activity, const char *msg)
 			else
 				messageClass._stream << std::endl;
 		}
-		else if (messageClass.isPrinted (_activities.size (), LEVEL_UNIMPORTANT, activity._fn)) {
+		else if (messageClass.isPrinted (_activities.size (), LEVEL_NORMAL, activity._fn)) {
 			for (i = 0; i < _activities.size (); i++)
 				messageClass._stream << "  ";
 

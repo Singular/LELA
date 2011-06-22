@@ -120,9 +120,10 @@ int main (int argc, char **argv)
 		{ '\0' }
 	};
 
+	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
+
 	parseArguments (argc, argv, args, "<first matrix filename> <second matrix filename>", 2, &input1, &input2);
 
-	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
