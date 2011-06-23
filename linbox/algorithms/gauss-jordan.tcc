@@ -976,14 +976,16 @@ void GaussJordan<Ring, Modules>::StandardRowEchelonForm (Matrix1       &A,
 
 	typename Matrix2::RowIterator i_L, j_L;
 
-	if (compute_L)
+	if (compute_L) {
 		SetIdentity (L, start_row);
+		i_L = L.rowBegin () + k;
+	}
 
 	P.clear ();
 	rank = 0;
 	ctx.F.init (det, 1);
 
-	for (i_A = A.rowBegin () + k, i_L = L.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A, ++i_L) {
+	for (i_A = A.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A) {
 		TIMER_START(GetPivot);
 		int pivot = GetPivot (A, k, col);
 		TIMER_STOP(GetPivot);
@@ -1028,10 +1030,13 @@ void GaussJordan<Ring, Modules>::StandardRowEchelonForm (Matrix1       &A,
 		ctx.F.neg (negxinv, xinv);
 
 		TIMER_START(ElimBelow);
-		j_L = i_L;
-		++j_L;
 
-		for (j_A = i_A; ++j_A != A.rowEnd (); ++j_L) {
+		if (compute_L) {
+			j_L = i_L;
+			++j_L;
+		}
+
+		for (j_A = i_A; ++j_A != A.rowEnd ();) {
 			if (BLAS1::head (ctx, a, *j_A) == (int) col) {
 				// DEBUG
 				// report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
@@ -1042,6 +1047,9 @@ void GaussJordan<Ring, Modules>::StandardRowEchelonForm (Matrix1       &A,
 				if (compute_L)
 					BLAS1::axpy (ctx, negaxinv, *i_L, *j_L);
 			}
+
+			if (compute_L)
+				++j_L;
 		}
 		TIMER_STOP(ElimBelow);
 
@@ -1049,6 +1057,9 @@ void GaussJordan<Ring, Modules>::StandardRowEchelonForm (Matrix1       &A,
 
 		if ((i_A - A.rowBegin ()) % PROGRESS_STEP == PROGRESS_STEP - 1)
 			commentator.progress ();
+
+		if (compute_L)
+			++i_L;
 	}
 
 	if (reduced)

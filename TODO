@@ -49,6 +49,7 @@ In general:
     ∘ When BitSubvector has length == WordTraits::bits and is word-aligned, word_end_reference::mask == 0 while wordBegin () == wordEnd ()
     ∘ BitSubvector::word_iterator::operator + called constructor without passing _shift
     ∘ BLAS1::head(DenseZeroOneVector) not checking back_word ()
+    ∘ GaussJordan::StandardRowEchelonForm crash when L is not a valid matrix and compute_L == false
   • Create trait for matrices which support writable submatrices -- then GaussJordan can be made more generic
   • Import F4-solver into LinBox and introduce as method for EchelonForm
   • Way to configure intermediate matrix-types used by F4Solver
