@@ -45,22 +45,134 @@ class MatrixArchetype
 {
     public:
 
+	/** @name Type-definitions
+	 */
+
+	//@{
+
 	typedef _Element Element;
+
+	/// What iterators the matrix supports: only @ref RowIterator,
+	/// only @ref ColIterator, or both
 	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory;
 
-	/** Empty Constructor.
+	/** Arbitrary writeable submatrix
+	 *
+	 * An implementation is permitted to omit this type.
+	 */
+	class SubmatrixType;
+
+	/// Arbitrary const submatrix
+	class ConstSubmatrixType;
+
+	/** Writeable aligned submatrix
+	 *
+	 * This type may be faster than @ref SubmatrixType with the
+	 * cost that the choice of beginning and ending row-
+	 * respectively column-indices may be restricted. Thus it
+	 * should be used in for example recursive algorithms where
+	 * the choice of submatrix is free to the developer.
+	 *
+	 * The implementation is permitted to specify that the
+	 * beginning row- respectively column-indices be multiples of
+	 * @ref rowAlign respectively @ref colAlign and the the ending
+	 * indices be eiter coincident to the end of the matrix or
+	 * multiples of these values.
+	 */
+	class AlignedSubmatrixType;
+
+	/// Const version of @ref AlignedSubmatrixType
+	class ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	/** Container type
+	 *
+	 * This should specify a type with the same underlying
+	 * storage-representation (e.g. dense, sparse, hybrid) as this
+	 * matrix. This can then be used in generic code to construct
+	 * a temporary matrix with the same underlying storage-type as
+	 * some parametrised input.
+	 *
+	 * For most matrix-types, it suffices to set ContainerType to
+	 * the matrix-type itself. For submatrices and transpose
+	 * matrices, ContainerType should be the parent-matrix.
+	 */
+	class ContainerType;
+
+	/// Row-vector-type
+	class Row;
+	class ConstRow;  
+
+	/// Column-vector-type
+	class Col;
+	class ConstCol;
+
+	/// Synonymous with @ref Col resp. @ref ConstCol
+	typedef Col Column;
+	typedef ConstCol ConstColumn;
+
+	/* N.B. A matrix type may omit either one, but not both, of the
+	 * following two iterator types. If one type is omitted, then certain
+	 * restrictions on matrix-matrix arithmetic apply; see
+	 * @ref{MatrixDomain}
+	 */
+
+	/** @name Iterator over rows
+	 *
+	 * Traverses the rows of the matrix in ascending
+	 * order. Dereferencing the iterator yields a row-vector.
+	 */
+
+	class RowIterator;    
+	class ConstRowIterator;
+
+	/** @name Iterator over columns
+	 *
+	 * Traverses the columns of the matrix in ascending
+	 * order. Dereferencing the iterator yields a column-vector.
+	 */
+
+	class ColIterator;
+	class ConstColIterator;
+
+	//@}
+
+	/** Default constructor.
+	 *
+	 * Builds empty 0x0 matrix.
 	 */
 	MatrixArchetype ();
 
 	/** Constructor with size
 	 * @param  m  row dimension
 	 * @param  n  column dimension
+	 *
+	 * An implementation may omit this constructor if it makes no
+	 * sense to provide it (e.g. with @ref Submatrix or @ref
+	 * TransposeMatrix)
 	 */
 	MatrixArchetype (size_t m, size_t n);
 
 	/** Copy constructor
 	 */
 	MatrixArchetype (const MatrixArchetype &M);
+
+	/** Constructor from a @ref VectorStream
+	 *
+	 * The @ref VectorStream supplies either row- or
+	 * column-vectors for the matrix, depending on the
+	 * implementation. Its parameters also specify the size of the
+	 * matrix.
+	 *
+	 * @param vs @ref VectorStream from which to get vectors
+	 */
+	MatrixArchetype (VectorStream<Row> &vs)
+	{
+		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
+			vs >> *i;
+	}
 
 	/** Operator =
 	 */
@@ -81,8 +193,8 @@ class MatrixArchetype
 	 * The state of the matrix's entries after a call to this method is
 	 * undefined.
 	 *
-	 * This interface is optional; a matrix can omit it if it makes no sense
-	 * in the context.
+	 * An implementation may omit this interface if it makes no
+	 * sense (e.g. for @ref Submatrix or @ref TransposeMatrix)
 	 *
 	 * @param m Number of rows
 	 * @param n Number of columns
@@ -101,23 +213,25 @@ class MatrixArchetype
 	 */
 	void setEntry (size_t i, size_t j, const Element &a_ij);
 
-	/** Get a writeable reference to the entry in the (i, j) position.
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 * @return Reference to matrix entry
+	/** Remove the entry at (i,j) from the matrix.
+	 *
+	 * This only has an effect if the matrix has a sparse
+	 * representation, in which case it is equivalent to setting
+	 * the entry at (i,j) to 0. If the matrix has a dense
+	 * representation, then this function need do nothing --
+	 * including setting the entry to 0.
+	 *
+	 * Thus, when an entry is to be set to 0 in generic code, it
+	 * is necessary to call both @ref setEntry (i, j, zero) and
+	 * eraseEntry (i, j).
+	 *
+	 * @param i
+	 * @param j
 	 */
-	Element &refEntry (size_t i, size_t j);
-
-	/** Get a read-only reference to the entry in the (i, j) position.
-	 * @param i Row index
-	 * @param j Column index
-	 * @return Const reference to matrix entry
-	 */
-	const Element &getEntry (size_t i, size_t j) const;
+	void eraseEntry (size_t i, size_t j);
 
 	/** Copy the (i, j) entry into x, and return a reference to x.
-	 * This form is more in the Linbox style and is provided for interface
-	 * compatibility with other parts of the library
+	 *
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
@@ -125,45 +239,28 @@ class MatrixArchetype
 	 */
 	Element &getEntry (Element &x, size_t i, size_t j) const;
 
-	/* N.B. A matrix type may omit either one, but not both, of the
-	 * following two iterator types. If one type is omitted, then certain
-	 * restrictions on matrix-matrix arithmetic apply; see
-	 * @ref{MatrixDomain}
-	 */
-
-	/** @name Column of rows iterator
-	 * The column of rows iterator traverses the rows of the
-	 * matrix in ascending order. Dereferencing the iterator yields
-	 * a row vector in dense format
-	 */
-
-	class Row;
-	class ConstRow;  
-	class RowIterator;    
-	class ConstRowIterator;
-
+	/// Obtain @ref RowIterator for first row of the matrix
 	RowIterator rowBegin ();  
+
+	/// Obtain @ref RowIterator for one past the last row of the matrix
 	RowIterator rowEnd ();
+
+	/// Obtain @ref ConstRowIterator for first row of the matrix
 	ConstRowIterator rowBegin () const;        
+
+	/// Obtain @ref ConstRowIterator for one past the last row of the matrix
 	ConstRowIterator rowEnd () const;
 
-	/** @name Row of columns iterator
-	 * The row of columns iterator traverses the columns of the
-	 * matrix in ascending order. Dereferencing the iterator yields
-	 * a column vector in dense format
-	 */
-
-	class Col;
-	class ConstCol;
-	class ColIterator;
-	class ConstColIterator;
-    
-	typedef Col Column;
-	typedef ConstCol ConstColumn;
-
+	/// Obtain @ref ColIterator for first column of the matrix
 	ColIterator colBegin ();
+
+	/// Obtain @ref ColIterator for one past the last column of the matrix
 	ColIterator colEnd ();
+
+	/// Obtain @ref ConstColIterator for first column of the matrix
 	ConstColIterator colBegin () const;    
+
+	/// Obtain @ref ConstColIterator for one past the last column of the matrix
 	ConstColIterator colEnd () const;
 
 	/** @name Raw iterator

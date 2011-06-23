@@ -143,8 +143,15 @@ class DenseZeroOneMatrix
 	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
 	typedef DenseZeroOneMatrixTag<Iterator, ConstIterator, Endianness> Tag;
 
-	typedef LinBox::Submatrix<Self_t> SubmatrixType;
-	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
+	typedef Submatrix<Self_t> SubmatrixType;
+	typedef Submatrix<const Self_t> ConstSubmatrixType;
+	typedef Self_t AlignedSubmatrixType;
+	typedef const Self_t ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = WordTraits<typename Iterator::value_type>::bits;
+
+	typedef Self_t ContainerType;
 
 	typedef DenseZeroOneMatrixRowIterator<Iterator, ConstIterator, Endianness> RowIterator;
 	typedef DenseZeroOneMatrixRowIterator<ConstIterator, ConstIterator, Endianness> ConstRowIterator;

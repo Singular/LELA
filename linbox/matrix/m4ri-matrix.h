@@ -197,11 +197,6 @@ class M4RIMatrix : public M4RIMatrixBase
 	};
 
 public:
-	typedef M4RISubmatrix SubmatrixType;
-	typedef const M4RISubmatrix ConstSubmatrixType;
-	typedef M4RIMatrix WordAlignedSubmatrixType;
-	typedef const M4RIMatrix ConstWordAlignedSubmatrixType;
-	
 	typedef BitSubvectorWordAligned<word *, const word *, BigEndian<word> > Row;  
 	typedef BitSubvectorWordAligned<const word *, const word *, BigEndian<word> > ConstRow;
 
@@ -399,6 +394,13 @@ class M4RISubmatrix : public M4RIMatrixBase
 public:
 	typedef M4RISubmatrix SubmatrixType;
 	typedef const M4RISubmatrix ConstSubmatrixType;
+	typedef M4RISubmatrix AlignedSubmatrixType;
+	typedef const M4RISubmatrix ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	typedef M4RIMatrix ContainerType;
 	
 	typedef BitSubvector<BitVectorIterator<word *, const word *, BigEndian<word> > > Row;
 	typedef BitSubvector<BitVectorIterator<const word *, const word *, BigEndian<word> > > ConstRow;
@@ -488,6 +490,16 @@ template <>
 class DenseMatrix<bool> : public M4RIMatrix
 {
 public:
+	typedef M4RISubmatrix SubmatrixType;
+	typedef const M4RISubmatrix ConstSubmatrixType;
+	typedef DenseMatrix AlignedSubmatrixType;
+	typedef const DenseMatrix ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = WordTraits<word>::bits;
+
+	typedef DenseMatrix ContainerType;
+	
 	DenseMatrix ()
 	{}
 

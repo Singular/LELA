@@ -175,8 +175,15 @@ class Submatrix
         typedef Submatrix<Matrix, SFTrait, Trait> Self_t;
 	typedef typename Matrix::Tag Tag;
 
-	typedef LinBox::Submatrix<Matrix, SFTrait, Trait> SubmatrixType;
-	typedef LinBox::Submatrix<const Matrix, SFTrait, Trait> ConstSubmatrixType;
+	typedef Self_t SubmatrixType;
+	typedef Submatrix<const Matrix, SFTrait, Trait> ConstSubmatrixType;
+	typedef SubmatrixType AlignedSubmatrixType;
+	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	typedef Matrix ContainerType;
 
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
@@ -402,8 +409,15 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
         typedef Submatrix<Matrix, SFTrait, MatrixCategories::RowMatrixTag> Self_t;
 	typedef typename Matrix::Tag Tag;
 
-	typedef LinBox::Submatrix<Matrix, SFTrait, MatrixCategories::RowMatrixTag> SubmatrixType;
-	typedef LinBox::Submatrix<const Matrix, SFTrait, MatrixCategories::RowMatrixTag> ConstSubmatrixType;
+	typedef Self_t SubmatrixType;
+	typedef Submatrix<const Matrix, SFTrait, MatrixCategories::RowMatrixTag> ConstSubmatrixType;
+	typedef SubmatrixType AlignedSubmatrixType;
+	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	typedef Matrix ContainerType;
 
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     
@@ -522,8 +536,15 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
         typedef Submatrix<Matrix, SFTrait, MatrixCategories::ColMatrixTag> Self_t;
 	typedef typename Matrix::Tag Tag;
 
-	typedef LinBox::Submatrix<Matrix, SFTrait, MatrixCategories::ColMatrixTag> SubmatrixType;
-	typedef LinBox::Submatrix<const Matrix, SFTrait, MatrixCategories::ColMatrixTag> ConstSubmatrixType;
+	typedef Self_t SubmatrixType;
+	typedef Submatrix<const Matrix, SFTrait, MatrixCategories::ColMatrixTag> ConstSubmatrixType;
+	typedef SubmatrixType AlignedSubmatrixType;
+	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	typedef Matrix ContainerType;
 
 	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
     

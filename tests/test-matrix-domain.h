@@ -28,7 +28,6 @@
 #include "linbox/blas/level3.h"
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/dense.h"
-#include "linbox/matrix/submatrix.h"
 
 using namespace std;
 using namespace LinBox;
@@ -610,8 +609,8 @@ template <class Field, class Modules, class Matrix1, class Matrix2>
 void eliminate (Context<Field, Modules> &ctx, Matrix1 &M, Matrix2 &pivotRow,
 		size_t row, size_t col, size_t rowdim, size_t coldim) 
 {
-	Submatrix<Matrix1> pivotCol (M, row, col, rowdim, 1);
-	Submatrix<Matrix1> block (M, row, col, rowdim, coldim);
+	typename Matrix1::ConstSubmatrixType pivotCol (M, row, col, rowdim, 1);
+	typename Matrix1::SubmatrixType block (M, row, col, rowdim, coldim);
 
 	BLAS2::ger (ctx, ctx.F.minusOne (), *pivotCol.colBegin (), *pivotRow.rowBegin (), block);
 }
@@ -631,12 +630,12 @@ void rowEchelon (Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Mat
 	linbox_check (R.rowdim () == A.rowdim ());
 	linbox_check (R.coldim () == A.coldim ());
 
-	DenseMatrix<typename Matrix1::Element> M (U.rowdim (), U.coldim () + R.coldim ());
-	Submatrix<Matrix1> M1 (M, 0, 0, R.rowdim (), R.coldim ());
-	Submatrix<Matrix1> M2 (M, 0, R.coldim (), U.rowdim (), U.coldim ());
+	typename Matrix1::ContainerType M (U.rowdim (), U.coldim () + R.coldim ());
+	typename Matrix1::ContainerType::SubmatrixType M1 (M, 0, 0, R.rowdim (), R.coldim ());
+	typename Matrix1::ContainerType::SubmatrixType M2 (M, 0, R.coldim (), U.rowdim (), U.coldim ());
 
-	StandardBasisStream<Field, typename Submatrix<Matrix1>::Row> stream (ctx.F, U.coldim ());
-	typename Submatrix<Matrix1>::RowIterator ip = M2.rowBegin ();
+	StandardBasisStream<Field, typename Matrix1::ContainerType::SubmatrixType::Row> stream (ctx.F, U.coldim ());
+	typename Matrix1::ContainerType::SubmatrixType::RowIterator ip = M2.rowBegin ();
 
 	for (; ip != M2.rowEnd (); ++ip)
 		stream >> *ip;
@@ -650,8 +649,8 @@ void rowEchelon (Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Mat
 
 	for (idx = 0; idx < M.rowdim (); ++idx) {
 		if (!M.getEntry (a, idx, idx) || ctx.F.isZero (a)) {
-			typename DenseMatrix<typename Matrix1::Element>::ColIterator col;
-			typename DenseMatrix<typename Matrix1::Element>::Col::iterator i;
+			typename Matrix1::ContainerType::ColIterator col;
+			typename Matrix1::ContainerType::Col::iterator i;
 			unsigned int c_idx = idx + 1;
 
 			col = M.colBegin () + idx;
@@ -663,7 +662,7 @@ void rowEchelon (Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Mat
 			if (i == col->end ())
 				continue;
 			else {
-				typename DenseMatrix<typename Matrix1::Element>::RowIterator row1, row2;
+				typename Matrix1::ContainerType::RowIterator row1, row2;
 
 				row1 = M.rowBegin () + idx;
 				row2 = M.rowBegin () + c_idx;
@@ -674,7 +673,7 @@ void rowEchelon (Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Mat
 
 		M.getEntry (Mjj_inv, idx, idx);
 		ctx.F.invin (Mjj_inv);
-		Submatrix<Matrix1> realPivotRow (M, idx, idx, 1, M.coldim () - idx);
+		typename Matrix1::ContainerType::SubmatrixType realPivotRow (M, idx, idx, 1, M.coldim () - idx);
 		BLAS3::scal (ctx, Mjj_inv, realPivotRow);
 
 		if (idx > 0)

@@ -34,8 +34,14 @@ public:
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<bool, Row, VectorCategories::SparseZeroOneVectorTag> Tag;
 
-	typedef LinBox::Submatrix<Self_t> SubmatrixType;
-	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
+	typedef Submatrix<const Self_t> ConstSubmatrixType;
+	typedef Submatrix<Self_t> AlignedSubmatrixType;
+	typedef Submatrix<const Self_t> ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	typedef Self_t ContainerType;
 
 	typedef typename Rep::iterator RowIterator;
 	typedef typename Rep::const_iterator ConstRowIterator;
@@ -142,10 +148,15 @@ public:
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<bool, Row, VectorCategories::HybridZeroOneVectorTag> Tag;
 
-	typedef LinBox::Submatrix<Self_t> SubmatrixType;
-	typedef LinBox::Submatrix<const Self_t> ConstSubmatrixType;
-	typedef LinBox::Submatrix<Self_t, HybridSubvectorWordAlignedTag> WordAlignedSubmatrixType;
-	typedef LinBox::Submatrix<const Self_t, HybridSubvectorWordAlignedTag> ConstWordAlignedSubmatrixType;
+	typedef Submatrix<Self_t> SubmatrixType;
+	typedef Submatrix<const Self_t> ConstSubmatrixType;
+	typedef Submatrix<Self_t, HybridSubvectorWordAlignedTag> AlignedSubmatrixType;
+	typedef Submatrix<const Self_t, HybridSubvectorWordAlignedTag> ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = WordTraits<typename Row::word_type>::bits;
+
+	typedef Self_t ContainerType;
 
         SparseMatrix () : _m (0), _n (0) {}
 	SparseMatrix (size_t m, size_t n)
@@ -237,15 +248,25 @@ protected:
 };
 
 template <class Row, class Trait, class Submatrix>
+class SubvectorFactory<SparseMatrixTag<bool, Row, Trait>, Submatrix, typename SparseMatrix<bool, Row, Trait>::RowIterator, HybridSubvectorWordAlignedTag>
+{
+    public:
+	typedef typename SparseMatrix<bool, Row, Trait>::RowIterator IteratorType;
+	typedef SparseSubvector<typename SparseMatrix<bool, Row, Trait>::Row, HybridSubvectorWordAlignedTag> Subvector;
+
+	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
+		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
+};
+
+template <class Row, class Trait, class Submatrix>
 class SubvectorFactory<SparseMatrixTag<bool, Row, Trait>, Submatrix, typename SparseMatrix<bool, Row, Trait>::ConstRowIterator, HybridSubvectorWordAlignedTag>
 {
     public:
 	typedef typename SparseMatrix<bool, Row, Trait>::ConstRowIterator IteratorType;
-	typedef SparseSubvector<typename SparseMatrix<bool, Row, VectorCategories::HybridZeroOneVectorTag>::ConstRow, HybridSubvectorWordAlignedTag> Subvector;
+	typedef SparseSubvector<typename SparseMatrix<bool, Row, Trait>::ConstRow, HybridSubvectorWordAlignedTag> Subvector;
 
 	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (*pos, M.startCol () >> WordTraits<typename Row::word_type>::logof_size,
-				    (M.startCol () + M.coldim ()) >> WordTraits<typename Row::word_type>::logof_size); }
+		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 };
 
 } // namespace LinBox

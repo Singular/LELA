@@ -77,6 +77,14 @@ class TransposeMatrix
 	typedef typename Matrix::Col Row;
 
 	typedef Submatrix<Self_t> SubmatrixType;
+	typedef Submatrix<const Matrix> ConstSubmatrixType;
+	typedef SubmatrixType AlignedSubmatrixType;
+	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	typedef Matrix ContainerType;
 
 	/** Constructor.
 	 * @param  A  Underlying matrix of which to construct the transpose

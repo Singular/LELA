@@ -1,6 +1,6 @@
 /* linbox/matrix/dense.h
  * Copyright 2001 B. David Saunders,
- *           2001-2002 Bradford Hovinen,
+ *           2001-2002, 2011 Bradford Hovinen,
  *           2002 Zhendong Wan
  *
  * Written by B. David Saunders <saunders@cis.udel.edu>,
@@ -33,17 +33,9 @@
 namespace LinBox
 {
 
-template <class Element>
-struct DenseMatrixTag {};
-
-/** Blackbox dense matrix template. This is a class of dense matrices
- * templatized by the entry type, the Element type of some {@link Rings ring}.
- * The matrix is stored as a one dimensional STL vector of the elements, by rows. 
- * The interface provides for iteration over rows and over columns.
+/** Dense matrix
  *
- * The class LinBox::Dense builds on this base.
- *
- * Currently, only dense vectors are supported when doing matrix-vector applies.
+ * See @ref MatrixArchetype for documentation on the interface
  *
 \ingroup matrix
  */
@@ -279,14 +271,23 @@ class DenseMatrix
 
     public:
 
+	/// @name @ref MatrixArchetype interface
+	//@{
+
 	typedef _Element Element;
 	typedef typename RawVector<Element>::Dense Rep;
 	typedef MatrixCategories::RowColMatrixTag MatrixCategory;
         typedef DenseMatrix<_Element> Self_t;
-	typedef DenseMatrixTag<Element> Tag;
 
 	typedef Self_t SubmatrixType;
 	typedef const Self_t ConstSubmatrixType;
+	typedef Self_t AlignedSubmatrixType;
+	typedef const Self_t ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = 1;
+
+	typedef Self_t ContainerType;
 
 	typedef Subvector<typename Rep::iterator, typename Rep::const_iterator> Row;
 	typedef Subvector<typename Rep::const_iterator> ConstRow;  
@@ -308,15 +309,10 @@ class DenseMatrix
 		typedef DenseMatrix<typename _Tp1::Element> other; 
         };
 
-	///
 	DenseMatrix ()
 		: _rows (0), _cols (0), _disp (0), _start_row (0), _start_col (0)
 	{}
 
-	/** Constructor.
-	 * @param  m  row dimension
-	 * @param  n  column dimension
-	 */
 	DenseMatrix (size_t m, size_t n)
 		: _rep (m * n), _rows (m), _cols (n), _disp (n), _start_row (0), _start_col (0), _ptr (&_rep[0])
 	{
@@ -324,20 +320,6 @@ class DenseMatrix
 		_rep_end = _rep.end ();
 	}
 
-	/** Construct a dense submatrix of the given matrix.
-	 * @param  M parent-matrix
-	 * @param  beg_row  Beginning row (indexed at 0)
-	 * @param  beg_col  Beginning column (indexed at 0)
-	 * @param  m  row dimension
-	 * @param  n  column dimension
-	 */
-	DenseMatrix (const DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
-		: _rep_begin (M._rep_begin + (beg_row * M._disp + beg_col)),
-		  _rep_end (M._rep_begin + ((beg_row + m) * M._disp + beg_col + n)),
-		  _rows (m), _cols (n), _disp (M._disp), _start_row (M._start_row + beg_row), _start_col (M._start_col + beg_col)
-		{ _ptr = &*_rep_begin; }
-
-	///
 	DenseMatrix (const DenseMatrix &M)
 		: _rep (M._rep), _rep_begin (M._rep_begin), _rep_end (M._rep_end), _rows (M._rows), _cols (M._cols), _disp (M._disp),
 		  _start_row (M._start_row), _start_col (M._start_col)
@@ -359,7 +341,6 @@ class DenseMatrix
 			vs >> *i;
 	}
 
-	///
 	DenseMatrix &operator = (const DenseMatrix &M)
 	{
 		_rep = M._rep;
@@ -380,24 +361,9 @@ class DenseMatrix
 		return (*this);
 	}
 
-	/** Get the number of rows in the matrix
-	 * @returns Number of rows in matrix
-	 */
-	size_t rowdim () const
-		{ return _rows; }
+	size_t rowdim () const { return _rows; }
+	size_t coldim () const { return _cols; }
 
-	/** Get the number of columns in the matrix
-	 * @returns Number of columns in matrix
-	 */
-	size_t coldim () const
-		{ return _cols; }
-
-	/** Resize the matrix to the given dimensions
-	 * The state of the matrix's entries after a call to this method is
-	 * undefined
-	 * @param m Number of rows
-	 * @param n Number of columns
-	 */
 	void resize (size_t m, size_t n)
 	{
 		_rows = m;
@@ -408,88 +374,27 @@ class DenseMatrix
 		_rep_end = _rep.end ();
 	}
 
-	/** Set the entry at the (i, j) position to a_ij.
-	 * @param i Row number, 0...rowdim () - 1
-	 * @param j Column number 0...coldim () - 1
-	 * @param a_ij Element to set
-	 */
-	void setEntry (size_t i, size_t j, const Element &a_ij)
-		{ _rep_begin[i * _disp + j] = a_ij; }
-
-	/** Does nothing. Provided for compatibility
-	 * @param i
-	 * @param j
-	 */
+	void setEntry (size_t i, size_t j, const Element &a_ij) { _rep_begin[i * _disp + j] = a_ij; }
 	void eraseEntry (size_t i, size_t j) {}
+	bool getEntry (Element &x, size_t i, size_t j) const { x = _rep_begin[i * _disp + j]; return true; }
 
-	/** Copy the (i, j) entry into x, and return a reference to x.
-	 *
-	 * @param x Element in which to store result
-	 * @param i Row index
-	 * @param j Column index
-	 * @returns true
-	 */
-	bool getEntry (Element &x, size_t i, size_t j) const
-		{ x = _rep_begin[i * _disp + j]; return true; }
+	RowIterator      rowBegin ()       { return RowIterator (_rep_begin, _cols, _disp); }
+	RowIterator      rowEnd ()         { return RowIterator (_rep_begin + _rows * _disp, _cols, _disp); }
+	ConstRowIterator rowBegin () const { return ConstRowIterator (_rep_begin, _cols, _disp); }  
+	ConstRowIterator rowEnd ()   const { return ConstRowIterator (_rep_begin + _rows * _disp, _cols, _disp); }
 
-	/** @name Column of rows iterator
-	 * The column of rows iterator traverses the rows of the
-	 * matrix in ascending order. Dereferencing the iterator yields
-	 * a row vector in dense format
-	 */
-
-	RowIterator rowBegin ()
-		{ return RowIterator (_rep_begin, _cols, _disp); }
-	RowIterator rowEnd ()
-		{ return RowIterator (_rep_begin + _rows * _disp, _cols, _disp); }
-	ConstRowIterator rowBegin () const
-		{ return ConstRowIterator (_rep_begin, _cols, _disp); }  
-	ConstRowIterator rowEnd () const
-		{ return ConstRowIterator (_rep_begin + _rows * _disp, _cols, _disp); }
-
-	/** @name Row of columns iterator
-	 * The row of columns iterator traverses the columns of the
-	 * matrix in ascending order. Dereferencing the iterator yields
-	 * a column vector in dense format
-	 */
-
-	ColIterator colBegin ()
-		{ return ColIterator (_rep_begin, _disp, _rows); }
-	ColIterator colEnd ()
-		{ return ColIterator (_rep_begin + _cols, _disp, _rows); }
-	ConstColIterator colBegin () const
-		{ return ConstColIterator (_rep_begin, _disp, _rows); }
-	ConstColIterator colEnd () const
-		{ return ConstColIterator (_rep_begin + _cols, _disp, _rows); }
-
-	/** \brief
-	 *
-	 * The raw iterator is a method for accessing all entries in the matrix
-	 * in some unspecified order. This can be used, e.g. to reduce all
-	 * matrix entries modulo a prime before passing the matrix into an
-	 * algorithm.
-	 */
+	ColIterator      colBegin ()       { return ColIterator (_rep_begin, _disp, _rows); }
+	ColIterator      colEnd ()         { return ColIterator (_rep_begin + _cols, _disp, _rows); }
+	ConstColIterator colBegin () const { return ConstColIterator (_rep_begin, _disp, _rows); }
+	ConstColIterator colEnd ()   const { return ConstColIterator (_rep_begin + _cols, _disp, _rows); }
 
 	typedef typename Rep::iterator RawIterator;
 	typedef typename Rep::const_iterator ConstRawIterator;
     
-	RawIterator rawBegin ()
-		{ return _rep_begin; }  
-	RawIterator rawEnd ()
-		{ return _rep_end; }
-	ConstRawIterator rawBegin () const
-		{ return _rep_begin; }  
-	ConstRawIterator rawEnd () const
-		{ return _rep_end; }
-
-	/** \brief
-	 *
-	 * Like the raw iterator, the indexed iterator is a method for 
-	 * accessing all entries in the matrix in some unspecified order. 
-	 * At each position of the the indexed iterator, it also provides 
-	 * the row and column indices of the currently referenced entry.
-	 * This is provided through it's rowIndex() and colIndex() functions.
-	 */
+	RawIterator      rawBegin ()       { return _rep_begin; }  
+	RawIterator      rawEnd ()         { return _rep_end; }
+	ConstRawIterator rawBegin () const { return _rep_begin; }  
+	ConstRawIterator rawEnd ()   const { return _rep_end; }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseVectorTag, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
@@ -497,23 +402,29 @@ class DenseMatrix
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
         ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
     
-	/** Retrieve a reference to a row.
-	 * Since rows may also be indexed, this allows A[i][j] notation
-	 * to be used.
-	 * @param i Row index
-	 */
-	Row operator[] (size_t i)
-		{ return Row (_rep_begin + i * _disp, _rep_begin + i * _disp + _cols); }
-
-	ConstRow operator[] (size_t i) const
-		{ return Row (_rep_begin + i * _disp, _rep_begin + i * _disp + _cols); }
-
-	/** Compute column density
-	 */
+	Row      operator[] (size_t i)       { return Row (_rep_begin + i * _disp, _rep_begin + i * _disp + _cols); }
+	ConstRow operator[] (size_t i) const { return Row (_rep_begin + i * _disp, _rep_begin + i * _disp + _cols); }
 
 	template <class Vector>
-	Vector &columnDensity (Vector &v) const
-		{ std::fill (v.begin (), v.end (), _rows); return v; }
+	Vector &columnDensity (Vector &v) const { std::fill (v.begin (), v.end (), _rows); return v; }
+
+	//@}
+
+	/// @name Additional interfaces
+	//@{
+
+	/** Construct a dense submatrix of the given matrix.
+	 * @param  M parent-matrix
+	 * @param  beg_row  Beginning row (indexed at 0)
+	 * @param  beg_col  Beginning column (indexed at 0)
+	 * @param  m  row dimension
+	 * @param  n  column dimension
+	 */
+	DenseMatrix (const DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+		: _rep_begin (M._rep_begin + (beg_row * M._disp + beg_col)),
+		  _rep_end (M._rep_begin + ((beg_row + m) * M._disp + beg_col + n)),
+		  _rows (m), _cols (n), _disp (M._disp), _start_row (M._start_row + beg_row), _start_col (M._start_col + beg_col)
+		{ _ptr = &*_rep_begin; }
 
 	/** Get the displacement from one row to the next
 	 * @returns Number of words from one row to the next in memory
@@ -527,6 +438,8 @@ class DenseMatrix
 	/** Return the starting column in the parent-matrix */
 	size_t startCol () const { return _start_col; }
 
+	//@}
+
     protected:
 
 	std::vector<Element> _rep;
@@ -536,52 +449,6 @@ class DenseMatrix
 	size_t   _rows, _cols, _disp;
 	size_t   _start_row, _start_col;
 	Element *_ptr;
-};
-
-template <class Element, class Submatrix>
-class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::RowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename DenseMatrix<Element>::RowIterator IteratorType;
-	typedef typename DenseMatrix<Element>::Row Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
-
-template <class Element, class Submatrix>
-class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::ConstRowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename DenseMatrix<Element>::ConstRowIterator IteratorType;
-	typedef typename DenseMatrix<Element>::ConstRow Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
-
-template <class Element, class Submatrix>
-class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::ColIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename DenseMatrix<Element>::ColIterator IteratorType;
-	typedef typename DenseMatrix<Element>::Col Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + M.startRow (),
-				    Subiterator<typename DenseMatrix<Element>::Rep::iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + (M.startRow () + M.rowdim ())); }
-};
-
-template <class Element, class Submatrix>
-class SubvectorFactory<DenseMatrixTag<Element>, Submatrix, typename DenseMatrix<Element>::ConstColIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename DenseMatrix<Element>::ConstColIterator IteratorType;
-	typedef typename DenseMatrix<Element>::ConstCol Subvector;
-
-	Subvector MakeSubvector (const Submatrix &M, IteratorType &pos)
-		{ return Subvector (Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + M.startRow (),
-				    Subiterator<typename DenseMatrix<Element>::Rep::const_iterator> (pos->begin ().operator-> (), M.parent ().disp ()) + (M.startRow () + M.rowdim ())); }
 };
 
 } // namespace LinBox
