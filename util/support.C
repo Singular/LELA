@@ -23,6 +23,8 @@
 
 using namespace LinBox;
 
+const char *format_names[] = { "detect", "unknown", "Turner", "one-based", "Dumas", "Maple", "Matlab", "Sage", "pretty", "PNG" };
+
 #if 0
 
 // Force instantiations of get_matrix_type

@@ -10,7 +10,8 @@ LDADD = $(BLAS_LIBS) $(NTL_LIBS) $(GIVARO_LIBS) $(GMP_LIBS)  $(LIDIA_LIBS) $(M4R
 
 noinst_PROGRAMS = \
 	row-echelon-form \
-	equal
+	equal		\
+	diff
 #	convert
 
 # convert_SOURCES = \
@@ -19,6 +20,10 @@ noinst_PROGRAMS = \
 
 equal_SOURCES = \
 	equal.C	\
+	support.C
+
+diff_SOURCES = \
+	diff.C	\
 	support.C
 
 row_echelon_form_SOURCES = \

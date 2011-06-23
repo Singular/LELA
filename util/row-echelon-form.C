@@ -25,9 +25,6 @@ template <class Ring, class Matrix>
 int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_format, const char *output, FileFormatTag output_format,
 		      typename EchelonForm<Ring>::Method method, bool reduced)
 {
-	static const char *format_names[] = 
-		{ "detect", "unknown", "Turner", "one-based", "Dumas", "Maple", "Matlab", "Sage", "pretty", "PNG" };
-
 	Context<Ring> ctx (R);
 
 	commentator.start ("Converting matrix to row-echelon-form", __FUNCTION__);

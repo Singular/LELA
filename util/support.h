@@ -31,6 +31,8 @@ struct Argument
 	void            *data;
 };
 
+extern const char *format_names[];
+
 #ifndef __SUPPORT_C
 
 enum RingType

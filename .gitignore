@@ -27,6 +27,7 @@ linbox/stamp-h1
 linbox/util/libutil.la
 util/convert
 util/equal
+util/diff
 util/row-echelon-form
 macros/libtool.m4
 macros/ltoptions.m4
