@@ -609,14 +609,21 @@ inline int head_in_word (word v)
 template <class reference, class Vector>
 int head_impl (const GF2 &F, GenericModule &M, reference &a, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
 {
-	// FIXME: This can be made faster...
-	typename Vector::const_iterator i;
+	typename Vector::const_word_iterator i;
+	size_t idx;
 
-	for (i = x.begin (); i != x.end (); ++i) {
+	for (i = x.word_begin (), idx = 0; i != x.word_end (); ++i, ++idx) {
 		if (*i) {
 			a = true;
-			return i - x.begin ();
+			return head_in_word<typename Vector::word_type, typename Vector::Endianness> (*i) +
+				(idx << WordTraits<typename Vector::word_type>::logof_size);
 		}
+	}
+
+	if (x.back_word ()) {
+		a = true;
+		return head_in_word<typename Vector::word_type, typename Vector::Endianness> (x.back_word ()) +
+			(idx << WordTraits<typename Vector::word_type>::logof_size);
 	}
 
 	return -1;
