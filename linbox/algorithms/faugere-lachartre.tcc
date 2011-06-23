@@ -241,12 +241,12 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 		<< "Found " << num_pivot_rows << " pivots" << std::endl;
 	reportUI << "Splicer:" << std::endl << X_splicer << std::endl;
 
-	DenseMatrix<typename Ring::Element> A (num_pivot_rows, num_pivot_rows);
+	typename DefaultSparseMatrix<Ring>::Type A (num_pivot_rows, num_pivot_rows);
 	DenseMatrix<typename Ring::Element> B (num_pivot_rows, X.coldim () - num_pivot_rows);
 	DenseMatrix<typename Ring::Element> C (X.rowdim () - num_pivot_rows, num_pivot_rows);
 	DenseMatrix<typename Ring::Element> D (X.rowdim () - num_pivot_rows, X.coldim () - num_pivot_rows);
 
-	X_splicer.splice (MatrixGrid1<Ring, const Matrix, DenseMatrix<typename Ring::Element>, DenseMatrix<typename Ring::Element> > (ctx.F, X, A, B, C, D));
+	X_splicer.splice (MatrixGrid1<Ring, const Matrix, typename DefaultSparseMatrix<Ring>::Type, DenseMatrix<typename Ring::Element> > (ctx.F, X, A, B, C, D));
 
 	reportUI << "Matrix A:" << std::endl;
 	BLAS3::write (ctx, reportUI, A);

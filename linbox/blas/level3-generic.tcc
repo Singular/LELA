@@ -239,7 +239,8 @@ Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 				return _scal (F, M, ai, B);
 			}
 		}
-	} else {
+	}
+	else if ((((A.coldim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign == 0) {
 		size_t l = A.rowdim () / 2;
 		typename Matrix1::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix1::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
@@ -255,6 +256,28 @@ Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix1::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
+			_trmm (F, M, a, A11, B1, type, diagIsOne);
+			_gemm (F, M, a, A12, B2, F.one (), B1);
+			_trmm (F, M, a, A22, B2, type, diagIsOne);
+		}
+
+		return B;
+	} else {
+		size_t l = (((((A.rowdim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign) * Matrix1::rowAlign);
+		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix1::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
+
+		typename Matrix2::AlignedSubmatrixType B1 (B, 0, 0, l, B.coldim ());
+		typename Matrix2::AlignedSubmatrixType B2 (B, l, 0, B.rowdim () - l, B.coldim ());
+
+		if (type == LowerTriangular) {
+			typename Matrix1::ConstAlignedSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
+			_trmm (F, M, a, A22, B2, type, diagIsOne);
+			_gemm (F, M, a, A21, B1, F.one (), B2);
+			_trmm (F, M, a, A11, B1, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
 			_trmm (F, M, a, A11, B1, type, diagIsOne);
 			_gemm (F, M, a, A12, B2, F.one (), B1);
 			_trmm (F, M, a, A22, B2, type, diagIsOne);
@@ -290,7 +313,8 @@ Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 				return _scal (F, M, ai, B);
 			}
 		}
-	} else {
+	}
+	else if ((((A.coldim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign == 0) {
 		size_t l = A.rowdim () / 2;
 		typename Matrix1::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix1::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
@@ -306,6 +330,28 @@ Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix1::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
+			_trsm (F, M, a, A22, B2, type, diagIsOne);
+			_gemm (F, M, F.minusOne (), A12, B2, a, B1);
+			_trsm (F, M, F.one (), A11, B1, type, diagIsOne);
+		}
+
+		return B;
+	} else {
+		size_t l = (((((A.rowdim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign) * Matrix1::rowAlign);
+		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix1::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
+
+		typename Matrix2::AlignedSubmatrixType B1 (B, 0, 0, l, B.coldim ());
+		typename Matrix2::AlignedSubmatrixType B2 (B, l, 0, B.rowdim () - l, B.coldim ());
+
+		if (type == LowerTriangular) {
+			typename Matrix1::ConstAlignedSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
+			_trsm (F, M, a, A11, B1, type, diagIsOne);
+			_gemm (F, M, F.minusOne (), A21, B1, a, B2);
+			_trsm (F, M, F.one (), A22, B2, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
 			_trsm (F, M, a, A22, B2, type, diagIsOne);
 			_gemm (F, M, F.minusOne (), A12, B2, a, B1);
 			_trsm (F, M, F.one (), A11, B1, type, diagIsOne);
