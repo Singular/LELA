@@ -38,6 +38,7 @@ BASIC_TESTS =  \
 	test-hybrid-vector	\
         test-vector-domain      \
         test-unparametric-ring	\
+	test-strassen-winograd	\
 	test-gauss-jordan	\
 	test-faugere-lachartre
 
@@ -124,6 +125,10 @@ test_bit_subvector_SOURCES = \
 test_hybrid_vector_SOURCES = \
 	test-hybrid-vector.C \
 	test-common.C
+
+test_strassen_winograd_SOURCES = \
+	test-common.C		\
+	test-strassen-winograd.C
 
 test_gauss_jordan_SOURCES = \
 	test-common.C		\

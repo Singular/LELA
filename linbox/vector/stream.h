@@ -301,7 +301,7 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::DenseVectorT
 	RandomSparseStream (const Ring &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1),
 		  _n (n), _p (p), _m (m), _j (0),
-		  _MT (time (NULL))
+		  _MT (0)
 		{ linbox_check ((p >= 0.0) && (p <= 1.0)); _F.init (_zero, 0); }
 
 	RandomSparseStream (const Ring &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed = 0)
@@ -341,7 +341,7 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::SparseVector
 
 	RandomSparseStream (const Ring &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1), _n (n), _m (m), _j (0),
-		  _MT (time (NULL))
+		  _MT (0)
 		{ setP (p); }
 
 	RandomSparseStream (const Ring &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed = 0)

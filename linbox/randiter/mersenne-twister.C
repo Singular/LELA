@@ -158,6 +158,9 @@ uint32 MersenneTwister::randomIntRange (uint32 start, uint32 end)
 
 void MersenneTwister::setSeed (uint32 seed) 
 {
+	if (seed == 0)
+		seed = getSeed ();
+
 	//
 	// We initialize _state[0..(N-1)] via the generator
 	//

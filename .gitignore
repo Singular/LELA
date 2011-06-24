@@ -93,6 +93,7 @@ tests/test-optimization
 tests/test-unparametric-ring
 tests/test-hybrid-vector
 tests/test-bit-subvector
+tests/test-strassen-winograd
 tests/test-gauss-jordan
 tests/test-faugere-lachartre
 tests/benchmark-matrix-domain

@@ -13,8 +13,8 @@
 #include <algorithm>
 
 #include "linbox/blas/level3-generic.h"
-#include "linbox/blas/level1-ll.h"
-#include "linbox/blas/level2-ll.h"
+#include "linbox/blas/level1-ll.tcc"
+#include "linbox/blas/level2-ll.tcc"
 #include "linbox/blas/level3-ll.h"
 #include "linbox/matrix/transpose.h"
 #include "linbox/matrix/submatrix.h"

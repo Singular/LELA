@@ -60,8 +60,6 @@ class GF2RandIter
 		     const integer &seed = 0)
 	{
 		long _seed = seed.get_si ();
-
-		if (_seed == 0) _seed = time (NULL);
 		MT.setSeed (_seed);
 	}
 
