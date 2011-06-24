@@ -81,8 +81,8 @@ class TransposeMatrix
 	typedef SubmatrixType AlignedSubmatrixType;
 	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
 
-	static const size_t rowAlign = 1;
-	static const size_t colAlign = 1;
+	static const size_t rowAlign = Matrix::colAlign;
+	static const size_t colAlign = Matrix::rowAlign;
 
 	typedef Matrix ContainerType;
 
@@ -93,106 +93,36 @@ class TransposeMatrix
 		: _A (A)
 	{}
 
-	/** Copy constructor
-	 */
 	TransposeMatrix (const TransposeMatrix &M)
 		: _A (M._A)
 	{}
 
-	/** Get the number of rows in the matrix
-	 * @return Number of rows in matrix
-	 */
-	inline size_t rowdim () const
-		{ return _A.coldim (); }
+	inline size_t rowdim () const { return _A.coldim (); }
+	inline size_t coldim () const { return _A.rowdim (); }
 
-	/** Get the number of columns in the matrix
-	 * @return Number of columns in matrix
-	 */
-	inline size_t coldim () const
-		{ return _A.rowdim (); }
-
-	/** @name Access to matrix elements
-	 */
-
-	//@{
-
-	/** Set the entry at the (i, j) position to a_ij.
-	 * @param i Row number, 0...rowdim () - 1
-	 * @param j Column number 0...coldim () - 1
-	 * @param a_ij Element to set
-	 */
-	void setEntry (size_t i, size_t j, const Element &a_ij)
-		{ _A.setEntry (j, i, a_ij); }
-
-	/** Erase an individual entry from the matrix.
-	 * If the entry doesn't exist, then takes no action. If the underlying
-	 * matrix is dense, then takes no action.
-	 * @param i Row index of entry
-	 * @param j Column index of entry
-	 */
-	void eraseEntry (size_t i, size_t j)
-		{ _A.eraseEntry (j, i); }
-
-	/** Copy the (i, j) entry into x
-	 * If the entry does not exist in the matrix, x is left unchanged and false is returned.
-	 *
-	 * @param x Element in which to store result
-	 * @param i Row index
-	 * @param j Column index
-	 * @return true if entry exists in matrix, false otherwise
-	 */
-	inline bool getEntry (Element &x, size_t i, size_t j) const
-		{ return _A.getEntry (x, j, i); }
-
-	/** @name Column of rows iterator
-	 * The column of rows iterator traverses the rows of the
-	 * matrix in ascending order. Dereferencing the iterator yields
-	 * a row vector in dense format
-	 */
+	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
+	inline void eraseEntry (size_t i, size_t j) { _A.eraseEntry (j, i); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
 
 	inline RowIterator rowBegin () { return _A.colBegin (); }
 	inline RowIterator rowEnd () { return _A.colEnd (); }
 	inline ConstRowIterator rowBegin () const { return _A.colBegin (); }
 	inline ConstRowIterator rowEnd () const { return _A.colEnd (); }
 
-	/** @name Row of columns iterator
-	 * The row of columns iterator traverses the columns of the
-	 * matrix in ascending order. Dereferencing the iterator yields
-	 * a column vector in dense format
-	 */
-
 	inline ColIterator colBegin () { return _A.rowBegin (); }
 	inline ColIterator colEnd () { return _A.rowEnd (); }
 	inline ConstColIterator colBegin () const { return _A.rowBegin (); }
 	inline ConstColIterator colEnd () const { return _A.rowEnd (); }
-
-	/** @name Raw iterator
-	 *
-	 * The raw iterator is a method for accessing all entries in the matrix
-	 * in some unspecified order. This can be used, e.g. to reduce all
-	 * matrix entries modulo a prime before passing the matrix into an
-	 * algorithm.
-	 */
 
 	inline RawIterator rawBegin () { return _A.rawBegin (); }
 	inline RawIterator rawEnd () { return _A.rawEnd (); }
 	inline ConstRawIterator rawBegin () const { return _A.rawBegin (); }
 	inline ConstRawIterator rawEnd () const { return _A.rawEnd (); }
 
-	/** @name Raw Indexed iterator
-	 * Like the raw iterator, the indexed iterator is a method for 
-	 * accessing all entries in the matrix in some unspecified order. 
-	 * At each position of the the indexed iterator, it also provides 
-	 * the row and column indices of the currently referenced entry.
-	 * This is provided through it's rowIndex() and colIndex() functions.
-	 */
-
 	inline RawIndexedIterator rawIndexedBegin() { return _A.rawIndexedBegin (); }
         inline RawIndexedIterator rawIndexedEnd() { return _A.rawIndexedEnd (); }
 	inline ConstRawIndexedIterator rawIndexedBegin() const { return _A.rawIndexedBegin (); }
         inline ConstRawIndexedIterator rawIndexedEnd() const { return _A.rawIndexedEnd (); }
-
-	//@}
 
     protected:
 
@@ -224,6 +154,14 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
 	typedef typename Matrix::Col Row;
 
 	typedef Submatrix<Self_t> SubmatrixType;
+	typedef Submatrix<const Matrix> ConstSubmatrixType;
+	typedef SubmatrixType AlignedSubmatrixType;
+	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = Matrix::colAlign;
+	static const size_t colAlign = Matrix::rowAlign;
+
+	typedef Matrix ContainerType;
 
 	TransposeMatrix (Matrix &A) : _A (A) {}
 	TransposeMatrix (const TransposeMatrix &M) : _A (M._A) {}
@@ -281,6 +219,14 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
 	typedef typename Matrix::Row Col;
 
 	typedef Submatrix<Self_t> SubmatrixType;
+	typedef Submatrix<const Matrix> ConstSubmatrixType;
+	typedef SubmatrixType AlignedSubmatrixType;
+	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = Matrix::colAlign;
+	static const size_t colAlign = Matrix::rowAlign;
+
+	typedef Matrix ContainerType;
 
 	//TransposeMatrix () {}
 	TransposeMatrix (Matrix &A) : _A (A) {}
@@ -333,6 +279,14 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
 	typedef typename Matrix::Col Row;
 
 	typedef Submatrix<Self_t> SubmatrixType;
+	typedef Submatrix<const Matrix> ConstSubmatrixType;
+	typedef SubmatrixType AlignedSubmatrixType;
+	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = Matrix::colAlign;
+	static const size_t colAlign = Matrix::rowAlign;
+
+	typedef Matrix ContainerType;
 
 	TransposeMatrix (Matrix &A) : _A (A) {}
 	TransposeMatrix (const TransposeMatrix &M) : _A (M._A) {}

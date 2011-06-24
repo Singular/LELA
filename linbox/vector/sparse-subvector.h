@@ -221,45 +221,7 @@ class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public
 	~SparseSubvector () {}
 }; // template <class Vector> class SparseSubvector<Vector, SparseZeroOneVectorTag>
 
-// Specialisation of SparseSubvector to (non-const) hybrid vector
-
-template <class Vector>
-class SparseSubvector<Vector, VectorCategories::HybridZeroOneVectorTag>
-	: public SparseSubvector<Vector, VectorCategories::SparseVectorTag>
-{
-    public:
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-	typedef SparseSubvector<Vector, VectorCategories::SparseVectorTag> parent_type;
-	typedef typename parent_type::parent_type grandparent_type;
-	typedef typename Vector::Endianness Endianness;
-	typedef typename Vector::index_type index_type;
-	typedef typename Vector::word_type word_type;
-
-	SparseSubvector () {}
-	SparseSubvector (Vector &v, size_t start, size_t finish)
-		: parent_type (v, std::lower_bound (v.index_begin () + 1, v.index_end () - 1, start >> WordTraits<word_type>::logof_size),
-			       std::lower_bound (v.index_begin () + 1, v.index_end () - 1, (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size),
-			       start >> WordTraits<word_type>::logof_size)
-	{
-		linbox_check ((start & WordTraits<word_type>::pos_mask) == 0);
-		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > (size_t) (v.back ().first << WordTraits<word_type>::logof_size));
-	}
-
-	SparseSubvector (SparseSubvector &v, size_t start, size_t finish)
-		: parent_type (v, start >> WordTraits<word_type>::logof_size, (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)
-	{
-		linbox_check ((start & WordTraits<word_type>::pos_mask) == 0);
-		linbox_check ((finish & WordTraits<word_type>::pos_mask) == 0 || v.empty () || finish > (size_t) (v.back ().first << WordTraits<word_type>::logof_size));
-	}
-
-	SparseSubvector &operator = (const SparseSubvector &v)
-		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }
-
-	template <class V>
-	SparseSubvector &operator = (const SparseSubvector<V, VectorCategories::SparseVectorTag> &v)
-		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }
-
-}; // template <class Vector> class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
+// Specialisation of SparseSubvector to hybrid 0-1 vector; must word aligned
 
 template <class Vector>
 class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>

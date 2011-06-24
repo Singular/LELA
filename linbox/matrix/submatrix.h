@@ -175,13 +175,13 @@ class Submatrix
         typedef Submatrix<Matrix, SFTrait, Trait> Self_t;
 	typedef typename Matrix::Tag Tag;
 
-	typedef Self_t SubmatrixType;
-	typedef Submatrix<const Matrix, SFTrait, Trait> ConstSubmatrixType;
-	typedef SubmatrixType AlignedSubmatrixType;
-	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+	typedef typename Matrix::SubmatrixType SubmatrixType;
+	typedef typename Matrix::ConstSubmatrixType ConstSubmatrixType;
+	typedef typename Matrix::AlignedSubmatrixType AlignedSubmatrixType;
+	typedef typename Matrix::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
 
-	static const size_t rowAlign = 1;
-	static const size_t colAlign = 1;
+	static const size_t rowAlign = _Matrix::rowAlign;
+	static const size_t colAlign = _Matrix::colAlign;
 
 	typedef Matrix ContainerType;
 
@@ -409,13 +409,13 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
         typedef Submatrix<Matrix, SFTrait, MatrixCategories::RowMatrixTag> Self_t;
 	typedef typename Matrix::Tag Tag;
 
-	typedef Self_t SubmatrixType;
-	typedef Submatrix<const Matrix, SFTrait, MatrixCategories::RowMatrixTag> ConstSubmatrixType;
-	typedef SubmatrixType AlignedSubmatrixType;
-	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+	typedef typename Matrix::SubmatrixType SubmatrixType;
+	typedef typename Matrix::ConstSubmatrixType ConstSubmatrixType;
+	typedef typename Matrix::AlignedSubmatrixType AlignedSubmatrixType;
+	typedef typename Matrix::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
 
-	static const size_t rowAlign = 1;
-	static const size_t colAlign = 1;
+	static const size_t rowAlign = _Matrix::rowAlign;
+	static const size_t colAlign = _Matrix::colAlign;
 
 	typedef Matrix ContainerType;
 
@@ -448,6 +448,15 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 
 	template <class M2>
 	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::RowMatrixTag> &SM,
+		   size_t row,
+		   size_t col,
+		   size_t rowdim,
+		   size_t coldim)
+		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
+		{}
+
+	template <class SFT2>
+	Submatrix (const Submatrix<Matrix, SFT2, MatrixCategories::RowMatrixTag> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -536,13 +545,13 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
         typedef Submatrix<Matrix, SFTrait, MatrixCategories::ColMatrixTag> Self_t;
 	typedef typename Matrix::Tag Tag;
 
-	typedef Self_t SubmatrixType;
-	typedef Submatrix<const Matrix, SFTrait, MatrixCategories::ColMatrixTag> ConstSubmatrixType;
-	typedef SubmatrixType AlignedSubmatrixType;
-	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
+	typedef typename Matrix::SubmatrixType SubmatrixType;
+	typedef typename Matrix::ConstSubmatrixType ConstSubmatrixType;
+	typedef typename Matrix::AlignedSubmatrixType AlignedSubmatrixType;
+	typedef typename Matrix::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
 
-	static const size_t rowAlign = 1;
-	static const size_t colAlign = 1;
+	static const size_t rowAlign = _Matrix::rowAlign;
+	static const size_t colAlign = _Matrix::colAlign;
 
 	typedef Matrix ContainerType;
 
