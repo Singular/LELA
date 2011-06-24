@@ -106,27 +106,25 @@ void createRandomF4Matrix (Matrix &A)
 
 // Small version of the test, for debugging
 
-bool smallTest () {
+template <class Ring>
+bool testFaugereLachartre (const Ring &R, size_t m, size_t n)
+{
 	bool pass = true;
 
 	commentator.start ("Testing Faugère-Lachartre implementation", __FUNCTION__);
 
-	size_t m = 64;
-	size_t n = 96;
-
-	SparseMatrix<Ring::Element, Vector<Ring>::Hybrid> A (m, n), C (m, n);
-	DenseMatrix<Ring::Element> L (m, m);
-	GaussJordan<Ring>::Permutation P;
+	typename DefaultSparseMatrix<Ring>::Type A (m, n), C (m, n);
+	DenseMatrix<typename Ring::Element> L (m, m);
+	typename GaussJordan<Ring>::Permutation P;
 
 	createRandomF4Matrix (A);
 
-	Ring F (2);
-	Context<Ring> ctx (F);
+	Context<Ring> ctx (R);
 	FaugereLachartre<Ring> Solver (ctx);
 	GaussJordan<Ring> GJ (ctx);
 
 	size_t rank;
-	Ring::Element det;
+	typename Ring::Element det;
 
 	BLAS3::copy (ctx, A, C);
 
@@ -141,10 +139,10 @@ bool smallTest () {
 
 	report << "Computed rank: " << rank << std::endl
 	       << "Computed determinant: ";
-	F.write (report, det) << std::endl;
+	R.write (report, det) << std::endl;
 
 	size_t rank1;
-	Ring::Element det1;
+	typename Ring::Element det1;
 
 	GJ.StandardRowEchelonForm (C, L, P, rank1, det1, true, false);
 
@@ -170,24 +168,31 @@ bool smallTest () {
 
 int main (int argc, char **argv)
 {
+	static long m = 128;
+	static long n = 96;
+
 	bool pass = true;
 
 	static Argument args[] = {
+		{ 'm', "-m M", "Set row-dimension of matrix to M.", TYPE_INT, &m },
+		{ 'n', "-n N", "Set column-dimension of matrix to N.", TYPE_INT, &n },
 		{ '\0' }
 	};
 
 	parseArguments (argc, argv, args);
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (PROGRESS_REPORT).setMaxDepth (3);
 
 	commentator.start ("Faugère-Lachartre test suite", "FaugereLachartre");
 
-	pass = smallTest ();
+	GF2 gf2;
+
+	pass = testFaugereLachartre (gf2, m, n);
 
 	commentator.stop (MSG_STATUS (pass));
 

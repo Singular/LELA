@@ -27,7 +27,7 @@ int run_diff (const Ring &R, const char *input1, FileFormatTag input1_format, co
 {
 	Context<Ring> ctx (R);
 
-	commentator.start ("Checking equality", __FUNCTION__);
+	commentator.start ("Computing difference", __FUNCTION__);
 
 	DenseMatrix<typename Ring::Element> A, B;
 

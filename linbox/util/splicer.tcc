@@ -84,20 +84,18 @@ void Splicer::append_word (Vector &v, size_t index, typename Vector::word_type w
 {
 	typedef WordTraits<typename Vector::word_type> WT;
 
-	if (v.empty () || v.back ().second != index >> WT::logof_size) {
-		if ((index & WT::pos_mask) == 0)
-			v.push_back (typename Vector::value_type (index >> WT::logof_size, word));
-		else {
-			v.push_back (typename Vector::value_type (index >> WT::logof_size,
-								  Vector::Endianness::shift_right (word, index & WT::pos_mask)));
-			v.push_back (typename Vector::value_type ((index >> WT::logof_size) + 1,
-								  Vector::Endianness::shift_left (word, WT::bits - (index & WT::pos_mask))));
-		}
-	} else {
-		v.back ().second |= Vector::Endianness::shift_right (word, index & WT::pos_mask);
-		v.push_back (typename Vector::value_type ((index >> WT::logof_size) + 1,
-							  Vector::Endianness::shift_left (word, WT::bits - (index & WT::pos_mask))));
-	}
+	typename Vector::Endianness::word_pair w;
+	w.parts.low = word;
+	w.parts.high = 0ULL;
+	w.full = Vector::Endianness::shift_right (w.full, index & WT::pos_mask);
+
+	if (v.empty () || v.back ().first != index >> WT::logof_size)
+		v.push_back (typename Vector::value_type (index >> WT::logof_size, w.parts.low));
+	else
+		v.back ().second |= w.parts.low;
+
+	if (w.parts.high != 0)
+		v.push_back (typename Vector::value_type ((index >> WT::logof_size) + 1, w.parts.high));
 }
 
 template <class Ring, class Vector1, class Vector2>
