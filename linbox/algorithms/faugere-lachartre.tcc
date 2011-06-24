@@ -219,7 +219,7 @@ struct DefaultSparseMatrix
 template <>
 struct DefaultSparseMatrix<GF2>
 {
-	typedef SparseMatrix<bool, typename Vector<GF2>::Hybrid> Type;
+	typedef SparseMatrix<bool, Vector<GF2>::Hybrid> Type;
 };
 
 template <class Ring, class Modules>

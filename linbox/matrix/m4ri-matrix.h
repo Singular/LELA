@@ -211,7 +211,7 @@ public:
 		: M4RIMatrixBase (mzd_init (m, n)), _start_row (0), _start_col (0)
 	{}
 
-	M4RIMatrix (M4RIMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+	M4RIMatrix (const M4RIMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: M4RIMatrixBase (mzd_init_window (M._rep, beg_row, beg_col, beg_row + m, beg_col + n)),
 		  _start_row (M.startRow () + beg_row),
 		  _start_col (M.startCol () + beg_col)
@@ -507,7 +507,7 @@ public:
 		: M4RIMatrix (m, n)
 	{}
 
-	DenseMatrix (DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+	DenseMatrix (const DenseMatrix &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: M4RIMatrix (M, beg_row, beg_col, m, n)
 	{}
 

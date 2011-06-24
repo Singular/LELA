@@ -87,7 +87,7 @@ public:
  * The pair (horizontal id, vertical id) identifies which matrix from
  * the source respectively destination is used. This may be read from
  * the corresponding horizontal and vertical @ref Block objects which
- * are passed to the thunk grid when the method splice runs.
+ * are passed to the closure grid when the method splice runs.
  *
  * Horizontal and vertical blocks must be arranged from left to right
  * respectively top to bottom in both the source- and
@@ -319,7 +319,7 @@ public:
 	/** Splice the given set of matrices input into the set of
 	 * matrices output
 	 *
-	 * @param grid Thunk which performs copying-operations. It
+	 * @param grid Closure which performs copying-operations. It
 	 * should have the signature grid (horizontal_block,
 	 * vertical_block) (horizontal_block and vertical_block
 	 * instances of type @ref Block) and should perform the actual
