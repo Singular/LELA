@@ -192,9 +192,7 @@ Matrix3 &StrassenWinograd::addmul (const Ring &R, Modules &M, const typename Rin
 	if (m < _cutoff || k < _cutoff || n < _cutoff)
 		return BLAS3::_gemm (R, M, a, A, B, b, C);
 	else {
-		size_t m = C.rowdim () / 2, k = A.coldim () / 2, n = C.coldim () / 2;
-
-		typename Matrix3::ContainerType X1 (m, n), X2 (m, k), X3 (k, n);
+		typename Matrix3::ContainerType X1 (m, k), X2 (k, n), X3 (m, n);
 
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, m, k);
 		typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0, k, m, k);
