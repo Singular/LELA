@@ -34,6 +34,7 @@ public:
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
 	typedef SparseMatrixTag<bool, Row, VectorCategories::SparseZeroOneVectorTag> Tag;
 
+	typedef Submatrix<const Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
 	typedef Submatrix<Self_t> AlignedSubmatrixType;
 	typedef Submatrix<const Self_t> ConstAlignedSubmatrixType;

@@ -58,7 +58,10 @@ class MatrixArchetype
 
 	/** Arbitrary writeable submatrix
 	 *
-	 * An implementation is permitted to omit this type.
+	 * If an implementation cannot allow arbitrary writeable
+	 * submatrices, it may make this type equal to @ref
+	 * ConstSubmatrixType. For formal reasons it is not possible
+	 * to omit it.
 	 */
 	class SubmatrixType;
 
