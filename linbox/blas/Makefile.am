@@ -11,9 +11,6 @@ BASIC_HDRS =			\
 	level1-ll.h		\
 	level2-ll.h		\
 	level3-ll.h		\
-	level1-ll.tcc		\
-	level2-ll.tcc		\
-	level3-ll.tcc		\
 	level1-generic.h	\
 	level2-generic.h	\
 	level3-generic.h	\
@@ -26,7 +23,8 @@ BASIC_HDRS =			\
 	level2-modular.tcc	\
 	level1-cblas.h		\
 	level2-cblas.h		\
-	level3-cblas.h
+	level3-cblas.h		\
+	level3-sw.h
 
 pkgincludesub_HEADERS =		\
 	$(BASIC_HDRS)

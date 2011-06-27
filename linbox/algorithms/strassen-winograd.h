@@ -40,6 +40,7 @@ namespace LinBox
  * computation ISSAC 09, 55. ACM Press. Retrieved from
  * http://arxiv.org/abs/0707.2347
  */
+template <class ParentTag>
 class StrassenWinograd
 {
 	size_t _cutoff;
@@ -132,11 +133,12 @@ public:
 	}
 };
 
-template <class _ParentModule>
-struct StrassenModule : public _ParentModule
+template <class ParentTag>
+struct StrassenModule
 {
-	typedef _ParentModule ParentModule;
-	StrassenWinograd sw;
+	struct Tag { typedef ParentTag Parent; };
+
+	StrassenWinograd<ParentTag> sw;
 };
 
 } // namespace LinBox
