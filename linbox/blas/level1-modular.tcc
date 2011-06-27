@@ -19,9 +19,9 @@ namespace BLAS1
 {
 
 template <class Vector1, class Vector2>
-uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-		 size_t start_idx, size_t end_idx,
-		 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
+							     size_t start_idx, size_t end_idx,
+							     VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -54,9 +54,9 @@ uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const 
 }
 
 template <class Vector1, class Vector2>
-uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-		 size_t start_idx, size_t end_idx,
-		 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
+							     size_t start_idx, size_t end_idx,
+							     VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
@@ -98,9 +98,9 @@ uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const 
 }
 
 template <class Vector1, class Vector2>
-uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-		 size_t start_idx, size_t end_idx,
-		 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
+							     size_t start_idx, size_t end_idx,
+							     VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
 	linbox_check (start_idx <= end_idx);
 
@@ -131,9 +131,9 @@ uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const 
 }
 
 template <class Vector1, class Vector2>
-uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -166,9 +166,9 @@ uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, co
 }
 
 template <class Vector1, class Vector2>
-uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
@@ -210,9 +210,9 @@ uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, co
 }
 
 template <class Vector1, class Vector2>
-uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
 	linbox_check (start_idx <= end_idx);
 
@@ -243,9 +243,9 @@ uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, co
 }
 
 template <class Vector1, class Vector2>
-uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -270,9 +270,9 @@ uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, co
 }
 
 template <class Vector1, class Vector2>
-uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
@@ -297,9 +297,9 @@ uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, co
 }
 
 template <class Vector1, class Vector2>
-uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
 {
 	linbox_check (start_idx <= end_idx);
 
@@ -329,9 +329,9 @@ uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, co
 }
 
 template <class Vector1, class Vector2>
-float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
-		 size_t start_idx, size_t end_idx,
-		 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
+							     size_t start_idx, size_t end_idx,
+							     VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	float s = 0.;
 	float t = 0.;
@@ -353,7 +353,7 @@ float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const 
 		}
 
 		for (; i < x.size (); ++i)
-			y += x[i] * y[i];
+			t += x[i] * y[i];
 
 		t += fmod (s, F.modulus);
 		s = fmod (t, F.modulus);
@@ -363,14 +363,14 @@ float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const 
 }
 
 template <class Vector1, class Vector2>
-float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
-		 size_t start_idx, size_t end_idx,
-		 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
+							     size_t start_idx, size_t end_idx,
+							     VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
 	float s = 0.;
 	float t = 0.;
 
-	if (x.first.size () < M._nmax) {
+	if (x.size () < M._nmax) {
 		for (size_t i = 0; i < x.size (); ++i)
 			s += x[i].second * y[x[i].first];
 
@@ -396,9 +396,9 @@ float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const 
 }
 
 template <class Vector1, class Vector2>
-double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
 {
 	double s = 0.;
 	double t = 0.;
@@ -430,14 +430,14 @@ double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, co
 }
 
 template <class Vector1, class Vector2>
-double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
-		  size_t start_idx, size_t end_idx,
-		  VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
+								size_t start_idx, size_t end_idx,
+								VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
 {
 	double s = 0.;
 	double t = 0.;
 
-	if (x.first.size () < M._nmax) {
+	if (x.size () < M._nmax) {
 		for (size_t i = 0; i < x.size (); ++i)
 			s += x[i].second * y[x[i].first];
 
@@ -461,7 +461,7 @@ double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, co
 		s = fmod (t, F.modulus);
 	}
 
-	return res = y;
+	return res = s;
 }
 
 } // namespace BLAS1

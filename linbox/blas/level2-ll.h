@@ -19,29 +19,55 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Ring, class Modules, class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv (const Ring                   &F,
-		Modules                       &M,
-		const typename Ring::Element &a,
-		const Matrix                  &A,
-		const Vector1                 &x,
-		const typename Ring::Element &b,
-		Vector2                       &y,
-		size_t                         start_idx = 0,
-		size_t                         end_idx = (size_t) -1);
+template <class Ring, class ModulesTag>
+class _gemv
+{
+public:
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &op (const Ring                   &F,
+			    Modules                      &M,
+			    const typename Ring::Element &a,
+			    const Matrix                 &A,
+			    const Vector1                &x,
+			    const typename Ring::Element &b,
+			    Vector2                      &y,
+			    size_t                        start_idx = 0,
+			    size_t                        end_idx = (size_t) -1)
+		{ return _gemv<Ring, typename ModulesTag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+};
 
-template <class Ring, class Modules, class Matrix, class Vector>
-Vector &_trmv (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
+template <class Ring, class ModulesTag>
+class _trmv
+{
+public:
+	template <class Modules, class Matrix, class Vector>
+	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return _trmv<Ring, typename ModulesTag::Parent>::op (F, M, A, x, type, diagIsOne); }
+};
 
-template <class Ring, class Modules, class Matrix, class Vector>
-Vector &_trsv (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
+template <class Ring, class ModulesTag>
+class _trsv
+{
+public:
+	template <class Modules, class Matrix, class Vector>
+	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return _trsv<Ring, typename ModulesTag::Parent>::op (F, M, A, x, type, diagIsOne); }
+};
 
-template <class Ring, class Modules, class Vector1, class Vector2, class Matrix>
-Matrix &_ger (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A);
+template <class Ring, class ModulesTag>
+class _ger
+{
+public:
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
+		{ return _ger<Ring, typename ModulesTag::Parent>::op (F, M, a, x, y, A); }
+};
 
 } // namespace BLAS2
 
 } // namespace LinBox
+
+#include "linbox/blas/level2-generic.h"
 
 #endif // __BLAS_LEVEL2_LL_H
 

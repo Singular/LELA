@@ -11,7 +11,7 @@
 #define __BLAS_LEVEL2_H
 
 #include "linbox/blas/context.h"
-#include "linbox/blas/level2-ll.tcc"
+#include "linbox/blas/level2-ll.h"
 
 namespace LinBox
 {
@@ -49,7 +49,7 @@ Vector2 &gemv (Context<Ring, Modules>       &ctx,
 	       Vector2                       &y,
 	       size_t                         start_idx = 0,
 	       size_t                         end_idx = (size_t) -1)
-	{ return _gemv (ctx.F, ctx.M, a, A, x, b, y, start_idx, end_idx); }
+	{ return _gemv<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, A, x, b, y, start_idx, end_idx); }
 
 /** Triangular matrix-vector multiply, x <- Ax, where A is triangular
  *
@@ -64,7 +64,7 @@ Vector2 &gemv (Context<Ring, Modules>       &ctx,
 
 template <class Ring, class Modules, class Matrix, class Vector>
 Vector &trmv (Context<Ring, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
-	{ return _trmv (ctx.F, ctx.M, A, x, type, diagIsOne); }
+	{ return _trmv<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, A, x, type, diagIsOne); }
 
 /** Triangular matrix-vector solve, x <- A^-1 x, where A is triangular
  *
@@ -80,7 +80,7 @@ Vector &trmv (Context<Ring, Modules> &ctx, const Matrix &A, Vector &x, Triangula
 
 template <class Ring, class Modules, class Matrix, class Vector>
 Vector &trsv (Context<Ring, Modules> &ctx, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
-	{ return _trsv (ctx.F, ctx.M, A, x, type, diagIsOne); }
+	{ return _trsv<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, A, x, type, diagIsOne); }
 
 /** General rank-1 update, A <- a x y^T + A
  *
@@ -97,7 +97,7 @@ Vector &trsv (Context<Ring, Modules> &ctx, const Matrix &A, Vector &x, Triangula
 
 template <class Ring, class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &ger (Context<Ring, Modules> &ctx, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A)
-	{ return _ger (ctx.F, ctx.M, a, x, y, A); }
+	{ return _ger<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, x, y, A); }
 
 } // namespace BLAS2
 

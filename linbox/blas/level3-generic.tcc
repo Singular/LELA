@@ -13,8 +13,8 @@
 #include <algorithm>
 
 #include "linbox/blas/level3-generic.h"
-#include "linbox/blas/level1-ll.tcc"
-#include "linbox/blas/level2-ll.tcc"
+#include "linbox/blas/level1-ll.h"
+#include "linbox/blas/level2-ll.h"
 #include "linbox/blas/level3-ll.h"
 #include "linbox/matrix/transpose.h"
 #include "linbox/matrix/submatrix.h"
@@ -25,9 +25,10 @@ namespace LinBox
 namespace BLAS3
 {
 
-template <class Ring, class Matrix1, class Matrix2>
-Matrix2 &copy_impl (const Ring &F, GenericModule &M, const Matrix1 &A, Matrix2 &B,
-		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -39,14 +40,15 @@ Matrix2 &copy_impl (const Ring &F, GenericModule &M, const Matrix1 &A, Matrix2 &
 	j = B.rowBegin ();
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		BLAS1::_copy (F, M, *i, *j);
+		BLAS1::_copy<Ring, typename Modules::Tag>::op (F, M, *i, *j);
 
 	return B;
 }
 
-template <class Ring, class Matrix1, class Matrix2>
-Matrix2 &copy_impl (const Ring &F, GenericModule &M, const Matrix1 &A, Matrix2 &B,
-		    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+						     MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -58,36 +60,39 @@ Matrix2 &copy_impl (const Ring &F, GenericModule &M, const Matrix1 &A, Matrix2 &
 	j = B.colBegin ();
 
 	for (; i != A.colEnd (); ++i, ++j)
-		BLAS1::_copy (F, M, *i, *j);
+		BLAS1::_copy<Ring, typename Modules::Tag>::op (F, M, *i, *j);
 
 	return B;
 }
 
-template <class Ring, class Modules, class Matrix>
-Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix>
+Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::RowIterator i;
 
 	for (i = A.rowBegin (); i != A.rowEnd (); ++i)
-		BLAS1::_scal (F, M, a, *i);
+		BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, a, *i);
 
 	return A;
 }
 
-template <class Ring, class Modules, class Matrix>
-Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix>
+Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ColIterator i;
 
 	for (i = A.colBegin (); i != A.colEnd (); ++i)
-		BLAS1::_scal (F, M, a, *i);
+		BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, a, *i);
 
 	return A;
 }
 
-template <class Ring, class Modules, class Matrix1, class Matrix2>
-Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
-		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
+						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -99,14 +104,15 @@ Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 	j = B.rowBegin ();
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		BLAS1::_axpy (F, M, a, *i, *j);
+		BLAS1::_axpy<Ring, typename Modules::Tag>::op (F, M, a, *i, *j);
 
 	return B;
 }
 
-template <class Ring, class Modules, class Matrix1, class Matrix2>
-Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
-		    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
+						     MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -118,15 +124,16 @@ Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 	j = B.colBegin ();
 
 	for (; i != A.colEnd (); ++i, ++j)
-		BLAS1::_axpy (F, M, a, *i, *j);
+		BLAS1::_axpy<Ring, typename Modules::Tag>::op (F, M, a, *i, *j);
 
 	return B;
 }
 
-template <class Ring, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
-		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
+						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -138,15 +145,16 @@ Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
 	TransposeMatrix<const Matrix2> BT (B);
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		BLAS2::_gemv (F, M, a, BT, *i, b, *j);
+		BLAS2::_gemv<Ring, typename Modules::Tag>::op (F, M, a, BT, *i, b, *j);
 
 	return C;
 }
 
-template <class Ring, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
-		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-		    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
+						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+						     MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -156,16 +164,17 @@ Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
 	typename Matrix3::ColIterator j = C.colBegin ();
 
 	for (; i != B.colEnd (); ++i, ++j)
-		BLAS2::_gemv (F, M, a, A, *i, b, *j);
+		BLAS2::_gemv<Ring, typename Modules::Tag>::op (F, M, a, A, *i, b, *j);
 
 	return C;
 }
 
 // FIXME: This assumes that the rows of C are dense!!!
-template <class Ring, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
-		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-		    MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
+						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+						     MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -179,7 +188,7 @@ Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
 
 	for (i = A.rowBegin (), l1 = C.rowBegin (); i != A.rowEnd (); ++i, ++l1) {
 		for (j = B.colBegin (), l2 = l1->begin (); j != B.colEnd (); ++j, ++l2) {
-			BLAS1::_dot (F, M, d, *i, *j);
+			BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, *i, *j);
 			F.mulin (*l2, b);
 			F.axpyin (*l2, a, d);
 		}
@@ -189,10 +198,11 @@ Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
 }
 
 // FIXME: This assumes that the rows of C are dense!!!
-template <class Ring, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
-		    const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-		    MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
+						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+						     MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -206,7 +216,7 @@ Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
 
 	for (j = B.colBegin (), l1 = C.colBegin (); j != B.colEnd (); ++j, ++l1) {
 		for (i = A.rowBegin (), l2 = l1->begin (); i != A.rowEnd (); ++i, ++l2) {
-			BLAS1::_dot (F, M, d, *i, *j);
+			BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, *i, *j);
 			F.mulin (*l2, b);
 			F.axpyin (*l2, a, d);
 		}
@@ -215,9 +225,10 @@ Matrix3 &gemm_impl (const Ring &F, GenericModule &M,
 	return C;
 }
 
-template <class Ring, class Modules, class Matrix1, class Matrix2>
-Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_trmm<Ring, GenericModule::Tag>::trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -225,18 +236,18 @@ Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 	if (A.rowdim () == 0)
 		return B;
 	else if (F.isZero (a))
-		return _scal (F, M, a, B);
+		return _scal<Ring, typename Modules::Tag>::op (F, M, a, B);
 	else if (A.rowdim () == 1) {
 		if (diagIsOne)
-			return _scal (F, M, a, B);
+			return _scal<Ring, typename Modules::Tag>::op (F, M, a, B);
 		else {
 			typename Ring::Element ai;
 
 			if (!A.getEntry (ai, 0, 0))
-				return _scal (F, M, F.zero (), B);
+				return _scal<Ring, typename Modules::Tag>::op (F, M, F.zero (), B);
 			else {
 				F.mulin (ai, a);
-				return _scal (F, M, ai, B);
+				return _scal<Ring, typename Modules::Tag>::op (F, M, ai, B);
 			}
 		}
 	}
@@ -250,15 +261,15 @@ Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 
 		if (type == LowerTriangular) {
 			typename Matrix1::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
-			_trmm (F, M, a, A22, B2, type, diagIsOne);
-			_gemm (F, M, a, A21, B1, F.one (), B2);
-			_trmm (F, M, a, A11, B1, type, diagIsOne);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A22, B2, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, a, A21, B1, F.one (), B2);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A11, B1, type, diagIsOne);
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix1::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
-			_trmm (F, M, a, A11, B1, type, diagIsOne);
-			_gemm (F, M, a, A12, B2, F.one (), B1);
-			_trmm (F, M, a, A22, B2, type, diagIsOne);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A11, B1, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, a, A12, B2, F.one (), B1);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A22, B2, type, diagIsOne);
 		}
 
 		return B;
@@ -272,24 +283,25 @@ Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 
 		if (type == LowerTriangular) {
 			typename Matrix1::ConstAlignedSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
-			_trmm (F, M, a, A22, B2, type, diagIsOne);
-			_gemm (F, M, a, A21, B1, F.one (), B2);
-			_trmm (F, M, a, A11, B1, type, diagIsOne);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A22, B2, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, a, A21, B1, F.one (), B2);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A11, B1, type, diagIsOne);
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
-			_trmm (F, M, a, A11, B1, type, diagIsOne);
-			_gemm (F, M, a, A12, B2, F.one (), B1);
-			_trmm (F, M, a, A22, B2, type, diagIsOne);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A11, B1, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, a, A12, B2, F.one (), B1);
+			_trmm<Ring, typename Modules::Tag>::op (F, M, a, A22, B2, type, diagIsOne);
 		}
 
 		return B;
 	}
 }
 
-template <class Ring, class Modules, class Matrix1, class Matrix2>
-Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-		    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_trsm<Ring, GenericModule::Tag>::trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -297,20 +309,20 @@ Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 	if (A.rowdim () == 0)
 		return B;
 	else if (F.isZero (a))
-		return _scal (F, M, a, B);
+		return _scal<Ring, typename Modules::Tag>::op (F, M, a, B);
 	else if (A.rowdim () == 1) {
 		if (diagIsOne)
-			return _scal (F, M, a, B);
+			return _scal<Ring, typename Modules::Tag>::op (F, M, a, B);
 		else {
 			typename Ring::Element ai;
 
 			if (!A.getEntry (ai, 0, 0))
 				// FIXME: Should return an error
-				return _scal (F, M, F.zero (), B);
+				return _scal<Ring, typename Modules::Tag>::op (F, M, F.zero (), B);
 			else {
 				F.invin (ai);
 				F.mulin (ai, a);
-				return _scal (F, M, ai, B);
+				return _scal<Ring, typename Modules::Tag>::op (F, M, ai, B);
 			}
 		}
 	}
@@ -324,15 +336,15 @@ Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 
 		if (type == LowerTriangular) {
 			typename Matrix1::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
-			_trsm (F, M, a, A11, B1, type, diagIsOne);
-			_gemm (F, M, F.minusOne (), A21, B1, a, B2);
-			_trsm (F, M, F.one (), A22, B2, type, diagIsOne);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, a, A11, B1, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A21, B1, a, B2);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, F.one (), A22, B2, type, diagIsOne);
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix1::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
-			_trsm (F, M, a, A22, B2, type, diagIsOne);
-			_gemm (F, M, F.minusOne (), A12, B2, a, B1);
-			_trsm (F, M, F.one (), A11, B1, type, diagIsOne);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, a, A22, B2, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A12, B2, a, B1);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, F.one (), A11, B1, type, diagIsOne);
 		}
 
 		return B;
@@ -346,23 +358,24 @@ Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, 
 
 		if (type == LowerTriangular) {
 			typename Matrix1::ConstAlignedSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
-			_trsm (F, M, a, A11, B1, type, diagIsOne);
-			_gemm (F, M, F.minusOne (), A21, B1, a, B2);
-			_trsm (F, M, F.one (), A22, B2, type, diagIsOne);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, a, A11, B1, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A21, B1, a, B2);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, F.one (), A22, B2, type, diagIsOne);
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
-			_trsm (F, M, a, A22, B2, type, diagIsOne);
-			_gemm (F, M, F.minusOne (), A12, B2, a, B1);
-			_trsm (F, M, F.one (), A11, B1, type, diagIsOne);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, a, A22, B2, type, diagIsOne);
+			_gemm<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A12, B2, a, B1);
+			_trsm<Ring, typename Modules::Tag>::op (F, M, F.one (), A11, B1, type, diagIsOne);
 		}
 
 		return B;
 	}
 }
 
-template <class Ring, class Modules, class Iterator, class Matrix>
-Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Iterator, class Matrix>
+Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::RowIterator j, k;
 
@@ -370,36 +383,39 @@ Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator
 		j = A.rowBegin () + P_begin->first;
 		k = A.rowBegin () + P_begin->second;
 
-		BLAS1::_swap (F, M, *j, *k);
+		BLAS1::_swap<Ring, typename Modules::Tag>::op (F, M, *j, *k);
 	}
 
 	return A;
 }
 
-template <class Ring, class Modules, class Iterator, class Matrix>
-Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Iterator, class Matrix>
+Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ColIterator j;
 
 	for (j = A.colBegin (); j != A.colEnd (); ++j)
-		BLAS1::_permute (F, M, P_begin, P_end, *j);
+		BLAS1::_permute<Ring, typename Modules::Tag>::op (F, M, P_begin, P_end, *j);
 
 	return A;
 }
 
-template <class Ring, class Modules, class Iterator, class Matrix>
-Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Iterator, class Matrix>
+Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::RowIterator j;
 
 	for (j = A.rowBegin (); j != A.rowEnd (); ++j)
-		BLAS1::_permute (F, M, P_begin, P_end, *j);
+		BLAS1::_permute<Ring, typename Modules::Tag>::op (F, M, P_begin, P_end, *j);
 
 	return A;
 }
 
-template <class Ring, class Modules, class Iterator, class Matrix>
-Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Iterator, class Matrix>
+Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ColIterator j, k;
 
@@ -407,15 +423,16 @@ Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator
 		j = A.colBegin () + P_begin->first;
 		k = A.colBegin () + P_begin->second;
 
-		BLAS1::_swap (F, M, *j, *k);
+		BLAS1::_swap<Ring, typename Modules::Tag>::op (F, M, *j, *k);
 	}
 
 	return A;
 }
 
-template <class Ring, class Matrix1, class Matrix2>
-bool equal_impl (const Ring &F, GenericModule &M, const Matrix1 &A, const Matrix2 &B,
-		 MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
+						   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -427,15 +444,16 @@ bool equal_impl (const Ring &F, GenericModule &M, const Matrix1 &A, const Matrix
 	j = B.rowBegin ();
 
 	for (; i != A.rowEnd (); ++i, ++j)
-		if (!BLAS1::_equal (F, M, *i, *j))
+		if (!BLAS1::_equal<Ring, typename Modules::Tag>::op (F, M, *i, *j))
 			return false;
 
 	return true;
 }
 
-template <class Ring, class Matrix1, class Matrix2>
-bool equal_impl (const Ring &F, GenericModule &M, const Matrix1 &A, const Matrix2 &B,
-		 MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
+						   MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -447,35 +465,37 @@ bool equal_impl (const Ring &F, GenericModule &M, const Matrix1 &A, const Matrix
 	j = B.colBegin ();
 
 	for (; i != A.colEnd (); ++i, ++j)
-		if (!BLAS1::_equal (F, M, *i, *j))
+		if (!BLAS1::_equal<Ring, typename Modules::Tag>::op (F, M, *i, *j))
 			return false;
 
 	return true;
 }
 
-template <class Ring, class Matrix>
-bool is_zero_impl (const Ring &F, GenericModule &M, const Matrix &A, MatrixCategories::RowMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix>
+bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixCategories::RowMatrixTag)
 {
 	typename Matrix::ConstRowIterator i;
 
 	i = A.rowBegin ();
 
 	for (; i != A.rowEnd (); ++i)
-		if (!BLAS1::_is_zero (F, M, *i))
+		if (!BLAS1::_is_zero<Ring, typename Modules::Tag>::op (F, M, *i))
 			return false;
 
 	return true;
 }
 
-template <class Ring, class Matrix>
-bool is_zero_impl (const Ring &F, GenericModule &M, const Matrix &A, MatrixCategories::ColMatrixTag)
+template <class Ring>
+template <class Modules, class Matrix>
+bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixCategories::ColMatrixTag)
 {
 	typename Matrix::ConstColIterator i;
 
 	i = A.colBegin ();
 
 	for (; i != A.colEnd (); ++i)
-		if (!BLAS1::_is_zero (F, M, *i))
+		if (!BLAS1::_is_zero<Ring, typename Modules::Tag>::op (F, M, *i))
 			return false;
 
 	return true;

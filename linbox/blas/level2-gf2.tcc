@@ -23,13 +23,13 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
-		    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::RowMatrixTag,
-		    VectorCategories::GenericVectorTag,
-		    VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
+						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    MatrixCategories::RowMatrixTag,
+						    VectorCategories::GenericVectorTag,
+						    VectorCategories::DenseZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
@@ -40,26 +40,26 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	bool d = false;
 
 	if (!b)
-		BLAS1::_scal (F, M, false, y);
+		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
 
 	if (!a)
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		BLAS1::_dot (F, M, d, *i_A, x, start_idx, end_idx);
+		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x, start_idx, end_idx);
 		F.addin (y[idx], d);
 	}
 		
 	return y;
 }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
-		    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::RowMatrixTag,
-		    VectorCategories::GenericVectorTag,
-		    VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
+						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    MatrixCategories::RowMatrixTag,
+						    VectorCategories::GenericVectorTag,
+						    VectorCategories::SparseZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
@@ -72,30 +72,30 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	Vector2 t;
 
 	if (!b)
-		BLAS1::_scal (F, M, false, y);
+		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
 
 	if (!a)
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		BLAS1::_dot (F, M, d, *i_A, x, start_idx, end_idx);
+		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x, start_idx, end_idx);
 
 		if (d)
 			t.push_back (idx);
 	}
 
-	BLAS1::_axpy (F, M, true, t, y);
+	BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, t, y);
 
 	return y;
 }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
-		    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::RowMatrixTag,
-		    VectorCategories::GenericVectorTag,
-		    VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
+						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    MatrixCategories::RowMatrixTag,
+						    VectorCategories::GenericVectorTag,
+						    VectorCategories::HybridZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
@@ -108,13 +108,13 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	Vector2 t;
 
 	if (!b)
-		BLAS1::_scal (F, M, false, y);
+		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
 
 	if (!a)
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		BLAS1::_dot (F, M, d, *i_A, x, start_idx, end_idx);
+		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x, start_idx, end_idx);
 
 		if (d) {
 			if (t.first.empty () || t.first.back () != idx & ~WordTraits<typename Vector2::word_type>::pos_mask)
@@ -125,24 +125,24 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 		}
 	}
 
-	BLAS1::_axpy (F, M, true, t, y);
+	BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, t, y);
 
 	return y;
 }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
-		    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::ColMatrixTag,
-		    VectorCategories::DenseZeroOneVectorTag,
-		    VectorCategories::GenericVectorTag)
+template <class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
+						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    MatrixCategories::ColMatrixTag,
+						    VectorCategories::DenseZeroOneVectorTag,
+						    VectorCategories::GenericVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
 
 	if (!b)
-		BLAS1::_scal (F, M, false, y);
+		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
 
 	if (!a)
 		return y;
@@ -156,18 +156,18 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	typename Vector1::const_iterator i_x;
 
 	for (i_x = x.begin () + start_idx, i_A = A.colBegin () + start_idx; i_A != i_A_end; ++i_x, ++i_A)
-		BLAS1::_axpy (F, M, *i_x, *i_A, y);
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, *i_x, *i_A, y);
 
 	return y;
 }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
-		    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::ColMatrixTag,
-		    VectorCategories::SparseZeroOneVectorTag,
-		    VectorCategories::GenericVectorTag)
+template <class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
+						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    MatrixCategories::ColMatrixTag,
+						    VectorCategories::SparseZeroOneVectorTag,
+						    VectorCategories::GenericVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
 	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
@@ -175,7 +175,7 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	typename Vector1::const_iterator i_x = std::lower_bound (x.begin (), x.end (), start_idx);
 
 	if (!b)
-		BLAS1::_scal (F, M, false, y);
+		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
 
 	if (!a)
 		return y;
@@ -186,18 +186,18 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	linbox_check (end_idx <= A.coldim ());
 
 	for (; i_x != x.end () && *i_x < end_idx; ++i_x)
-		BLAS1::_axpy (F, M, true, *(A.colBegin () + *i_x), y);
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, *(A.colBegin () + *i_x), y);
 
 	return y;
 }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
-		    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::ColMatrixTag,
-		    VectorCategories::HybridZeroOneVectorTag,
-		    VectorCategories::GenericVectorTag)
+template <class Modules, class Matrix, class Vector1, class Vector2>
+Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
+						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    MatrixCategories::ColMatrixTag,
+						    VectorCategories::HybridZeroOneVectorTag,
+						    VectorCategories::GenericVectorTag)
 {
 	// linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
 	// linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
@@ -208,7 +208,7 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 	typename Vector1::index_type idx;
 
 	if (!b)
-		BLAS1::_scal (F, M, false, y);
+		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
 
 	if (!a)
 		return y;
@@ -232,47 +232,51 @@ Vector2 &gemv_impl (const GF2 &F, GenericModule &M,
 		i_A = A.colBegin () + idx;
 
 		for (; t != 0 && idx < end_idx; t = Vector1::Endianness::shift_right (t, 1), ++i_A, ++idx)
-			BLAS1::_axpy (F, M, ((i_x->second & t) != 0), *i_A, y);
+			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, ((i_x->second & t) != 0), *i_A, y);
 	}
 
 	return y;
 }
 
-template <class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-		  VectorCategories::DenseZeroOneVectorTag,
-		  VectorCategories::DenseZeroOneVectorTag,
-		  MatrixCategories::RowMatrixTag);
+#if 0 // Not implemented
 
-template <class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-		  VectorCategories::SparseZeroOneVectorTag,
-		  VectorCategories::SparseZeroOneVectorTag,
-		  MatrixCategories::RowMatrixTag);
+template <class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						 VectorCategories::DenseZeroOneVectorTag,
+						 VectorCategories::DenseZeroOneVectorTag,
+						 MatrixCategories::RowMatrixTag);
 
-template <class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-		  VectorCategories::HybridZeroOneVectorTag,
-		  VectorCategories::HybridZeroOneVectorTag,
-		  MatrixCategories::RowMatrixTag);
+template <class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						 VectorCategories::SparseZeroOneVectorTag,
+						 VectorCategories::SparseZeroOneVectorTag,
+						 MatrixCategories::RowMatrixTag);
 
-template <class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-		  VectorCategories::DenseZeroOneVectorTag,
-		  VectorCategories::DenseZeroOneVectorTag,
-		  MatrixCategories::ColMatrixTag);
+template <class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						 VectorCategories::HybridZeroOneVectorTag,
+						 VectorCategories::HybridZeroOneVectorTag,
+						 MatrixCategories::RowMatrixTag);
 
-template <class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-		  VectorCategories::SparseZeroOneVectorTag,
-		  VectorCategories::SparseZeroOneVectorTag,
-		  MatrixCategories::ColMatrixTag);
+template <class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						 VectorCategories::DenseZeroOneVectorTag,
+						 VectorCategories::DenseZeroOneVectorTag,
+						 MatrixCategories::ColMatrixTag);
 
-template <class Vector1, class Vector2, class Matrix>
-Matrix &ger_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-		  VectorCategories::HybridZeroOneVectorTag,
-		  VectorCategories::HybridZeroOneVectorTag,
-		  MatrixCategories::ColMatrixTag);
+template <class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						 VectorCategories::SparseZeroOneVectorTag,
+						 VectorCategories::SparseZeroOneVectorTag,
+						 MatrixCategories::ColMatrixTag);
+
+template <class Modules, class Vector1, class Vector2, class Matrix>
+Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						 VectorCategories::HybridZeroOneVectorTag,
+						 VectorCategories::HybridZeroOneVectorTag,
+						 MatrixCategories::ColMatrixTag);
+
+#endif // Not implemented
 
 } // namespace BLAS2
 

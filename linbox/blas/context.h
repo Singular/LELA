@@ -17,12 +17,15 @@ namespace LinBox
  * This module enables the naive algorithms used when nothing else is
  * available.
  *
- * Other computation-modules should inherit this as a virtual public
- * base so that this is always available as a fallback. It should not
- * be inherited when collecting modules together, since that would
- * lead to ambiguous instantiation.
+ * Included in every module-structure should be an empty structure
+ * called Tag. Inside Tag should be a reference to the tag of the
+ * parent-module. With this mechanism the BLAS-methods are specialised
+ * to different modules.
  */
-struct GenericModule {};
+struct GenericModule
+{
+	struct Tag {};
+};
 
 /** All modules
  *
@@ -30,7 +33,10 @@ struct GenericModule {};
  * should be specialised for each ring based on what is available.
  */
 template <class Ring>
-struct AllModules : public GenericModule {};
+struct AllModules
+{
+	struct Tag { typedef GenericModule::Tag Parent; };
+};
 
 /** Context-object
  *

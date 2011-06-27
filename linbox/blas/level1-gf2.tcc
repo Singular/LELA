@@ -22,10 +22,10 @@ namespace LinBox
 namespace BLAS1 
 {
 
-template <class reference, class Vector1, class Vector2>
-reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vector1 &x, const Vector2 &y,
-		     size_t start_idx, size_t end_idx,
-		     VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class reference, class Vector1, class Vector2>
+reference &_dot<GF2, GenericModule::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -60,10 +60,10 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
         return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
 }
 
-template <class reference, class Vector1, class Vector2>
-reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vector1 &x, const Vector2 &y,
-		     size_t start_idx, size_t end_idx,
-		     VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class reference, class Vector1, class Vector2>
+reference &_dot<GF2, GenericModule::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (y, x.size ()));
 	linbox_check (start_idx <= end_idx);
@@ -82,10 +82,10 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
 	return res;
 }
 
-template <class reference, class Vector1, class Vector2>
-reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vector1 &x, const Vector2 &y,
-		     size_t start_idx, size_t end_idx,
-		     VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class reference, class Vector1, class Vector2>
+reference &_dot<GF2, GenericModule::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (y, x.size ()));
 	linbox_check (start_idx <= end_idx);
@@ -134,10 +134,10 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
         return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
 }
 
-template <class reference, class Vector1, class Vector2>
-reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vector1 &x, const Vector2 &y,
-		     size_t start_idx, size_t end_idx,
-		     VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class reference, class Vector1, class Vector2>
+reference &_dot<GF2, GenericModule::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
+						    size_t start_idx, size_t end_idx,
+						    VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	linbox_check (start_idx <= end_idx);
 
@@ -160,9 +160,9 @@ reference &dot_impl (const GF2 &F, GenericModule &M, reference &res, const Vecto
 	return res;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<GF2, GenericModule::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
+						    VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	typedef typename std::iterator_traits<typename Vector2::const_iterator>::value_type index_type;
 
@@ -177,9 +177,9 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<GF2, GenericModule::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
+						    VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	typename Vector1::const_word_iterator i;
 	typename Vector2::index_type idx = 0;
@@ -196,9 +196,9 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<GF2, GenericModule::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
+						    VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, y.size ()));
 
@@ -213,9 +213,9 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::SparseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<GF2, GenericModule::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
+						    VectorCategories::SparseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	typedef typename std::iterator_traits<typename Vector1::const_iterator>::value_type index_type;
 
@@ -233,9 +233,9 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<GF2, GenericModule::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
+						    VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
 	typename Vector1::const_iterator i;
 
@@ -252,9 +252,9 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<GF2, GenericModule::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
+						    VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	typedef typename std::iterator_traits<typename Vector2::iterator>::value_type index_type;
 
@@ -271,9 +271,9 @@ Vector2 &copy_impl (const GF2 &F, GenericModule &M, const Vector1 &x, Vector2 &y
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, GenericModule::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
+						    VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
 	linbox_check (y.size () == x.size ());
 
@@ -290,8 +290,8 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, GenericModule::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
 		    VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, y.size ()));
@@ -306,25 +306,25 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 	return y;
 }
 
-template <class Vector>
-void fast_copy (const GF2 &F, GenericModule &M, std::vector<typename Vector::value_type> &v, Vector &w)
-	{ _copy (F, M, v, w); }
+template <class Modules, class Vector>
+void fast_copy (const GF2 &F, Modules &M, std::vector<typename Vector::value_type> &v, Vector &w)
+	{ _copy<GF2, typename Modules::Tag>::op (F, M, v, w); }
 
-template <class Vector>
-void fast_copy (const GF2 &F, GenericModule &M, HybridVector<typename Vector::Endianness, typename Vector::index_type, typename Vector::word_type> &v, Vector &w)
-	{ _copy (F, M, v, w); }
+template <class Modules, class Vector>
+void fast_copy (const GF2 &F, Modules &M, HybridVector<typename Vector::Endianness, typename Vector::index_type, typename Vector::word_type> &v, Vector &w)
+	{ _copy<GF2, typename Modules::Tag>::op (F, M, v, w); }
 
-template <class index_type>
-void fast_copy (const GF2 &F, GenericModule &M, std::vector<index_type> &v, std::vector<index_type> &w)
+template <class Modules, class index_type>
+void fast_copy (const GF2 &F, Modules &M, std::vector<index_type> &v, std::vector<index_type> &w)
 	{ std::swap (v, w); }
 
-template <class Endianness, class index_type, class word_type>
-void fast_copy (const GF2 &F, GenericModule &M, HybridVector<Endianness, index_type, word_type> &v, HybridVector<Endianness, index_type, word_type> &w)
+template <class Modules, class Endianness, class index_type, class word_type>
+void fast_copy (const GF2 &F, Modules &M, HybridVector<Endianness, index_type, word_type> &v, HybridVector<Endianness, index_type, word_type> &w)
 	{ std::swap (v, w); }
 
-template <class Vector1, class Vector2>
-Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, GenericModule::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
+						    VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	if (a) {
 		std::vector<typename Vector2::value_type> res;
@@ -344,9 +344,9 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, GenericModule::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
+						    VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
 	linbox_check (VectorWrapper::hasDim<GF2> (x, y.size ()));
 
@@ -365,9 +365,9 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 	return y;
 }
 
-template <class Vector1, class Vector2>
-Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, GenericModule::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
+						    VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	if (a) {
 		HybridVector<typename Vector2::Endianness, typename Vector2::index_type, typename Vector2::word_type> res;
@@ -400,7 +400,7 @@ Vector2 &axpy_impl (const GF2 &F, GenericModule &M, bool a, const Vector1 &x, Ve
 }
 
 template <class Modules, class Iterator, class Vector>
-Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseZeroOneVectorTag)
+Vector &_permute<GF2, GenericModule::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseZeroOneVectorTag)
 {
 	typename Vector::iterator j;
 
@@ -413,20 +413,20 @@ Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end
 }
 
 template <class Modules, class Iterator, class Vector>
-Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::HybridZeroOneVectorTag)
+Vector &_permute<GF2, GenericModule::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::HybridZeroOneVectorTag)
 {
 	::LinBox::Vector<GF2>::Sparse w;
 
-	_copy (F, M, v, w);
-	_permute (F, M, P_begin, P_end, w);
-	_copy (F, M, w, v);
+	_copy<GF2, typename Modules::Tag>::op (F, M, v, w);
+	_permute<GF2, typename Modules::Tag>::op (F, M, P_begin, P_end, w);
+	_copy<GF2, typename Modules::Tag>::op (F, M, w, v);
 
 	return v;
 }
 
-template <class Vector1, class Vector2>
-bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-		 VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+bool _equal<GF2, GenericModule::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
+						  VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
 {
 	if (x.size () != y.size ())
 		return false;
@@ -443,9 +443,9 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	return true;
 }
 
-template <class Vector1, class Vector2>
-bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-		 VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+bool _equal<GF2, GenericModule::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
+						  VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	if (x.empty () && !y.empty ())
 		return false;
@@ -475,9 +475,9 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	return true;
 }
 
-template <class Vector1, class Vector2>
-bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-		 VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+bool _equal<GF2, GenericModule::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
+						  VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	typename Vector1::const_iterator i_1;
 	typename Vector2::const_iterator i_2;
@@ -492,9 +492,9 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	return true;
 }
 
-template <class Vector1, class Vector2>
-bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-		 VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+bool _equal<GF2, GenericModule::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
+						  VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	if (x.empty () && !y.empty ())
 		return false;
@@ -532,9 +532,9 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	return true;
 }
 
-template <class Vector1, class Vector2>
-bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-		 VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+bool _equal<GF2, GenericModule::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
+						  VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
 {
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j = y.begin ();
@@ -561,9 +561,9 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	return j == y.end ();
 }
 
-template <class Vector1, class Vector2>
-bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2 &y,
-		 VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class Vector1, class Vector2>
+bool _equal<GF2, GenericModule::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
+						  VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
 {
 	typename Vector1::const_iterator i_1;
 	typename Vector2::const_iterator i_2;
@@ -578,8 +578,8 @@ bool equal_impl (const GF2 &F, GenericModule &M, const Vector1 &x, const Vector2
 	return true;
 }
 
-template <class Vector>
-bool is_zero_impl (const GF2 &F, GenericModule &M, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class Vector>
+bool _is_zero<GF2, GenericModule::Tag>::is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
 {
 	typename Vector::const_word_iterator i;
 
@@ -606,8 +606,8 @@ inline int head_in_word (word v)
 	return -1;
 }
 
-template <class reference, class Vector>
-int head_impl (const GF2 &F, GenericModule &M, reference &a, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
+template <class Modules, class reference, class Vector>
+int _head<GF2, GenericModule::Tag>::head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
 {
 	typename Vector::const_word_iterator i;
 	size_t idx;
@@ -629,8 +629,8 @@ int head_impl (const GF2 &F, GenericModule &M, reference &a, const Vector &x, Ve
 	return -1;
 }
 
-template <class reference, class Vector>
-int head_impl (const GF2 &F, GenericModule &M, reference &a, const Vector &x, VectorCategories::HybridZeroOneVectorTag)
+template <class Modules, class reference, class Vector>
+int _head<GF2, GenericModule::Tag>::head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorCategories::HybridZeroOneVectorTag)
 {
 	if (x.empty ())
 		return -1;
@@ -642,7 +642,7 @@ int head_impl (const GF2 &F, GenericModule &M, reference &a, const Vector &x, Ve
 }
 
 template <class Modules, class Vector>
-std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
+std::istream &_read<GF2, GenericModule::Tag>::read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
 {
 	typename Vector::iterator i;
 	char c;
@@ -658,7 +658,7 @@ std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vecto
 }
 
 template <class Modules, class Vector>
-std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x, VectorCategories::SparseZeroOneVectorTag)
+std::istream &_read<GF2, GenericModule::Tag>::read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x, VectorCategories::SparseZeroOneVectorTag)
 {
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type index_type;
 
@@ -683,7 +683,7 @@ std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vecto
 }
 
 template <class Modules, class Vector>
-std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
+std::ostream &_write<GF2, GenericModule::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorCategories::DenseZeroOneVectorTag)
 {
 	os << "[ ";
 
@@ -696,7 +696,7 @@ std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vect
 }
 
 template <class Modules, class Vector>
-std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorCategories::SparseZeroOneVectorTag)
+std::ostream &_write<GF2, GenericModule::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorCategories::SparseZeroOneVectorTag)
 {
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type index_type;
 
@@ -717,7 +717,7 @@ std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vect
 }
 
 template <class Modules, class Vector>
-std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorCategories::HybridZeroOneVectorTag)
+std::ostream &_write<GF2, GenericModule::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorCategories::HybridZeroOneVectorTag)
 {
 	typename Vector::const_iterator i;
 	typename Vector::index_type idx = 0;

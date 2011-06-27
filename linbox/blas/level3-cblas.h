@@ -22,6 +22,7 @@
 #include "linbox/ring/unparametric.h"
 #include "linbox/matrix/traits.h"
 #include "linbox/matrix/dense.h"
+#include "linbox/blas/level3-ll.h"
 
 namespace LinBox
 {
@@ -29,77 +30,125 @@ namespace LinBox
 namespace BLAS3
 {
 
-DenseMatrix<float> &gemm_impl (const UnparametricRing<float> &F, BLASModule &M,
-			       float a, const DenseMatrix<float> &A, const DenseMatrix<float> &B, float b, DenseMatrix<float> &C,
-			       MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
+template <>
+class _gemm<UnparametricRing<float>, BLASModule::Tag>
 {
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	cblas_sgemm (CblasRowMajor, CblasNoTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.coldim (),
-		     a, &A[0][0], A.disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
-	return C;
-}
+public:
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C)
+		{ return _gemm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
-DenseMatrix<float> &trmm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
-			       TriangularMatrixType type, bool diagIsOne,
-			       MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
-{
-	linbox_check (A.rowdim () == B.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_strmm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
-	return B;
-}
+	static DenseMatrix<float> &op (const UnparametricRing<float> &F, BLASModule &M,
+				       float a, const DenseMatrix<float> &A, const DenseMatrix<float> &B, float b, DenseMatrix<float> &C)
+	{
+		linbox_check (A.rowdim () == C.rowdim ());
+		linbox_check (B.coldim () == C.coldim ());
+		linbox_check (A.coldim () == B.rowdim ());
+		cblas_sgemm (CblasRowMajor, CblasNoTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.coldim (),
+			     a, &A[0][0], A.disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+};
 
-DenseMatrix<float> &trsm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
-			       TriangularMatrixType type, bool diagIsOne,
-			       MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
+template <>
+class _trmm<UnparametricRing<float>, BLASModule::Tag>
 {
-	linbox_check (A.rowdim () == B.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_strsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
-	return B;
-}
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+		{ return _trmm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
-DenseMatrix<double> &gemm_impl (const UnparametricRing<double> &F, BLASModule &M,
-				double a, const DenseMatrix<double> &A, const DenseMatrix<double> &B, double b, DenseMatrix<double> &C,
-				MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
-{
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	cblas_dgemm (CblasRowMajor, CblasNoTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.coldim (),
-		     a, &A[0][0], A.disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
-	return C;
-}
+	static DenseMatrix<float> &op (const UnparametricRing<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
+				       TriangularMatrixType type, bool diagIsOne)
+	{
+		linbox_check (A.rowdim () == B.rowdim ());
+		linbox_check (A.coldim () == B.rowdim ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strmm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
+		return B;
+	}
+};
 
-DenseMatrix<double> &trmm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
-				TriangularMatrixType type, bool diagIsOne,
-				MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
+template <>
+class _trsm<UnparametricRing<float>, BLASModule::Tag>
 {
-	linbox_check (A.rowdim () == B.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_dtrmm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
-	return B;
-}
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+		{ return _trsm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
-DenseMatrix<double> &trsm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
-				TriangularMatrixType type, bool diagIsOne,
-				MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
+	static DenseMatrix<float> &trsm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
+					      TriangularMatrixType type, bool diagIsOne)
+	{
+		linbox_check (A.rowdim () == B.rowdim ());
+		linbox_check (A.coldim () == B.rowdim ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
+		return B;
+	}
+};
+
+template <>
+class _gemm<UnparametricRing<double>, BLASModule::Tag>
 {
-	linbox_check (A.rowdim () == B.rowdim ());
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_dtrsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
-	return B;
-}
+public:
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C)
+		{ return _gemm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, b, C); }
+
+	static DenseMatrix<double> &gemm_impl (const UnparametricRing<double> &F, BLASModule &M,
+					       double a, const DenseMatrix<double> &A, const DenseMatrix<double> &B, double b, DenseMatrix<double> &C)
+	{
+		linbox_check (A.rowdim () == C.rowdim ());
+		linbox_check (B.coldim () == C.coldim ());
+		linbox_check (A.coldim () == B.rowdim ());
+		cblas_dgemm (CblasRowMajor, CblasNoTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.coldim (),
+			     a, &A[0][0], A.disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+};
+
+template <>
+class _trmm<UnparametricRing<double>, BLASModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+		{ return _trmm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+
+	static DenseMatrix<double> &trmm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
+					       TriangularMatrixType type, bool diagIsOne)
+	{
+		linbox_check (A.rowdim () == B.rowdim ());
+		linbox_check (A.coldim () == B.rowdim ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrmm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
+		return B;
+	}
+};
+
+template <>
+class _trsm<UnparametricRing<double>, BLASModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+		{ return _trsm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+
+	static DenseMatrix<double> &trsm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
+					       TriangularMatrixType type, bool diagIsOne)
+	{
+		linbox_check (A.rowdim () == B.rowdim ());
+		linbox_check (A.coldim () == B.rowdim ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
+		return B;
+	}
+};
 
 } // namespace BLAS3
 

@@ -32,85 +32,165 @@ namespace LinBox
 namespace BLAS3
 {
 
-M4RIMatrixBase &copy_impl (const GF2 &F, M4RIModule &M, const M4RIMatrixBase &A, M4RIMatrixBase &B,
-			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ mzd_copy (B._rep, A._rep); return B; }
+template <>
+class _copy<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &op (const GF2 &F, Modules &M, const Matrix1 &A, Matrix2 &B)
+		{ return _copy<GF2, M4RIModule::Tag::Parent>::op (F, M, A, B); }
 
-DenseMatrix<bool> &copy_impl (const GF2 &F, M4RIModule &M, const DenseMatrix<bool> &A, DenseMatrix<bool> &B,
-			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _copy (F, M, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
+	template <class Modules>
+	static M4RIMatrixBase &op (const GF2 &F, Modules &M, const M4RIMatrixBase &A, M4RIMatrixBase &B)
+		{ mzd_copy (B._rep, A._rep); return B; }
 
-DenseMatrix<bool> &copy_impl (const GF2 &F, M4RIModule &M, const M4RISubmatrix &A, DenseMatrix<bool> &B,
-			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _copy (F, M, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
+	template <class Modules>
+	static DenseMatrix<bool> &op (const GF2 &F, Modules &M, const DenseMatrix<bool> &A, DenseMatrix<bool> &B)
+		{ op (F, M, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
 
-M4RISubmatrix &copy_impl (const GF2 &F, M4RIModule &M, const M4RISubmatrix &A, M4RISubmatrix &B,
-			  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _copy (F, M, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
+	template <class Modules>
+	static DenseMatrix<bool> &op (const GF2 &F, Modules &M, const M4RISubmatrix &A, DenseMatrix<bool> &B)
+		{ op (F, M, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
 
-M4RIMatrixBase &scal_impl (const GF2 &F, M4RIModule &M, bool a, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag);
+	template <class Modules>
+	static M4RISubmatrix &op (const GF2 &F, Modules &M, const M4RISubmatrix &A, M4RISubmatrix &B)
+		{ op (F, M, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
+};
 
-DenseMatrix<bool> &scal_impl (const GF2 &F, M4RIModule &M, bool a, DenseMatrix<bool> &A, MatrixCategories::RowMatrixTag)
-	{ _scal (F, M, a, (M4RIMatrixBase &) A); return A; }
+template <>
+class _scal<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Matrix>
+	static Matrix &op (const GF2 &F, Modules &M, bool a, Matrix &A)
+		{ return _scal<GF2, M4RIModule::Tag::Parent>::op (F, M, a, A); }
 
-M4RIMatrixBase &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B,
-			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+	template <class Modules>
+	static M4RIMatrixBase &op (const GF2 &F, Modules &M, bool a, M4RIMatrixBase &A);
 
-DenseMatrix<bool> &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _axpy (F, M, a, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
+	template <class Modules>
+	static DenseMatrix<bool> &op (const GF2 &F, Modules &M, bool a, DenseMatrix<bool> &A)
+		{ op (F, M, a, (M4RIMatrixBase &) A); return A; }
+};
 
-M4RIMatrixBase &gemm_impl (const GF2 &F, M4RIModule &M,
-			   bool a, const M4RIMatrixBase &A, const M4RIMatrix &B, bool b, M4RIMatrixBase &C,
-			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+template <>
+class _axpy<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &op (const GF2 &F, Modules &M, bool a, const Matrix1 &A, Matrix2 &B)
+		{ return _axpy<GF2, M4RIModule::Tag::Parent>::op (F, M, a, A, B); }
 
-DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _gemm (F, M, a, (const M4RIMatrixBase &) A, (const M4RIMatrix &) B, b, (M4RIMatrixBase &) C); return C; }
+	template <class Modules>
+	static M4RIMatrixBase &op (const GF2 &F, Modules &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B);
 
-DenseMatrix<bool> &gemm_impl (const GF2 &F, M4RIModule &M,
-			      bool a, const M4RISubmatrix &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _gemm (F, M, a, (const M4RIMatrixBase &) A, (const M4RIMatrix &) B, b, (M4RIMatrixBase &) C); return C; }
+	template <class Modules>
+	static DenseMatrix<bool> &op (const GF2 &F, Modules &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B)
+		{ op (F, M, a, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B); return B; }
+};
 
-M4RISubmatrix &gemm_impl (const GF2 &F, M4RIModule &M,
-			  bool a, const M4RISubmatrix &A, const DenseMatrix<bool> &B, bool b, M4RISubmatrix &C,
-			  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _gemm (F, M, a, (const M4RIMatrixBase &) A, (const M4RIMatrix &) B, b, (M4RIMatrixBase &) C); return C; }
+template <>
+class _gemm<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &op (const GF2 &F, Modules &M, bool a, const Matrix1 &A, const Matrix2 &B, bool b, Matrix3 &C)
+		{ return _gemm<GF2, M4RIModule::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
-DenseMatrix<bool> &trmm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+	template <class Modules>
+	static M4RIMatrixBase &op (const GF2 &F, Modules &M,
+				   bool a, const M4RIMatrixBase &A, const M4RIMatrix &B, bool b, M4RIMatrixBase &C);
 
-M4RIMatrixBase &trsm_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B, TriangularMatrixType type, bool diagIsOne,
-			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+	template <class Modules>
+	static DenseMatrix<bool> &op (const GF2 &F, Modules &M,
+				      bool a, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C)
+		{ op (F, M, a, (const M4RIMatrixBase &) A, (const M4RIMatrix &) B, b, (M4RIMatrixBase &) C); return C; }
 
-DenseMatrix<bool> &trsm_impl (const GF2 &F, AllModules<GF2> &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ _trsm (F, (M4RIModule &) M, a, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B, type, diagIsOne); return B; }
+	template <class Modules>
+	static DenseMatrix<bool> &op (const GF2 &F, Modules &M,
+				      bool a, const M4RISubmatrix &A, const DenseMatrix<bool> &B, bool b, DenseMatrix<bool> &C)
+		{ op (F, M, a, (const M4RIMatrixBase &) A, (const M4RIMatrix &) B, b, (M4RIMatrixBase &) C); return C; }
 
-template <class Iterator>
-M4RIMatrixBase &permute_rows_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag);
+	template <class Modules>
+	static M4RISubmatrix &op (const GF2 &F, Modules &M,
+				  bool a, const M4RISubmatrix &A, const DenseMatrix<bool> &B, bool b, M4RISubmatrix &C)
+		{ op (F, M, a, (const M4RIMatrixBase &) A, (const M4RIMatrix &) B, b, (M4RIMatrixBase &) C); return C; }
+};
 
-template <class Iterator>
-M4RIMatrixBase &permute_cols_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag);
+template <>
+class _trsm<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &op (const GF2 &F, Modules &M, bool a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+		{ return _trsm<GF2, M4RIModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
-bool equal_impl (const GF2 &F, M4RIModule &M, const M4RIMatrix &A, const M4RIMatrix &B,
-		 MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ return mzd_equal (A._rep, B._rep); }
+	template <class Modules>
+	static M4RIMatrixBase &op (const GF2 &F, Modules &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B, TriangularMatrixType type, bool diagIsOne);
 
-bool equal_impl (const GF2 &F, M4RIModule &M, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B,
-		 MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-	{ return _equal (F, M, (const M4RIMatrix &) A, (const M4RIMatrix &) B); }
+	template <class Modules>
+	static DenseMatrix<bool> &op (const GF2 &F, Modules &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne)
+		{ op (F, (Modules &) M, a, (const M4RIMatrixBase &) A, (M4RIMatrixBase &) B, type, diagIsOne); return B; }
+};
 
-bool is_zero_impl (const GF2 &F, M4RIModule &M, const M4RIMatrixBase &A, MatrixCategories::RowMatrixTag)
-	{ return mzd_is_zero (A._rep); }
+template <>
+class _permute_rows<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Iterator, class Matrix>
+	static Matrix &op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A)
+		{ return _permute_rows<GF2, M4RIModule::Tag::Parent>::op (F, M, P_begin, P_end, A); }
 
-bool is_zero_impl (const GF2 &F, M4RIModule &M, const DenseMatrix<bool> &A, MatrixCategories::RowMatrixTag)
-	{ return _is_zero (F, M, (const M4RIMatrixBase &) A); }
+	template <class Modules, class Iterator>
+	static M4RIMatrixBase &op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A);
+};
 
-bool is_zero_impl (const GF2 &F, M4RIModule &M, const M4RISubmatrix &A, MatrixCategories::RowMatrixTag)
-	{ return _is_zero (F, M, (const M4RIMatrixBase &) A); }
+template <>
+class _permute_cols<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Iterator, class Matrix>
+	static Matrix &op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A)
+		{ return _permute_cols<GF2, M4RIModule::Tag::Parent>::op (F, M, P_begin, P_end, A); }
+
+	template <class Modules, class Iterator>
+	static M4RIMatrixBase &op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A);
+};
+
+template <>
+class _equal<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1, class Matrix2>
+	static bool op (const GF2 &F, Modules &M, const Matrix1 &A, const Matrix2 &B)
+		{ return _equal<GF2, M4RIModule::Tag::Parent>::op (F, M, A, B); }
+
+	template <class Modules>
+	static bool op (const GF2 &F, Modules &M, const M4RIMatrix &A, const M4RIMatrix &B)
+		{ return mzd_equal (A._rep, B._rep); }
+
+	template <class Modules>
+	static bool op (const GF2 &F, Modules &M, const DenseMatrix<bool> &A, const DenseMatrix<bool> &B)
+		{ return op (F, M, (const M4RIMatrix &) A, (const M4RIMatrix &) B); }
+};
+
+template <>
+class _is_zero<GF2, M4RIModule::Tag>
+{
+public:
+	template <class Modules, class Matrix1>
+	static bool op (const GF2 &F, Modules &M, const Matrix1 &A)
+		{ return _is_zero<GF2, M4RIModule::Tag::Parent>::op (F, M, A); }
+
+	bool op (const GF2 &F, M4RIModule &M, const M4RIMatrixBase &A)
+		{ return mzd_is_zero (A._rep); }
+
+	bool op (const GF2 &F, M4RIModule &M, const DenseMatrix<bool> &A)
+		{ return op (F, M, (const M4RIMatrixBase &) A); }
+
+	bool op (const GF2 &F, M4RIModule &M, const M4RISubmatrix &A)
+		{ return op (F, M, (const M4RIMatrixBase &) A); }
+};
 
 } // namespace BLAS3
 

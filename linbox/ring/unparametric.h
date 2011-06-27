@@ -398,13 +398,22 @@ private:
 
 };
 	
-struct BLASModule : public GenericModule {};
+struct BLASModule : public GenericModule
+{
+	struct Tag { typedef GenericModule::Tag Parent; };
+};
 
 template <>
-struct AllModules<UnparametricRing<float> > : public BLASModule {};
+struct AllModules<UnparametricRing<float> > : public BLASModule
+{
+	struct Tag { typedef BLASModule::Tag Parent; };
+};
 
 template <>
-struct AllModules<UnparametricRing<double> > : public BLASModule {};
+struct AllModules<UnparametricRing<double> > : public BLASModule
+{
+	struct Tag { typedef BLASModule::Tag Parent; };
+};
 
 } // namespace LinBox
 

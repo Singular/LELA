@@ -1725,23 +1725,32 @@ inline integer& Modular<integer>::init (integer& x, const double& y) const
 template <class Element>
 struct ZpModule : public GenericModule
 {
+	struct Tag { typedef GenericModule::Tag Parent; };
+
 	mutable std::vector<uint64> _tmp;
 };
 
 template <>
 struct ZpModule<float> : public GenericModule
 {
+	struct Tag { typedef GenericModule::Tag Parent; };
+
 	size_t _nmax;
 };
 
 template <>
 struct ZpModule<double> : public GenericModule
 {
+	struct Tag { typedef GenericModule::Tag Parent; };
+
 	size_t _nmax;
 };
 
 template <class Element>
-struct AllModules<Modular<Element> > : public ZpModule<Element> {};
+struct AllModules<Modular<Element> > : public ZpModule<Element>
+{
+	struct Tag { typedef typename ZpModule<Element>::Tag Parent; };
+};
 
 } // namespace LinBox
 

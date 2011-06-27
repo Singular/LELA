@@ -46,7 +46,7 @@ Matrix3 &StrassenWinograd::gemm_res (const Ring &R, Modules &M, const typename R
 		typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0,     2 * k, 2 * m,               A.coldim () - 2 * k);
 		typename Matrix1::ConstAlignedSubmatrixType B21 (B, 2 * k, 0,     B.rowdim () - 2 * k, 2 * n);
 
-		BLAS3::_gemm (R, M, a, A12, B21, R.one (), C11);
+		BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A12, B21, R.one (), C11);
 	}
 
 	if (2 * n < C.coldim ()) {
@@ -54,13 +54,13 @@ Matrix3 &StrassenWinograd::gemm_res (const Ring &R, Modules &M, const typename R
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0,     0,     2 * m,               2 * k);
 		typename Matrix1::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
 
-		BLAS3::_gemm (R, M, a, A11, B12, b, C12);
+		BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A11, B12, b, C12);
 
 		if (2 * k < A.coldim ()) {
 			typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0,     2 * k, 2 * m,               A.coldim () - 2 * k);
 			typename Matrix1::ConstAlignedSubmatrixType B22 (B, 2 * k, 2 * n, B.rowdim () - 2 * k, B.coldim () - 2 * n);
 
-			BLAS3::_gemm (R, M, a, A12, B22, R.one (), C12);
+			BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A12, B22, R.one (), C12);
 		}
 	}
 
@@ -69,13 +69,13 @@ Matrix3 &StrassenWinograd::gemm_res (const Ring &R, Modules &M, const typename R
 		typename Matrix1::ConstAlignedSubmatrixType A21 (A, 2 * m, 0,     A.rowdim () - 2 * m, 2 * k);
 		typename Matrix1::ConstAlignedSubmatrixType B11 (B, 0,     0,     2 * k,               2 * n);
 
-		BLAS3::_gemm (R, M, a, A21, B11, b, C21);
+		BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A21, B11, b, C21);
 
 		if (2 * k < A.coldim ()) {
 			typename Matrix1::ConstAlignedSubmatrixType A22 (A, 2 * m, 2 * k, A.rowdim () - 2 * m, A.coldim () - 2 * k);
 			typename Matrix1::ConstAlignedSubmatrixType B21 (B, 2 * k, 0,     B.rowdim () - 2 * k, 2 * n);
 
-			BLAS3::_gemm (R, M, a, A22, B21, R.one (), C21);
+			BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A22, B21, R.one (), C21);
 		}
 	}
 
@@ -84,13 +84,13 @@ Matrix3 &StrassenWinograd::gemm_res (const Ring &R, Modules &M, const typename R
 		typename Matrix1::ConstAlignedSubmatrixType A21 (A, 2 * m, 0,     A.rowdim () - 2 * m, 2 * k);
 		typename Matrix1::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
 
-		BLAS3::_gemm (R, M, a, A21, B12, b, C22);
+		BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A21, B12, b, C22);
 
 		if (2 * k < A.coldim ()) {
 			typename Matrix1::ConstAlignedSubmatrixType A22 (A, 2 * m, 2 * k, A.rowdim () - 2 * m, A.coldim () - 2 * k);
 			typename Matrix1::ConstAlignedSubmatrixType B22 (B, 2 * k, 2 * n, B.rowdim () - 2 * k, B.coldim () - 2 * n);
 
-			BLAS3::_gemm (R, M, a, A22, B22, R.one (), C22);
+			BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A22, B22, R.one (), C22);
 		}
 	}
 
@@ -107,7 +107,7 @@ Matrix3 &StrassenWinograd::mul (const Ring &R, Modules &M, const typename Ring::
 	size_t m = align_row<Matrix1, Matrix3> (C.rowdim () / 2), k = align_rowcol<Matrix1, Matrix2> (A.coldim () / 2), n = align_col<Matrix2, Matrix3> (C.coldim () / 2);
 
 	if (m < _cutoff || k < _cutoff || n < _cutoff)
-		return BLAS3::_gemm (R, M, a, A, B, R.zero (), C);
+		return BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A, B, R.zero (), C);
 	else {
 		typename Matrix3::ContainerType X1 (m, std::max (k, n)), X2 (k, n);
 
@@ -129,52 +129,52 @@ Matrix3 &StrassenWinograd::mul (const Ring &R, Modules &M, const typename Ring::
 		typename Matrix3::ContainerType::AlignedSubmatrixType X11 (X1, 0, 0, m, k);
 		typename Matrix3::ContainerType::AlignedSubmatrixType X12 (X1, 0, 0, m, n);
 
-		BLAS3::_copy (R, M, A11, X11);
-		BLAS3::_axpy (R, M, R.minusOne (), A21, X11);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, A11, X11);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), A21, X11);
 
-		BLAS3::_copy (R, M, B22, X2);
-		BLAS3::_axpy (R, M, R.minusOne (), B12, X2);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, B22, X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), B12, X2);
 
 		mul (R, M, R.one (), X11, X2, C21);
 
-		BLAS3::_copy (R, M, A21, X11);
-		BLAS3::_axpy (R, M, R.one (), A22, X11);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, A21, X11);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), A22, X11);
 
-		BLAS3::_copy (R, M, B12, X2);
-		BLAS3::_axpy (R, M, R.minusOne (), B11, X2);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, B12, X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), B11, X2);
 
 		mul (R, M, R.one (), X11, X2, C22);
 
-		BLAS3::_axpy (R, M, R.minusOne (), A11, X11);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), A11, X11);
 
-		BLAS3::_scal (R, M, R.minusOne (), X2);
-		BLAS3::_axpy (R, M, R.one (), B22, X2);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), B22, X2);
 
 		mul (R, M, R.one (), X11, X2, C12);
 
-		BLAS3::_scal (R, M, R.minusOne (), X11);
-		BLAS3::_axpy (R, M, R.one (), A12, X11);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), X11);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), A12, X11);
 
 		mul (R, M, R.one (), X11, B22, C11);
 		mul (R, M, R.one (), A11, B11, X12);
 
-		BLAS3::_axpy (R, M, R.one (), X12, C12);
-		BLAS3::_axpy (R, M, R.one (), C12, C21);
-		BLAS3::_axpy (R, M, R.one (), C22, C12);
-		BLAS3::_axpy (R, M, R.one (), C21, C22);
-		BLAS3::_axpy (R, M, R.one (), C11, C12);
-		BLAS3::_axpy (R, M, R.minusOne (), B21, X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X12, C12);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), C12, C21);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), C22, C12);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), C21, C22);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), C11, C12);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), B21, X2);
 
 		mul (R, M, R.one (), A22, X2, C11);
 
-		BLAS3::_axpy (R, M, R.minusOne (), C11, C21);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), C11, C21);
 
 		mul (R, M, R.one (), A12, B21, C11);
 
-		BLAS3::_axpy (R, M, R.one (), X1, C11);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X1, C11);
 
 		typename Matrix3::AlignedSubmatrixType C_part (C, 0, 0, 2 * m, 2 * n);
-		BLAS3::_scal (R, M, a, C_part);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, a, C_part);
 
 		return gemm_res (R, M, a, A, B, R.zero (), C, m, k, n);
 	}
@@ -190,7 +190,7 @@ Matrix3 &StrassenWinograd::addmul (const Ring &R, Modules &M, const typename Rin
 	size_t m = align_row<Matrix1, Matrix3> (C.rowdim () / 2), k = align_rowcol<Matrix1, Matrix2> (A.coldim () / 2), n = align_col<Matrix2, Matrix3> (C.coldim () / 2);
 
 	if (m < _cutoff || k < _cutoff || n < _cutoff)
-		return BLAS3::_gemm (R, M, a, A, B, b, C);
+		return BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, a, A, B, b, C);
 	else {
 		typename Matrix3::ContainerType X1 (m, k), X2 (k, n), X3 (m, n);
 
@@ -209,58 +209,58 @@ Matrix3 &StrassenWinograd::addmul (const Ring &R, Modules &M, const typename Rin
 		typename Matrix3::AlignedSubmatrixType C21 (C, m, 0, m, n);
 		typename Matrix3::AlignedSubmatrixType C22 (C, m, n, m, n);
 
-		BLAS3::_copy (R, M, A21, X1);
-		BLAS3::_axpy (R, M, R.one (), A22, X1);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, A21, X1);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), A22, X1);
 
-		BLAS3::_copy (R, M, B12, X2);
-		BLAS3::_axpy (R, M, R.minusOne (), B11, X2);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, B12, X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), B11, X2);
 
 		mul (R, M, a, X1, X2, X3);
 
-		BLAS3::_scal (R, M, b, C22);
-		BLAS3::_axpy (R, M, R.one (), X3, C22);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, b, C22);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X3, C22);
 
-		BLAS3::_scal (R, M, b, C12);
-		BLAS3::_axpy (R, M, R.one (), X3, C12);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, b, C12);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X3, C12);
 
-		BLAS3::_axpy (R, M, R.minusOne (), A11, X1);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), A11, X1);
 
-		BLAS3::_scal (R, M, R.minusOne (), X2);
-		BLAS3::_axpy (R, M, R.one (), B22, X2);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), B22, X2);
 
 		mul (R, M, a, A11, B11, X3);
 
-		BLAS3::_scal (R, M, b, C11);
-		BLAS3::_axpy (R, M, R.one (), X3, C11);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, b, C11);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X3, C11);
 
 		addmul (R, M, a, X1, X2, R.one (), X3);
 		addmul (R, M, a, A12, B21, R.one (), C11);
 
-		BLAS3::_scal (R, M, R.minusOne (), X1);
-		BLAS3::_axpy (R, M, R.one (), A12, X1);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), X1);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), A12, X1);
 
-		BLAS3::_axpy (R, M, R.minusOne (), B21, X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), B21, X2);
 
 		addmul (R, M, a, X1, B22, R.one (), C12);
 
-		BLAS3::_axpy (R, M, R.one (), X3, C12);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X3, C12);
 
 		typename Ring::Element neg_b;
 		R.neg (neg_b, b);
 
 		addmul (R, M, a, A22, X2, neg_b, C21);
 
-		BLAS3::_copy (R, M, A11, X1);
-		BLAS3::_axpy (R, M, R.minusOne (), A21, X1);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, A11, X1);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), A21, X1);
 
-		BLAS3::_copy (R, M, B22, X2);
-		BLAS3::_axpy (R, M, R.minusOne (), B12, X2);
+		BLAS3::_copy<Ring, typename Modules::Tag>::op (R, M, B22, X2);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), B12, X2);
 
 		addmul (R, M, a, X1, X2, R.one (), X3);
 
-		BLAS3::_axpy (R, M, R.one (), X3, C22);
-		BLAS3::_scal (R, M, R.minusOne (), C21);
-		BLAS3::_axpy (R, M, R.one (), X3, C21);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X3, C22);
+		BLAS3::_scal<Ring, typename Modules::Tag>::op (R, M, R.minusOne (), C21);
+		BLAS3::_axpy<Ring, typename Modules::Tag>::op (R, M, R.one (), X3, C21);
 
 		return gemm_res (R, M, a, A, B, b, C, m, k, n);
 	}

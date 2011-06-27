@@ -153,6 +153,10 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
 	typedef typename Matrix::Row Col;
 	typedef typename Matrix::Col Row;
 
+	typedef typename Matrix::ConstRow ConstColumn;
+	typedef typename Matrix::ConstRow ConstCol;
+	typedef typename Matrix::ConstCol ConstRow;
+
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Matrix> ConstSubmatrixType;
 	typedef SubmatrixType AlignedSubmatrixType;
@@ -218,6 +222,9 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
 	typedef typename Matrix::Row Column;
 	typedef typename Matrix::Row Col;
 
+	typedef typename Matrix::ConstRow ConstColumn;
+	typedef typename Matrix::ConstRow ConstCol;
+
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Matrix> ConstSubmatrixType;
 	typedef SubmatrixType AlignedSubmatrixType;
@@ -277,6 +284,7 @@ class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
 	typedef typename Matrix::ConstRawIndexedIterator ConstRawIndexedIterator;
 
 	typedef typename Matrix::Col Row;
+	typedef typename Matrix::ConstCol ConstRow;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Matrix> ConstSubmatrixType;

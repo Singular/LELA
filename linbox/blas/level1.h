@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include "linbox/blas/context.h"
-#include "linbox/blas/level1-ll.tcc"
+#include "linbox/blas/level1-ll.h"
 
 namespace LinBox
 {
@@ -45,7 +45,7 @@ namespace BLAS1
 template <class reference, class Ring, class Modules, class Vector1, class Vector2>
 reference &dot (Context<Ring, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y,
 		size_t start_idx = 0, size_t end_idx = (size_t) -1)
-	{ return _dot (ctx.F, ctx.M, res, x, y, start_idx, end_idx); }
+	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res, x, y, start_idx, end_idx); }
 
 /** Swap two vectors
  *
@@ -58,7 +58,7 @@ reference &dot (Context<Ring, Modules> &ctx, reference &res, const Vector1 &x, c
 
 template <class Ring, class Modules, class Vector>
 void swap (Context<Ring, Modules> &ctx, Vector &x, Vector &y)
-	{ _swap (ctx.F, ctx.M, x, y); }
+	{ _swap<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, x, y); }
 
 /** Copy x into y
  *
@@ -72,7 +72,7 @@ void swap (Context<Ring, Modules> &ctx, Vector &x, Vector &y)
 
 template <class Ring, class Modules, class Vector1, class Vector2>
 Vector2 &copy (Context<Ring, Modules> &ctx, const Vector1 &x, Vector2 &y)
-	{ return _copy (ctx.F, ctx.M, x, y); }
+	{ return _copy<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, x, y); }
 
 /** y -> ax + y
  *
@@ -87,7 +87,7 @@ Vector2 &copy (Context<Ring, Modules> &ctx, const Vector1 &x, Vector2 &y)
 
 template <class Ring, class Modules, class Vector1, class Vector2>
 Vector2 &axpy (Context<Ring, Modules> &ctx, const typename Ring::Element &a, const Vector1 &x, Vector2 &y)
-	{ return _axpy (ctx.F, ctx.M, a, x, y); }
+	{ return _axpy<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, x, y); }
 
 /** x -> ax
  *
@@ -98,7 +98,7 @@ Vector2 &axpy (Context<Ring, Modules> &ctx, const typename Ring::Element &a, con
 
 template <class Ring, class Modules, class Vector>
 Vector &scal (Context<Ring, Modules> &ctx, const typename Ring::Element &a, Vector &x)
-	{ return _scal (ctx.F, ctx.M, a, x); }
+	{ return _scal<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, x); }
 
 /** Permute entries of v, v <- Pv, where P is a permutation
  *
@@ -110,7 +110,7 @@ Vector &scal (Context<Ring, Modules> &ctx, const typename Ring::Element &a, Vect
 
 template <class Ring, class Modules, class Iterator, class Vector>
 Vector &permute (Context<Ring, Modules> &ctx, Iterator P_begin, Iterator P_end, Vector &v)
-	{ return _permute (ctx.F, ctx.M, P_begin, P_end, v); }
+	{ return _permute<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, P_begin, P_end, v); }
 
 //@} Operations on vectors
 
@@ -129,7 +129,7 @@ Vector &permute (Context<Ring, Modules> &ctx, Iterator P_begin, Iterator P_end, 
 
 template <class Ring, class Modules, class Vector1, class Vector2>
 bool equal (Context<Ring, Modules> &ctx, const Vector1 &x, const Vector2 &y)
-	{ return _equal (ctx.F, ctx.M, x, y); }
+	{ return _equal<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, x, y); }
 
 /** Test whether x is the zero vector
  *
@@ -140,7 +140,7 @@ bool equal (Context<Ring, Modules> &ctx, const Vector1 &x, const Vector2 &y)
 
 template <class Ring, class Modules, class Vector>
 bool is_zero (Context<Ring, Modules> &ctx, const Vector &x)
-	{ return _is_zero (ctx.F, ctx.M, x); }
+	{ return _is_zero<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, x); }
 
 /** Find the first nonzero element of the vector and return its index, or -1 if the vector is zero
  *
@@ -152,7 +152,7 @@ bool is_zero (Context<Ring, Modules> &ctx, const Vector &x)
 
 template <class Ring, class Modules, class Vector>
 int head (Context<Ring, Modules> &ctx, typename Ring::Element &a, const Vector &x)
-	{ return _head (ctx.F, ctx.M, a, x); }
+	{ return _head<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, x); }
 
 //@} Queries on vectors
 
@@ -169,7 +169,7 @@ int head (Context<Ring, Modules> &ctx, typename Ring::Element &a, const Vector &
 
 template <class Ring, class Modules, class Vector>
 std::istream &read (Context<Ring, Modules> &ctx, std::istream &is, Vector &v)
-	{ return _read (ctx.F, ctx.M, is, v); }
+	{ return _read<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, is, v); }
 
 /** Write the given vector to the given stream
  *
@@ -181,7 +181,7 @@ std::istream &read (Context<Ring, Modules> &ctx, std::istream &is, Vector &v)
 
 template <class Ring, class Modules, class Vector>
 std::ostream &write (Context<Ring, Modules> &ctx, std::ostream &os, const Vector &v)
-	{ return _write (ctx.F, ctx.M, os, v); }
+	{ return _write<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, os, v); }
 
 /** Output the given permutation to the given stream
  *

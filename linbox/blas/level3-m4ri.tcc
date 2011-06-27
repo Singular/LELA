@@ -19,7 +19,8 @@ namespace LinBox
 namespace BLAS3
 {
 
-M4RIMatrixBase &scal_impl (const GF2 &F, M4RIModule &M, bool a, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag)
+template <class Modules>
+M4RIMatrixBase &_scal<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool a, M4RIMatrixBase &A)
 {
 	size_t i;
 
@@ -32,9 +33,8 @@ M4RIMatrixBase &scal_impl (const GF2 &F, M4RIModule &M, bool a, M4RIMatrixBase &
 	return A;
 }
 
-
-M4RIMatrixBase &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Modules>
+M4RIMatrixBase &_axpy<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -48,9 +48,9 @@ M4RIMatrixBase &axpy_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrix
 	return B;
 }
 
-M4RIMatrixBase &gemm_impl (const GF2 &F, M4RIModule &M,
-			   bool a, const M4RIMatrixBase &A, const M4RIMatrix &B, bool b, M4RIMatrixBase &C,
-			   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Modules>
+M4RIMatrixBase &_gemm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M,
+						 bool a, const M4RIMatrixBase &A, const M4RIMatrix &B, bool b, M4RIMatrixBase &C)
 {
 	linbox_check (A.rowdim () == C.rowdim ());
 	linbox_check (A.coldim () == B.rowdim ());
@@ -66,59 +66,13 @@ M4RIMatrixBase &gemm_impl (const GF2 &F, M4RIModule &M,
 			mzd_mul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
 	}
 	else if (!b)
-		_scal (F, M, false, C);
+		_scal<GF2, typename Modules::Tag>::op (F, M, false, C);
 
 	return C;
 }
 
-#if 0
-DenseMatrix<bool> &trmm_impl (const GF2 &F, M4RIModule &M, bool a, const DenseMatrix<bool> &A, DenseMatrix<bool> &B, TriangularMatrixType type, bool diagIsOne,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
-{
-	linbox_check (A.rowdim () == B.rowdim ());
-	linbox_check (A.rowdim () == A.coldim ());
-
-	// Our method doesn't work if the diagonal isn't one, so just fall back to the generic version in that case
-	if (!diagIsOne) {
-		GenericModule M1 (M);
-		return trmm_impl (F, M1, a, A, B, type, false, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ());
-	}
-
-	if (A.rowdim () == 0 || A.coldim () == 0 || B.coldim () == 0)
-		return B;
-
-	if (a) {
-		// Since M4RI doesn't seem to have in-place
-		// trmm, we'll do it by two calls to
-		// trsm. First we construct an
-		// identity-matrix, then we use trsm to get
-		// the inverse of A, then we use trsm again to
-		// construct AB.
-		M._tmp.resize (A.rowdim (), A.coldim ());
-
-		DenseMatrix<bool>::RowIterator i;
-		StandardBasisStream<GF2, DenseMatrix<bool>::Row> stream (F, A.rowdim ());
-
-		for (i = M._tmp.rowBegin (); i != M._tmp.rowEnd (); ++i)
-			stream >> *i;
-
-		if (type == UpperTriangular) {
-			mzd_trsm_upper_left (A._rep, M._tmp._rep, STRASSEN_MUL_CUTOFF);
-			mzd_trsm_upper_left (M._tmp._rep, B._rep, STRASSEN_MUL_CUTOFF);
-		}
-		else if (type == LowerTriangular) {
-			mzd_trsm_lower_left (A._rep, M._tmp._rep, STRASSEN_MUL_CUTOFF);
-			mzd_trsm_lower_left (M._tmp._rep, B._rep, STRASSEN_MUL_CUTOFF);
-		}
-	} else
-		_scal (F, M, false, B);
-
-	return B;
-}
-#endif
-
-M4RIMatrixBase &trsm_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B, TriangularMatrixType type, bool diagIsOne,
-			      MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+template <class Modules>
+M4RIMatrixBase &_trsm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B, TriangularMatrixType type, bool diagIsOne)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.rowdim () == A.coldim ());
@@ -133,7 +87,7 @@ M4RIMatrixBase &trsm_impl (const GF2 &F, M4RIModule &M, bool a, const M4RIMatrix
 			mzd_trsm_lower_left (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
 		// FIXME: Should throw error at this point -- invalid type
 	} else
-		_scal (F, M, false, B);
+		_scal<GF2, typename Modules::Tag>::op (F, M, false, B);
 
 	return B;
 }
@@ -155,8 +109,8 @@ mzp_t *make_m4ri_permutation (Iterator P_start, Iterator P_end, size_t len)
 	return P;
 }
 
-template <class Iterator>
-M4RIMatrixBase &permute_rows_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag)
+template <class Modules, class Iterator>
+M4RIMatrixBase &_permute_rows<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A)
 {
 	mzp_t *P = make_m4ri_permutation (P_begin, P_end, A.rowdim ());
 	mzd_apply_p_left (A._rep, P);
@@ -164,8 +118,8 @@ M4RIMatrixBase &permute_rows_impl (const GF2 &F, M4RIModule &M, Iterator P_begin
 	return A;
 }
 
-template <class Iterator>
-M4RIMatrixBase &permute_cols_impl (const GF2 &F, M4RIModule &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A, MatrixCategories::RowMatrixTag)
+template <class Modules, class Iterator>
+M4RIMatrixBase &_permute_cols<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A)
 {
 	mzp_t *P = make_m4ri_permutation (P_begin, P_end, A.coldim ());
 	mzd_apply_p_right (A._rep, P);

@@ -14,6 +14,7 @@
 #include "linbox/blas/context.h"
 #include "linbox/vector/traits.h"
 #include "linbox/matrix/traits.h"
+#include "linbox/blas/level2-ll.h"
 
 namespace LinBox
 {
@@ -21,68 +22,155 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
-			 uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-			 size_t start_idx, size_t end_idx,
-			 VectorCategories::DenseVectorTag);
+template <>
+class _gemv<Modular<uint8>, ZpModule<uint8>::Tag>
+{
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
+					uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
+					size_t start_idx, size_t end_idx,
+					VectorCategories::DenseVectorTag);
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
-			 uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-			 size_t start_idx, size_t end_idx,
-			 VectorCategories::SparseVectorTag);
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
+					uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
+					size_t start_idx, size_t end_idx,
+					VectorCategories::SparseVectorTag);
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Modular<uint8> &F, ZpModule<uint8> &M,
-		    uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::ColMatrixTag,
-		    VectorCategories::DenseVectorTag,
-		    VectorCategories::GenericVectorTag)
-	{ return gemv_col_dense (F, M, a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Modular<uint8>, typename Matrix::Column>::VectorCategory ()); }
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const Modular<uint8> &F, ZpModule<uint8> &M,
+				   uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::ColMatrixTag,
+				   VectorCategories::DenseVectorTag,
+				   VectorCategories::GenericVectorTag)
+		{ return gemv_col_dense (F, M, a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Modular<uint8>, typename Matrix::Column>::VectorCategory ()); }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
-			 uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-			 size_t start_idx, size_t end_idx,
-			 VectorCategories::DenseVectorTag);
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const Modular<uint8> &F, ZpModule<uint8> &M,
+				   uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::BlackboxTag,
+				   VectorCategories::GenericVectorTag,
+				   VectorCategories::GenericVectorTag)
+		{ return _gemv<Modular<uint8>, ZpModule<uint8>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
-			 uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-			 size_t start_idx, size_t end_idx,
-			 VectorCategories::SparseVectorTag);
+public:
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &op (const Modular<uint8> &F,
+			    Modules              &M,
+			    uint8                 a,
+			    const Matrix         &A,
+			    const Vector1        &x,
+			    uint8                 b,
+			    Vector2              &y,
+			    size_t                start_idx = 0,
+			    size_t                end_idx = (size_t) -1)
+		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<Modular<uint8>, Vector1>::VectorCategory (),
+				    typename VectorTraits<Modular<uint8>, Vector2>::VectorCategory ()); }
+};
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Modular<uint16> &F, ZpModule<uint16> &M,
-		    uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::ColMatrixTag,
-		    VectorCategories::DenseVectorTag,
-		    VectorCategories::GenericVectorTag)
-	{ return gemv_col_dense (F, M, a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Modular<uint16>, typename Matrix::Column>::VectorCategory ()); }
+template <>
+class _gemv<Modular<uint16>, ZpModule<uint16>::Tag>
+{
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
+					uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
+					size_t start_idx, size_t end_idx,
+					VectorCategories::DenseVectorTag);
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
-			 uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
-			 size_t start_idx, size_t end_idx,
-			 VectorCategories::DenseVectorTag);
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
+					uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
+					size_t start_idx, size_t end_idx,
+					VectorCategories::SparseVectorTag);
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
-			 uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
-			 size_t start_idx, size_t end_idx,
-			 VectorCategories::SparseVectorTag);
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const Modular<uint16> &F, ZpModule<uint16> &M,
+				   uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::ColMatrixTag,
+				   VectorCategories::DenseVectorTag,
+				   VectorCategories::GenericVectorTag)
+		{ return gemv_col_dense (F, M, a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Modular<uint16>, typename Matrix::Column>::VectorCategory ()); }
 
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &gemv_impl (const Modular<uint32> &F, ZpModule<uint32> &M,
-		    uint32 &a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::ColMatrixTag,
-		    VectorCategories::DenseVectorTag,
-		    VectorCategories::GenericVectorTag)
-	{ return gemv_col_dense (F, M, a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Modular<uint32>, typename Matrix::Column>::VectorCategory ()); }
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const Modular<uint16> &F, ZpModule<uint16> &M,
+				   uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::BlackboxTag,
+				   VectorCategories::GenericVectorTag,
+				   VectorCategories::GenericVectorTag)
+		{ return _gemv<Modular<uint16>, ZpModule<uint16>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+
+public:
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &op (const Modular<uint16> &F,
+			    Modules               &M,
+			    uint16                 a,
+			    const Matrix          &A,
+			    const Vector1         &x,
+			    uint16                 b,
+			    Vector2               &y,
+			    size_t                 start_idx = 0,
+			    size_t                 end_idx = (size_t) -1)
+		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<Modular<uint16>, Vector1>::VectorCategory (),
+				    typename VectorTraits<Modular<uint16>, Vector2>::VectorCategory ()); }
+};
+
+template <>
+class _gemv<Modular<uint32>, ZpModule<uint32>::Tag>
+{
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
+					uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
+					size_t start_idx, size_t end_idx,
+					VectorCategories::DenseVectorTag);
+
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
+					uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
+					size_t start_idx, size_t end_idx,
+					VectorCategories::SparseVectorTag);
+
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const Modular<uint32> &F, ZpModule<uint32> &M,
+				   uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::ColMatrixTag,
+				   VectorCategories::DenseVectorTag,
+				   VectorCategories::GenericVectorTag)
+		{ return gemv_col_dense (F, M, a, A, x, b, y, start_idx, end_idx, typename VectorTraits<Modular<uint32>, typename Matrix::Column>::VectorCategory ()); }
+
+	template <class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const Modular<uint32> &F, ZpModule<uint32> &M,
+				   uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::BlackboxTag,
+				   VectorCategories::GenericVectorTag,
+				   VectorCategories::GenericVectorTag)
+		{ return _gemv<Modular<uint32>, ZpModule<uint32>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+
+public:
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &op (const Modular<uint32> &F,
+			    Modules               &M,
+			    uint32                 a,
+			    const Matrix          &A,
+			    const Vector1         &x,
+			    uint32                 b,
+			    Vector2               &y,
+			    size_t                 start_idx = 0,
+			    size_t                 end_idx = (size_t) -1)
+		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<Modular<uint32>, Vector1>::VectorCategory (),
+				    typename VectorTraits<Modular<uint32>, Vector2>::VectorCategory ()); }
+};
 
 } // namespace BLAS2
 

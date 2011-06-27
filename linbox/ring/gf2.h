@@ -630,16 +630,24 @@ struct RawVector<bool>
 
 struct M4RIModule : public GenericModule
 {
+	struct Tag { typedef GenericModule::Tag Parent; };
+
 	M4RIMatrix _tmp;
 };
 
 template <>
-struct AllModules<GF2> : public M4RIModule {};
+struct AllModules<GF2> : public M4RIModule
+{
+	struct Tag { typedef M4RIModule::Tag Parent; };
+};
 
 #else // !__LINBOX_HAVE_M4RI
 
 template <>
-struct AllModules<GF2> : public GenericModule {};
+struct AllModules<GF2> : public GenericModule
+{
+	struct Tag { typedef GenericModule::Tag Parent; };
+};
 
 #endif // __LINBOX_HAVE_M4RI
 
