@@ -1,0 +1,107 @@
+Some notes on the structure of the BLAS-interface
+
+This interface was designed with the following goals:
+
+ * There are different methods for approaching calculations, which
+   include high-level algorithms (e.g. Strassen-Winograd fast
+   matrix-multiplication) as well as library-wrappers (e.g. M4RI,
+   CBLAS).
+
+ * It should be possible to place these different methods into a
+   hierarchy so that an implementation at each level can refer
+   generically to the next lower level (e.g. Strassen-Winograd can
+   call a lower-level multiplication-routine when the matrix is too
+   small to benefit from fast multiplication).
+
+ * The resolution of which method is called should take place at
+   compile-time.
+
+ * The hierarchy which is invoked should depend on the ring over which
+   computations are taking place as well as the configuration of the
+   library.
+
+ * Code which uses the interface should not have to be aware of the
+   nature -- or even the existence -- of the hierachy. In particular,
+   the same generic code should work in all cases. The user should not
+   be required to understand this mechanism at all.
+
+ * Individual methods must as much as possible be generic with respect
+   to matrix- and vector-type.
+
+ * There must always exist a generic "fall-back" which has no external
+   dependencies and can be used when no higher-level module implements
+   the require functionality.
+
+ * It must be possible that the generic methods at the lowest level
+   may generically invoke methods at the top of the stack. For
+   example, the generic trmm (triangular matrix-multiply) invokes
+   gemm, for which a fast variant may be available. Thus the generic
+   trmm is already an essentially optimal implementation.
+
+The different methods and wrappers are organised into "Modules". Each
+module may implement any subset of the BLAS-routines. Each module has
+a Tag, which is an empty structure used to select the routine to be
+called.
+
+For each routine, there is a class whose name is the routine preceeded
+by an underscore (e.g. the class for gemm is _gemm). The class
+contains a public static method "op" which implements the
+calculation. If the method must be further specialised -- say,
+according to iterator-type or vector-representation-type -- the
+specialisations may appear as private static methods. The class is
+parametrised by the ring over which to calculate and the Tag. To
+implement a BLAS-routine for a module, simply specialise the
+corresponding class to the appropriate Tag and, if necessary, the ring
+over which the implementation works.
+
+The method op is parametrised by Modules and by the necessary vector-
+and matrix-types. Modules is a structure which contains the
+corresponding Tag as a struct or a typedef, any fields which allow the
+calculation to be tuned or configured, and temporary storage, when
+necessary. For example, the structure corresponding to
+Strassen-Winograd contains an instance of the class StrassenWinograd
+which in turn contains as a parameter the cutoff below which to switch
+to classical multiplication.
+
+Each Tag-structure should contain a typedef Parent referring to the
+tag of the next structure in the hierachy. This way an implementation
+can invoke the BLAS-method for the next level down, e.g.
+   _gemm<Ring, MyModule::Tag::Parent>::op (R, M, ...);
+
+If an implementation wishes to invoke generically a BLAS-method at the
+top level (e.g. trmm invoking gemm), then it should instantiate the
+corresponding class with the tag "typename Modules::Tag", e.g.
+
+   BLAS3::_gemm<Ring, typename Modules::Tag>::op (R, M, ...);
+
+So that the end-user need not be concerned with modules, there exists
+a class called Context which wraps a ring and associated modules into
+one object. The high-level interface then takes a Context-object, e.g.
+
+  Ring R;
+  Context<Ring> ctx (R);
+  BLAS3::gemm (ctx, ...);
+
+It then invokes the appropriate low-level interface.
+
+Note that this high-level interface cannot be used by any of the
+modules in a hierarchy or by any implementation (such as
+Strassen-Winograd) which may eventually appear in the hierarchy. All
+such implementations must use the low-level interface described above
+exclusively.
+
+The files are organised as follows:
+
+  level{1,2,3}.h             High level BLAS-interface, visible to user
+  level{1,2,3}-ll.h          Class-definitions for low level BLAS-interface
+  level{1,2,3}-generic.h     Specialisations of classes in level*-ll.h for
+                             generic fallback methods
+  level{1,2,3}-generic.tcc   Implementations of generic methods
+  level{1,2}-gf2.{h,tcc}     Specialisations for GF2
+                             (required because vector-tags over GF2 differ
+                             from the generic case)
+  level3-m4ri.{h,tcc}        Wrapper for libm4ri
+  level{1,2}-modular.{h,tcc} Specialisations for Modular<Element>
+                             (these implement delayed modding out)
+  level{1,2,3}-cblas.h       Wrapper for CBLAS
+  level3-sw.h                Wrapper for Strassen-Winograd implementation

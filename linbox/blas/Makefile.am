@@ -30,5 +30,6 @@ pkgincludesub_HEADERS =		\
 	$(BASIC_HDRS)
 
 EXTRA_DIST = 			\
-	blas.doxy
+	blas.doxy		\
+	README
 
