@@ -258,8 +258,13 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 
 	typename Vector2::iterator y_j;
 
-	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l)
-		*y_j = (a * *l + b * *y_j) % F._modulus;
+	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l) {
+		uint32 al, byj;
+
+		F.mul (al, a, uint32 (*l % F._modulus));
+		F.mul (byj, b, *y_j);
+		F.add (*y_j, al, byj);
+	}
 
 	return y;
 }
@@ -304,8 +309,13 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 
 	typename Vector2::iterator y_j;
 
-	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l)
-		*y_j = (a * *l + b * *y_j) % F._modulus;
+	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l) {
+		uint32 al, byj;
+
+		F.mul (al, a, uint32 (*l % F._modulus));
+		F.mul (byj, b, *y_j);
+		F.add (*y_j, al, byj);
+	}
 
 	return y;
 }
