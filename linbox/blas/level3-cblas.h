@@ -33,13 +33,14 @@ namespace BLAS3
 template <>
 class _gemm<UnparametricRing<float>, BLASModule::Tag>
 {
-public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C)
+	static Matrix3 &gemm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
+				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
 		{ return _gemm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
-	static DenseMatrix<float> &op (const UnparametricRing<float> &F, BLASModule &M,
-				       float a, const DenseMatrix<float> &A, const DenseMatrix<float> &B, float b, DenseMatrix<float> &C)
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == C.rowdim ());
 		linbox_check (B.coldim () == C.coldim ());
@@ -48,18 +49,24 @@ public:
 			     a, &A[0][0], A.disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
 		return C;
 	}
+
+public:
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C)
+		{ return gemm_impl (F, M, a, A, B, b, C, typename Matrix1::StorageType (), typename Matrix2::StorageType (), typename Matrix3::StorageType ()); }
 };
 
 template <>
 class _trmm<UnparametricRing<float>, BLASModule::Tag>
 {
-public:
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+	static Matrix2 &trmm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
 		{ return _trmm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
-	static DenseMatrix<float> &op (const UnparametricRing<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
-				       TriangularMatrixType type, bool diagIsOne)
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trmm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
 		linbox_check (A.coldim () == B.rowdim ());
@@ -68,18 +75,25 @@ public:
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
 		return B;
 	}
+public:
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix1 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B,
+			    TriangularMatrixType type, bool diagIsOne)
+		{ return trmm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };
 
 template <>
 class _trsm<UnparametricRing<float>, BLASModule::Tag>
 {
-public:
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+	static Matrix2 &trsm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
 		{ return _trsm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
-	static DenseMatrix<float> &trsm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const DenseMatrix<float> &A, DenseMatrix<float> &B,
-					      TriangularMatrixType type, bool diagIsOne)
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trsm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
 		linbox_check (A.coldim () == B.rowdim ());
@@ -88,18 +102,26 @@ public:
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
 		return B;
 	}
+
+public:
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix1 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B,
+			    TriangularMatrixType type, bool diagIsOne)
+		{ return trsm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };
 
 template <>
 class _gemm<UnparametricRing<double>, BLASModule::Tag>
 {
-public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C)
+	static Matrix3 &gemm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
+				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
 		{ return _gemm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
-	static DenseMatrix<double> &gemm_impl (const UnparametricRing<double> &F, BLASModule &M,
-					       double a, const DenseMatrix<double> &A, const DenseMatrix<double> &B, double b, DenseMatrix<double> &C)
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == C.rowdim ());
 		linbox_check (B.coldim () == C.coldim ());
@@ -108,18 +130,24 @@ public:
 			     a, &A[0][0], A.disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
 		return C;
 	}
+
+public:
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C)
+		{ return gemm_impl (F, M, a, A, B, b, C, typename Matrix1::StorageType (), typename Matrix2::StorageType (), typename Matrix3::StorageType ()); }
 };
 
 template <>
 class _trmm<UnparametricRing<double>, BLASModule::Tag>
 {
-public:
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+	static Matrix2 &trmm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
 		{ return _trmm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
-	static DenseMatrix<double> &trmm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
-					       TriangularMatrixType type, bool diagIsOne)
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trmm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
 		linbox_check (A.coldim () == B.rowdim ());
@@ -128,18 +156,25 @@ public:
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
 		return B;
 	}
+public:
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix1 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B,
+			    TriangularMatrixType type, bool diagIsOne)
+		{ return trmm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };
 
 template <>
 class _trsm<UnparametricRing<double>, BLASModule::Tag>
 {
-public:
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
+	static Matrix2 &trsm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
 		{ return _trsm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
-	static DenseMatrix<double> &trsm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const DenseMatrix<double> &A, DenseMatrix<double> &B,
-					       TriangularMatrixType type, bool diagIsOne)
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trsm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
 		linbox_check (A.coldim () == B.rowdim ());
@@ -148,6 +183,13 @@ public:
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
 		return B;
 	}
+
+public:
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix1 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B,
+			    TriangularMatrixType type, bool diagIsOne)
+		{ return trsm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };
 
 } // namespace BLAS3
