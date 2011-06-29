@@ -56,6 +56,12 @@ class Subiterator
 	Subiterator (Iterator iter, difference_type stride = 1)
 		: _iter (iter), _stride (stride) {}
 
+	Subiterator (const Subiterator &iter)
+		: _iter (iter._iter), _stride (iter._stride) {}
+
+	Subiterator (Subiterator &iter, difference_type stride)
+		: _iter (iter._iter), _stride (stride) {}
+
 	template<class Iterator2>
 	Subiterator (const Subiterator<Iterator2> &iter)
 		: _iter (iter._iter), _stride (iter._stride) {}
@@ -130,6 +136,8 @@ class Subiterator
 
 	void swap (Subiterator& x)
 		{ std::swap (_iter, x._iter); std::swap (_stride, x._stride); }
+
+	difference_type stride () const { return _stride; }
 	
     protected:
 

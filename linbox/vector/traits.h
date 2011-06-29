@@ -480,15 +480,15 @@ public:
 
 	/// Determines whether the vector v can represent a vector of dimension n.
 	/// @returns true if v can represent a vector of dimension n and false otherwise
-	template <class Field, class Vector>
+	template <class Ring, class Vector>
 	static inline bool hasDim (const Vector &v, size_t n) 
-		{ return hasDimSpecialized (v, n, typename VectorTraits<Field, Vector>::RepresentationType()); }
+		{ return hasDimSpecialized (v, n, typename VectorTraits<Ring, Vector>::RepresentationType()); }
 
 	/// Determines whether v is a valid vector of its format.
 	/// @returns true if v is valid or false if there is an error
-	template <class Field, class Vector>
+	template <class Ring, class Vector>
 	static inline bool isValid (const Vector &v) 
-		{ return isValidSpecialized (v, typename VectorTraits<Field, Vector>::RepresentationType()); }
+		{ return isValidSpecialized (v, typename VectorTraits<Ring, Vector>::RepresentationType()); }
 
 	/// Compute the image of an index under a permutation
 	template <class Iterator>

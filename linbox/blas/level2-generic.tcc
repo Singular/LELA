@@ -156,76 +156,144 @@ Vector2 &_gemv<Ring, GenericModule::Tag>::gemv_impl (const Ring &F, Modules &M,
 	return y;
 }
 
-// FIXME: Not yet implemented
-#if 0
 template <class Ring>
 template <class Modules, class Matrix, class Vector>
-Vector &_trmv<Ring, GenericModule::Tag>::trmv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-						    MatrixIteratorTypes::Row,
-						    VectorRepresentationTypes::Dense);
-#endif
-
-template <class Ring>
-template <class Modules, class Matrix, class Vector>
-Vector &_trsv<Ring, GenericModule::Tag>::trsv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-						    MatrixIteratorTypes::Row,
-						    VectorRepresentationTypes::Dense)
+Vector &_trmv<Ring, GenericModule::Tag>::op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 {
 	linbox_check (A.coldim () == A.rowdim ());
-	linbox_check (VectorUtils::hasDim<Ring> (x, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 
-	typename Ring::Element ai, ai_inv, neg_ai_inv, d;
+	if (A.rowdim () == 0)
+		return x;
+	else if (A.rowdim () == 1) {
+		if (diagIsOne)
+			return x;
+		else {
+			typename Ring::Element ai;
 
-	if (diagIsOne) {
-		F.assign (neg_ai_inv, F.minusOne ());
-	}
-
-	if (type == LowerTriangular) {
-		typename Matrix::ConstRowIterator i_A;
-		size_t idx = 0;
-
-		for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A, ++idx) {
-			if (!diagIsOne) {
-				if (!VectorUtils::getEntry (*i_A, ai, idx))
-					continue; // FIXME This should throw an error
-
-				F.inv (ai_inv, ai);
-				F.neg (neg_ai_inv, ai_inv);
-			}
-
-			BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, *i_A, x, 0, idx);
-
-			F.mulin (x[idx], ai_inv);
-			F.axpyin (x[idx], d, neg_ai_inv);
+			if (!A.getEntry (ai, 0, 0))
+				// FIXME: Should return an error
+				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, F.zero (), x);
+			else
+				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, ai, x);
 		}
 	}
-	else if (type == UpperTriangular) {
-		typename Matrix::ConstRowIterator i_A = A.rowEnd ();
+	else if ((((A.coldim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign == 0) {
+		size_t l = A.rowdim () / 2;
+		typename Matrix::ConstSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
-		size_t idx = A.rowdim ();
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x1 (x, 0, l);
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x2 (x, l, A.rowdim ());
 
-		if (idx == 0)   // Nothing to do
-			return x;
+		if (type == LowerTriangular) {
+			typename Matrix::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A22, x2, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.one (), A21, x1, F.one (), x2);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A11, x1, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			typename Matrix::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A11, x1, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.one (), A12, x2, F.one (), x1);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A22, x2, type, diagIsOne);
+		}
 
-		do {
-			--i_A; --idx;
+		return x;
+	} else {
+		size_t l = (((((A.rowdim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign) * Matrix::rowAlign);
+		typename Matrix::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
-			if (!diagIsOne) {
-				if (!VectorUtils::getEntry (*i_A, ai, idx))
-					continue; // FIXME This should throw an error
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x1 (x, 0, l);
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x2 (x, l, A.rowdim ());
 
-				F.inv (ai_inv, ai);
-				F.neg (neg_ai_inv, ai_inv);
-			}
+		if (type == LowerTriangular) {
+			typename Matrix::ConstAlignedSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.one (), A21, x1, F.one (), x2);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			typename Matrix::ConstAlignedSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.one (), A12, x2, F.one (), x1);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+		}
 
-			BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, *i_A, x, idx + 1, (size_t) -1);
-
-			F.mulin (x[idx], ai_inv);
-			F.axpyin (x[idx], d, neg_ai_inv);
-		} while (idx != 0);
+		return x;
 	}
+}
 
-	return x;
+template <class Ring>
+template <class Modules, class Matrix, class Vector>
+Vector &_trsv<Ring, GenericModule::Tag>::op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+{
+	linbox_check (A.coldim () == A.rowdim ());
+	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
+
+	if (A.rowdim () == 0)
+		return x;
+	else if (A.rowdim () == 1) {
+		if (diagIsOne)
+			return x;
+		else {
+			typename Ring::Element ai;
+
+			if (!A.getEntry (ai, 0, 0))
+				// FIXME: Should return an error
+				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, F.zero (), x);
+			else {
+				F.invin (ai);
+				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, ai, x);
+			}
+		}
+	}
+	else if ((((A.coldim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign == 0) {
+		size_t l = A.rowdim () / 2;
+		typename Matrix::ConstSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
+
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x1 (x, 0, l);
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x2 (x, l, A.rowdim ());
+
+		if (type == LowerTriangular) {
+			typename Matrix::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A21, x1, F.one (), x2);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			typename Matrix::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A12, x2, F.one (), x1);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
+		}
+
+		return x;
+	} else {
+		size_t l = (((((A.rowdim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign) * Matrix::rowAlign);
+		typename Matrix::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
+		typename Matrix::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
+
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x1 (x, 0, l);
+		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x2 (x, l, A.rowdim ());
+
+		if (type == LowerTriangular) {
+			typename Matrix::ConstAlignedSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A21, x1, F.one (), x2);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+		}
+		else if (type == UpperTriangular) {
+			typename Matrix::ConstAlignedSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A12, x2, F.one (), x1);
+			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
+		}
+
+		return x;
+	}
 }
 
 template <class Ring>

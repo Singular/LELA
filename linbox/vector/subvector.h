@@ -69,8 +69,23 @@ class Subvector
    	
 	template<class Vector>
 	Subvector (Vector &v, size_type start, size_type stride, size_type length)
-		: _begin (iterator (v.begin() + start, stride)),
-		  _end   (iterator (v.begin() + start + (stride * length), stride)) {}
+		: _begin (iterator (v.begin () + start, stride)),
+		  _end   (iterator (v.begin () + start + (stride * length), stride)) {}
+
+	template<class Vector>
+	Subvector (Vector &v, size_type start, size_type end)
+	{
+		typename Vector::iterator vs = v.begin () + start, ve = v.begin () + end;
+		_begin = iterator (vs, 1);
+		_end = iterator (ve, 1);
+	}
+	
+	Subvector (Subvector &v, size_type start, size_type end)
+	{
+		iterator vs = v.begin () + start, ve = v.begin () + end;
+		_begin = iterator (vs, v.begin ().stride ());
+		_end = iterator (ve, v.begin ().stride ());
+	}
 	
 	Subvector (iterator begin, iterator end)
 		: _begin (begin), _end (end) {}
@@ -107,22 +122,22 @@ class Subvector
 	
 	// the method "at" does appear to be implemented 
 	// in the gnu implementation of the STL
-	reference at(size_type n)  // validity is relative to valid _begin, _end
+	reference at (size_type n)  // validity is relative to valid _begin, _end
 	{   
 		iterator p = _begin + n;
 		if ( _begin <= p && p < _end ) 
 			return *p;
 		else 
-			throw std::out_of_range("out of range"); //out of range error message.
+			throw std::out_of_range ("n"); //out of range error message.
 	}
 	
-	const_reference at(size_type n) const 
+	const_reference at (size_type n) const 
 	{
 		const_iterator p = _begin + n;
 		if ( _begin <= p && p < _end)
 			return *p;
 		else 
-			throw std::out_of_range("out of range"); //out of range error message
+			throw std::out_of_range ("n"); //out of range error message
 	}
 	
 	reference       front ()       { return *_begin; }
@@ -130,11 +145,11 @@ class Subvector
 	reference       back  ()       { return *( _end - 1 ); }
 	const_reference back  () const { return *( _end - 1 ); }
 	
-	template<class Container>
 	/** assign the elements of Container one by one to *this.
 	 *  Container must be at least as long as this.
 	 */
-	Subvector& operator= (const Container& x)
+	template<class Container>
+	Subvector &operator = (const Container &x)
 	{
 		typename Container::const_iterator q = x.begin ();
 		
@@ -144,11 +159,11 @@ class Subvector
 		return *this;
 	}
 	
-	template<class Iterator2, class ConstIterator2>
-	Subvector& operator = (const Subvector<Iterator2, ConstIterator2>& sub)
+	template <class Iterator2, class ConstIterator2>
+	Subvector &operator = (const Subvector<Iterator2, ConstIterator2> &sub)
 	{
-		_begin=sub.begin();
-		_end=sub.end();
+		_begin = sub.begin ();
+		_end = sub.end ();
 		return *this;
 	}
 	
@@ -360,7 +375,7 @@ class MutableSubvector
 	friend class MutableSubvector;
 
 	template <class V, class T>
-	class SparseSubvector;
+	friend class SparseSubvector;
 
 	template <class InputIterator>
 	void assign_spec (InputIterator first, InputIterator last, std::input_iterator_tag)

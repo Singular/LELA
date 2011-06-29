@@ -126,33 +126,17 @@ public:
 template <class Ring>
 class _trmv<Ring, GenericModule::Tag>
 {
-	template <class Modules, class Matrix, class Vector>
-	static Vector &trmv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixIteratorTypes::Row,
-				  VectorRepresentationTypes::Dense);
-
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
-		{ return trmv_impl (F, M, A, x, type, diagIsOne,
-				    typename Matrix::IteratorType (),
-				    typename VectorTraits<Ring, Vector>::RepresentationType ()); }
+	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
 };
 
 template <class Ring>
 class _trsv<Ring, GenericModule::Tag>
 {
-	template <class Modules, class Matrix, class Vector>
-	static Vector &trsv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixIteratorTypes::Row,
-				  VectorRepresentationTypes::Dense);
-
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
-		{ return trsv_impl (F, M, A, x, type, diagIsOne,
-				    typename Matrix::IteratorType (),
-				    typename VectorTraits<Ring, Vector>::RepresentationType ()); }
+	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
 };
 
 template <class Ring>

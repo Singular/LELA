@@ -295,9 +295,6 @@ protected:
 	template <class Element, class IndexVector, class ElementVector>
 	friend class SparseVector;
 
-	template <class Vector, class Trait>
-	class SparseSubvector;
-
 	ConstIndexIterator index_begin () const { return _idx_begin; }
 	ConstIndexIterator index_end () const { return _idx_end; }
 	ConstElementIterator element_begin () const { return _elt_begin; }
