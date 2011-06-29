@@ -79,7 +79,7 @@ int main (int argc, char **argv)
 	Context<GF2> ctx (F);
 
 	if (!testMatrixDomain (ctx, "dense", M1, M2, M3, v1, v2, iterations,
-			       MatrixTraits<DenseMatrix<Field::Element> >::MatrixCategory ()))
+			       DenseMatrix<Field::Element>::IteratorType ()))
 		pass = false;
 
 	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream21 (F, (double) k / (double) m, m, l);
@@ -91,7 +91,7 @@ int main (int argc, char **argv)
 	SparseMatrix<Field::Element, Vector<Field>::Sparse> M6 (stream23);
 
 	if (!testMatrixDomain (ctx, "sparse", M4, M5, M6, v1, v2, iterations,
-			       MatrixTraits<SparseMatrix<Field::Element, Vector<Field>::Sparse> >::MatrixCategory ()))
+			       SparseMatrix<Field::Element, Vector<Field>::Sparse>::IteratorType ()))
 		pass = false;
 
 	RandomSparseStream<Field, Vector<Field>::Hybrid> stream31 (F, (double) k / (double) m, m, l);
@@ -103,7 +103,7 @@ int main (int argc, char **argv)
 	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M9 (stream33);
 
 	if (!testMatrixDomain (ctx, "hybrid", M7, M8, M9, v1, v2, iterations,
-			       MatrixTraits<SparseMatrix<Field::Element, Vector<Field>::Hybrid> >::MatrixCategory ()))
+			       SparseMatrix<Field::Element, Vector<Field>::Hybrid>::IteratorType ()))
 		pass = false;
 
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1p (F, l - 8, 1);
@@ -118,7 +118,7 @@ int main (int argc, char **argv)
 	DenseMatrix<Field::Element>::SubmatrixType M12 (M3, 4, 4, n - 8, p - 8);
 
 	if (!testMatrixDomainSubmatrix (ctx, "dense (submatrix)", M10, M11, M12, v1p, v2p, iterations,
-					MatrixTraits<DenseMatrix<Field::Element> >::MatrixCategory ()))
+					DenseMatrix<Field::Element>::IteratorType ()))
 		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));

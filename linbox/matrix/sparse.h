@@ -56,7 +56,8 @@ class SparseMatrix
 	typedef SparseMatrix<Element, Row, Trait> Self_t;
 	typedef const Row ConstRow;
 	typedef std::vector<Row> Rep;
-	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
+	typedef MatrixIteratorTypes::Row IteratorType; 
+	typedef MatrixStorageTypes::Rows StorageType;
 	typedef SparseMatrixTag<Element, Row, Trait> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
@@ -176,7 +177,8 @@ class SparseMatrix<_Element, _Row, VectorRepresentationTypes::Sparse>
 	typedef SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse> Self_t;
 	typedef const Row ConstRow;
 	typedef std::vector<Row> Rep;
-	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
+	typedef MatrixIteratorTypes::Row IteratorType; 
+	typedef MatrixStorageTypes::Rows StorageType;
 	typedef SparseMatrixTag<Element, Row, VectorRepresentationTypes::Sparse> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;

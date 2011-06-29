@@ -82,7 +82,7 @@ int main (int argc, char **argv)
 	Context<Field> ctx (F);
 
 	if (!testMatrixDomain (ctx, "dense", M1, M2, M3, v1, v2, iterations,
-			       MatrixTraits<DenseMatrix<Element> >::MatrixCategory ()))
+			       DenseMatrix<Element>::IteratorType ()))
 		pass = false;
 
 	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream21 (F, (double) k / (double) m, m, l);
@@ -94,7 +94,7 @@ int main (int argc, char **argv)
 	SparseMatrix<Element> M6 (stream23);
 
 	if (!testMatrixDomain (ctx, "sparse row-wise", M4, M5, M6, v1, v2, iterations,
-			       MatrixTraits<SparseMatrix<Element> >::MatrixCategory ()))
+			       SparseMatrix<Element>::IteratorType ()))
 		pass = false;
 
 	TransposeMatrix<SparseMatrix<Element> > M7 (M6);
@@ -102,7 +102,7 @@ int main (int argc, char **argv)
 	TransposeMatrix<SparseMatrix<Element> > M9 (M4);
 
 	if (!testMatrixDomain (ctx, "sparse column-wise", M7, M8, M9, v4, v3, iterations,
-			       MatrixTraits<TransposeMatrix<SparseMatrix<Element> > >::MatrixCategory ()))
+			       TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
 		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));

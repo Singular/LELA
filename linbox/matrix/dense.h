@@ -276,7 +276,8 @@ class DenseMatrix
 
 	typedef _Element Element;
 	typedef typename RawVector<Element>::Dense Rep;
-	typedef MatrixCategories::RowColMatrixTag MatrixCategory;
+	typedef MatrixIteratorTypes::RowCol IteratorType;
+	typedef MatrixStorageTypes::Dense StorageType;
         typedef DenseMatrix<_Element> Self_t;
 
 	typedef Self_t SubmatrixType;

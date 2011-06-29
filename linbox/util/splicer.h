@@ -203,29 +203,29 @@ class Splicer {
 
 	template <class Ring, class Matrix1, class Matrix2>
 	static void copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
-					  MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+					  MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 	template <class Ring, class Matrix1, class Matrix2>
 	static void copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
-					  MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag);
+					  MatrixIteratorTypes::Col, MatrixIteratorTypes::Col);
 
 	template <class Ring, class Matrix1, class Matrix2>
 	static void copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
-					  MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
-		{ copyBlockSpecialised (R, source, dest, horiz_block, vert_block, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+					  MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol)
+		{ copyBlockSpecialised (R, source, dest, horiz_block, vert_block, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Row ()); }
 
 	template <class Ring, class Matrix>
 	static void copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
-					     MatrixCategories::RowMatrixTag);
+					     MatrixIteratorTypes::Row);
 
 	template <class Ring, class Matrix>
 	static void copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
-					     MatrixCategories::ColMatrixTag);
+					     MatrixIteratorTypes::Col);
 
 	template <class Ring, class Matrix>
 	static void copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
-					     MatrixCategories::RowColMatrixTag)
-		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block, MatrixCategories::RowMatrixTag ()); }
+					     MatrixIteratorTypes::RowCol)
+		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block, MatrixIteratorTypes::Row ()); }
 
 public:
 	/// @name Management of the blocks
@@ -343,8 +343,8 @@ public:
 	template <class Ring, class Matrix1, class Matrix2>
 	static void copyBlock (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block)
 		{ copyBlockSpecialised (R, source, dest, horiz_block, vert_block,
-					typename MatrixTraits<Matrix1>::MatrixCategory (),
-					typename MatrixTraits<Matrix2>::MatrixCategory ()); }
+					typename Matrix1::IteratorType (),
+					typename Matrix2::IteratorType ()); }
 
 	/** Copy a part of the identity-matrix to the
 	 * destination-matrix according to the information in
@@ -359,7 +359,7 @@ public:
 	template <class Ring, class Matrix>
 	static void copyIdentity (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block)
 		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block,
-					   typename MatrixTraits<Matrix>::MatrixCategory ()); }
+					   typename Matrix::IteratorType ()); }
 };
 
 } // namespace LinBox

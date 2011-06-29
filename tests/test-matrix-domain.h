@@ -775,7 +775,7 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
  */
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
-static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::BlackboxTag, MatrixCategories::ColMatrixTag) 
+static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::Generic, MatrixIteratorTypes::Col) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -831,7 +831,7 @@ static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const 
 }
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowMatrixTag, MatrixCategories::BlackboxTag) 
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::Row, MatrixIteratorTypes::Generic) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -887,29 +887,27 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 }
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::BlackboxTag, MatrixCategories::RowColMatrixTag) 
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::Generic, MatrixIteratorTypes::RowCol) 
 {
-	return testGemvGemmSpecialised (ctx, text, A, B, MatrixCategories::BlackboxTag (), MatrixCategories::ColMatrixTag ());
+	return testGemvGemmSpecialised (ctx, text, A, B, MatrixIteratorTypes::Generic (), MatrixIteratorTypes::Col ());
 }
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowColMatrixTag, MatrixCategories::BlackboxTag) 
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::RowCol, MatrixIteratorTypes::Generic) 
 {
-	return testGemvGemmSpecialised (ctx, text, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::BlackboxTag ());
+	return testGemvGemmSpecialised (ctx, text, A, B, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Generic ());
 }
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
-static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag) 
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol) 
 {
-	return testGemvGemmSpecialised (ctx, text, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::BlackboxTag ());
+	return testGemvGemmSpecialised (ctx, text, A, B, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Generic ());
 }
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
 static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B) 
 {
-	return testGemvGemmSpecialised (ctx, text, A, B,
-					typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-					typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ());
+	return testGemvGemmSpecialised (ctx, text, A, B, typename Matrix1::IteratorType (), typename Matrix2::IteratorType ());
 }
 
 /* Test 10: gemv with coefficients
@@ -1463,7 +1461,7 @@ bool testMatrixDomain (Context<Field, Modules> &ctx, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
 		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
-		       MatrixCategories::RowColMatrixTag)
+		       MatrixIteratorTypes::RowCol)
 {
 	ostringstream str;
 	str << "Testing MatrixDomain with " << text << " matrices" << ends;
@@ -1507,7 +1505,7 @@ bool testMatrixDomain (Context<Field, Modules> &ctx, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
 		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
-		       MatrixCategories::RowMatrixTag) 
+		       MatrixIteratorTypes::Row) 
 {
 	ostringstream str;
 	str << "Testing MatrixDomain with " << text << " matrices" << ends;
@@ -1549,7 +1547,7 @@ bool testMatrixDomain (Context<Field, Modules> &ctx, const char *text,
 		       Matrix &M1, Matrix &M2, Matrix &M3,
 		       Vector &v1, Vector &v2,
 		       unsigned int iterations,
-		       MatrixCategories::ColMatrixTag) 
+		       MatrixIteratorTypes::Col) 
 {
 	ostringstream str;
 	str << "Testing MatrixDomain with " << text << " matrices" << ends;
@@ -1592,7 +1590,7 @@ bool testMatrixDomainSubmatrix (Context<Field, Modules> &ctx, const char *text, 
 				const Matrix &M1, const Matrix &M2, const Matrix &M3,
 				Vector &v1, Vector &v2,
 				unsigned int iterations,
-				MatrixCategories::RowMatrixTag) 
+				MatrixIteratorTypes::Row) 
 {
 	ostringstream str;
 	str << "Testing MatrixDomain with " << text << " matrices" << ends;

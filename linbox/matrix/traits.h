@@ -9,53 +9,45 @@
 
 namespace LinBox {
 
-/** \brief For specializing matrix arithmetic
+/** Matrix-iterator-types
  *
- * This class defines matrix categories that allow us to specialize the matrix
- * arithmetic in \ref MatrixDomain for different matrix representations. For
- * example, a sparse matrix may have an efficient iterator over row vectors but
- * not over column vectors. Therefore, an algorithm that tries to iterate over
- * column vectors will run very slowly. Hence a specialization that avoids using
- * column vectors is used instead.
+ * These tags indicate which iterators a matrix supports: generic
+ * (unspecified), row-iterators only, column-iterators only, or both
+ * row- and column-iterators.
  */
 
-struct MatrixCategories 
+namespace MatrixIteratorTypes
 {
-	struct BlackboxTag { };
-	struct RowMatrixTag : public virtual BlackboxTag { };
-	struct ColMatrixTag : public virtual BlackboxTag { };
-	struct RowColMatrixTag : public RowMatrixTag, public ColMatrixTag { };
-	struct ZeroOneRowMatrixTag : public RowMatrixTag { };
-	struct ZeroOneColMatrixTag : public ColMatrixTag { };
-};
+	struct Generic {};
+	struct Row : public virtual Generic {};
+	struct Col : public virtual Generic {};
+	struct RowCol : public Row, public Col {};
+}
 
-template <class Matrix> struct MatrixTraits
-{
-	typedef Matrix MatrixType;
-	typedef typename Matrix::MatrixCategory MatrixCategory;
-};
-
-/** Trait describing what iterators the matrix provides
+/** Matrix-storage-types
  *
- * This gets around the fact that the C++-compiler only instantiates a
- * partial specialisation when the type exactly matches that in the
- * specification, not when the type inherits it.
+ * These tags indicate how a matrix is stored.
+ *
+ * Generic means that no assumptions are made about storage. This can
+ * be used for "virtual" matrices which do not physically exist in
+ * memory.
+ *
+ * Rows means that the matrix maintains a vector of row-vectors.
+ *
+ * Dense means that the matrix is stored as an array of elements. The
+ * matrix should provide the method disp () which indicates the
+ * displacement from one row to the next in the array.
+ *
+ * M4RI means that the matrix is a wrapper for a matrix in
+ * libm4ri. This is only meaningful if libm4ri is enabled.
  */
-
-template <class Trait> struct MatrixIteratorTypes
+namespace MatrixStorageTypes
 {
-	typedef Trait MatrixCategory;
-};
-
-template <> struct MatrixIteratorTypes<MatrixCategories::ZeroOneRowMatrixTag>
-{
-	typedef MatrixCategories::RowMatrixTag MatrixCategory;
-};
-
-template <> struct MatrixIteratorTypes<MatrixCategories::ZeroOneColMatrixTag>
-{
-	typedef MatrixCategories::ColMatrixTag MatrixCategory;
-};
+	struct Generic {};
+	struct Rows : public Generic {};
+	struct Dense : public Generic {};
+	struct M4RI : public Generic {};
+}
 
 } // namespace LinBox
 

@@ -55,13 +55,16 @@ namespace LinBox
  * writing matrices, except for testing purposes.
  */
   
-template <class Matrix, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory>
+template <class Matrix, class Trait = typename Matrix::IteratorType>
 class TransposeMatrix
 {
     public:
 
 	typedef typename Matrix::Element Element;
 	typedef TransposeMatrix<Matrix, Trait> Self_t;
+
+	typedef MatrixIteratorTypes::Generic IteratorType;
+	typedef MatrixStorageTypes::Generic StorageType;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RowIterator ColIterator;
@@ -132,13 +135,14 @@ class TransposeMatrix
 // Specialization for matrices that have both row and column iterators
 
 template <class Matrix>
-class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
+class TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol>
 {
     public:
 
 	typedef typename Matrix::Element Element;
-	typedef TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag> Self_t;
-	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory;
+	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol> Self_t;
+	typedef MatrixIteratorTypes::RowCol IteratorType;
+	typedef typename Matrix::StorageType StorageType;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RowIterator ColIterator;
@@ -204,13 +208,14 @@ class TransposeMatrix<Matrix, MatrixCategories::RowColMatrixTag>
 // Specialization for matrices that have only row iterators
 
 template <class Matrix>
-class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
+class TransposeMatrix<Matrix, MatrixIteratorTypes::Row>
 {
     public:
 
 	typedef typename Matrix::Element Element;
-	typedef TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag> Self_t;
-	typedef typename MatrixCategories::ColMatrixTag MatrixCategory;
+	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::Row> Self_t;
+	typedef typename MatrixIteratorTypes::Col IteratorType;
+	typedef typename Matrix::StorageType StorageType;
 
 	typedef typename Matrix::RowIterator ColIterator;
 	typedef typename Matrix::RawIterator RawIterator;
@@ -268,13 +273,14 @@ class TransposeMatrix<Matrix, MatrixCategories::RowMatrixTag>
 // Specialization for matrices that have only column iterators
 
 template <class Matrix>
-class TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag>
+class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
 {
     public:
 
 	typedef typename Matrix::Element Element;
-	typedef TransposeMatrix<Matrix, MatrixCategories::ColMatrixTag> Self_t;
-	typedef typename MatrixCategories::RowMatrixTag MatrixCategory;
+	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::Col> Self_t;
+	typedef typename MatrixIteratorTypes::Row IteratorType;
+	typedef typename Matrix::StorageType StorageType;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RawIterator RawIterator;

@@ -40,7 +40,8 @@ class M4RIMatrixBase
 	typedef bool Element;
 	typedef mzd_t *Rep;
         typedef M4RIMatrixBase Self_t;
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory;
+	typedef MatrixIteratorTypes::Row IteratorType;
+	typedef MatrixStorageTypes::M4RI StorageType;
 	struct Tag {};
 
 	virtual ~M4RIMatrixBase () { if (_rep != NULL) mzd_free (_rep); }

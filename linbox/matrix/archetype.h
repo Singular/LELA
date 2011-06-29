@@ -52,9 +52,11 @@ class MatrixArchetype
 
 	typedef _Element Element;
 
-	/// What iterators the matrix supports: only @ref RowIterator,
-	/// only @ref ColIterator, or both
-	typedef typename MatrixCategories::RowColMatrixTag MatrixCategory;
+	/// What iterators the matrix supports; see @ref MatrixIteratorTypes
+	typedef typename MatrixIteratorTypes::Generic IteratorType;
+
+	/// How the matrix is stores; see @ref MatrixStorageTypes
+	typedef typename MatrixStorageTypes::Generic StorageType;
 
 	/** Arbitrary writeable submatrix
 	 *

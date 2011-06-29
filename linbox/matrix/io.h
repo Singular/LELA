@@ -118,19 +118,19 @@ private:
 	void readPNGRow (Vector &v, png_bytep row, size_t width) const;
 
 	template <class Matrix>
-	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::RowMatrixTag) const;
+	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixIteratorTypes::Row) const;
 
 	template <class Matrix>
-	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::ColMatrixTag) const
+	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixIteratorTypes::Col) const
 		{ throw NotImplemented (); }
 
 	template <class Matrix>
-	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::RowColMatrixTag) const
-		{ return readPNGSpecialised (is, A, MatrixCategories::RowMatrixTag ()); }
+	std::istream &readPNGSpecialised (std::istream &is, Matrix &A, MatrixIteratorTypes::RowCol) const
+		{ return readPNGSpecialised (is, A, MatrixIteratorTypes::Row ()); }
 
 	template <class Matrix>
 	std::istream &readPNG (std::istream &is, Matrix &A) const
-		{ return readPNGSpecialised (is, A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+		{ return readPNGSpecialised (is, A, typename Matrix::IteratorType ()); }
 
 #endif // __LINBOX_HAVE_LIBPNG	
 
@@ -215,19 +215,19 @@ private:
 		{ copyToPNGDataSpecialised (data, v, width, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	template <class Matrix>
-	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::RowMatrixTag) const;
+	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixIteratorTypes::Row) const;
 
 	template <class Matrix>
-	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::ColMatrixTag) const
+	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixIteratorTypes::Col) const
 		{ throw NotImplemented (); }
 
 	template <class Matrix>
-	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::RowColMatrixTag) const
-		{ return writePNGSpecialised (is, A, MatrixCategories::RowMatrixTag ()); }
+	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixIteratorTypes::RowCol) const
+		{ return writePNGSpecialised (is, A, MatrixIteratorTypes::Row ()); }
 
 	template <class Matrix>
 	std::ostream &writePNG (std::ostream &is, const Matrix &A) const
-		{ return writePNGSpecialised (is, A, typename MatrixTraits<Matrix>::MatrixCategory ()); }
+		{ return writePNGSpecialised (is, A, typename Matrix::IteratorType ()); }
 #endif // __LINBOX_HAVE_LIBPNG
 };
 

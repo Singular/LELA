@@ -135,19 +135,19 @@ bool testColIterator (const Field &F, const Matrix &M)
 }
 
 template <class Field, class Matrix>
-bool testRowColIteratorSpecialised (const Field &F, const Matrix &M, MatrixCategories::RowMatrixTag)
+bool testRowColIteratorSpecialised (const Field &F, const Matrix &M, MatrixIteratorTypes::Row)
 {
 	return testRowIterator (F, M);
 }
 
 template <class Field, class Matrix>
-bool testRowColIteratorSpecialised (const Field &F, const Matrix &M, MatrixCategories::ColMatrixTag)
+bool testRowColIteratorSpecialised (const Field &F, const Matrix &M, MatrixIteratorTypes::Col)
 {
 	return testColIterator (F, M);
 }
 
 template <class Field, class Matrix>
-bool testRowColIteratorSpecialised (const Field &F, const Matrix &M, MatrixCategories::RowColMatrixTag)
+bool testRowColIteratorSpecialised (const Field &F, const Matrix &M, MatrixIteratorTypes::RowCol)
 {
 	bool pass = true;
 
@@ -160,7 +160,7 @@ bool testRowColIteratorSpecialised (const Field &F, const Matrix &M, MatrixCateg
 template <class Field, class Matrix>
 bool testRowColIterator (const Field &F, const Matrix &M)
 {
-	return testRowColIteratorSpecialised (F, M, typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ());
+	return testRowColIteratorSpecialised (F, M, typename Matrix::IteratorType ());
 }
 
 /* Test 2: getEntry, setEntry

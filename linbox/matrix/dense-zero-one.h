@@ -140,7 +140,8 @@ class Dense01Matrix
 	typedef BitVector<Endianness> Rep;
         typedef Dense01Matrix Self_t;
 	typedef typename std::iterator_traits<Iterator>::value_type word_type;
-	typedef MatrixCategories::ZeroOneRowMatrixTag MatrixCategory; 
+	typedef MatrixIteratorTypes::Row IteratorType; 
+	typedef MatrixStorageTypes::Rows StorageType; 
 	typedef Dense01MatrixTag<Iterator, ConstIterator, Endianness> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;

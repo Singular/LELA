@@ -28,52 +28,70 @@ class _copy<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 	// FIXME: Not yet implemented (need generic way to attach entry to a vector first)
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Col);
 
 	// FIXME: Not yet implemented (need generic way to attach entry to a vector first)
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::ColMatrixTag, MatrixCategories::RowMatrixTag);
+				   MatrixIteratorTypes::Col, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag);
+				   MatrixIteratorTypes::Col, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
-		{ return copy_impl (F, M, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+				   MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol)
+		{ return copy_impl (F, M, A, B, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Row ()); }
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::RowCol)
+		{ return copy_impl (F, M, A, B, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Row ()); }
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+				   MatrixIteratorTypes::RowCol, MatrixIteratorTypes::Row)
+		{ return copy_impl (F, M, A, B, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Row ()); }
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+				   MatrixIteratorTypes::Col, MatrixIteratorTypes::RowCol)
+		{ return copy_impl (F, M, A, B, MatrixIteratorTypes::Col (), MatrixIteratorTypes::Col ()); }
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+				   MatrixIteratorTypes::RowCol, MatrixIteratorTypes::Col)
+		{ return copy_impl (F, M, A, B, MatrixIteratorTypes::Col (), MatrixIteratorTypes::Col ()); }
 
 public:
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &op (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B)
-		{ return copy_impl (F, M, A, B,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory ()); }
+		{ return copy_impl (F, M, A, B, typename Matrix1::IteratorType (), typename Matrix2::IteratorType ()); }
 };
 
 template <class Ring>
 class _scal<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix>
-	static Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::RowMatrixTag);
+	static Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix>
-	static Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::ColMatrixTag);
+	static Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Matrix>
-	static Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::RowColMatrixTag)
-		{ return scal_impl (F, M, a, A, MatrixCategories::RowMatrixTag ()); }
+	static Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixIteratorTypes::RowCol)
+		{ return scal_impl (F, M, a, A, MatrixIteratorTypes::Row ()); }
 
 public:
 	template <class Modules, class Matrix>
 	static Matrix &op (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A)
-		{ return scal_impl (F, M, a, A, typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+		{ return scal_impl (F, M, a, A, typename Matrix::IteratorType ()); }
 };
 
 template <class Ring>
@@ -81,23 +99,21 @@ class _axpy<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag);
+				   MatrixIteratorTypes::Col, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
-				   MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
-		{ return axpy_impl (F, M, a, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+				   MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol)
+		{ return axpy_impl (F, M, a, A, B, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Row ()); }
 
 public:
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B)
-		{ return axpy_impl (F, M, a, A, B,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
+		{ return axpy_impl (F, M, a, A, B, typename Matrix1::IteratorType (), typename Matrix2::IteratorType ()); }
 };
 
 template <class Ring>
@@ -106,42 +122,42 @@ class _gemm<Ring, GenericModule::Tag>
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-				   MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag);
+				   MatrixIteratorTypes::Col, MatrixIteratorTypes::Col, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::RowMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::RowColMatrixTag)
-		{ return gemm_impl (F, M, a, A, B, b, C, MatrixCategories::RowMatrixTag (), MatrixCategories::ColMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::RowCol)
+		{ return gemm_impl (F, M, a, A, B, b, C, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Col (), MatrixIteratorTypes::Row ()); }
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-				   MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
-		{ return gemm_impl (F, M, a, A, B, b, C, MatrixCategories::RowMatrixTag (), MatrixCategories::ColMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+				   MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol)
+		{ return gemm_impl (F, M, a, A, B, b, C, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Col (), MatrixIteratorTypes::Row ()); }
 
 public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C)
 		{ return gemm_impl (F, M, a, A, B, b, C,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory (),
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix3>::MatrixCategory>::MatrixCategory ()); }
+				    typename Matrix1::IteratorType (),
+				    typename Matrix2::IteratorType (),
+				    typename Matrix3::IteratorType ()); }
 };
 
 template <class Ring>
@@ -149,14 +165,14 @@ class _trmm<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 public:
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
 		{ return trmm_impl (F, M, a, A, B, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
+				    typename Matrix1::IteratorType (),
+				    typename Matrix2::IteratorType ()); }
 };
 
 template <class Ring>
@@ -164,54 +180,52 @@ class _trsm<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-				   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 public:
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
 		{ return trsm_impl (F, M, a, A, B, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
+				    typename Matrix1::IteratorType (),
+				    typename Matrix2::IteratorType ()); }
 };
 
 template <class Ring>
 class _permute_rows<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Iterator, class Matrix>
-	static Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag);
+	static Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Iterator, class Matrix>
-	static Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag);
+	static Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Iterator, class Matrix>
-	static Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowColMatrixTag)
-		{ return permute_rows_impl (F, M, P_begin, P_end, A, MatrixCategories::RowMatrixTag ()); }
+	static Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::RowCol)
+		{ return permute_rows_impl (F, M, P_begin, P_end, A, MatrixIteratorTypes::Row ()); }
 
 public:
 	template <class Modules, class Iterator, class Matrix>
 	static Matrix &op (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A)
-		{ return permute_rows_impl (F, M, P_begin, P_end, A,
-					    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+		{ return permute_rows_impl (F, M, P_begin, P_end, A, typename Matrix::IteratorType ()); }
 };
 
 template <class Ring>
 class _permute_cols<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Iterator, class Matrix>
-	static Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag);
+	static Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Iterator, class Matrix>
-	static Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag);
+	static Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Iterator, class Matrix>
-	static Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowColMatrixTag)
-		{ return permute_cols_impl (F, M, P_begin, P_end, A, MatrixCategories::ColMatrixTag ()); }
+	static Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::RowCol)
+		{ return permute_cols_impl (F, M, P_begin, P_end, A, MatrixIteratorTypes::Col ()); }
 
 public:
 	template <class Modules, class Iterator, class Matrix>
 	static Matrix &op (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A)
-		{ return permute_cols_impl (F, M, P_begin, P_end, A,
-					    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+		{ return permute_cols_impl (F, M, P_begin, P_end, A, typename Matrix::IteratorType ()); }
 };
 
 template <class Ring>
@@ -219,42 +233,40 @@ class _equal<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static bool equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
-				MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag);
+				MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix1, class Matrix2>
 	static bool equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
-				MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag);
+				MatrixIteratorTypes::Col, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Matrix1, class Matrix2>
 	static bool equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
-				MatrixCategories::RowColMatrixTag, MatrixCategories::RowColMatrixTag)
-		{ return equal_impl (F, M, A, B, MatrixCategories::RowMatrixTag (), MatrixCategories::RowMatrixTag ()); }
+				MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol)
+		{ return equal_impl (F, M, A, B, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Row ()); }
 
 public:
 	template <class Modules, class Matrix1, class Matrix2>
 	static bool op (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B)
-		{ return equal_impl (F, M, A, B,
-				     typename MatrixIteratorTypes<typename MatrixTraits<Matrix1>::MatrixCategory>::MatrixCategory (),
-				     typename MatrixIteratorTypes<typename MatrixTraits<Matrix2>::MatrixCategory>::MatrixCategory ()); }
+		{ return equal_impl (F, M, A, B, typename Matrix1::IteratorType (), typename Matrix2::IteratorType ()); }
 };
 
 template <class Ring>
 class _is_zero<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix>
-	static bool is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixCategories::RowMatrixTag);
+	static bool is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix>
-	static bool is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixCategories::ColMatrixTag);
+	static bool is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixIteratorTypes::Col);
 
 	template <class Modules, class Matrix>
-	static bool is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixCategories::RowColMatrixTag)
-		{ return is_zero_impl (F, M, A, MatrixCategories::RowMatrixTag ()); }
+	static bool is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixIteratorTypes::RowCol)
+		{ return is_zero_impl (F, M, A, MatrixIteratorTypes::Row ()); }
 
 public:
 	template <class Modules, class Matrix>
 	static bool op (const Ring &F, Modules &M, const Matrix &A)
-		{ return is_zero_impl (F, M, A, typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+		{ return is_zero_impl (F, M, A, typename Matrix::IteratorType ()); }
 };
 
 template <class Ring>

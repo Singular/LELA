@@ -28,7 +28,7 @@ namespace BLAS3
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
-						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+						     MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -48,7 +48,7 @@ Matrix2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, 
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
-						     MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+						     MatrixIteratorTypes::Col, MatrixIteratorTypes::Col)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -67,7 +67,7 @@ Matrix2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, 
 
 template <class Ring>
 template <class Modules, class Matrix>
-Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::RowMatrixTag)
+Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixIteratorTypes::Row)
 {
 	typename Matrix::RowIterator i;
 
@@ -79,7 +79,7 @@ Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, c
 
 template <class Ring>
 template <class Modules, class Matrix>
-Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixCategories::ColMatrixTag)
+Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixIteratorTypes::Col)
 {
 	typename Matrix::ColIterator i;
 
@@ -92,7 +92,7 @@ Matrix &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, c
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
-						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+						     MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -112,7 +112,7 @@ Matrix2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, 
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
-						     MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+						     MatrixIteratorTypes::Col, MatrixIteratorTypes::Col)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -133,7 +133,7 @@ template <class Ring>
 template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
 						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+						     MatrixIteratorTypes::Row, MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -154,7 +154,7 @@ template <class Ring>
 template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
 						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-						     MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+						     MatrixIteratorTypes::Col, MatrixIteratorTypes::Col, MatrixIteratorTypes::Col)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -174,7 +174,7 @@ template <class Ring>
 template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
 						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-						     MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::RowMatrixTag)
+						     MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::Row)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -202,7 +202,7 @@ template <class Ring>
 template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
 						     const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-						     MatrixCategories::RowMatrixTag, MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+						     MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::Col)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -228,7 +228,7 @@ Matrix3 &_gemm<Ring, GenericModule::Tag>::gemm_impl (const Ring &F, Modules &M,
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_trmm<Ring, GenericModule::Tag>::trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+						     MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -301,7 +301,7 @@ Matrix2 &_trmm<Ring, GenericModule::Tag>::trmm_impl (const Ring &F, Modules &M, 
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_trsm<Ring, GenericModule::Tag>::trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-						     MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+						     MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -375,7 +375,7 @@ Matrix2 &_trsm<Ring, GenericModule::Tag>::trsm_impl (const Ring &F, Modules &M, 
 
 template <class Ring>
 template <class Modules, class Iterator, class Matrix>
-Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Row)
 {
 	typename Matrix::RowIterator j, k;
 
@@ -391,7 +391,7 @@ Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &
 
 template <class Ring>
 template <class Modules, class Iterator, class Matrix>
-Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Col)
 {
 	typename Matrix::ColIterator j;
 
@@ -403,7 +403,7 @@ Matrix &_permute_rows<Ring, GenericModule::Tag>::permute_rows_impl (const Ring &
 
 template <class Ring>
 template <class Modules, class Iterator, class Matrix>
-Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::RowMatrixTag)
+Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Row)
 {
 	typename Matrix::RowIterator j;
 
@@ -415,7 +415,7 @@ Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &
 
 template <class Ring>
 template <class Modules, class Iterator, class Matrix>
-Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixCategories::ColMatrixTag)
+Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Col)
 {
 	typename Matrix::ColIterator j, k;
 
@@ -432,7 +432,7 @@ Matrix &_permute_cols<Ring, GenericModule::Tag>::permute_cols_impl (const Ring &
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
-						   MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+						   MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -453,7 +453,7 @@ bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, co
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
-						   MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+						   MatrixIteratorTypes::Col, MatrixIteratorTypes::Col)
 {
 	linbox_check (A.rowdim () == B.rowdim ());
 	linbox_check (A.coldim () == B.coldim ());
@@ -473,7 +473,7 @@ bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, co
 
 template <class Ring>
 template <class Modules, class Matrix>
-bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixCategories::RowMatrixTag)
+bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixIteratorTypes::Row)
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -488,7 +488,7 @@ bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M
 
 template <class Ring>
 template <class Modules, class Matrix>
-bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixCategories::ColMatrixTag)
+bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixIteratorTypes::Col)
 {
 	typename Matrix::ConstColIterator i;
 

@@ -208,7 +208,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Matrix1, class Matrix2>
 void Splicer::copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
-				    MatrixCategories::RowMatrixTag, MatrixCategories::RowMatrixTag)
+				    MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	typename Matrix2::RowIterator i_A = dest.rowBegin () + horiz_block.destIndex ();
 	typename Matrix2::RowIterator i_A_end = dest.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
@@ -220,7 +220,7 @@ void Splicer::copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix
 
 template <class Ring, class Matrix1, class Matrix2>
 void Splicer::copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix2 &dest, const Block &horiz_block, const Block &vert_block,
-				    MatrixCategories::ColMatrixTag, MatrixCategories::ColMatrixTag)
+				    MatrixIteratorTypes::Col, MatrixIteratorTypes::Col)
 {
 	typename Matrix2::ColIterator i_A = dest.colBegin () + vert_block.destIndex ();
 	typename Matrix2::ColIterator i_A_end = dest.colBegin () + (vert_block.destIndex () + vert_block.size ());
@@ -232,7 +232,7 @@ void Splicer::copyBlockSpecialised (const Ring &R, const Matrix1 &source, Matrix
 
 template <class Ring, class Matrix>
 void Splicer::copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
-				       MatrixCategories::RowMatrixTag)
+				       MatrixIteratorTypes::Row)
 {
 	typename Matrix::RowIterator i_A = dest.rowBegin () + horiz_block.destIndex ();
 	typename Matrix::RowIterator i_A_end = dest.rowBegin () + (horiz_block.destIndex () + horiz_block.size ());
@@ -245,7 +245,7 @@ void Splicer::copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block 
 
 template <class Ring, class Matrix>
 void Splicer::copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block,
-				       MatrixCategories::ColMatrixTag)
+				       MatrixIteratorTypes::Col)
 {
 	typename Matrix::ColIterator i_A = dest.colBegin () + vert_block.destIndex ();
 	typename Matrix::ColIterator i_A_end = dest.colBegin () + (vert_block.destIndex () + vert_block.size ());

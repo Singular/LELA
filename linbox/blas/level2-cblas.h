@@ -38,7 +38,7 @@ class _gemv<UnparametricRing<float>, BLASModule::Tag>
 	static Vector2 &gemv_impl (const UnparametricRing<float> &F, Modules &M,
 				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::BlackboxTag,
+				   MatrixStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
@@ -49,7 +49,7 @@ class _gemv<UnparametricRing<float>, BLASModule::Tag>
 	static Vector2 &gemv_impl (const UnparametricRing<float> &F, Modules &M,
 				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowColMatrixTag,
+				   MatrixStorageTypes::Dense,
 				   VectorRepresentationTypes::Dense,
 				   VectorStorageTypes::Real,
 				   VectorRepresentationTypes::Dense,
@@ -73,7 +73,7 @@ public:
 			    size_t                start_idx = 0,
 			    size_t                end_idx = (size_t) -1)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::StorageType (),
 				    typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
 				    typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
 				    typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
@@ -85,14 +85,14 @@ class _trmv<UnparametricRing<float>, BLASModule::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
 	static Vector &trmv_impl (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::BlackboxTag,
+				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
 		{ return _trmv<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
 	static Vector &trmv_impl (const UnparametricRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::RowColMatrixTag,
+				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
 	{
@@ -107,7 +107,7 @@ public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trmv_impl (F, M, A, x, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::StorageType (),
 				    typename VectorTraits<UnparametricRing<float>, Vector>::RepresentationType (),
 				    typename VectorTraits<UnparametricRing<float>, Vector>::StorageType ()); }
 };
@@ -117,14 +117,14 @@ class _trsv<UnparametricRing<float>, BLASModule::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
 	static Vector &trsv_impl (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::BlackboxTag,
+				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
 		{ return _trsv<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
 	static Vector &trsv_impl (const UnparametricRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::RowColMatrixTag,
+				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
 	{
@@ -139,7 +139,7 @@ public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trsv_impl (F, M, A, x, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::StorageType (),
 				    typename VectorTraits<UnparametricRing<float>, Vector>::RepresentationType (),
 				    typename VectorTraits<UnparametricRing<float>, Vector>::StorageType ()); }
 };
@@ -153,7 +153,7 @@ class _ger<UnparametricRing<float>, BLASModule::Tag>
 				 VectorStorageTypes::Generic,
 				 VectorRepresentationTypes::Generic,
 				 VectorStorageTypes::Generic,
-				 MatrixCategories::BlackboxTag)
+				 MatrixStorageTypes::Generic)
 		{ return _ger<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, x, y, A); }
 
 	template <class Modules, class Vector1, class Vector2>
@@ -162,7 +162,7 @@ class _ger<UnparametricRing<float>, BLASModule::Tag>
 					     VectorStorageTypes::Real,
 					     VectorRepresentationTypes::Dense,
 					     VectorStorageTypes::Real,
-					     MatrixCategories::RowColMatrixTag)
+					     MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == x.size ());
 		linbox_check (A.coldim () == y.size ());
@@ -178,7 +178,7 @@ public:
 				   typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
 				   typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
 				   typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType (),
-				   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+				   typename Matrix::StorageType ()); }
 };
 
 template <>
@@ -188,7 +188,7 @@ class _gemv<UnparametricRing<double>, BLASModule::Tag>
 	static Vector2 &gemv_impl (const UnparametricRing<double> &F, Modules &M,
 				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::BlackboxTag,
+				   MatrixStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
@@ -199,7 +199,7 @@ class _gemv<UnparametricRing<double>, BLASModule::Tag>
 	static Vector2 &gemv_impl (const UnparametricRing<double> &F, Modules &M,
 				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowColMatrixTag,
+				   MatrixStorageTypes::Dense,
 				   VectorRepresentationTypes::Dense,
 				   VectorStorageTypes::Real,
 				   VectorRepresentationTypes::Dense,
@@ -223,7 +223,7 @@ public:
 			    size_t                start_idx = 0,
 			    size_t                end_idx = (size_t) -1)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::StorageType (),
 				    typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
 				    typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
 				    typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
@@ -235,14 +235,14 @@ class _trmv<UnparametricRing<double>, BLASModule::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
 	static Vector &trmv_impl (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::BlackboxTag,
+				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
 		{ return _trmv<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
 	static Vector &trmv_impl (const UnparametricRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::RowColMatrixTag,
+				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
 	{
@@ -257,7 +257,7 @@ public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trmv_impl (F, M, A, x, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::StorageType (),
 				    typename VectorTraits<UnparametricRing<double>, Vector>::RepresentationType (),
 				    typename VectorTraits<UnparametricRing<double>, Vector>::StorageType ()); }
 };
@@ -267,14 +267,14 @@ class _trsv<UnparametricRing<double>, BLASModule::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
 	static Vector &trsv_impl (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::BlackboxTag,
+				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
 		{ return _trsv<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
 	static Vector &trsv_impl (const UnparametricRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::RowColMatrixTag,
+				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
 	{
@@ -289,7 +289,7 @@ public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trsv_impl (F, M, A, x, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::StorageType (),
 				    typename VectorTraits<UnparametricRing<double>, Vector>::RepresentationType (),
 				    typename VectorTraits<UnparametricRing<double>, Vector>::StorageType ()); }
 };
@@ -303,7 +303,7 @@ class _ger<UnparametricRing<double>, BLASModule::Tag>
 				 VectorStorageTypes::Generic,
 				 VectorRepresentationTypes::Generic,
 				 VectorStorageTypes::Generic,
-				 MatrixCategories::BlackboxTag)
+				 MatrixStorageTypes::Generic)
 		{ return _ger<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, x, y, A); }
 
 	template <class Modules, class Vector1, class Vector2>
@@ -312,7 +312,7 @@ class _ger<UnparametricRing<double>, BLASModule::Tag>
 					      VectorStorageTypes::Real,
 					      VectorRepresentationTypes::Dense,
 					      VectorStorageTypes::Real,
-					      MatrixCategories::RowColMatrixTag)
+					      MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == x.size ());
 		linbox_check (A.coldim () == y.size ());
@@ -328,7 +328,7 @@ public:
 				   typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
 				   typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
 				   typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType (),
-				   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+				   typename Matrix::StorageType ()); }
 };
 
 } // namespace BLAS2

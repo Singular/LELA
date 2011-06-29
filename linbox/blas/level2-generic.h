@@ -30,7 +30,7 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowMatrixTag,
+				   MatrixIteratorTypes::Row,
 				   VectorRepresentationTypes::Generic,
 				   VectorRepresentationTypes::Dense);
 
@@ -38,7 +38,7 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowMatrixTag,
+				   MatrixIteratorTypes::Row,
 				   VectorRepresentationTypes::Generic,
 				   VectorRepresentationTypes::Sparse);
 
@@ -46,7 +46,7 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::ColMatrixTag,
+				   MatrixIteratorTypes::Col,
 				   VectorRepresentationTypes::Dense,
 				   VectorRepresentationTypes::Generic);
 
@@ -54,7 +54,7 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::ColMatrixTag,
+				   MatrixIteratorTypes::Col,
 				   VectorRepresentationTypes::Sparse,
 				   VectorRepresentationTypes::Generic);
 
@@ -62,11 +62,11 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowColMatrixTag,
+				   MatrixIteratorTypes::RowCol,
 				   VectorRepresentationTypes::Dense,
 				   VectorRepresentationTypes::Dense)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-				    MatrixCategories::ColMatrixTag (),
+				    MatrixIteratorTypes::Col (),
 				    typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 
@@ -74,11 +74,11 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowColMatrixTag,
+				   MatrixIteratorTypes::RowCol,
 				   VectorRepresentationTypes::Dense,
 				   VectorRepresentationTypes::Sparse)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-				    MatrixCategories::ColMatrixTag (),
+				    MatrixIteratorTypes::Col (),
 				    typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 
@@ -86,11 +86,11 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowColMatrixTag,
+				   MatrixIteratorTypes::RowCol,
 				   VectorRepresentationTypes::Sparse,
 				   VectorRepresentationTypes::Dense)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-				    MatrixCategories::ColMatrixTag (),
+				    MatrixIteratorTypes::Col (),
 				    typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 
@@ -98,11 +98,11 @@ class _gemv<Ring, GenericModule::Tag>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
-				   MatrixCategories::RowColMatrixTag,
+				   MatrixIteratorTypes::RowCol,
 				   VectorRepresentationTypes::Sparse,
 				   VectorRepresentationTypes::Sparse)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-				    MatrixCategories::ColMatrixTag (),
+				    MatrixIteratorTypes::Col (),
 				    typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 
@@ -118,7 +118,7 @@ public:
 			    size_t                         start_idx = 0,
 			    size_t                         end_idx = (size_t) -1)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::IteratorType (),
 				    typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 };
@@ -128,14 +128,14 @@ class _trmv<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
 	static Vector &trmv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::RowMatrixTag,
+				  MatrixIteratorTypes::Row,
 				  VectorRepresentationTypes::Dense);
 
 public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trmv_impl (F, M, A, x, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::IteratorType (),
 				    typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
@@ -144,14 +144,14 @@ class _trsv<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
 	static Vector &trsv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-				  MatrixCategories::RowMatrixTag,
+				  MatrixIteratorTypes::Row,
 				  VectorRepresentationTypes::Dense);
 
 public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trsv_impl (F, M, A, x, type, diagIsOne,
-				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename Matrix::IteratorType (),
 				    typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
@@ -162,45 +162,45 @@ class _ger<Ring, GenericModule::Tag>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Dense,
 				 VectorRepresentationTypes::Dense,
-				 MatrixCategories::RowMatrixTag);
+				 MatrixIteratorTypes::Row);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Sparse,
 				 VectorRepresentationTypes::Sparse,
-				 MatrixCategories::RowMatrixTag);
+				 MatrixIteratorTypes::Row);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Dense,
 				 VectorRepresentationTypes::Dense,
-				 MatrixCategories::ColMatrixTag);
+				 MatrixIteratorTypes::Col);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Sparse,
 				 VectorRepresentationTypes::Sparse,
-				 MatrixCategories::ColMatrixTag);
+				 MatrixIteratorTypes::Col);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Dense,
 				 VectorRepresentationTypes::Dense,
-				 MatrixCategories::RowColMatrixTag)
+				 MatrixIteratorTypes::RowCol)
 		{ return ger_impl (F, M, a, x, y, A,
 				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				   typename VectorTraits<Ring, Vector2>::RepresentationType (),
-				   MatrixCategories::RowMatrixTag ()); }
+				   MatrixIteratorTypes::Row ()); }
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Sparse,
 				 VectorRepresentationTypes::Sparse,
-				 MatrixCategories::RowColMatrixTag)
+				 MatrixIteratorTypes::RowCol)
 		{ return ger_impl (F, M, a, x, y, A,
 				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				   typename VectorTraits<Ring, Vector2>::RepresentationType (),
-				   MatrixCategories::RowMatrixTag ()); }
+				   MatrixIteratorTypes::Row ()); }
 
 public:
 	template <class Modules, class Vector1, class Vector2, class Matrix>
@@ -208,7 +208,7 @@ public:
 		{ return ger_impl (F, M, a, x, y, A,
 				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				   typename VectorTraits<Ring, Vector2>::RepresentationType (),
-				   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+				   typename Matrix::IteratorType ()); }
 };
 
 } // namespace BLAS2

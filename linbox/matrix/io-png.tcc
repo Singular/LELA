@@ -110,7 +110,7 @@ void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t 
 
 template <class Ring>
 template <class Matrix>
-std::istream &MatrixReader<Ring>::readPNGSpecialised (std::istream &is, Matrix &A, MatrixCategories::RowMatrixTag) const
+std::istream &MatrixReader<Ring>::readPNGSpecialised (std::istream &is, Matrix &A, MatrixIteratorTypes::Row) const
 {
 	png_structp png_ptr;
 	png_infop info_ptr, end_ptr;
@@ -265,7 +265,7 @@ void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector 
 
 template <class Ring>
 template <class Matrix>
-std::ostream &MatrixWriter<Ring>::writePNGSpecialised (std::ostream &os, const Matrix &A, MatrixCategories::RowMatrixTag) const
+std::ostream &MatrixWriter<Ring>::writePNGSpecialised (std::ostream &os, const Matrix &A, MatrixIteratorTypes::Row) const
 {
 	png_structp png_ptr;
 	png_infop info_ptr;

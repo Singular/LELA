@@ -166,7 +166,7 @@ private:
 
 \ingroup matrix
  */
-template<class _Matrix, class SFTrait = DefaultSubvectorFactoryTrait, class Trait = typename MatrixIteratorTypes<typename MatrixTraits<_Matrix>::MatrixCategory>::MatrixCategory>
+template<class _Matrix, class SFTrait = DefaultSubvectorFactoryTrait, class Trait = typename _Matrix::IteratorType>
 class Submatrix
 {
     public:
@@ -185,7 +185,8 @@ class Submatrix
 
 	typedef Matrix ContainerType;
 
-	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
+	typedef typename Matrix::IteratorType IteratorType; 
+	typedef typename Matrix::StorageType StorageType; 
     
 	typedef typename Matrix::Element Element;
 
@@ -401,12 +402,12 @@ class Submatrix
 /// Specialisation for matrices indexed only by rows
 
 template <class _Matrix, class SFTrait>
-class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
+class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Row>
 {
     public:
  
 	typedef _Matrix Matrix;
-        typedef Submatrix<Matrix, SFTrait, MatrixCategories::RowMatrixTag> Self_t;
+        typedef Submatrix<Matrix, SFTrait, MatrixIteratorTypes::Row> Self_t;
 	typedef typename Matrix::Tag Tag;
 
 	typedef typename Matrix::SubmatrixType SubmatrixType;
@@ -419,12 +420,13 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 
 	typedef Matrix ContainerType;
 
-	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
+	typedef typename Matrix::IteratorType IteratorType; 
+	typedef typename Matrix::StorageType StorageType; 
     
 	typedef typename Matrix::Element Element;
 
-	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::RowIterator, SFTrait>, MatrixCategories::RowMatrixTag> RowIterator;
-	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstRowIterator, SFTrait>, MatrixCategories::RowMatrixTag> ConstRowIterator;
+	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::RowIterator, SFTrait>, MatrixIteratorTypes::Row> RowIterator;
+	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstRowIterator, SFTrait>, MatrixIteratorTypes::Row> ConstRowIterator;
 	typedef typename SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::RowIterator, SFTrait>::Subvector Row;
 	typedef const typename SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstRowIterator, SFTrait>::Subvector ConstRow;
 
@@ -447,7 +449,7 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 		{}
 
 	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::RowMatrixTag> &SM,
+	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Row> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -456,7 +458,7 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 		{}
 
 	template <class SFT2>
-	Submatrix (const Submatrix<Matrix, SFT2, MatrixCategories::RowMatrixTag> &SM,
+	Submatrix (const Submatrix<Matrix, SFT2, MatrixIteratorTypes::Row> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -468,7 +470,7 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::RowMatrixTag> &SM)
+	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Row> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	Submatrix &operator = (const Submatrix &SM)
@@ -537,12 +539,12 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 /// Specialisation for matrices indexed only by columns
 
 template <class _Matrix, class SFTrait>
-class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
+class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Col>
 {
     public:
  
 	typedef _Matrix Matrix;
-        typedef Submatrix<Matrix, SFTrait, MatrixCategories::ColMatrixTag> Self_t;
+        typedef Submatrix<Matrix, SFTrait, MatrixIteratorTypes::Col> Self_t;
 	typedef typename Matrix::Tag Tag;
 
 	typedef typename Matrix::SubmatrixType SubmatrixType;
@@ -555,12 +557,13 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 
 	typedef Matrix ContainerType;
 
-	typedef typename MatrixTraits<Matrix>::MatrixCategory MatrixCategory; 
+	typedef typename Matrix::IteratorType IteratorType; 
+	typedef typename Matrix::StorageType StorageType; 
     
 	typedef typename Matrix::Element Element;
 
-	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::ColIterator, SFTrait>, MatrixCategories::ColMatrixTag> ColIterator;
-	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstColIterator, SFTrait>, MatrixCategories::ColMatrixTag> ConstColIterator;
+	typedef SubmatrixRowColIteratorPT<Self_t, SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::ColIterator, SFTrait>, MatrixIteratorTypes::Col> ColIterator;
+	typedef SubmatrixRowColIteratorPT<const Self_t, SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstColIterator, SFTrait>, MatrixIteratorTypes::Col> ConstColIterator;
 	typedef typename SubvectorFactory<typename Matrix::Tag, Self_t, typename Matrix::ColIterator, SFTrait>::Subvector Col;
 	typedef const typename SubvectorFactory<typename Matrix::Tag, const Self_t, typename Matrix::ConstColIterator, SFTrait>::Subvector ConstCol;
 
@@ -585,7 +588,7 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 		{}
 
 	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::ColMatrixTag> &SM,
+	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Col> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -597,7 +600,7 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixCategories::ColMatrixTag> &SM)
+	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Col> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	Submatrix &operator = (const Submatrix &SM)
