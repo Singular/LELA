@@ -28,11 +28,11 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 						    size_t start_idx, size_t end_idx,
 						    MatrixCategories::RowMatrixTag,
-						    VectorCategories::GenericVectorTag,
-						    VectorCategories::DenseZeroOneVectorTag)
+						    VectorRepresentationTypes::Generic,
+						    VectorRepresentationTypes::Dense01)
 {
-	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.rowdim ()));
 
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
@@ -58,11 +58,11 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 						    size_t start_idx, size_t end_idx,
 						    MatrixCategories::RowMatrixTag,
-						    VectorCategories::GenericVectorTag,
-						    VectorCategories::SparseZeroOneVectorTag)
+						    VectorRepresentationTypes::Generic,
+						    VectorRepresentationTypes::Sparse01)
 {
-	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.rowdim ()));
 
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
@@ -94,11 +94,11 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 						    size_t start_idx, size_t end_idx,
 						    MatrixCategories::RowMatrixTag,
-						    VectorCategories::GenericVectorTag,
-						    VectorCategories::HybridZeroOneVectorTag)
+						    VectorRepresentationTypes::Generic,
+						    VectorRepresentationTypes::Hybrid01)
 {
-	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.rowdim ()));
 
 	typename Matrix::ConstRowIterator i_A;
 	size_t idx;
@@ -135,11 +135,11 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 						    size_t start_idx, size_t end_idx,
 						    MatrixCategories::ColMatrixTag,
-						    VectorCategories::DenseZeroOneVectorTag,
-						    VectorCategories::GenericVectorTag)
+						    VectorRepresentationTypes::Dense01,
+						    VectorRepresentationTypes::Generic)
 {
-	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.rowdim ()));
 
 	if (!b)
 		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
@@ -166,11 +166,11 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 						    size_t start_idx, size_t end_idx,
 						    MatrixCategories::ColMatrixTag,
-						    VectorCategories::SparseZeroOneVectorTag,
-						    VectorCategories::GenericVectorTag)
+						    VectorRepresentationTypes::Sparse01,
+						    VectorRepresentationTypes::Generic)
 {
-	linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.rowdim ()));
 
 	typename Vector1::const_iterator i_x = std::lower_bound (x.begin (), x.end (), start_idx);
 
@@ -196,11 +196,11 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 						    bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 						    size_t start_idx, size_t end_idx,
 						    MatrixCategories::ColMatrixTag,
-						    VectorCategories::HybridZeroOneVectorTag,
-						    VectorCategories::GenericVectorTag)
+						    VectorRepresentationTypes::Hybrid01,
+						    VectorRepresentationTypes::Generic)
 {
-	// linbox_check (VectorWrapper::hasDim<GF2> (x, A.coldim ()));
-	// linbox_check (VectorWrapper::hasDim<GF2> (y, A.rowdim ()));
+	// linbox_check (VectorUtils::hasDim<GF2> (x, A.coldim ()));
+	// linbox_check (VectorUtils::hasDim<GF2> (y, A.rowdim ()));
 
 	typename Matrix::ConstColIterator i_A;
 	typename Vector1::const_iterator i_x;
@@ -218,7 +218,7 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 
 	linbox_check (end_idx <= A.coldim ());
 
-	i_x = std::lower_bound (x.begin (), x.end (), start_idx >> WordTraits<typename Vector1::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
+	i_x = std::lower_bound (x.begin (), x.end (), start_idx >> WordTraits<typename Vector1::word_type>::logof_size, VectorUtils::CompareSparseEntries ());
 
 	for (; i_x != x.end () && (i_x->first << WordTraits<typename Vector1::word_type>::logof_size) < (long) end_idx; ++i_x) {
 		if (start_idx >> WordTraits<typename Vector1::word_type>::logof_size == i_x->first) {
@@ -242,38 +242,38 @@ Vector2 &_gemv<GF2, GenericModule::Tag>::gemv_impl (const GF2 &F, Modules &M,
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-						 VectorCategories::DenseZeroOneVectorTag,
-						 VectorCategories::DenseZeroOneVectorTag,
+						 VectorRepresentationTypes::Dense01,
+						 VectorRepresentationTypes::Dense01,
 						 MatrixCategories::RowMatrixTag);
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-						 VectorCategories::SparseZeroOneVectorTag,
-						 VectorCategories::SparseZeroOneVectorTag,
+						 VectorRepresentationTypes::Sparse01,
+						 VectorRepresentationTypes::Sparse01,
 						 MatrixCategories::RowMatrixTag);
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-						 VectorCategories::HybridZeroOneVectorTag,
-						 VectorCategories::HybridZeroOneVectorTag,
+						 VectorRepresentationTypes::Hybrid01,
+						 VectorRepresentationTypes::Hybrid01,
 						 MatrixCategories::RowMatrixTag);
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-						 VectorCategories::DenseZeroOneVectorTag,
-						 VectorCategories::DenseZeroOneVectorTag,
+						 VectorRepresentationTypes::Dense01,
+						 VectorRepresentationTypes::Dense01,
 						 MatrixCategories::ColMatrixTag);
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-						 VectorCategories::SparseZeroOneVectorTag,
-						 VectorCategories::SparseZeroOneVectorTag,
+						 VectorRepresentationTypes::Sparse01,
+						 VectorRepresentationTypes::Sparse01,
 						 MatrixCategories::ColMatrixTag);
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-						 VectorCategories::HybridZeroOneVectorTag,
-						 VectorCategories::HybridZeroOneVectorTag,
+						 VectorRepresentationTypes::Hybrid01,
+						 VectorRepresentationTypes::Hybrid01,
 						 MatrixCategories::ColMatrixTag);
 
 #endif // Not implemented

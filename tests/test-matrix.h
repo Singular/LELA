@@ -48,7 +48,7 @@ bool testRowIterator (const Field &F, const Matrix &M)
 			if (M.getEntry (a, i, j)) {
 				typename Field::Element b;
 
-				if (!VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstRow> (*i_M, b, j)) {
+				if (!VectorUtils::getEntry<typename Field::Element, typename Matrix::ConstRow> (*i_M, b, j)) {
 					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 					error << "ERROR: Entry at position (" << i << "," << j << ") is not present in row-vector (should be ";
 					F.write (error, a) << ")" << std::endl;
@@ -64,7 +64,7 @@ bool testRowIterator (const Field &F, const Matrix &M)
 			} else {
 				typename Field::Element b;
 
-				if (VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstRow> (*i_M, b, j) && !F.isZero (b)) {
+				if (VectorUtils::getEntry<typename Field::Element, typename Matrix::ConstRow> (*i_M, b, j) && !F.isZero (b)) {
 					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 					error << "ERROR: getEntry reports entry at position (" << i << "," << j << ") does not exist, but ref reports ";
 					F.write (error, b) << std::endl;
@@ -103,7 +103,7 @@ bool testColIterator (const Field &F, const Matrix &M)
 			if (M.getEntry (a, i, j)) {
 				typename Field::Element b;
 
-				if (!VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstCol> (*j_M, b, i)) {
+				if (!VectorUtils::getEntry<typename Field::Element, typename Matrix::ConstCol> (*j_M, b, i)) {
 					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 					error << "ERROR: Entry at position (" << i << "," << j << ") is not present in column-vector (should be ";
 					F.write (error, a) << ")" << std::endl;
@@ -119,7 +119,7 @@ bool testColIterator (const Field &F, const Matrix &M)
 			} else {
 				typename Field::Element b;
 
-				if (VectorWrapper::getEntry<typename Field::Element, typename Matrix::ConstCol> (*j_M, b, i) && !F.isZero (b)) {
+				if (VectorUtils::getEntry<typename Field::Element, typename Matrix::ConstCol> (*j_M, b, i) && !F.isZero (b)) {
 					std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 					error << "ERROR: getEntry reports entry at position (" << i << "," << j << ") does not exist, but ref reports ";
 					F.write (error, b) << std::endl;

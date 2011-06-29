@@ -29,31 +29,31 @@ class _dot<Ring, GenericModule::Tag>
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 						 size_t start_idx, size_t end_idx,
-						 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+						 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 						 size_t start_idx, size_t end_idx,
-						 VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+						 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return _dot (F, M, res, y, x, start_idx, end_idx); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 						 size_t start_idx, size_t end_idx,
-						 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+						 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 						 size_t start_idx, size_t end_idx,
-						 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+						 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &op (const Ring &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<Ring, Vector1>::VectorCategory (),
-				   typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
+				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
+				   typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 };
 
 template <class Ring>
@@ -70,7 +70,7 @@ class _copy<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+				   VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 	{
 		linbox_check (x.size () == y.size ());
 
@@ -80,23 +80,23 @@ class _copy<Ring, GenericModule::Tag>
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag);
+				   VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+				   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 		{ y.assign (x.begin (), x.end ()); return y; }
 
 public:
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &op (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y)
 		{ return copy_impl (F, M, x, y,
-				    typename VectorTraits<Ring, Vector1>::VectorCategory (),
-				    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
+				    typename VectorTraits<Ring, Vector1>::RepresentationType (),
+				    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 };
 
 template <class Ring>
@@ -104,58 +104,58 @@ class _axpy<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+				   VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag);
+				   VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+				   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y)
 		{ return axpy_impl (F, M, a, x, y,
-				    typename VectorTraits<Ring, Vector1>::VectorCategory (),
-				    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
+				    typename VectorTraits<Ring, Vector1>::RepresentationType (),
+				    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 };
 
 template <class Ring>
 class _scal<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorCategories::DenseVectorTag);
+	static Vector &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorCategories::SparseVectorTag);
+	static Vector &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector>
 	static Vector &op (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x)
 		{ return scal_impl (F, M, a, x,
-				    typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+				    typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 template <class Ring>
 class _permute<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Iterator, class Vector>
-	static Vector &permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::DenseVectorTag);
+	static Vector &permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Iterator, class Vector>
-	static Vector &permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseVectorTag);
+	static Vector &permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Iterator, class Vector>
 	static Vector &op (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v)
 		{ return permute_impl (F, M, P_begin, P_end, v,
-				       typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+				       typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 template <class Ring>
@@ -163,91 +163,91 @@ class _equal<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+				VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+				VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return _equal<Ring, typename Modules::Tag>::op (F, M, y, x); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+				VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector1, class Vector2>
 	static bool op (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y)
 		{ return equal_impl (F, M, x, y,
-				     typename VectorTraits<Ring, Vector1>::VectorCategory (),
-				     typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
+				     typename VectorTraits<Ring, Vector1>::RepresentationType (),
+				     typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 };
 
 template <class Ring>
 class _is_zero<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static bool is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorCategories::DenseVectorTag);
+	static bool is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector>
-	static bool is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorCategories::SparseVectorTag);
+	static bool is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector>
 	static bool op (const Ring &F, Modules &M, const Vector &x)
 		{ return is_zero_impl (F, M, x,
-				       typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+				       typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 template <class Ring>
 class _head<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static int head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorCategories::DenseVectorTag);
+	static int head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector>
-	static int head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorCategories::SparseVectorTag);
+	static int head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector>
 	static int op (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x)
 		{ return head_impl (F, M, a, x,
-				    typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+				    typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 template <class Ring>
 class _read<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static std::istream &read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorCategories::DenseVectorTag);
+	static std::istream &read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector>
-	static std::istream &read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorCategories::SparseVectorTag);
+	static std::istream &read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector>
 	static std::istream &op (const Ring &F, Modules &M, std::istream &is, Vector &v)
 		{ return read_impl (F, M, is, v,
-				    typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+				    typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 template <class Ring>
 class _write<Ring, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static std::ostream &write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::DenseVectorTag);
+	static std::ostream &write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector>
-	static std::ostream &write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::SparseVectorTag);
+	static std::ostream &write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector>
 	static std::ostream &op (const Ring &F, Modules &M, std::ostream &os, const Vector &v)
 		{ return write_impl (F, M, os, v,
-				     typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+				     typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 } // namespace BLAS1

@@ -372,7 +372,7 @@ std::istream &MatrixReader<Ring>::readPretty (std::istream &is, Matrix &A) const
 
 template <class Ring>
 template <class Vector>
-void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseVectorTag) const
+void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Dense) const
 {
 	if (v.size () <= index)
 		v.resize (index + 1);
@@ -382,7 +382,7 @@ void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const 
 
 template <class Ring>
 template <class Vector>
-void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseZeroOneVectorTag) const
+void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Dense01) const
 {
 	if (v.size () <= index)
 		v.resize (index + 1);
@@ -392,7 +392,7 @@ void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const 
 
 template <class Ring>
 template <class Vector>
-void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::HybridZeroOneVectorTag) const
+void MatrixReader<Ring>::appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Hybrid01) const
 {
 	throw NotImplemented ();
 }

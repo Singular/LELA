@@ -32,7 +32,7 @@ namespace BLAS1
 template <class Vector1, class Vector2>
 float dot_impl (const UnparametricRing<float> &F, BLASModule &M, float &res, const Vector1 &x, const Vector2 &y,
 		size_t start_idx, size_t end_idx,
-		VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+		VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	return cblas_sdot (((end_idx == (size_t) -1) ? x.size () : end_idx) - start_idx, &x[start_idx], &x[1] - &x[0], &y[start_idx], &y[1] - &y[0]);
@@ -41,7 +41,7 @@ float dot_impl (const UnparametricRing<float> &F, BLASModule &M, float &res, con
 template <class Vector1, class Vector2>
 double dot_impl (const UnparametricRing<double> &F, BLASModule &M, double &res, const Vector1 &x, const Vector2 &y,
 		 size_t start_idx, size_t end_idx,
-		 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+		 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	return cblas_ddot (((end_idx == (size_t) -1) ? x.size () : end_idx) - start_idx, &x[start_idx], &x[1] - &x[0], &y[start_idx], &y[1] - &y[0]);
@@ -49,7 +49,7 @@ double dot_impl (const UnparametricRing<double> &F, BLASModule &M, double &res, 
 
 template <class Vector1, class Vector2>
 Vector2 &copy_impl (const UnparametricRing<float> &F, BLASModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+		    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	cblas_scopy (x.size (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
@@ -58,7 +58,7 @@ Vector2 &copy_impl (const UnparametricRing<float> &F, BLASModule &M, const Vecto
 
 template <class Vector1, class Vector2>
 Vector2 &copy_impl (const UnparametricRing<double> &F, BLASModule &M, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+		    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	cblas_dcopy (x.size (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
@@ -67,7 +67,7 @@ Vector2 &copy_impl (const UnparametricRing<double> &F, BLASModule &M, const Vect
 
 template <class Vector1, class Vector2>
 Vector2 &axpy_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+		    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	cblas_saxpy (x.size (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
@@ -76,7 +76,7 @@ Vector2 &axpy_impl (const UnparametricRing<float> &F, BLASModule &M, float a, co
 
 template <class Vector1, class Vector2>
 Vector2 &axpy_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Vector1 &x, Vector2 &y,
-		    VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+		    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	cblas_daxpy (x.size (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
@@ -84,7 +84,7 @@ Vector2 &axpy_impl (const UnparametricRing<double> &F, BLASModule &M, double a, 
 }
 
 template <class Vector>
-Vector &scal_impl (const UnparametricRing<double> &F, BLASModule &M, float a, Vector &x, VectorCategories::DenseVectorTag)
+Vector &scal_impl (const UnparametricRing<double> &F, BLASModule &M, float a, Vector &x, VectorRepresentationTypes::Dense)
 {
 	cblas_sscal (x.size (), a, &x[0], &x[1] - &x[0]);
 	return x;

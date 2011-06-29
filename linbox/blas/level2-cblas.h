@@ -35,8 +35,8 @@ Vector2 &gemv_impl (const UnparametricRing<float> &F, BLASModule &M,
 		    float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
-		    VectorCategories::DenseVectorTag,
-		    VectorCategories::DenseVectorTag)
+		    VectorRepresentationTypes::Dense,
+		    VectorRepresentationTypes::Dense)
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
@@ -47,7 +47,7 @@ Vector2 &gemv_impl (const UnparametricRing<float> &F, BLASModule &M,
 template <class Vector>
 Vector &trmv_impl (const UnparametricRing<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
-		   VectorCategories::DenseVectorTag)
+		   VectorRepresentationTypes::Dense)
 {
 	linbox_check (A.rowdim () == x.size ());
 	linbox_check (A.coldim () == x.size ());
@@ -60,7 +60,7 @@ Vector &trmv_impl (const UnparametricRing<float> &F, BLASModule &M, const DenseM
 template <class Vector>
 Vector &trsv_impl (const UnparametricRing<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
-		   VectorCategories::DenseVectorTag)
+		   VectorRepresentationTypes::Dense)
 {
 	linbox_check (A.rowdim () == x.size ());
 	linbox_check (A.coldim () == x.size ());
@@ -72,8 +72,8 @@ Vector &trsv_impl (const UnparametricRing<float> &F, BLASModule &M, const DenseM
 
 template <class Vector1, class Vector2>
 DenseMatrix<float> &ger_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
-			      VectorCategories::DenseVectorTag,
-			      VectorCategories::DenseVectorTag,
+			      VectorRepresentationTypes::Dense,
+			      VectorRepresentationTypes::Dense,
 			      MatrixCategories::RowColMatrixTag)
 {
 	linbox_check (A.rowdim () == x.size ());
@@ -87,8 +87,8 @@ Vector2 &gemv_impl (const UnparametricRing<double> &F, BLASModule &M,
 		    double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
 		    size_t start_idx, size_t end_idx,
 		    MatrixCategories::RowColMatrixTag,
-		    VectorCategories::DenseVectorTag,
-		    VectorCategories::DenseVectorTag)
+		    VectorRepresentationTypes::Dense,
+		    VectorRepresentationTypes::Dense)
 {
 	linbox_check (A.coldim () == x.size ());
 	linbox_check (A.rowdim () == y.size ());
@@ -99,7 +99,7 @@ Vector2 &gemv_impl (const UnparametricRing<double> &F, BLASModule &M,
 template <class Vector>
 Vector &trmv_impl (const UnparametricRing<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
-		   VectorCategories::DenseVectorTag)
+		   VectorRepresentationTypes::Dense)
 {
 	linbox_check (A.rowdim () == x.size ());
 	linbox_check (A.coldim () == x.size ());
@@ -112,7 +112,7 @@ Vector &trmv_impl (const UnparametricRing<double> &F, BLASModule &M, const Dense
 template <class Vector>
 Vector &trsv_impl (const UnparametricRing<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 		   MatrixCategories::RowColMatrixTag,
-		   VectorCategories::DenseVectorTag)
+		   VectorRepresentationTypes::Dense)
 {
 	linbox_check (A.rowdim () == x.size ());
 	linbox_check (A.coldim () == x.size ());
@@ -124,8 +124,8 @@ Vector &trsv_impl (const UnparametricRing<double> &F, BLASModule &M, const Dense
 
 template <class Vector1, class Vector2>
 DenseMatrix<double> &ger_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
-			       VectorCategories::DenseVectorTag,
-			       VectorCategories::DenseVectorTag,
+			       VectorRepresentationTypes::Dense,
+			       VectorRepresentationTypes::Dense,
 			       MatrixCategories::RowColMatrixTag)
 {
 	linbox_check (A.rowdim () == x.size ());

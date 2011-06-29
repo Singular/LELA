@@ -252,7 +252,7 @@ public:
 	ConstRow operator[] (size_t i) const
 		{ return ConstRow (_rep->rows[i], _rep->rows[i] + _rep->width, _rep->ncols); }
 
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Dense01> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
 	ConstRawIterator rawBegin () const
@@ -260,7 +260,7 @@ public:
 	ConstRawIterator rawEnd () const
 		{ return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorRepresentationTypes::Dense01, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const
@@ -463,7 +463,7 @@ public:
 				 BitVectorIterator<const word *, const word *, BigEndian<word> > (_rep->rows[i] + _rep->width - ((last_offset == 0) ? 0 : 1), last_offset));
 	}
 
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Dense01> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
 	ConstRawIterator rawBegin () const
@@ -471,7 +471,7 @@ public:
 	ConstRawIterator rawEnd () const
 		{ return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseZeroOneVectorTag, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorRepresentationTypes::Dense01, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const

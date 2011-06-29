@@ -32,7 +32,7 @@ namespace LinBox
 {
 
 template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
+void SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse>
 	::setEntry (size_t i, size_t j, const Element &value) 
 {
         typedef typename Row::value_type value_type;
@@ -42,7 +42,7 @@ void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	if (v.size () == 0) {
 		v.push_back (value_type (j, value));
 	} else {
-		iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries ());
+		iter = std::lower_bound (v.begin (), v.end (), j, VectorUtils::CompareSparseEntries ());
 
 		if (iter == v.end () || iter->first != j)
 			iter = v.insert (iter, value_type (j, value));
@@ -52,20 +52,20 @@ void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 }
 
 template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
+void SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse>
 	::eraseEntry (size_t i, size_t j) 
 {
 	Row &v = _A[i];
 	typename Row::iterator iter;
 	
-	iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries ());
+	iter = std::lower_bound (v.begin (), v.end (), j, VectorUtils::CompareSparseEntries ());
 
 	if (iter != v.end () && iter->first == j)
 		v.erase (iter);
 }
 
 template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
+bool SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse>
 	::getEntry (Element &x, size_t i, size_t j) const
 {
 	const Row &v = _A[i];
@@ -74,7 +74,7 @@ bool SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 	if (v.size () == 0)
 		return false;
 	else {
-		iter = std::lower_bound (v.begin (), v.end (), j, VectorWrapper::CompareSparseEntries ());
+		iter = std::lower_bound (v.begin (), v.end (), j, VectorUtils::CompareSparseEntries ());
 
 		if (iter == v.end () || iter->first != j)
 			return false;
@@ -87,7 +87,7 @@ bool SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 
 template <class Element, class Row>
 template <class Vector>
-Vector &SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
+Vector &SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse>
 	::columnDensity (Vector &v) const
 {
 	unsigned int row = 0;
@@ -103,8 +103,8 @@ Vector &SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
 }
 
 template <class Element, class Row>
-SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>
-	&SparseMatrix<Element, Row, VectorCategories::SparseVectorTag>::transpose (SparseMatrix &AT) const
+SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse>
+	&SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse>::transpose (SparseMatrix &AT) const
 {
 	typename Row::const_iterator j;
 

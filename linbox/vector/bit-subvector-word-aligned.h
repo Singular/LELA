@@ -19,6 +19,8 @@
 
 #include "linbox/vector/traits.h"
 #include "linbox/vector/bit-iterator.h"
+#include "linbox/vector/bit-vector.h"
+#include "linbox/vector/bit-subvector.h"
 
 namespace LinBox
 {
@@ -33,8 +35,6 @@ template <class Iterator, class ConstIterator, class _Endianness>
 class BitSubvectorWordAligned
 {
     public:
-	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
-
 	typedef Iterator word_iterator;
 	typedef ConstIterator const_word_iterator;
 	typedef _Endianness Endianness;
@@ -43,9 +43,9 @@ class BitSubvectorWordAligned
 	typedef BitVectorConstIterator<const_word_iterator, Endianness>           const_iterator;
 	typedef BitVectorReference<word_iterator, Endianness>                     reference;
 	typedef BitVectorConstReference<const_word_iterator, Endianness>          const_reference;
-	typedef iterator                                              pointer;
+	typedef typename std::iterator_traits<Iterator>::pointer pointer;
 	typedef typename BitVectorIterator<word_iterator, const_word_iterator>::difference_type difference_type;
-	typedef typename BitVectorIterator<word_iterator, const_word_iterator>::size_type	   size_type;
+	typedef typename BitVectorIterator<word_iterator, const_word_iterator>::size_type	size_type;
 
 	typedef typename std::iterator_traits<word_iterator>::value_type word_type;
 
@@ -54,6 +54,15 @@ class BitSubvectorWordAligned
 
 	typedef std::reverse_iterator<word_iterator> reverse_word_iterator;
 	typedef std::reverse_iterator<const_word_iterator> const_reverse_word_iterator;
+
+	typedef VectorRepresentationTypes::Dense01 RepresentationType; 
+	typedef VectorStorageTypes::Real StorageType;
+	typedef BitVector<Endianness> ContainerType;
+	typedef BitSubvector<iterator, const_iterator> SubvectorType;
+	typedef BitSubvector<const_iterator, const_iterator> ConstSubvectorType;
+	typedef BitSubvectorWordAligned<word_iterator, const_word_iterator> AlignedSubvectorType;
+	typedef BitSubvectorWordAligned<const_word_iterator, const_word_iterator> ConstAlignedSubvectorType;
+	static const int align = WordTraits<word_type>::bits;
 
 	BitSubvectorWordAligned () {}
 

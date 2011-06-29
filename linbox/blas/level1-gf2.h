@@ -30,33 +30,33 @@ class _dot<GF2, GenericModule::Tag>
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 				    size_t start_idx, size_t end_idx,
-				    VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+				    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 				    size_t start_idx, size_t end_idx,
-				    VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 				    size_t start_idx, size_t end_idx,
-				    VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+				    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 				    size_t start_idx, size_t end_idx,
-				    VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+				    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
 		{ return op (F, M, res, y, x, start_idx, end_idx); }
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 				    size_t start_idx, size_t end_idx,
-				    VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 				    size_t start_idx, size_t end_idx,
-				    VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+				    VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 		{ return op (F, M, res, y, x, start_idx, end_idx); }
 
 public:
@@ -64,8 +64,8 @@ public:
 	static reference &op (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<GF2, Vector1>::VectorCategory (),
-				   typename VectorTraits<GF2, Vector2>::VectorCategory ()); }
+				   typename VectorTraits<GF2, Vector1>::RepresentationType (),
+				   typename VectorTraits<GF2, Vector2>::RepresentationType ()); }
 };
 
 template <>
@@ -73,49 +73,49 @@ class _copy<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+				   VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
 		{ std::copy (x.word_begin (), x.word_end (), y.word_begin ()); y.back_word () = x.back_word (); return y; }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				   VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+				   VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+				   VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+				   VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
 		{ y.assign (x.begin (), x.end ()); return y; }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+				   VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+				   VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				   VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+				   VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01)
 		{ y.assign (x.begin (), x.end ()); return y; }
 
 public:
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &op (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y)
 		{ return copy_impl (F, M, x, y,
-				    typename VectorTraits<GF2, Vector1>::VectorCategory (),
-				    typename VectorTraits<GF2, Vector2>::VectorCategory ()); }
+				    typename VectorTraits<GF2, Vector1>::RepresentationType (),
+				    typename VectorTraits<GF2, Vector2>::RepresentationType ()); }
 };
 
 template <>
@@ -123,68 +123,71 @@ class _axpy<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+				   VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				   VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+				   VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+				   VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-				   VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+				   VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01);
 
 public:
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &op (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y)
 		{ return axpy_impl (F, M, a, x, y,
-				    typename VectorTraits<GF2, Vector1>::VectorCategory (),
-				    typename VectorTraits<GF2, Vector2>::VectorCategory ()); }
+				    typename VectorTraits<GF2, Vector1>::RepresentationType (),
+				    typename VectorTraits<GF2, Vector2>::RepresentationType ()); }
 };
 
 template <>
 class _scal<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const GF2 &F, Modules &M, bool a, Vector &x, VectorCategories::DenseZeroOneVectorTag)
+	static Vector &scal_impl (const GF2 &F, Modules &M, bool a, Vector &x, VectorRepresentationTypes::Dense01)
 		{ if (!a) { std::fill (x.word_begin (), x.word_end (), 0); x.back_word () = 0; } return x; }
 
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const GF2 &F, Modules &M, bool a, Vector &x, VectorCategories::SparseZeroOneVectorTag)
+	static Vector &scal_impl (const GF2 &F, Modules &M, bool a, Vector &x, VectorRepresentationTypes::Sparse01)
 		{ if (!a) x.clear (); return x; }
 
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const GF2 &F, Modules &M, bool a, Vector &x, VectorCategories::HybridZeroOneVectorTag)
+	static Vector &scal_impl (const GF2 &F, Modules &M, bool a, Vector &x, VectorRepresentationTypes::Hybrid01)
 		{ if (!a) x.clear (); return x; }
 
 public:
 	template <class Modules, class Vector>
 	static Vector &op (const GF2 &F, Modules &M, bool a, Vector &x)
 		{ return scal_impl (F, M, a, x,
-				    typename VectorTraits<GF2, Vector>::VectorCategory ()); }
+				    typename VectorTraits<GF2, Vector>::RepresentationType ()); }
 };
 
 template <>
 class _permute<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Iterator, class Vector>
-	static Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseZeroOneVectorTag);
+	static Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Iterator, class Vector>
-	static Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::HybridZeroOneVectorTag);
+	static Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Sparse01);
+
+	template <class Modules, class Iterator, class Vector>
+	static Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Hybrid01);
 
 public:
 	template <class Modules, class Iterator, class Vector>
 	static Vector &op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v)
 		{ return permute_impl (F, M, P_begin, P_end, v,
-				       typename VectorTraits<GF2, Vector>::VectorCategory ()); }
+				       typename VectorTraits<GF2, Vector>::RepresentationType ()); }
 };
 
 template <>
@@ -192,125 +195,125 @@ class _equal<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+				VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+				VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
 		{ return op (F, M, y, x); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+				VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+				VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 		{ return op (F, M, y, x); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+				VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::SparseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+				VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01)
 		{ return op (F, M, y, x); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-				VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+				VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01);
 
 public:
 	template <class Modules, class Vector1, class Vector2>
 	static bool op (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y)
 		{ return equal_impl (F, M, x, y,
-				     typename VectorTraits<GF2, Vector1>::VectorCategory (),
-				     typename VectorTraits<GF2, Vector2>::VectorCategory ()); }
+				     typename VectorTraits<GF2, Vector1>::RepresentationType (),
+				     typename VectorTraits<GF2, Vector2>::RepresentationType ()); }
 };
 
 template <>
 class _is_zero<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static bool is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorCategories::DenseZeroOneVectorTag);
+	static bool is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector>
-	static bool is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorCategories::SparseZeroOneVectorTag)
+	static bool is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorRepresentationTypes::Sparse01)
 		{ return x.empty (); }
 
 	template <class Modules, class Vector>
-	static bool is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorCategories::HybridZeroOneVectorTag)
+	static bool is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorRepresentationTypes::Hybrid01)
 		{ return x.empty (); }
 
 public:
 	template <class Modules, class Vector>
 	static bool op (const GF2 &F, Modules &M, const Vector &x)
 		{ return is_zero_impl (F, M, x,
-				       typename VectorTraits<GF2, Vector>::VectorCategory ()); }
+				       typename VectorTraits<GF2, Vector>::RepresentationType ()); }
 };
 
 template <>
 class _head<GF2, GenericModule::Tag>
 {
 	template <class Modules, class reference, class Vector>
-	static int head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorCategories::DenseZeroOneVectorTag);
+	static int head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class reference, class Vector>
-	static int head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorCategories::SparseZeroOneVectorTag)
+	static int head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorRepresentationTypes::Sparse01)
 		{ if (x.empty ()) return -1; a = true; return x.front (); }
 
 	template <class Modules, class reference, class Vector>
-	static int head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorCategories::HybridZeroOneVectorTag);
+	static int head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorRepresentationTypes::Hybrid01);
 
 public:
 	template <class Modules, class reference, class Vector>
 	static int op (const GF2 &F, Modules &M, reference &a, const Vector &x)
 		{ return head_impl (F, M, a, x,
-				    typename VectorTraits<GF2, Vector>::VectorCategory ()); }
+				    typename VectorTraits<GF2, Vector>::RepresentationType ()); }
 };
 
 template <>
 class _read<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &v, VectorCategories::DenseZeroOneVectorTag);
+	static std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &v, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector>
-	static std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &v, VectorCategories::SparseZeroOneVectorTag);
+	static std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &v, VectorRepresentationTypes::Sparse01);
 
 public:
 	template <class Modules, class Vector>
 	static std::istream &op (const GF2 &F, Modules &M, std::istream &is, Vector &v)
 		{ return read_impl (F, M, is, v,
-				    typename VectorTraits<GF2, Vector>::VectorCategory ()); }
+				    typename VectorTraits<GF2, Vector>::RepresentationType ()); }
 };
 
 template <>
 class _write<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector>
-	static std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::DenseZeroOneVectorTag);
+	static std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Vector>
-	static std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::SparseZeroOneVectorTag);
+	static std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Vector>
-	static std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::HybridZeroOneVectorTag);
+	static std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Hybrid01);
 
 public:
 	template <class Modules, class Vector>
 	static std::ostream &op (const GF2 &F, Modules &M, std::ostream &os, const Vector &v)
 		{ return write_impl (F, M, os, v,
-				     typename VectorTraits<GF2, Vector>::VectorCategory ()); }
+				     typename VectorTraits<GF2, Vector>::RepresentationType ()); }
 };
 
 } // namespace BLAS1

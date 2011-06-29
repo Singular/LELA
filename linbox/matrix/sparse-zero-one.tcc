@@ -15,7 +15,7 @@ namespace LinBox
 {
 
 template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::getEntry (Element &x, size_t i, size_t j) const
+bool SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse01>::getEntry (Element &x, size_t i, size_t j) const
 {
 	const Row &v = (*this)[i];
 
@@ -29,13 +29,13 @@ bool SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::getEn
 }
 
 template <class Element, class Row>
-bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEntry (Element &x, size_t i, size_t j) const
+bool SparseMatrix<Element, Row, VectorRepresentationTypes::Hybrid01>::getEntry (Element &x, size_t i, size_t j) const
 {
 	const Row &v = (*this)[i];
 
 	typename Row::const_iterator idx;
 
-	idx = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
+	idx = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorUtils::CompareSparseEntries ());
 
 	if (idx != v.end () && idx->first == j >> WordTraits<typename Row::word_type>::logof_size) {
 		x = idx->second & Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
@@ -45,7 +45,7 @@ bool SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag>::getEn
 }
 
 template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::eraseEntry (size_t i, size_t j)
+void SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse01>::eraseEntry (size_t i, size_t j)
 {
 	Row &v = (*this)[i];
 
@@ -56,8 +56,7 @@ void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag>::erase
 }
 
 template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag >
-	::setEntry (size_t i, size_t j, const Element &value) 
+void SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse01>::setEntry (size_t i, size_t j, const Element &value) 
 {
 	Row &v = _A[i];
 	typename Row::iterator iter;
@@ -75,8 +74,7 @@ void SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag >
 }
 
 template <class Element, class Row>
-void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
-	::setEntry (size_t i, size_t j, const Element &value) 
+void SparseMatrix<Element, Row, VectorRepresentationTypes::Hybrid01>::setEntry (size_t i, size_t j, const Element &value) 
 {
 	Row &v = _A[i];
 	typename Row::iterator it;
@@ -86,7 +84,7 @@ void SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag >
 	if (value && v.empty ()) {
 		v.push_back (typename Row::value_type (j >> WordTraits<typename Row::word_type>::logof_size, m));
 	} else {
-		it = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
+		it = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorUtils::CompareSparseEntries ());
 
 		if (it == v.end () || it->first != (j >> WordTraits<typename Row::word_type>::logof_size)) {
 			if (value)

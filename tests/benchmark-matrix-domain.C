@@ -113,18 +113,18 @@ void runBenchmarks (const GF2 &F)
 	typedef Field::Element Element;
 
 	if (enable_dense) {
-		RandomDenseStream<Field, DenseZeroOneMatrix<>::Row> stream1 (F, m, l);
-		RandomDenseStream<Field, DenseZeroOneMatrix<>::Row> stream2 (F, n, m);
+		RandomDenseStream<Field, Dense01Matrix<>::Row> stream1 (F, m, l);
+		RandomDenseStream<Field, Dense01Matrix<>::Row> stream2 (F, n, m);
 
-		DenseZeroOneMatrix<> M1 (stream1);
-		DenseZeroOneMatrix<> M2 (stream2);
+		Dense01Matrix<> M1 (stream1);
+		Dense01Matrix<> M2 (stream2);
 
 		testGemmCoeff (F, "dense", M1, M2);
 	}
 
 	if (enable_sparse) {
 		typedef std::vector<uint32> Sparse01Vector;
-		typedef LinBox::SparseMatrix<bool, Sparse01Vector, VectorCategories::SparseZeroOneVectorTag> Sparse01Matrix;
+		typedef LinBox::SparseMatrix<bool, Sparse01Vector, VectorRepresentationTypes::Sparse01> Sparse01Matrix;
 
 		RandomSparseStream<Field, Sparse01Matrix::Row> stream1 (F, (double) k / (double) m, m, l);
 		RandomSparseStream<Field, Sparse01Matrix::Row> stream2 (F, (double) k / (double) n, n, m);

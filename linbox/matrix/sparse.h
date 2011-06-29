@@ -43,7 +43,7 @@ struct SparseMatrixTag {};
  * @param Row     Vector type to use for rows of matrix
 \ingroup matrix
  */
-template <class _Element, class _Row = typename RawVector<_Element>::Sparse, class Trait = typename ElementVectorTraits<_Element, _Row>::VectorCategory>
+template <class _Element, class _Row = typename RawVector<_Element>::Sparse, class Trait = typename ElementVectorTraits<_Element, _Row>::RepresentationType>
 class SparseMatrix
 {
     public:
@@ -106,8 +106,8 @@ class SparseMatrix
 	ConstRowIterator rowBegin () const;
 	ConstRowIterator rowEnd () const;
 
-	typedef MatrixRawIterator<RowIterator, VectorCategories::SparseVectorTag> RawIterator;
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseVectorTag> ConstRawIterator;
+	typedef MatrixRawIterator<RowIterator, VectorRepresentationTypes::Sparse> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Sparse> ConstRawIterator;
     
 	RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
 	RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
@@ -167,17 +167,17 @@ class SparseMatrix
 /* Specialization for sparse sequence vectors */
 
 template <class _Element, class _Row>
-class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag>
+class SparseMatrix<_Element, _Row, VectorRepresentationTypes::Sparse>
 {
     public:
 
 	typedef _Element Element;
 	typedef _Row Row;
-	typedef SparseMatrix<Element, Row, VectorCategories::SparseVectorTag> Self_t;
+	typedef SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse> Self_t;
 	typedef const Row ConstRow;
 	typedef std::vector<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
-	typedef SparseMatrixTag<Element, Row, VectorCategories::SparseVectorTag> Tag;
+	typedef SparseMatrixTag<Element, Row, VectorRepresentationTypes::Sparse> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
@@ -205,11 +205,11 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag>
 		: _A (A._A), _m (A._m), _n (A._n) {}
 
     	template<class VectorType>
-	SparseMatrix (const SparseMatrix<Element, VectorType, VectorCategories::SparseVectorTag> &A)
+	SparseMatrix (const SparseMatrix<Element, VectorType, VectorRepresentationTypes::Sparse> &A)
 		: _A (A._m), _m (A._m), _n (A._n)
 	{
 		typename Rep::iterator meit = this->_A.begin ();
-		typename SparseMatrix<Element, VectorType, VectorCategories::SparseVectorTag>::Rep::const_iterator copit = A._A.begin();
+		typename SparseMatrix<Element, VectorType, VectorRepresentationTypes::Sparse>::Rep::const_iterator copit = A._A.begin();
 		for (; meit != this->_A.end (); ++meit, ++copit)
 			LinBox::RawVector<Element>::convert (*meit, *copit);
         }
@@ -246,13 +246,13 @@ class SparseMatrix<_Element, _Row, VectorCategories::SparseVectorTag>
 	RowIterator      rowEnd ()         { return _A.end (); }
 	ConstRowIterator rowEnd () const   { return _A.end (); }
 
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseVectorTag> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Sparse> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
 	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
 	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseVectorTag, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorRepresentationTypes::Sparse, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }

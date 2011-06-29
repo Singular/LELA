@@ -19,11 +19,11 @@
 namespace LinBox {
 
 template <class Vector>
-void SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::set_start_end (typename Vector::const_iterator begin,
+void SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>::set_start_end (typename Vector::const_iterator begin,
 											     typename Vector::const_iterator end)
 {
-	_begin = std::lower_bound (begin, end, _start >> WordTraits<word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
-	_end = std::upper_bound (begin, end, _finish >> WordTraits<word_type>::logof_size, VectorWrapper::CompareSparseEntries ());
+	_begin = std::lower_bound (begin, end, _start >> WordTraits<word_type>::logof_size, VectorUtils::CompareSparseEntries ());
+	_end = std::upper_bound (begin, end, _finish >> WordTraits<word_type>::logof_size, VectorUtils::CompareSparseEntries ());
 
 	if (_end != _begin && (static_cast<size_t> ((_end - 1)->first) << WordTraits<word_type>::logof_size) + (_start & WordTraits<word_type>::pos_mask) >= _finish)
 		_end_marker = _end - 1;
@@ -32,7 +32,7 @@ void SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::se
 }
 
 template <class Vector>
-typename SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::const_iterator &SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::const_iterator::operator ++ ()
+typename SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>::const_iterator &SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>::const_iterator::operator ++ ()
 {
 	size_t virtual_index = (static_cast<size_t> (_ref.first) << WordTraits<word_type>::logof_size) + _v->_start;
 	size_t col_index = static_cast<size_t> (_pos->first) << WordTraits<word_type>::logof_size;
@@ -50,7 +50,7 @@ typename SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>
 }
 
 template <class Vector>
-bool SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::const_iterator::operator != (const const_iterator &c)
+bool SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>::const_iterator::operator != (const const_iterator &c)
 {
 	if (c._pos == _v->_end_marker) {
 		if (_pos == _v->_end)
@@ -66,7 +66,7 @@ bool SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::co
 }
 
 template <class Vector>
-void SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>::const_iterator::update_ref ()
+void SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>::const_iterator::update_ref ()
 {
 	size_t shift, virtual_index, col_index;
 

@@ -396,7 +396,7 @@ class DenseMatrix
 	ConstRawIterator rawBegin () const { return _rep_begin; }  
 	ConstRawIterator rawEnd ()   const { return _rep_end; }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::DenseVectorTag, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorRepresentationTypes::Dense, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }

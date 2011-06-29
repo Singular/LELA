@@ -4,13 +4,6 @@
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>
  *
  * ------------------------------------
- * Modified by Dmitriy Morozov <linbox@foxcub.org>. May 27, 2002.
- *
- * Added parametrization to the VectorCategory tags to make them fit the
- * Rootbeer meeting design of VectorCategories being parametrized by
- * VectorTraits.
- * 
- * ------------------------------------
  * 
  * See COPYING for license information.
  */

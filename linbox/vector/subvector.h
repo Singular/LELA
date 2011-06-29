@@ -17,8 +17,8 @@
 #include <iterator>
 #include <stdexcept>
 
-#include "linbox/vector/traits.h"
 #include "linbox/vector/subiterator.h"
+#include "linbox/vector/traits.h"
 
 namespace LinBox
 {
@@ -36,13 +36,21 @@ namespace LinBox
  * those (potentially) involving vector resizing, such as
  * push_back(), insert(), resize().
  */
-template <typename Iterator, typename ConstIterator = Iterator> 
-class Subvector //: public Vector // for types
+template <typename Iterator, typename ConstIterator> 
+class Subvector
 {
     public:
+	typedef VectorRepresentationTypes::Dense RepresentationType;
+	typedef VectorStorageTypes::Real StorageType;
+	typedef std::vector<typename std::iterator_traits<Iterator>::value_type> ContainerType;
+	typedef Subvector SubvectorType;
+	typedef Subvector<ConstIterator, ConstIterator> ConstSubvectorType;
+	typedef Subvector AlignedSubvectorType;
+	typedef Subvector<ConstIterator, ConstIterator> ConstAlignedSubvectorType;
+	static const int align = 1;
+
 	// Types
 	typedef typename std::iterator_traits<Iterator>::value_type value_type;
-	typedef typename VectorCategories::DenseVectorTag VectorCategory;
     
 	typedef size_t                                              size_type;
 	typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
@@ -184,9 +192,16 @@ template <typename Vector>
 class MutableSubvector
 {
     public:
-	// Types
-	typedef typename VectorCategories::DenseVectorTag VectorCategory;
+	typedef VectorRepresentationTypes::Sparse01 RepresentationType;
+	typedef VectorStorageTypes::Real StorageType;
+	typedef std::vector<typename Vector::value_type> ContainerType;
+	typedef SparseSubvector<Vector> SubvectorType;
+	typedef SparseSubvector<const Vector> ConstSubvectorType;
+	typedef SparseSubvector<Vector> AlignedSubvectorType;
+	typedef SparseSubvector<const Vector> ConstAlignedSubvectorType;
+	static const int align = 1;
 
+	// Types
 	typedef size_t                                                   size_type;
 	typedef typename Vector::iterator                                iterator;
 	typedef typename Vector::const_iterator                          const_iterator;

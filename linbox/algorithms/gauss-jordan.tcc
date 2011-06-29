@@ -48,7 +48,7 @@ namespace LinBox
 template <class Ring, class Modules>
 template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						      VectorCategories::DenseVectorTag) const
+						     VectorRepresentationTypes::Dense) const
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -66,7 +66,7 @@ int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_
 template <class Ring, class Modules>
 template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						      VectorCategories::DenseZeroOneVectorTag) const
+						     VectorRepresentationTypes::Dense01) const
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -84,7 +84,7 @@ int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_
 template <class Ring, class Modules>
 template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						     VectorCategories::SparseVectorTag) const
+						     VectorRepresentationTypes::Sparse) const
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -111,7 +111,7 @@ int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_
 template <class Ring, class Modules>
 template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						      VectorCategories::SparseZeroOneVectorTag) const
+						     VectorRepresentationTypes::Sparse01) const
 {
 	typename Matrix::ConstRowIterator i;
 
@@ -138,7 +138,7 @@ int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_
 template <class Ring, class Modules>
 template <class Matrix>
 int GaussJordan<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						     VectorCategories::HybridZeroOneVectorTag) const
+						     VectorRepresentationTypes::Hybrid01) const
 {
 	typename Matrix::ConstRowIterator i;
 	typename Ring::Element a;
@@ -488,7 +488,15 @@ template <>
 class MutableSubvector<Vector<GF2>::Hybrid> : public MutableSubvector<SparseVector<Vector<GF2>::Hybrid::word_type, std::vector<Vector<GF2>::Hybrid::index_type>, std::vector<Vector<GF2>::Hybrid::word_type> > >
 {
 public:
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Hybrid01 RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef Vector<GF2>::Hybrid ContainerType;
+	typedef SparseSubvector<const Vector<GF2>::Hybrid, VectorRepresentationTypes::Hybrid01> SubvectorType;
+	typedef SparseSubvector<const Vector<GF2>::Hybrid, VectorRepresentationTypes::Hybrid01> ConstSubvectorType;
+	typedef SparseSubvector<Vector<GF2>::Hybrid, HybridSubvectorWordAlignedTag> AlignedSubvectorType;
+	typedef SparseSubvector<const Vector<GF2>::Hybrid, HybridSubvectorWordAlignedTag> ConstAlignedSubvectorType;
+	static const int align = WordTraits<Vector<GF2>::Hybrid::word_type>::bits;
+
 	typedef Vector<GF2>::Hybrid::Endianness Endianness;
 	typedef Vector<GF2>::Hybrid::index_type index_type;
 	typedef Vector<GF2>::Hybrid::word_type word_type;
@@ -587,7 +595,7 @@ bool GaussJordan<Ring, Modules>::testFastAxpyHybridVector () const
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								   VectorCategories::DenseVectorTag) const
+								  VectorRepresentationTypes::Dense) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -644,7 +652,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorCategories::SparseVectorTag) const
+								  VectorRepresentationTypes::Sparse) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -700,7 +708,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorCategories::SparseZeroOneVectorTag) const
+								  VectorRepresentationTypes::Sparse01) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -760,7 +768,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorCategories::HybridZeroOneVectorTag) const
+								  VectorRepresentationTypes::Hybrid01) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 
@@ -860,7 +868,7 @@ Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 Matrix1 &GaussJordan<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								   VectorCategories::DenseZeroOneVectorTag) const
+								  VectorRepresentationTypes::Dense01) const
 {
 	commentator.start ("Reducing row-echelon form", "GaussJordan::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
 

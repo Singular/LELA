@@ -76,25 +76,25 @@ private:
 	// -1. Otherwise fill in col with the pivot-column.
 	template <class Matrix>
 	int GetPivot (const Matrix &A, int start_row, size_t &col) const
-		{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Ring, typename Matrix::Row>::VectorCategory ()); }
+		{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Ring, typename Matrix::Row>::RepresentationType ()); }
 
 	// Find the first nonzero element in the given column
 	// starting at the row of the same index. Return -1 if
 	// none found.
 	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::DenseVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Dense) const;
 
 	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::DenseZeroOneVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Dense01) const;
 
 	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::SparseVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Sparse) const;
 
 	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::SparseZeroOneVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Sparse01) const;
 
 	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorCategories::HybridZeroOneVectorTag) const;
+	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Hybrid01) const;
 
 	// Set the given matrix to the identity-matrix
 	template <class Matrix>
@@ -151,15 +151,15 @@ private:
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorCategories::DenseVectorTag) const;
+					      VectorRepresentationTypes::Dense) const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorCategories::SparseVectorTag) const;
+					      VectorRepresentationTypes::Sparse) const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorCategories::SparseZeroOneVectorTag) const;
+					      VectorRepresentationTypes::Sparse01) const;
 
 	template <class Vector>
 	class PivotRowCompare
@@ -171,11 +171,11 @@ private:
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorCategories::HybridZeroOneVectorTag) const;
+					      VectorRepresentationTypes::Hybrid01) const;
 
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorCategories::DenseZeroOneVectorTag) const;
+					      VectorRepresentationTypes::Dense01) const;
 
 public:
 	/**
@@ -310,7 +310,7 @@ public:
 	template <class Matrix1, class Matrix2>
 	Matrix1 &ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row = 0) const
 		{ return ReduceRowEchelonSpecialised (A, L, compute_L, rank, start_row,
-						      typename VectorTraits<Ring, typename Matrix1::Row>::VectorCategory ()); }
+						      typename VectorTraits<Ring, typename Matrix1::Row>::RepresentationType ()); }
 
 	/** Run internal tests
 	 */

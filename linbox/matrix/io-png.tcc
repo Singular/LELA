@@ -59,7 +59,7 @@ void MatrixReader<Ring>::readPNGRow (Vector &v, png_bytep row, size_t width) con
 template <class Ring>
 template <class Vector>
 void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-						   VectorCategories::DenseZeroOneVectorTag) const
+						   VectorRepresentationTypes::Dense01) const
 {
 	typedef typename std::iterator_traits<typename Vector::word_iterator>::value_type word_type;
 
@@ -77,7 +77,7 @@ void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t 
 template <class Ring>
 template <class Vector>
 void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-						   VectorCategories::SparseZeroOneVectorTag) const
+						   VectorRepresentationTypes::Sparse01) const
 {
 	size_t idx;
 	png_byte t;
@@ -90,7 +90,7 @@ void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t 
 template <class Ring>
 template <class Vector>
 void MatrixReader<Ring>::readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-						   VectorCategories::HybridZeroOneVectorTag) const
+						   VectorRepresentationTypes::Hybrid01) const
 {
 	typename Vector::index_type idx = start >> WordTraits<typename Vector::word_type>::logof_size;
 	size_t count;
@@ -216,7 +216,7 @@ void MatrixWriter<Ring>::PNGFlush (png_structp png_ptr)
 
 template <class Ring>
 template <class Vector>
-void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::DenseZeroOneVectorTag) const
+void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Dense01) const
 {
 	typename Vector::const_iterator i;
 	size_t idx;
@@ -231,7 +231,7 @@ void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector 
 
 template <class Ring>
 template <class Vector>
-void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::SparseZeroOneVectorTag) const
+void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Sparse01) const
 {
 	typename Vector::const_iterator i;
 
@@ -243,7 +243,7 @@ void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector 
 
 template <class Ring>
 template <class Vector>
-void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::HybridZeroOneVectorTag) const
+void MatrixWriter<Ring>::copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Hybrid01) const
 {
 	typename Vector::const_iterator i;
 	typename Vector::word_type t;

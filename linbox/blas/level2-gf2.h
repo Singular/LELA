@@ -33,48 +33,48 @@ class _gemv<GF2, GenericModule::Tag>
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixCategories::RowMatrixTag,
-				   VectorCategories::GenericVectorTag,
-				   VectorCategories::DenseZeroOneVectorTag);
+				   VectorRepresentationTypes::Generic,
+				   VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixCategories::RowMatrixTag,
-				   VectorCategories::GenericVectorTag,
-				   VectorCategories::SparseZeroOneVectorTag);
+				   VectorRepresentationTypes::Generic,
+				   VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixCategories::RowMatrixTag,
-				   VectorCategories::GenericVectorTag,
-				   VectorCategories::HybridZeroOneVectorTag);
+				   VectorRepresentationTypes::Generic,
+				   VectorRepresentationTypes::Hybrid01);
 
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixCategories::ColMatrixTag,
-				   VectorCategories::DenseZeroOneVectorTag,
-				   VectorCategories::GenericVectorTag);
+				   VectorRepresentationTypes::Dense01,
+				   VectorRepresentationTypes::Generic);
 
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixCategories::ColMatrixTag,
-				   VectorCategories::SparseZeroOneVectorTag,
-				   VectorCategories::GenericVectorTag);
+				   VectorRepresentationTypes::Sparse01,
+				   VectorRepresentationTypes::Generic);
 
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixCategories::ColMatrixTag,
-				   VectorCategories::HybridZeroOneVectorTag,
-				   VectorCategories::GenericVectorTag);
+				   VectorRepresentationTypes::Hybrid01,
+				   VectorRepresentationTypes::Generic);
 public:
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &op (const GF2     &F,
@@ -88,8 +88,8 @@ public:
 			    size_t         end_idx = (size_t) -1)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
-				    typename VectorTraits<GF2, Vector1>::VectorCategory (),
-				    typename VectorTraits<GF2, Vector2>::VectorCategory ()); }
+				    typename VectorTraits<GF2, Vector1>::RepresentationType (),
+				    typename VectorTraits<GF2, Vector2>::RepresentationType ()); }
 };
 
 template <>
@@ -97,38 +97,38 @@ class _ger<GF2, GenericModule::Tag>
 {
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorCategories::DenseZeroOneVectorTag,
-				 VectorCategories::DenseZeroOneVectorTag,
+				 VectorRepresentationTypes::Dense01,
+				 VectorRepresentationTypes::Dense01,
 				 MatrixCategories::RowMatrixTag);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorCategories::SparseZeroOneVectorTag,
-				 VectorCategories::SparseZeroOneVectorTag,
+				 VectorRepresentationTypes::Sparse01,
+				 VectorRepresentationTypes::Sparse01,
 				 MatrixCategories::RowMatrixTag);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorCategories::HybridZeroOneVectorTag,
-				 VectorCategories::HybridZeroOneVectorTag,
+				 VectorRepresentationTypes::Hybrid01,
+				 VectorRepresentationTypes::Hybrid01,
 				 MatrixCategories::RowMatrixTag);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorCategories::DenseZeroOneVectorTag,
-				 VectorCategories::DenseZeroOneVectorTag,
+				 VectorRepresentationTypes::Dense01,
+				 VectorRepresentationTypes::Dense01,
 				 MatrixCategories::ColMatrixTag);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorCategories::SparseZeroOneVectorTag,
-				 VectorCategories::SparseZeroOneVectorTag,
+				 VectorRepresentationTypes::Sparse01,
+				 VectorRepresentationTypes::Sparse01,
 				 MatrixCategories::ColMatrixTag);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorCategories::HybridZeroOneVectorTag,
-				 VectorCategories::HybridZeroOneVectorTag,
+				 VectorRepresentationTypes::Hybrid01,
+				 VectorRepresentationTypes::Hybrid01,
 				 MatrixCategories::ColMatrixTag);
 
 public:

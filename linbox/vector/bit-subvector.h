@@ -26,7 +26,7 @@ namespace LinBox
  \ingroup vector
  */
 
-template <class Iterator, class ConstIterator = Iterator>
+template <class Iterator, class ConstIterator>
 class BitSubvector
 {
     public:
@@ -35,7 +35,15 @@ class BitSubvector
 	typedef typename std::iterator_traits<Iterator>::reference	 reference;
 	typedef Iterator iterator;
 	typedef ConstIterator const_iterator;
-	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
+
+	typedef VectorRepresentationTypes::Dense01 RepresentationType; 
+	typedef VectorStorageTypes::Real StorageType;
+	typedef BitVector<typename Iterator::Endianness> ContainerType;
+	typedef BitSubvector<iterator, const_iterator> SubvectorType;
+	typedef BitSubvector<const_iterator, const_iterator> ConstSubvectorType;
+	typedef BitSubvector<iterator, const_iterator> AlignedSubvectorType;
+	typedef BitSubvector<const_iterator, const_iterator> ConstAlignedSubvectorType;
+	static const int align = 1;
 
 	typedef typename Iterator::size_type	 size_type;
 	typedef typename Iterator::const_reference const_reference;

@@ -22,10 +22,10 @@ namespace LinBox
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+					VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
-	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorWrapper::CompareSparseEntries ());
-	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorWrapper::CompareSparseEntries ());
+	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorUtils::CompareSparseEntries ());
 
 	for (; i != i_end; ++i)
 		out.push_back (typename Vector1::value_type (i->first - src_idx + dest_idx, i->second));
@@ -33,7 +33,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+					VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	typename Vector2::const_iterator i = in.begin () + src_idx;
 	typename Vector2::const_iterator i_end = in.begin () + (src_idx + size);
@@ -44,10 +44,10 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+					VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 {
-	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorWrapper::CompareSparseEntries ());
-	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorWrapper::CompareSparseEntries ());
+	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorUtils::CompareSparseEntries ());
 
 	for (; i != i_end; ++i)
 		out[i->first - src_idx + dest_idx] = i->second;
@@ -55,7 +55,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+					VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
 {
 	typedef BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> DestSubvector;
 	typedef BitSubvector<typename Vector2::const_iterator, typename Vector2::const_iterator> SourceSubvector;
@@ -70,7 +70,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+					VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
 {
 	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx);
 	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size);
@@ -100,10 +100,10 @@ void Splicer::append_word (Vector &v, size_t index, typename Vector::word_type w
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+					VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01)
 {
-	SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag> v1 (in, src_idx, src_idx + size);
-	typename SparseSubvector<const Vector2, VectorCategories::HybridZeroOneVectorTag>::const_iterator i_v1;
+	SparseSubvector<const Vector2, VectorRepresentationTypes::Hybrid01> v1 (in, src_idx, src_idx + size);
+	typename SparseSubvector<const Vector2, VectorRepresentationTypes::Hybrid01>::const_iterator i_v1;
 
 	for (i_v1 = v1.begin (); i_v1 != v1.end (); ++i_v1)
 		append_word (out, dest_idx + (i_v1->first << WordTraits<typename Vector2::word_type>::logof_size), i_v1->second);
@@ -111,9 +111,9 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+					VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
 {
-	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
 	Context<Ring> ctx (F);
@@ -123,7 +123,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+					VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
 {
 	typename Vector2::const_iterator i = in.begin () + src_idx;
 	typename Vector2::const_iterator i_end = in.begin () + (src_idx + size);
@@ -136,7 +136,7 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag)
+					VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 {
 	typedef BitVector<typename Vector1::Endianness> TmpVector;
 	typedef BitSubvector<typename TmpVector::iterator, typename TmpVector::const_iterator> TmpSubvector;
@@ -178,11 +178,11 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag)
+					VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
 {
-	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType> v1 (in, src_idx, src_idx + size);
 
-	typename SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory>::const_iterator i_v1;
+	typename SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType>::const_iterator i_v1;
 
 	for (i_v1 = v1.begin (); i_v1 != v1.end (); ++i_v1) {
 		typename Vector1::word_type m = Vector1::Endianness::e_j (*i_v1 & WordTraits<typename Vector1::word_type>::pos_mask);
@@ -196,9 +196,9 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag)
+					VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
 {
-	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::VectorCategory> v1 (in, src_idx, src_idx + size);
+	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType> v1 (in, src_idx, src_idx + size);
 	BitSubvector<typename Vector1::iterator, typename Vector1::const_iterator> v2 (out.begin () + dest_idx, out.begin () + (dest_idx + size));
 
 	Context<Ring> ctx (F);

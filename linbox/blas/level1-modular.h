@@ -27,31 +27,31 @@ class _dot<Modular<uint8>, ZpModule<uint8>::Tag>
 	template <class Vector1, class Vector2>
 	static uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
-				VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+				VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
-				VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
-				VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+				VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return op (F, M, res, y, x, start_idx, end_idx); }
 
 	template <class Vector1, class Vector2>
 	static uint8 &dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
-				VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+				VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &op (const Modular<uint8> &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<Modular<uint8>, Vector1>::VectorCategory (),
-				   typename VectorTraits<Modular<uint8>, Vector2>::VectorCategory ()); }
+				   typename VectorTraits<Modular<uint8>, Vector1>::RepresentationType (),
+				   typename VectorTraits<Modular<uint8>, Vector2>::RepresentationType ()); }
 };
 
 template <>
@@ -60,31 +60,31 @@ class _dot<Modular<uint16>, ZpModule<uint16>::Tag>
 	template <class Vector1, class Vector2>
 	static uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+				 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+				 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return op (F, M, res, y, x, start_idx, end_idx); }
 
 	template <class Vector1, class Vector2>
 	static uint16 &dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+				 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &op (const Modular<uint16> &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<Modular<uint16>, Vector1>::VectorCategory (),
-				   typename VectorTraits<Modular<uint16>, Vector2>::VectorCategory ()); }
+				   typename VectorTraits<Modular<uint16>, Vector1>::RepresentationType (),
+				   typename VectorTraits<Modular<uint16>, Vector2>::RepresentationType ()); }
 };
 
 template <>
@@ -93,31 +93,31 @@ class _dot<Modular<uint32>, ZpModule<uint32>::Tag>
 	template <class Vector1, class Vector2>
 	static uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+				 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+				 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return op (F, M, res, y, x, start_idx, end_idx); }
 
 	template <class Vector1, class Vector2>
 	static uint32 &dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+				 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &op (const Modular<uint32> &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<Modular<uint32>, Vector1>::VectorCategory (),
-				   typename VectorTraits<Modular<uint32>, Vector2>::VectorCategory ()); }
+				   typename VectorTraits<Modular<uint32>, Vector1>::RepresentationType (),
+				   typename VectorTraits<Modular<uint32>, Vector2>::RepresentationType ()); }
 };
 
 template <>
@@ -126,23 +126,23 @@ class _dot<Modular<float>, ZpModule<float>::Tag>
 	template <class Vector1, class Vector2>
 	static float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
-				VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+				VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
-				VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static float &dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
-				VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+				VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return op (F, M, res, y, x, start_idx, end_idx); }
 
 	template <class Vector1, class Vector2>
 	static double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+				 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 		{ return _dot<Modular<double>, ZpModule<float>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
 
 public:
@@ -150,8 +150,8 @@ public:
 	static reference &op (const Modular<float> &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<Modular<float>, Vector1>::VectorCategory (),
-				   typename VectorTraits<Modular<float>, Vector2>::VectorCategory ()); }
+				   typename VectorTraits<Modular<float>, Vector1>::RepresentationType (),
+				   typename VectorTraits<Modular<float>, Vector2>::RepresentationType ()); }
 };
 
 template <>
@@ -160,23 +160,23 @@ class _dot<Modular<double>, ZpModule<double>::Tag>
 	template <class Vector1, class Vector2>
 	static double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag);
+				 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 	
 	template <class Vector1, class Vector2>
 	static double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+				 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Vector1, class Vector2>
 	static double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+				 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return op (F, M, res, y, x, start_idx, end_idx); }
 
 	template <class Vector1, class Vector2>
 	static double &dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
 				 size_t start_idx, size_t end_idx,
-				 VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+				 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 		{ return _dot<Modular<double>, ZpModule<double>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
 
 public:
@@ -184,8 +184,8 @@ public:
 	static reference &op (const Modular<double> &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<Modular<double>, Vector1>::VectorCategory (),
-				   typename VectorTraits<Modular<double>, Vector2>::VectorCategory ()); }
+				   typename VectorTraits<Modular<double>, Vector1>::RepresentationType (),
+				   typename VectorTraits<Modular<double>, Vector2>::RepresentationType ()); }
 };
 
 } // namespace BLAS1

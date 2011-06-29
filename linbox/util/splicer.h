@@ -106,23 +106,23 @@ class Splicer {
 					unsigned int only_source) const;
 
 	template <class Ring, class Vector>
-	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseVectorTag)
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorRepresentationTypes::Dense)
 		{ row[idx] = F.one (); }
 
 	template <class Ring, class Vector>
-	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseVectorTag)
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorRepresentationTypes::Sparse)
 		{ row.push_back (typename Vector::value_type (idx, F.one ())); }
 
 	template <class Ring, class Vector>
-	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::DenseZeroOneVectorTag)
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorRepresentationTypes::Dense01)
 		{ row[idx] = F.one (); }
 
 	template <class Ring, class Vector>
-	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::SparseZeroOneVectorTag)
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorRepresentationTypes::Sparse01)
 		{ row.push_back (typename Vector::value_type (idx)); }
 
 	template <class Ring, class Vector>
-	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorCategories::HybridZeroOneVectorTag)
+	static void attach_e_i_specialised (const Ring &F, Vector &row, size_t idx, VectorRepresentationTypes::Hybrid01)
 		{ row.push_back (typename Vector::value_type
 				 (idx >> WordTraits<typename Vector::word_type>::logof_size,
 				  Vector::Endianness::e_j (idx & WordTraits<typename Vector::word_type>::pos_mask))); }
@@ -132,66 +132,66 @@ class Splicer {
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+					      VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 		{ std::copy (in.begin () + src_idx, in.begin () + (src_idx + size), out.begin () + dest_idx); }
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag);
+					      VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag);
+					      VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag);
+					      VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::DenseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+					      VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::SparseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+					      VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01);
 
 	template <class Vector>
 	static void append_word (Vector &v, size_t index, typename Vector::word_type word);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::HybridZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+					      VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::DenseZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+					      VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::SparseZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+					      VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::HybridZeroOneVectorTag, VectorCategories::DenseZeroOneVectorTag);
+					      VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::HybridZeroOneVectorTag, VectorCategories::SparseZeroOneVectorTag);
+					      VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01);
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
-					      VectorCategories::DenseZeroOneVectorTag, VectorCategories::HybridZeroOneVectorTag);
+					      VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01);
 
 	/// Functions for attaching pieces to vectors
 	template <class Ring, class Vector>
 	static void attach_e_i (const Ring &F, Vector &row, size_t idx)
-		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+		{ attach_e_i_specialised (F, row, idx, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size)
 		{ attach_block_specialised (F, out, in, src_idx, dest_idx, size,
-					    typename VectorTraits<Ring, Vector1>::VectorCategory (),
-					    typename VectorTraits<Ring, Vector2>::VectorCategory ()); }
+					    typename VectorTraits<Ring, Vector1>::RepresentationType (),
+					    typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 
 	bool check_blocks (const std::vector<Block> &blocks, const char *type) const;
 	void consolidate_blocks (std::vector<Block> &blocks);

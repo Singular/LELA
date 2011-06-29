@@ -242,7 +242,7 @@ int main (int argc, char **argv)
 	GF2 F;
 
 	RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (F, n, iterations), stream2 (F, n, iterations);
-	RandomSparseStream<GF2, Vector<GF2>::Sparse, GF2RandIter, VectorCategories::SparseZeroOneVectorTag>
+	RandomSparseStream<GF2, Vector<GF2>::Sparse, GF2RandIter, VectorRepresentationTypes::Sparse01>
 		stream3 (F, 0.1, n, iterations),
 		stream4 (F, 0.1, n, iterations);
 

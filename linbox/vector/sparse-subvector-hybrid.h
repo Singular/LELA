@@ -24,10 +24,17 @@ namespace LinBox
 // Specialisation of SparseSubvector to const vector of hybrid zero-one format
 
 template <class Vector>
-class SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>
+class SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>
 {
     public:
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Hybrid01 RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef HybridVector<typename Vector::Endianness, typename Vector::index_type, typename Vector::word_type> ContainerType;
+	typedef SparseSubvector<ContainerType, VectorRepresentationTypes::Hybrid01> SubvectorType;
+	typedef SparseSubvector<ContainerType, VectorRepresentationTypes::Hybrid01> ConstSubvectorType;
+	typedef SparseSubvector<ContainerType, VectorRepresentationTypes::Hybrid01> AlignedSubvectorType;
+	typedef SparseSubvector<ContainerType, VectorRepresentationTypes::Hybrid01> ConstAlignedSubvectorType;
+	static const int align = 1;
 
 	typedef typename Vector::index_type index_type;
 	typedef typename Vector::word_type word_type;
@@ -74,7 +81,7 @@ class SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>
 		typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 		typedef typename Vector::Endianness Endianness;
 
-		typedef SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag> container_type;
+		typedef SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01> container_type;
 
 		class const_reference
 		{
@@ -143,7 +150,7 @@ class SparseSubvector<const Vector, VectorCategories::HybridZeroOneVectorTag>
 
 		void update_ref ();
 	};
-}; // template <class Vector> class SparseSubvector<const Vector, HybridZeroOneVectorTag>
+}; // template <class Vector> class SparseSubvector<const Vector, Hybrid01>
 
 } // namespace LinBox
 

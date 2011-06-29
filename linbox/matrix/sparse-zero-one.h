@@ -22,17 +22,17 @@ namespace LinBox {
 /* Specialization for sparse zero-one vectors */
 
 template <class _Element, class _Row>
-class SparseMatrix<_Element, _Row, VectorCategories::SparseZeroOneVectorTag>
+class SparseMatrix<_Element, _Row, VectorRepresentationTypes::Sparse01>
 {
 public:
 	
 	typedef _Element Element;
 	typedef _Row Row;
-	typedef SparseMatrix<Element, Row, VectorCategories::SparseZeroOneVectorTag> Self_t;
+	typedef SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse01> Self_t;
 	typedef const Row ConstRow;
 	typedef std::vector<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
-	typedef SparseMatrixTag<bool, Row, VectorCategories::SparseZeroOneVectorTag> Tag;
+	typedef SparseMatrixTag<bool, Row, VectorRepresentationTypes::Sparse01> Tag;
 
 	typedef Submatrix<const Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
@@ -110,13 +110,13 @@ public:
 	Row &operator [] (size_t i) { return _A[i]; }
 	ConstRow &operator [] (size_t i) const { return _A[i]; }
 
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Sparse01> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
 	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
 	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::SparseZeroOneVectorTag, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorRepresentationTypes::Sparse01, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
@@ -137,17 +137,17 @@ public:
 /* Specialization for hybrid zero-one vectors */
 
 template <class _Element, class _Row>
-class SparseMatrix<_Element, _Row, VectorCategories::HybridZeroOneVectorTag>
+class SparseMatrix<_Element, _Row, VectorRepresentationTypes::Hybrid01>
 {
 public:
 
 	typedef _Element Element;
 	typedef _Row Row;
-	typedef SparseMatrix<Element, Row, VectorCategories::HybridZeroOneVectorTag> Self_t;
+	typedef SparseMatrix<Element, Row, VectorRepresentationTypes::Hybrid01> Self_t;
 	typedef const Row ConstRow;
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixCategories::RowMatrixTag MatrixCategory; 
-	typedef SparseMatrixTag<bool, Row, VectorCategories::HybridZeroOneVectorTag> Tag;
+	typedef SparseMatrixTag<bool, Row, VectorRepresentationTypes::Hybrid01> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
@@ -224,13 +224,13 @@ public:
 	Row &operator [] (size_t i) { return _A[i]; }
 	ConstRow &operator [] (size_t i) const { return _A[i]; }
 
-	typedef MatrixRawIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Hybrid01> RawIterator;
 	typedef RawIterator ConstRawIterator;
     
 	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
 	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorCategories::HybridZeroOneVectorTag, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorRepresentationTypes::Hybrid01, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }

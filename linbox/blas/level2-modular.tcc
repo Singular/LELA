@@ -24,10 +24,10 @@ template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
 								      uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
 								      size_t start_idx, size_t end_idx,
-								      VectorCategories::DenseVectorTag)
+								      VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint8> > (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint8> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	if (end_idx == (size_t) -1)
@@ -73,10 +73,10 @@ template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
 								      uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
 								      size_t start_idx, size_t end_idx,
-								      VectorCategories::SparseVectorTag)
+								      VectorRepresentationTypes::Sparse)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint8> > (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint8> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	if (end_idx == (size_t) -1)
@@ -122,10 +122,10 @@ template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
 									uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
 									size_t start_idx, size_t end_idx,
-									VectorCategories::DenseVectorTag)
+									VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint16> > (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint16> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	if (end_idx == (size_t) -1)
@@ -172,10 +172,10 @@ template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
 									uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
 									size_t start_idx, size_t end_idx,
-									VectorCategories::SparseVectorTag)
+									VectorRepresentationTypes::Sparse)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint16> > (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint16> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	if (end_idx == (size_t) -1)
@@ -222,10 +222,10 @@ template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
 									uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
 									size_t start_idx, size_t end_idx,
-									VectorCategories::DenseVectorTag)
+									VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint32> > (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint32> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	if (end_idx == (size_t) -1)
@@ -273,10 +273,10 @@ template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
 									uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
 									size_t start_idx, size_t end_idx,
-									VectorCategories::SparseVectorTag)
+									VectorRepresentationTypes::Sparse)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (x, A.coldim ()));
-	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (y, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint32> > (x, A.coldim ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint32> > (y, A.rowdim ()));
 	linbox_check (start_idx <= end_idx);
 
 	if (end_idx == (size_t) -1)

@@ -195,10 +195,6 @@ private:
 	reference _ref;
 };
 
-/// Forward declarations
-template <class Vector, class Trait>
-class SparseSubvector;
-
 /** Sparse vector wrapper
  *
  * This class acts as a wrapper around a pair of vectors -- the first
@@ -209,7 +205,12 @@ template <class IndexIterator, class ElementIterator, class ConstIndexIterator =
 class ConstSparseVector
 {
 public:
-	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Sparse RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef ConstSparseVector ContainerType;
+	typedef SparseSubvector<ConstSparseVector, VectorRepresentationTypes::Sparse> ConstSubvectorType;
+	typedef SparseSubvector<ConstSparseVector, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
+	static const int align = 1;
 
 	typedef SparseVectorIterator<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> iterator;
 	typedef SparseVectorIterator<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_iterator;
@@ -314,7 +315,14 @@ template <class Element, class IndexVector, class ElementVector> // N.B. default
 class SparseVector
 {
 public:
-	typedef typename VectorCategories::SparseVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Sparse RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef SparseVector ContainerType;
+	typedef SparseSubvector<SparseVector, VectorRepresentationTypes::Sparse> SubvectorType;
+	typedef SparseSubvector<const SparseVector, VectorRepresentationTypes::Sparse> ConstSubvectorType;
+	typedef SparseSubvector<SparseVector, VectorRepresentationTypes::Sparse> AlignedSubvectorType;
+	typedef SparseSubvector<const SparseVector, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
+	static const int align = 1;
 
 	typedef typename IndexVector::iterator IndexIterator;
 	typedef typename IndexVector::const_iterator ConstIndexIterator;

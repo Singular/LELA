@@ -133,7 +133,7 @@ class ConstantVectorStream : public VectorStream<_Vector>
 /** Random dense vector stream
  * Generates a sequence of random dense vectors over a given ring
  */
-template <class Ring, class _Vector = typename LinBox::Vector<Ring>::Dense, class RandIter = typename Ring::RandIter, class Trait = typename VectorTraits<Ring, _Vector>::VectorCategory>
+template <class Ring, class _Vector = typename LinBox::Vector<Ring>::Dense, class RandIter = typename Ring::RandIter, class Trait = typename VectorTraits<Ring, _Vector>::RepresentationType>
 class RandomDenseStream : public VectorStream<_Vector>
 {
     public:
@@ -191,11 +191,11 @@ class RandomDenseStream : public VectorStream<_Vector>
 // Specialization of random dense stream for dense vectors
 
 template <class Ring, class _Vector, class RandIter>
-class RandomDenseStream<Ring, _Vector, RandIter, VectorCategories::DenseVectorTag> : public VectorStream<_Vector>
+class RandomDenseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Dense> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseVectorTag > Self_t;
+        typedef RandomDenseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense > Self_t;
 
 	RandomDenseStream (const Ring &F, size_t n, size_t m = 0)
 		: _F (F), _r (F), _n (n), _m (m), _j (0)
@@ -228,7 +228,7 @@ class RandomDenseStream<Ring, _Vector, RandIter, VectorCategories::DenseVectorTa
 /** Random sparse vector stream
  * Generates a sequence of random sparse vectors over a given ring
  */
-template <class Ring, class _Vector = typename LinBox::Vector<Ring>::Sparse, class RandIter = typename Ring::RandIter, class Trait = typename VectorTraits<Ring, _Vector>::VectorCategory>
+template <class Ring, class _Vector = typename LinBox::Vector<Ring>::Sparse, class RandIter = typename Ring::RandIter, class Trait = typename VectorTraits<Ring, _Vector>::RepresentationType>
 class RandomSparseStream : public VectorStream<_Vector>
 {
     public:
@@ -292,11 +292,11 @@ class RandomSparseStream : public VectorStream<_Vector>
 // Specialization of RandomSparseStream for dense vectors
 
 template <class Ring, class _Vector, class RandIter>
-class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::DenseVectorTag> : public VectorStream<_Vector>
+class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Dense> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Ring, Vector, RandIter, VectorCategories::DenseVectorTag> Self_t;
+        typedef RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense> Self_t;
 
 	RandomSparseStream (const Ring &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1),
@@ -333,11 +333,11 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::DenseVectorT
 // Specialization of RandomSparseStream for sparse sequence vectors
 
 template <class Ring, class _Vector, class RandIter>
-class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::SparseVectorTag> : public VectorStream<_Vector>
+class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Sparse> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseVectorTag> Self_t;
+        typedef RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Sparse> Self_t;
 
 	RandomSparseStream (const Ring &F, double p, size_t n, size_t m = 0)
 		: _F (F), _r1 (F), _r (F, _r1), _n (n), _m (m), _j (0),
@@ -379,11 +379,11 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::SparseVector
 // Specialisation for dense zero-one vectors
 
 template <class Ring, class _Vector, class RandIter>
-class RandomDenseStream<Ring, _Vector, RandIter, VectorCategories::DenseZeroOneVectorTag> : public VectorStream<_Vector>
+class RandomDenseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Dense01> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseZeroOneVectorTag> Self_t;
+        typedef RandomDenseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense01> Self_t;
 
 	RandomDenseStream (const Ring &F, size_t n, size_t m = 0)
 		: _F (F), _r (F), _n (n), _m (m), _j (0)
@@ -412,11 +412,11 @@ class RandomDenseStream<Ring, _Vector, RandIter, VectorCategories::DenseZeroOneV
 // Specialization of RandomSparseStream for sparse zero-one vectors
 
 template <class Ring, class _Vector, class RandIter>
-class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::SparseZeroOneVectorTag> : public VectorStream<_Vector>
+class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Sparse01> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseZeroOneVectorTag> Self_t;
+        typedef RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Sparse01> Self_t;
 
 	RandomSparseStream (const Ring &F, double p, size_t n, size_t m = 0)
 		: _F (F), _n (n), _m (m), _j (0), _MT (0)
@@ -454,11 +454,11 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::SparseZeroOn
 // Specialization of RandomSparseStream for hybrid zero-one vectors
 
 template <class Ring, class _Vector, class RandIter>
-class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::HybridZeroOneVectorTag> : public VectorStream<_Vector>
+class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Hybrid01> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef RandomSparseStream<Ring, Vector, RandIter, VectorCategories::HybridZeroOneVectorTag> Self_t;
+        typedef RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Hybrid01> Self_t;
 
 	RandomSparseStream (const Ring &F, double p, size_t n, size_t m = 0)
 		: _F (F), _n (n), _m (m), _j (0), _MT (0)
@@ -500,7 +500,7 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorCategories::HybridZeroOn
  * representation.
  */
 
-template <class Ring, class _Vector, class Trait = typename VectorTraits<Ring, _Vector>::VectorCategory>
+template <class Ring, class _Vector, class Trait = typename VectorTraits<Ring, _Vector>::RepresentationType>
 class StandardBasisStream : public VectorStream<_Vector>
 {
     public:
@@ -557,11 +557,11 @@ class StandardBasisStream : public VectorStream<_Vector>
 // Specialization of standard basis stream for dense vectors
 
 template <class Ring, class _Vector>
-class StandardBasisStream<Ring, _Vector, VectorCategories::DenseVectorTag> : public VectorStream<_Vector>
+class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Dense> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Ring, Vector, VectorCategories::DenseVectorTag> Self_t;
+        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense> Self_t;
 
 	StandardBasisStream (const Ring &F, size_t n)
 		: _F (F), _n (n), _j (0)
@@ -585,11 +585,11 @@ class StandardBasisStream<Ring, _Vector, VectorCategories::DenseVectorTag> : pub
 // Specialization of standard basis stream for sparse sequence vectors
 
 template <class Ring, class _Vector>
-class StandardBasisStream<Ring, _Vector, VectorCategories::SparseVectorTag> : public VectorStream<_Vector>
+class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Sparse> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Ring, Vector, VectorCategories::SparseVectorTag> Self_t;
+        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse> Self_t;
 
 	StandardBasisStream (Ring &F, size_t n)
 		: _F (F), _n (n), _j (0)
@@ -612,11 +612,11 @@ class StandardBasisStream<Ring, _Vector, VectorCategories::SparseVectorTag> : pu
 };
 
 template <class Ring, class _Vector>
-class StandardBasisStream<Ring, _Vector, VectorCategories::DenseZeroOneVectorTag> : public VectorStream<_Vector>
+class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Dense01> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Ring, Vector, VectorCategories::DenseZeroOneVectorTag> Self_t;
+        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense01> Self_t;
 
 	StandardBasisStream (const Ring &F, size_t n)
 		: _F (F), _n (n), _j (0)
@@ -638,11 +638,11 @@ class StandardBasisStream<Ring, _Vector, VectorCategories::DenseZeroOneVectorTag
 };
 
 template <class Ring, class _Vector>
-class StandardBasisStream<Ring, _Vector, VectorCategories::HybridZeroOneVectorTag> : public VectorStream<_Vector>
+class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Hybrid01> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Ring, Vector, VectorCategories::HybridZeroOneVectorTag> Self_t;
+        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Hybrid01> Self_t;
 
 	StandardBasisStream (const Ring &F, size_t n)
 		: _F (F), _n (n), _j (0)

@@ -99,9 +99,9 @@ void ringTest( const Ring& f, double* array, long iter = 1000000, bool fulltest 
 	typename RandomDenseStream<Ring>::Vector dv2;
 	typename RandomSparseStream<Ring>::Vector sv;
 */
-	VectorWrapper::ensureDim (dv1,vectorSize);
-	VectorWrapper::ensureDim (dv2,vectorSize);
-	VectorWrapper::ensureDim (sv,vectorSize);
+	VectorUtils::ensureDim (dv1,vectorSize);
+	VectorUtils::ensureDim (dv2,vectorSize);
+	VectorUtils::ensureDim (sv,vectorSize);
 
 	VectorDomain<Ring> VD( f );
 

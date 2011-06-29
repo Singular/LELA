@@ -34,7 +34,7 @@ template <class Iterator, class VectorTrait, bool Direction>
 class MatrixRawIndexedIterator;
 
 template <class Iterator>
-class MatrixRawIterator<Iterator, VectorCategories::DenseVectorTag>
+class MatrixRawIterator<Iterator, VectorRepresentationTypes::Dense>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -90,7 +90,7 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseVectorTag>
 };
 
 template <class Iterator>
-class MatrixRawIterator<Iterator, VectorCategories::SparseVectorTag>
+class MatrixRawIterator<Iterator, VectorRepresentationTypes::Sparse>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -164,7 +164,7 @@ class MatrixRawIterator<Iterator, VectorCategories::SparseVectorTag>
 };
 
 template <class Iterator>
-class MatrixRawIterator<Iterator, VectorCategories::DenseZeroOneVectorTag>
+class MatrixRawIterator<Iterator, VectorRepresentationTypes::Dense01>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -220,7 +220,7 @@ class MatrixRawIterator<Iterator, VectorCategories::DenseZeroOneVectorTag>
 };
 
 template <class Iterator>
-class MatrixRawIterator<Iterator, VectorCategories::SparseZeroOneVectorTag>
+class MatrixRawIterator<Iterator, VectorRepresentationTypes::Sparse01>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -294,7 +294,7 @@ class MatrixRawIterator<Iterator, VectorCategories::SparseZeroOneVectorTag>
 };
 
 template <class Iterator>
-class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
+class MatrixRawIterator<Iterator, VectorRepresentationTypes::Hybrid01>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -393,7 +393,7 @@ class MatrixRawIterator<Iterator, VectorCategories::HybridZeroOneVectorTag>
 };
 
 template <class Iterator>
-class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseVectorTag, false>
+class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Dense, false>
 {
     public:
 	typedef std::pair<size_t, size_t> value_type;
@@ -450,7 +450,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseVectorTag, false
 };
 
 template <class Iterator>
-class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseVectorTag, false>
+class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Sparse, false>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -534,7 +534,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseVectorTag, fals
 };
 
 template <class Iterator>
-class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseZeroOneVectorTag, false>
+class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Dense01, false>
 {
     public:
 	typedef std::pair<size_t, size_t> value_type;
@@ -591,7 +591,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::DenseZeroOneVectorTag
 };
 
 template <class Iterator>
-class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseZeroOneVectorTag, false>
+class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Sparse01, false>
 {
     public:
 	typedef typename Iterator::value_type Vector;
@@ -675,7 +675,7 @@ class MatrixRawIndexedIterator<Iterator, VectorCategories::SparseZeroOneVectorTa
 };
 
 template <class Iterator>
-class MatrixRawIndexedIterator<Iterator, VectorCategories::HybridZeroOneVectorTag, false>
+class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Hybrid01, false>
 {
     public:
 	typedef typename Iterator::value_type Vector;

@@ -357,7 +357,7 @@ class Submatrix
 	 * algorithm.
 	 */
 
-	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> RawIterator;
 	typedef RawIterator ConstRawIterator;
 
 	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
@@ -372,7 +372,7 @@ class Submatrix
 	 * This is provided through it's rowIndex() and colIndex() functions.
 	 */
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
@@ -504,13 +504,13 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::RowMatrixTag>
 	inline ConstRowIterator rowEnd () const
 		{ return ConstRowIterator (this, _M->rowBegin () + _end_row); }
 
-	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> RawIterator;
 	typedef RawIterator ConstRawIterator;
    
 	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
 	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::VectorCategory, false> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
@@ -633,13 +633,13 @@ class Submatrix<_Matrix, SFTrait, MatrixCategories::ColMatrixTag>
 	ConstColIterator colEnd () const
 		{ return ConstColIterator (this, _M->colBegin () + _end_col); }
 
-	typedef MatrixRawIterator<ConstColIterator, typename ElementVectorTraits<Element, Column>::VectorCategory> RawIterator;
+	typedef MatrixRawIterator<ConstColIterator, typename ElementVectorTraits<Element, Column>::RepresentationType> RawIterator;
 	typedef RawIterator ConstRawIterator;
    
 	ConstRawIterator rawBegin () const { return ConstRawIterator (colBegin (), 0, colEnd (), rowdim ()); }
 	ConstRawIterator rawEnd () const   { return ConstRawIterator (colEnd (), 0, colEnd (), rowdim ()); }
 
-	typedef MatrixRawIndexedIterator<ConstColIterator, typename ElementVectorTraits<Element, Column>::VectorCategory, true> RawIndexedIterator;
+	typedef MatrixRawIndexedIterator<ConstColIterator, typename ElementVectorTraits<Element, Column>::RepresentationType, true> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (colBegin (), 0, colEnd (), rowdim ()); }

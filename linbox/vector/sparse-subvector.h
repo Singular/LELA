@@ -45,7 +45,14 @@ template <class Vector, class Trait> // N.B. default argument in forward-declara
 class SparseSubvector
 {
     public:
-	typedef Trait VectorCategory; 
+	typedef Trait RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef Vector ContainerType;
+	typedef SparseSubvector SubvectorType;
+	typedef SparseSubvector<const Vector, Trait> ConstSubvectorType;
+	typedef SparseSubvector AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, Trait> ConstAlignedSubvectorType;
+	static const int align = 1;
 
 	SparseSubvector ();
 	SparseSubvector (Vector &v, size_t start, size_t end);
@@ -58,11 +65,19 @@ class SparseSubvector
 // Specialisation of SparseSubvector to const vector in sparse format
 
 template <class Vector>
-class SparseSubvector<const Vector, VectorCategories::SparseVectorTag>
+class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
 	: public ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator>
 {
     public:
-	typedef VectorCategories::SparseVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Sparse RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef const Vector ContainerType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> SubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstSubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
+	static const int align = 1;
+
 	typedef ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator> parent_type;
 
 	SparseSubvector () {}
@@ -94,7 +109,7 @@ class SparseSubvector<const Vector, VectorCategories::SparseVectorTag>
 		{ _idx = v._idx; this->parent_type::operator = (v); return *this; }
 
 	template <class V>
-	SparseSubvector &operator = (const SparseSubvector<V, VectorCategories::SparseVectorTag> &v)
+	SparseSubvector &operator = (const SparseSubvector<V, VectorRepresentationTypes::Sparse> &v)
 		{ _idx = v._idx; this->parent_type::operator = (v); return *this; }
 
     protected:
@@ -111,18 +126,26 @@ class SparseSubvector<const Vector, VectorCategories::SparseVectorTag>
 
 	ConstShiftedVector<typename Vector::const_index_iterator> _idx;
 
-}; // template <class Vector> class SparseSubvector<const Vector, SparseVectorTag>
+}; // template <class Vector> class SparseSubvector<const Vector, Sparse>
 
 // Specialisation of SparseSubvector to vector in sparse format
 
 template <class Vector>
-class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
+class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 	: public SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<typename Vector::index_vector> >, MutableSubvector<typename Vector::element_vector> >
 {
 	MutableSubvector<typename Vector::index_vector> _idx_v;
 
     public:
-	typedef VectorCategories::SparseVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Sparse RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef Vector ContainerType;
+	typedef SparseSubvector SubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstSubvectorType;
+	typedef SparseSubvector AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
+	static const int align = 1;
+
 	typedef SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<typename Vector::index_vector> >, MutableSubvector<typename Vector::element_vector> > parent_type;
 
 	SparseSubvector () {}
@@ -164,15 +187,23 @@ class SparseSubvector<Vector, VectorCategories::SparseVectorTag>
 		parent_type::_idx.set_shift (start);
 	}
 
-}; // template <class Vector> class SparseSubvector<Vector, SparseVectorTag>
+}; // template <class Vector> class SparseSubvector<Vector, Sparse>
 
 // Specialisation of SparseSubvector to const vector in sparse zero-one format
 
 template <class Vector>
-class SparseSubvector<const Vector, VectorCategories::SparseZeroOneVectorTag> : public ConstShiftedVector<typename Vector::const_iterator>
+class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse01> : public ConstShiftedVector<typename Vector::const_iterator>
 {
     public:
-	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Sparse01 RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef Vector ContainerType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse01> SubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse01> ConstSubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse01> AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse01> ConstAlignedSubvectorType;
+	static const int align = 1;
+
 	typedef ConstShiftedVector<typename Vector::const_iterator> parent_type;
 
 	SparseSubvector () {}
@@ -190,17 +221,25 @@ class SparseSubvector<const Vector, VectorCategories::SparseZeroOneVectorTag> : 
 		{ parent_type::operator = (v); return *this; }
 
 	~SparseSubvector () {}
-}; // template <class Vector> class SparseSubvector<const Vector, SparseZeroOneVectorTag>
+}; // template <class Vector> class SparseSubvector<const Vector, Sparse01>
 
 // Specialisation of SparseSubvector to vector in sparse zero-one format
 
 template <class Vector>
-class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public ShiftedVector<MutableSubvector<Vector> >
+class SparseSubvector<Vector, VectorRepresentationTypes::Sparse01> : public ShiftedVector<MutableSubvector<Vector> >
 {
 	MutableSubvector<Vector> _v;
 
     public:
-	typedef VectorCategories::SparseZeroOneVectorTag VectorCategory; 
+	typedef VectorRepresentationTypes::Sparse01 RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef Vector ContainerType;
+	typedef SparseSubvector SubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse01> ConstSubvectorType;
+	typedef SparseSubvector AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse01> ConstAlignedSubvectorType;
+	static const int align = 1;
+
 	typedef ShiftedVector<MutableSubvector<Vector> > parent_type;
 
 	SparseSubvector () {}
@@ -219,17 +258,25 @@ class SparseSubvector<Vector, VectorCategories::SparseZeroOneVectorTag> : public
 		{ _v = v._v; parent_type::set_shift (v._shift); parent_type::set_parent (_v); return *this; }
 
 	~SparseSubvector () {}
-}; // template <class Vector> class SparseSubvector<Vector, SparseZeroOneVectorTag>
+}; // template <class Vector> class SparseSubvector<Vector, Sparse01>
 
 // Specialisation of SparseSubvector to hybrid 0-1 vector; must word aligned
 
 template <class Vector>
 class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
-	: public SparseSubvector<Vector, VectorCategories::SparseVectorTag>
+	: public SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 {
     public:
-	typedef VectorCategories::HybridZeroOneVectorTag VectorCategory; 
-	typedef SparseSubvector<Vector, VectorCategories::SparseVectorTag> parent_type;
+	typedef VectorRepresentationTypes::Hybrid01 RepresentationType; 
+	typedef VectorStorageTypes::Transformed StorageType;
+	typedef Vector ContainerType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01> SubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01> ConstSubvectorType;
+	typedef SparseSubvector<Vector, HybridSubvectorWordAlignedTag> AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, HybridSubvectorWordAlignedTag> ConstAlignedSubvectorType;
+	static const int align = 1;
+
+	typedef SparseSubvector<Vector, VectorRepresentationTypes::Sparse> parent_type;
 	typedef typename parent_type::parent_type grandparent_type;
 	typedef typename Vector::Endianness Endianness;
 	typedef typename Vector::index_type index_type;
@@ -253,11 +300,11 @@ class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 	}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
-		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }
+		{ this->SparseSubvector<Vector, VectorRepresentationTypes::Sparse>::operator = (v); return *this; }
 
 	template <class V>
-	SparseSubvector &operator = (const SparseSubvector<V, VectorCategories::SparseVectorTag> &v)
-		{ this->SparseSubvector<Vector, VectorCategories::SparseVectorTag>::operator = (v); return *this; }
+	SparseSubvector &operator = (const SparseSubvector<V, VectorRepresentationTypes::Sparse> &v)
+		{ this->SparseSubvector<Vector, VectorRepresentationTypes::Sparse>::operator = (v); return *this; }
 
 }; // template <class Vector> class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 

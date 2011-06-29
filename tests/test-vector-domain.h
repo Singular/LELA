@@ -48,8 +48,8 @@ static bool testCopyEqual (LinBox::Context<Field, Modules> &ctx, const char *tex
 	Vector1 v;
 	Vector2 w;
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v, stream.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector2> (w, stream.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector1> (v, stream.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector2> (w, stream.dim ());
 
 	while (stream) {
 		LinBox::commentator.startIteration (stream.pos ());
@@ -100,7 +100,7 @@ static bool testCopyEqual (LinBox::Context<Field, Modules> &ctx, const char *tex
  */
 
 /* Construct the dot-product of two vectors manually. Depends on
- * proper functioning of VectorWrapper::getEntry and of
+ * proper functioning of VectorUtils::getEntry and of
  * Field::axpyin.
  */
 
@@ -112,7 +112,7 @@ typename Field::Element &manualDot (const Field &F, typename Field::Element &x, 
 	F.assign (x, F.zero ());
 
 	for (size_t j = start_idx; j < end_idx; j++)
-		if (LinBox::VectorWrapper::getEntry (v1, a, j) && LinBox::VectorWrapper::getEntry (v2, b, j))
+		if (LinBox::VectorUtils::getEntry (v1, a, j) && LinBox::VectorUtils::getEntry (v2, b, j))
 			F.axpyin (x, a, b);
 
 	return x;
@@ -134,8 +134,8 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 	Vector2 v2;
 	typename Field::Element sigma, rho;
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector1> (v1, stream1.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector2> (v2, stream2.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector1> (v1, stream1.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector2> (v2, stream2.dim ());
 
 	LinBox::Timer timer;
 	double totaltime = 0.0;
@@ -215,8 +215,8 @@ static bool testScal (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 	typename Field::Element nega;
 	typename Field::RandIter r (ctx.F);
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream1.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector> (v1, stream1.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector> (v2, stream1.dim ());
 
 	while (stream1) {
 		LinBox::commentator.startIteration (stream1.pos ());
@@ -293,9 +293,9 @@ static bool testAXPY (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 	typename Field::Element a, ainv, aneg;
 	typename Field::RandIter r (ctx.F);
 
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v1, stream1.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v2, stream2.dim ());
-	LinBox::VectorWrapper::ensureDim<Field, Vector> (v3, stream1.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector> (v1, stream1.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector> (v2, stream2.dim ());
+	LinBox::VectorUtils::ensureDim<Field, Vector> (v3, stream1.dim ());
 
 	while (stream1 && stream2) {
 		LinBox::commentator.startIteration (stream1.pos ());

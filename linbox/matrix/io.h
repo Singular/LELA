@@ -93,26 +93,26 @@ private:
 
 	template <class Vector>
 	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-				      VectorCategories::DenseVectorTag) const
+				      VectorRepresentationTypes::Dense) const
 		{ throw NotImplemented (); }
 
 	template <class Vector>
 	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-				      VectorCategories::SparseVectorTag) const
+				      VectorRepresentationTypes::Sparse) const
 		{ throw NotImplemented (); }
 
 	template <class Vector>
 	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-				      VectorCategories::DenseZeroOneVectorTag) const;
+				      VectorRepresentationTypes::Dense01) const;
 	template <class Vector>
 	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-				      VectorCategories::SparseZeroOneVectorTag) const;
+				      VectorRepresentationTypes::Sparse01) const;
 	template <class Vector>
 	void readPNGBlockSpecialised (Vector &v, png_byte x, size_t start, size_t stop,
-				      VectorCategories::HybridZeroOneVectorTag) const;
+				      VectorRepresentationTypes::Hybrid01) const;
 	template <class Vector>
 	void readPNGBlock (Vector &v, png_byte x, size_t start, size_t stop) const
-		{ readPNGBlockSpecialised (v, x, start, stop, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+		{ readPNGBlockSpecialised (v, x, start, stop, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	template <class Vector>
 	void readPNGRow (Vector &v, png_bytep row, size_t width) const;
@@ -136,24 +136,24 @@ private:
 
 	template <class Vector>
 	void appendEntry (Vector &v, size_t index, const typename Ring::Element &a) const
-		{ appendEntrySpecialised (v, index, a, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+		{ appendEntrySpecialised (v, index, a, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseVectorTag) const;
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Dense) const;
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::SparseVectorTag) const
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Sparse) const
 		{ if (!_F.isZero (a)) v.push_back (typename std::iterator_traits<typename Vector::iterator>::value_type (index, a)); }
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::DenseZeroOneVectorTag) const;
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Dense01) const;
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::SparseZeroOneVectorTag) const
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Sparse01) const
 		{ if (!_F.isZero (a)) v.push_back (index); }
 
 	template <class Vector>
-	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorCategories::HybridZeroOneVectorTag) const;
+	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Hybrid01) const;
 };
 
 template <class Ring>
@@ -194,25 +194,25 @@ private:
 	static void PNGFlush (png_structp png_ptr);
 
 	template <class Vector>
-	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::DenseVectorTag) const
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Dense) const
 		{ throw NotImplemented (); }
 
 	template <class Vector>
-	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::SparseVectorTag) const
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Sparse) const
 		{ throw NotImplemented (); }
 
 	template <class Vector>
-	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::DenseZeroOneVectorTag) const;
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Dense01) const;
 
 	template <class Vector>
-	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::SparseZeroOneVectorTag) const;
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Sparse01) const;
 
 	template <class Vector>
-	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorCategories::HybridZeroOneVectorTag) const;
+	void copyToPNGDataSpecialised (png_bytep data, const Vector &v, size_t width, VectorRepresentationTypes::Hybrid01) const;
 
 	template <class Vector>
 	void copyToPNGData (png_bytep data, const Vector &v, size_t width) const
-		{ copyToPNGDataSpecialised (data, v, width, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+		{ copyToPNGDataSpecialised (data, v, width, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	template <class Matrix>
 	std::ostream &writePNGSpecialised (std::ostream &is, const Matrix &A, MatrixCategories::RowMatrixTag) const;

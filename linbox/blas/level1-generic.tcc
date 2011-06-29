@@ -24,7 +24,7 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 typename Ring::Element &_dot<Ring, GenericModule::Tag>::dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 								  size_t start_idx, size_t end_idx,
-								  VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+								  VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -44,15 +44,15 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 typename Ring::Element &_dot<Ring, GenericModule::Tag>::dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 								  size_t start_idx, size_t end_idx,
-								  VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+								  VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Ring> (x, y.size ()));
+	linbox_check (VectorUtils::hasDim<Ring> (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
 
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 		
 	F.assign (res, F.zero ());
 
@@ -66,17 +66,17 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 typename Ring::Element &_dot<Ring, GenericModule::Tag>::dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 								  size_t start_idx, size_t end_idx,
-								  VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+								  VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
 
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
 
 	F.assign (res, F.zero ());
 
@@ -93,7 +93,7 @@ typename Ring::Element &_dot<Ring, GenericModule::Tag>::dot_impl (const Ring &F,
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-						     VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+						     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 {
 	typename Vector1::const_iterator i;
 	int idx;
@@ -110,9 +110,9 @@ Vector2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, 
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-						     VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+						     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Ring> (x, y.size ()));
+	linbox_check (VectorUtils::hasDim<Ring> (x, y.size ()));
 
 	typename Vector1::const_iterator j;
 	typename Vector2::iterator i;
@@ -133,7 +133,7 @@ Vector2 &_copy<Ring, GenericModule::Tag>::copy_impl (const Ring &F, Modules &M, 
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-						     VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+						     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (y.size () == x.size ());
 
@@ -149,7 +149,7 @@ Vector2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, 
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-						     VectorCategories::DenseVectorTag, VectorCategories::SparseVectorTag)
+						     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 {
 	typename Vector<Ring>::Dense tmp (x.size ());
 	_copy<Ring, typename Modules::Tag>::op (F, M, x, tmp);
@@ -162,9 +162,9 @@ Vector2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, 
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-						     VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+						     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Ring> (x, y.size ()));
+	linbox_check (VectorUtils::hasDim<Ring> (x, y.size ()));
 
 	typename Vector1::const_iterator j;
 
@@ -187,7 +187,7 @@ void fast_copy (const Ring &F, Modules &M,
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
-						     VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+						     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	SparseVector<typename Ring::Element, std::vector<typename Vector2::index_type>, std::vector<typename Vector2::element_type> > tmp;
 
@@ -224,7 +224,7 @@ Vector2 &_axpy<Ring, GenericModule::Tag>::axpy_impl (const Ring &F, Modules &M, 
 
 template <class Ring>
 template <class Modules, class Vector>
-Vector &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorCategories::DenseVectorTag)
+Vector &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorRepresentationTypes::Dense)
 {
 	typename Vector::iterator i;
 
@@ -236,7 +236,7 @@ Vector &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, c
 
 template <class Ring>
 template <class Modules, class Vector>
-Vector &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorCategories::SparseVectorTag)
+Vector &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorRepresentationTypes::Sparse)
 {
 	typename Vector::iterator i;
 
@@ -253,7 +253,7 @@ Vector &_scal<Ring, GenericModule::Tag>::scal_impl (const Ring &F, Modules &M, c
 
 template <class Ring>
 template <class Modules, class Iterator, class Vector>
-Vector &_permute<Ring, GenericModule::Tag>::permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::DenseVectorTag)
+Vector &_permute<Ring, GenericModule::Tag>::permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Dense)
 {
 	for (; P_begin != P_end; ++P_begin)
 		std::swap (v[P_begin->first], v[P_begin->second]);
@@ -276,14 +276,14 @@ typename Iterator::value_type::first_type image (typename Iterator::value_type::
 
 template <class Ring>
 template <class Modules, class Iterator, class Vector>
-Vector &_permute<Ring, GenericModule::Tag>::permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorCategories::SparseVectorTag)
+Vector &_permute<Ring, GenericModule::Tag>::permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Sparse)
 {
 	typename Vector::iterator j;
 
 	for (j = v.begin (); j != v.end (); ++j)
 		j->first = image (j->first, P_begin, P_end);
 
-	std::sort (v.begin (), v.end (), VectorWrapper::CompareSparseEntries ());
+	std::sort (v.begin (), v.end (), VectorUtils::CompareSparseEntries ());
 
 	return v;
 }
@@ -291,7 +291,7 @@ Vector &_permute<Ring, GenericModule::Tag>::permute_impl (const Ring &F, Modules
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						   VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+						   VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
@@ -309,7 +309,7 @@ bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, co
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						   VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+						   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
@@ -331,7 +331,7 @@ bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, co
 template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						   VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+						   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
@@ -349,7 +349,7 @@ bool _equal<Ring, GenericModule::Tag>::equal_impl (const Ring &F, Modules &M, co
 
 template <class Ring>
 template <class Modules, class Vector>
-bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorCategories::DenseVectorTag)
+bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorRepresentationTypes::Dense)
 {
 	typename Vector::const_iterator i;
 
@@ -362,7 +362,7 @@ bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M
 
 template <class Ring>
 template <class Modules, class Vector>
-bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorCategories::SparseVectorTag)
+bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorRepresentationTypes::Sparse)
 {
 	typename Vector::const_iterator i;
 
@@ -375,7 +375,7 @@ bool _is_zero<Ring, GenericModule::Tag>::is_zero_impl (const Ring &F, Modules &M
 
 template <class Ring>
 template <class Modules, class Vector>
-int _head<Ring, GenericModule::Tag>::head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorCategories::DenseVectorTag)
+int _head<Ring, GenericModule::Tag>::head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorRepresentationTypes::Dense)
 {
 	typename Vector::const_iterator i;
 
@@ -391,7 +391,7 @@ int _head<Ring, GenericModule::Tag>::head_impl (const Ring &F, Modules &M, typen
 
 template <class Ring>
 template <class Modules, class Vector>
-int _head<Ring, GenericModule::Tag>::head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorCategories::SparseVectorTag)
+int _head<Ring, GenericModule::Tag>::head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorRepresentationTypes::Sparse)
 {
 	if (x.empty ())
 		return -1;
@@ -403,7 +403,7 @@ int _head<Ring, GenericModule::Tag>::head_impl (const Ring &F, Modules &M, typen
 
 template <class Ring>
 template <class Modules, class Vector>
-std::istream &_read<Ring, GenericModule::Tag>::read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorCategories::DenseVectorTag)
+std::istream &_read<Ring, GenericModule::Tag>::read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorRepresentationTypes::Dense)
 {
 	typename Vector::iterator i;
 	char c;
@@ -431,7 +431,7 @@ std::istream &_read<Ring, GenericModule::Tag>::read_impl (const Ring &F, Modules
 
 template <class Ring>
 template <class Modules, class Vector>
-std::istream &_read<Ring, GenericModule::Tag>::read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorCategories::SparseVectorTag)
+std::istream &_read<Ring, GenericModule::Tag>::read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorRepresentationTypes::Sparse)
 {
 	typename Ring::Element tmp;
 	char c;
@@ -461,7 +461,7 @@ std::istream &_read<Ring, GenericModule::Tag>::read_impl (const Ring &F, Modules
 
 template <class Ring>
 template <class Modules, class Vector>
-std::ostream &_write<Ring, GenericModule::Tag>::write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::DenseVectorTag)
+std::ostream &_write<Ring, GenericModule::Tag>::write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Dense)
 {
 	typename Vector::const_iterator i;
 
@@ -481,7 +481,7 @@ std::ostream &_write<Ring, GenericModule::Tag>::write_impl (const Ring &F, Modul
 
 template <class Ring>
 template <class Modules, class Vector>
-std::ostream &_write<Ring, GenericModule::Tag>::write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorCategories::SparseVectorTag)
+std::ostream &_write<Ring, GenericModule::Tag>::write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Sparse)
 {
 	typename Vector::const_iterator i;
 	size_t idx;

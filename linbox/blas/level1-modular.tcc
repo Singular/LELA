@@ -21,7 +21,7 @@ namespace BLAS1
 template <class Vector1, class Vector2>
 uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
 							     size_t start_idx, size_t end_idx,
-							     VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+							     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -56,14 +56,14 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 template <class Vector1, class Vector2>
 uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
 							     size_t start_idx, size_t end_idx,
-							     VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint8> > (x, y.size ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint8> > (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 
 	uint64 t = 0;
 
@@ -100,17 +100,17 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 template <class Vector1, class Vector2>
 uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
 							     size_t start_idx, size_t end_idx,
-							     VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
 
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
 
 	uint64 t = 0, count;
 
@@ -133,7 +133,7 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 template <class Vector1, class Vector2>
 uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -168,14 +168,14 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 template <class Vector1, class Vector2>
 uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint16> > (x, y.size ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint16> > (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 
 	uint64 t = 0;
 
@@ -212,17 +212,17 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 template <class Vector1, class Vector2>
 uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
 
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
 
 	uint64 t = 0, count;
 
@@ -245,7 +245,7 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 template <class Vector1, class Vector2>
 uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -272,14 +272,14 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 template <class Vector1, class Vector2>
 uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
-	linbox_check (VectorWrapper::hasDim<Modular<uint32> > (x, y.size ()));
+	linbox_check (VectorUtils::hasDim<Modular<uint32> > (x, y.size ()));
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 
 	uint64 s = 0, t;
 
@@ -299,17 +299,17 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 template <class Vector1, class Vector2>
 uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::SparseVectorTag, VectorCategories::SparseVectorTag)
+								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorWrapper::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorWrapper::CompareSparseEntries ());
+	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
 
 	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
 	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorWrapper::CompareSparseEntries ());
+		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
 
 	uint64 s = 0, t;
 
@@ -331,7 +331,7 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 template <class Vector1, class Vector2>
 float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
 							     size_t start_idx, size_t end_idx,
-							     VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+							     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	float s = 0.;
 	float t = 0.;
@@ -365,7 +365,7 @@ float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float
 template <class Vector1, class Vector2>
 float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
 							     size_t start_idx, size_t end_idx,
-							     VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	float s = 0.;
 	float t = 0.;
@@ -398,7 +398,7 @@ float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float
 template <class Vector1, class Vector2>
 double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::DenseVectorTag, VectorCategories::DenseVectorTag)
+								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	double s = 0.;
 	double t = 0.;
@@ -432,7 +432,7 @@ double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<do
 template <class Vector1, class Vector2>
 double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
 								size_t start_idx, size_t end_idx,
-								VectorCategories::SparseVectorTag, VectorCategories::DenseVectorTag)
+								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	double s = 0.;
 	double t = 0.;

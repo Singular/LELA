@@ -30,7 +30,7 @@ typedef Adaptor<Ring>::Endianness Endianness;
 // Generate a random sparse vector in which all nonzero entries occur after column col and the entry at col is guaranteed to be one
 
 template <class Vector>
-void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorCategories::HybridZeroOneVectorTag)
+void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Hybrid01)
 {
 	size_t t;
 	typename Vector::index_type idx;
@@ -67,7 +67,7 @@ void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneT
 
 template <class Vector>
 void randomVectorStartingAt (Vector &v, size_t col, size_t coldim, MersenneTwister &MT)
-	{ randomVectorStartingAtSpec (v, col, coldim, MT, typename VectorTraits<Ring, Vector>::VectorCategory ()); }
+	{ randomVectorStartingAtSpec (v, col, coldim, MT, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 template <class Matrix>
 void createRandomF4Matrix (Matrix &A)

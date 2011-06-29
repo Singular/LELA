@@ -19,6 +19,10 @@
 namespace LinBox
 {
 
+// Forward-declarations
+template <class Iterator, class ConstIterator = Iterator> class BitSubvector;
+template <class Iterator, class ConstIterator, class _Endianness = BigEndian<typename std::iterator_traits<Iterator>::value_type> > class BitSubvectorWordAligned;
+
 /** A vector of boolean 0-1 values, stored compactly to save space. 
  *
  * BitVector provides an additional iterator, word_iterator, that gives
@@ -81,6 +85,17 @@ class BitVector
 
 	typedef iterator    pointer;
 	typedef const_iterator    const_pointer;
+
+	// Traits
+
+	typedef VectorRepresentationTypes::Dense01 RepresentationType; 
+	typedef VectorStorageTypes::Real StorageType;
+	typedef BitVector ContainerType;
+	typedef BitSubvector<iterator, const_iterator> SubvectorType;
+	typedef BitSubvector<const_iterator, const_iterator> ConstSubvectorType;
+	typedef BitSubvectorWordAligned<word_iterator, const_word_iterator> AlignedSubvectorType;
+	typedef BitSubvectorWordAligned<const_word_iterator, const_word_iterator> ConstAlignedSubvectorType;
+	static const int align = WordTraits<word_type>::bits;
 
 	inline iterator                    begin      (void)
 		{ return iterator (_v.begin (), 0UL); }
@@ -181,21 +196,6 @@ class BitVector
 	size_t              _size;
 
 }; // template <class Vector> class ReverseVector
-
-// Vector traits for BitVector wrapper
-template <class Endianness>
-struct GF2VectorTraits<BitVector<Endianness> >
-{ 
-	typedef BitVector<Endianness> VectorType;
-	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
-};
-
-template <class Endianness>
-struct GF2VectorTraits<const BitVector<Endianness> >
-{ 
-	typedef BitVector<Endianness> VectorType;
-	typedef VectorCategories::DenseZeroOneVectorTag VectorCategory; 
-};
 
 } // namespace LinBox
 

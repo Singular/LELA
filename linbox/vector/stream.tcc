@@ -15,7 +15,7 @@ namespace LinBox
 {
 
 template <class Ring, class Vector, class RandIter>
-Vector &RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseVectorTag>::get (Vector &v) 
+Vector &RandomDenseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense>::get (Vector &v) 
 {
 	typename Vector::iterator i;
 
@@ -29,7 +29,7 @@ Vector &RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseVectorT
 }
 
 template <class Ring, class Vector, class RandIter>
-Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::DenseVectorTag>::get (Vector &v)
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense>::get (Vector &v)
 {
 	double val;
 
@@ -49,7 +49,7 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::DenseVector
 }
 
 template <class Ring, class Vector, class RandIter>
-Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseVectorTag>::get (Vector &v) 
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Sparse>::get (Vector &v) 
 {
 	typename Ring::Element x;
 	size_t i = (size_t) -1;
@@ -80,7 +80,7 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseVecto
 }
 
 template <class Ring, class Vector, class RandIter>
-Vector &RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseZeroOneVectorTag>::get (Vector &v) 
+Vector &RandomDenseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense01>::get (Vector &v) 
 {
 	typename Vector::iterator i;
 
@@ -94,7 +94,7 @@ Vector &RandomDenseStream<Ring, Vector, RandIter, VectorCategories::DenseZeroOne
 }
 
 template <class Ring, class Vector, class RandIter>
-Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseZeroOneVectorTag>::get (Vector &v) 
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Sparse01>::get (Vector &v) 
 {
 	size_t i = (size_t) -1;
 	double val;
@@ -123,7 +123,7 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::SparseZeroO
 }
 
 template <class Ring, class Vector, class RandIter>
-Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::HybridZeroOneVectorTag>::get (Vector &v) 
+Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Hybrid01>::get (Vector &v) 
 {
 	size_t i = (size_t) -1;
 	double val;
@@ -158,7 +158,7 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorCategories::HybridZeroO
 }
 
 template <class Ring, class Vector>
-Vector &StandardBasisStream<Ring, Vector, VectorCategories::DenseVectorTag>::get (Vector &v) 
+Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense>::get (Vector &v) 
 {
 	static typename Ring::Element zero;
 	typename Vector::iterator i;
@@ -177,7 +177,7 @@ Vector &StandardBasisStream<Ring, Vector, VectorCategories::DenseVectorTag>::get
 }
 
 template <class Ring, class Vector>
-Vector &StandardBasisStream<Ring, Vector, VectorCategories::SparseVectorTag>::get (Vector &v) 
+Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse>::get (Vector &v) 
 {
 	v.clear ();
 
@@ -188,7 +188,7 @@ Vector &StandardBasisStream<Ring, Vector, VectorCategories::SparseVectorTag>::ge
 }
 
 template <class Ring, class Vector>
-Vector &StandardBasisStream<Ring, Vector, VectorCategories::DenseZeroOneVectorTag >::get (Vector &v) 
+Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense01 >::get (Vector &v) 
 {
 	std::fill (v.word_begin (), v.word_end (), 0);
 	v.back_word () = 0;
@@ -201,7 +201,7 @@ Vector &StandardBasisStream<Ring, Vector, VectorCategories::DenseZeroOneVectorTa
 }
 
 template <class Ring, class Vector>
-Vector &StandardBasisStream<Ring, Vector, VectorCategories::HybridZeroOneVectorTag>::get (Vector &v) 
+Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Hybrid01>::get (Vector &v) 
 {
 	typedef WordTraits<typename Vector::word_type> WT;
 
