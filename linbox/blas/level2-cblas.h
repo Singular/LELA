@@ -23,6 +23,7 @@
 #include "linbox/vector/traits.h"
 #include "linbox/matrix/traits.h"
 #include "linbox/matrix/dense.h"
+#include "linbox/blas/level2-ll.h"
 
 namespace LinBox
 {
@@ -30,109 +31,305 @@ namespace LinBox
 namespace BLAS2
 {
 
-template <class Vector1, class Vector2>
-Vector2 &gemv_impl (const UnparametricRing<float> &F, BLASModule &M,
-		    float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::RowColMatrixTag,
-		    VectorRepresentationTypes::Dense,
-		    VectorRepresentationTypes::Dense)
+template <>
+class _gemv<UnparametricRing<float>, BLASModule::Tag>
 {
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
-	cblas_sgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
-	return y;
-}
+	template <class Modules, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const UnparametricRing<float> &F, Modules &M,
+				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::BlackboxTag,
+				   VectorRepresentationTypes::Generic,
+				   VectorStorageTypes::Generic,
+				   VectorRepresentationTypes::Generic,
+				   VectorStorageTypes::Generic)
+		{ return _gemv<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
 
-template <class Vector>
-Vector &trmv_impl (const UnparametricRing<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-		   MatrixCategories::RowColMatrixTag,
-		   VectorRepresentationTypes::Dense)
-{
-	linbox_check (A.rowdim () == x.size ());
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_strmv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
-	return x;
-}
+	template <class Modules, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const UnparametricRing<float> &F, Modules &M,
+				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::RowColMatrixTag,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real)
+	{
+		linbox_check (A.coldim () == x.size ());
+		linbox_check (A.rowdim () == y.size ());
+		cblas_sgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
+		return y;
+	}
 
-template <class Vector>
-Vector &trsv_impl (const UnparametricRing<float> &F, BLASModule &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-		   MatrixCategories::RowColMatrixTag,
-		   VectorRepresentationTypes::Dense)
-{
-	linbox_check (A.rowdim () == x.size ());
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_strsv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
-	return x;
-}
+public:
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &op (const UnparametricRing<float> &F,
+			    Modules              &M,
+			    uint8                 a,
+			    const Matrix         &A,
+			    const Vector1        &x,
+			    uint8                 b,
+			    Vector2              &y,
+			    size_t                start_idx = 0,
+			    size_t                end_idx = (size_t) -1)
+		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
+				    typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType ()); }
+};
 
-template <class Vector1, class Vector2>
-DenseMatrix<float> &ger_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
-			      VectorRepresentationTypes::Dense,
-			      VectorRepresentationTypes::Dense,
-			      MatrixCategories::RowColMatrixTag)
+template <>
+class _trmv<UnparametricRing<float>, BLASModule::Tag>
 {
-	linbox_check (A.rowdim () == x.size ());
-	linbox_check (A.coldim () == y.size ());
-	cblas_sger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
-	return A;
-}
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::BlackboxTag,
+				  VectorRepresentationTypes::Generic,
+				  VectorStorageTypes::Generic)
+		{ return _trmv<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
-template <class Vector1, class Vector2>
-Vector2 &gemv_impl (const UnparametricRing<double> &F, BLASModule &M,
-		    double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
-		    size_t start_idx, size_t end_idx,
-		    MatrixCategories::RowColMatrixTag,
-		    VectorRepresentationTypes::Dense,
-		    VectorRepresentationTypes::Dense)
-{
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (A.rowdim () == y.size ());
-	cblas_dgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
-	return y;
-}
+	template <class Modules, class Vector>
+	static Vector &trmv_impl (const UnparametricRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::RowColMatrixTag,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		linbox_check (A.rowdim () == x.size ());
+		linbox_check (A.coldim () == x.size ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strmv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+public:
+	template <class Modules, class Matrix, class Vector>
+	static Vector &op (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return trmv_impl (F, M, A, x, type, diagIsOne,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<UnparametricRing<float>, Vector>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<float>, Vector>::StorageType ()); }
+};
 
-template <class Vector>
-Vector &trmv_impl (const UnparametricRing<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-		   MatrixCategories::RowColMatrixTag,
-		   VectorRepresentationTypes::Dense)
+template <>
+class _trsv<UnparametricRing<float>, BLASModule::Tag>
 {
-	linbox_check (A.rowdim () == x.size ());
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_dtrmv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
-	return x;
-}
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::BlackboxTag,
+				  VectorRepresentationTypes::Generic,
+				  VectorStorageTypes::Generic)
+		{ return _trsv<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
-template <class Vector>
-Vector &trsv_impl (const UnparametricRing<double> &F, BLASModule &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
-		   MatrixCategories::RowColMatrixTag,
-		   VectorRepresentationTypes::Dense)
-{
-	linbox_check (A.rowdim () == x.size ());
-	linbox_check (A.coldim () == x.size ());
-	linbox_check (type == UpperTriangular || type == LowerTriangular);
-	cblas_dtrsv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
-		     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
-	return x;
-}
+	template <class Modules, class Vector>
+	static Vector &trsv_impl (const UnparametricRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::RowColMatrixTag,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		linbox_check (A.rowdim () == x.size ());
+		linbox_check (A.coldim () == x.size ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strsv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+public:
+	template <class Modules, class Matrix, class Vector>
+	static Vector &op (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return trsv_impl (F, M, A, x, type, diagIsOne,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<UnparametricRing<float>, Vector>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<float>, Vector>::StorageType ()); }
+};
 
-template <class Vector1, class Vector2>
-DenseMatrix<double> &ger_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
-			       VectorRepresentationTypes::Dense,
-			       VectorRepresentationTypes::Dense,
-			       MatrixCategories::RowColMatrixTag)
+template <>
+class _ger<UnparametricRing<float>, BLASModule::Tag>
 {
-	linbox_check (A.rowdim () == x.size ());
-	linbox_check (A.coldim () == y.size ());
-	cblas_dger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
-	return A;
-}
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A,
+				 VectorRepresentationTypes::Generic,
+				 VectorStorageTypes::Generic,
+				 VectorRepresentationTypes::Generic,
+				 VectorStorageTypes::Generic,
+				 MatrixCategories::BlackboxTag)
+		{ return _ger<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, x, y, A); }
+
+	template <class Modules, class Vector1, class Vector2>
+	static DenseMatrix<float> &ger_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
+					     VectorRepresentationTypes::Dense,
+					     VectorStorageTypes::Real,
+					     VectorRepresentationTypes::Dense,
+					     VectorStorageTypes::Real,
+					     MatrixCategories::RowColMatrixTag)
+	{
+		linbox_check (A.rowdim () == x.size ());
+		linbox_check (A.coldim () == y.size ());
+		cblas_sger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
+		return A;
+	}
+
+public:
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &op (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A)
+		{ return ger_impl (F, M, a, x, y, A,
+				   typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
+				   typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
+				   typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
+				   typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType (),
+				   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+};
+
+template <>
+class _gemv<UnparametricRing<double>, BLASModule::Tag>
+{
+	template <class Modules, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const UnparametricRing<double> &F, Modules &M,
+				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::BlackboxTag,
+				   VectorRepresentationTypes::Generic,
+				   VectorStorageTypes::Generic,
+				   VectorRepresentationTypes::Generic,
+				   VectorStorageTypes::Generic)
+		{ return _gemv<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+
+	template <class Modules, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const UnparametricRing<double> &F, Modules &M,
+				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
+				   size_t start_idx, size_t end_idx,
+				   MatrixCategories::RowColMatrixTag,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real)
+	{
+		linbox_check (A.coldim () == x.size ());
+		linbox_check (A.rowdim () == y.size ());
+		cblas_dgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
+		return y;
+	}
+
+public:
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &op (const UnparametricRing<float> &F,
+			    Modules              &M,
+			    uint8                 a,
+			    const Matrix         &A,
+			    const Vector1        &x,
+			    uint8                 b,
+			    Vector2              &y,
+			    size_t                start_idx = 0,
+			    size_t                end_idx = (size_t) -1)
+		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
+				    typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType ()); }
+};
+
+template <>
+class _trmv<UnparametricRing<double>, BLASModule::Tag>
+{
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::BlackboxTag,
+				  VectorRepresentationTypes::Generic,
+				  VectorStorageTypes::Generic)
+		{ return _trmv<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
+
+	template <class Modules, class Vector>
+	static Vector &trmv_impl (const UnparametricRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::RowColMatrixTag,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		linbox_check (A.rowdim () == x.size ());
+		linbox_check (A.coldim () == x.size ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrmv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+public:
+	template <class Modules, class Matrix, class Vector>
+	static Vector &op (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return trmv_impl (F, M, A, x, type, diagIsOne,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<UnparametricRing<double>, Vector>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<double>, Vector>::StorageType ()); }
+};
+
+template <>
+class _trsv<UnparametricRing<double>, BLASModule::Tag>
+{
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::BlackboxTag,
+				  VectorRepresentationTypes::Generic,
+				  VectorStorageTypes::Generic)
+		{ return _trsv<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
+
+	template <class Modules, class Vector>
+	static Vector &trsv_impl (const UnparametricRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixCategories::RowColMatrixTag,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		linbox_check (A.rowdim () == x.size ());
+		linbox_check (A.coldim () == x.size ());
+		linbox_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrsv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+public:
+	template <class Modules, class Matrix, class Vector>
+	static Vector &op (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return trsv_impl (F, M, A, x, type, diagIsOne,
+				    typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory (),
+				    typename VectorTraits<UnparametricRing<double>, Vector>::RepresentationType (),
+				    typename VectorTraits<UnparametricRing<double>, Vector>::StorageType ()); }
+};
+
+template <>
+class _ger<UnparametricRing<double>, BLASModule::Tag>
+{
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A,
+				 VectorRepresentationTypes::Generic,
+				 VectorStorageTypes::Generic,
+				 VectorRepresentationTypes::Generic,
+				 VectorStorageTypes::Generic,
+				 MatrixCategories::BlackboxTag)
+		{ return _ger<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, x, y, A); }
+
+	template <class Modules, class Vector1, class Vector2>
+	static DenseMatrix<double> &ger_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
+					      VectorRepresentationTypes::Dense,
+					      VectorStorageTypes::Real,
+					      VectorRepresentationTypes::Dense,
+					      VectorStorageTypes::Real,
+					      MatrixCategories::RowColMatrixTag)
+	{
+		linbox_check (A.rowdim () == x.size ());
+		linbox_check (A.coldim () == y.size ());
+		cblas_dger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
+		return A;
+	}
+
+public:
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &op (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A)
+		{ return ger_impl (F, M, a, x, y, A,
+				   typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
+				   typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
+				   typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
+				   typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType (),
+				   typename MatrixIteratorTypes<typename MatrixTraits<Matrix>::MatrixCategory>::MatrixCategory ()); }
+};
 
 } // namespace BLAS2
 
