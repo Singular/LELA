@@ -279,7 +279,7 @@ template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<Ring, typename GenericModule<Ring>::Tag>::ger_impl
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 	 VectorRepresentationTypes::Dense,
-	 VectorRepresentationTypes::Dense,
+	 VectorRepresentationTypes::Generic,
 	 MatrixIteratorTypes::Row)
 {
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.rowdim ()));
@@ -303,7 +303,7 @@ template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<Ring, typename GenericModule<Ring>::Tag>::ger_impl
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 	 VectorRepresentationTypes::Sparse,
-	 VectorRepresentationTypes::Sparse,
+	 VectorRepresentationTypes::Generic,
 	 MatrixIteratorTypes::Row)
 {
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.rowdim ()));
@@ -325,7 +325,7 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<Ring, typename GenericModule<Ring>::Tag>::ger_impl
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
-	 VectorRepresentationTypes::Dense,
+	 VectorRepresentationTypes::Generic,
 	 VectorRepresentationTypes::Dense,
 	 MatrixIteratorTypes::Col)
 {
@@ -349,7 +349,7 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<Ring, typename GenericModule<Ring>::Tag>::ger_impl
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
-	 VectorRepresentationTypes::Sparse,
+	 VectorRepresentationTypes::Generic,
 	 VectorRepresentationTypes::Sparse,
 	 MatrixIteratorTypes::Col)
 {

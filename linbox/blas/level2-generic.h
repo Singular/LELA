@@ -135,24 +135,24 @@ class _ger<Ring, typename GenericModule<Ring>::Tag>
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Dense,
-				 VectorRepresentationTypes::Dense,
+				 VectorRepresentationTypes::Generic,
 				 MatrixIteratorTypes::Row);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Sparse,
-				 VectorRepresentationTypes::Sparse,
+				 VectorRepresentationTypes::Generic,
 				 MatrixIteratorTypes::Row);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorRepresentationTypes::Dense,
+				 VectorRepresentationTypes::Generic,
 				 VectorRepresentationTypes::Dense,
 				 MatrixIteratorTypes::Col);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorRepresentationTypes::Sparse,
+				 VectorRepresentationTypes::Generic,
 				 VectorRepresentationTypes::Sparse,
 				 MatrixIteratorTypes::Col);
 

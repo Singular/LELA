@@ -90,36 +90,36 @@ class _ger<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Dense01,
-				 VectorRepresentationTypes::Dense01,
+				 VectorRepresentationTypes::Generic,
 				 MatrixIteratorTypes::Row);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Sparse01,
-				 VectorRepresentationTypes::Sparse01,
+				 VectorRepresentationTypes::Generic,
 				 MatrixIteratorTypes::Row);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Hybrid01,
-				 VectorRepresentationTypes::Hybrid01,
+				 VectorRepresentationTypes::Generic,
 				 MatrixIteratorTypes::Row);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorRepresentationTypes::Dense01,
+				 VectorRepresentationTypes::Generic,
 				 VectorRepresentationTypes::Dense01,
 				 MatrixIteratorTypes::Col);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorRepresentationTypes::Sparse01,
+				 VectorRepresentationTypes::Generic,
 				 VectorRepresentationTypes::Sparse01,
 				 MatrixIteratorTypes::Col);
 
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
-				 VectorRepresentationTypes::Hybrid01,
+				 VectorRepresentationTypes::Generic,
 				 VectorRepresentationTypes::Hybrid01,
 				 MatrixIteratorTypes::Col);
 

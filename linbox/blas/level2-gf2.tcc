@@ -16,6 +16,7 @@
 #include "linbox/blas/level2-gf2.h"
 #include "linbox/blas/level1-ll.h"
 #include "linbox/blas/level2-ll.h"
+#include "linbox/blas/level3-ll.h"
 
 namespace LinBox
 {
@@ -210,45 +211,133 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 	return y;
 }
 
-#if 0 // Not implemented
-
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
 						      VectorRepresentationTypes::Dense01,
-						      VectorRepresentationTypes::Dense01,
-						      MatrixIteratorTypes::Row);
+						      VectorRepresentationTypes::Generic,
+						      MatrixIteratorTypes::Row)
+{
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.coldim ()));
+
+	if (!a)
+		return BLAS3::_scal<GF2, typename Modules::Tag>::op (F, M, false, A);
+
+	typename Matrix::RowIterator i_A;
+	typename Vector1::const_iterator i_x;
+
+	for (i_A = A.rowBegin (), i_x = x.begin (); i_A != A.rowEnd (); ++i_A, ++i_x)
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, *i_x, y, *i_A);
+
+	return A;
+}
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
 						      VectorRepresentationTypes::Sparse01,
-						      VectorRepresentationTypes::Sparse01,
-						      MatrixIteratorTypes::Row);
+						      VectorRepresentationTypes::Generic,
+						      MatrixIteratorTypes::Row)
+{
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.coldim ()));
+
+	if (!a)
+		return BLAS3::_scal<GF2, typename Modules::Tag>::op (F, M, false, A);
+
+	typename Vector1::const_iterator i_x;
+
+	for (i_x = x.begin (); i_x != x.end (); ++i_x)
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, y, A.rowBegin () + *i_x);
+
+	return A;
+}
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
 						      VectorRepresentationTypes::Hybrid01,
-						      VectorRepresentationTypes::Hybrid01,
-						      MatrixIteratorTypes::Row);
+						      VectorRepresentationTypes::Generic,
+						      MatrixIteratorTypes::Row)
+{
+	if (!a)
+		return BLAS3::_scal<GF2, typename Modules::Tag>::op (F, M, false, A);
+
+	typename Vector1::const_iterator i_x;
+	typename Vector1::word_type t;
+	size_t row;
+
+	for (i_x = x.begin (); i_x != x.end (); ++i_x) {
+		row = i_x->first << WordTraits<typename Vector1::word_type>::logof_size;
+
+		for (t = Vector1::Endianness::e_0; t != 0 && row < A.rowdim (); t = Vector1::Endianness::shift_right (t, 1), ++row)
+			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, i_x->second & t, y, A.rowBegin () + row);
+	}
+
+	return A;
+}
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						      VectorRepresentationTypes::Generic,
 						      VectorRepresentationTypes::Dense01,
-						      VectorRepresentationTypes::Dense01,
-						      MatrixIteratorTypes::Col);
+						      MatrixIteratorTypes::Col)
+{
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.coldim ()));
+
+	if (!a)
+		return BLAS3::_scal<GF2, typename Modules::Tag>::op (F, M, false, A);
+
+	typename Matrix::ColIterator i_A;
+	typename Vector2::const_iterator i_y;
+
+	for (i_A = A.colBegin (), i_y = y.begin (); i_A != A.colEnd (); ++i_A, ++i_y)
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, *i_y, x, *i_A);
+
+	return A;
+}
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						      VectorRepresentationTypes::Generic,
 						      VectorRepresentationTypes::Sparse01,
-						      VectorRepresentationTypes::Sparse01,
-						      MatrixIteratorTypes::Col);
+						      MatrixIteratorTypes::Col)
+{
+	linbox_check (VectorUtils::hasDim<GF2> (x, A.rowdim ()));
+	linbox_check (VectorUtils::hasDim<GF2> (y, A.coldim ()));
+
+	if (!a)
+		return BLAS3::_scal<GF2, typename Modules::Tag>::op (F, M, false, A);
+
+	typename Vector2::const_iterator i_y;
+
+	for (i_y = y.begin (); i_y != y.end (); ++i_y)
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, y, A.colBegin () + *i_y);
+
+	return A;
+}
 
 template <class Modules, class Vector1, class Vector2, class Matrix>
 Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,
+						      VectorRepresentationTypes::Generic,
 						      VectorRepresentationTypes::Hybrid01,
-						      VectorRepresentationTypes::Hybrid01,
-						      MatrixIteratorTypes::Col);
+						      MatrixIteratorTypes::Col)
+{
+	if (!a)
+		return BLAS3::_scal<GF2, typename Modules::Tag>::op (F, M, false, A);
 
-#endif // Not implemented
+	typename Vector2::const_iterator i_y;
+	typename Vector2::word_type t;
+	size_t col;
+
+	for (i_y = y.begin (); i_y != y.end (); ++i_y) {
+		col = i_y->first << WordTraits<typename Vector1::word_type>::logof_size;
+
+		for (t = Vector1::Endianness::e_0; t != 0 && col < A.coldim (); t = Vector1::Endianness::shift_right (t, 1), ++col)
+			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, i_y->second & t, y, A.colBegin () + col);
+	}
+
+	return A;
+}
 
 } // namespace BLAS2
 
