@@ -63,6 +63,11 @@ namespace LinBox
  * in parallel. It must correspondingly support the methods word_begin
  * and word_end. The class @ref BitVector implements this interface.
  *
+ * The word_iterator should iterate up to the *penultimate* word --
+ * not the last word. The vector should provide the method back_word
+ * () which gives a reference to the last word. This is to improve
+ * performance of word-iterators of bit-subvectors.
+ *
  * A sparse 0-1 vector must support the interface of std::vector,
  * treated as a vector of indices, which must be sorted in strictly
  * ascending order. It must support the full interface, including
