@@ -24,8 +24,8 @@ namespace BLAS1
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-						    size_t start_idx, size_t end_idx,
-						    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
+							 size_t start_idx, size_t end_idx,
+							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
 {
 	linbox_check (x.size () == y.size ());
 	linbox_check (start_idx <= end_idx);
@@ -62,8 +62,8 @@ reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-						    size_t start_idx, size_t end_idx,
-						    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
+							 size_t start_idx, size_t end_idx,
+							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
 {
 	linbox_check (VectorUtils::hasDim<GF2> (y, x.size ()));
 	linbox_check (start_idx <= end_idx);
@@ -84,8 +84,8 @@ reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-						    size_t start_idx, size_t end_idx,
-						    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
+							 size_t start_idx, size_t end_idx,
+							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
 {
 	linbox_check (VectorUtils::hasDim<GF2> (y, x.size ()));
 	linbox_check (start_idx <= end_idx);
@@ -136,8 +136,8 @@ reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-						    size_t start_idx, size_t end_idx,
-						    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
+							 size_t start_idx, size_t end_idx,
+							 VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
 {
 	linbox_check (start_idx <= end_idx);
 
@@ -162,7 +162,7 @@ reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
+							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
 {
 	typedef typename std::iterator_traits<typename Vector2::const_iterator>::value_type index_type;
 
@@ -179,7 +179,7 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
+							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
 {
 	typename Vector1::const_word_iterator i;
 	typename Vector2::index_type idx = 0;
@@ -198,7 +198,7 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
+							 VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
 {
 	linbox_check (VectorUtils::hasDim<GF2> (x, y.size ()));
 
@@ -215,7 +215,7 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01)
+							 VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01)
 {
 	typedef typename std::iterator_traits<typename Vector1::const_iterator>::value_type index_type;
 
@@ -235,7 +235,7 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
+							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 {
 	typename Vector1::const_iterator i;
 
@@ -254,7 +254,7 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
+							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
 {
 	typedef typename std::iterator_traits<typename Vector2::iterator>::value_type index_type;
 
@@ -273,7 +273,7 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
+							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
 {
 	linbox_check (y.size () == x.size ());
 
@@ -292,7 +292,7 @@ Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-		    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
+							 VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
 {
 	linbox_check (VectorUtils::hasDim<GF2> (x, y.size ()));
 
@@ -324,7 +324,7 @@ void fast_copy (const GF2 &F, Modules &M, HybridVector<Endianness, index_type, w
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
+							 VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
 {
 	if (a) {
 		std::vector<typename Vector2::value_type> res;
@@ -346,7 +346,7 @@ Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
+							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 {
 	linbox_check (VectorUtils::hasDim<GF2> (x, y.size ()));
 
@@ -367,7 +367,7 @@ Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &
 
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
-						    VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01)
+							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01)
 {
 	if (a) {
 		HybridVector<typename Vector2::Endianness, typename Vector2::index_type, typename Vector2::word_type> res;
@@ -400,7 +400,8 @@ Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &
 }
 
 template <class Modules, class Iterator, class Vector>
-Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Dense01)
+Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v,
+							      VectorRepresentationTypes::Dense01)
 {
 	for (; P_begin != P_end; ++P_begin)
 		std::swap (v[P_begin->first], v[P_begin->second]);
@@ -409,7 +410,8 @@ Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modu
 }
 
 template <class Modules, class Iterator, class Vector>
-Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Sparse01)
+Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v,
+							      VectorRepresentationTypes::Sparse01)
 {
 	typename Vector::iterator j;
 
@@ -422,7 +424,8 @@ Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modu
 }
 
 template <class Modules, class Iterator, class Vector>
-Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Hybrid01)
+Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v,
+							      VectorRepresentationTypes::Hybrid01)
 {
 	::LinBox::Vector<GF2>::Sparse w;
 
@@ -435,7 +438,7 @@ Vector &_permute<GF2, GenericModule<GF2>::Tag>::permute_impl (const GF2 &F, Modu
 
 template <class Modules, class Vector1, class Vector2>
 bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						  VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
+						       VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
 {
 	if (x.size () != y.size ())
 		return false;
@@ -454,7 +457,7 @@ bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M,
 
 template <class Modules, class Vector1, class Vector2>
 bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						  VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
+						       VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
 {
 	if (x.empty () && !y.empty ())
 		return false;
@@ -486,7 +489,7 @@ bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M,
 
 template <class Modules, class Vector1, class Vector2>
 bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						  VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
+						       VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
 {
 	typename Vector1::const_iterator i_1;
 	typename Vector2::const_iterator i_2;
@@ -503,7 +506,7 @@ bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M,
 
 template <class Modules, class Vector1, class Vector2>
 bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						  VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
+						       VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
 {
 	if (x.empty () && !y.empty ())
 		return false;
@@ -543,7 +546,7 @@ bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M,
 
 template <class Modules, class Vector1, class Vector2>
 bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						  VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
+						       VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
 {
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j = y.begin ();
@@ -572,7 +575,7 @@ bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M,
 
 template <class Modules, class Vector1, class Vector2>
 bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
-						  VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01)
+						       VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01)
 {
 	typename Vector1::const_iterator i_1;
 	typename Vector2::const_iterator i_2;
@@ -651,7 +654,8 @@ int _head<GF2, GenericModule<GF2>::Tag>::head_impl (const GF2 &F, Modules &M, re
 }
 
 template <class Modules, class Vector>
-std::istream &_read<GF2, GenericModule<GF2>::Tag>::read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x, VectorRepresentationTypes::Dense01)
+std::istream &_read<GF2, GenericModule<GF2>::Tag>::read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x,
+							      VectorRepresentationTypes::Dense01)
 {
 	typename Vector::iterator i;
 	char c;
@@ -667,7 +671,8 @@ std::istream &_read<GF2, GenericModule<GF2>::Tag>::read_impl (const GF2 &F, Modu
 }
 
 template <class Modules, class Vector>
-std::istream &_read<GF2, GenericModule<GF2>::Tag>::read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x, VectorRepresentationTypes::Sparse01)
+std::istream &_read<GF2, GenericModule<GF2>::Tag>::read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &x,
+							      VectorRepresentationTypes::Sparse01)
 {
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type index_type;
 
@@ -692,7 +697,8 @@ std::istream &_read<GF2, GenericModule<GF2>::Tag>::read_impl (const GF2 &F, Modu
 }
 
 template <class Modules, class Vector>
-std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorRepresentationTypes::Dense01)
+std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x,
+								VectorRepresentationTypes::Dense01)
 {
 	os << "[ ";
 
@@ -705,7 +711,8 @@ std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Mo
 }
 
 template <class Modules, class Vector>
-std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorRepresentationTypes::Sparse01)
+std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x,
+								VectorRepresentationTypes::Sparse01)
 {
 	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type index_type;
 
@@ -726,7 +733,8 @@ std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Mo
 }
 
 template <class Modules, class Vector>
-std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x, VectorRepresentationTypes::Hybrid01)
+std::ostream &_write<GF2, GenericModule<GF2>::Tag>::write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &x,
+								VectorRepresentationTypes::Hybrid01)
 {
 	typename Vector::const_iterator i;
 	typename Vector::index_type idx = 0;
