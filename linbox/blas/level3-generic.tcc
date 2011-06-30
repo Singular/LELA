@@ -178,13 +178,12 @@ Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 	return C;
 }
 
-// FIXME: This assumes that the rows of C are dense!!!
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 	(const Ring &F, Modules &M,
 	 const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-	 MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::Row)
+	 MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::Generic)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == C.rowdim ());
@@ -192,44 +191,21 @@ Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 
 	typename Matrix1::ConstRowIterator i;
 	typename Matrix2::ConstColIterator j;
-	typename Matrix3::RowIterator l1;
-	typename Matrix3::Row::iterator l2;
-	typename Ring::Element d;
+	typename Ring::Element d, cij;
+	size_t row, col;
 
-	for (i = A.rowBegin (), l1 = C.rowBegin (); i != A.rowEnd (); ++i, ++l1) {
-		for (j = B.colBegin (), l2 = l1->begin (); j != B.colEnd (); ++j, ++l2) {
+	for (i = A.rowBegin (), row = 0; i != A.rowEnd (); ++i, ++row) {
+		for (j = B.colBegin (), col = 0; j != B.colEnd (); ++j, ++col) {
 			BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, *i, *j);
-			F.mulin (*l2, b);
-			F.axpyin (*l2, a, d);
-		}
-	}
 
-	return C;
-}
-
-// FIXME: This assumes that the rows of C are dense!!!
-template <class Ring>
-template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
-	(const Ring &F, Modules &M,
-	 const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
-	 MatrixIteratorTypes::Row, MatrixIteratorTypes::Col, MatrixIteratorTypes::Col)
-{
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (A.rowdim () == C.rowdim ());
-	linbox_check (B.coldim () == C.coldim ());
-
-	typename Matrix1::ConstRowIterator i;
-	typename Matrix2::ConstColIterator j;
-	typename Matrix3::ColIterator l1;
-	typename Matrix3::Col::iterator l2;
-	typename Ring::Element d;
-
-	for (j = B.colBegin (), l1 = C.colBegin (); j != B.colEnd (); ++j, ++l1) {
-		for (i = A.rowBegin (), l2 = l1->begin (); i != A.rowEnd (); ++i, ++l2) {
-			BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, *i, *j);
-			F.mulin (*l2, b);
-			F.axpyin (*l2, a, d);
+			if (C.getEntry (cij, row, col)) {
+				F.mulin (cij, b);
+				F.axpyin (cij, a, d);
+				C.setEntry (row, col, cij);
+			} else {
+				F.mulin (d, a);
+				C.setEntry (row, col, d);
+			}
 		}
 	}
 
@@ -238,9 +214,8 @@ Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::trmm_impl
-	(const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-	 MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
+Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::op
+	(const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
@@ -312,9 +287,8 @@ Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::trmm_impl
 
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trsm<Ring, typename GenericModule<Ring>::Tag>::trsm_impl
-	(const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
-	 MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
+Matrix2 &_trsm<Ring, typename GenericModule<Ring>::Tag>::op
+	(const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
 {
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
