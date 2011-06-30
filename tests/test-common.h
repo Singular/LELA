@@ -15,7 +15,7 @@
 #include <fstream>
 #include <vector>
 
-#include "linbox/ring/archetype.h"
+#include "linbox/ring/interface.h"
 #include "linbox/integer.h"
 
 using namespace std;

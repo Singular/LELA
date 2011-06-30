@@ -4,30 +4,17 @@
  * Written by William J Turner <wjturner@acm.org>,
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * ------------------------------------
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * See COPYING for license information.
  */
 
-#ifndef __LINBOX_randiter_gmp_rational_H
-#define __LINBOX_randiter_gmp_rational_H
+#ifndef __LINBOX_RANDITER_GMP_RATIONAL_H
+#define __LINBOX_RANDITER_GMP_RATIONAL_H
 
+#include "linbox/linbox-config.h"
 #include "linbox/ring/gmp-rational.h"
 #include "linbox/element/gmp-rational.h"
-#include "linbox/element/abstract.h"
-#include "linbox/element/envelope.h"
-#include "linbox/linbox-config.h"
 
 #include <sys/time.h>
 #include <stdlib.h>
@@ -50,31 +37,13 @@ class GMPRationalRandIter
 			_seed = time (NULL);
 	}
 
-
-
-	GMPRationalRandIter (const GMPRationalRandIter& R)
+	GMPRationalRandIter (const GMPRationalRandIter &R)
 		: _F (R._F), _size (R._size), _seed (R._seed) {}
-
-
-#ifdef __LINBOX_XMLENABLED
-	GMPRationalRandIter(LinBox::Reader &R) : _F(R.Down(1))
-	{
-		R.Up(1);
-		if(!R.expectTagName("randiter")) return;
-		if(!R.expectAttributeNum("seed", _seed) || !R.expectAttributeNum("size", _size)) return;
-
-		if(_seed == 0) _seed = time( NULL);
-
-		return;
-
-	}
-#endif
-
 
 	~GMPRationalRandIter() 
 	{}
     
-	GMPRationalRandIter& operator=(const GMPRationalRandIter& R)
+	GMPRationalRandIter &operator = (const GMPRationalRandIter &R)
 	{
 		if (this != &R) { // guard against self-assignment
 			_F = R._F;
@@ -129,20 +98,6 @@ class GMPRationalRandIter
 		return a;
 	}
  
-	/** Random ring element creator.
-	 * This returns a random ring element from the information supplied
-	 * at the creation of the generator.
-	 * Required by abstract base class.
-	 * @return reference to random ring element
-	 */
-	ElementAbstract &random (ElementAbstract &a)  const
-	{
-		Element tmp;
-
-		random (tmp);
-		return (a = ElementEnvelope <GMPRationalField> (tmp));
-	}
-
     private:
 
 	GMPRationalField _F;
@@ -154,7 +109,7 @@ class GMPRationalRandIter
  
 } // namespace LinBox
 
-#endif // __LINBOX_randiter_gmp_random_H
+#endif // __LINBOX_RANDITER_GMP_RANDOM_H
 
 // Local Variables:
 // mode: C++

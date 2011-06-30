@@ -7,12 +7,9 @@ pkgincludesubdir=$(pkgincludedir)/randiter
 AM_CXXFLAGS = -O2 -Wall -DDISABLE_COMMENTATOR $(GMP_CFLAGS) $(ATLAS_CFLAGS)
  
 BASIC_HDRS =				\
-	abstract.h			\
-	archetype.h			\
-	envelope.h			\
+	interface.h			\
 	gmp-rational.h			\
 	modular.h			\
-	modular-balanced.h		\
 	unparametric.h			\
 	gf2.h				\
 	nonzero.h			\

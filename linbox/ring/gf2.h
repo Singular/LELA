@@ -19,7 +19,6 @@
 #include "linbox/util/debug.h"
 #include "linbox/blas/context.h"
 #include "linbox/integer.h"
-#include "linbox/ring/ring-interface.h"
 #include "linbox/vector/bit-vector.h"
 #include "linbox/vector/hybrid.h"
 #include "linbox/vector/sparse-subvector-hybrid.h"
@@ -55,7 +54,7 @@ struct ClassifyRing<GF2> {
 	typedef RingCategories::ModularTag categoryTag;
 };
 
-class GF2 : public RingInterface
+class GF2
 {
     public:
 

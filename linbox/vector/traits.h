@@ -13,15 +13,9 @@
 #ifndef __LINBOX_vector_traits_H
 #define __LINBOX_vector_traits_H
 
-#include <vector>	// STL vectors
-#include <list>		// STL lists
-#include <deque>	// STL deques
-#include <utility>      // STL pairs
-#include <functional>   // STL functions
-#include <map>          // STL maps
-#include <algorithm>    // STL algorithms
+#include <vector>
+#include <algorithm>
 
-#include "linbox/ring/archetype.h"
 #include "linbox/vector/bit-iterator.h"
 
 namespace LinBox

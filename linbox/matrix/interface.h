@@ -1,4 +1,4 @@
-/* linbox/matrix/archetype.h
+/* linbox/matrix/interface.h
  * Copyright 2001 B. David Saunders,
  *           2001-2002 Bradford Hovinen,
  *           2002 Zhendong Wan
@@ -10,7 +10,7 @@
  * Borrowed from dense-base.h by Bradford Hovinen
  * evolved from dense-matrix.h by -bds, Zhendong Wan
  *
- * This holds the "directly represented" matrix archetype. It is provided here
+ * This holds the "directly represented" matrix interface. It is provided here
  * only for reference; it does not provide any useful functionality. See the
  * other headers in this directory for useful classes.
  *
@@ -19,29 +19,24 @@
  * See COPYING for license information
  */
 
-#ifndef __LINBOX_matrix_archetype_H
-#define __LINBOX_matrix_archetype_H
+#ifndef __LINBOX_matrix_interface_H
+#define __LINBOX_matrix_interface_H
 
 #include <iostream>
 #include <vector>
 #include <fstream>
 
-#include "linbox/blackbox/archetype.h"
-
 namespace LinBox
 {
 
-/** @brief Directly-represented matrix archetype
+/** Matrix interface
  *
- * This archetype gives the common interface for matrices that have direct
- * representations. The matrices are required to provide iterators to access and
- * manipulate their entries, but not any matrix-matrix or matrix-vector
- * arithmetic. That is, they are pure containers. As such, they are only
- * parameterized on the element type, not on the field type.
+ * This defines the interface which matrices should satisfy. It is
+ * provided for documentation only.
  */
   
 template <class _Element>
-class MatrixArchetype
+class MatrixInterface
 {
     public:
 
@@ -148,7 +143,7 @@ class MatrixArchetype
 	 *
 	 * Builds empty 0x0 matrix.
 	 */
-	MatrixArchetype ();
+	MatrixInterface ();
 
 	/** Constructor with size
 	 * @param  m  row dimension
@@ -158,11 +153,11 @@ class MatrixArchetype
 	 * sense to provide it (e.g. with @ref Submatrix or @ref
 	 * TransposeMatrix)
 	 */
-	MatrixArchetype (size_t m, size_t n);
+	MatrixInterface (size_t m, size_t n);
 
 	/** Copy constructor
 	 */
-	MatrixArchetype (const MatrixArchetype &M);
+	MatrixInterface (const MatrixInterface &M);
 
 	/** Constructor from a @ref VectorStream
 	 *
@@ -173,7 +168,7 @@ class MatrixArchetype
 	 *
 	 * @param vs @ref VectorStream from which to get vectors
 	 */
-	MatrixArchetype (VectorStream<Row> &vs)
+	MatrixInterface (VectorStream<Row> &vs)
 	{
 		for (RowIterator i = rowBegin (); i != rowEnd (); ++i)
 			vs >> *i;
@@ -181,7 +176,7 @@ class MatrixArchetype
 
 	/** Operator =
 	 */
-	MatrixArchetype& operator= (const MatrixArchetype& M);
+	MatrixInterface& operator= (const MatrixInterface& M);
 
 	/** Get the number of rows in the matrix
 	 * @return Number of rows in matrix
@@ -325,7 +320,7 @@ class MatrixArchetype
 
 	/** Compute the transpose
 	 */
-	MatrixArchetype &transpose (MatrixArchetype &M) const;
+	MatrixInterface &transpose (MatrixInterface &M) const;
 
 	//@}
 
@@ -337,7 +332,7 @@ class MatrixArchetype
 
 } // namespace LinBox
 
-#endif // __LINBOX_matrix_archetype_H
+#endif // __LINBOX_matrix_interface_H
 
 // Local Variables:
 // mode: C++

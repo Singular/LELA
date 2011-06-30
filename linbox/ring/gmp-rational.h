@@ -17,7 +17,6 @@
 #include <gmp.h>
 
 #include "linbox/integer.h"
-#include "linbox/ring/ring-interface.h"
 #include "linbox/element/gmp-rational.h"
 #include "linbox/linbox-config.h"
 #include "linbox/util/debug.h"
@@ -28,7 +27,7 @@ namespace LinBox
 {
 
 // Forward declarations
-class GMPRationalRandIter;;
+class GMPRationalRandIter;
 
 /**
  * \brief Ring of rational numbers using GMP
@@ -38,17 +37,7 @@ class GMPRationalRandIter;;
  * interface of the ring archetype. 
  */
 
-template <class Ring>
-struct ClassifyRing;
-
-class GMPRationalField;
-
-template<>
-struct ClassifyRing<GMPRationalField> {
-	typedef RingCategories::RationalTag categoryTag;
-};
-
-class GMPRationalField : public RingInterface
+class GMPRationalField
 {
     private:
 

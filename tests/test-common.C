@@ -20,7 +20,7 @@
 #include <cmath>
 
 #include "linbox/util/commentator.h"
-#include "linbox/ring/archetype.h"
+#include "linbox/ring/interface.h"
 
 #include "test-common.h"
 

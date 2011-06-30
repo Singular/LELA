@@ -4,11 +4,8 @@
 pkgincludesubdir=$(pkgincludedir)/field
 
 BASIC_HDRS =			\
-	ring-interface.h	\
 	traits.h		\
-	abstract.h		\
-	archetype.h		\
-	envelope.h		\
+	interface.h		\
 	unparametric.h		\
 	gmp-rational.h		\
 	modular.h		\

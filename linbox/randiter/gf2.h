@@ -8,31 +8,18 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_randiter_gf2_H
-#define __LINBOX_randiter_gf2_H
+#ifndef __LINBOX_RANDITER_GF2_H
+#define __LINBOX_RANDITER_GF2_H
 
 #include <iostream>
 #include <vector>
 
-#include "time.h"
+#include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/ring/modular.h"
-#include "linbox/element/abstract.h"
-#include "linbox/element/envelope.h"
 #include "linbox/util/commentator.h"
 #include "linbox/randiter/mersenne-twister.h"
-#include "linbox/vector/bit-vector.h"
-#include "linbox/linbox-config.h"
-
-#ifdef __LINBOX_XMLENABLED
-
-#include "linbox/util/xml/linbox-reader.h"
-#include "linbox/util/xml/linbox-writer.h"
-
-#include <iostream>
-#include <string>
-
-#endif
+#include "linbox/vector/bit-iterator.h"
 
 namespace LinBox 
 { 
@@ -96,7 +83,6 @@ class GF2RandIter
 	BitVectorReference<Iterator, Endianness> random (BitVectorReference<Iterator, Endianness> a)  const
 		{ return a = MT.randomIntRange (0, 2); }
 
-
 	/** Random field element creator.
 	 * This returns a random field element from the information supplied
 	 * at the creation of the generator.
@@ -106,26 +92,11 @@ class GF2RandIter
 	std::_Bit_reference random (std::_Bit_reference a)  const
 		{ return a = MT.randomIntRange (0, 2); }
 
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
-	 * at the creation of the generator.
-	 * Required by abstract base class.
-	 * @return reference to random field element
-	 */
-	ElementAbstract &random (ElementAbstract &a)  const
-	{
-		bool tmp;
-
-		random (tmp);
-		return (a = ElementEnvelope <GF2> (tmp));
-	}
-
-
 	uint32& random (uint32& a)  const
 		{ return a = MT.randomInt(); }
 
-    MersenneTwister& getMT() { return MT; }
-    const MersenneTwister& getMT() const { return MT; }
+	MersenneTwister& getMT() { return MT; }
+	const MersenneTwister& getMT() const { return MT; }
 
     private:
 

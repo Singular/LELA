@@ -32,7 +32,6 @@
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/randiter/unparametric.h"
-#include "linbox/ring/ring-interface.h"
 #include "linbox/ring/traits.h"
 #include "linbox/blas/context.h"
 
@@ -67,7 +66,7 @@ struct ClassifyRing<UnparametricRing<K> >
 };
 
 template <class K>
-class UnparametricRing : public RingInterface
+class UnparametricRing
 {
 protected:
 	integer _p;

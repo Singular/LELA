@@ -5,11 +5,6 @@
  * Written by William J. Turner <wjturner@math.ncsu.edu>
  *
  * ------------------------------------
- * 2002-04-10 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Renamed from test-unparametric-ring.cpp to test-unparametric-ring.C, so
- * that we are using the same file naming conventions thoughout the library.
- * ------------------------------------
  *
  * See COPYING for license information.
  */
@@ -50,11 +45,6 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
 	if (!runRingTests (F, "UnparametricRing<double>", iterations, n, false)) pass = false;
-
-	RingArchetype K(new UnparametricRing<double>(F));
-
-	if (!testRing<RingArchetype> (K, "Testing archetype with envelope of UnRing ring"))
-		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 

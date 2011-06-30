@@ -6,14 +6,6 @@
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
  * ------------------------------------
- * 2002-04-10 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * LargeModular is now replace by a class Modular parameterized on the element
- * type. So, the old LargeModular is equivalent to Modular<integer>. All other
- * interface details are exactly the same.
- *
- * Renamed from large-modular.h to modular.h
- * ------------------------------------
  *
  * See COPYING for license information.
  */
@@ -31,7 +23,6 @@
 #include "linbox/util/debug.h"
 #include "linbox/util/property.h"
 #include "linbox/blas/context.h"
-#include "linbox/ring/ring-interface.h"
 #include "linbox/ring/traits.h"
 #include "linbox/randiter/nonzero.h"
 
@@ -635,7 +626,7 @@ class Modular : public ModularBase<_Element>
     See RingArchetype for member specifications.
 */
 template <>
-class Modular<uint8> : public RingInterface, public ModularBase<uint8>
+class Modular<uint8> : public ModularBase<uint8>
 {
     public:
 
@@ -799,7 +790,7 @@ class Modular<uint8> : public RingInterface, public ModularBase<uint8>
 
 /** @brief Specialization of class Modular for uint16 element type */
 template <>
-class Modular<uint16> : public RingInterface, public ModularBase<uint16>
+class Modular<uint16> : public ModularBase<uint16>
 {
     public:
 
@@ -963,7 +954,7 @@ class Modular<uint16> : public RingInterface, public ModularBase<uint16>
 
 /** @brief Specialization of class Modular for uint32 element type */
 template <>
-class Modular<uint32> : public RingInterface, public ModularBase<uint32>
+class Modular<uint32> : public ModularBase<uint32>
 {
     public:
 
@@ -1129,7 +1120,7 @@ template <class Element>
 class ModularRandIter;
 
 template <>
-class Modular<float> : public RingInterface
+class Modular<float>
 {
 
 public:
@@ -1431,7 +1422,7 @@ public:
 }; // class Modular<float>
 
 template <>
-class Modular<double> : public RingInterface
+class Modular<double>
 {
 
 public:	       

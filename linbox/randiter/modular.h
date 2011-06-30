@@ -6,37 +6,18 @@
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
  * ------------------------------------
- * 2002-04-10 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Changed LargeModularRandIter to ModularRandIter, parameterized on the
- * element type. This change is for compatibility with the changes in
- * field/modular.h
- *
- * Renamed from large-modular.h to modular.h
- * ------------------------------------
- * 2002-05-14 William J. Turner <wjturner@acm.org>
- *
- * Seeded random number generator in constructor.  _seed was never used
- * before.
- * ------------------------------------
- * 2005-06-24 William J. Turner <wjturner@acm.org>
- *
- * Removed using declarations.
- * ------------------------------------
  *
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_large_modular_randiter_H
-#define __LINBOX_large_modular_randiter_H
+#ifndef __LINBOX_RANDITER_MODULAR_H
+#define __LINBOX_RANDITER_MODULAR_H
 
 #include <iostream>
 #include <vector>
 
 #include "linbox/integer.h"
 #include "linbox/ring/modular.h"
-#include "linbox/element/abstract.h"
-#include "linbox/element/envelope.h"
 #include "linbox/util/commentator.h"
 #include "linbox/randiter/mersenne-twister.h"
 #include "linbox/linbox-config.h"
@@ -130,32 +111,6 @@ public:
 	Element &random (Element &a) const
 		{ return _F.init (a, _MT.randomIntRange (0, _size.get_ui ())); }
 
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
-	 * at the creation of the generator.
-	 * Required by abstract base class.
-	 * @return reference to random field element
-	 */
-	Element &nonzerorandom (Element &a) const
-	{
-		while (_F.isZero (random (a))) ;
-		return a;
-	}
-
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
-	 * at the creation of the generator.
-	 * Required by abstract base class.
-	 * @return reference to random field element
-	 */
-	ElementAbstract &random (ElementAbstract &a) const
-	{
-		Element tmp;
-
-		random (tmp);
-		return (a = ElementEnvelope <Modular<Element> > (tmp));
-	}
-
 private:
 	MersenneTwister _MT;
 
@@ -186,9 +141,6 @@ public:
 		{ _r = r._r; return *this; }
 
 	Element &random (Element &a) const
-		{ return _r.random (a); }
-
-	ElementAbstract &random (ElementAbstract &a) const
 		{ return _r.random (a); }
 };
 
@@ -224,10 +176,6 @@ public:
 
 	Element &random (Element &a) const
 		{ return a = _r.randomIntRange (0, _size); }
-
-	ElementAbstract &random (ElementAbstract &a)  const
-		{ return a = ElementEnvelope <Modular<Element> >
-				(_r.randomIntRange (0, _size)); }
 };
 
 template <>
@@ -263,15 +211,11 @@ public:
 
 	Element &random (Element &a) const
 		{ return a = _r.randomIntRange (0, _size); }
-
-	ElementAbstract &random (ElementAbstract &a) const
-		{ return a = ElementEnvelope <Modular<Element> >
-				(_r.randomIntRange (0, _size)); }
 };
 
 } // namespace LinBox 
 
-#endif // __LINBOX_large_modular_randiter_H
+#endif // __LINBOX_RANDITER_MODULAR_H
 
 // Local Variables:
 // mode: C++
