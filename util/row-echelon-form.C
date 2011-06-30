@@ -267,18 +267,18 @@ int main (int argc, char **argv)
 		return run_row_echelon_form (GF2 (), methodString, matrixType, reduced, input, input_format, output, output_format);
 	else if (ring_type == RING_MODULAR) {
 		if (floatingPoint) {
-			if (p <= Modular<float>::getMaxModulus ())
+			if (ModularTraits<float>::valid_modulus (p))
 				return run_row_echelon_form (Modular<float> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
-			else if (p <= Modular<double>::getMaxModulus ())
+			else if (ModularTraits<double>::valid_modulus (p))
 				return run_row_echelon_form (Modular<double> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
 			else
 				return run_row_echelon_form (Modular<integer> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
 		} else {
-			if (p <= Modular<uint8>::getMaxModulus ())
+			if (ModularTraits<uint8>::valid_modulus (p))
 				return run_row_echelon_form (Modular<uint8> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
-			else if (p <= Modular<uint16>::getMaxModulus ())
+			else if (ModularTraits<uint16>::valid_modulus (p))
 				return run_row_echelon_form (Modular<uint16> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
-			else if (p <= Modular<uint32>::getMaxModulus ())
+			else if (ModularTraits<uint32>::valid_modulus (p))
 				return run_row_echelon_form (Modular<uint32> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
 			else
 				return run_row_echelon_form (Modular<integer> (p), methodString, matrixType, reduced, input, input_format, output, output_format);

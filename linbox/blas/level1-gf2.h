@@ -25,7 +25,7 @@ namespace BLAS1
 {
 
 template <>
-class _dot<GF2, GenericModule::Tag>
+class _dot<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
@@ -69,7 +69,7 @@ public:
 };
 
 template <>
-class _copy<GF2, GenericModule::Tag>
+class _copy<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
@@ -119,7 +119,7 @@ public:
 };
 
 template <>
-class _axpy<GF2, GenericModule::Tag>
+class _axpy<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
@@ -150,7 +150,7 @@ public:
 };
 
 template <>
-class _scal<GF2, GenericModule::Tag>
+class _scal<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector>
 	static Vector &scal_impl (const GF2 &F, Modules &M, bool a, Vector &x, VectorRepresentationTypes::Dense01)
@@ -172,7 +172,7 @@ public:
 };
 
 template <>
-class _permute<GF2, GenericModule::Tag>
+class _permute<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Iterator, class Vector>
 	static Vector &permute_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Dense01);
@@ -191,7 +191,7 @@ public:
 };
 
 template <>
-class _equal<GF2, GenericModule::Tag>
+class _equal<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const GF2 &F, Modules &M, const Vector1 &x, const Vector2 &y,
@@ -241,7 +241,7 @@ public:
 };
 
 template <>
-class _is_zero<GF2, GenericModule::Tag>
+class _is_zero<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector>
 	static bool is_zero_impl (const GF2 &F, Modules &M, const Vector &x, VectorRepresentationTypes::Dense01);
@@ -262,7 +262,7 @@ public:
 };
 
 template <>
-class _head<GF2, GenericModule::Tag>
+class _head<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class reference, class Vector>
 	static int head_impl (const GF2 &F, Modules &M, reference &a, const Vector &x, VectorRepresentationTypes::Dense01);
@@ -282,7 +282,7 @@ public:
 };
 
 template <>
-class _read<GF2, GenericModule::Tag>
+class _read<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector>
 	static std::istream &read_impl (const GF2 &F, Modules &M, std::istream &is, const Vector &v, VectorRepresentationTypes::Dense01);
@@ -298,7 +298,7 @@ public:
 };
 
 template <>
-class _write<GF2, GenericModule::Tag>
+class _write<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector>
 	static std::ostream &write_impl (const GF2 &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Dense01);

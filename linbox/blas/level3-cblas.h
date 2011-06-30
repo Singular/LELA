@@ -31,12 +31,12 @@ namespace BLAS3
 {
 
 template <>
-class _gemm<UnparametricRing<float>, BLASModule::Tag>
+class _gemm<UnparametricRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _gemm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, b, C); }
+		{ return _gemm<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
@@ -57,15 +57,15 @@ public:
 };
 
 template <>
-class _trmm<UnparametricRing<float>, BLASModule::Tag>
+class _trmm<UnparametricRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trmm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trmm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trmm<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trmm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trmm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
@@ -84,15 +84,15 @@ public:
 };
 
 template <>
-class _trsm<UnparametricRing<float>, BLASModule::Tag>
+class _trsm<UnparametricRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trsm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trsm<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trsm<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trsm_impl (const UnparametricRing<float> &F, BLASModule &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trsm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
@@ -112,12 +112,12 @@ public:
 };
 
 template <>
-class _gemm<UnparametricRing<double>, BLASModule::Tag>
+class _gemm<UnparametricRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _gemm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, b, C); }
+		{ return _gemm<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
@@ -138,15 +138,15 @@ public:
 };
 
 template <>
-class _trmm<UnparametricRing<double>, BLASModule::Tag>
+class _trmm<UnparametricRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trmm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trmm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trmm<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trmm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trmm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());
@@ -165,15 +165,15 @@ public:
 };
 
 template <>
-class _trsm<UnparametricRing<double>, BLASModule::Tag>
+class _trsm<UnparametricRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trsm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trsm<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trsm<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trsm_impl (const UnparametricRing<double> &F, BLASModule &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trsm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		linbox_check (A.rowdim () == B.rowdim ());

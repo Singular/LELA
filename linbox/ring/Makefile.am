@@ -4,7 +4,6 @@
 pkgincludesubdir=$(pkgincludedir)/field
 
 BASIC_HDRS =			\
-	traits.h		\
 	interface.h		\
 	unparametric.h		\
 	gmp-rational.h		\

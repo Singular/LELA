@@ -38,7 +38,7 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<uint64>::iterator l, l_end;
+	std::vector<ModularTraits<uint8>::DoubleFatElement>::iterator l, l_end;
 
 	M._tmp.resize (y.size ());
 
@@ -48,13 +48,13 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 
 	do {
 		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, F._k);
+		j_end = j + std::min (end_idx - start_idx, M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), F._k);
+		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
 
 		for (l = M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
@@ -87,7 +87,7 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<uint64>::iterator l, l_end;
+	std::vector<ModularTraits<uint8>::DoubleFatElement>::iterator l, l_end;
 
 	M._tmp.resize (y.size ());
 
@@ -97,13 +97,13 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 
 	do {
 		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, F._k);
+		j_end = j + std::min (end_idx - start_idx, M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				M._tmp[k->first] += k->second * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), F._k);
+		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
 
 		for (l =M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
@@ -136,7 +136,7 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j = x.begin () + start_idx, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<uint64>::iterator l, l_end;
+	std::vector<ModularTraits<uint16>::DoubleFatElement>::iterator l, l_end;
 
 	if (M._tmp.size () < y.size ())
 		M._tmp.resize (y.size ());
@@ -147,13 +147,13 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 
 	do {
 		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, F._k);
+		j_end = j + std::min (end_idx - start_idx, M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), F._k);
+		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
 
 		for (l = M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
@@ -186,7 +186,7 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
 	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<uint64>::iterator l, l_end;
+	std::vector<ModularTraits<uint16>::DoubleFatElement>::iterator l, l_end;
 
 	if (M._tmp.size () < y.size ())
 		M._tmp.resize (y.size ());
@@ -197,13 +197,13 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 
 	do {
 		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, F._k);
+		j_end = j + std::min (end_idx - start_idx, M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				M._tmp[k->first] += k->second * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), F._k);
+		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
 
 		for (l =M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
@@ -236,7 +236,7 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j, j_stop = x.begin () + end_idx;
 	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<uint64>::iterator l;
+	std::vector<ModularTraits<uint32>::DoubleFatElement>::iterator l;
 
 	uint64 t;
 
@@ -252,7 +252,7 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 			*l += t;
 
 			if (*l < t)
-				*l += F._two_64;
+				*l += M.two_64;
 		}
 	}
 
@@ -287,7 +287,7 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
 	typename Vector2::const_iterator j, j_stop = x.begin () + end_idx;
 	typename Matrix::Column::const_iterator k;
-	std::vector<uint64>::iterator l;
+	std::vector<ModularTraits<uint32>::DoubleFatElement>::iterator l;
 
 	uint64 t;
 
@@ -303,7 +303,7 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 			M._tmp[k->first] += t;
 
 			if (M._tmp[k->first] < t)
-				M._tmp[k->first] += F._two_64;
+				M._tmp[k->first] += M.two_64;
 		}
 	}
 

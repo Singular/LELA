@@ -31,13 +31,13 @@ namespace BLAS1
 {
 
 template <>
-class _dot<UnparametricRing<float>, BLASModule::Tag>
+class _dot<UnparametricRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static float dot_impl (const UnparametricRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
 			       size_t start_idx, size_t end_idx,
 			       VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _dot<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
+		{ return _dot<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static float dot_impl (const UnparametricRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
@@ -60,13 +60,13 @@ public:
 };
 
 template <>
-class _dot<UnparametricRing<double>, BLASModule::Tag>
+class _dot<UnparametricRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static double dot_impl (const UnparametricRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
 				VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _dot<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
+		{ return _dot<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static double dot_impl (const UnparametricRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
@@ -89,12 +89,12 @@ public:
 };
 
 template <>
-class _copy<UnparametricRing<float>, BLASModule::Tag>
+class _copy<UnparametricRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const UnparametricRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _copy<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, x, y); }
+		{ return _copy<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const UnparametricRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y,
@@ -116,12 +116,12 @@ public:
 };
 
 template <>
-class _copy<UnparametricRing<double>, BLASModule::Tag>
+class _copy<UnparametricRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const UnparametricRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _copy<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, x, y); }
+		{ return _copy<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const UnparametricRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y,
@@ -143,12 +143,12 @@ public:
 };
 
 template <>
-class _axpy<UnparametricRing<float>, BLASModule::Tag>
+class _axpy<UnparametricRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _axpy<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, x, y); }
+		{ return _axpy<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y,
@@ -170,12 +170,12 @@ public:
 };
 
 template <>
-class _axpy<UnparametricRing<double>, BLASModule::Tag>
+class _axpy<UnparametricRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _axpy<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, x, y); }
+		{ return _axpy<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y,
@@ -197,12 +197,12 @@ public:
 };
 
 template <>
-class _scal<UnparametricRing<float>, BLASModule::Tag>
+class _scal<UnparametricRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector>
 	static Vector &scal_impl (const UnparametricRing<float> &F, Modules &M, float a, Vector &x,
 				  VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _scal<UnparametricRing<float>, BLASModule::Tag::Parent>::op (F, M, a, x); }
+		{ return _scal<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x); }
 
 	template <class Modules, class Vector>
 	static Vector &scal_impl (const UnparametricRing<float> &F, Modules &M, float a, Vector &x,
@@ -221,12 +221,12 @@ public:
 };
 
 template <>
-class _scal<UnparametricRing<double>, BLASModule::Tag>
+class _scal<UnparametricRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector>
 	static Vector &scal_impl (const UnparametricRing<double> &F, Modules &M, double a, Vector &x,
 				  VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _scal<UnparametricRing<double>, BLASModule::Tag::Parent>::op (F, M, a, x); }
+		{ return _scal<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x); }
 
 	template <class Modules, class Vector>
 	static Vector &scal_impl (const UnparametricRing<double> &F, Modules &M, double a, Vector &x,

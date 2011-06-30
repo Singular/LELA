@@ -167,18 +167,18 @@ int main (int argc, char **argv)
 		return check_equal (GF2 (), input1, input1_format, input2, input2_format);
 	else if (ring_type == RING_MODULAR) {
 		if (floatingPoint) {
-			if (p <= Modular<float>::getMaxModulus ())
+			if (ModularTraits<float>::valid_modulus (p))
 				return check_equal (Modular<float> (p), input1, input1_format, input2, input2_format);
-			else if (p <= Modular<double>::getMaxModulus ())
+			else if (ModularTraits<double>::valid_modulus (p))
 				return check_equal (Modular<double> (p), input1, input1_format, input2, input2_format);
 			else
 				return check_equal (Modular<integer> (p), input1, input1_format, input2, input2_format);
 		} else {
-			if (p <= Modular<uint8>::getMaxModulus ())
+			if (ModularTraits<uint8>::valid_modulus (p))
 				return check_equal (Modular<uint8> (p), input1, input1_format, input2, input2_format);
-			else if (p <= Modular<uint16>::getMaxModulus ())
+			else if (ModularTraits<uint16>::valid_modulus (p))
 				return check_equal (Modular<uint16> (p), input1, input1_format, input2, input2_format);
-			else if (p <= Modular<uint32>::getMaxModulus ())
+			else if (ModularTraits<uint32>::valid_modulus (p))
 				return check_equal (Modular<uint32> (p), input1, input1_format, input2, input2_format);
 			else
 				return check_equal (Modular<integer> (p), input1, input1_format, input2, input2_format);

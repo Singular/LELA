@@ -24,7 +24,7 @@ namespace BLAS2
 {
 
 template <class Ring>
-class _gemv<Ring, GenericModule::Tag>
+class _gemv<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const Ring &F, Modules &M,
@@ -124,7 +124,7 @@ public:
 };
 
 template <class Ring>
-class _trmv<Ring, GenericModule::Tag>
+class _trmv<Ring, typename GenericModule<Ring>::Tag>
 {
 public:
 	template <class Modules, class Matrix, class Vector>
@@ -132,7 +132,7 @@ public:
 };
 
 template <class Ring>
-class _trsv<Ring, GenericModule::Tag>
+class _trsv<Ring, typename GenericModule<Ring>::Tag>
 {
 public:
 	template <class Modules, class Matrix, class Vector>
@@ -140,7 +140,7 @@ public:
 };
 
 template <class Ring>
-class _ger<Ring, GenericModule::Tag>
+class _ger<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,

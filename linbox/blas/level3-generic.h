@@ -24,7 +24,7 @@ namespace BLAS3
 {
 
 template <class Ring>
-class _copy<Ring, GenericModule::Tag>
+class _copy<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
@@ -76,7 +76,7 @@ public:
 };
 
 template <class Ring>
-class _scal<Ring, GenericModule::Tag>
+class _scal<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix>
 	static Matrix &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Matrix &A, MatrixIteratorTypes::Row);
@@ -95,7 +95,7 @@ public:
 };
 
 template <class Ring>
-class _axpy<Ring, GenericModule::Tag>
+class _axpy<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B,
@@ -117,7 +117,7 @@ public:
 };
 
 template <class Ring>
-class _gemm<Ring, GenericModule::Tag>
+class _gemm<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
@@ -161,7 +161,7 @@ public:
 };
 
 template <class Ring>
-class _trmm<Ring, GenericModule::Tag>
+class _trmm<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trmm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
@@ -176,7 +176,7 @@ public:
 };
 
 template <class Ring>
-class _trsm<Ring, GenericModule::Tag>
+class _trsm<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &trsm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
@@ -191,7 +191,7 @@ public:
 };
 
 template <class Ring>
-class _permute_rows<Ring, GenericModule::Tag>
+class _permute_rows<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Iterator, class Matrix>
 	static Matrix &permute_rows_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Row);
@@ -210,7 +210,7 @@ public:
 };
 
 template <class Ring>
-class _permute_cols<Ring, GenericModule::Tag>
+class _permute_cols<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Iterator, class Matrix>
 	static Matrix &permute_cols_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A, MatrixIteratorTypes::Row);
@@ -229,7 +229,7 @@ public:
 };
 
 template <class Ring>
-class _equal<Ring, GenericModule::Tag>
+class _equal<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static bool equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
@@ -251,7 +251,7 @@ public:
 };
 
 template <class Ring>
-class _is_zero<Ring, GenericModule::Tag>
+class _is_zero<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix>
 	static bool is_zero_impl (const Ring &F, Modules &M, const Matrix &A, MatrixIteratorTypes::Row);
@@ -270,7 +270,7 @@ public:
 };
 
 template <class Ring>
-class _read<Ring, GenericModule::Tag>
+class _read<Ring, typename GenericModule<Ring>::Tag>
 {
 public:
 	template <class Modules, class Matrix>
@@ -279,7 +279,7 @@ public:
 };
 
 template <class Ring>
-class _write<Ring, GenericModule::Tag>
+class _write<Ring, typename GenericModule<Ring>::Tag>
 {
 public:
 	template <class Modules, class Matrix>

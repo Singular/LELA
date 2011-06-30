@@ -1,24 +1,13 @@
 /* linbox/ring/unparametric.h
- * Copyright (C) 1999-2005 William J Turner,
- *               2001 Bradford Hovinen
+ * Copyright 1999-2005 William J Turner,
+ *           2001 Bradford Hovinen
  *
  * Written by W. J. Turner <wjturner@acm.org>,
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * ------------------------------------
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * See COPYING for license information.
  */
  
 #ifndef __LINBOX_ring_unparametric_H
@@ -32,7 +21,6 @@
 #include "linbox/linbox-config.h"
 #include "linbox/integer.h"
 #include "linbox/randiter/unparametric.h"
-#include "linbox/ring/traits.h"
 #include "linbox/blas/context.h"
 
 namespace LinBox 
@@ -53,18 +41,6 @@ namespace LinBox
 
 */
 
-template <class Ring>
-struct ClassifyRing;
-
-template <class K>
-class UnparametricRing;
-
-template <class K>
-struct ClassifyRing<UnparametricRing<K> >
-{
-	typedef RingCategories::GenericTag categoryTag;
-};
-
 template <class K>
 class UnparametricRing
 {
@@ -74,72 +50,36 @@ protected:
 
 public:
     
-	/** @name Common Object Interface for a LinBox Ring.
-	 * These methods and member types are required of all LinBox rings.
-	 * See \ref{RingArchetype} for detailed specifications.
-	 */
-	//@{
-    
-	/** The ring's element type.
-	 * Type K must provide a default constructor, 
-	 * a copy constructor, a destructor, and an assignment operator.
-	 */
-
 	typedef K Element;    
 
-	/// Type of random ring element generators.
 	typedef UnparametricRandIter<K> RandIter;
 
-	/** @name Ring Object Basics.
-	 */
-	//@{
-    
-	/** Builds this ring to have characteristic q and cardinality q<sup>e</sup>.
-	 *  This constructor must be defined in a specialization.
-	 */
 	UnparametricRing (integer q = 0, size_t e = 1)
 		: _p (q),
 		  _card ((q == 0) ? integer (-1) : pow (q.get_d (), e))
 		{}  // assuming q is a prime or zero.
 
-	/// construct this ring as copy of F.
 	UnparametricRing (const UnparametricRing &F)
 		: _p (F._p),
 		  _card (F._card)
 		{}
     
-	/// 
 	~UnparametricRing () {}
     
-	/* Assignment operator.
-	 * Assigns UnparametricRing object F to ring.
-	 * @param  F UnparametricRing object.
-	 */
 	const UnparametricRing &operator=(const UnparametricRing &F) const { return *this; }
 
-	//@} Ring Object Basics.
-    
-	/** @name Data Object Management.
-	 * first argument is set and the value is also returned.
-	 */
-
-	//@{
-
-	/// x := y.  Caution: it is via cast to long.  Good candidate for specialization.
 	Element &init (Element &x, const integer &y = 0) const 
 		{ return x = (const Element &) (static_cast<const Element> (y.get_ui ())); }
 
 	Element &init (Element &x, const double &y) const 
 		{ return x = (const Element &) (y); }
    
-	/// x :=  y.  Caution: it is via cast to long.  Good candidate for specialization.
 	integer &convert (integer &x, const Element &y) const 
 	{
 		Element temp (y);
 		return x = static_cast<integer> (temp); 
 	}
     
-	/// x :=  y.  Caution: it is via cast to long.  Good candidate for specialization. --dpritcha
 	double &convert (double &x, const Element &y) const 
 	{ 
 		Element temp (y);
@@ -152,144 +92,76 @@ public:
 		return x = static_cast<float> (temp); 
 	}
 
-	///
 	Element &assign (Element &x, const Element &y) const
 		{ return x = y; }
 
-	/// c := cardinality of this ring (-1 if infinite).
 	integer &cardinality (integer &c) const
 		{ return c = _card; }
     
-	/// c := characteristic of this ring (zero or prime).
 	integer &characteristic (integer &c) const
 		{ return c = _p; }
 
-	//@} Data Object Management
-    
-	/// @name Comparison Predicates
-	//@{
-	///  x == y
 	bool areEqual (const Element &x, const Element &y) const
 		{ return x == y; }
 
-	///  x == 0
 	bool isZero (const Element &x) const
 		{ return x == Element (0); }
 
-	///  x == 1
 	bool isOne (const Element &x) const
 		{ return x == Element (1); }
-	//@} Comparison Predicates
-		 
-	/** @name Arithmetic Operations 
-	 * The first argument is set and is also the return value.
-	 */
-	//@{
-    
-	/// x := y + z
+
 	Element &add (Element &x, const Element &y, const Element &z) const
 		{ return x = y + z; }
     
-	/// x := y - z
 	Element &sub (Element &x, const Element &y, const Element &z) const
 		{ return x = y - z; }
     
-	/// x := y*z
 	Element &mul (Element &x, const Element &y, const Element &z) const
 		{ return x = y * z; }
     
-	/// x := y/z
-	Element &div (Element &x, const Element &y, const Element &z) const
-		{ return x = y / z; }
+	bool div (Element &x, const Element &y, const Element &z) const
+		{ if (!isZero (y)) { x = y / z; return true; } else return false; }
     
-	/// x := -y
 	Element &neg (Element &x, const Element &y) const { return x = - y; }
     
-	/// x := 1/y
-	Element &inv (Element &x, const Element &y) const 
-		{ return x = Element (1) / y; }
+	bool inv (Element &x, const Element &y) const 
+		{ if (!isZero (y)) { x = Element (1) / y; return true; } else return false; }
     
-	/// z := a*x + y 
-	// more optimal implementation, if available, can be defined in a template specialization.
-	Element &axpy (Element &z, 
-		       const Element &a, 
-		       const Element &x, 
-		       const Element &y) const
+	Element &axpy (Element &z, const Element &a, const Element &x, const Element &y) const
 		{ return z = a * x + y; }
- 
-	//@} Arithmetic Operations
-    
-	/** @name Inplace Arithmetic Operations 
-	 * The first argument is modified and the result is the return value.
-	 */
-	//@{
-    
-	/// x := x + y
+
 	Element &addin (Element &x, const Element &y) const
 		{ return x += y; }
     
-	/// x := x - y
 	Element &subin (Element &x, const Element &y) const
 		{ return x -= y; }
     
-	/// x := x*y
 	Element &mulin (Element &x, const Element &y) const
 		{ return x *= y; }
     
-	/// x := x/y
-	Element &divin (Element &x, const Element &y) const
-		{ return x /= y; }
+	bool divin (Element &x, const Element &y) const
+		{ if (!isZero (y)) { x /= y; return true; } else return false; }
     
-	/// x := -x
 	Element &negin (Element &x) const
 		{ return x = - x; }
     
-	/// x := 1/x
-	Element &invin (Element &x) const
-		{ return x = Element (1) / x; }
+	bool invin (Element &x) const
+		{ if (!isZero (x)) { x = Element (1) / x; return true; } else return false; }
     
-	/// y := a*x + y
 	Element &axpyin (Element &y, const Element &a, const Element &x) const
 		{ return y += a * x; }
- 
-	//@} Inplace Arithmetic Operations
 
-	/** @name Input/Output Operations */
-	//@{
-    
-	/** Print ring.
-	 * @return output stream to which ring is written.
-	 * @param  os  output stream to which ring is written.
-	 */
 	std::ostream &write (std::ostream &os) const
 		{ return os << "unparameterized ring(" << sizeof (Element) <<',' << typeid (Element).name() << ')'; }
     
-	/** Read ring.
-	 * @return input stream from which ring is read.
-	 * @param  is  input stream from which ring is read.
-	 */
 	std::istream &read (std::istream &is) const
 		{ return is; }
     
-	/** Print ring element.
-	 * @return output stream to which ring element is written.
-	 * @param  os  output stream to which ring element is written.
-	 * @param  x   ring element.
-	 */
 	std::ostream &write (std::ostream &os, const Element &x) const
 		{ return os << x; }
     
-	/** Read ring element.
-	 * @return input stream from which ring element is read.
-	 * @param  is  input stream from which ring element is read.
-	 * @param  x   ring element.
-	 */
 	std::istream &read (std::istream &is, Element &x) const
 		{ return is >> x; }
-    
-	//@}
-    
-	//@} Common Object Interface
     
 	/** @name Implementation-Specific Methods.
 	 * These methods are not required of all LinBox rings
@@ -297,10 +169,7 @@ public:
 	 * template.
 	 */
 	//@{
-    
-	/// Default constructor
-	//UnparametricRing (void) {}
-    
+
 	/** Constructor from ring object.
 	 * @param  A unparameterized ring object
 	 */
@@ -309,12 +178,12 @@ public:
 	/** Constant access operator.
 	 * @return constant reference to ring object
 	 */
-	const K &operator () (void) const { return Element (); }
+	const K &operator () () const { return Element (); }
     
 	/** Access operator.
 	 * @return reference to ring object
 	 */
-	K &operator () (void) { return Element (); }
+	K &operator () () { return Element (); }
     
 	//@} Implementation-Specific Methods
 
@@ -396,22 +265,29 @@ private:
 	Element _y;
 
 };
-	
-struct BLASModule : public GenericModule
+
+template <class Element>
+struct BLASModule : public GenericModule<UnparametricRing<Element> >
 {
-	struct Tag { typedef GenericModule::Tag Parent; };
+	struct Tag { typedef typename GenericModule<UnparametricRing<Element> >::Tag Parent; };
+
+	BLASModule (const UnparametricRing<Element> &R) : GenericModule<UnparametricRing<Element> > (R) {}
 };
 
 template <>
-struct AllModules<UnparametricRing<float> > : public BLASModule
+struct AllModules<UnparametricRing<float> > : public BLASModule<float>
 {
-	struct Tag { typedef BLASModule::Tag Parent; };
+	struct Tag { typedef BLASModule<float>::Tag Parent; };
+
+	AllModules (const UnparametricRing<float> &R) : BLASModule<float> (R) {}
 };
 
 template <>
-struct AllModules<UnparametricRing<double> > : public BLASModule
+struct AllModules<UnparametricRing<double> > : public BLASModule<double>
 {
-	struct Tag { typedef BLASModule::Tag Parent; };
+	struct Tag { typedef BLASModule<double>::Tag Parent; };
+
+	AllModules (const UnparametricRing<double> &R) : BLASModule<double> (R) {}
 };
 
 } // namespace LinBox

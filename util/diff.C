@@ -202,18 +202,18 @@ int main (int argc, char **argv)
 		return run_diff (GF2 (), input1, input1_format, input2, input2_format, output, output_format);
 	else if (ring_type == RING_MODULAR) {
 		if (floatingPoint) {
-			if (p <= Modular<float>::getMaxModulus ())
+			if (ModularTraits<float>::valid_modulus (p))
 				return run_diff (Modular<float> (p), input1, input1_format, input2, input2_format, output, output_format);
-			else if (p <= Modular<double>::getMaxModulus ())
+			else if (ModularTraits<double>::valid_modulus (p))
 				return run_diff (Modular<double> (p), input1, input1_format, input2, input2_format, output, output_format);
 			else
 				return run_diff (Modular<integer> (p), input1, input1_format, input2, input2_format, output, output_format);
 		} else {
-			if (p <= Modular<uint8>::getMaxModulus ())
+			if (ModularTraits<uint8>::valid_modulus (p))
 				return run_diff (Modular<uint8> (p), input1, input1_format, input2, input2_format, output, output_format);
-			else if (p <= Modular<uint16>::getMaxModulus ())
+			else if (ModularTraits<uint16>::valid_modulus (p))
 				return run_diff (Modular<uint16> (p), input1, input1_format, input2, input2_format, output, output_format);
-			else if (p <= Modular<uint32>::getMaxModulus ())
+			else if (ModularTraits<uint32>::valid_modulus (p))
 				return run_diff (Modular<uint32> (p), input1, input1_format, input2, input2_format, output, output_format);
 			else
 				return run_diff (Modular<integer> (p), input1, input1_format, input2, input2_format, output, output_format);

@@ -26,7 +26,7 @@ namespace BLAS2
 {
 
 template <>
-class _gemv<GF2, GenericModule::Tag>
+class _gemv<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
@@ -93,7 +93,7 @@ public:
 };
 
 template <>
-class _ger<GF2, GenericModule::Tag>
+class _ger<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A,

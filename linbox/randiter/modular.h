@@ -126,14 +126,14 @@ private:
 }; // class ModularRandIter
 
 template <class Element>
-class ModularBase<Element>::RandIter
+class Modular<Element>::RandIter
 {
 	ModularRandIter<Element> _r;
 
 public:
 	RandIter (const Modular<Element> &F, const integer &size = 0, const integer &seed = 0)
 		: _r (F, size, seed) {}
-	RandIter (const ModularBase<Element>::RandIter &r)
+	RandIter (const Modular<Element>::RandIter &r)
 		: _r (r._r) {}
 
 	~RandIter () {}
@@ -145,7 +145,7 @@ public:
 };
 
 template <>
-class ModularBase<uint16>::RandIter
+class Modular<uint16>::RandIter
 {
 	MersenneTwister _r;
 	uint16 _size;
@@ -167,7 +167,7 @@ public:
 			_size = c.get_ui ();
 	}
 
-	RandIter (const ModularBase<Element>::RandIter &r)
+	RandIter (const Modular<Element>::RandIter &r)
 		: _r (r._r), _size (r._size), _seed (r._seed) {}
 
 	~RandIter () {}
@@ -179,7 +179,7 @@ public:
 };
 
 template <>
-class ModularBase<uint32>::RandIter
+class Modular<uint32>::RandIter
 {
 	MersenneTwister _r;
 	uint32 _size;
@@ -201,7 +201,7 @@ public:
 			_size = c.get_ui ();
 	}
 
-	RandIter (const ModularBase<Element>::RandIter &r)
+	RandIter (const Modular<Element>::RandIter &r)
 		: _r (r._r), _size (r._size), _seed (r._seed) {}
 
 	~RandIter () {}

@@ -21,10 +21,17 @@ namespace LinBox
  * called Tag. Inside Tag should be a reference to the tag of the
  * parent-module. With this mechanism the BLAS-methods are specialised
  * to different modules.
+ *
+ * All module-structures must have a constructor which takes a const
+ * Ring.
  */
+template <class Ring>
 struct GenericModule
 {
 	struct Tag {};
+
+	GenericModule (const Ring &R) {}
+	GenericModule () {}
 };
 
 /** All modules
@@ -33,9 +40,11 @@ struct GenericModule
  * should be specialised for each ring based on what is available.
  */
 template <class Ring>
-struct AllModules
+struct AllModules : public GenericModule<Ring>
 {
-	struct Tag { typedef GenericModule::Tag Parent; };
+	struct Tag { typedef typename GenericModule<Ring>::Tag Parent; };
+
+	AllModules (const Ring &R) : GenericModule<Ring> (R) {}
 };
 
 /** Context-object
@@ -63,7 +72,7 @@ public:
 	Modules M;
 
 	/// Construct a Context from a ring
-	Context (const Ring &_F) : F (_F) {}
+	Context (const Ring &_F) : F (_F), M (_F) {}
 
 	/// Copy-constructor
 	Context (const Context &ctx) : F (ctx.F), M (ctx.M) {}

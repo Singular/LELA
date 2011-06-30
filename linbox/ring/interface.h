@@ -53,7 +53,7 @@ public:
 	 * x becomes the image of n under the natural map from the integers
 	 * to the prime subring.  It is the result obtained from adding n 1's 
 	 * in the ring.
-
+	 *
 	 * This function assumes the output ring element x
 	 * has already been constructed, but that it is not
 	 * necessarily already initialized. In this
@@ -66,12 +66,11 @@ public:
 	 */
 	virtual Element &init (Element &x, const integer &n = 0) const = 0;
   
-	/** \brief Conversion of ring element to an integer.
-	 *
-	 The meaning of conversion is specific to each ring class.
-	 However, if x is in the prime subring, the integer n returned is such 
-	 that an init from n will reproduce x.  Most often, 0 &leq; n &lt; characteristic.
-
+	/** \brief Conversion of ring element to an integer.  The
+	 * meaning of conversion is specific to each ring
+	 * class. However, if x is in the image of the integers in the
+	 * ring, the integer n returned is such that an init from n
+	 * will reproduce x. Most often 0 &leq; n &lt; characteristic.
 	 *
 	 * @return reference to n.
 	 * @param n output integer.
@@ -83,10 +82,6 @@ public:
 	 *
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
-	 *
-	 * In this archetype implementation, this means for both x and
-	 * y, <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
 	 *
 	 * @return reference to x
 	 * @param  x destination ring element.
@@ -126,10 +121,6 @@ public:
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
-	 * In this implementation, this means for both x and
-	 * y, <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
-	 *
 	 * @return boolean true if equal, false if not.
 	 * @param  x ring element
 	 * @param  y ring element
@@ -141,9 +132,6 @@ public:
 	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 *
-	 * In this implementation, this means for x, y, and z, 
-	 * <tt> _elem_ptr</tt> exists and does not point to null.
-	 *
 	 * @return reference to x.
 	 */
 	virtual Element &add (Element &x, const Element &y, const Element &z) const = 0;
@@ -152,10 +140,6 @@ public:
 	 *
 	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means for x, y, and z,
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
 	 *
 	 * @return reference to x.
 	 */
@@ -166,35 +150,28 @@ public:
 	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 *
-	 * In this implementation, this means for x, y, and z,
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
-	 *
 	 * @return reference to x.
 	 */
 	virtual Element &mul (Element &x, const Element &y, const Element &z) const = 0;
     
 	/** Division, x <-- y / z.
 	 *
+	 * This function attempts to compute the quotient of y and z
+	 * and, if it exists, stores the result in x. If the quotient
+	 * does not exist in the ring, the value of x is left
+	 * unchangd.
+	 *
 	 * This function assumes all the ring elements have already been 
 	 * constructed and initialized.
 	 *
-	 * In this implementation, this means for x, y, and z,
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
-	 *
-	 * @return reference to x.
+	 * @return true if the quotient exists in the ring, false if not
 	 */
-	virtual Element &div (Element &x, const Element &y, const Element &z) const = 0;
+	virtual bool div (Element &x, const Element &y, const Element &z) const = 0;
     
 	/** \brief Additive Inverse (Negation), x <-- - y.
 	 *
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means for both x and y
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
 	 *
 	 * @return reference to x.
 	 */
@@ -202,22 +179,22 @@ public:
     
 	/** \brief Multiplicative Inverse, x <-- 1 / y.
 	 *
-	 * Requires that y is a unit (i.e. nonzero in a ring).
+	 * This computes the multiplicative inverse if possible and if
+	 * it exists, stores it in x. If not, then x is left
+	 * unchanged.
+	 *
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
-	 * In this implementation, this means for both x and y
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
-	 *
-	 * @return reference to x.
+	 * @return true if the inverse exists in the ring, false if not
 	 */
-	virtual Element &inv (Element &x, const Element &y) const = 0;
+	virtual bool inv (Element &x, const Element &y) const = 0;
     
 	/** \brief Ring element AXPY, r  <-- a * x + y.
 	 *
 	 * This function assumes all ring elements have already been 
 	 * constructed and initialized.
+	 *
 	 * @return reference to r.
 	 */
 	virtual Element &axpy (Element &r, const Element &a, const Element &x, const Element &y) const = 0;
@@ -227,26 +204,22 @@ public:
 	/** @name Predicates
 	 */
 	//@{
-	/** Zero equality.
+	/** Equality with the zero-element
+	 *
 	 * Test if ring element is equal to zero.
 	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means the <tt>_elem_ptr</tt> 
-	 * of x exists and does not point to null.
 	 *
 	 * @return boolean true if equals zero, false if not.
 	 * @param  x ring element.
 	 */
 	virtual bool isZero (const Element &x) const = 0;
     
-	/** One equality.
+	/** Equality with the one-element
+	 *
 	 * Test if ring element is equal to one.
 	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means the <tt> _elem_ptr</tt> 
-	 *of x exists and does not point to null.
 	 *
 	 * @return boolean true if equals one, false if not.
 	 * @param  x ring element.
@@ -256,19 +229,17 @@ public:
 
 	/** @name Inplace Arithmetic Operations 
 	 * x <- x op y; x <- op x
+	 *
 	 * These operations require all elements, including x, to be initialized
 	 * before the operation is called.  Uninitialized ring elements will
 	 * give undefined results.
 	 */
 	//@{
     
-	/** Inplace Addition.
-	 * x += y
+	/** Inplace Addition; x += y
+	 *
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means for both x and y
-	 * <tt> _elem_ptr</tt> exists and does not point to null.
 	 *
 	 * @return reference to x.
 	 * @param  x ring element (reference returned).
@@ -276,14 +247,10 @@ public:
 	 */
 	virtual Element &addin (Element &x, const Element &y) const = 0;
     
-	/** Inplace Subtraction.
-	 * x -= y
+	/** Inplace Subtraction; x -= y
+	 *
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means for both x and y
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
 	 *
 	 * @return reference to x.
 	 * @param  x ring element (reference returned).
@@ -291,14 +258,10 @@ public:
 	 */
 	virtual Element &subin (Element &x, const Element &y) const = 0;
  
-	/** Inplace Multiplication.
-	 * x *= y
+	/** Inplace Multiplication; x *= y
+	 *
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means for both x and y
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
 	 *
 	 * @return reference to x.
 	 * @param  x ring element (reference returned).
@@ -306,29 +269,26 @@ public:
 	 */
 	virtual Element &mulin (Element &x, const Element &y) const = 0;
    
-	/** Inplace Division.
-	 * x /= y
+	/** Inplace Division; x /= y
+	 *
+	 * This function attempts to compute the quotient of x and y
+	 * and, if it exists, stores the result in x. If the quotient
+	 * does not exist in the ring, the value of x is left
+	 * unchanged.
+	 *
 	 * This function assumes both ring elements have already been 
 	 * constructed and initialized.
 	 *
-	 * In this implementation, this means for both x and y
-	 * <tt> _elem_ptr</tt> exists and does not point to
-	 * null.
-	 *
-	 * @return reference to x.
+	 * @return true if the quotient exists in the ring, false otherwise
 	 * @param  x ring element (reference returned).
 	 * @param  y ring element.
 	 */
-	virtual Element &divin (Element &x, const Element &y) const = 0;
+	virtual bool divin (Element &x, const Element &y) const = 0;
     
 	/** Inplace Additive Inverse (Inplace Negation).
 	 * x = - x
 	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
-	 *
-	 * In this implementation, this means the <tt>
-	 * _elem_ptr</tt> of x exists and does not point to
-	 * null.
 	 *
 	 * @return reference to x.
 	 * @param  x ring element (reference returned).
@@ -337,15 +297,11 @@ public:
     
 	/** Inplace Multiplicative Inverse.
 	 * x = 1 / x
-	 * This function assumes the ring elementhas already been 
+	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
 	 *
-	 * In this implementation, this means the <tt>
-	 * _elem_ptr</tt> of x exists and does not point to
-	 * null.
-	 *
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
+	 * @return true if the inverse of x exists in the ring, false if not
+	 * @param  x ring element.
 	 */
 	virtual Element &invin (Element &x) const = 0;
     

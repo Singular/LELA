@@ -69,7 +69,7 @@ int main (int argc, char **argv)
 	Modular<float> F_float ((float) q4);
 
 	// Make sure some more detailed messages get printed
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (6);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
 	if (!runRingTests (F_integer, "Modular<integer>", iterations, n, false)) pass = false;
@@ -83,7 +83,7 @@ int main (int argc, char **argv)
 	if (!testRandomIterator (F_uint16,  "Modular<uint16>", trials, categories, hist_level)) pass = false;
 	if (!testRandomIterator (F_uint8,  "Modular<uint8>", trials, categories, hist_level)) pass = false;
 
-	commentator.stop("Modular test suite");
+	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
 }
 /* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */

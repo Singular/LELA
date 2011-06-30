@@ -27,7 +27,7 @@ using namespace std;
 using namespace LinBox;
 
 template <class Ring>
-typename Ring::Element& expt (const Ring &F, typename Ring::Element &res, const typename Ring::Element &a, LinBox::integer &n) 
+typename Ring::Element &expt (const Ring &F, typename Ring::Element &res, const typename Ring::Element &a, LinBox::integer &n) 
 {
 	if (n == 0) {
 		F.init (res, 1);
@@ -42,9 +42,7 @@ typename Ring::Element& expt (const Ring &F, typename Ring::Element &res, const 
 	} else {
 		n /= 2;
 		expt (F, res, a, n);
-                typename Ring::Element tmp;
-                F.init(tmp,0);
-		res = F.mul (tmp, res, res);
+		F.mulin (res, res);
 	}
 
 	return res;
@@ -200,6 +198,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	commentator.progress ();
 
 	commentator.start ("Testing summation of powers of 2");
+	part_pass = true;
 
 	//,..
 	// 2^101 - 1 vs 1 + 2 + 4 + ... + 2^100
@@ -209,25 +208,31 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	F.init (c, 0);
 	
 	n = 101;
-	expt(F, a, two, n);
-	F.subin (a, one); F.write( report << "using expt, 2^101 - 1: ", a) << endl;
+	expt (F, a, two, n);
+	F.subin (a, one);
+	F.write (report << "using expt, 2^101 - 1: ", a) << endl;
 
 	for (int i = 1; i <= 101; ++i) {
 		F.addin (c, b);
 		F.mulin (b, two);
 	}
 
+	F.write (report << "using mul-add, 2^101 - 1: ", c) << endl;
+
 	if (!F.areEqual (a, c)) 
 		part_pass = reportError( "2^101 - 1 != 1 + 2 + .. + 2^100", pass);
 
 	// 1 + 2*(1 + 2*( ... (1) ... )), 100 times.
 	F.assign (d, one);
-	for (int i = 1; i < 101; ++i)
-	{	F.axpy (b, two, d, one); F.assign(d, b); }
-    F.write( report << "using axpy, 1 + 2(1 + ... + 2(1)...), with 100 '+'s: ", d) << endl;
+	for (int i = 1; i < 101; ++i) {
+		F.axpy (b, two, d, one);
+		F.assign (d, b);
+	}
+
+	F.write( report << "using axpy, 1 + 2(1 + ... + 2(1)...), with 100 '+'s: ", d) << endl;
 
 	if (!F.areEqual (a, d)) 
-	part_pass = reportError( "2^101 - 1 != 1 + 2(1 + ... + 2(1)...), with 100 '+'s: ", pass);
+		part_pass = reportError( "2^101 - 1 != 1 + 2(1 + ... + 2(1)...), with 100 '+'s: ", pass);
 
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
@@ -329,15 +334,17 @@ bool testRingInversion (const Ring &F, const char *name, unsigned int iterations
 		report << "Random element a: ";
 		F.write (report, a) << endl;
 
-		F.inv (ainv, a);
+		if (!F.inv (ainv, a)) {
+			report << "Ring reports a^{-1} does not exist" << endl;
+		} else {
+			report << "a^{-1} = ";  F.write (report, ainv) << endl;
 
-		report << "a^{-1} = ";  F.write (report, ainv) << endl;
+			F.mul (aainv, ainv, a);
 
-		F.mul (aainv, ainv, a);
+			report << "a a^{-1} = ";  F.write (report, aainv) << endl;
 
-		report << "a a^{-1} = ";  F.write (report, aainv) << endl;
-
-		if (!F.areEqual (aainv, one)) reportError("a a^-1 != 1", ret);
+			if (!F.areEqual (aainv, one)) reportError("a a^-1 != 1", ret);
+		}
 
 		commentator.stop ("done");
 		commentator.progress ();

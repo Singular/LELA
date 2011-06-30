@@ -20,7 +20,6 @@
 #include "linbox/element/gmp-rational.h"
 #include "linbox/linbox-config.h"
 #include "linbox/util/debug.h"
-#include "linbox/ring/traits.h"
 
 // Namespace in which all LinBox library code resides
 namespace LinBox
@@ -46,66 +45,25 @@ class GMPRationalField
 
     public:
 
-	/** @name Common Object Interface for a LinBox Ring.
-	 * These methods are required of all \ref{LinBox} rings.
-	 */
-	//@{
-    
-	/// element type.
 	typedef GMPRationalElement Element;
 
-	/// Random iterator generator type.
 	typedef GMPRationalRandIter RandIter;
-    
-	/** @name Object Management
-	 * x <- convert (y)
-	 */
-	//@{
-    
-	/** Copy constructor.
-	 *
-	 * Vacuous, since this ring is unparametric so there is no need to
-	 * construct multiple ring objects
-	 */
 
 	GMPRationalField (const GMPRationalField &) 
 		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 		{}
 
-	/** Destructor.
-	 * 
-	 * Also vacuous, since there is no de-initialization system
-	 */
 	~GMPRationalField (void) {}
     
-	/** Assignment operator.
-	 * 
-	 * Also vacuous
-	 */
 	GMPRationalField &operator= (const GMPRationalField &)
 		{ return *this; }
     
-	/** Initialization of ring element from an integer.
-	 * Behaves like C++ allocator construct.
-	 * This function assumes the output ring element x has already been 
-	 * constructed, but that it is not necessarily already initialized.
-	 * In this implementation, this means the _elem_ptr of x exists, but
-	 * that it may be the null pointer.
-	 * @return reference to ring element.
-	 * @param x ring element to contain output (reference returned).
-	 * @param y constant reference to integer.
-	 */
 	Element &init (Element &x, const integer &y = 0) const
 	{
 		mpq_set_z (x.rep, y.get_mpz_t ());
-		//mpq_set_si (x.rep, (signed long) y, 1L);
-		//mpq_canonicalize (x.rep);
 		return x;
 	}
 
-	/*
-	 * aniau@astronet.pl: 06/2009 Initialization of ring element from numerator and denominator
-	 * */
 	Element &init (Element &x, const integer &num, const integer &den) const
 	{
 		init(x,num);
@@ -115,18 +73,6 @@ class GMPRationalField
 	        return x;
 	}
   
-	/** Conversion of ring element to an integer.
-	 * This function assumes the output ring element x has already been 
-	 * constructed, but that it is not already initialized.
-	 * In this implementation, this means the _elem_ptr of y exists, and
-	 * that it is not the null pointer.
-	 *
-	 * Returns floor (numerator (y) / denominator (y))
-	 *
-	 * @return reference to integer.
-	 * @param x reference to integer to contain output (reference returned).
-	 * @param y constant reference to ring element.
-	 */
 	integer &convert (integer &x, const Element &y = 0) const
 	{
 		mpz_t n, d;
@@ -138,244 +84,84 @@ class GMPRationalField
 
 		mpz_divexact (x.get_mpz_t (), n, d);
 
-		/* Shouldn't there be something like this? We'll assume integer is gmp integers.
-		x.set_mpz(n);
-		*/
-// 		x = integer::zero;
-
-// 		// Really bad, but I know of no other general way to do this
-// 		while (mpz_sgn (n) != 0) {
-// 			// We need to be ready for multiple word sizes and so on here...
-// 			x = (x << (sizeof (unsigned long) << 3)) + mpz_get_ui (n);
-// 			mpz_tdiv_q_2exp (n, n, sizeof (unsigned long) << 3);
-// 		}
-
 		return x;
 	}
     
-	/** Assignment of one ring element to another.
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y, 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 *
-	 * FIXME: Is this x := y? I am assuming so.
-	 */
 	Element &assign (Element &x, const Element &y) const
 	{
 		mpq_set (x.rep, y.rep);
 		return x;
 	}
-    
-	/// is infinite (signified by -1 here)
+
 	integer &cardinality (integer &c) const 
-	{ return c = _cardinality; }
+		{ return c = _cardinality; }
 
-	/// of the rationals is 0.
 	integer &characteristic (integer &c) const
-	{ return c = _characteristic; }
+		{ return c = _characteristic; }
 
-	//@} Object Management
-
-	/** @name Arithmetic Operations 
-	 * x <- y op z; x <- op y
-	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized ring elements will
-	 * give undefined results.
-	 */
-	//@{
-
-	/** Equality of two elements.
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y, 
-	 * _elem_ptr exists and does not point to null.
-	 * @return boolean true if equal, false if not.
-	 * @param  x ring element
-	 * @param  y ring element
-	 */
 	bool areEqual (const Element &x, const Element &y) const
-	{ return mpq_equal (x.rep, y.rep); }
+		{ return mpq_equal (x.rep, y.rep); }
 
-	/** Addition.
-	 * x = y + z
-	 * This function assumes all the ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for x, y, and z, 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 * @param  z ring element.
-	 */
 	Element &add (Element &x, const Element &y, const Element &z) const
 	{
 		mpq_add (x.rep, y.rep, z.rep);
 		return x;
 	}
     
-	/** Subtraction.
-	 * x = y - z
-	 * This function assumes all the ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for x, y, and z, 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 * @param  z ring element.
-	 */
 	Element &sub (Element &x, const Element &y, const Element &z) const
 	{
 		mpq_sub (x.rep, y.rep, z.rep);
 		return x;
 	}
     
-	/** Multiplication.
-	 * x = y * z
-	 * This function assumes all the ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for x, y, and z, 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 * @param  z ring element.
-	 */
 	Element &mul (Element &x, const Element &y, const Element &z) const
 	{
 		mpq_mul (x.rep, y.rep, z.rep);
 		return x;
 	}
     
-	/** Division.
-	 * x = y / z
-	 * This function assumes all the ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for x, y, and z, 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 * @param  z ring element.
-	 */
-	Element &div (Element &x, const Element &y, const Element &z) const
+	bool div (Element &x, const Element &y, const Element &z) const
 	{
-		mpq_div (x.rep, y.rep, z.rep);
-		return x;
+		if (!isZero (z)) {
+			mpq_div (x.rep, y.rep, z.rep);
+			return true;
+		} else
+			return false;
 	}
 
-	/** Additive Inverse (Negation).
-	 * x = - y
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 */
 	Element &neg (Element &x, const Element &y) const
 	{
 		mpq_neg (x.rep, y.rep);
 		return x;
 	}
 
-	/** Multiplicative Inverse.
-	 * x = 1 / y
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 */
-	Element &inv (Element &x, const Element &y) const
+	bool inv (Element &x, const Element &y) const
 	{
-		mpq_inv (x.rep, y.rep);
-		return x;
+		if (!isZero (y)) {
+			mpq_inv (x.rep, y.rep);
+			return true;
+		} else
+			return false;
 	}
 
-	//@} Arithmetic Operations
-
-	/** @name Inplace Arithmetic Operations 
-	 * x <- x op y; x <- op x
-	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized ring elements will
-	 * give undefined results.
-	 */
-	//@{
-    
-	/** Zero equality.
-	 * Test if ring element is equal to zero.
-	 * This function assumes the ring element has already been 
-	 * constructed and initialized.
-	 * In this implementation, this means the _elem_ptr of x
-	 * exists and does not point to null.
-	 * @return boolean true if equals zero, false if not.
-	 * @param  x ring element.
-	 */
 	bool isZero (const Element &x) const 
-	{ return mpq_sgn (x.rep) == 0; }
+		{ return mpq_sgn (x.rep) == 0; }
     
-	/** One equality.
-	 * Test if ring element is equal to one.
-	 * This function assumes the ring element has already been 
-	 * constructed and initialized.
-	 * In this implementation, this means the _elem_ptr of x
-	 * exists and does not point to null.
-	 * @return boolean true if equals one, false if not.
-	 * @param  x ring element.
-	 */
 	bool isOne (const Element &x) const 
-	{ return mpq_cmp_ui (x.rep, 1L, 1L) == 0; }
+		{ return mpq_cmp_ui (x.rep, 1L, 1L) == 0; }
     
-	/** Inplace Addition.
-	 * x += y
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 */
 	Element &addin (Element &x, const Element &y) const
 	{
 		mpq_add (x.rep, x.rep, y.rep);
 		return x;
 	}
 
-	/** Inplace Subtraction.
-	 * x -= y
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 */
 	Element &subin (Element &x, const Element &y) const
 	{
 		mpq_sub (x.rep, x.rep, y.rep);
 		return x;
 	}
  
-	/** Inplace Multiplication.
-	 * x *= y
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 */
 	Element &mulin (Element &x, const Element &y) const
 	{
 		mpq_mul (x.rep, x.rep, y.rep);
@@ -397,89 +183,38 @@ class GMPRationalField
 		return r;
 	}
 
-	/** Inplace Division.
-	 * x /= y
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for both x and y 
-	 * _elem_ptr exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 * @param  y ring element.
-	 */
-	Element &divin (Element &x, const Element &y) const
+	bool divin (Element &x, const Element &y) const
 	{
-		mpq_div (x.rep, x.rep, y.rep);
-		return x;
+		if (!isZero (y)) {
+			mpq_div (x.rep, x.rep, y.rep);
+			return true;
+		} else
+			return false;
 	}
-    
-	/** Inplace Additive Inverse (Inplace Negation).
-	 * x = - x
-	 * This function assumes the ring element has already been 
-	 * constructed and initialized.
-	 * In this implementation, this means the _elem_ptr of x
-	 * exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 */
+
 	Element &negin (Element &x) const
 	{
 		mpq_neg (x.rep, x.rep);
 		return x;
 	}
 
-	/** Inplace Multiplicative Inverse.
-	 * x = 1 / x
-	 * This function assumes the ring elementhas already been 
-	 * constructed and initialized.
-	 * In this implementation, this means the _elem_ptr of x
-	 * exists and does not point to null.
-	 * @return reference to x.
-	 * @param  x ring element (reference returned).
-	 */
-	Element &invin (Element &x) const
+	bool invin (Element &x) const
 	{
-		mpq_inv (x.rep, x.rep);
-		return x;
+		if (!isZero (x)) {
+			mpq_inv (x.rep, x.rep);
+			return true;
+		} else
+			return false;
 	}
     
-	//@} Inplace Arithmetic Operations
-
-	/** @name Input/Output Operations */
-	//@{
-    
-	/** Print ring.
-	 * @return output stream to which ring is written.
-	 * @param  os  output stream to which ring is written.
-	 *
-	 * This does not do much...
-	 */
 	std::ostream &write (std::ostream &os) const 
 	{ 
-		os << "GMP rational numbers"; 
+		os << "QQ"; 
 		return os;
 	}
     
-	/** Read ring.
-	 * @return input stream from which ring is read.
-	 * @param  is  input stream from which ring is read.
-	 *
-	 * This does not do much either...
-	 *
-	 * FIXME: Read the same thing written above, and throw an exception if the
-	 * strings do not match.
-	 */
 	std::istream &read (std::istream &is) { return is; }
-    
-	/** Print ring element.
-	 * This function assumes the ring element has already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for the _elem_ptr for x 
-	 * exists and does not point to null.
-	 * @return output stream to which ring element is written.
-	 * @param  os  output stream to which ring element is written.
-	 * @param  x   ring element.
-	 */
+
 	std::ostream &write (std::ostream &os, const Element &x) const 
 	{
 		char *str;
@@ -499,21 +234,6 @@ class GMPRationalField
 		return os;
 	}
 
-	/** Read ring element.
-	 * This function assumes the ring element has already been 
-	 * constructed and initialized.
-	 * In this implementation, this means for the _elem_ptr for x 
-	 * exists and does not point to null.
-	 * @return input stream from which ring element is read.
-	 * @param  is  input stream from which ring element is read.
-	 * @param  x   ring element.
-	 *
-	 * FIXME: Avoid the magical limit on size here
-	 * FIXME: Right now it skips over everything until it finds something that
-	 * looks like a number. Is this really the correct policy?
-	 *
-	 * aniau@astronet.pl: 06/2009: supports scientific E/e notation for decimal fractions
-	 */
 	std::istream &read (std::istream &is, Element &x) const
 	{
 		char buffer[65535], endc;
@@ -631,11 +351,6 @@ class GMPRationalField
 		return is;
 	}
 
-	//@} Input/Output Operations
-    
-
-	//@} Common Object Interface
-
 	GMPRationalField (int p = 0, int exp = 1)
 		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 	{
@@ -646,40 +361,32 @@ class GMPRationalField
 			throw PreconditionFailed (__FUNCTION__, __LINE__, "exponent must be 1");
 	}
     
-	static inline int getMaxModulus() { return 0; } // no modulus
-	
-	// x = numerator of y
-	integer& get_num (integer& x, const Element& y)  const{
+	integer &get_num (integer &x, const Element &y) const
+	{
 		mpq_get_num (x.get_mpz_t (), y.rep);
 		return x;
 
 	}
 
-	// x = denominator of y
-	integer& get_den (integer& x, const Element& y) const {
+	integer &get_den (integer &x, const Element &y) const
+	{
 		mpq_get_den (x.get_mpz_t (), y.rep);
 		return x;
 	}
 
-	int sign (const Element& x) const {
-		return mpq_sgn (x.rep);
-	}
+	int sign (const Element& x) const
+		{ return mpq_sgn (x.rep); }
 	
-	//bitsize as sum of bitsizes of numerator and denominator
-        integer& bitsize(integer& bs, const Element q) const {
+        integer &bitsize (integer &bs, const Element q) const
+	{
                 integer y; get_den (y, q);
                 integer x; get_num (x, q);
                 bs = mpz_sizeinbase (x.get_mpz_t (), 2) + mpz_sizeinbase (y.get_mpz_t (), 2);
                 return bs;
         }
 
-	/// Return a reference to the zero-element of the ring
 	const Element &zero () const { return _zero; }
-
-	/// Return a reference to the one-element of the ring
 	const Element &one () const { return _one; }
-
-	/// Return a reference to the negative of the one-element of the ring
 	const Element &minusOne () const { return _minus_one; }
 
 private:

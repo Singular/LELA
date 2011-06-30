@@ -24,7 +24,7 @@ namespace BLAS1
 {
 
 template <class Ring>
-class _dot<Ring, GenericModule::Tag>
+class _dot<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
@@ -57,7 +57,7 @@ public:
 };
 
 template <class Ring>
-class _swap<Ring, GenericModule::Tag>
+class _swap<Ring, typename GenericModule<Ring>::Tag>
 {
 public:
 	template <class Modules, class Vector>
@@ -66,7 +66,7 @@ public:
 };
 
 template <class Ring>
-class _copy<Ring, GenericModule::Tag>
+class _copy<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
@@ -100,7 +100,7 @@ public:
 };
 
 template <class Ring>
-class _axpy<Ring, GenericModule::Tag>
+class _axpy<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &axpy_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
@@ -127,7 +127,7 @@ public:
 };
 
 template <class Ring>
-class _scal<Ring, GenericModule::Tag>
+class _scal<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector>
 	static Vector &scal_impl (const Ring &F, Modules &M, const typename Ring::Element &a, Vector &x, VectorRepresentationTypes::Dense);
@@ -143,7 +143,7 @@ public:
 };
 
 template <class Ring>
-class _permute<Ring, GenericModule::Tag>
+class _permute<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Iterator, class Vector>
 	static Vector &permute_impl (const Ring &F, Modules &M, Iterator P_begin, Iterator P_end, Vector &v, VectorRepresentationTypes::Dense);
@@ -159,7 +159,7 @@ public:
 };
 
 template <class Ring>
-class _equal<Ring, GenericModule::Tag>
+class _equal<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static bool equal_impl (const Ring &F, Modules &M, const Vector1 &x, const Vector2 &y,
@@ -187,7 +187,7 @@ public:
 };
 
 template <class Ring>
-class _is_zero<Ring, GenericModule::Tag>
+class _is_zero<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector>
 	static bool is_zero_impl (const Ring &F, Modules &M, const Vector &x, VectorRepresentationTypes::Dense);
@@ -203,7 +203,7 @@ public:
 };
 
 template <class Ring>
-class _head<Ring, GenericModule::Tag>
+class _head<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector>
 	static int head_impl (const Ring &F, Modules &M, typename Ring::Element &a, const Vector &x, VectorRepresentationTypes::Dense);
@@ -219,7 +219,7 @@ public:
 };
 
 template <class Ring>
-class _read<Ring, GenericModule::Tag>
+class _read<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector>
 	static std::istream &read_impl (const Ring &F, Modules &M, std::istream &is, Vector &v, VectorRepresentationTypes::Dense);
@@ -235,7 +235,7 @@ public:
 };
 
 template <class Ring>
-class _write<Ring, GenericModule::Tag>
+class _write<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector>
 	static std::ostream &write_impl (const Ring &F, Modules &M, std::ostream &os, const Vector &v, VectorRepresentationTypes::Dense);

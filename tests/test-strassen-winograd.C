@@ -49,7 +49,7 @@ bool testMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B, c
 	report << "Coefficient a = ";
 	ctx.F.write (report, a) << std::endl;
 
-	StrassenWinograd<GenericModule::Tag> sw;
+	StrassenWinograd<typename GenericModule<Ring>::Tag> sw;
 
 	commentator.start ("Strassen-Winograd multiplication");
 
@@ -118,7 +118,7 @@ bool testAddMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B
 	report << "Coefficient b = ";
 	ctx.F.write (report, b) << std::endl;
 
-	StrassenWinograd<GenericModule::Tag> sw;
+	StrassenWinograd<typename GenericModule<Ring>::Tag> sw;
 
 	commentator.start ("Strassen-Winograd multiplication");
 

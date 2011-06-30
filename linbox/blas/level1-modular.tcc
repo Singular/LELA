@@ -29,7 +29,7 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 	typename Vector1::const_iterator i = x.begin () + start_idx, i_end = x.begin () + std::min (x.size (), end_idx);
 	typename Vector2::const_iterator j = y.begin () + start_idx;
 
-	typename Vector1::const_iterator iterend = x.begin () + (start_idx + std::min (x.size () - start_idx, end_idx - start_idx) % F._k);
+	typename Vector1::const_iterator iterend = x.begin () + (start_idx + std::min (x.size () - start_idx, end_idx - start_idx) % M.block_size);
 
 	uint64 t = 0;
 
@@ -38,11 +38,11 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 
 	t %= (uint64) F._modulus;
 
-	for (; iterend != i_end; j += F._k) {
+	for (; iterend != i_end; j += M.block_size) {
 		typename Vector1::const_iterator iter_i = iterend;
 		typename Vector2::const_iterator iter_j;
 
-		iterend += F._k;
+		iterend += M.block_size;
 
 		for (iter_j = j; iter_i != iterend; ++iter_i, ++iter_j)
 			t += (uint64) *iter_i * (uint64) *j;
@@ -67,14 +67,14 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 
 	uint64 t = 0;
 
-	if (i_end - i < (long) F._k) {
+	if (i_end - i < (long) M.block_size) {
 		for (; i != i_end; ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
 
 		return res = t % (uint64) F._modulus;
 	} else {
 		// i still points to the beginning
-		typename Vector1::const_iterator iterend = i + (i_end - i) % F._k;
+		typename Vector1::const_iterator iterend = i + (i_end - i) % M.block_size;
 
 		for (; i != iterend; ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
@@ -84,8 +84,8 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 		while (iterend != i_end) {
 			typename Vector1::const_iterator iter_i = iterend;
 
-			iterend += F._k;
-			i += F._k;
+			iterend += M.block_size;
+			i += M.block_size;
 
 			for (; iter_i != iterend; ++iter_i)
 				t += (uint64) iter_i->second * (uint64) y[iter_i->first];
@@ -115,7 +115,7 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 	uint64 t = 0, count;
 
 	while (i != i_end && j != j_end) {
-		for (count = 0; count < F._k && i != i_end && j != j_end; ++i) {
+		for (count = 0; count < M.block_size && i != i_end && j != j_end; ++i) {
 			while (j != j_end && j->first < i->first) ++j;
 
 			if (j != j_end && i->first == j->first) {
@@ -141,7 +141,7 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 	typename Vector1::const_iterator i = x.begin () + start_idx, i_end = x.begin () + std::min (x.size (), end_idx);
 	typename Vector2::const_iterator j = y.begin () + start_idx;
 
-	typename Vector1::const_iterator iterend = x.begin () + (start_idx + std::min (x.size () - start_idx, end_idx - start_idx) % F._k);
+	typename Vector1::const_iterator iterend = x.begin () + (start_idx + std::min (x.size () - start_idx, end_idx - start_idx) % M.block_size);
 
 	uint64 t = 0;
 
@@ -150,11 +150,11 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 
 	t %= (uint64) F._modulus;
 
-	for (; iterend != i_end; j += F._k) {
+	for (; iterend != i_end; j += M.block_size) {
 		typename Vector1::const_iterator iter_i = iterend;
 		typename Vector2::const_iterator iter_j;
 
-		iterend += F._k;
+		iterend += M.block_size;
 
 		for (iter_j = j; iter_i != iterend; ++iter_i, ++iter_j)
 			t += (uint64) *iter_i * (uint64) *j;
@@ -179,14 +179,14 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 
 	uint64 t = 0;
 
-	if (i_end - i < (long) F._k) {
+	if (i_end - i < (long) M.block_size) {
 		for (; i != i_end; ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
 
 		return res = t % (uint64) F._modulus;
 	} else {
 		// i still points to the beginning
-		typename Vector1::const_iterator iterend = i + (i_end - i) % F._k;
+		typename Vector1::const_iterator iterend = i + (i_end - i) % M.block_size;
 
 		for (; i != iterend; ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
@@ -196,8 +196,8 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 		while (iterend != i_end) {
 			typename Vector1::const_iterator iter_i = iterend;
 
-			iterend += F._k;
-			i += F._k;
+			iterend += M.block_size;
+			i += M.block_size;
 
 			for (; iter_i != iterend; ++iter_i)
 				t += (uint64) iter_i->second * (uint64) y[iter_i->first];
@@ -227,7 +227,7 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 	uint64 t = 0, count;
 
 	while (i != i_end && j != j_end) {
-		for (count = 0; count < F._k && i != i_end && j != j_end; ++i) {
+		for (count = 0; count < M.block_size && i != i_end && j != j_end; ++i) {
 			while (j != j_end && j->first < i->first) ++j;
 
 			if (j != j_end && i->first == j->first) {
@@ -261,7 +261,7 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 		s += t;
 
 		if (s < t)
-			s += F._two_64;
+			s += M.two_64;
 	}
   
 	s %= (uint64) F._modulus;
@@ -288,7 +288,7 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 		s += t;
 
 		if (s < t)
-			s += F._two_64;
+			s += M.two_64;
 	}
   
 	s %= (uint64) F._modulus;
@@ -321,7 +321,7 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 			s += t;
 
 			if (s < t)
-				s += F._two_64;
+				s += M.two_64;
 		}
 	}
 
@@ -336,27 +336,27 @@ float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float
 	float s = 0.;
 	float t = 0.;
 
-	if (x.size () < M._nmax) {
+	if (x.size () < M.block_size) {
 		for (size_t i = 0; i < x.size (); ++i)
 			s += x[i] * y[i];
 
-		s = fmod (s, F.modulus);
+		s = fmod (s, F._modulus);
 	} else {
 		size_t i = 0;
 
-		for (; i < x.size () - M._nmax ;i = i + M._nmax) {
-			for (size_t j = i; j < i + M._nmax; ++j)
+		for (; i < x.size () - M.block_size ;i = i + M.block_size) {
+			for (size_t j = i; j < i + M.block_size; ++j)
 				s += x[j] * y[j];
 
-			t += fmod (s, F.modulus);
+			t += fmod (s, F._modulus);
 			s = 0.;
 		}
 
 		for (; i < x.size (); ++i)
 			t += x[i] * y[i];
 
-		t += fmod (s, F.modulus);
-		s = fmod (t, F.modulus);
+		t += fmod (s, F._modulus);
+		s = fmod (t, F._modulus);
 	}
 
 	return res = s;
@@ -370,26 +370,26 @@ float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float
 	float s = 0.;
 	float t = 0.;
 
-	if (x.size () < M._nmax) {
+	if (x.size () < M.block_size) {
 		for (size_t i = 0; i < x.size (); ++i)
 			s += x[i].second * y[x[i].first];
 
-		s = fmod (s, F.modulus);
+		s = fmod (s, F._modulus);
 	} else {
 		size_t i = 0;
 
-		for (; i < x.size() - M._nmax; i = i + M._nmax) {
-			for (size_t j = i; j < i + M._nmax; ++j)
+		for (; i < x.size() - M.block_size; i = i + M.block_size) {
+			for (size_t j = i; j < i + M.block_size; ++j)
 				s += x[j].second * y[x[j].first];
 
-			t += fmod (s, F.modulus);
+			t += fmod (s, F._modulus);
 			s = 0.;
 		}
 		for (; i < x.size (); ++i)
 			s += x[i].second * y[x[i].first];
 
-		t += fmod (s, F.modulus);
-		s = fmod (t, F.modulus);
+		t += fmod (s, F._modulus);
+		s = fmod (t, F._modulus);
 	}
 
 	return res = s;
@@ -403,27 +403,27 @@ double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<do
 	double s = 0.;
 	double t = 0.;
 
-	if (x.size () < M._nmax) {
+	if (x.size () < M.block_size) {
 		for (size_t i = 0; i < x.size(); ++i)
 			s += x[i] * y[i];
 
-		s = fmod (s, F.modulus);
+		s = fmod (s, F._modulus);
 	} else {			
 		size_t i = 0;
 
-		for (; i < x.size () - M._nmax; i = i + M._nmax) {
-			for (size_t j = i; j < i + M._nmax; ++j)
+		for (; i < x.size () - M.block_size; i = i + M.block_size) {
+			for (size_t j = i; j < i + M.block_size; ++j)
 				s += x[j] * y[j];
 
-			t += fmod (s, F.modulus);
+			t += fmod (s, F._modulus);
 			s = 0.;
 		}
 
 		for (; i < x.size (); ++i)
 			s += x[i] * y[i];
 
-		t += fmod (s, F.modulus);
-		s = fmod (t, F.modulus);
+		t += fmod (s, F._modulus);
+		s = fmod (t, F._modulus);
 	}
 
 	return res = s;
@@ -437,28 +437,28 @@ double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<do
 	double s = 0.;
 	double t = 0.;
 
-	if (x.size () < M._nmax) {
+	if (x.size () < M.block_size) {
 		for (size_t i = 0; i < x.size (); ++i)
 			s += x[i].second * y[x[i].first];
 
-		s = fmod (s, F.modulus);
+		s = fmod (s, F._modulus);
 	}
 	else {
 		size_t i = 0;
 
-		for (; i < x.size () - M._nmax; i = i + M._nmax) {
-			for (size_t j = i; j < i + M._nmax; ++j)
+		for (; i < x.size () - M.block_size; i = i + M.block_size) {
+			for (size_t j = i; j < i + M.block_size; ++j)
 				s += x[j].second * y[x[j].first];
 
-			t += fmod (s, F.modulus);
+			t += fmod (s, F._modulus);
 			s = 0.;
 		}
 
 		for (; i < x.size (); ++i)
 			s += x[i].second * y[x[i].first];
 
-		t += fmod (s, F.modulus);
-		s = fmod (t, F.modulus);
+		t += fmod (s, F._modulus);
+		s = fmod (t, F._modulus);
 	}
 
 	return res = s;

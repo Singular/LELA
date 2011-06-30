@@ -5,7 +5,7 @@ INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GMP_CFLAGS)
 pkgincludesubdir=$(pkgincludedir)/randiter
 
 AM_CXXFLAGS = -O2 -Wall -DDISABLE_COMMENTATOR $(GMP_CFLAGS) $(ATLAS_CFLAGS)
- 
+
 BASIC_HDRS =				\
 	interface.h			\
 	gmp-rational.h			\
