@@ -37,15 +37,12 @@ namespace BLAS1
  * @param res Ring-element in which to place output
  * @param x First vector
  * @param y Second vector
- * @param start_idx Starting index in vector
- * @param end_idx Ending index in vector, or (size_t) -1 for the whole vector
  * @returns Reference to res
  */
 
 template <class reference, class Ring, class Modules, class Vector1, class Vector2>
-reference &dot (Context<Ring, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y,
-		size_t start_idx = 0, size_t end_idx = (size_t) -1)
-	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res, x, y, start_idx, end_idx); }
+reference &dot (Context<Ring, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y)
+	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res, x, y); }
 
 /** Swap two vectors
  *

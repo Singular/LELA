@@ -29,41 +29,34 @@ class _dot<GF2, GenericModule<GF2>::Tag>
 {
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-				    size_t start_idx, size_t end_idx,
 				    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-				    size_t start_idx, size_t end_idx,
 				    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-				    size_t start_idx, size_t end_idx,
 				    VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-				    size_t start_idx, size_t end_idx,
 				    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
-		{ return op (F, M, res, y, x, start_idx, end_idx); }
+		{ return op (F, M, res, y, x); }
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-				    size_t start_idx, size_t end_idx,
 				    VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01);
 
 	template <class Modules, class reference, class Vector1, class Vector2>
 	static reference &dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-				    size_t start_idx, size_t end_idx,
 				    VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
-		{ return op (F, M, res, y, x, start_idx, end_idx); }
+		{ return op (F, M, res, y, x); }
 
 public:
 	template <class Modules, class reference, class Vector1, class Vector2>
-	static reference &op (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
-		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
+	static reference &op (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y)
+		{ return dot_impl (F, M, res, x, y,
 				   typename VectorTraits<GF2, Vector1>::RepresentationType (),
 				   typename VectorTraits<GF2, Vector2>::RepresentationType ()); }
 };

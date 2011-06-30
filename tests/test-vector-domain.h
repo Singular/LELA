@@ -93,8 +93,6 @@ static bool testCopyEqual (LinBox::Context<Field, Modules> &ctx, const char *tex
  * text - Text describing types of vectors
  * stream1 - Stream for first family of vectors
  * stream2 - Stream for second family of vectors
- * start_idx - Starting index to be used
- * end_idx - Ending index to be used
  *
  * Return true on success and false on failure
  */
@@ -105,13 +103,13 @@ static bool testCopyEqual (LinBox::Context<Field, Modules> &ctx, const char *tex
  */
 
 template <class Field, class Vector1, class Vector2>
-typename Field::Element &manualDot (const Field &F, typename Field::Element &x, const Vector1 &v1, const Vector2 &v2, size_t start_idx, size_t end_idx)
+typename Field::Element &manualDot (const Field &F, typename Field::Element &x, const Vector1 &v1, const Vector2 &v2, size_t dim)
 {
 	typename Field::Element a, b;
 
 	F.assign (x, F.zero ());
 
-	for (size_t j = start_idx; j < end_idx; j++)
+	for (size_t j = 0; j < dim; j++)
 		if (LinBox::VectorUtils::getEntry (v1, a, j) && LinBox::VectorUtils::getEntry (v2, b, j))
 			F.axpyin (x, a, b);
 
@@ -119,13 +117,13 @@ typename Field::Element &manualDot (const Field &F, typename Field::Element &x, 
 }
 
 template <class Field, class Modules, class Vector1, class Vector2>
-static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *text, LinBox::VectorStream<Vector1> &stream1, LinBox::VectorStream<Vector2> &stream2, size_t start_idx, size_t end_idx) 
+static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *text, LinBox::VectorStream<Vector1> &stream1, LinBox::VectorStream<Vector2> &stream2) 
 {
 	linbox_check (stream1.dim () == stream2.dim ());
 
 	std::ostringstream str;
 
-	str << "Testing " << text << " dot product (indices " << start_idx << "-" << end_idx << ")" << std::ends;
+	str << "Testing " << text << " dot product)" << std::ends;
 	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;
@@ -146,7 +144,7 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 		stream1.get (v1);
 		stream2.get (v2);
 
-		manualDot (ctx.F, sigma, v1, v2, start_idx, std::min (end_idx, stream1.dim ()));
+		manualDot (ctx.F, sigma, v1, v2, stream1.dim ());
 
 		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 of size " << v1.size() << ":  ";
@@ -156,7 +154,7 @@ static bool testDotProduct (LinBox::Context<Field, Modules> &ctx, const char *te
 		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
 
 		timer.start ();
-		LinBox::BLAS1::dot (ctx, rho, v1, v2, start_idx, end_idx);
+		LinBox::BLAS1::dot (ctx, rho, v1, v2);
 		timer.stop ();
 		totaltime += timer.realtime ();
 

@@ -28,7 +28,6 @@ template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	(const Ring &F, Modules &M,
 	 const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
-	 size_t start_idx, size_t end_idx,
 	 MatrixIteratorTypes::Row,
 	 VectorRepresentationTypes::Generic,
 	 VectorRepresentationTypes::Dense)
@@ -36,18 +35,13 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Ring> (y, A.rowdim ()));
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Vector2::iterator j = y.begin ();
 
 	typename Ring::Element d;
 
 	for (; i != A.rowEnd (); ++j, ++i) {
-		BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, x, *i, start_idx, end_idx);
+		BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, d, x, *i);
 		F.mulin (*j, b);
 		F.axpyin (*j, a, d);
 	}
@@ -60,18 +54,12 @@ template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	(const Ring &F, Modules &M,
 	 const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
-	 size_t start_idx, size_t end_idx,
 	 MatrixIteratorTypes::Row,
 	 VectorRepresentationTypes::Generic,
 	 VectorRepresentationTypes::Sparse)
 {
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Ring> (y, A.rowdim ()));
-
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
 
 	typename Matrix::ConstRowIterator i = A.rowBegin ();
 	typename Ring::Element t;
@@ -85,7 +73,7 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 		BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, y, b);
 
 	for (; i != A.rowEnd (); ++i, ++idx) {
-		BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, t, x, *i, start_idx, end_idx);
+		BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, t, x, *i);
 		F.mulin (t, a);
 
 		if (!F.isZero (t))
@@ -100,27 +88,20 @@ template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	(const Ring &F, Modules &M,
 	 const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
-	 size_t start_idx, size_t end_idx,
 	 MatrixIteratorTypes::Col,
 	 VectorRepresentationTypes::Dense,
 	 VectorRepresentationTypes::Generic)
 {
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Ring> (y, A.rowdim ()));
-	linbox_check (start_idx <= end_idx);
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	// linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
-	typename Vector1::const_iterator j = x.begin () + start_idx, j_end = x.begin () + end_idx;
+	typename Matrix::ConstColIterator i = A.colBegin ();
+	typename Vector1::const_iterator j = x.begin ();
 	typename Ring::Element d;
 
 	BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, b, y);
 
-	for (; j != j_end; ++j, ++i) {
+	for (; j != x.end (); ++j, ++i) {
 		F.mul (d, a, *j);
 		BLAS1::_axpy<Ring, typename Modules::Tag>::op (F, M, d, *i, y);
 	}
@@ -133,7 +114,6 @@ template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	(const Ring &F, Modules &M,
 	 const typename Ring::Element &a, const Matrix &A, const Vector1 &x, const typename Ring::Element &b, Vector2 &y,
-	 size_t start_idx, size_t end_idx,
 	 MatrixIteratorTypes::Col,
 	 VectorRepresentationTypes::Sparse,
 	 VectorRepresentationTypes::Generic)
@@ -141,18 +121,12 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Ring> (y, A.rowdim ()));
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Vector1::const_iterator j =
-		(start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator j = x.begin ();
 	typename Ring::Element d;
 
 	BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, b, y);
 
-	for (; j != x.end () && j->first < end_idx; ++j) {
+	for (; j != x.end (); ++j) {
 		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
 		F.mul (d, a, j->second);
 		BLAS1::_axpy<Ring, typename Modules::Tag>::op (F, M, d, *i, y);

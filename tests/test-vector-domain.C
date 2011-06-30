@@ -23,22 +23,6 @@
 
 using namespace LinBox;
 
-template <class Field, class Modules, class Stream1, class Stream2>
-bool runDPTests (Context<Field, Modules> &ctx, const char *text, Stream1 &s1, Stream2 &s2)
-{
-	bool pass = true;
-
-	const size_t test_start_idx[] = { 0, 1, 2, 4, 8, 10 };
-	const size_t test_end_idx[] = { 0, 1, 30, 50, 80, static_cast<size_t> (-1) };
-
-	for (size_t i = 0; i < sizeof (test_start_idx) / sizeof (size_t); ++i)
-		for (size_t j = 0; j < sizeof (test_end_idx) / sizeof (size_t); ++j)
-			if (test_start_idx[i] <= test_end_idx[j])
-				pass = testDotProduct (ctx, text, s1, s2, test_start_idx[i], test_end_idx[j]) && pass;
-
-	return pass;
-}
-
 template <class Field>
 bool testVectorDomain (Field &F, const char *text, size_t n, unsigned int iterations) 
 {
@@ -58,9 +42,9 @@ bool testVectorDomain (Field &F, const char *text, size_t n, unsigned int iterat
 	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream1)) pass = false;
 	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream3)) pass = false;
 
-	if (!runDPTests (ctx, "dense/dense", stream1, stream2)) pass = false;
-	if (!runDPTests (ctx, "sparse/dense", stream3, stream1)) pass = false;
-	if (!runDPTests (ctx, "sparse/sparse", stream3, stream4)) pass = false;
+	if (!testDotProduct (ctx, "dense/dense", stream1, stream2)) pass = false;
+	if (!testDotProduct (ctx, "sparse/dense", stream3, stream1)) pass = false;
+	if (!testDotProduct (ctx, "sparse/sparse", stream3, stream4)) pass = false;
 
 	if (!testScal (ctx, "dense", stream1)) pass = false;
 	if (!testScal (ctx, "sparse", stream3)) pass = false;

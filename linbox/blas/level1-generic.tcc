@@ -24,18 +24,16 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 	(const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-	 size_t start_idx, size_t end_idx,
 	 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i, i_end = x.begin () + std::min (x.size (), end_idx);
+	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
 
 	F.assign (res, F.zero ());
 
-	for (i = x.begin () + start_idx, j = y.begin () + start_idx; i != i_end; ++i, ++j)
+	for (i = x.begin (), j = y.begin (); i != x.end (); ++i, ++j)
 		F.axpyin (res, *i, *j);
 
 	return res;
@@ -45,20 +43,15 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 	(const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-	 size_t start_idx, size_t end_idx,
 	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	linbox_check (VectorUtils::hasDim<Ring> (x, y.size ()));
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i = x.begin ();
 
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
-		
 	F.assign (res, F.zero ());
 
-	for (; i != i_end; ++i)
+	for (; i != x.end (); ++i)
 		F.axpyin (res, i->second, y[i->first]);
 
 	return res;
@@ -68,25 +61,17 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 	(const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-	 size_t start_idx, size_t end_idx,
 	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
-	linbox_check (start_idx <= end_idx);
-
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
-
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
 
 	F.assign (res, F.zero ());
 
-	for (; i != i_end && j != j_end; ++i) {
-		while (j != j_end && j->first < i->first) ++j;
+	for (; i != x.end () && j != y.end (); ++i) {
+		while (j != y.end () && j->first < i->first) ++j;
 
-		if (j != j_end && j->first == i->first)
+		if (j != y.end () && j->first == i->first)
 			F.axpyin (res, i->second, j->second);
 	}
 

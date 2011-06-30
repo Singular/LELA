@@ -35,21 +35,17 @@ namespace BLAS2
  * @param x Vector x
  * @param b Ring::Element scalar b
  * @param y Vector y, to be replaced by result of calculation
- * @param start_idx Starting index in vector x of product
- * @param end_idx Ending index in vector x of product (-1 for the whole vector)
  * @returns Reference to y
  */
 
 template <class Ring, class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &gemv (Context<Ring, Modules>       &ctx,
 	       const typename Ring::Element &a,
-	       const Matrix                  &A,
-	       const Vector1                 &x,
+	       const Matrix                 &A,
+	       const Vector1                &x,
 	       const typename Ring::Element &b,
-	       Vector2                       &y,
-	       size_t                         start_idx = 0,
-	       size_t                         end_idx = (size_t) -1)
-	{ return _gemv<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, A, x, b, y, start_idx, end_idx); }
+	       Vector2                      &y)
+	{ return _gemv<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, A, x, b, y); }
 
 /** Triangular matrix-vector multiply, x <- Ax, where A is triangular
  *

@@ -63,9 +63,8 @@ class _dot
 {
 public:
 	template <class Modules, class reference, class Vector1, class Vector2>
-	static reference &op (const Ring &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
-		{ return _dot<Ring, typename ModulesTag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
+	static reference &op (const Ring &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y)
+		{ return _dot<Ring, typename ModulesTag::Parent>::op (F, M, res, x, y); }
 };
 
 template <class Ring, class ModulesTag>

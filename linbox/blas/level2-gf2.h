@@ -31,7 +31,6 @@ class _gemv<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixIteratorTypes::Row,
 				   VectorRepresentationTypes::Generic,
 				   VectorRepresentationTypes::Dense01);
@@ -39,7 +38,6 @@ class _gemv<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixIteratorTypes::Row,
 				   VectorRepresentationTypes::Generic,
 				   VectorRepresentationTypes::Sparse01);
@@ -47,7 +45,6 @@ class _gemv<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixIteratorTypes::Row,
 				   VectorRepresentationTypes::Generic,
 				   VectorRepresentationTypes::Hybrid01);
@@ -55,7 +52,6 @@ class _gemv<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixIteratorTypes::Col,
 				   VectorRepresentationTypes::Dense01,
 				   VectorRepresentationTypes::Generic);
@@ -63,7 +59,6 @@ class _gemv<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixIteratorTypes::Col,
 				   VectorRepresentationTypes::Sparse01,
 				   VectorRepresentationTypes::Generic);
@@ -71,7 +66,6 @@ class _gemv<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const GF2 &F, Modules &M,
 				   bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixIteratorTypes::Col,
 				   VectorRepresentationTypes::Hybrid01,
 				   VectorRepresentationTypes::Generic);
@@ -83,10 +77,8 @@ public:
 			    const Matrix  &A,
 			    const Vector1 &x,
 			    bool           b,
-			    Vector2       &y,
-			    size_t         start_idx = 0,
-			    size_t         end_idx = (size_t) -1)
-		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+			    Vector2       &y)
+		{ return gemv_impl (F, M, a, A, x, b, y,
 				    typename Matrix::IteratorType (),
 				    typename VectorTraits<GF2, Vector1>::RepresentationType (),
 				    typename VectorTraits<GF2, Vector2>::RepresentationType ()); }

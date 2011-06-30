@@ -23,20 +23,13 @@ namespace BLAS2
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
 								      uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-								      size_t start_idx, size_t end_idx,
 								      VectorRepresentationTypes::Dense)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint8> > (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Modular<uint8> > (y, A.rowdim ()));
-	linbox_check (start_idx <= end_idx);
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
-	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
+	typename Matrix::ConstColIterator i = A.colBegin ();
+	typename Vector2::const_iterator j, j_end;
 	typename Matrix::ConstColumn::const_iterator k;
 	std::vector<ModularTraits<uint8>::DoubleFatElement>::iterator l, l_end;
 
@@ -47,19 +40,19 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 	l_end = M._tmp.begin () + y.size ();
 
 	do {
-		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, M.block_size);
+		j = x.begin ();
+		j_end = j + std::min (x.size (), M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
+		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
 
 		for (l = M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
 
-	} while (j_end != j_stop);
+	} while (j_end != x.end ());
 
 	typename Vector2::iterator y_j;
 
@@ -72,20 +65,13 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
 								      uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-								      size_t start_idx, size_t end_idx,
 								      VectorRepresentationTypes::Sparse)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint8> > (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Modular<uint8> > (y, A.rowdim ()));
-	linbox_check (start_idx <= end_idx);
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
-	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
+	typename Matrix::ConstColIterator i = A.colBegin ();
+	typename Vector2::const_iterator j, j_end;
 	typename Matrix::ConstColumn::const_iterator k;
 	std::vector<ModularTraits<uint8>::DoubleFatElement>::iterator l, l_end;
 
@@ -96,19 +82,19 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 	l_end = M._tmp.begin () + y.size ();
 
 	do {
-		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, M.block_size);
+		j = x.begin ();
+		j_end = j + std::min (x.size (), M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				M._tmp[k->first] += k->second * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
+		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
 
 		for (l =M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
 
-	} while (j_end != j_stop);
+	} while (j_end != x.end ());
 
 	typename Vector2::iterator y_j;
 
@@ -121,20 +107,13 @@ Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modu
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
 									uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-									size_t start_idx, size_t end_idx,
 									VectorRepresentationTypes::Dense)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint16> > (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Modular<uint16> > (y, A.rowdim ()));
-	linbox_check (start_idx <= end_idx);
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
-	typename Vector2::const_iterator j = x.begin () + start_idx, j_end, j_stop = x.begin () + end_idx;
+	typename Matrix::ConstColIterator i = A.colBegin ();
+	typename Vector2::const_iterator j = x.begin (), j_end;
 	typename Matrix::ConstColumn::const_iterator k;
 	std::vector<ModularTraits<uint16>::DoubleFatElement>::iterator l, l_end;
 
@@ -146,19 +125,19 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 	l_end = M._tmp.begin () + y.size ();
 
 	do {
-		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, M.block_size);
+		j = x.begin ();
+		j_end = j + std::min (x.size (), M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				*l += *k * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
+		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
 
 		for (l = M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
 
-	} while (j_end != j_stop);
+	} while (j_end != x.end ());
 
 	typename Vector2::iterator y_j;
 
@@ -171,20 +150,13 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
 									uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-									size_t start_idx, size_t end_idx,
 									VectorRepresentationTypes::Sparse)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint16> > (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Modular<uint16> > (y, A.rowdim ()));
-	linbox_check (start_idx <= end_idx);
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
-	typename Vector2::const_iterator j, j_end, j_stop = x.begin () + end_idx;
+	typename Matrix::ConstColIterator i = A.colBegin ();
+	typename Vector2::const_iterator j, j_end;
 	typename Matrix::ConstColumn::const_iterator k;
 	std::vector<ModularTraits<uint16>::DoubleFatElement>::iterator l, l_end;
 
@@ -196,19 +168,19 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 	l_end = M._tmp.begin () + y.size ();
 
 	do {
-		j = x.begin () + start_idx;
-		j_end = j + std::min (end_idx - start_idx, M.block_size);
+		j = x.begin ();
+		j_end = j + std::min (x.size (), M.block_size);
 
 		for (; j != j_end; ++j, ++i)
 			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
 				M._tmp[k->first] += k->second * *j;
 
-		j_end += std::min (end_idx - start_idx - (j_end - x.begin ()), M.block_size);
+		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
 
 		for (l =M._tmp.begin (); l != l_end; ++l)
 			*l %= F._modulus;
 
-	} while (j_end != j_stop);
+	} while (j_end != x.end ());
 
 	typename Vector2::iterator y_j;
 
@@ -221,20 +193,13 @@ Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Mo
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
 									uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
-									size_t start_idx, size_t end_idx,
 									VectorRepresentationTypes::Dense)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint32> > (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Modular<uint32> > (y, A.rowdim ()));
-	linbox_check (start_idx <= end_idx);
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
-	typename Vector2::const_iterator j, j_stop = x.begin () + end_idx;
+	typename Matrix::ConstColIterator i = A.colBegin ();
+	typename Vector2::const_iterator j;
 	typename Matrix::ConstColumn::const_iterator k;
 	std::vector<ModularTraits<uint32>::DoubleFatElement>::iterator l;
 
@@ -245,7 +210,7 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 
 	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
 
-	for (j = x.begin () + start_idx; j != j_stop; ++j, ++i) {
+	for (j = x.begin (); j != x.end (); ++j, ++i) {
 		for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l) {
 			t = ((uint64) *k) * ((uint64) *j);
 
@@ -272,20 +237,13 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
 									uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
-									size_t start_idx, size_t end_idx,
 									VectorRepresentationTypes::Sparse)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint32> > (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<Modular<uint32> > (y, A.rowdim ()));
-	linbox_check (start_idx <= end_idx);
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i = A.colBegin () + start_idx;
-	typename Vector2::const_iterator j, j_stop = x.begin () + end_idx;
+	typename Matrix::ConstColIterator i = A.colBegin ();
+	typename Vector2::const_iterator j;
 	typename Matrix::Column::const_iterator k;
 	std::vector<ModularTraits<uint32>::DoubleFatElement>::iterator l;
 
@@ -296,7 +254,7 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 
 	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
 
-	for (j = x.begin () + start_idx; j != j_stop; ++j, ++i) {
+	for (j = x.begin (); j != x.end (); ++j, ++i) {
 		for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l) {
 			t = ((uint64) k->second) * ((uint64) *j);
 

@@ -26,7 +26,6 @@ namespace BLAS2
 template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &M,
 							 bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 MatrixIteratorTypes::Row,
 							 VectorRepresentationTypes::Generic,
 							 VectorRepresentationTypes::Dense01)
@@ -46,7 +45,7 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x, start_idx, end_idx);
+		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x);
 		F.addin (y[idx], d);
 	}
 		
@@ -56,7 +55,6 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &M,
 							 bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 MatrixIteratorTypes::Row,
 							 VectorRepresentationTypes::Generic,
 							 VectorRepresentationTypes::Sparse01)
@@ -78,7 +76,7 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x, start_idx, end_idx);
+		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x);
 
 		if (d)
 			t.push_back (idx);
@@ -92,7 +90,6 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &M,
 							 bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 MatrixIteratorTypes::Row,
 							 VectorRepresentationTypes::Generic,
 							 VectorRepresentationTypes::Hybrid01)
@@ -114,7 +111,7 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 		return y;
 
 	for (i_A = A.rowBegin (), idx = 0; i_A != A.rowEnd (); ++i_A, ++idx) {
-		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x, start_idx, end_idx);
+		BLAS1::_dot<GF2, typename Modules::Tag>::op (F, M, d, *i_A, x);
 
 		if (d) {
 			if (t.first.empty () || t.first.back () != idx & ~WordTraits<typename Vector2::word_type>::pos_mask)
@@ -133,7 +130,6 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &M,
 							 bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 MatrixIteratorTypes::Col,
 							 VectorRepresentationTypes::Dense01,
 							 VectorRepresentationTypes::Generic)
@@ -147,15 +143,10 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 	if (!a)
 		return y;
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	typename Matrix::ConstColIterator i_A, i_A_end = A.colBegin () + end_idx;
+	typename Matrix::ConstColIterator i_A;
 	typename Vector1::const_iterator i_x;
 
-	for (i_x = x.begin () + start_idx, i_A = A.colBegin () + start_idx; i_A != i_A_end; ++i_x, ++i_A)
+	for (i_x = x.begin (), i_A = A.colBegin (); i_A != A.colEnd (); ++i_x, ++i_A)
 		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, *i_x, *i_A, y);
 
 	return y;
@@ -164,7 +155,6 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &M,
 							 bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 MatrixIteratorTypes::Col,
 							 VectorRepresentationTypes::Sparse01,
 							 VectorRepresentationTypes::Generic)
@@ -172,20 +162,15 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 	linbox_check (VectorUtils::hasDim<GF2> (x, A.coldim ()));
 	linbox_check (VectorUtils::hasDim<GF2> (y, A.rowdim ()));
 
-	typename Vector1::const_iterator i_x = std::lower_bound (x.begin (), x.end (), start_idx);
-
 	if (!b)
 		BLAS1::_scal<GF2, typename Modules::Tag>::op (F, M, false, y);
 
 	if (!a)
 		return y;
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
+	typename Vector1::const_iterator i_x;
 
-	linbox_check (end_idx <= A.coldim ());
-
-	for (; i_x != x.end () && *i_x < end_idx; ++i_x)
+	for (i_x = x.begin (); i_x != x.end (); ++i_x)
 		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, *(A.colBegin () + *i_x), y);
 
 	return y;
@@ -194,7 +179,6 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 template <class Modules, class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &M,
 							 bool a, const Matrix &A, const Vector1 &x, bool b, Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 MatrixIteratorTypes::Col,
 							 VectorRepresentationTypes::Hybrid01,
 							 VectorRepresentationTypes::Generic)
@@ -213,25 +197,13 @@ Vector2 &_gemv<GF2, GenericModule<GF2>::Tag>::gemv_impl (const GF2 &F, Modules &
 	if (!a)
 		return y;
 
-	if (end_idx == (size_t) -1)
-		end_idx = A.coldim ();
-
-	linbox_check (end_idx <= A.coldim ());
-
-	i_x = std::lower_bound (x.begin (), x.end (), start_idx >> WordTraits<typename Vector1::word_type>::logof_size, VectorUtils::CompareSparseEntries ());
-
-	for (; i_x != x.end () && (i_x->first << WordTraits<typename Vector1::word_type>::logof_size) < (long) end_idx; ++i_x) {
-		if (start_idx >> WordTraits<typename Vector1::word_type>::logof_size == i_x->first) {
-			t = Vector1::Endianness::e_j (start_idx & WordTraits<typename Vector1::word_type>::pos_mask);
-			idx = start_idx;
-		} else {
-			t = Vector1::Endianness::e_0;
-			idx = i_x->first << WordTraits<typename Vector1::word_type>::logof_size;
-		}
+	for (i_x = x.begin (); i_x != x.end (); ++i_x) {
+		t = Vector1::Endianness::e_0;
+		idx = i_x->first << WordTraits<typename Vector1::word_type>::logof_size;
 
 		i_A = A.colBegin () + idx;
 
-		for (; t != 0 && idx < end_idx; t = Vector1::Endianness::shift_right (t, 1), ++i_A, ++idx)
+		for (; t != 0 && idx < A.coldim (); t = Vector1::Endianness::shift_right (t, 1), ++i_A, ++idx)
 			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, ((i_x->second & t) != 0), *i_A, y);
 	}
 

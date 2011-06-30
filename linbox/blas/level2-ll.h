@@ -30,10 +30,8 @@ public:
 			    const Matrix                 &A,
 			    const Vector1                &x,
 			    const typename Ring::Element &b,
-			    Vector2                      &y,
-			    size_t                        start_idx = 0,
-			    size_t                        end_idx = (size_t) -1)
-		{ return _gemv<Ring, typename ModulesTag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+			    Vector2                      &y)
+		{ return _gemv<Ring, typename ModulesTag::Parent>::op (F, M, a, A, x, b, y); }
 };
 
 template <class Ring, class ModulesTag>

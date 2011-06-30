@@ -28,30 +28,25 @@ class _dot<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 size_t start_idx, size_t end_idx,
 						 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 size_t start_idx, size_t end_idx,
 						 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
-		{ return _dot (F, M, res, y, x, start_idx, end_idx); }
+		{ return _dot (F, M, res, y, x); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 size_t start_idx, size_t end_idx,
 						 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 size_t start_idx, size_t end_idx,
 						 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class reference, class Vector1, class Vector2>
-	static reference &op (const Ring &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-			      size_t start_idx = 0, size_t end_idx = (size_t) -1)
-		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
+	static reference &op (const Ring &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y)
+		{ return dot_impl (F, M, res, x, y,
 				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				   typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 };

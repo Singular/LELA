@@ -20,16 +20,14 @@ namespace BLAS1
 
 template <class Vector1, class Vector2>
 uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-							     size_t start_idx, size_t end_idx,
 							     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = x.begin () + start_idx, i_end = x.begin () + std::min (x.size (), end_idx);
-	typename Vector2::const_iterator j = y.begin () + start_idx;
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
 
-	typename Vector1::const_iterator iterend = x.begin () + (start_idx + std::min (x.size () - start_idx, end_idx - start_idx) % M.block_size);
+	typename Vector1::const_iterator iterend = x.begin () + (x.size () % M.block_size);
 
 	uint64 t = 0;
 
@@ -38,7 +36,7 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 
 	t %= (uint64) F._modulus;
 
-	for (; iterend != i_end; j += M.block_size) {
+	for (; iterend != x.end (); j += M.block_size) {
 		typename Vector1::const_iterator iter_i = iterend;
 		typename Vector2::const_iterator iter_j;
 
@@ -55,33 +53,29 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 
 template <class Vector1, class Vector2>
 uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-							     size_t start_idx, size_t end_idx,
 							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint8> > (x, y.size ()));
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i = x.begin ();
 
 	uint64 t = 0;
 
-	if (i_end - i < (long) M.block_size) {
-		for (; i != i_end; ++i)
+	if (x.end () - i < (long) M.block_size) {
+		for (; i != x.end (); ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
 
 		return res = t % (uint64) F._modulus;
 	} else {
 		// i still points to the beginning
-		typename Vector1::const_iterator iterend = i + (i_end - i) % M.block_size;
+		typename Vector1::const_iterator iterend = i + (x.end () - i) % M.block_size;
 
 		for (; i != iterend; ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
 
 		t %= (uint64) F._modulus;
 
-		while (iterend != i_end) {
+		while (iterend != x.end ()) {
 			typename Vector1::const_iterator iter_i = iterend;
 
 			iterend += M.block_size;
@@ -99,26 +93,18 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 
 template <class Vector1, class Vector2>
 uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-							     size_t start_idx, size_t end_idx,
 							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
-	linbox_check (start_idx <= end_idx);
-
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
-
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
 
 	uint64 t = 0, count;
 
-	while (i != i_end && j != j_end) {
-		for (count = 0; count < M.block_size && i != i_end && j != j_end; ++i) {
-			while (j != j_end && j->first < i->first) ++j;
+	while (i != x.end () && j != y.end ()) {
+		for (count = 0; count < M.block_size && i != x.end () && j != y.end (); ++i) {
+			while (j != y.end () && j->first < i->first) ++j;
 
-			if (j != j_end && i->first == j->first) {
+			if (j != y.end () && i->first == j->first) {
 				t += (uint64) i->second * (uint64) j->second;
 				++count;
 			}
@@ -132,16 +118,14 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 
 template <class Vector1, class Vector2>
 uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = x.begin () + start_idx, i_end = x.begin () + std::min (x.size (), end_idx);
-	typename Vector2::const_iterator j = y.begin () + start_idx;
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
 
-	typename Vector1::const_iterator iterend = x.begin () + (start_idx + std::min (x.size () - start_idx, end_idx - start_idx) % M.block_size);
+	typename Vector1::const_iterator iterend = x.begin () + x.size () % M.block_size;
 
 	uint64 t = 0;
 
@@ -150,7 +134,7 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 
 	t %= (uint64) F._modulus;
 
-	for (; iterend != i_end; j += M.block_size) {
+	for (; iterend != x.end (); j += M.block_size) {
 		typename Vector1::const_iterator iter_i = iterend;
 		typename Vector2::const_iterator iter_j;
 
@@ -167,33 +151,29 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 
 template <class Vector1, class Vector2>
 uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint16> > (x, y.size ()));
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i = x.begin ();
 
 	uint64 t = 0;
 
-	if (i_end - i < (long) M.block_size) {
-		for (; i != i_end; ++i)
+	if (x.end () - i < (long) M.block_size) {
+		for (; i != x.end (); ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
 
 		return res = t % (uint64) F._modulus;
 	} else {
 		// i still points to the beginning
-		typename Vector1::const_iterator iterend = i + (i_end - i) % M.block_size;
+		typename Vector1::const_iterator iterend = i + (x.end () - i) % M.block_size;
 
 		for (; i != iterend; ++i)
 			t += (uint64) i->second * (uint64) y[i->first];
 
 		t %= (uint64) F._modulus;
 
-		while (iterend != i_end) {
+		while (iterend != x.end ()) {
 			typename Vector1::const_iterator iter_i = iterend;
 
 			iterend += M.block_size;
@@ -211,26 +191,18 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 
 template <class Vector1, class Vector2>
 uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
-	linbox_check (start_idx <= end_idx);
-
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
-
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
 
 	uint64 t = 0, count;
 
-	while (i != i_end && j != j_end) {
-		for (count = 0; count < M.block_size && i != i_end && j != j_end; ++i) {
-			while (j != j_end && j->first < i->first) ++j;
+	while (i != x.end () && j != y.end ()) {
+		for (count = 0; count < M.block_size && i != x.end () && j != y.end (); ++i) {
+			while (j != y.end () && j->first < i->first) ++j;
 
-			if (j != j_end && i->first == j->first) {
+			if (j != y.end () && i->first == j->first) {
 				t += (uint64) i->second * (uint64) j->second;
 				++count;
 			}
@@ -244,19 +216,17 @@ uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<ui
 
 template <class Vector1, class Vector2>
 uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	linbox_check (x.size () == y.size ());
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = x.begin () + start_idx, i_end = x.begin () + std::min (x.size (), end_idx);
-	typename Vector2::const_iterator j = y.begin () + start_idx;
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
   
 	uint64 s = 0;
 	uint64 t;
 
-	for (; i != i_end; ++i, ++j) {
+	for (; i != x.end (); ++i, ++j) {
 		t = (uint64) *i * (uint64) *j;
 		s += t;
 
@@ -271,19 +241,15 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 
 template <class Vector1, class Vector2>
 uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	linbox_check (VectorUtils::hasDim<Modular<uint32> > (x, y.size ()));
-	linbox_check (start_idx <= end_idx);
 
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i;
 
 	uint64 s = 0, t;
 
-	for (; i != i_end; ++i) {
+	for (i = x.begin (); i != x.end (); ++i) {
 		t = (uint64) i->second * (uint64) y[i->first];
 		s += t;
 
@@ -298,25 +264,17 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 
 template <class Vector1, class Vector2>
 uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<uint32> &F, ZpModule<uint32> &M, uint32 &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
-	linbox_check (start_idx <= end_idx);
-
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx, VectorUtils::CompareSparseEntries ());
-
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
 
 	uint64 s = 0, t;
 
-	for (; i != i_end && j != j_end; ++i) {
-		while (j != j_end && j->first < i->first) ++j;
+	for (; i != x.end () && j != y.end (); ++i) {
+		while (j != y.end () && j->first < i->first) ++j;
 
-		if (j != j_end && i->first == j->first) {
+		if (j != y.end () && i->first == j->first) {
 			t = (uint64) i->second * (uint64) j->second;
 			s += t;
 
@@ -330,7 +288,6 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 
 template <class Vector1, class Vector2>
 float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
-							     size_t start_idx, size_t end_idx,
 							     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	float s = 0.;
@@ -364,7 +321,6 @@ float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float
 
 template <class Vector1, class Vector2>
 float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
-							     size_t start_idx, size_t end_idx,
 							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	float s = 0.;
@@ -397,7 +353,6 @@ float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float
 
 template <class Vector1, class Vector2>
 double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	double s = 0.;
@@ -431,7 +386,6 @@ double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<do
 
 template <class Vector1, class Vector2>
 double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
-								size_t start_idx, size_t end_idx,
 								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	double s = 0.;

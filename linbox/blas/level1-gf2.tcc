@@ -24,37 +24,26 @@ namespace BLAS1
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
 {
 	linbox_check (x.size () == y.size ());
-	linbox_check (start_idx <= end_idx);
-	linbox_check (start_idx <= x.size ());
 
 	if (x.empty ())
 		return res = false;
 
 	typename Vector1::word_type t = 0;
-	typename Vector1::const_word_iterator i = x.word_begin () + (start_idx >> WordTraits<typename Vector1::word_type>::logof_size);
-	typename Vector2::const_word_iterator j = y.word_begin () + (start_idx >> WordTraits<typename Vector1::word_type>::logof_size);
-
-	typename Vector1::const_word_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.word_end () : x.word_begin () + ((end_idx + WordTraits<typename Vector1::word_type>::bits - 1) >> WordTraits<typename Vector1::word_type>::logof_size);
+	typename Vector1::const_word_iterator i = x.word_begin ();
+	typename Vector2::const_word_iterator j = y.word_begin ();
 
 	if (x.empty ())
 		return res = false;
-	else if (i == i_end)
-		t = x.back_word () & y.back_word () &
-			Vector1::Endianness::mask_right (start_idx & WordTraits<typename Vector1::word_type>::pos_mask) &
-			Vector1::Endianness::mask_left (end_idx & WordTraits<typename Vector1::word_type>::pos_mask);
+	else if (i == x.word_end ())
+		t = x.back_word () & y.back_word ();
 	else {
-		if ((start_idx & WordTraits<typename Vector1::word_type>::pos_mask) != 0)
-			t = *i++ & *j++ & Vector1::Endianness::mask_right (start_idx & WordTraits<typename Vector1::word_type>::pos_mask);
-
-		while (i != i_end)
+		while (i != x.word_end ())
 			t ^= *i++ & *j++;
         
-		t ^= x.back_word () & y.back_word () & Vector1::Endianness::mask_left (end_idx & WordTraits<typename Vector1::word_type>::pos_mask);
+		t ^= x.back_word () & y.back_word ();
 	}
 
         return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
@@ -62,21 +51,15 @@ reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
 {
 	linbox_check (VectorUtils::hasDim<GF2> (y, x.size ()));
-	linbox_check (start_idx <= end_idx);
-	linbox_check (start_idx <= x.size ());
 
-	typename Vector2::const_iterator i = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx);
-
-	typename Vector2::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx);
+	typename Vector2::const_iterator i = y.begin ();
 
 	res = false;
 
-	for (; i != i_end; ++i)
+	for (; i != y.end (); ++i)
 		if (x[*i]) res = !res;
 
 	return res;
@@ -84,77 +67,40 @@ reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
 {
 	linbox_check (VectorUtils::hasDim<GF2> (y, x.size ()));
-	linbox_check (start_idx <= end_idx);
-	linbox_check (start_idx <= x.size ());
 
 	typename Vector1::word_type t = 0;
 	typename Vector1::const_word_iterator i = x.word_begin ();
-	typename Vector2::const_iterator j = (start_idx == 0) ?
-		y.begin () : std::lower_bound (y.begin (), y.end (), start_idx >> WordTraits<typename Vector2::word_type>::logof_size, VectorUtils::CompareSparseEntries ());
-
-	typename Vector2::index_type search_idx = (end_idx + WordTraits<typename Vector1::word_type>::bits - 1) >> WordTraits<typename Vector2::word_type>::logof_size;
-
-	typename Vector2::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), search_idx, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator j = y.begin ();
 
 	typename Vector2::const_iterator j_stop;
 
-	if (j == j_end)
+	if (j == y.end ())
 		return res = false;
-	else if (j == j_end - 1) {
+	else if (j == y.end () - 1)
 		t = *(i + j->first) & j->second;
-
-		if (j->first == start_idx >> WordTraits<typename Vector1::word_type>::logof_size)
-			t &= Vector1::Endianness::mask_right (start_idx & WordTraits<typename Vector1::word_type>::pos_mask);
-
-		if (j->first == end_idx >> WordTraits<typename Vector1::word_type>::logof_size)
-			t &= Vector1::Endianness::mask_left (end_idx & WordTraits<typename Vector1::word_type>::pos_mask);
-	} else {
-		if (end_idx == static_cast<size_t> (-1))
-			j_stop = j_end;
-		else
-			j_stop = j_end - 1;
-
-		if (j->first == start_idx >> WordTraits<typename Vector1::word_type>::logof_size) {
-			t = *(i + j->first) & j->second & Vector1::Endianness::mask_right (start_idx & WordTraits<typename Vector1::word_type>::pos_mask);
-			++j;
-		}
-
+	else
 		for (; j != j_stop; ++j)
 			t ^= *(i + j->first) & j->second;
-
-		if (end_idx != static_cast<size_t> (-1) && j->first == end_idx >> WordTraits<typename Vector1::word_type>::logof_size)
-			t ^= *(i + j->first) & j->second & Vector1::Endianness::mask_left (end_idx & WordTraits<typename Vector1::word_type>::pos_mask);
-	}
         
         return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
 }
 
 template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
-							 size_t start_idx, size_t end_idx,
 							 VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
 {
-	linbox_check (start_idx <= end_idx);
-
-	typename Vector1::const_iterator i = (start_idx == 0) ? x.begin () : std::lower_bound (x.begin (), x.end (), start_idx);
-	typename Vector2::const_iterator j = (start_idx == 0) ? y.begin () : std::lower_bound (y.begin (), y.end (), start_idx);
-
-	typename Vector1::const_iterator i_end = (end_idx == static_cast<size_t> (-1)) ?
-		x.end () : std::lower_bound (x.begin (), x.end (), end_idx);
-	typename Vector1::const_iterator j_end = (end_idx == static_cast<size_t> (-1)) ?
-		y.end () : std::lower_bound (y.begin (), y.end (), end_idx);
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
 
 	res = false;
 
-	while (i != i_end || j != j_end) {
-		while (i != i_end && (j == j_end || *i < *j)) ++i;
-		while (j != j_end && (i == i_end || *j < *i)) ++j;
-		if (i != i_end && j != j_end && *i == *j) { res = !res; ++i; ++j; }
+	while (i != x.end () || j != y.end ()) {
+		while (i != x.end () && (j == y.end () || *i < *j)) ++i;
+		while (j != y.end () && (i == x.end () || *j < *i)) ++j;
+		if (i != x.end () && j != y.end () && *i == *j) { res = !res; ++i; ++j; }
 	}
 
 	return res;
