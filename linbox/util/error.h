@@ -78,6 +78,12 @@ class LinboxBadFormat : public LinboxError {
  public:
 	LinboxBadFormat (const char* msg) : LinboxError (msg) {};
 };
+
+class DiagonalEntryNotInvertible 
+{
+	friend std::ostream &operator << (std::ostream &os, const DiagonalEntryNotInvertible &e)
+		{ os << "Entry on the diagonal is not invertible" << std::endl; return os; }
+};
  
 }
 
