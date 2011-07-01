@@ -24,20 +24,7 @@
 namespace LinBox
 {
 
-/**
- * \brief Implementation of Gauss-Jordan elimination which
- * does not permute columns in the input-matrix
- *
- * The pivoting-strategy which it uses is to find the row with
- * the least number of nonzero entries and a nonzero entry in
- * the pivot-column.
- *
- * This class depends on the sparse-vector-facilities of LinBox, see http://www.linalg.org/
- *
- * This class depends on the following template-parameters:
- *
- * @param Ring The ring in which arithmetic takes
- * place. Must satisfy the ring-archetype in LinBox.
+/** Implementation of asymptotically fast Gauss-Jordan elimination
  */
 template <class Ring, class Modules = AllModules<Ring> >
 class GaussJordan
@@ -109,12 +96,12 @@ public:
 	 * row-echelon form.
 	 *
 	 * At conclusion, the parameters will have the property that
-	 * A_out=LPA_in, where A_out is the matrix A at output and
+	 * A_out=UPA_in, where A_out is the matrix A at output and
 	 * A_in is the matrix A at input. A_out is in reduced
-	 * row-echelon form, L is lower triangular, and P is a
+	 * row-echelon form, U is lower triangular, and P is a
 	 * permutation.
 	 *
-	 * If A is invertible, then L will be the inverse of
+	 * If A is invertible, then U will be the inverse of
 	 * A.
 	 *
 	 * @param A Dense matrix A. Will be replaced by its reduced
