@@ -19,6 +19,7 @@
 #include "linbox/matrix/transpose.h"
 #include "linbox/matrix/submatrix.h"
 #include "linbox/util/error.h"
+#include "linbox/integer.h"
 
 namespace LinBox
 {
@@ -220,6 +221,8 @@ Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::op
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
+	static const int align = const_lcm<Matrix1::colAlign, Matrix1::rowAlign>::val;
+
 	if (A.rowdim () == 0)
 		return B;
 	else if (F.isZero (a))
@@ -238,7 +241,7 @@ Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::op
 			}
 		}
 	}
-	else if ((((A.coldim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign == 0) {
+	else if (A.coldim () / (2 * align) == 0) {
 		size_t l = A.rowdim () / 2;
 		typename Matrix1::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix1::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
@@ -261,7 +264,7 @@ Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::op
 
 		return B;
 	} else {
-		size_t l = (((((A.rowdim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign) * Matrix1::rowAlign);
+		size_t l = (A.rowdim () / (2 * align)) * align;
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix1::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
@@ -293,6 +296,8 @@ Matrix2 &_trsm<Ring, typename GenericModule<Ring>::Tag>::op
 	linbox_check (A.coldim () == B.rowdim ());
 	linbox_check (A.rowdim () == B.rowdim ());
 
+	static const int align = const_lcm<Matrix1::colAlign, Matrix1::rowAlign>::val;
+
 	if (A.rowdim () == 0)
 		return B;
 	else if (F.isZero (a))
@@ -311,7 +316,7 @@ Matrix2 &_trsm<Ring, typename GenericModule<Ring>::Tag>::op
 			}
 		}
 	}
-	else if ((((A.coldim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign == 0) {
+	else if (A.coldim () / (2 * align) == 0) {
 		size_t l = A.rowdim () / 2;
 		typename Matrix1::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix1::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
@@ -334,7 +339,7 @@ Matrix2 &_trsm<Ring, typename GenericModule<Ring>::Tag>::op
 
 		return B;
 	} else {
-		size_t l = (((((A.rowdim () / 2) / Matrix1::colAlign) * Matrix1::colAlign) / Matrix1::rowAlign) * Matrix1::rowAlign);
+		size_t l = (A.rowdim () / (2 * align)) * align;
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix1::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 

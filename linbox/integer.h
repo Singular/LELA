@@ -72,6 +72,13 @@ typedef __LINBOX_UINT256 uint256;
 template <class T>
 T abs (const T &a) { return a <= 0 ? a * -1 : a; }
 
+/// Compile-time computation of the gcd of two integers
+template <int n, int m> struct const_gcd { static const int val = const_gcd<m, n % m>::val; };
+template <int n> struct const_gcd<n, 0> { static const int val = n; };
+
+/// Compile-time computation of the lcm of two integers
+template <int n, int m> struct const_lcm { static const int val = n * m / const_gcd<n, m>::val; };
+
 } // namespace LinBox
 
 #endif // __LINBOX_integer_H

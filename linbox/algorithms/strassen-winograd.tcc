@@ -21,21 +21,22 @@
 
 #include "linbox/blas/level3-ll.h"
 #include "linbox/algorithms/strassen-winograd.h"
+#include "linbox/integer.h"
 
 namespace LinBox
 {
 
 template <class Matrix1, class Matrix2>
 inline size_t align_row (size_t i)
-	{ return i / Matrix1::rowAlign * Matrix1::rowAlign / Matrix2::rowAlign * Matrix2::rowAlign; }
+	{ return i / const_lcm <Matrix1::rowAlign, Matrix2::rowAlign>::val * const_lcm<Matrix1::rowAlign, Matrix2::rowAlign>::val; }
 
 template <class Matrix1, class Matrix2>
 inline size_t align_col (size_t i)
-	{ return i / Matrix1::colAlign * Matrix1::colAlign / Matrix2::colAlign * Matrix2::colAlign; }
+	{ return i / const_lcm <Matrix1::colAlign, Matrix2::colAlign>::val * const_lcm<Matrix1::colAlign, Matrix2::colAlign>::val; }
 
 template <class RowMatrix, class ColMatrix>
 inline size_t align_rowcol (size_t i)
-	{ return align_row<RowMatrix, RowMatrix> (align_col<ColMatrix, ColMatrix> (i)); }
+	{ return i / const_lcm <RowMatrix::rowAlign, ColMatrix::colAlign>::val * const_lcm <RowMatrix::rowAlign, ColMatrix::colAlign>::val; }
 
 template <class ParentTag>
 template <class Ring, class Modules, class Matrix1, class Matrix2, class Matrix3>

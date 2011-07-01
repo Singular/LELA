@@ -16,6 +16,7 @@
 #include "linbox/blas/level1-ll.h"
 #include "linbox/blas/level2-ll.h"
 #include "linbox/util/error.h"
+#include "linbox/integer.h"
 
 namespace LinBox
 {
@@ -143,6 +144,8 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::op
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 
+	static const int align = const_lcm<Matrix::colAlign, Matrix::rowAlign>::val;
+
 	if (A.rowdim () == 0)
 		return x;
 	else if (A.rowdim () == 1) {
@@ -158,7 +161,7 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::op
 				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, ai, x);
 		}
 	}
-	else if ((((A.coldim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign == 0) {
+	else if (A.coldim () / (2 * align) == 0) {
 		size_t l = A.rowdim () / 2;
 		typename Matrix::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
@@ -181,7 +184,7 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::op
 
 		return x;
 	} else {
-		size_t l = (((((A.rowdim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign) * Matrix::rowAlign);
+		size_t l = (A.rowdim () / (2 * align)) * align;
 		typename Matrix::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
@@ -213,6 +216,8 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::op
 	linbox_check (A.coldim () == A.rowdim ());
 	linbox_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 
+	static const int align = const_lcm<Matrix::colAlign, Matrix::rowAlign>::val;
+
 	if (A.rowdim () == 0)
 		return x;
 	else if (A.rowdim () == 1) {
@@ -227,7 +232,7 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::op
 				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, ai, x);
 		}
 	}
-	else if ((((A.coldim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign == 0) {
+	else if (A.coldim () / (2 * align) == 0) {
 		size_t l = A.rowdim () / 2;
 		typename Matrix::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
@@ -250,7 +255,7 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::op
 
 		return x;
 	} else {
-		size_t l = (((((A.rowdim () / 2) / Matrix::colAlign) * Matrix::colAlign) / Matrix::rowAlign) * Matrix::rowAlign);
+		size_t l = (A.rowdim () / (2 * align)) * align;
 		typename Matrix::ConstAlignedSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix::ConstAlignedSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
