@@ -18,6 +18,7 @@
 #include <linbox/ring/modular.h>
 #include <linbox/matrix/dense.h>
 #include <linbox/vector/stream.h>
+#include <linbox/algorithms/elimination.h>
 #include <linbox/algorithms/gauss-jordan.h>
 
 using namespace LinBox;
@@ -25,7 +26,7 @@ using namespace LinBox;
 template <class Ring>
 bool testDenseGJ (const Ring &F, size_t m, size_t n)
 {
-	commentator.start ("Testing GaussJordan::DenseRowEchelonForm", __FUNCTION__);
+	commentator.start ("Testing GaussJordan::RowEchelonForm", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -50,7 +51,7 @@ bool testDenseGJ (const Ring &F, size_t m, size_t n)
 
 	BLAS3::copy (ctx, A, R);
 
-	GJ.DenseRowEchelonForm (R, U, P, rank, det);
+	GJ.RowEchelonForm (R, U, P, rank, det);
 
 	report << "A = " << std::endl;
 	BLAS3::write (ctx, report, A);
@@ -92,7 +93,7 @@ bool testDenseGJ (const Ring &F, size_t m, size_t n)
 template <class Ring>
 bool testStandardGJ (const Ring &F, size_t m, size_t n, size_t k)
 {
-	commentator.start ("Testing GaussJordan::StandardRowEchelonForm", __FUNCTION__);
+	commentator.start ("Testing Elimination::RowEchelonForm", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -101,7 +102,7 @@ bool testStandardGJ (const Ring &F, size_t m, size_t n, size_t k)
 
 	Context<Ring> ctx (F);
 
-	GaussJordan<Ring> GJ (ctx);
+	Elimination<Ring> elim (ctx);
 
 	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
 
@@ -119,7 +120,7 @@ bool testStandardGJ (const Ring &F, size_t m, size_t n, size_t k)
 	report << "A = " << std::endl;
 	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
 
-	GJ.StandardRowEchelonForm (A, U, P, rank, det, false, true);
+	elim.RowEchelonForm (A, U, P, rank, det, false, true);
 
 	report << "R = " << std::endl;
 	BLAS3::write (ctx, report, A, FORMAT_PRETTY);

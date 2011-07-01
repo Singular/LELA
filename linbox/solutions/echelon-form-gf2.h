@@ -21,6 +21,7 @@
 #include "linbox/util/commentator.h"
 #include "linbox/ring/gf2.h"
 #include "linbox/solutions/echelon-form.h"
+#include "linbox/algorithms/elimination.h"
 #include "linbox/algorithms/gauss-jordan.h"
 #include "linbox/algorithms/faugere-lachartre.h"
 #include "linbox/matrix/m4ri-matrix.h"
@@ -35,6 +36,7 @@ template <>
 class EchelonForm<GF2, AllModules<GF2> >
 {
 	Context<GF2, AllModules<GF2> > &_ctx;
+	Elimination<GF2, AllModules<GF2> > _elim;
 	GaussJordan<GF2, AllModules<GF2> > _GJ;
 
 	DenseMatrix<bool> _L;
@@ -46,7 +48,7 @@ class EchelonForm<GF2, AllModules<GF2> >
 public:
 	enum Method { METHOD_UNKNOWN, METHOD_STANDARD_GJ, METHOD_ASYMPTOTICALLY_FAST_GJ, METHOD_M4RI, METHOD_FAUGERE_LACHARTRE };
 
-	EchelonForm (Context<GF2, AllModules<GF2> > &ctx) : _ctx (ctx), _GJ (ctx) {}
+	EchelonForm (Context<GF2, AllModules<GF2> > &ctx) : _ctx (ctx), _elim (ctx), _GJ (ctx) {}
 
 	template <class Matrix>
 	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
@@ -63,7 +65,7 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
@@ -100,13 +102,13 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
 			_rank_table[&A] = rank;
 			break;
 
 		case METHOD_ASYMPTOTICALLY_FAST_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
-			_GJ.DenseRowEchelonForm (A, _L, _P, rank, d, reduced);
+			_GJ.RowEchelonForm (A, _L, _P, rank, d, reduced);
 			_rank_table[&A] = rank;
 			break;
 

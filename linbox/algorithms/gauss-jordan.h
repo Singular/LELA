@@ -3,7 +3,7 @@
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * Gauss-Jordan elimination
+ * Asymptotically fast Gauss-Jordan elimination
  *
  * ------------------------------------
  *
@@ -13,34 +13,16 @@
 #ifndef __LINBOX_ALGORITHMS_GAUSS_JORDAN_H
 #define __LINBOX_ALGORITHMS_GAUSS_JORDAN_H
 
-#include <iostream>
-#include <iomanip>
-#include <cassert>
-
 #include "linbox/util/commentator.h"
 #include "linbox/util/timer.h"
 #include "linbox/blas/context.h"
 #include "linbox/ring/gf2.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
+#include "linbox/algorithms/elimination.h"
 
 namespace LinBox
 {
-
-template <class Ring>
-class Adaptor {
-public:
-	typedef typename Vector<Ring>::Sparse SparseVector;
-	static const size_t cutoff = 1;
-};
-
-template <>
-class Adaptor<GF2> {
-public:
-	typedef BigEndian<uint64> Endianness;
-	typedef Vector<GF2>::Hybrid SparseVector;
-	static const size_t cutoff = WordTraits<SparseVector::word_type>::bits;
-};
 
 /**
  * \brief Implementation of Gauss-Jordan elimination which
@@ -67,38 +49,9 @@ public:
 
 private:
 	Context<Ring, Modules> &ctx;
+	Elimination<Ring, Modules> elim;
 
 	const size_t _cutoff;
-
-	// Find a suitable pivot from the matrix A starting at
-	// start_row. If no pivot can be found (i.e. all rows
-	// from start_row onwards are already 0) return
-	// -1. Otherwise fill in col with the pivot-column.
-	template <class Matrix>
-	int GetPivot (const Matrix &A, int start_row, size_t &col) const
-		{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Ring, typename Matrix::Row>::RepresentationType ()); }
-
-	// Find the first nonzero element in the given column
-	// starting at the row of the same index. Return -1 if
-	// none found.
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Dense) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Dense01) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Sparse) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Sparse01) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Hybrid01) const;
-
-	// Set the given matrix to the identity-matrix
-	template <class Matrix>
-	void SetIdentity (Matrix &U, size_t start_row = 0) const;
 
 	struct CompareSecond
 	{
@@ -141,42 +94,6 @@ private:
 			     int         &h,
 			     Element     &d) const;
 
-	// Optimised version of VD.addin which can take
-	// advantage of knowledge of where in v the entries of
-	// w start
-	template <class Vector>
-	Vector &FastAxpy (Vector &v, const typename Ring::Element &a, const Vector &w, size_t idx) const;
-
-	bool testFastAxpyHybridVector () const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Dense) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Sparse) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Sparse01) const;
-
-	template <class Vector>
-	class PivotRowCompare
-	{
-	public:
-		inline bool operator () (const typename Vector::index_type x, const Vector &v1) const
-			{ return x < v1.front ().first; }
-	};
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Hybrid01) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Dense01) const;
-
 public:
 	/**
 	 * \brief Constructor
@@ -184,7 +101,7 @@ public:
 	 * @param _F Ring over which operations take place
 	 */
 	GaussJordan (Context<Ring, Modules> &_ctx)
-		: ctx (_ctx), _cutoff (Adaptor<Ring>::cutoff)
+		: ctx (_ctx), elim (_ctx), _cutoff (Adaptor<Ring>::cutoff)
 		{}
 
 	/**
@@ -219,102 +136,12 @@ public:
 	 * row-echelon form or not
 	 */
 	template <class Matrix1, class Matrix2>
-	void DenseRowEchelonForm (Matrix1     &A,
-				  Matrix2     &U,
-				  Permutation &P,
-				  size_t      &rank,
-				  Element     &det,
-				  bool         reduced = false);
-
-	/**
-	 * \brief Compute the (reduced or non-reduced)
-	 * row-echelon form of a matrix using a sparse
-	 * algorithm
-	 *
-	 * At conclusion, the parameters will have the property that
-	 * A_out=LPA_in, where A_out is the matrix A at output and
-	 * A_in is the matrix A at input. A_out is in reduced
-	 * row-echelon form, L is lower triangular, and P is a
-	 * permutation.
-	 *
-	 * In comparison with @see RowEchelonForm, this
-	 * version does not take advantage of fast
-	 * matrix-multiplication and does not use a
-	 * divide-and-conquer method. It also modifies the
-	 * input-matrix A.
-	 *
-	 * The pivot-strategy is to find the row with the
-	 * fewest elements. This seems to be the only sensible
-	 * approach, given that we are not allowed to permute
-	 * columns.
-	 *
-	 * @param A The sparse matrix whose reduced
-	 * row-echelon form to compute. Will be replaced by
-	 * its reduced row-echelon form during computation.
-	 *
-	 * @param L The dense matrix into which to store the
-	 * matrix L as defined above. Should be of size n x n,
-	 * with n the row-dimension of A.
-	 *
-	 * @param P The permutation into which to store the
-	 * permutation P as defined above.
-	 *
-	 * @param rank An integer into which to store the
-	 * computed rank of A.
-	 *
-	 * @param det A ring-element into which to store the
-	 * computed determinant of the submatrix of A formed
-	 * by taking pivot-rows and -columns.
-	 *
-	 * @param reduced True if the routine should compute
-	 * the reduced row-echelon form and false if it should
-	 * only compute the (non-reduced) row-echelon form.
-	 *
-	 * @param compute_L True if the matrix L should be
-	 * computed. If false, then L is ignored.
-	 *
-	 * @param start_row Start at this row. Intended for
-	 * internal use.
-	 */
-	template <class Matrix1, class Matrix2>
-	void StandardRowEchelonForm (Matrix1       &A,
-				     Matrix2       &L,
-				     Permutation   &P,
-				     size_t        &rank,
-				     Element       &det,
-				     bool           reduced = false,
-				     bool           compute_L = true,
-				     size_t         start_row = 0) const;
-
-	/** \brief Take a matrix of known rank in row-echelon
-	 * form and convert to reduced row-echelon form
-	 *
-	 * @param A Input matrix A in row-echelon form;
-	 * replaced by its reduced row-echelon form
-	 *
-	 * @param L Dense matrix L into which to store
-	 * conversion-matrix
-	 *
-	 * @param compute_L bool, true if L should be
-	 * computed; if false then L is left unchanged
-	 *
-	 * @param rank Rank of A; must be known a priori
-	 * (though can be easily computed by scanning rows of
-	 * A)
-	 *
-	 * @param start_row Pivot-rows begin at this
-	 * row. Intended for internal use only.
-	 *
-	 * @return Reference to A
-	 */
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row = 0) const
-		{ return ReduceRowEchelonSpecialised (A, L, compute_L, rank, start_row,
-						      typename VectorTraits<Ring, typename Matrix1::Row>::RepresentationType ()); }
-
-	/** Run internal tests
-	 */
-	void RunTests () const;
+	void RowEchelonForm (Matrix1     &A,
+			     Matrix2     &U,
+			     Permutation &P,
+			     size_t      &rank,
+			     Element     &det,
+			     bool         reduced = false);
 };
 
 } // namespace LinBox

@@ -14,6 +14,7 @@
 #define __LINBOX_SOLUTIONS_ECHELON_FORM_H
 
 #include "linbox/blas/context.h"
+#include "linbox/algorithms/elimination.h"
 #include "linbox/algorithms/gauss-jordan.h"
 #include "linbox/algorithms/faugere-lachartre.h"
 #include "linbox/matrix/dense.h"
@@ -27,6 +28,7 @@ template <class Ring, class Modules = AllModules<Ring> >
 class EchelonForm
 {
 	Context<Ring, Modules> _ctx;
+	Elimination<Ring, Modules> _elim;
 	GaussJordan<Ring, Modules> _GJ;
 
 	DenseMatrix<typename Ring::Element> _L;
@@ -42,7 +44,7 @@ public:
 	 *
 	 * @param F Ring over which to compute
 	 */
-	EchelonForm (Context<Ring, Modules> &ctx) : _ctx (ctx), _GJ (ctx) {}
+	EchelonForm (Context<Ring, Modules> &ctx) : _ctx (ctx), _elim (ctx), _GJ (ctx) {}
 
 	/** Compute the (possibly reduced) row-echelon form of a matrix
 	 *
@@ -67,7 +69,7 @@ public:
 		switch (method) {
 		case METHOD_STANDARD_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
-			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
@@ -105,12 +107,12 @@ public:
 		switch (method) {
 		case METHOD_STANDARD_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
-			_GJ.StandardRowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
 			break;
 
 		case METHOD_ASYMPTOTICALLY_FAST_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
-			_GJ.DenseRowEchelonForm (A, _L, _P, rank, d, reduced);
+			_GJ.RowEchelonForm (A, _L, _P, rank, d, reduced);
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:

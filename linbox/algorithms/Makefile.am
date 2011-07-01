@@ -5,6 +5,8 @@ pkgincludesubdir=$(pkgincludedir)/algorithms
 pkgincludesub_HEADERS =		\
 	strassen-winograd.h	\
 	strassen-winograd.tcc	\
+	elimination.h		\
+	elimination.tcc		\
 	gauss-jordan.h 		\
 	gauss-jordan.tcc	\
 	faugere-lachartre.h	\
