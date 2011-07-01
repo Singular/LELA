@@ -136,6 +136,26 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 
 template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+					VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01)
+{
+	typedef SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType> Subvector2;
+
+	Subvector2 v1 (in, src_idx, src_idx + size);
+
+	typename Subvector2::const_iterator i;
+
+	for (i = v1.begin (); i != v1.end (); ++i) {
+		typename Subvector2::word_type t;
+		size_t idx = (i->first << WordTraits<typename Subvector2::word_type>::logof_size) + dest_idx;
+
+		for (t = Subvector2::Endianness::e_0; t != 0; t = Subvector2::Endianness::shift_right (t, 1), ++idx)
+			if (i->second & t)
+				out.push_back (idx);
+	}
+}
+
+template <class Ring, class Vector1, class Vector2>
+void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 {
 	typedef BitVector<typename Vector1::Endianness> TmpVector;

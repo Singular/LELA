@@ -427,7 +427,7 @@ struct ZpModule : public GenericModule<Modular<Element> >
 template <>
 struct ZpModule<integer> : public GenericModule<Modular<integer> >
 {
-	struct Tag { typedef typename GenericModule<Modular<integer> >::Tag Parent; };
+	struct Tag { typedef GenericModule<Modular<integer> >::Tag Parent; };
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
@@ -440,7 +440,7 @@ struct ZpModule<integer> : public GenericModule<Modular<integer> >
 template <>
 struct ZpModule<uint32> : public GenericModule<Modular<uint32> >
 {
-	struct Tag { typedef typename GenericModule<Modular<uint32> >::Tag Parent; };
+	struct Tag { typedef GenericModule<Modular<uint32> >::Tag Parent; };
 
 	/// 2^64 modulo modulus
 	uint32 two_64;

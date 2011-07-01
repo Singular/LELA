@@ -172,6 +172,10 @@ class Splicer {
 
 	template <class Ring, class Vector1, class Vector2>
 	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01);
+
+	template <class Ring, class Vector1, class Vector2>
+	static void attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					      VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01);
 
 	template <class Ring, class Vector1, class Vector2>
