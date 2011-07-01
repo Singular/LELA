@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <cmath>
 
 #include "test-common.h"
 
@@ -18,6 +19,7 @@
 #include "linbox/ring/gf2.h"
 #include "linbox/randiter/mersenne-twister.h"
 #include "linbox/algorithms/faugere-lachartre.h"
+#include "linbox/algorithms/elimination.h"
 
 using namespace LinBox;
 
@@ -25,9 +27,26 @@ typedef GF2 Ring;
 
 static const double nonzero_density = 0.1;
 
-typedef Adaptor<Ring>::Endianness Endianness;
+typedef Vector<GF2>::Hybrid::Endianness Endianness;
 
 // Generate a random sparse vector in which all nonzero entries occur after column col and the entry at col is guaranteed to be one
+
+template <class Vector>
+void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Sparse01)
+{
+	double val;
+	int skip;
+	typename Vector::value_type idx = col;
+
+	v.clear ();
+
+	while (idx < coldim) {
+		v.push_back (idx);
+		val = MT.randomDouble ();
+		skip = (int) (ceil (log (val) / log (1 - nonzero_density)));
+		idx += std::max (skip, 1);
+	}
+}
 
 template <class Vector>
 void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Hybrid01)
@@ -72,7 +91,7 @@ void randomVectorStartingAt (Vector &v, size_t col, size_t coldim, MersenneTwist
 template <class Matrix>
 void createRandomF4Matrix (Matrix &A)
 {
-	MersenneTwister MT (time (NULL));
+	MersenneTwister MT;
 	typename Matrix::RowIterator i_A;
 
 	size_t col = 0;
@@ -121,7 +140,7 @@ bool testFaugereLachartre (const Ring &R, size_t m, size_t n)
 
 	Context<Ring> ctx (R);
 	FaugereLachartre<Ring> Solver (ctx);
-	GaussJordan<Ring> GJ (ctx);
+	Elimination<Ring> elim (ctx);
 
 	size_t rank;
 	typename Ring::Element det;
@@ -144,7 +163,7 @@ bool testFaugereLachartre (const Ring &R, size_t m, size_t n)
 	size_t rank1;
 	typename Ring::Element det1;
 
-	GJ.StandardRowEchelonForm (C, L, P, rank1, det1, true, false);
+	elim.RowEchelonForm (C, L, P, rank1, det1, true, false);
 
 	report << "True reduced row-echelon form:" << std::endl;
 	BLAS3::write (ctx, report, C);
@@ -168,8 +187,8 @@ bool testFaugereLachartre (const Ring &R, size_t m, size_t n)
 
 int main (int argc, char **argv)
 {
-	static long m = 128;
-	static long n = 96;
+	static long m = 96;
+	static long n = 128;
 
 	bool pass = true;
 

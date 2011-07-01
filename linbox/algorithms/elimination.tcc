@@ -504,7 +504,7 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 
 			if (i->first == j_A->front ().first) {
 				v = j_A->front ().second;
-				mask = Adaptor<Ring>::Endianness::first_position (v);
+				mask = Matrix1::Row::Endianness::first_position (v);
 
 				if ((i_A->begin () + prev_idx)->second & mask) {
 					// DEBUG
@@ -535,7 +535,7 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Ma
 				}
 
 				v = j_A->front ().second;
-				mask = Adaptor<Ring>::Endianness::first_position (v);
+				mask = Matrix1::Row::Endianness::first_position (v);
 			}
 		}
 

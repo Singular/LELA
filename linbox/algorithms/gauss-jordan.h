@@ -24,6 +24,9 @@
 namespace LinBox
 {
 
+template <class Ring> struct DefaultCutoff { static const size_t cutoff = 1; };
+template <> struct DefaultCutoff<GF2> { static const size_t cutoff = WordTraits<Vector<GF2>::Hybrid::word_type>::bits; };
+
 /** Implementation of asymptotically fast Gauss-Jordan elimination
  */
 template <class Ring, class Modules = AllModules<Ring> >
@@ -88,7 +91,7 @@ public:
 	 * @param _F Ring over which operations take place
 	 */
 	GaussJordan (Context<Ring, Modules> &_ctx)
-		: ctx (_ctx), elim (_ctx), _cutoff (Adaptor<Ring>::cutoff)
+		: ctx (_ctx), elim (_ctx), _cutoff (DefaultCutoff<Ring>::cutoff)
 		{}
 
 	/**

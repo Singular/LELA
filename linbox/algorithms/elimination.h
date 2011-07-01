@@ -20,21 +20,6 @@
 namespace LinBox
 {
 
-template <class Ring>
-class Adaptor {
-public:
-	typedef typename Vector<Ring>::Sparse SparseVector;
-	static const size_t cutoff = 1;
-};
-
-template <>
-class Adaptor<GF2> {
-public:
-	typedef BigEndian<uint64> Endianness;
-	typedef Vector<GF2>::Hybrid SparseVector;
-	static const size_t cutoff = WordTraits<SparseVector::word_type>::bits;
-};
-
 /** Classical Gaussian elimiation
  *
  * This implements the naive Gaussian elimination algorithm. No
