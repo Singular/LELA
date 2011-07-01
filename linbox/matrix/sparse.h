@@ -302,6 +302,8 @@ class SubvectorFactory<SparseMatrixTag<Element, Row, Trait>, Submatrix, typename
 
 #include "linbox/matrix/sparse.tcc"
 
+#include "linbox/matrix/sparse-zero-one.h"
+
 #endif // __LINBOX_matrix_sparse_H
 
 // Local Variables:

@@ -12,6 +12,7 @@
 #define __MATRIX_RAW_ITERATOR_H
 
 #include <utility>
+#include <vector>
 
 namespace LinBox
 {

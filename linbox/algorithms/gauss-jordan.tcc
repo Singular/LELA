@@ -13,20 +13,10 @@
 #ifndef __LINBOX_ALGORITHMS_GAUSS_JORDAN_TCC
 #define __LINBOX_ALGORITHMS_GAUSS_JORDAN_TCC
 
-#include <iostream>
-#include <iomanip>
-#include <cassert>
-
 #include "linbox/algorithms/gauss-jordan.h"
 
-#include "linbox/vector/subvector.h"
 #include "linbox/blas/level1.h"
-#include "linbox/blas/level2.h"
 #include "linbox/blas/level3.h"
-
-#include "linbox/matrix/sparse-zero-one.h"
-
-#include "linbox/algorithms/gauss-jordan.h"
 
 namespace LinBox
 {
