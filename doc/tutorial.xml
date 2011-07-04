@@ -1,0 +1,1179 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN"
+          "http://www.oasis-open.org/docbook/xml/5.0/docbook.dtd">
+<book xmlns="http://docbook.org/ns/docbook" version="5.0">
+  <title>Getting started with LELA</title>
+  <chapter xml:id="dlinst">
+    <title>Downloading and installing</title>
+  </chapter>
+  <chapter xml:id="basic">
+    <title>Basic usage</title>
+
+    <para>
+      In this chapter you will learn how to use LELA for basic
+      calculations.
+    </para>
+
+    <section xml:id="generalities">
+      <title>Generalities</title>
+
+      <para>
+	LELA is a C++ template-library. All functionality is designed
+	to be as generic as possible while providing the best possible
+	performance in the chosen case. This means in particular that
+	algorithms and classes which require arithmetic are
+	parametrised by the ring of computation as well as vector- and
+	matrix-types. In addition, all interfaces are designed to be
+	generic with respect to the data-types involved so that they
+	can be made as efficient as possible in all cases. It is
+	possible to extend the functionality of LELA by providing
+	types which meet well-defined interfaces.
+      </para>
+
+      <para>
+	The basic types with which the user should be familiar are:
+      </para>
+
+      <itemizedlist>
+	<item><emphasis>Rings</emphasis>, which provide ring-arithmetic</item>
+	<item><emphasis>Ring-elements</emphasis>, defined by the ring</item>
+	<item><emphasis>Vectors</emphasis></item>
+	<item><emphasis>Matrices</emphasis></item>
+	<item><emphasis>Context-objects</emphasis>, which encapsulate
+	a ring and allow the configuration of matrix-arithmetic</item>
+	<item><emphasis>Solution-objects</emphasis>, which encapsulate
+	more sophisticated algorithms</item>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="ringsel">
+      <title>Selecting the ring</title>
+
+      <para>
+	The first step is to select the ring over which you wish to
+	compute. You must include the ring's corresponding header-file
+	and then declare the ring-object. There are four ring-types
+	built in to LELA:
+      </para>
+
+      <itemizedlist>
+	<item><type>Modular</type>, for integers modulo n,</item>
+	<item><type>GMPRationalField</type>, for rational numbers,
+	computed with GMP</item>
+	<item><type>GF2</type> (for fast computations over GF(2)),
+	and</item>
+	<item><type>UnparametricRing</type> (a wrapper around any type
+	which implements the basic arithmetic-operations</item>
+      </itemizedlist>
+
+      <section xml:id="modularring">
+	<title><type>Modular</type></title>
+
+	<para>
+	  Here is an example of the declaration of the field of
+	  integers modulo 101:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/integer.h&gt;
+#include &lt;linbox/ring/modular.h&gt;
+
+int main ()
+{
+	Modular&lt;uint8&gt; F (101);
+	...
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  The included header-files declare the
+	  type <type>uint8</type> and the class <type>Modular</type>,
+	  respectively. The file <filename>linbox/integer.h</filename>
+	  declares the
+	  types <type>uint8</type>, <type>uint16</type>, <type>uint32</type>,
+	  and so on of known width as well as the
+	  arbitrary-precision <type>integer</type>.
+	</para>
+
+	<para>
+	  The type <type>Modular</type> is parametrised by the
+	  element-type, which may be any C++-type which supports basic
+	  arithmetic operations. The modulus is passed as a parameter
+	  to the constructor. It may not exceed the maximum value
+	  allowed by the type. It is advantageous to use the smallest
+	  type which will accommodate the chosen modulus, since this
+	  can save memory and improve performance.
+	</para>
+      </section>
+
+      <section xml:id="gmprationalfield">
+	<title><type>GMPRationalField</type></title>
+
+	<para>
+	  To work with rational numbers over GMP, use the following:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/ring/gmp-rational.h&gt;
+
+int main ()
+{
+	GMPRationalField F;
+	...
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  The element-type of <type>GMPRationalField</type>
+	  is <type>GMPRational</type>, a wrapper over the
+	  corresponding GMP-type. It is defined
+	  in <filename>linbox/element/gmp-rational.h</filename>.
+	</para>
+      </section>
+
+      <section xml:id="gf2">
+	<title><type>GF2</type></title>
+
+	<para>
+	  The following code permits working over GF2:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/ring/gf2.h&gt;
+
+int main ()
+{
+	GF2 F;
+	...
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  It is also possible to work over GF(2) using
+	  the <type>Modular</type> class described above, but the
+	  specialised class GF2 is vastly more efficient. Its use is
+	  highly recommended.
+	</para>
+
+	<para>
+	  The element-type of <type>GF2</type> is <type>bool</type>.
+	</para>
+      </section>
+
+      <section xml:id="gf2">
+	<title><type>UnparametricRing</type></title>
+
+	<para>
+	  If desired, is is possible to wrap a C++-type which supports
+	  standard arithmetic into LELA-ring so that it may be used
+	  within LELA. For example, wrapping <type>float</type>
+	  or <type>double</type> permits that LELA be used for
+	  numerical linear algebra. To do this, use the following;
+	</para>
+
+	<programlisting>
+#include &lt;linbox/ring/unparametric.h&gt;
+
+int main ()
+{
+	UnparametricRing&lt;float&gt; R;
+	...
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  The class <type>UnparametricRing</type> is parametrised by
+	  the type being wrapped.
+	</para>
+      </section>
+
+      <section xml:id="ringarith">
+	<title>Ring-arithmetic</title>
+
+	<para>
+	  Once a ring is declared, it may be used to perform arithmetic:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/integer.h&gt;
+#include &lt;linbox/ring/modular.h&gt;
+
+int main ()
+{
+	Modular&lt;uint8&gt; F (101);
+
+	uint8 a, b, c, d; // Declare ring-elements
+	F.init (a, -1);   // Set a to -1 in the ring
+	F.init (b, 1);    // Set b to 1 in the ring
+	F.add (c, a, b);  // Set c <- a + b
+	F.sub (c, a, b);  // Set c <- a - b
+	F.mul (c, a, b);  // Set c <- a * b
+	F.neg (c, b);     // Set c <- -b
+
+	F.axpy (d, a, b, c);  // Set d <- a * b + c
+
+	if (F.inv (c, a)) // Is a invertible in the ring? If so, set c to the inverse
+		std::cout &lt;&lt; "a is invertible" &lt;&lt; std::endl;
+	else
+		std::cout &lt;&lt; "a is not invertible" &lt;&lt; std::endl;
+
+	if (F.div (c, a, b)) // Does the quotient a / b exist in the ring? If so, set c to the quotient
+		std::cout &lt;&lt; "a / b exists" &lt;&lt; std::endl;
+	else
+		std::cout &lt;&lt; "a / b does not exist" &lt;&lt; std::endl;
+
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  All arithmetic operations take a reference to the element in
+	  which to write the result as their first parameter. As
+	  compared with the seemingly more natural approach of
+	  returning the result, this makes things more efficient in
+	  the case that the element-type is complicated (such as a
+	  GMP-integer).
+	</para>
+
+	<para>
+	  The method <function>init</function> sets its first argument
+	  to the ring-element which is the image of its second
+	  argument under the canonical map from the integers to the
+	  ring. The second argument may be of any integral type.
+	</para>
+
+	<para>
+	  All arithmetic-operations have in-place variants:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/integer.h&gt;
+#include &lt;linbox/ring/modular.h&gt;
+
+int main ()
+{
+	Modular&lt;uint8&gt; F (101);
+
+	uint8 a, b, c, d; // Declare ring-elements
+	F.init (a, -1);   // Set a to -1 in the ring
+	F.assign (b, a);  // Set b to a
+	F.negin (b);      // Replace b to -b
+	F.init (c, 2);    // Set c to 2 in the ring
+	F.addin (a, b);   // Set a <- a + b
+	F.subin (a, b);   // Set a <- a - b
+	F.mulin (a, b);   // Set a <- a * b
+
+	F.axpyin (a, b, c);  // Set a <- a + b * c
+
+	if (F.invin (a)) // Is a invertible in the ring? If so, replace it with its inverse
+		std::cout &lt;&lt; "a is invertible" &lt;&lt; std::endl;
+	else
+		std::cout &lt;&lt; "a is not invertible" &lt;&lt; std::endl;
+
+	if (F.divin (a, b)) // Does the quotient a / b exist in the ring? If so, replace a by a / b
+		std::cout &lt;&lt; "a / b exists" &lt;&lt; std::endl;
+	else
+		std::cout &lt;&lt; "a / b does not exist" &lt;&lt; std::endl;
+
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  Ring-elements may be read from or written to a C++-stream
+	  with the methods <function>read</function> and <function>write</function>:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/integer.h&gt;
+#include &lt;linbox/ring/modular.h&gt;
+
+int main ()
+{
+	Modular&lt;uint8&gt; F (101);
+
+	uint8 a;
+
+	std::cout &lt;&lt; "Enter a value: ";
+	F.read (std::cin, a);
+
+	std::cout &lt;&lt; "You entered ";
+	F.write (std::cout, a) &lt;&lt; std::endl;
+
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  Equality of elements may be checked with the
+	  method <function>areEqual</function>:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/integer.h&gt;
+#include &lt;linbox/ring/modular.h&gt;
+
+int main ()
+{
+	Modular&lt;uint8&gt; F (101);
+
+	uint8 a, b;
+
+	F.init (a, 50);
+
+	std::cout &lt;&lt; "Enter a value: ";
+	F.read (std::cin, b);
+
+	if (F.areEqual (a, b))
+		std::cout &lt;&lt; "You guessed correctly!" &lt;&lt; std::endl;
+
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  Similarly, the methods <function>isZero</function>
+	  and <function>isOne</function> determine whether a
+	  ring-element is equal to zero or one, respectively, in the
+	  ring.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/integer.h&gt;
+#include &lt;linbox/ring/modular.h&gt;
+
+int main ()
+{
+	Modular&lt;uint8&gt; F (101);
+
+	uint8 a;
+
+	std::cout << "Enter a value: ";
+	F.read (std::cin, a);
+
+	if (F.isZero (a))
+		std::cout &lt;&lt; "You entered zero in the ring" &lt;&lt; std::endl;
+	if (F.isOne (a))
+		std::cout &lt;&lt; "You entered one in the ring" &lt;&lt; std::endl;
+
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  The
+	  methods <function>zero</function>, <function>one<function>,
+	  and <function>minusOne</function> return read-only
+	  references to respectively the ring's 0, 1, and -1 elements.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/integer.h&gt;
+#include &lt;linbox/ring/modular.h&gt;
+
+int main ()
+{
+	Modular&lt;uint8&gt; F (101);
+
+	uint8 a;
+
+	std::cout &lt;&lt; "Enter a value: ";
+	F.read (std::cin, a);
+
+	if (F.areEqual (a, F.one ()))
+		std::cout &lt;&lt; "You entered one in the ring" &lt;&lt; std::endl;
+	if (F.areEqual (a, F.zero ()))
+		std::cout &lt;&lt; "You entered zero in the ring" &lt;&lt; std::endl;
+	if (F.areEqual (a, F.minusOne ()))
+		std::cout &lt;&lt; "You entered minus one in the ring" &lt;&lt; std::endl;
+
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  When writing algorithms, it is desireable that the code not
+	  depend on operating over a given ring. Thus the relevant
+	  function or class should be parametrised on the
+	  ring-type. Ring-elements may be declared with <type>typename
+	  Ring::Element</type>, as in the following:
+	</para>
+
+	<programlisting>
+template &lt;class Ring&gt;
+void MyAlgorithm (const Ring &R, typename Ring::Element &v)
+{
+	typename Ring::Element a, b;
+
+	R.init (a, 1);
+	R.init (b, 103);
+	R.add (v, a, b);
+}
+	</programlisting>
+      </section>
+    </section>
+    <section xml:id="decl">
+      <title>Declaring and filling vectors and matrices</title>
+
+      <para>
+	Algorithms in LELA are designed to be generic with respect to
+	vector- and matrix-type. They may also work with both sparse
+	and dense representations. There is a variety of vector- and
+	matrix-types to serve these needs.
+      </para>
+
+      <section xml:id="vectypes">
+	<title>Types of vectors</title>
+
+	<para>
+	  LELA supports five basic vector representation-types: two
+	  for general rings and three over GF(2). Any C++-type which
+	  meets the required interface of one of these types can be
+	  used in any container or algorithm which accepts that type.
+	</para>
+
+	<section xml:id="vecgeneralrings">
+	  <title>Representation-types for general rings</title>
+
+	  <para>
+	    Over general rings the two vector representation-types are
+	    dense and sparse.
+	  </para>
+
+	  <para>
+	    A dense vector must meet the interface
+	    of <type>std::vector</type>. Its size must be the rank of
+	    the free module in which it exists. It is an error, for
+	    example, to attempt to perform an arithmetic operation
+	    using two dense vectors of different sizes.
+	  </para>
+
+	  <programlisting>
+#include &lt;vector&gt;
+
+template &lt;class Ring&gt;
+void MyAlgorithm (const Ring &R, size_t n)
+{
+	std::vector&lt;typename Ring::Element&gt; v (n); // A dense vector in R^n
+
+	// Initialise some entries
+	R.init (v[0], 1);
+	R.init (v[1], -1);
+	R.init (v[2], -3);
+}
+	  </programlisting>
+
+	  <para>
+	    Alternatively, the
+	    type <type>Vector&lt;Ring&gt;::Dense</type> may be used to
+	    declare dense vectors. For general rings, this is just an
+	    alias for <type>std::vector&lt;typename
+	    Ring::Element&gt;</type>.
+	  </para>
+
+	  <para>
+	    A sparse vector must appear as an STL-vector of
+	    index-entry (STL-)pairs,
+	    i.e. <type>std::vector&lt;std::pair&lt;unsigned int,
+	    typename Ring::Element&gt; &gt;</type>. There are no
+	    requirements on its size and the module in which it exists
+	    is not defined. Incides must be in strictly increasing
+	    order and the zero-element is not allowed in an entry
+	    (such an entry should be removed from the vector). Indices
+	    which have no corresponding entry in the vector are taken
+	    to be zero. Normally such vectors are built progressively
+	    using <function>push_back</function>.
+	  </para>
+
+	  <para>
+	    To declare a sparse vector,
+	    use <type>Vector&lt;Ring&gt;::Sparse</type>.
+	  </para>
+
+	  <programlisting>
+#include &lt;linbox/vector/sparse.h&gt;
+
+template &lt;class Ring&gt;
+void MyAlgorithm (const Ring &R)
+{
+	typename Vector&lt;Ring&gt;::Sparse v;
+
+	// Initialise some entries
+	typename Ring::Element a, b, c;
+	R.init (a, -1);
+	R.init (b, 3);
+	R.init (c, 10);
+
+	// Append entries to the vector
+	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (0, a));   // Index zero gets value a
+	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (15, b));  // Index 15 gets value b
+	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (23, c));  // Index 23 gets value c
+}
+	  </programlisting>
+	</section>
+	<section xml:id="vecgf2">
+	  <title>Representation-types for GF(2)</title>
+
+	  <para>
+	    Over GF(2), three types are permitted: dense, sparse, and hybrid.
+	  </para>
+
+	  <para>
+	    The dense type is in principle similar to that for general
+	    rings, but requires additional interfaces to permit
+	    parallel computations on words.
+	  </para>
+
+	  <programlisting>
+#include &lt;linbox/ring/gf2.h&gt;
+
+void MyAlgorithm (const GF2 &F, unsigned int n)
+{
+	Vector&lt;GF2&gt;::Dense v (n);
+
+	*(v.word_begin ()) = 0xf0f0f0f0f0f0f0f0ULL;     // Set all of the first 64 bits of the vector simultaneously
+	*(v.word_begin () + 1) = 0xaaaaaaaaaaaaaaaaULL; // Set all of the second 64 bits of the vector simultaneously
+	v.back_word () = 0xeeee5555eeee5555ULL;         // Set the final 64 bits of the vector simultaneously
+}
+	  </programlisting>
+
+	  <para>
+	    As with dense vectors over arbitrary rings, the
+	    vector-space in which the vector exists is defined by the
+	    vector's size.
+	  </para>
+
+	  <para>
+	    The sparse type, accessed
+	    through <type>Vector&lt;GF2&gt;::Sparse</type> is just
+	    an <type>std::vector</type> of indices corresponding to
+	    nonzero entries. The indices must be in strictly
+	    increasing order.
+	  </para>
+
+	  <programlisting>
+#include &lt;linbox/ring/gf2.h&gt;
+
+void MyAlgorithm (const GF2 &F)
+{
+	Vector&lt;GF2&gt;::Sparse v;
+
+	v.push_back (1);   // Index 1 gets value one
+	v.push_back (15);  // Index 15 gets value one
+	v.push_back (23);  // Index 23 gets value one
+}
+	  </programlisting>
+
+	  <para>
+	    As with general sparse vectors, nonexistent indices are
+	    taken to be zero. The vector need not be of a particular
+	    size, and the module in which it exists is not well
+	    defined.
+	  </para>
+
+	  <para>
+	    The hybrid vector is a mixture of sparse and dense
+	    representations. As with a sparse vector, it appears as a
+	    vector of pairs. The space of incides is divided into
+	    blocks each of size equal to the number of bits in a word
+	    (normally 64 bits). The first entry of a pair is the index
+	    of the <emphasis>block</emphasis> and the second is the
+	    word located at that block. Missing indices correspond to
+	    the zero word.
+	  </para>
+
+	  <para>
+	    This representation is well suited to vectors over GF(2)
+	    with large blocks of zeros as well as dense blocks. It
+	    permits fast parallel operations on vectors but, provided
+	    the zero-blocks are large enough, saves memory as compared
+	    with the dense representation.
+	  </para>
+
+	  <para>
+	    To construct a hybrid-vector,
+	    use <type>Vector&lt;GF2&gt;::Hybrid</type>. The interface
+	    is then similar to that of sparse vectors over general
+	    rings.
+	  </para>
+
+	  <programlisting>
+#include &lt;linbox/ring/gf2.h&gt;
+
+void MyAlgorithm (const GF2 &R)
+{
+	typename Vector&lt;GF2&gt;::Hybrid v;
+
+	// Append entries to the vector
+	v.push_back (Vector&lt;GF2&gt;::Hybrid::value_type (0, 0xffff0000ffff0000ULL));  // First 64 indices
+	v.push_back (Vector&lt;GF2&gt;::Hybrid::value_type (1, 0xf0f0f0f0f0f0f0f0ULL));  // Second 64 indices
+	v.push_back (Vector&lt;GF2&gt;::Hybrid::value_type (5, 0xaaaa5555aaaa5555ULL));  // Indices 5 * 64 - 6 * 64
+}
+	  </programlisting>
+	</section>
+      </section>
+      <section xml:id="mattypes">
+	<title>Types of matrices</title>
+
+	<para>
+	  Matrices in LELA are pure containers. They know nothing
+	  about the underlying ring or its arithmetic. LELA provides
+	  two basic matrix-types: dense and sparse. The interfaces for
+	  these matrices are similar.
+	</para>
+
+	<para>
+	  To declare a dense matrix, use <type>DenseMatrix</type>,
+	  which is parametrised by the element-type.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/matrix/dense.h&gt;
+
+template &lt;class Ring&gt;
+void MyFunction (const Ring &R)
+{
+	DenseMatrix&lt;typename Ring::Element&gt; M (5, 5); // Declare a 5x5 matrix
+
+	typename Ring::Element a;
+	R.init (a, 5);
+	M.setEntry (1, 2, a);  // Set entry (1,2) to a
+}
+	</programlisting>
+
+	<para>
+	  Note that row- and column-incides start from zero.
+	</para>
+
+	<para>
+	  Dense matrices provide three types of iterators: row,
+	  column, and raw. The row- and column-iterators iterate over
+	  the row- and column-vectors of the matrix, providing them as
+	  dense vectors.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/matrix/dense.h&gt;
+
+template &lt;class Ring&gt;
+void MyFunction (const Ring &R)
+{
+	DenseMatrix&lt;typename Ring::Element&gt; M (5, 5); // Declare a 5x5 matrix
+
+	// Iterate through all the rows, setting the entry 2 on each one to 5 in the ring
+	typename DenseMatrix&lt;typename Ring::Element&gt;::RowIterator i;
+
+	for (i = M.rowBegin (); i != M.rowEnd (); ++i)
+		R.init ((*i)[2], 5);
+
+	// Iterate through all the columns, setting the entry 1 on each one to 10 in the ring
+	typename DenseMatrix&lt;typename Ring::Element&gt;::ColIterator j;
+
+	for (j = M.colBegin (); j != M.colEnd (); ++j)
+		R.init ((*i)[1], 10);
+}
+	</programlisting>
+
+	<para>
+	  The raw iterator iterates through all the entries of the
+	  matrix in some order. It is useful for applying an operation
+	  uniformly to all entries in the matrix.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/matrix/dense.h&gt;
+
+template &lt;class Ring&gt;
+void MyFunction (const Ring &R, DenseMatrix&lt;typename Ring::Element&gt; &M)
+{
+	// Set all entries in the matrix to 5 in the ring
+	DenseMatrix&lt;typename Ring::Element&gt;::RawIterator i;
+
+	for (i = M.rawBegin (); i != M.rawEnd (); ++i)
+		R.init (*i, 5);
+}
+	</programlisting>
+
+	<para>
+	  Each of the iterators has a const equivalent, the name
+	  prefixed by <type>Const</type>.
+	</para>
+
+	<para>
+	  Over GF(2), the declaration of a dense matrix is analogous:
+	  use <type>DenseMatrix&lt;bool&gt;</type>. There is however
+	  no support for column-iterators.
+	</para>
+
+	<note>
+	  If LELA is configured with support for M4RI,
+	  then <type>DenseMatrix&lt;bool&gt;</type> is a wrapper for
+	  the matrix-type in M4RI.
+	</note>
+
+	<para>
+	  The sparse matrix stores the rows of the matrix as sparse
+	  vectors. Its type is <type>SparseMatrix</type> and it is
+	  parametrised by element-type.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/matrix/sparse.h&gt;
+
+template &lt;class Ring&gt;
+void MyFunction (const Ring &R)
+{
+	SparseMatrix&lt;typename Ring::Element&gt; M (5, 5); // Declare a 5x5 matrix
+
+	typename Ring::Element a;
+	R.init (a, 5);
+	M.setEntry (1, 2, a);  // Set entry (1,2) to a
+}
+	</programlisting>
+
+	<para>
+	  Sparse matrices have no support for column-iterators. Row
+	  iterators iterate over row-vectors which are of a sparse
+	  type. Otherwise the interface is identical to that
+	  of <type>DenseMatrix</type>.
+	</para>
+
+	<para>
+	  Sparse matrices are also parameterised by the type of the
+	  row-vector. This can be used to define a sparse matrix over
+	  GF(2) whose rows are hybrid vectors.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/ring/gf2.h&gt;
+#include &lt;linbox/matrix/sparse.h&gt;
+
+void MyFunction (const GF2 &F)
+{
+	SparseMatrix&lt;bool, Vector&lt;GF2&gt;::Hybrid&gt; M (5, 5); // Declare a 5x5 matrix
+	...
+}
+	</programlisting>
+      </section>
+    </section>
+    <section xml:id="arith">
+      <title>Vector- and matrix-arithmetic</title>
+
+      <para>
+	Basic vector- and matrix-arithmetic follow the interface of
+	BLAS.
+      </para>
+
+      <para>
+	To use these features, first construct a <emphasis>context
+	object</emphasis>. This object encapsulates the ring over
+	which computations take place, the configuration of algorithms
+	for arithmetic, and temporary storage.
+      </para>
+
+      <programlisting>
+#include &lt;linbox/blas/context.h&gt;
+
+template &lt;class Ring&gt;
+void MyFunction (const Ring &R)
+{
+	Context&lt;Ring&gt; ctx (R);
+	...
+}
+      </programlisting>
+
+      <note>
+	Context objects are not intended to be reentrant, since they
+	contain temporary storage. If your program is multithreaded,
+	it is necessary to construct one context object per
+	thread. Context objects can be copy-constructed.
+      </note>
+
+      <para>
+	BLAS-routines are split into three levels: level 1 for
+	vector-vector operations, level 2 for matrix-vector
+	operations, and level 3 for matrix-matrix operations.. The
+	routines in LELA are divided correspondingly into the
+	namespaces <type>BLAS1</type>, <type>BLAS2</type>,
+	and <type>BLAS3</type>.
+      </para>
+
+      <para>
+	Use use BLAS-routines at a given level, include the
+	header-file <filename>linbox/blas/level&lt;l&gt;.h</filename>,
+	where &lt;l&gt; is respectively 1, 2, or 3. Then declare the
+	context-object and simply invoke the function. The arguments
+	generally follow the BLAS-standard.
+      </para>
+
+      <para>
+	Here is an example with vectors:
+      </para>
+
+      <programlisting>
+#include &lt;linbox/blas/context.h&gt;
+#include &lt;linbox/blas/level1.h&gt;
+
+template &lt;class Ring, class Vector1, class Vector2&gt;
+void MyFunction (const Ring &R, Vector1 &v, Vector2 &w)
+{
+	Context&lt;Ring&gt; ctx (R);
+
+	BLAS1::axpy (ctx, R.one (), v, w); // Replace w by v + w
+	BLAS1::scal (ctx, R.minusOne (), v); // Replace v by -v
+
+	typename Ring::Element a;
+
+	BLAS1::dot (ctx, a, v, w);  // Compute the dot-product of v and w and store it in a
+}
+      </programlisting>
+
+      <para>
+	And another example with level 2 operations:
+      </para>
+
+      <programlisting>
+#include &lt;linbox/blas/context.h&gt;
+#include &lt;linbox/blas/level2.h&gt;
+
+template &lt;class Ring, class Vector, class Matrix&gt;
+void MyFunction (const Ring &R, Vector &v, Vector &w, Matrix &A)
+{
+	Context&lt;Ring&gt; ctx (R);
+
+	BLAS2::ger (ctx, R.one (), v, w, A); // Replace A by v w^T + A
+	BLAS2::gemv (ctx, R.one (), A, v, R.minusOne (), w); // Replace w by A v - w
+
+	// Replace v by U^-1 v, where U is the upper triangular part of A with ones on the diagonal
+	BLAS2::trsv (ctx, A, v, UpperTriangular, true);
+}
+      </programlisting>
+
+      <para>
+	Because matrix- and vector-types in LELA are distinct, several
+	level 1 operations have in level 3 matrix-equivalents which
+	are not present in the BLAS standard. These
+	include <function>copy</function>, <function>scal</function>,
+	and <function>axpy</function>.
+      </para>
+
+      <programlisting>
+#include &lt;linbox/blas/context.h&gt;
+#include &lt;linbox/blas/level3.h&gt;
+
+template &lt;class Ring, class Matrix1, class Matrix2, class Matrix3&gt;
+void MyFunction (const Ring &R, Matrix1 &A, Matrix2 &B, Matrix3 &C)
+{
+	Context&lt;Ring&gt; ctx (R);
+
+	BLAS3::axpy (ctx, R.one (), A, B); // Replace B by A + B
+	BLAS3::scal (ctx, R.minusOne (), A); // Replace A by -A
+
+	BLAS3::gemm (ctx, R.one (), A, B, R.one (), C);  // Replace C by A * B + C
+}
+      </programlisting>
+
+      <para>
+	There are some limitations in the combinations of types which
+	can be used in some interfaces. See the
+	reference-documentation for more details.
+      </para>
+
+      <para>
+	In addition to basic BLAS-functionality there is support for
+	applying permutations to both vectors and matrices as well as
+	input and output of vectors and matrices.
+      </para>
+
+      <note>
+	Support for symmetric, skew-symmetric, and banded matrices has
+	not been implemented.
+      </note>
+    </section>
+    <section xml:id="highlevel">
+      <title>Using higher level solutions</title>
+
+      <para>
+	Higher level functionality, such as computing the row echelon
+	form of a matrix, is provided
+	by <emphasis>solutions</solutions>. Each solution is
+	encapsulated in a class.
+      </para>
+
+      <section xml:id="rowechelon">
+	<title>Computing the row-echelon form</title>
+
+	<para>
+	  To compute the row echelon form of a matrix, use the
+	  solution <type>EchelonForm</type>. Its header-file
+	  is <filename>linbox/solutions/echelon-form.h</filename>.
+	</para>
+
+	<para>
+	  The use is quite straightforward:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/solutions/echelon-form.h&gt;
+
+template &lt;class Ring, class Matrix&gt;
+void ComputeRowEchelonForm (const Ring &R, Matrix &A)
+{
+	Context&lt;Ring&gt; ctx (R);
+	EchelonForm&lt;Ring&gt; EF (ctx);
+
+	RowEchelonForm (A); // A now replaced by its row echelon form
+}
+	</programlisting>
+
+	<para>
+	  There is also support for computing the reduced row echelon
+	  form of a matrix:
+	</para>
+
+	<programlisting>
+#include &lt;linbox/solutions/echelon-form.h&gt;
+
+template &lt;class Ring, class Matrix&gt;
+void ComputeRowEchelonForm (const Ring &R, Matrix &A)
+{
+	Context&lt;Ring&gt; ctx (R);
+	EchelonForm&lt;Ring&gt; EF (ctx);
+
+	RowEchelonForm (A, true); // A now replaced by its reduced row echelon form
+}
+	</programlisting>
+      </section>
+    </section>
+    <section xml:id="io">
+      <title>Input and output of matrices and vectors</title>
+
+      <para>
+	Input and output are provided within the BLAS-interface.
+      </para>
+
+      <para>
+	The interfaces for inputing respectively outputing vectors
+	are <function>BLAS1::read</function>
+	respectively <function>BLAS1::write</function>. They accept as
+	arguments the C++ stream and the vector in question.
+      </para>
+
+      <programlisting>
+#include &lt;iostream&gt;
+#include &lt;linbox/blas/level1.h&gt;
+
+template &lt;class Ring, class Vector&gt;
+void ReadAndWriteVector (const Ring &R, Vector &v)
+{
+	Context&lt;Ring&gt; ctx (R);
+
+	std::cout &lt;&lt; "Enter a vector: ";
+	BLAS1::read (ctx, std::cin, v);
+
+	std::cout &lt;&lt; "You entered: ";
+	BLAS1::write (ctx, std::cout, v) &lt;&lt; std::endl;
+}
+      </programlisting>
+
+      <para>
+	The input-format should be a list of numbers which can be
+	interpreted by <function>Ring::read</function>. The
+	output-format is a comma-separated list of entries in square
+	brackets.
+      </para>
+
+      <para>
+	Input and output of matrices is provided by similar interfaces
+	in <type>BLAS3</type>. The parameters are the same with the
+	addition of a parameter <parameter>format</parameter> which
+	specifies the format for the matrix.
+      </para>
+
+      <programlisting>
+#include &lt;iostream&gt;
+#include &lt;linbox/blas/level3.h&gt;
+
+template &lt;class Ring, class Matrix&gt;
+void ReadAndWriteVector (const Ring &R, Matrix &A, std::istream &is)
+{
+	Context&lt;Ring&gt; ctx (R);
+
+	std::cout &lt;&lt; "Reading matrix...";
+	BLAS3::read (ctx, istream, A, FORMAT_DETECT);
+
+	std::cout &lt;&lt; "Matrix: " &lt;&lt; std::endl;
+	BLAS3::write (ctx, std::cout, A, FORMAT_PRETTY);
+}
+      </programlisting>
+
+      </para>
+	Some examples of formats are:
+      </para>
+
+      <itemizedlist>
+	<item><literal>FORMAT_PRETTY</literal>, suitable for output to
+	the console or a text-file so that the matrix can be examined
+	by the user</item>
+	<item><literal>FORMAT_DUMAS</literal>, suitable for the
+	storage of sparse matrices</item>
+	<item><literal>FORMAT_MAPLE</literal>, for interacting with
+	Maple</item>
+	<item><literal>FORMAT_MATLAB</literal>, for interacting with
+	Maple</item>
+	<item><literal>FORMAT_SAGE</literal>, for interacting with
+	Sage</item>
+	<item><literal>FORMAT_PNG</literal>, good for large matrices
+	over GF(2). Only available for matrices over GF(2) and only if
+	LELA is configured with support for libpng.</item>
+	<item><literal>FORMAT_DETECT</literal>, try to detect the
+	format of a matrix. Only makes sense
+	for <function>read</function>.</item>
+      </itemizedlist>
+
+      <para>
+	The format <literal>FORMAT_PRETTY</literal> replaces zero
+	entries with a period to make nonzero entries more visible. It
+	also attempts to align entries by column so that the matrix
+	appears correctly in a fixed width typeface.
+      </para>
+    </section>
+    <section xml:id="debug">
+      <title>The commentator and debugging-support</title>
+      <section xml:id="checks">
+	<title>Enabling and disabling precondition-checks</title>
+
+	<para>
+	  Throughout LELA there are checks of the form
+	  <programlisting>
+linbox_check (condition);
+	  </programlisting>
+	  These check that the input to algorithms meets the required
+	  preconditions. These checks are disabled by default, but can
+	  be enabled by defining the macro <constant>DEBUG</constant>
+	  when compiling both the library and sources.
+	</para>
+
+      </section>
+      <section xml:id="commentator">
+	<title>Using and configuring the commentator</title>
+
+	<para>
+	  LELA has a facility called
+	  the <emphasis>commentator</emphasis> for reporting
+	  information about computations it performs. This is
+	  particularly useful for obtaining benchmarks.
+	</para>
+
+	<para>
+	  A program-run is divided conceptually
+	  into <emphasis>activities</emphasis> which form a tree. To
+	  mark the beginning and end of an activity, use the
+	  interfaces <function>commentator.start</function> and
+	  respectively <function>commentator.stop</function>.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/util/commentator.h&gt;
+
+void MyFunction ()
+{
+	commentator.start ("Description of activity", __FUNCTION__);
+	...
+	commentator.stop (MSG_DONE);
+}
+	</programlisting>
+
+	<para>
+	  The second argument
+	  to <function>commentator.start</function> should be the name
+	  of the calling function. The argument
+	  to <function>commentator.stop</function> is a short string
+	  indicating the state at the end of the activity, such as
+	  whether a test passed. The
+	  macros <literal>MSG_DONE</literal>
+	  and <literal>MSG_STATUS</literal> provide standardised
+	  strings for this purpose.
+	</para>
+
+	<para>
+	  One can use the commentator to report information about a
+	  computation with the
+	  interface <function>commentator.report</function>, which
+	  returns an <type>std::ostream</type>.
+	</para>
+
+	<programlisting>
+#include &lt;linbox/util/commentator.h&gt;
+
+void MyFunction ()
+{
+	commentator.start ("Description of activity", __FUNCTION__);
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+
+	report &lt;&lt; "Some information about the computation." &lt;&lt; std::endl;
+
+	commentator.stop (MSG_DONE);
+}
+	</programlisting>
+
+	<para>
+	  The first parameter
+	  to <function>commentator.report</function> indicates the
+	  importance of the information; it can be
+	  either <constant>Commentator::LEVEL_IMPORTANT</constant>, <constant>Commentator::LEVEL_NORMAL</constant>,
+	  or <constant>Commentator::LEVEL_UNIMPORTANT</constant>. The
+	  second parameter indicates the general category of the
+	  information. Possible values
+	  include <constant>INTERNAL_DESCRIPTION</constant>, <constant>INTERNAL_WARNING</constant>, <constant>INTERNAL_ERROR</constant>, <constant>TIMING_MEASURE</constant>,
+	  and <constant>PROGRESS_REPORT</constant>.
+	</para>
+
+	<para>
+	  The commentator includes a sophisticated system to select
+	  which messages are printed and which are not. Messages to be
+	  printed can be selected according to the nesting-depth of
+	  the activity, the importance-level, and the
+	  classification. See the commentator's documentation for more
+	  information.
+	</para>
+
+	<para>
+	  The commentator can produce both a brief output for the
+	  console and a more detailed output which can be directed to
+	  a file. See the commentator's documentation for more
+	  information.
+	</para>
+      </section>
+      <section xml:id="disablecommentator">
+	<title>Disabling the commentator entirely</title>
+
+	<para>
+	  To disable the commentator entirely, define the
+	  macro <constant>DISABLE_COMMENTATOR</constant>. Then all
+	  commentator-lines compile to nothing.
+	</para>
+      </section>
+    </section>
+  </chapter>
+  <chapter xml:id="extending">
+    <title>Extending the library</title>
+    <section xml:id="newrings">
+      <title>Creating new rings</title>
+    </section>
+    <section xml:id="newvectors">
+      <title>Creating new vector-types</title>
+    </section>
+    <section xml:id="newmatrices">
+      <title>Creating new matrix-types</title>
+    </section>
+    <section xml:id="newblas">
+      <title>Extending arithmetic-support</title>
+    </section>
+  </chapter>
+</book>

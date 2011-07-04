@@ -23,40 +23,19 @@ docs :
 	cp ../AUTHORS linbox-html/
 	doxygen Doxyfile
 
-docs_dev :
-	make docs
-	cp tutorial.html linbox-dev-html/
-	cp install-dist.html linbox-dev-html/
-	cp install-dev.html linbox-dev-html/
-	cp ../INSTALL linbox-dev-html/
-	cp ../COPYING linbox-dev-html/
-	cp ../AUTHORS linbox-dev-html/
-	doxygen DoxyfileDev
-
-
-
 install-doc :
 	mkdir $(docdir)
 	cp -r linbox-html $(docdir)/linbox-html
 	cp -r linbox-dev-html $(docdir)/linbox-dev-html
 	cp linbox.html $(docdir)/linbox.html
 
-EXTRA_DIST=             \
-    linbox.html         \
-    tutorial.html       \
-    install-dev.html    \
-    index-dev.html      \
-    install-dist.html   \
-    Doxyfile            \
-    DoxyfileDev         \
-    doc.doxy            \
-    mainpage.doxy       \
-    tutorial.doxy       \
+EXTRA_DIST=            \
+    tutorial.xml       \
+    Doxyfile           \
+    DoxyfileDev        \
     linbox-config.1
 
 
 clean-local :
 	rm -rf linbox-html
 	rm -rf linbox-dev-html
-
-
