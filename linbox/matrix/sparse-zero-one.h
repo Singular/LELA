@@ -35,7 +35,7 @@ public:
 	typedef MatrixStorageTypes::Rows StorageType;
 	typedef SparseMatrixTag<bool, Row, VectorRepresentationTypes::Sparse01> Tag;
 
-	typedef Submatrix<const Self_t> SubmatrixType;
+	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
 	typedef Submatrix<Self_t> AlignedSubmatrixType;
 	typedef Submatrix<const Self_t> ConstAlignedSubmatrixType;
@@ -153,8 +153,8 @@ public:
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
-	typedef Submatrix<Self_t, HybridSubvectorWordAlignedTag> AlignedSubmatrixType;
-	typedef Submatrix<const Self_t, HybridSubvectorWordAlignedTag> ConstAlignedSubmatrixType;
+	typedef Submatrix<Self_t, HybridSubvectorWordAlignedTag, AlignedSubmatrixTag> AlignedSubmatrixType;
+	typedef Submatrix<const Self_t, HybridSubvectorWordAlignedTag, AlignedSubmatrixTag> ConstAlignedSubmatrixType;
 
 	static const size_t rowAlign = 1;
 	static const size_t colAlign = WordTraits<typename Row::word_type>::bits;

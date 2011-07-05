@@ -274,7 +274,7 @@ class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01> ConstSubvectorType;
 	typedef SparseSubvector<Vector, HybridSubvectorWordAlignedTag> AlignedSubvectorType;
 	typedef SparseSubvector<const Vector, HybridSubvectorWordAlignedTag> ConstAlignedSubvectorType;
-	static const int align = 1;
+	static const int align = WordTraits<typename Vector::word_type>::bits;
 
 	typedef SparseSubvector<Vector, VectorRepresentationTypes::Sparse> parent_type;
 	typedef typename parent_type::parent_type grandparent_type;
@@ -309,5 +309,7 @@ class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 }; // template <class Vector> class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 
 } // namespace LinBox
+
+#include "linbox/vector/sparse-subvector-hybrid.h"
 
 #endif // __VECTOR_SPARSE_SUBVECTOR_H

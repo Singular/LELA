@@ -17,6 +17,7 @@
 
 #include "linbox/vector/traits.h"
 #include "linbox/vector/sparse-subvector.h"
+#include "linbox/vector/hybrid.h"
 
 namespace LinBox
 {

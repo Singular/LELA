@@ -24,10 +24,30 @@
 namespace LinBox
 {
 
-template <class Matrix, class SubvectorFactory, class Trait>
+template <class Matrix, class SubvectorFactory, class AlignedTrait, class Trait>
 class Submatrix;
 
 struct DefaultSubvectorFactoryTrait {};
+
+/// Tags to show whether the submatrix is aligned or not
+struct ArbitrarySubmatrixTag {};
+struct AlignedSubmatrixTag {};
+
+/// Structure to select the type of submatrix to be used depending on
+/// whether the parent submatrix is aligned or not
+template <class Matrix, class AlignedTrait>
+struct SubSubmatrixTraits
+{
+	typedef typename Matrix::SubmatrixType AlignedSubmatrixType;
+	typedef typename Matrix::ConstSubmatrixType ConstAlignedSubmatrixType;
+};
+
+template <class Matrix>
+struct SubSubmatrixTraits<Matrix, AlignedSubmatrixTag>
+{
+	typedef typename Matrix::AlignedSubmatrixType AlignedSubmatrixType;
+	typedef typename Matrix::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
+};
 
 /** Factory for subvectors
  *
@@ -118,7 +138,11 @@ public:
 	SubmatrixRowColIteratorPT &operator -= (difference_type i) 
 		{ return *this += -i; }
 
-	difference_type operator - (SubmatrixRowColIteratorPT &i) const 
+	difference_type operator - (SubmatrixRowColIteratorPT i) const 
+		{ return _pos - i._pos; }
+
+	template <class SM, class SF, class T>
+	difference_type operator - (SubmatrixRowColIteratorPT<SM, SF, T> i) const 
 		{ return _pos - i._pos; }
 
 	reference operator [] (long i) const
@@ -166,7 +190,7 @@ private:
 
 \ingroup matrix
  */
-template<class _Matrix, class SFTrait = DefaultSubvectorFactoryTrait, class Trait = typename _Matrix::IteratorType>
+template<class _Matrix, class SFTrait = DefaultSubvectorFactoryTrait, class AlignedTrait = ArbitrarySubmatrixTag, class Trait = typename _Matrix::IteratorType>
 class Submatrix
 {
     public:
@@ -177,8 +201,8 @@ class Submatrix
 
 	typedef typename Matrix::SubmatrixType SubmatrixType;
 	typedef typename Matrix::ConstSubmatrixType ConstSubmatrixType;
-	typedef typename Matrix::AlignedSubmatrixType AlignedSubmatrixType;
-	typedef typename Matrix::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
+	typedef typename SubSubmatrixTraits<Matrix, AlignedTrait>::AlignedSubmatrixType AlignedSubmatrixType;
+	typedef typename SubSubmatrixTraits<Matrix, AlignedTrait>::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
 
 	static const size_t rowAlign = _Matrix::rowAlign;
 	static const size_t colAlign = _Matrix::colAlign;
@@ -250,8 +274,8 @@ class Submatrix
 		{}
 
 	// Parametrised version
-	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, Trait> &SM,
+	template <class M2, class AT2>
+	Submatrix (const Submatrix<M2, SFTrait, AT2, Trait> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -269,14 +293,14 @@ class Submatrix
 	 * @param _M Submatrix to copy
 	 */
 	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, Trait> &SM)
+	Submatrix (const Submatrix<M2, SFTrait, AlignedTrait, Trait> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	/** Parametrised conversion
 	 */
 	template <class M2>
-	operator Submatrix<M2, SFTrait, Trait> () const
-		{ return Submatrix<M2, SFTrait, Trait> (static_cast<M2> (*_M), _beg_row, _beg_col, _end_row - _beg_row, _end_col - _beg_col); }
+	operator Submatrix<M2, SFTrait, AlignedTrait, Trait> () const
+		{ return Submatrix<M2, SFTrait, AlignedTrait, Trait> (static_cast<M2> (*_M), _beg_row, _beg_col, _end_row - _beg_row, _end_col - _beg_col); }
 
 	/** Assignment operator
 	 * Assign the given submatrix to this one
@@ -389,7 +413,7 @@ class Submatrix
 
     protected:
 
-	template <class M2, class SFT2, class T2>
+	template <class M2, class SFT2, class AT2, class T2>
 	friend class Submatrix;
 
 	Matrix *_M;
@@ -401,19 +425,19 @@ class Submatrix
 
 /// Specialisation for matrices indexed only by rows
 
-template <class _Matrix, class SFTrait>
-class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Row>
+template <class _Matrix, class SFTrait, class AlignedTrait>
+class Submatrix<_Matrix, SFTrait, AlignedTrait, MatrixIteratorTypes::Row>
 {
     public:
  
 	typedef _Matrix Matrix;
-        typedef Submatrix<Matrix, SFTrait, MatrixIteratorTypes::Row> Self_t;
+        typedef Submatrix<Matrix, SFTrait, AlignedTrait, MatrixIteratorTypes::Row> Self_t;
 	typedef typename Matrix::Tag Tag;
 
 	typedef typename Matrix::SubmatrixType SubmatrixType;
 	typedef typename Matrix::ConstSubmatrixType ConstSubmatrixType;
-	typedef typename Matrix::AlignedSubmatrixType AlignedSubmatrixType;
-	typedef typename Matrix::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
+	typedef typename SubSubmatrixTraits<Matrix, AlignedTrait>::AlignedSubmatrixType AlignedSubmatrixType;
+	typedef typename SubSubmatrixTraits<Matrix, AlignedTrait>::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
 
 	static const size_t rowAlign = _Matrix::rowAlign;
 	static const size_t colAlign = _Matrix::colAlign;
@@ -448,8 +472,8 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Row>
 		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
 		{}
 
-	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Row> &SM,
+	template <class M2, class AT2>
+	Submatrix (const Submatrix<M2, SFTrait, AT2, MatrixIteratorTypes::Row> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -457,8 +481,8 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Row>
 		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
 		{}
 
-	template <class SFT2>
-	Submatrix (const Submatrix<Matrix, SFT2, MatrixIteratorTypes::Row> &SM,
+	template <class SFT2, class AT2>
+	Submatrix (const Submatrix<Matrix, SFT2, AT2, MatrixIteratorTypes::Row> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -470,7 +494,7 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Row>
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Row> &SM)
+	Submatrix (const Submatrix<M2, SFTrait, AlignedTrait, MatrixIteratorTypes::Row> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	Submatrix &operator = (const Submatrix &SM)
@@ -526,7 +550,7 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Row>
 
     protected:
 
-	template <class M2, class SFT2, class T2>
+	template <class M2, class SFT2, class AT2, class T2>
 	friend class Submatrix;
 
 	Matrix *_M;
@@ -538,19 +562,19 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Row>
 
 /// Specialisation for matrices indexed only by columns
 
-template <class _Matrix, class SFTrait>
-class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Col>
+template <class _Matrix, class SFTrait, class AlignedTrait>
+class Submatrix<_Matrix, SFTrait, AlignedTrait, MatrixIteratorTypes::Col>
 {
     public:
  
 	typedef _Matrix Matrix;
-        typedef Submatrix<Matrix, SFTrait, MatrixIteratorTypes::Col> Self_t;
+        typedef Submatrix<Matrix, SFTrait, AlignedTrait, MatrixIteratorTypes::Col> Self_t;
 	typedef typename Matrix::Tag Tag;
 
 	typedef typename Matrix::SubmatrixType SubmatrixType;
 	typedef typename Matrix::ConstSubmatrixType ConstSubmatrixType;
-	typedef typename Matrix::AlignedSubmatrixType AlignedSubmatrixType;
-	typedef typename Matrix::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
+	typedef typename SubSubmatrixTraits<Matrix, AlignedTrait>::AlignedSubmatrixType AlignedSubmatrixType;
+	typedef typename SubSubmatrixTraits<Matrix, AlignedTrait>::ConstAlignedSubmatrixType ConstAlignedSubmatrixType;
 
 	static const size_t rowAlign = _Matrix::rowAlign;
 	static const size_t colAlign = _Matrix::colAlign;
@@ -587,8 +611,8 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Col>
 		: _M (SM._M), _beg_row (SM._beg_row + row), _end_row (SM._beg_row + row + rowdim), _beg_col (SM._beg_col + col), _end_col (SM._beg_col + col + coldim)
 		{}
 
-	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Col> &SM,
+	template <class M2, class AT2>
+	Submatrix (const Submatrix<M2, SFTrait, AT2, MatrixIteratorTypes::Col> &SM,
 		   size_t row,
 		   size_t col,
 		   size_t rowdim,
@@ -600,7 +624,7 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Col>
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	template <class M2>
-	Submatrix (const Submatrix<M2, SFTrait, MatrixIteratorTypes::Col> &SM)
+	Submatrix (const Submatrix<M2, SFTrait, AlignedTrait, MatrixIteratorTypes::Col> &SM)
 		: _M (SM._M), _beg_row (SM._beg_row), _end_row (SM._end_row), _beg_col (SM._beg_col), _end_col (SM._end_col) {}
 
 	Submatrix &operator = (const Submatrix &SM)
@@ -656,7 +680,7 @@ class Submatrix<_Matrix, SFTrait, MatrixIteratorTypes::Col>
 
     protected:
 
-	template <class M2, class SFT2, class T2>
+	template <class M2, class SFT2, class AT2, class T2>
 	friend class Submatrix;
 
 	Matrix *_M;

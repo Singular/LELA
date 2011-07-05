@@ -20,6 +20,10 @@
 #include "linbox/matrix/raw-iterator.h"
 #include "linbox/matrix/dense.h"
 
+#ifdef __LINBOX_HAVE_M4RI
+#  include "linbox/matrix/m4ri-matrix.h"
+#else // !__LINBOX_HAVE_M4RI
+
 namespace LinBox
 {
 
@@ -86,10 +90,8 @@ class Dense01MatrixRowIterator
 	Dense01MatrixRowIterator operator + (int i) const
 		{ return Dense01MatrixRowIterator (const_cast<Row *> (&_row)->word_begin () + _disp * i, _row.word_size (), _row.size (), _disp); }
 
-	difference_type operator- (const Dense01MatrixRowIterator &c) const
-	{
-		return (c._row.word_begin () - _row.word_begin ()) / _disp;
-	}
+	difference_type operator - (const Dense01MatrixRowIterator &c) const
+		{ return (c._row.word_begin () - _row.word_begin ()) / _disp; }
 
 	Dense01MatrixRowIterator& operator += (int i)
 	{
@@ -178,8 +180,8 @@ class Dense01Matrix
 
 	/** Construct a word-aligned dense submatrix of a given dense matrix
 	 */
-	template <class It1, class It2>
-	Dense01Matrix (Dense01Matrix<It1, It2> &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+	template <class It, class CIt>
+	Dense01Matrix (Dense01Matrix<It, CIt, Endianness> &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: _rows (m), _cols (n), _disp (M._disp)
 	{
 		linbox_check (beg_col & WordTraits<word_type>::pos_mask == 0);
@@ -210,8 +212,8 @@ class Dense01Matrix
 
 	/** Version of above for const matrices
 	 */
-	template <class It1, class It2>
-	Dense01Matrix (const Dense01Matrix<It1, It2> &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
+	template <class It, class CIt>
+	Dense01Matrix (const Dense01Matrix<It, CIt, Endianness> &M, size_t beg_row, size_t beg_col, size_t m, size_t n)
 		: _rows (m), _cols (n), _disp (M._disp)
 	{
 		_begin = M._begin + beg_row * M._disp + (beg_col >> WordTraits<word_type>::logof_size);
@@ -418,5 +420,7 @@ class SubvectorFactory<Dense01MatrixTag<Iterator, ConstIterator, Endianness>, Su
 };
 
 } // namespace LinBox
+
+#endif // __LINBOX_HAVE_M4RI
 
 #endif // __MATRIX_DENSE_ZERO_ONE_H

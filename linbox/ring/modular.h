@@ -214,14 +214,12 @@ public:
 	Element &init (Element &x, const int y) const
 	{
 		ModularTraits<Element>::reduce (x, y, _modulus);
-		if (x < 0) x += _modulus;
 		return x;
 	}
 
 	Element &init (Element &x, const unsigned int y) const
 	{ 
 		ModularTraits<Element>::reduce (x, y, _modulus);
-		if (x < 0) x += _modulus;
 		return x;
 	}
 

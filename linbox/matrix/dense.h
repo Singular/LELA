@@ -454,6 +454,9 @@ class DenseMatrix
 
 } // namespace LinBox
 
+// Pull in the specialisation for GF(2)
+#include "linbox/matrix/dense-zero-one.h"
+
 #endif // __LINBOX_matrix_dense_H
 
 // Local Variables:
