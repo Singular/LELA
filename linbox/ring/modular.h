@@ -51,7 +51,7 @@ struct ModularTraits
 	/// Function to reduce by modulus
 	template <class FE>
 	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = a % m; return r; }
+		{ r = a % m; if (r < 0) r += m; return r; }
 
 	/// Version of above which writes into a property
 	template <class Iterator, class FE>
@@ -137,7 +137,7 @@ struct ModularTraits<float>
 	static bool valid_modulus (const integer &modulus) { return modulus.get_d () < 4096.0; }
 	template <class FE>
 	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = fmod (a, m); return r; }
+		{ r = fmod (a, m); if (r < 0) r += m; return r; }
 	template <class Iterator, class FE>
 	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
@@ -156,7 +156,7 @@ struct ModularTraits<double>
 	static bool valid_modulus (const integer &modulus) { return modulus.get_d () < 67108864.0; }
 	template <class FE>
 	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = fmod (a, m); return r; }
+		{ r = fmod (a, m); if (r < 0) r += m; return r; }
 	template <class Iterator, class FE>
 	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
@@ -206,8 +206,9 @@ public:
 
 	Element &init (Element &x, const integer &y = 0) const
 	{
-		ModularTraits<Element>::init_element (x, y % _modulus);
-		if (x < 0) x += _modulus;
+		integer t = y % _modulus;
+		if (t < 0) t += _modulus;
+		ModularTraits<Element>::init_element (x, t);
 		return x;
 	}
 
