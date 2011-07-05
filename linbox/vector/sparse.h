@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <cstddef>
 
 #include "linbox/util/property.h"
 #include "linbox/vector/traits.h"
