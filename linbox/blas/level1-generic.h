@@ -17,6 +17,8 @@
 #include "linbox/vector/traits.h"
 #include "linbox/blas/level1-ll.h"
 
+#include "linbox/vector/bit-subvector-word-aligned.h"
+
 namespace LinBox
 {
 
