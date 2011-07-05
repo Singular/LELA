@@ -1,12 +1,12 @@
-/* tests/test-gauss-jordan.C
- * Copyright 2010 Bradford Hovinen
+/* tests/test-elimination.C
+ * Copyright 2011 Bradford Hovinen
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ---------------------------------------------------------
  *
  * See COPYING for license information.
  *
- * Test for hybrid sparse-dense vector-format
+ * Test for Gaussian elimination
  */
 
 #include <iostream>
@@ -17,63 +17,61 @@
 #include <linbox/ring/gf2.h>
 #include <linbox/ring/modular.h>
 #include <linbox/matrix/dense.h>
+#include <linbox/matrix/sparse.h>
 #include <linbox/vector/stream.h>
-#include <linbox/algorithms/gauss-jordan.h>
+#include <linbox/algorithms/elimination.h>
 
 using namespace LinBox;
 
 template <class Ring>
-bool testGaussTransform (const Ring &F, size_t m, size_t n, bool reduce)
+bool testElimination (const Ring &F, size_t m, size_t n, size_t k, bool reduce)
 {
 	if (reduce)
-		commentator.start ("Testing GaussJordan::RowEchelonForm (Gauss-Jordan transform)", __FUNCTION__);
+		commentator.start ("Testing Elimination::RowEchelonForm (with reduction)", __FUNCTION__);
 	else
-		commentator.start ("Testing GaussJordan::RowEchelonForm (Gauss transform)", __FUNCTION__);
+		commentator.start ("Testing Elimination::RowEchelonForm (without reduction)", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 
 	bool pass = true;
 
-	DenseMatrix<typename Ring::Element> R (m, n);
+	Context<Ring> ctx (F);
+
+	Elimination<Ring> elim (ctx);
+
+	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
+
+	SparseMatrix<typename Ring::Element> A (A_stream), Aorig (m, n);
 	DenseMatrix<typename Ring::Element> U (m, m);
 	DenseMatrix<typename Ring::Element> UPA (m, n);
 
-	RandomDenseStream<Ring, typename DenseMatrix<typename Ring::Element>::Row> A_stream (F, n, m);
+	BLAS3::copy (ctx, A, Aorig);
 
-	DenseMatrix<typename Ring::Element> A (A_stream);
+	typename Elimination<Ring>::Permutation P;
 
-	typename GaussJordan<Ring>::Permutation P;
-
-	Context<Ring> ctx (F);
-
-	GaussJordan<Ring> GJ (ctx);
 	size_t rank;
 	typename Ring::Element det;
 
-	BLAS3::copy (ctx, A, R);
-
-	GJ.RowEchelonForm (R, U, P, rank, det, reduce);
-
 	report << "A = " << std::endl;
-	BLAS3::write (ctx, report, A);
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
+
+	elim.RowEchelonForm (A, U, P, rank, det, reduce, true);
+
+	report << "R = " << std::endl;
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
 
 	report << "U = " << std::endl;
-	BLAS3::write (ctx, report, U);
+	BLAS3::write (ctx, report, U, FORMAT_PRETTY);
 
 	report << "P = ";
 	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 
-	report << "R = " << std::endl;
-	BLAS3::write (ctx, report, R);
-
-	BLAS3::permute_rows (ctx, P.begin (), P.end (), A);
-
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), Aorig);
 	report << "PA = " << std::endl;
-	BLAS3::write (ctx, report, A);
+	BLAS3::write (ctx, report, Aorig, FORMAT_PRETTY);
 
-	BLAS3::gemm (ctx, F.one (), U, A, F.zero (), UPA);
-
+	BLAS3::gemm (ctx, F.one (), U, Aorig, F.zero (), UPA);
 	report << "UPA = " << std::endl;
 	BLAS3::write (ctx, report, UPA);
 
@@ -82,8 +80,8 @@ bool testGaussTransform (const Ring &F, size_t m, size_t n, bool reduce)
 	F.write (report, det);
 	report << std::endl;
 
-	if (!BLAS3::equal (ctx, UPA, R)) {
-		error << "ERROR: UPA != R" << std::endl;
+	if (!BLAS3::equal (ctx, UPA, A)) {
+		error << "UPA != R, not okay" << std::endl;
 		pass = false;
 	}
 
@@ -121,22 +119,22 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 
-	commentator.start ("GaussJordan test suite", "GaussJordan");
+	commentator.start ("Elimination test suite", "Elimination");
 
 	std::ostringstream str;
 	str << "Running tests over GF(" << q << ")" << std::ends;
 
-	commentator.start (str.str ().c_str (), "GaussJordan");
+	commentator.start (str.str ().c_str (), "Elimination");
 
-	pass1 = testGaussTransform (GFq, m, n, false) && pass1;
-	pass1 = testGaussTransform (GFq, m, n, true) && pass1;
+	pass1 = testElimination (GFq, m, n, k, false) && pass1;
+	pass1 = testElimination (GFq, m, n, k, true) && pass1;
 
 	commentator.stop (MSG_STATUS (pass1));
 
-	commentator.start ("Running tests over GF(2)", "GaussJordan");
+	commentator.start ("Running tests over GF(2)", "Elimination");
 
-	pass2 = testGaussTransform (gf2, m, n, false) && pass2;
-	pass2 = testGaussTransform (gf2, m, n, true) && pass2;
+	pass2 = testElimination (gf2, m, n, k, false) && pass2;
+	pass2 = testElimination (gf2, m, n, k, true) && pass2;
 
 	commentator.stop (MSG_STATUS (pass2));
 

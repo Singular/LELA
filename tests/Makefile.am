@@ -39,6 +39,7 @@ BASIC_TESTS =  \
         test-vector-domain      \
         test-unparametric-ring	\
 	test-strassen-winograd	\
+	test-elimination	\
 	test-gauss-jordan	\
 	test-faugere-lachartre
 
@@ -129,6 +130,10 @@ test_hybrid_vector_SOURCES = \
 test_strassen_winograd_SOURCES = \
 	test-common.C		\
 	test-strassen-winograd.C
+
+test_elimination_SOURCES = \
+	test-common.C		\
+	test-elimination.C
 
 test_gauss_jordan_SOURCES = \
 	test-common.C		\
