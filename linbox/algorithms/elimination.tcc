@@ -172,444 +172,6 @@ int Elimination<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_
 	return pivot;
 }
 
-template <>
-class MutableSubvector<Vector<GF2>::Hybrid> : public MutableSubvector<SparseVector<Vector<GF2>::Hybrid::word_type, std::vector<Vector<GF2>::Hybrid::index_type>, std::vector<Vector<GF2>::Hybrid::word_type> > >
-{
-public:
-	typedef VectorRepresentationTypes::Hybrid01 RepresentationType; 
-	typedef VectorStorageTypes::Transformed StorageType;
-	typedef Vector<GF2>::Hybrid ContainerType;
-	typedef SparseSubvector<const Vector<GF2>::Hybrid, VectorRepresentationTypes::Hybrid01> SubvectorType;
-	typedef SparseSubvector<const Vector<GF2>::Hybrid, VectorRepresentationTypes::Hybrid01> ConstSubvectorType;
-	typedef SparseSubvector<Vector<GF2>::Hybrid, HybridSubvectorWordAlignedTag> AlignedSubvectorType;
-	typedef SparseSubvector<const Vector<GF2>::Hybrid, HybridSubvectorWordAlignedTag> ConstAlignedSubvectorType;
-	static const int align = WordTraits<Vector<GF2>::Hybrid::word_type>::bits;
-
-	typedef Vector<GF2>::Hybrid::Endianness Endianness;
-	typedef Vector<GF2>::Hybrid::index_type index_type;
-	typedef Vector<GF2>::Hybrid::word_type word_type;
-
-	MutableSubvector (Vector<GF2>::Hybrid &v, Vector<GF2>::Hybrid::iterator begin, Vector<GF2>::Hybrid::iterator end)
-		: MutableSubvector<SparseVector<Vector<GF2>::Hybrid::word_type, std::vector<Vector<GF2>::Hybrid::index_type>, std::vector<Vector<GF2>::Hybrid::word_type> > > (v, begin, end) {}
-};
-
-template <class Ring, class Modules>
-template <class Vector>
-Vector &Elimination<Ring, Modules>::FastAxpy (Vector &v, const typename Ring::Element &a, const Vector &w, size_t idx) const
-{
-	MutableSubvector<Vector> t (v, v.begin () + idx, v.end ());
-	BLAS1::axpy (ctx, a, w, t);
-	return v;
-}
-
-template <class Ring, class Modules>
-bool Elimination<Ring, Modules>::testFastAxpyHybridVector () const
-{
-	commentator.start ("Testing FastAxpy", __FUNCTION__);
-
-	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
-
-	bool pass = true;
-
-	Vector<GF2>::Hybrid v, w;
-
-	error << std::hex << std::setfill ('0');
-
-	v.push_back (Vector<GF2>::Hybrid::value_type (0, 0xffff0000ffff0000ULL));
-	v.push_back (Vector<GF2>::Hybrid::value_type (1, 0xffff0000ffff0000ULL));
-
-	w.push_back (Vector<GF2>::Hybrid::value_type (1, 0x00ffff0000ffff00ULL));
-
-	FastAxpy (v, ctx.F.one (), w, 1);
-
-	if (v.front ().second != 0xffff0000ffff0000ULL) {
-		error << "Test 1 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ffff0000ffff0000" << std::endl;
-		pass = false;
-	}
-
-	if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL) {
-		error << "Test 2 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
-		pass = false;
-	}
-
-	v.clear ();
-	w.clear ();
-
-	v.push_back (Vector<GF2>::Hybrid::value_type (0, 0xffff0000ffff0000ULL));
-	v.push_back (Vector<GF2>::Hybrid::value_type (1, 0xffff0000ffff0000ULL));
-
-	w.push_back (Vector<GF2>::Hybrid::value_type (0, 0x00ffff0000ffff00ULL));
-
-	FastAxpy (v, ctx.F.one (), w, 0);
-
-	if (v.front ().second != 0xff00ff00ff00ff00ULL) {
-		error << "Test 3 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
-		pass = false;
-	}
-
-	if ((v.begin () + 1)->second != 0xffff0000ffff0000ULL) {
-		error << "Test 4 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ffff0000ffff0000" << std::endl;
-		pass = false;
-	}
-
-	v.clear ();
-	w.clear ();
-
-	v.push_back (Vector<GF2>::Hybrid::value_type (0, 0xffff0000ffff0000ULL));
-	v.push_back (Vector<GF2>::Hybrid::value_type (1, 0xffff0000ffff0000ULL));
-
-	w.push_back (Vector<GF2>::Hybrid::value_type (0, 0x00ffff0000ffff00ULL));
-	w.push_back (Vector<GF2>::Hybrid::value_type (1, 0x00ffff0000ffff00ULL));
-
-	FastAxpy (v, ctx.F.one (), w, 0);
-
-	if (v.front ().second != 0xff00ff00ff00ff00ULL) {
-		error << "Test 5 not okay: first word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << v.front ().second << " but should be ff00ff00ff00ff00" << std::endl;
-		pass = false;
-	}
-
-	if ((v.begin () + 1)->second != 0xff00ff00ff00ff00ULL) {
-		error << "Test 6 not okay: second word is " << std::setw (WordTraits<Vector<GF2>::Hybrid::word_type>::bits / 4) << (v.begin () + 1)->second << " but should be ff00ff00ff00ff00" << std::endl;
-		pass = false;
-	}
-
-	error << std::dec << std::setfill (' ');
-
-	commentator.stop (MSG_STATUS (pass));
-
-	return pass;
-}
-
-template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
-Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorRepresentationTypes::Dense) const
-{
-	commentator.start ("Reducing row-echelon form", "Elimination::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
-
-	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-	if (rank == 0)
-		return A;
-
-	typename Matrix1::RowIterator i_A, j_A;
-	typename Matrix2::RowIterator i_L;
-
-	if (compute_L)
-		i_L = L.rowBegin () + (rank - 1);
-
-	int current_row = rank - 1, elim_row;
-
-	typename Ring::Element a;
-
-	i_A = A.rowBegin () + current_row;
-
-	do {
-		// DEBUG
-		// report << "Row " << current_row << ", current A:" << std::endl;
-		// BLAS3::write (ctx, report, A);
-
-		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
-			size_t col = BLAS1::head (ctx, a, *j_A);
-
-			if (!ctx.F.isZero ((*i_A)[col])) {
-				// DEBUG
-				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
-
-				BLAS1::axpy (ctx, ctx.F.one (), *j_A, *i_A);
-
-				if (compute_L)
-					BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
-			}
-		}
-
-		if (compute_L)
-			--i_L;
-
-		if ((rank - current_row) % PROGRESS_STEP == 0)
-			commentator.progress ();
-
-		--current_row;
-	} while (i_A-- != A.rowBegin ());
-
-	commentator.stop (MSG_DONE, NULL, "Elimination::ReduceRowEchelonSpecialised");
-
-	return A;
-}
-
-template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
-Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorRepresentationTypes::Sparse) const
-{
-	commentator.start ("Reducing row-echelon form", "Elimination::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
-
-	typename Matrix1::RowIterator i_A, j_A, i_Ae;
-	typename Matrix2::RowIterator i_L, j_L;
-
-	Element negx, xinv;
-
-	if (compute_L)
-		i_L = L.rowBegin () + (rank - 1);
-
-	i_A = A.rowBegin () + (rank - 1);
-
-	do {
-		if (i_A - A.rowBegin () >= (long) start_row)
-			i_Ae = i_A;
-
-		for (j_A = A.rowBegin () + (rank - 1), j_L = L.rowBegin () + (rank - 1); j_A != i_Ae; --j_A, --j_L) {
-			// We must start over each time because the operations below invalidate iterators...
-			std::reverse_iterator<typename Matrix1::Row::iterator> i (i_A->end ());
-			std::reverse_iterator<typename Matrix1::Row::iterator> i_stop (i_A->begin ());
-
-			while (i != i_stop && i->first > j_A->front ().first)
-				++i;
-
-			if (i != i_stop && i->first == j_A->front ().first) {
-				ctx.F.neg (negx, i->second);
-
-				BLAS1::axpy (ctx, negx, *j_A, *i_A);
-
-				if (compute_L)
-					BLAS1::axpy (ctx, negx, *j_L, *i_L);
-			}
-		}
-
-		ctx.F.inv (xinv, i_A->front ().second);
-		BLAS1::scal (ctx, xinv, *i_A);
-
-		if (compute_L) {
-			BLAS1::scal (ctx, xinv, *i_L);
-			--i_L;
-		}
-
-		if ((A.rowEnd () - i_A) % PROGRESS_STEP == PROGRESS_STEP - 1)
-			commentator.progress ();
-	} while (i_A-- != A.rowBegin ());
-
-	commentator.stop (MSG_DONE, NULL, "Elimination::ReduceRowEchelonSpecialised");
-
-	return A;
-}
-
-template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
-Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorRepresentationTypes::Sparse01) const
-{
-	commentator.start ("Reducing row-echelon form", "Elimination::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
-
-	typename Matrix1::RowIterator i_A, j_A, i_Ae;
-	typename Matrix2::RowIterator i_L, j_L;
-
-	if (compute_L)
-		i_L = L.rowBegin () + (rank - 1);
-
-	i_A = A.rowBegin () + (rank - 1);
-
-	do {
-		if (i_A - A.rowBegin () >= (long) start_row)
-			i_Ae = i_A;
-
-		size_t prev_idx = i_A->size ();
-
-		if (compute_L)
-			j_L = L.rowBegin () + (rank - 1);
-
-		for (j_A = A.rowBegin () + (rank - 1); j_A != i_Ae; --j_A) {
-			if (prev_idx > i_A->size ())
-				prev_idx = i_A->size ();
-
-			// We must start over each time because the operations below invalidate iterators...
-			std::reverse_iterator<typename Matrix1::Row::iterator> i_idx (i_A->begin () + prev_idx);
-			std::reverse_iterator<typename Matrix1::Row::iterator> i_stop (i_A->begin ());
-
-			while (i_idx != i_stop && *i_idx > j_A->front ()) {
-				++i_idx;
-				--prev_idx;
-			}
-
-			if (i_idx != i_stop && *i_idx == j_A->front ()) {
-				FastAxpy (*i_A, ctx.F.one (), *j_A, prev_idx - 1);
-
-				if (compute_L)
-					BLAS1::axpy (ctx, ctx.F.one (), *j_L, *i_L);
-			}
-
-			if (compute_L)
-				--j_L;
-		}
-
-		if (compute_L)
-			--i_L;
-
-		if ((A.rowEnd () - i_A) % PROGRESS_STEP == PROGRESS_STEP - 1)
-			commentator.progress ();
-	} while (i_A-- != A.rowBegin ());
-
-	commentator.stop (MSG_DONE, NULL, "Elimination::ReduceRowEchelonSpecialised");
-
-	return A;
-}
-
-template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
-Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorRepresentationTypes::Hybrid01) const
-{
-	commentator.start ("Reducing row-echelon form", "Elimination::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
-
-	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-	if (rank == 0)
-		return A;
-
-	typename Matrix1::RowIterator i_A, i_Ae, j_A;
-	typename Matrix2::RowIterator i_L;
-
-	typename Matrix1::Row::iterator i;
-
-	typename Matrix1::Row::word_type v, v1, mask;
-
-	if (compute_L)
-		i_L = L.rowBegin () + (rank - 1);
-
-	i_A = A.rowBegin () + (rank - 1);
-
-	int current_row = rank - 1, elim_row;
-
-	do {
-		// DEBUG
-		// report << "Row " << current_row << ", state of A:" << std::endl;
-		// BLAS3::write (ctx, report, A);
-
-		if (i_A - A.rowBegin () >= (int) start_row)
-			i_Ae = i_A;
-
-		size_t prev_idx = i_A->size () - 1;
-		elim_row = rank - 1;
-
-		j_A = A.rowBegin () + elim_row;
-
-		while (elim_row > std::max (current_row, (int) start_row - 1)) {
-			if (prev_idx >= i_A->size ())
-				prev_idx = i_A->size () - 1;
-
-			typename Matrix1::Row::index_type j_idx = j_A->front ().first;
-
-			// Note: We don't need to test for validity because, if the input
-			// is valid, i_idx will *never* go past the beginning
-			for (i = i_A->begin () + prev_idx; i->first > j_idx; --i, --prev_idx);
-
-			if (i->first == j_A->front ().first) {
-				v = j_A->front ().second;
-				mask = Matrix1::Row::Endianness::first_position (v);
-
-				if ((i_A->begin () + prev_idx)->second & mask) {
-					// DEBUG
-					// report << "ReduceRowEchelonSpecialised: eliminating row " << current_row << " from row " << elim_row << std::endl;
-
-					FastAxpy (*i_A, ctx.F.one (), *j_A, prev_idx);
-
-					if (compute_L)
-						BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
-				}
-			}
-
-			v1 = (i_A->begin () + prev_idx)->second;
-			mask = 0;
-
-			while (j_A->front ().first >= (*i_A)[prev_idx].first && !(v1 & mask)) {
-				--j_A;
-				--elim_row;
-
-				if (j_A->front ().first > (*i_A)[prev_idx].first) {
-					j_A = std::upper_bound (A.rowBegin () + current_row + 1, A.rowBegin () + elim_row, (*i_A)[prev_idx].first,
-								PivotRowCompare<typename Matrix1::Row> ());
-					--j_A;
-					elim_row = j_A - A.rowBegin ();
-
-					if (elim_row == current_row)
-						break;
-				}
-
-				v = j_A->front ().second;
-				mask = Matrix1::Row::Endianness::first_position (v);
-			}
-		}
-
-		if (compute_L)
-			--i_L;
-
-		if ((rank - current_row) % PROGRESS_STEP == 0)
-			commentator.progress ();
-
-		--current_row;
-	} while (i_A-- != A.rowBegin ());
-
-	commentator.stop (MSG_DONE, NULL, "Elimination::ReduceRowEchelonSpecialised");
-
-	return A;
-}
-
-template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
-Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-								  VectorRepresentationTypes::Dense01) const
-{
-	commentator.start ("Reducing row-echelon form", "Elimination::ReduceRowEchelonSpecialised", A.rowdim () / PROGRESS_STEP);
-
-	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-	if (rank == 0)
-		return A;
-
-	typename Matrix1::RowIterator i_A, j_A;
-	typename Matrix2::RowIterator i_L;
-
-	if (compute_L)
-		i_L = L.rowBegin () + (rank - 1);
-
-	int current_row = rank - 1, elim_row;
-
-	typename Ring::Element a;
-
-	i_A = A.rowBegin () + current_row;
-
-	do {
-		// DEBUG
-		// report << "Row " << current_row << ", current A:" << std::endl;
-		// BLAS3::write (ctx, report, A);
-
-		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
-			size_t col = BLAS1::head (ctx, a, *j_A);
-
-			if ((*i_A)[col]) {
-				// DEBUG
-				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
-
-				BLAS1::axpy (ctx, ctx.F.one (), *j_A, *i_A);
-
-				if (compute_L)
-					BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
-			}
-		}
-
-		if (compute_L)
-			--i_L;
-
-		if ((rank - current_row) % PROGRESS_STEP == 0)
-			commentator.progress ();
-
-		--current_row;
-	} while (i_A-- != A.rowBegin ());
-
-	commentator.stop (MSG_DONE, NULL, "Elimination::ReduceRowEchelonSpecialised");
-
-	return A;
-}
-
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
 void Elimination<Ring, Modules>::RowEchelonForm (Matrix1       &A,
@@ -737,11 +299,59 @@ void Elimination<Ring, Modules>::RowEchelonForm (Matrix1       &A,
 }
 
 template <class Ring, class Modules>
-void Elimination<Ring, Modules>::RunTests () const
+template <class Matrix1, class Matrix2>
+Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row) const
 {
-	commentator.start ("Elimination: Running internal tests", __FUNCTION__);
-	bool pass = testFastAxpyHybridVector ();
-	commentator.stop (MSG_STATUS (pass));
+	commentator.start ("Reducing row-echelon form", "Elimination::ReduceRowEchelon", A.rowdim () / PROGRESS_STEP);
+
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	if (rank == 0)
+		return A;
+
+	typename Matrix1::RowIterator i_A, j_A;
+	typename Matrix2::RowIterator i_L;
+
+	if (compute_L)
+		i_L = L.rowBegin () + (rank - 1);
+
+	int current_row = rank - 1, elim_row;
+
+	typename Ring::Element a, x;
+
+	i_A = A.rowBegin () + current_row;
+
+	do {
+		// DEBUG
+		// report << "Row " << current_row << ", current A:" << std::endl;
+		// BLAS3::write (ctx, report, A);
+
+		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
+			size_t col = BLAS1::head (ctx, a, *j_A);
+
+			if (VectorUtils::getEntry (*i_A, x, col) && !ctx.F.isZero (x)) {
+				// DEBUG
+				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
+
+				BLAS1::axpy (ctx, ctx.F.one (), *j_A, *i_A);
+
+				if (compute_L)
+					BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
+			}
+		}
+
+		if (compute_L)
+			--i_L;
+
+		if ((rank - current_row) % PROGRESS_STEP == 0)
+			commentator.progress ();
+
+		--current_row;
+	} while (i_A-- != A.rowBegin ());
+
+	commentator.stop (MSG_DONE, NULL, "Elimination::ReduceRowEchelon");
+
+	return A;
 }
 
 } // namespace LinBox

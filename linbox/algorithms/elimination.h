@@ -64,43 +64,6 @@ private:
 	template <class Matrix>
 	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Hybrid01) const;
 
-	// Optimised version of VD.addin which can take
-	// advantage of knowledge of where in v the entries of
-	// w start
-	template <class Vector>
-	Vector &FastAxpy (Vector &v, const typename Ring::Element &a, const Vector &w, size_t idx) const;
-
-	bool testFastAxpyHybridVector () const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Dense) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Sparse) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Sparse01) const;
-
-	template <class Vector>
-	class PivotRowCompare
-	{
-	public:
-		inline bool operator () (const typename Vector::index_type x, const Vector &v1) const
-			{ return x < v1.front ().first; }
-	};
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Hybrid01) const;
-
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelonSpecialised (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row,
-					      VectorRepresentationTypes::Dense01) const;
-
-
 public:
 	/**
 	 * \brief Constructor
@@ -191,18 +154,11 @@ public:
 	 * @return Reference to A
 	 */
 	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row = 0) const
-		{ return ReduceRowEchelonSpecialised (A, L, compute_L, rank, start_row,
-						      typename VectorTraits<Ring, typename Matrix1::Row>::RepresentationType ()); }
-
+	Matrix1 &ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row = 0) const;
 
 	/// Set the given matrix to the identity-matrix
 	template <class Matrix>
 	void SetIdentity (Matrix &U, size_t start_row = 0) const;
-
-	/** Run internal tests
-	 */
-	void RunTests () const;
 };
 
 } // namespace LinBox
