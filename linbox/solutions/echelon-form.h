@@ -73,11 +73,12 @@ public:
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
-			{
+			if (reduced) {
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<Ring, Modules> FL (_ctx);
 				FL.RowEchelonForm (A, A, rank, d);
-			}
+			} else
+				throw LinboxError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;
 
 		default:
@@ -116,11 +117,12 @@ public:
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
-			{
+			if (reduced) {
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<Ring, Modules> FL (_ctx);
 				FL.RowEchelonForm (A, A, rank, d);
-			}
+			} else
+				throw LinboxError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;
 
 		default:
