@@ -17,6 +17,8 @@
 #ifndef __MATRIX_SUBMATRIX_H
 #define __MATRIX_SUBMATRIX_H
 
+#include <cstddef>
+
 #include "linbox/util/debug.h"
 #include "linbox/matrix/traits.h"
 #include "linbox/matrix/raw-iterator.h"
