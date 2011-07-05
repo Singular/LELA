@@ -131,9 +131,9 @@ class Dense01MatrixRowIterator
 	friend class Dense01MatrixRowIterator;
 };
 
-template <class Iterator = BitVector<DefaultEndianness>::word_iterator,
-	  class ConstIterator = typename BitVector<DefaultEndianness>::const_word_iterator,
-	  class Endianness = DefaultEndianness>
+template <class Iterator = BitVector<DefaultEndianness<uint64> >::word_iterator,
+	  class ConstIterator = typename BitVector<DefaultEndianness<uint64> >::const_word_iterator,
+	  class Endianness = DefaultEndianness<uint64> >
 class Dense01Matrix
 {
     public:
