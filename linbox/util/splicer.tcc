@@ -295,6 +295,29 @@ void Splicer::splice (Grid grid) const
 	commentator.stop (MSG_DONE);
 }
 
+template <class Grid>
+void Splicer::spliceOnly (Grid grid, unsigned int horiz_sid, unsigned vert_sid, unsigned int horiz_did, unsigned int vert_did) const
+{
+	linbox_check (!_horiz_blocks.empty ());
+	linbox_check (!_vert_blocks.empty ());
+
+	linbox_check (check ());
+
+	commentator.start ("Splicing matrices", __FUNCTION__);
+
+	typename std::vector<Block>::const_iterator horiz_block, vert_block;
+
+	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block) {
+		if (horiz_block->source () == horiz_sid && horiz_block->dest () == horiz_did) {
+			for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block)
+				if (vert_block->source () == vert_sid && vert_block->dest () == vert_did)
+					grid (*horiz_block, *vert_block);
+		}
+	}
+
+	commentator.stop (MSG_DONE);
+}
+
 } // namespace LinBox
 
 #endif // __LINBOX_UTIL_SPLICER_TCC

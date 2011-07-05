@@ -334,6 +334,29 @@ public:
 	template <class Grid>
 	void splice (Grid grid) const;
 
+	/** Splice the given set of matrices input into the set of
+	 * matrices output, ignoring all except the given horizontal
+	 * and vertical ids
+	 *
+	 * @param grid Closure which performs copying-operations. It
+	 * should have the signature grid (horizontal_block,
+	 * vertical_block) (horizontal_block and vertical_block
+	 * instances of type @ref Block) and should perform the actual
+	 * copying according to the information in those blocks. The
+	 * static methods @ref copyBlock and @ref copyIdentity are
+	 * available to assist.
+	 *
+	 * @param horiz_sid Copy from only this horizontal source-id
+	 *
+	 * @param vert_sid Copy from only this vertical source-id
+	 *
+	 * @param horiz_did Copy from only this horizontal destination-id
+	 *
+	 * @param vert_did Copy from only this vertical destination-id
+	 */
+	template <class Grid>
+	void spliceOnly (Grid grid, unsigned int horiz_sid, unsigned vert_sid, unsigned int horiz_did, unsigned int vert_did) const;
+
 	/** Copy from the source-matrix to the destination-matrix
 	 * according to the information in horiz_block and
 	 * vert_block. To be used inside a Grid-object in @ref splice
