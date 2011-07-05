@@ -98,3 +98,4 @@ tests/test-elimination
 tests/test-gauss-jordan
 tests/test-faugere-lachartre
 tests/benchmark-matrix-domain
+doc/tutorial.html

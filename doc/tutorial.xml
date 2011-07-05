@@ -1,6 +1,4 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN"
-          "http://www.oasis-open.org/docbook/xml/5.0/docbook.dtd">
 <book xmlns="http://docbook.org/ns/docbook" version="5.0">
   <title>Getting started with LELA</title>
   <chapter xml:id="dlinst">
@@ -35,14 +33,14 @@
       </para>
 
       <itemizedlist>
-	<item><emphasis>Rings</emphasis>, which provide ring-arithmetic</item>
-	<item><emphasis>Ring-elements</emphasis>, defined by the ring</item>
-	<item><emphasis>Vectors</emphasis></item>
-	<item><emphasis>Matrices</emphasis></item>
-	<item><emphasis>Context-objects</emphasis>, which encapsulate
-	a ring and allow the configuration of matrix-arithmetic</item>
-	<item><emphasis>Solution-objects</emphasis>, which encapsulate
-	more sophisticated algorithms</item>
+	<listitem><emphasis>Rings</emphasis>, which provide ring-arithmetic</listitem>
+	<listitem><emphasis>Ring-elements</emphasis>, defined by the ring</listitem>
+	<listitem><emphasis>Vectors</emphasis></listitem>
+	<listitem><emphasis>Matrices</emphasis></listitem>
+	<listitem><emphasis>Context-objects</emphasis>, which encapsulate
+	a ring and allow the configuration of matrix-arithmetic</listitem>
+	<listitem><emphasis>Solution-objects</emphasis>, which encapsulate
+	more sophisticated algorithms</listitem>
       </itemizedlist>
     </section>
 
@@ -57,13 +55,13 @@
       </para>
 
       <itemizedlist>
-	<item><type>Modular</type>, for integers modulo n,</item>
-	<item><type>GMPRationalField</type>, for rational numbers,
-	computed with GMP</item>
-	<item><type>GF2</type> (for fast computations over GF(2)),
-	and</item>
-	<item><type>UnparametricRing</type> (a wrapper around any type
-	which implements the basic arithmetic-operations</item>
+	<listitem><type>Modular</type>, for integers modulo n,</listitem>
+	<listitem><type>GMPRationalField</type>, for rational numbers,
+	computed with GMP</listitem>
+	<listitem><type>GF2</type> (for fast computations over GF(2)),
+	and</listitem>
+	<listitem><type>UnparametricRing</type> (a wrapper around any type
+	which implements the basic arithmetic-operations</listitem>
       </itemizedlist>
 
       <section xml:id="modularring">
@@ -163,7 +161,7 @@ int main ()
 	</para>
       </section>
 
-      <section xml:id="gf2">
+      <section xml:id="unparamring">
 	<title><type>UnparametricRing</type></title>
 
 	<para>
@@ -209,12 +207,12 @@ int main ()
 	uint8 a, b, c, d; // Declare ring-elements
 	F.init (a, -1);   // Set a to -1 in the ring
 	F.init (b, 1);    // Set b to 1 in the ring
-	F.add (c, a, b);  // Set c <- a + b
-	F.sub (c, a, b);  // Set c <- a - b
-	F.mul (c, a, b);  // Set c <- a * b
-	F.neg (c, b);     // Set c <- -b
+	F.add (c, a, b);  // Set c &lt;- a + b
+	F.sub (c, a, b);  // Set c &lt;- a - b
+	F.mul (c, a, b);  // Set c &lt;- a * b
+	F.neg (c, b);     // Set c &lt;- -b
 
-	F.axpy (d, a, b, c);  // Set d <- a * b + c
+	F.axpy (d, a, b, c);  // Set d &lt;- a * b + c
 
 	if (F.inv (c, a)) // Is a invertible in the ring? If so, set c to the inverse
 		std::cout &lt;&lt; "a is invertible" &lt;&lt; std::endl;
@@ -263,11 +261,11 @@ int main ()
 	F.assign (b, a);  // Set b to a
 	F.negin (b);      // Replace b to -b
 	F.init (c, 2);    // Set c to 2 in the ring
-	F.addin (a, b);   // Set a <- a + b
-	F.subin (a, b);   // Set a <- a - b
-	F.mulin (a, b);   // Set a <- a * b
+	F.addin (a, b);   // Set a &lt;- a + b
+	F.subin (a, b);   // Set a &lt;- a - b
+	F.mulin (a, b);   // Set a &lt;- a * b
 
-	F.axpyin (a, b, c);  // Set a <- a + b * c
+	F.axpyin (a, b, c);  // Set a &lt;- a + b * c
 
 	if (F.invin (a)) // Is a invertible in the ring? If so, replace it with its inverse
 		std::cout &lt;&lt; "a is invertible" &lt;&lt; std::endl;
@@ -352,7 +350,7 @@ int main ()
 
 	uint8 a;
 
-	std::cout << "Enter a value: ";
+	std::cout &lt;&lt; "Enter a value: ";
 	F.read (std::cin, a);
 
 	if (F.isZero (a))
@@ -366,7 +364,7 @@ int main ()
 
 	<para>
 	  The
-	  methods <function>zero</function>, <function>one<function>,
+	  methods <function>zero</function>, <function>one</function>,
 	  and <function>minusOne</function> return read-only
 	  references to respectively the ring's 0, 1, and -1 elements.
 	</para>
@@ -405,7 +403,7 @@ int main ()
 
 	<programlisting>
 template &lt;class Ring&gt;
-void MyAlgorithm (const Ring &R, typename Ring::Element &v)
+void MyAlgorithm (const Ring &amp;R, typename Ring::Element &amp;v)
 {
 	typename Ring::Element a, b;
 
@@ -456,7 +454,7 @@ void MyAlgorithm (const Ring &R, typename Ring::Element &v)
 #include &lt;vector&gt;
 
 template &lt;class Ring&gt;
-void MyAlgorithm (const Ring &R, size_t n)
+void MyAlgorithm (const Ring &amp;R, size_t n)
 {
 	std::vector&lt;typename Ring::Element&gt; v (n); // A dense vector in R^n
 
@@ -498,7 +496,7 @@ void MyAlgorithm (const Ring &R, size_t n)
 #include &lt;linbox/vector/sparse.h&gt;
 
 template &lt;class Ring&gt;
-void MyAlgorithm (const Ring &R)
+void MyAlgorithm (const Ring &amp;R)
 {
 	typename Vector&lt;Ring&gt;::Sparse v;
 
@@ -531,7 +529,7 @@ void MyAlgorithm (const Ring &R)
 	  <programlisting>
 #include &lt;linbox/ring/gf2.h&gt;
 
-void MyAlgorithm (const GF2 &F, unsigned int n)
+void MyAlgorithm (const GF2 &amp;F, unsigned int n)
 {
 	Vector&lt;GF2&gt;::Dense v (n);
 
@@ -558,7 +556,7 @@ void MyAlgorithm (const GF2 &F, unsigned int n)
 	  <programlisting>
 #include &lt;linbox/ring/gf2.h&gt;
 
-void MyAlgorithm (const GF2 &F)
+void MyAlgorithm (const GF2 &amp;F)
 {
 	Vector&lt;GF2&gt;::Sparse v;
 
@@ -604,7 +602,7 @@ void MyAlgorithm (const GF2 &F)
 	  <programlisting>
 #include &lt;linbox/ring/gf2.h&gt;
 
-void MyAlgorithm (const GF2 &R)
+void MyAlgorithm (const GF2 &amp;R)
 {
 	typename Vector&lt;GF2&gt;::Hybrid v;
 
@@ -635,7 +633,7 @@ void MyAlgorithm (const GF2 &R)
 #include &lt;linbox/matrix/dense.h&gt;
 
 template &lt;class Ring&gt;
-void MyFunction (const Ring &R)
+void MyFunction (const Ring &amp;R)
 {
 	DenseMatrix&lt;typename Ring::Element&gt; M (5, 5); // Declare a 5x5 matrix
 
@@ -660,7 +658,7 @@ void MyFunction (const Ring &R)
 #include &lt;linbox/matrix/dense.h&gt;
 
 template &lt;class Ring&gt;
-void MyFunction (const Ring &R)
+void MyFunction (const Ring &amp;R)
 {
 	DenseMatrix&lt;typename Ring::Element&gt; M (5, 5); // Declare a 5x5 matrix
 
@@ -688,7 +686,7 @@ void MyFunction (const Ring &R)
 #include &lt;linbox/matrix/dense.h&gt;
 
 template &lt;class Ring&gt;
-void MyFunction (const Ring &R, DenseMatrix&lt;typename Ring::Element&gt; &M)
+void MyFunction (const Ring &amp;R, DenseMatrix&lt;typename Ring::Element&gt; &amp;M)
 {
 	// Set all entries in the matrix to 5 in the ring
 	DenseMatrix&lt;typename Ring::Element&gt;::RawIterator i;
@@ -725,7 +723,7 @@ void MyFunction (const Ring &R, DenseMatrix&lt;typename Ring::Element&gt; &M)
 #include &lt;linbox/matrix/sparse.h&gt;
 
 template &lt;class Ring&gt;
-void MyFunction (const Ring &R)
+void MyFunction (const Ring &amp;R)
 {
 	SparseMatrix&lt;typename Ring::Element&gt; M (5, 5); // Declare a 5x5 matrix
 
@@ -752,7 +750,7 @@ void MyFunction (const Ring &R)
 #include &lt;linbox/ring/gf2.h&gt;
 #include &lt;linbox/matrix/sparse.h&gt;
 
-void MyFunction (const GF2 &F)
+void MyFunction (const GF2 &amp;F)
 {
 	SparseMatrix&lt;bool, Vector&lt;GF2&gt;::Hybrid&gt; M (5, 5); // Declare a 5x5 matrix
 	...
@@ -779,7 +777,7 @@ void MyFunction (const GF2 &F)
 #include &lt;linbox/blas/context.h&gt;
 
 template &lt;class Ring&gt;
-void MyFunction (const Ring &R)
+void MyFunction (const Ring &amp;R)
 {
 	Context&lt;Ring&gt; ctx (R);
 	...
@@ -819,7 +817,7 @@ void MyFunction (const Ring &R)
 #include &lt;linbox/blas/level1.h&gt;
 
 template &lt;class Ring, class Vector1, class Vector2&gt;
-void MyFunction (const Ring &R, Vector1 &v, Vector2 &w)
+void MyFunction (const Ring &amp;R, Vector1 &amp;v, Vector2 &amp;w)
 {
 	Context&lt;Ring&gt; ctx (R);
 
@@ -841,7 +839,7 @@ void MyFunction (const Ring &R, Vector1 &v, Vector2 &w)
 #include &lt;linbox/blas/level2.h&gt;
 
 template &lt;class Ring, class Vector, class Matrix&gt;
-void MyFunction (const Ring &R, Vector &v, Vector &w, Matrix &A)
+void MyFunction (const Ring &amp;R, Vector &amp;v, Vector &amp;w, Matrix &amp;A)
 {
 	Context&lt;Ring&gt; ctx (R);
 
@@ -866,7 +864,7 @@ void MyFunction (const Ring &R, Vector &v, Vector &w, Matrix &A)
 #include &lt;linbox/blas/level3.h&gt;
 
 template &lt;class Ring, class Matrix1, class Matrix2, class Matrix3&gt;
-void MyFunction (const Ring &R, Matrix1 &A, Matrix2 &B, Matrix3 &C)
+void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp;C)
 {
 	Context&lt;Ring&gt; ctx (R);
 
@@ -900,7 +898,7 @@ void MyFunction (const Ring &R, Matrix1 &A, Matrix2 &B, Matrix3 &C)
       <para>
 	Higher level functionality, such as computing the row echelon
 	form of a matrix, is provided
-	by <emphasis>solutions</solutions>. Each solution is
+	by <emphasis>solutions</emphasis>. Each solution is
 	encapsulated in a class.
       </para>
 
@@ -921,7 +919,7 @@ void MyFunction (const Ring &R, Matrix1 &A, Matrix2 &B, Matrix3 &C)
 #include &lt;linbox/solutions/echelon-form.h&gt;
 
 template &lt;class Ring, class Matrix&gt;
-void ComputeRowEchelonForm (const Ring &R, Matrix &A)
+void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 {
 	Context&lt;Ring&gt; ctx (R);
 	EchelonForm&lt;Ring&gt; EF (ctx);
@@ -939,7 +937,7 @@ void ComputeRowEchelonForm (const Ring &R, Matrix &A)
 #include &lt;linbox/solutions/echelon-form.h&gt;
 
 template &lt;class Ring, class Matrix&gt;
-void ComputeRowEchelonForm (const Ring &R, Matrix &A)
+void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 {
 	Context&lt;Ring&gt; ctx (R);
 	EchelonForm&lt;Ring&gt; EF (ctx);
@@ -968,7 +966,7 @@ void ComputeRowEchelonForm (const Ring &R, Matrix &A)
 #include &lt;linbox/blas/level1.h&gt;
 
 template &lt;class Ring, class Vector&gt;
-void ReadAndWriteVector (const Ring &R, Vector &v)
+void ReadAndWriteVector (const Ring &amp;R, Vector &amp;v)
 {
 	Context&lt;Ring&gt; ctx (R);
 
@@ -999,7 +997,7 @@ void ReadAndWriteVector (const Ring &R, Vector &v)
 #include &lt;linbox/blas/level3.h&gt;
 
 template &lt;class Ring, class Matrix&gt;
-void ReadAndWriteVector (const Ring &R, Matrix &A, std::istream &is)
+void ReadAndWriteVector (const Ring &amp;R, Matrix &amp;A, std::istream &amp;is)
 {
 	Context&lt;Ring&gt; ctx (R);
 
@@ -1011,28 +1009,28 @@ void ReadAndWriteVector (const Ring &R, Matrix &A, std::istream &is)
 }
       </programlisting>
 
-      </para>
+      <para>
 	Some examples of formats are:
       </para>
 
       <itemizedlist>
-	<item><literal>FORMAT_PRETTY</literal>, suitable for output to
+	<listitem><literal>FORMAT_PRETTY</literal>, suitable for output to
 	the console or a text-file so that the matrix can be examined
-	by the user</item>
-	<item><literal>FORMAT_DUMAS</literal>, suitable for the
-	storage of sparse matrices</item>
-	<item><literal>FORMAT_MAPLE</literal>, for interacting with
-	Maple</item>
-	<item><literal>FORMAT_MATLAB</literal>, for interacting with
-	Maple</item>
-	<item><literal>FORMAT_SAGE</literal>, for interacting with
-	Sage</item>
-	<item><literal>FORMAT_PNG</literal>, good for large matrices
+	by the user</listitem>
+	<listitem><literal>FORMAT_DUMAS</literal>, suitable for the
+	storage of sparse matrices</listitem>
+	<listitem><literal>FORMAT_MAPLE</literal>, for interacting with
+	Maple</listitem>
+	<listitem><literal>FORMAT_MATLAB</literal>, for interacting with
+	Maple</listitem>
+	<listitem><literal>FORMAT_SAGE</literal>, for interacting with
+	Sage</listitem>
+	<listitem><literal>FORMAT_PNG</literal>, good for large matrices
 	over GF(2). Only available for matrices over GF(2) and only if
-	LELA is configured with support for libpng.</item>
-	<item><literal>FORMAT_DETECT</literal>, try to detect the
+	LELA is configured with support for libpng.</listitem>
+	<listitem><literal>FORMAT_DETECT</literal>, try to detect the
 	format of a matrix. Only makes sense
-	for <function>read</function>.</item>
+	for <function>read</function>.</listitem>
       </itemizedlist>
 
       <para>
@@ -1114,7 +1112,7 @@ void MyFunction ()
 {
 	commentator.start ("Description of activity", __FUNCTION__);
 
-	std::ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+	std::ostream &amp;report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 
 	report &lt;&lt; "Some information about the computation." &lt;&lt; std::endl;
 

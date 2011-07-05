@@ -163,6 +163,12 @@ LB_CHECK_M4RI
 LB_OPT
 LB_DOC
 
+AC_PATH_PROG(XSLTPROC,xsltproc,"no")
+
+if test "x$XSLTPROC" = "xno" ; then
+  echo "Note: xsltproc not found. Cannot rebuild documentation."
+  XSLTPROC=
+fi
 
 # this is bogus so far as I can tell.  -bds
 #CXXFLAGS="${GMP_CFLAGS} ${NTL_CFLAGS} ${GIVARO_CFLAGS} ${SACLIB_CFLAGS} ${CXXFLAGS}"
