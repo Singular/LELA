@@ -21,7 +21,7 @@ namespace LinBox
 
 // Forward-declarations
 template <class Iterator, class ConstIterator = Iterator> class BitSubvector;
-template <class Iterator, class ConstIterator, class _Endianness = BigEndian<typename std::iterator_traits<Iterator>::value_type> > class BitSubvectorWordAligned;
+template <class Iterator, class ConstIterator, class _Endianness = DefaultEndianness<typename std::iterator_traits<Iterator>::value_type> > class BitSubvectorWordAligned;
 
 /** A vector of boolean 0-1 values, stored compactly to save space. 
  *
@@ -41,7 +41,7 @@ template <class Iterator, class ConstIterator, class _Endianness = BigEndian<typ
  *    back_word ().
  */
 
-template <class _Endianness = DefaultEndianness>
+template <class _Endianness = DefaultEndianness<uint64> >
 class BitVector
 {
     public:

@@ -300,7 +300,20 @@ public:
 	static inline word e_j (uint8 j) { return shift_right (e_0, j); }
 };
 
-typedef BigEndian<__LINBOX_BITVECTOR_WORD_TYPE> DefaultEndianness;
+// Define default endianness
+
+// We use the endianness which is given by the version of libm4ri if
+// it is available, since in any case it must be compatible with what
+// libm4ri uses. Otherwise we use little endian by default.
+#ifdef __LINBOX_HAVE_M4RI
+#  ifdef __LINBOX_HAVE_M4RI_GE_20110601
+#    define DefaultEndianness LittleEndian
+#  else // !__LINBOX_HAVE_M4RI_GE_20110601
+#    define DefaultEndianness BigEndian
+#  endif // __LINBOX_HAVE_M4RI_GE_20110601
+#else // !__LINBOX_HAVE_M4RI
+#  define DefaultEndianness LittleEndian
+#endif // __LINBOX_HAVE_M4RI
 
 template <class word_iterator, class const_word_iterator, class Endianness>
 class BitVectorIterator;
@@ -308,7 +321,7 @@ class BitVectorIterator;
 template <class const_word_iterator, class Endianness>
 class BitVectorConstIterator;
 
-template <class word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<word_iterator>::value_type> >
+template <class word_iterator, class _Endianness = DefaultEndianness<typename std::iterator_traits<word_iterator>::value_type> >
 class BitVectorReference
 {
     public:
@@ -377,7 +390,7 @@ template <class word_iterator, class Endianness>
 inline std::ostream &operator << (std::ostream &os, BitVectorReference<word_iterator, Endianness> &a) 
 	{ os << bool (a); return os; }
 
-template <class const_word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<const_word_iterator>::value_type> >
+template <class const_word_iterator, class _Endianness = DefaultEndianness<typename std::iterator_traits<const_word_iterator>::value_type> >
 class BitVectorConstReference
 {
     public:
@@ -414,7 +427,7 @@ inline std::ostream &operator << (std::ostream &os, BitVectorConstReference<cons
 	{ os << bool (a); return os; }
 
 // class BitVectorIterator : public std::iterator <std::random_access_iterator_tag, bool>
-template <class _word_iterator, class _const_word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<_word_iterator>::value_type> >
+template <class _word_iterator, class _const_word_iterator, class _Endianness = DefaultEndianness<typename std::iterator_traits<_word_iterator>::value_type> >
 class BitVectorIterator : public std::_Bit_iterator
 {
     public:
@@ -529,7 +542,7 @@ class BitVectorIterator : public std::_Bit_iterator
 	reference _ref;
 };
 
-template <class _const_word_iterator, class _Endianness = BigEndian<typename std::iterator_traits<_const_word_iterator>::value_type> >
+template <class _const_word_iterator, class _Endianness = DefaultEndianness<typename std::iterator_traits<_const_word_iterator>::value_type> >
 class BitVectorConstIterator : public std::iterator <std::random_access_iterator_tag, bool>
 {
     public:

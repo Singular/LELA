@@ -13,6 +13,11 @@
 #include "linbox/blas/level3-m4ri.h"
 #include "linbox/blas/level3-ll.h"
 
+// The macro STRASSEN_MUL_CUTOFF was renamed in M4RI 20110601
+#ifndef __LINBOX_HAVE_M4RI_GE_20110601
+#  define __M4RI_STRASSEN_MUL_CUTOFF STRASSEN_MUL_CUTOFF
+#endif // !__LINBOX_HAVE_M4RI_GE_20110601
+
 namespace LinBox
 {
 
@@ -61,9 +66,9 @@ M4RIMatrixBase &_gemm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M,
 
 	if (a) {
 		if (b)
-			mzd_addmul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			mzd_addmul (C._rep, A._rep, B._rep, __M4RI_STRASSEN_MUL_CUTOFF);
 		else
-			mzd_mul (C._rep, A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			mzd_mul (C._rep, A._rep, B._rep, __M4RI_STRASSEN_MUL_CUTOFF);
 	}
 	else if (!b)
 		_scal<GF2, typename Modules::Tag>::op (F, M, false, C);
@@ -82,9 +87,9 @@ M4RIMatrixBase &_trsm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool 
 
 	if (a) {
 		if (type == UpperTriangular)
-			mzd_trsm_upper_left (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			mzd_trsm_upper_left (A._rep, B._rep, __M4RI_STRASSEN_MUL_CUTOFF);
 		else if (type == LowerTriangular)
-			mzd_trsm_lower_left (A._rep, B._rep, STRASSEN_MUL_CUTOFF);
+			mzd_trsm_lower_left (A._rep, B._rep, __M4RI_STRASSEN_MUL_CUTOFF);
 		// FIXME: Should throw error at this point -- invalid type
 	} else
 		_scal<GF2, typename Modules::Tag>::op (F, M, false, B);

@@ -293,9 +293,9 @@ template <>
 struct RawVector<bool>
 {
     public:
-	typedef BitVector<BigEndian<uint64> > Dense;
+	typedef BitVector<DefaultEndianness<uint64> > Dense;
 	typedef std::vector<uint32> Sparse;
-	typedef HybridVector<BigEndian<uint64>, uint16, uint64> Hybrid;
+	typedef HybridVector<DefaultEndianness<uint64>, uint16, uint64> Hybrid;
 };
 
 // Calculation-modules

@@ -23,6 +23,13 @@
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/raw-iterator.h"
 
+// Define how to retrieve a row from a M4RI-matrix depending on the version of M4RI
+#ifdef __LINBOX_HAVE_M4RI_GE_20110601
+#  define M4RI_MATRIX_ROW_START(M,r) mzd_row (M->_rep, r)
+#else // !__LINBOX_HAVE_M4RI_GE_20110601
+#  define M4RI_MATRIX_ROW_START(M,r) M->_rep->rows[r]
+#endif // __LINBOX_HAVE_M4RI_GE_20110601
+
 namespace LinBox
 {
 
@@ -163,7 +170,7 @@ class M4RIMatrix : public M4RIMatrixBase
 		}
 
 		Row operator [] (int i) const
-			{ return Row (_M->_rep->rows[_idx + i], _M->_rep->rows[_idx + i] + _M->_rep->width, _M->_rep->ncols); }
+			{ return Row (M4RI_MATRIX_ROW_START (_M, _idx + i), M4RI_MATRIX_ROW_START (_M, _idx + i) + _M->_rep->width, _M->_rep->ncols); }
 
 		Row *operator -> ()
 			{ return &_row; }
@@ -187,7 +194,7 @@ class M4RIMatrix : public M4RIMatrixBase
 
 	private:
 		inline void make_row ()
-			{ if (_M->_rep->rows != NULL) _row = Row (_M->_rep->rows[_idx], _M->_rep->rows[_idx] + _M->_rep->width, _M->_rep->ncols); }
+			{ if (_M->_rep->nrows != 0) _row = Row (M4RI_MATRIX_ROW_START (_M, _idx), M4RI_MATRIX_ROW_START (_M, _idx) + _M->_rep->width, _M->_rep->ncols); }
 
 		MatrixPointer _M;
 		size_t _idx;
@@ -248,10 +255,10 @@ public:
 		{ return ConstRowIterator (this, rowdim ()); }
 
 	Row operator[] (size_t i)
-		{ return Row (_rep->rows[i], _rep->rows[i] + _rep->width, _rep->ncols); }
+		{ return Row (M4RI_MATRIX_ROW_START (this, i), M4RI_MATRIX_ROW_START (this, i) + _rep->width, _rep->ncols); }
 
 	ConstRow operator[] (size_t i) const
-		{ return ConstRow (_rep->rows[i], _rep->rows[i] + _rep->width, _rep->ncols); }
+		{ return ConstRow (M4RI_MATRIX_ROW_START (this, i), M4RI_MATRIX_ROW_START (this, i) + _rep->width, _rep->ncols); }
 
 	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Dense01> RawIterator;
 	typedef RawIterator ConstRawIterator;
@@ -353,8 +360,8 @@ class M4RISubmatrix : public M4RIMatrixBase
 		}
 
 		value_type operator [] (int i) const
-			{ return value_type (Iterator (_M->_rep->rows[_idx + i], _M->_rep->offset),
-					     Iterator (_M->_rep->rows[_idx + i] + _M->_rep->width - ((_last_offset == 0) ? 0 : 1), _last_offset)); }
+			{ return value_type (Iterator (M4RI_MATRIX_ROW_START (_M, _idx + i), _M->_rep->offset),
+					     Iterator (M4RI_MATRIX_ROW_START (_M, _idx + i) + _M->_rep->width - ((_last_offset == 0) ? 0 : 1), _last_offset)); }
 
 		value_type *operator -> ()
 			{ return &_row; }
@@ -380,8 +387,8 @@ class M4RISubmatrix : public M4RIMatrixBase
 		inline void make_row ()
 		{
 			if (_M->_rep->rows != NULL)
-				_row = value_type (Iterator (_M->_rep->rows[_idx], _M->_rep->offset),
-						   Iterator (_M->_rep->rows[_idx] + _M->_rep->width - ((_last_offset == 0) ? 0 : 1), _last_offset));
+				_row = value_type (Iterator (M4RI_MATRIX_ROW_START (_M, _idx), _M->_rep->offset),
+						   Iterator (M4RI_MATRIX_ROW_START (_M, _idx) + _M->_rep->width - ((_last_offset == 0) ? 0 : 1), _last_offset));
 		}
 
 		MatrixPointer _M;
@@ -452,16 +459,16 @@ public:
 	{
 		size_t last_offset = (_rep->offset + _rep->ncols) & WordTraits<word>::pos_mask;
 
-		return Row (BitVectorIterator<word *, const word *, BigEndian<word> > (_rep->rows[i], _rep->offset),
-			    BitVectorIterator<word *, const word *, BigEndian<word> > (_rep->rows[i] + _rep->width - ((last_offset == 0) ? 0 : 1), last_offset));
+		return Row (BitVectorIterator<word *, const word *, BigEndian<word> > (M4RI_MATRIX_ROW_START (this, i), _rep->offset),
+			    BitVectorIterator<word *, const word *, BigEndian<word> > (M4RI_MATRIX_ROW_START (this, i) + _rep->width - ((last_offset == 0) ? 0 : 1), last_offset));
 	}
 
 	ConstRow operator[] (size_t i) const
 	{
 		size_t last_offset = (_rep->offset + _rep->ncols) & WordTraits<word>::pos_mask;
 
-		return ConstRow (BitVectorIterator<const word *, const word *, BigEndian<word> > (_rep->rows[i], _rep->offset),
-				 BitVectorIterator<const word *, const word *, BigEndian<word> > (_rep->rows[i] + _rep->width - ((last_offset == 0) ? 0 : 1), last_offset));
+		return ConstRow (BitVectorIterator<const word *, const word *, BigEndian<word> > (M4RI_MATRIX_ROW_START (this, i), _rep->offset),
+				 BitVectorIterator<const word *, const word *, BigEndian<word> > (M4RI_MATRIX_ROW_START (this, i) + _rep->width - ((last_offset == 0) ? 0 : 1), last_offset));
 	}
 
 	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Dense01> RawIterator;
