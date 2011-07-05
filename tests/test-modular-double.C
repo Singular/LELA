@@ -31,7 +31,8 @@
 #include "linbox/ring/modular.h"
 
 #include "test-common.h"
-#include "test-generic.h"
+#include "test-ring.h"
+#include "test-blas-level1.h"
 
 using namespace LinBox;
 

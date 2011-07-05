@@ -19,7 +19,8 @@
 #include "linbox/matrix/transpose.h"
 
 #include "test-common.h"
-#include "test-matrix-domain.h"
+#include "test-blas-level2.h"
+#include "test-blas-level3.h"
 
 using namespace LinBox;
 
@@ -81,8 +82,11 @@ int main (int argc, char **argv)
 
 	Context<Field> ctx (F);
 
-	if (!testMatrixDomain (ctx, "dense", M1, M2, M3, v1, v2, iterations,
-			       DenseMatrix<Element>::IteratorType ()))
+	if (!testBLAS2 (ctx, "dense", M1, M2, v1, v2, iterations,
+			DenseMatrix<Element>::IteratorType ()))
+		pass = false;
+	if (!testBLAS3 (ctx, "dense", M1, M2, M3, iterations,
+			DenseMatrix<Element>::IteratorType ()))
 		pass = false;
 
 	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream21 (F, (double) k / (double) m, m, l);
@@ -93,16 +97,22 @@ int main (int argc, char **argv)
 	SparseMatrix<Element> M5 (stream22);
 	SparseMatrix<Element> M6 (stream23);
 
-	if (!testMatrixDomain (ctx, "sparse row-wise", M4, M5, M6, v1, v2, iterations,
-			       SparseMatrix<Element>::IteratorType ()))
+	if (!testBLAS2 (ctx, "sparse row-wise", M4, M5, v1, v2, iterations,
+			SparseMatrix<Element>::IteratorType ()))
+		pass = false;
+	if (!testBLAS3 (ctx, "sparse row-wise", M4, M5, M6, iterations,
+			SparseMatrix<Element>::IteratorType ()))
 		pass = false;
 
 	TransposeMatrix<SparseMatrix<Element> > M7 (M6);
 	TransposeMatrix<SparseMatrix<Element> > M8 (M5);
 	TransposeMatrix<SparseMatrix<Element> > M9 (M4);
 
-	if (!testMatrixDomain (ctx, "sparse column-wise", M7, M8, M9, v4, v3, iterations,
-			       TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
+	if (!testBLAS2 (ctx, "sparse column-wise", M7, M8, v4, v3, iterations,
+			TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
+		pass = false;
+	if (!testBLAS3 (ctx, "sparse column-wise", M7, M8, M9, iterations,
+			TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
 		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));

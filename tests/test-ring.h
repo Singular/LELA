@@ -10,14 +10,12 @@
 #define __LINBOX_test_ring_H
 
 #include <iostream>
-//#include <fstream>
 #include <sstream>
 #include <vector>
 #include <cstdio>
 #include <cmath>
 
 #include "linbox/util/commentator.h"
-//#include "linbox/vector/stream.h"
 #include "linbox/integer.h"
 
 #include "test-common.h" 

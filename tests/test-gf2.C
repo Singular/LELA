@@ -26,7 +26,7 @@
 #include "linbox/blas/context.h"
 
 #include "test-generic-for-quad.h"
-#include "test-vector-domain.h"
+#include "test-blas-level1.h"
 
 using namespace LinBox;
 using LinBox::uint16;

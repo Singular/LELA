@@ -64,22 +64,18 @@ test_commentator_SOURCES =                \
 
 test_modular_SOURCES =                        \
         test-modular.C                        \
-        test-generic.h                        \
         test-common.C
 
 test_gf2_SOURCES =                        \
         test-gf2.C                        \
-        test-generic.h                    \
         test-common.C
 
 test_gmp_rational_SOURCES =               \
         test-gmp-rational.C               \
-        test-generic.h                    \
         test-common.C
 
 test_unparametric_ring_SOURCES =        \
         test-unparametric-ring.C        \
-        test-generic.h                   \
         test-common.C
 
 test_randiter_nonzero_SOURCES =          \
@@ -111,7 +107,6 @@ test_matrix_domain_gf2_SOURCES =                 \
 
 test_modular_double_SOURCES =                \
         test-modular-double.C                \
-        test-generic.h                        \
         test-common.C
 
 test_matrix_SOURCES = \

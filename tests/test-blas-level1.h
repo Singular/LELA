@@ -1,13 +1,17 @@
-/* linbox/tests/test-vector-domain.h
- * Copyright (C) 2001, 2002 Bradford Hovinen
+/* tests/test-blas-level1.h
+ * Copyright 2001, 2002 Bradford Hovinen
+ *
+ * Written by Bradford Hovinen <hovinen@gmail.com>
+ *
+ * ---------------------------------------------------------
+ *
  * See COPYING for license information.
  *
- * Extracted from test-generic by bds.
- * test-generic was written by Bradford Hovinen <hovinen@cis.udel.edu>
+ * Generic test suite for BLAS Level 1 routines
  */
 
-#ifndef __LINBOX_test_vector_domain_H
-#define __LINBOX_test_vector_domain_H
+#ifndef __LINBOX_TEST_BLAS_LEVEL1_H
+#define __LINBOX_TEST_BLAS_LEVEL1_H
 
 #include <iostream>
 #include <fstream>
@@ -19,7 +23,6 @@
 #include "linbox/vector/stream.h"
 #include "linbox/blas/context.h"
 #include "linbox/blas/level1.h"
-#include "linbox/blas/level3.h"
 
 #include "test-common.h" 
 
@@ -353,7 +356,7 @@ static bool testAXPY (LinBox::Context<Field, Modules> &ctx, const char *text, Li
 	return ret;
 }
 
-#endif // __LINBOX_test_vector_domain_H
+#endif // __LINBOX_TEST_BLAS_LEVEL1_H
 
 // Local Variables:
 // mode: C++

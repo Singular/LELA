@@ -19,7 +19,7 @@
 #include "linbox/vector/stream.h"
 #include "linbox/vector/sparse.h"
 
-#include "test-vector-domain.h"
+#include "test-blas-level1.h"
 
 using namespace LinBox;
 

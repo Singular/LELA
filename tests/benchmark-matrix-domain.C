@@ -21,7 +21,8 @@
 #include "linbox/vector/stream.h"
 
 #include "test-common.h"
-#include "test-matrix-domain.h"
+#include "test-blas-level2.h"
+#include "test-blas-level3.h"
 
 using namespace LinBox;
 
