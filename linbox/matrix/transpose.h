@@ -130,8 +130,8 @@ class TransposeMatrix
 
     protected:
 
-	friend class TransposeMatrix<Matrix, Trait>;
-	friend class TransposeMatrix<const Matrix, Trait>;
+	friend class TransposeSubmatrix<Matrix, Trait>;
+	friend class TransposeSubmatrix<const Matrix, Trait>;
 
 	Matrix &_A;
 };
