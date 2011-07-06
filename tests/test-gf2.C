@@ -51,7 +51,7 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start("GF2 field test suite", "GF2");
+	commentator.start ("GF2 field test suite", "GF2");
 	bool pass = true;
 
 	GF2 F;

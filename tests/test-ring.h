@@ -71,14 +71,12 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	typename Ring::Element zero, one, two, three;
-	F.init(zero, 0); F.init(one, 1); F.init(two, 2); F.init(three, 3);
+	F.init (zero, 0); F.init (one, 1); F.init (two, 2); F.init (three, 3);
 
 	typename Ring::Element a, b, c, d, e, f;
-	F.init(a,0); F.init(b,0); F.init(c,0); F.init(d,0); F.init(e,0); F.init(f,0);
-
+	F.init (a, 0); F.init (b, 0); F.init (c, 0); F.init (d, 0); F.init (e, 0); F.init (f, 0);
 
 	report << "Ring self description: " << F.write (report) << endl;
-	//	report << "ring Element 2: " << F.write (report, two) << endl;
 
 	LinBox::integer n, m;
 	bool pass = true, part_pass = true;
@@ -96,18 +94,25 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	/* tests for presence of members with minimal check of semantics */
 	// these checks need improvement 
 
-	commentator.start ("Testing correctness of 0 and 1");
+	commentator.start ("Testing correctness of 0, 1, and -1");
 	part_pass = true;
 
-	if (!F.isZero (zero)) {
-		part_pass = reportError( "isZero (0) is false", pass);
-	}
-	if (F.isZero (one)) part_pass = reportError( "isZero (1) is true", pass);
-	if (F.isOne (zero)) part_pass = reportError( "isOne (0) is true", pass);
-	if (!F.isOne (one)) {
-		part_pass = reportError( "isOne (1) is false", pass);
-	}
+	if (!F.isZero (zero))
+		part_pass = reportError ("isZero (0) is false", pass);
 
+	if (F.isZero (one))
+		part_pass = reportError ("isZero (1) is true", pass);
+
+	if (F.isOne (zero))
+		part_pass = reportError ("isOne (0) is true", pass);
+
+	if (!F.isOne (one))
+		part_pass = reportError ("isOne (1) is false", pass);
+
+	F.add (a, F.one (), F.minusOne ());
+
+	if (!F.isZero (a))
+		part_pass = reportError ("1 + -1 != 0", pass);
 
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
@@ -119,15 +124,16 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 		n = 49193295;   // Just using some odd value
 	else
 		n -= 1;
-
 	
 	report << "Initial integer: " << n << endl;
-	F.init (a, n);  F.write ( report << "Result of init: ", a) << endl;
+	F.init (a, n);
+	F.write (report << "Result of init: ", a) << endl;
 
 	F.convert (m, a);
 	report << "Result of convert: " << m << endl;
 
-	if (m != n) part_pass = reportError( "F.convert (m, F.init (a, n)) != n", pass);
+	if (m != n)
+		part_pass = reportError ("F.convert (m, F.init (a, n)) != n", pass);
 
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
@@ -139,54 +145,73 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	F.init (d, n-2);
 	F.init (e, 3);
 
-	F.add (a, three, two); F.write (report << "Result of 2 + 3: ", a) << endl;
+	F.add (a, three, two);
+	F.write (report << "Result of 2 + 3: ", a) << endl;
 	F.assign (d, three);
-	F.addin (d, two); F.write (report << "Result of 2 + 3 (inplace): ", d) << endl;
+	F.addin (d, two);
+	F.write (report << "Result of 2 + 3 (inplace): ", d) << endl;
 
 	if (!F.areEqual (a, F.init (f, 5)) || !F.areEqual (d, a)) 
-		part_pass = reportError( "Results of add are incorrect", pass);
+		part_pass = reportError ("Results of add are incorrect", pass);
 
-	F.neg (a, two); F.write (report << "Result of -2: ", a) << endl;
+	F.neg (a, two);
+	F.write (report << "Result of -2: ", a) << endl;
 	F.assign (d, two);
-	F.negin (d); F.write (report << "Result of -2 (inplace): ", d) << endl;
-	F.init (f, -2); F.write( report << "-2 via init: ", f) << endl;
+	F.negin (d);
+	F.write (report << "Result of -2 (inplace): ", d) << endl;
+	F.init (f, -2);
+	F.write (report << "-2 via init: ", f) << endl;
 
 	if (!F.areEqual (a, f) || !F.areEqual (d, a)) 
-		part_pass = reportError( "Results of neg are incorrect", pass);
+		part_pass = reportError ("Results of neg are incorrect", pass);
 
-	F.sub (a, three, two); F.write (report << "Result of 3 - 2: ", a) << endl;
+	F.sub (a, three, two);
+	F.write (report << "Result of 3 - 2: ", a) << endl;
 	F.init (d, 3);
-	F.subin (d, two); F.write (report << "Result of 3 - 2 (inplace): ", d) << endl;
+	F.subin (d, two);
+	F.write (report << "Result of 3 - 2 (inplace): ", d) << endl;
 
 	if (!F.areEqual (a, one) || !F.areEqual (d, a)) 
-		part_pass = reportError( "Results of neg sub incorrect", pass);
+		part_pass = reportError ("Results of neg sub incorrect", pass);
 
-	F.mul (a, two, three); F.write (report << "Result of 2 * 3: ", a) << endl;
+	F.mul (a, two, three);
+	F.write (report << "Result of 2 * 3: ", a) << endl;
 	F.assign (d, two);
-	F.mulin (d, three); F.write (report << "Result of 2 * 3 (inplace): ", d) << endl;
+	F.mulin (d, three);
+	F.write (report << "Result of 2 * 3 (inplace): ", d) << endl;
 	F.init (f, 6);
 
 	if (!F.areEqual (a, f) || !F.areEqual (d, a)) 
-		part_pass = reportError( "Results of mul incorrect", pass);
+		part_pass = reportError ("Results of mul incorrect", pass);
 
-	F.inv (a, one); F.write (report << "Result of inverting 1: ", a) << endl;
+	F.inv (a, one);
+	F.write (report << "Result of inverting 1: ", a) << endl;
 	F.assign (d, one);
-	F.invin (d); F.write (report << "Result of inverting 1 (inplace): ", d) << endl;
+	F.invin (d);
+	F.write (report << "Result of inverting 1 (inplace): ", d) << endl;
 
 	if (!F.areEqual (a, one) || !F.areEqual (d, a)) 
-		part_pass = reportError( "Results of inv incorrect", pass);
+		part_pass = reportError ("Results of inv incorrect", pass);
 
-	if ( F.isZero(two) ) F.assign(f, three); else F.assign(f, two);
-	F.div (a, f, f); F.write ( report << "Result of f/f: ", a) << endl;
+	if (F.isZero (two))
+		F.assign(f, three);
+	else
+		F.assign(f, two);
+
+	F.div (a, f, f);
+	F.write ( report << "Result of f/f: ", a) << endl;
 	F.assign(d, f);
-	F.divin (d, f); F.write ( report << "Result of f/f (inplace): ", d) << endl;
+	F.divin (d, f);
+	F.write ( report << "Result of f/f (inplace): ", d) << endl;
 
 	if (!F.areEqual (a, one) || !F.areEqual (d, a)) 
 		part_pass = reportError( "Results of div incorrect", pass);
 
-	F.axpy (a, two, three, two); F.write ( report << "Result of axpy 2*3 + 2: ", a) << endl;
+	F.axpy (a, two, three, two);
+	F.write (report << "Result of axpy 2*3 + 2: ", a) << endl;
 	F.assign (d, two);
-	F.axpyin (d, two, three); F.write ( report << "Result of axpy 2*3 + 2 (inplace): ", d) << endl;
+	F.axpyin (d, two, three);
+	F.write (report << "Result of axpy 2*3 + 2 (inplace): ", d) << endl;
 	F.init (f, 8);
 
 	if ( !F.areEqual (a, f) || !F.areEqual (d, a) ) 
@@ -266,7 +291,7 @@ bool testRingNegation (const Ring &F, const char *name, unsigned int iterations)
 	commentator.start (st, "testRingNegation", iterations);
 
 	typename Ring::Element a, neg_a, neg_a_a, zero;
-	F.init(a,0); F.init(neg_a,0); F.init(neg_a_a,0); F.init (zero, 0);
+	F.init (a,0); F.init (neg_a,0); F.init (neg_a_a,0); F.init (zero, 0);
 	typename Ring::RandIter r (F);
 
 	bool ret = true;
@@ -321,7 +346,6 @@ bool testRingInversion (const Ring &F, const char *name, unsigned int iterations
 	typename Ring::RandIter r (F);
 
 	bool ret = true;
-
 
 	for (unsigned int i = 0; i < iterations; i++) {
 		commentator.startIteration (i);
@@ -476,7 +500,6 @@ bool testRingCommutativity (const Ring &F, const char *name, unsigned int iterat
 		if (!F.areEqual (ab, ba)) 
 			reportError("Multiplication was not commutative", ret);
 
-
 		F.add (a_b, a, b);
 		F.add (b_a, b, a);
 
@@ -488,8 +511,6 @@ bool testRingCommutativity (const Ring &F, const char *name, unsigned int iterat
 
 		if (!F.areEqual (a_b, b_a)) 
 			reportError("Addition was not commutative", ret);
-
-
 
 		commentator.stop ("done");
 		commentator.progress ();
@@ -686,7 +707,6 @@ bool testRingCharacteristic (const Ring &F, const char *name, unsigned int itera
 
 		F.assign (sigma, zero);
 
-// suggestion: make this run in time O(lg(p)), then take the conditional out of the run...Tests
 		for (j = 0; j < p; j += 1)
 			F.addin (sigma, a);
 
@@ -797,9 +817,15 @@ bool testFreshmansDream (const Ring &F, const char *name, unsigned int iteration
 
 template <class Ring>
 bool testArithmeticConsistency (const Ring &F, const char *name, unsigned int iterations)
-{  return testRingArithmeticConsistency(F, name, iterations) 
-	   && testInvDivConsistency(F, name, iterations); 
+{
+	bool pass = true;
+
+	pass = testRingArithmeticConsistency (F, name, iterations) && pass;
+	pass = testInvDivConsistency (F, name, iterations) && pass;
+
+	return pass;
 }
+
 template <class Ring>
 bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned int iterations)
 {
@@ -882,22 +908,22 @@ bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned in
 template <class Ring>
 bool testInvDivConsistency (const Ring &F, const char *name, unsigned int iterations)
 {
-    std::ostringstream str;
-    str << "Testing " << name << " in-place/out-of-place inv and div consistency" << ends;
+	std::ostringstream str;
+	str << "Testing " << name << " in-place/out-of-place inv and div consistency" << ends;
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testInvDivConsistency", iterations);
 
-    bool ret = true;
+	bool ret = true;
 
-    typename Ring::RandIter r (F);
-    typename Ring::Element a, b, c1, c2;
-    F.init (a,0); F.init (b,0); F.init (c1,0); F.init (c2,0);
+	typename Ring::RandIter r (F);
+	typename Ring::Element a, b, c1, c2;
+	F.init (a,0); F.init (b,0); F.init (c1,0); F.init (c2,0);
 
-    for (unsigned int i = 0; i < iterations; i++) {
-        commentator.startIteration (i);
+	for (unsigned int i = 0; i < iterations; i++) {
+		commentator.startIteration (i);
 
-        r.random (a); r.random (b);
+		r.random (a); r.random (b);
 
 		// This should be immaterial, since we have already "proven" commutativity
 		if (F.isZero (a) && !F.isZero (b))
@@ -918,7 +944,7 @@ bool testInvDivConsistency (const Ring &F, const char *name, unsigned int iterat
 			F.write (report, c1) << ", (in-place) ";
 			F.write (report, c2) << endl;
 
-		if (!F.areEqual (c1, c2)) reportError("Consistency failure for division", ret);
+			if (!F.areEqual (c1, c2)) reportError("Consistency failure for division", ret);
 
 			F.inv (c1, a);
 			F.assign (c2, a);
@@ -928,7 +954,7 @@ bool testInvDivConsistency (const Ring &F, const char *name, unsigned int iterat
 			F.write (report, c1) << ", (in-place) ";
 			F.write (report, c2) << endl;
 
-		if (!F.areEqual (c1, c2)) reportError("Consistency failure for inversion", ret);
+			if (!F.areEqual (c1, c2)) reportError("Consistency failure for inversion", ret);
 		}
 
 		commentator.stop ("done");
@@ -1003,7 +1029,7 @@ bool testAxpyConsistency (const Ring &F, const char *name, unsigned int iteratio
  * if it is always zero.
  */
 template <class Ring>
-bool testRanditerBasic(const Ring &F, const char *name, unsigned int iterations)
+bool testRanditerBasic (const Ring &F, const char *name, unsigned int iterations)
 {
 	bool ret=false;
 	std::ostringstream str;
@@ -1040,10 +1066,10 @@ bool runBasicRingTests (const Ring &F, const char *desc, unsigned int iterations
 
 	commentator.start (st, "runBasicRingTests", runCharacteristicTest ? 11 : 10);
 	
-	if (!testRing                 (F, string(str.str()).c_str()))                pass = false; commentator.progress ();
-	if (!testRingNegation         (F, desc, iterations))                    pass = false; commentator.progress ();
-	if (!testRingDistributivity           (F, desc, iterations))                    pass = false; commentator.progress ();
-	if (!testRingAssociativity    (F, desc, iterations))                    pass = false; commentator.progress ();
+	if (!testRing                 (F, string (str.str ()).c_str ())) pass = false; commentator.progress ();
+	if (!testRingNegation         (F, desc, iterations))             pass = false; commentator.progress ();
+	if (!testRingDistributivity   (F, desc, iterations))             pass = false; commentator.progress ();
+	if (!testRingAssociativity    (F, desc, iterations))             pass = false; commentator.progress ();
 
 	if (runCharacteristicTest) {
 		if (!testRingCharacteristic (F, desc, iterations))
@@ -1052,10 +1078,10 @@ bool runBasicRingTests (const Ring &F, const char *desc, unsigned int iterations
 		commentator.progress ();
 	}
 
-	if (!testGeometricSummation    (F, desc, iterations, 100))               pass = false; commentator.progress ();
-	if (!testRingArithmeticConsistency (F, desc, iterations))                    pass = false; commentator.progress ();
-	if (!testAxpyConsistency       (F, desc, iterations))                    pass = false; commentator.progress ();
-	if (!testRanditerBasic       (F, desc, iterations))                    pass = false; commentator.progress ();
+	if (!testGeometricSummation        (F, desc, iterations, 100))   pass = false; commentator.progress ();
+	if (!testRingArithmeticConsistency (F, desc, iterations))        pass = false; commentator.progress ();
+	if (!testAxpyConsistency           (F, desc, iterations))        pass = false; commentator.progress ();
+	if (!testRanditerBasic             (F, desc, iterations))        pass = false; commentator.progress ();
 
 	commentator.stop (MSG_STATUS (pass), (const char *) 0, "runBasicRingTests");
 	delete[] st;
@@ -1065,24 +1091,30 @@ bool runBasicRingTests (const Ring &F, const char *desc, unsigned int iterations
  
  /* Convenience function to run all of the ring tests on a given ring */
 
- template <class Ring>
- bool runRingTests (const Ring &F, const char *desc, unsigned int iterations, size_t n, bool runCharacteristicTest = true) 
- // n is not used.
- {	ostringstream str;
+template <class Ring>
+bool runRingTests (const Ring &F, const char *desc, unsigned int iterations, bool runCharacteristicTest = true, bool runInversionTests = true) 
+{
+	ostringstream str;
 
-	 str << "Testing " << desc << " ring" << ends;
-	 char * st = new char[str.str().size()];
-	 strcpy (st, str.str().c_str());
-	 commentator.start (st, "runRingTests");
-	 bool ret =  runBasicRingTests(F, desc, iterations, runCharacteristicTest)
-		 && testInvDivConsistency(F, desc, iterations) 
-		 && testRingInversion (F, desc, iterations)
-		 && testRingCommutativity (F, desc, iterations)
-		 && testFreshmansDream(F, desc, iterations);
+	str << "Testing " << desc << " ring" << ends;
+	char * st = new char[str.str().size()];
+	strcpy (st, str.str().c_str());
+	commentator.start (st, "runRingTests");
+	bool ret = true;
 
-	 commentator.stop (MSG_STATUS (ret));
-	 delete[] st;
-	 return ret;
+	ret = runBasicRingTests (F, desc, iterations, runCharacteristicTest) && ret;
+
+	if (runInversionTests) {
+		ret = testInvDivConsistency (F, desc, iterations) && ret;
+		ret = testRingInversion (F, desc, iterations) && ret;
+	}
+
+	ret = testRingCommutativity (F, desc, iterations) && ret;
+	ret = testFreshmansDream (F, desc, iterations) && ret;
+
+	commentator.stop (MSG_STATUS (ret));
+	delete[] st;
+	return ret;
 }
 
 /// @name Generic ring tests
@@ -1231,12 +1263,9 @@ bool testRandomIterator (const Ring &F, const char *text,
 	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	/* This test either passes or runs a lot of times */
-	for (int i = 1; 
-	     (!  testRandomIteratorStep (F, text, num_trials, num_categories, hist_len)) && (i < 20) ;
-	     ++i ){
+	for (int i = 1; !testRandomIteratorStep (F, text, num_trials, num_categories, hist_len) && i < 20; ++i)
 		if (0 == i % 10)  
 			report << "Warning! Probable failure of uniformity" << std::endl;
-		};
 
 	LinBox::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
 

@@ -38,11 +38,9 @@ using namespace LinBox;
 
 int main (int argc, char **argv)
 {
-	static size_t n = 10000;
 	static int iterations = 1;
 
 	static Argument args[] = {
-		{ 'n', "-n N", "Set dimension of test vectors to NxN.", TYPE_INT,     &n },
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT,     &iterations },
 		{ '\0' }
 	};
@@ -66,19 +64,19 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	std::ostream& report = commentator.report();
 	report << "Ring F2" << std::endl;
-	//if (!runRingTests (F2,  "Modular<double>",  iterations, n, false)) pass = false;
+	//if (!runRingTests (F2,  "Modular<double>",  iterations, false)) pass = false;
 	report << "Ring F3" << std::endl;
-	if (!runRingTests (F3,  "Modular<double>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F3,  "Modular<double>",  iterations, false)) pass = false;
 	report << "Ring F5" << std::endl;
-	if (!runRingTests (F5,  "Modular<double>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F5,  "Modular<double>",  iterations, false)) pass = false;
 	report << "Ring F7" << std::endl;
-	if (!runRingTests (F7,  "Modular<double>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F7,  "Modular<double>",  iterations, false)) pass = false;
 	report << "Ring F11" << std::endl;
-	if (!runRingTests (F11,  "Modular<double>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F11,  "Modular<double>",  iterations, false)) pass = false;
 	report << "Ring F" << std::endl;
-	if (!runRingTests (F,  "Modular<double>",  iterations, n, false)) pass = false;
+	if (!runRingTests (F,  "Modular<double>",  iterations, false)) pass = false;
 	report << "Ring G" << std::endl;
-	if (!runRingTests (G,  "Modular<double>",  iterations, n, false)) pass = false;
+	if (!runRingTests (G,  "Modular<double>",  iterations, false)) pass = false;
 
 	commentator.stop(MSG_STATUS (pass));
 	return pass ? 0 : -1;
