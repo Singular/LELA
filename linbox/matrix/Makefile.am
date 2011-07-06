@@ -13,6 +13,7 @@ BASIC_HDRS =			\
 	sparse.h		\
 	sparse.tcc		\
 	transpose.h		\
+	transpose-submatrix.h	\
 	dense.h  		\
 	dense-zero-one.h	\
 	sparse-zero-one.h	\

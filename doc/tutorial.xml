@@ -83,9 +83,10 @@
 	matrix-arithmetic are introduced. After that, a
 	solution-object for a higher-level interface is briefly
 	described. Then one learns how to input and output vectors and
-	matrices to and from the console and files. Finally, there is
-	some information on support for reporting, benchmarking, and
-	debugging in LELA.
+	matrices to and from the console and files. Then there is some
+	information on support for reporting, benchmarking, and
+	debugging in LELA. Finally, we present some pointers on how to
+	deal with compiler-errors which sometimes arise.
       </para>
     </section>
 
@@ -1287,6 +1288,9 @@ void MyFunction ()
 	  commentator-lines compile to nothing.
 	</para>
       </section>
+    </section>
+    <section xml:id="compilererrors">
+      <title>Dealing with compiler-errors</title>
     </section>
   </chapter>
   <chapter xml:id="extending">

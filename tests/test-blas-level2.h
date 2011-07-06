@@ -373,10 +373,10 @@ static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const 
 	return ret;
 }
 
-template <class Field, class Modules, class Matrix, class Vector>
+template <class Field, class Modules, class Matrix1, class Matrix2, class Vector1, class Vector2>
 bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
-		Matrix &M1, Matrix &M2,
-		Vector &v1, Vector &v2,
+		Matrix1 &M1, Matrix2 &M2,
+		Vector1 &v1, Vector2 &v2,
 		unsigned int iterations,
 		MatrixIteratorTypes::RowCol)
 {
@@ -387,9 +387,6 @@ bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 	bool pass = true;
 
 	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false;
-	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
-	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
-	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
 	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
@@ -406,10 +403,10 @@ bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 	return pass;
 }
 
-template <class Field, class Modules, class Matrix, class Vector>
+template <class Field, class Modules, class Matrix1, class Matrix2, class Vector1, class Vector2>
 bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
-		Matrix &M1, Matrix &M2,
-		Vector &v1, Vector &v2,
+		Matrix1 &M1, Matrix2 &M2,
+		Vector1 &v1, Vector2 &v2,
 		unsigned int iterations,
 		MatrixIteratorTypes::Row) 
 {
@@ -420,9 +417,6 @@ bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 	bool pass = true;
 
 //	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false; // Needs ColIterator
-	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
-	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
-//	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
 	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
@@ -431,10 +425,10 @@ bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 	return pass;
 }
 
-template <class Field, class Modules, class Matrix, class Vector>
+template <class Field, class Modules, class Matrix1, class Matrix2, class Vector1, class Vector2>
 bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
-		Matrix &M1, Matrix &M2,
-		Vector &v1, Vector &v2,
+		Matrix1 &M1, Matrix2 &M2,
+		Vector1 &v1, Vector2 &v2,
 		unsigned int iterations,
 		MatrixIteratorTypes::Col) 
 {
@@ -445,9 +439,6 @@ bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 	bool pass = true;
 
 	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false;
-//	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
-//	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
-	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
 //	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;    Not compiling because the compiler won't instantiate with TransposeMatrix. Hmmm....
 	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
@@ -456,10 +447,10 @@ bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 	return pass;
 }
 
-template <class Field, class Modules, class Matrix, class Vector>
+template <class Field, class Modules, class Matrix1, class Matrix2, class Vector1, class Vector2>
 bool testBLAS2Submatrix (Context<Field, Modules> &ctx, const char *text,
-			 const Matrix &M1, const Matrix &M2,
-			 Vector &v1, Vector &v2,
+			 const Matrix1 &M1, const Matrix2 &M2,
+			 Vector1 &v1, Vector2 &v2,
 			 unsigned int iterations,
 			 MatrixIteratorTypes::Row) 
 {

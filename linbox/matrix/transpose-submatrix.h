@@ -1,4 +1,4 @@
-/* linbox/matrix/transpose.h
+/* linbox/matrix/transpose-submatrix.h
  * Copyright 2002 Bradford Hovinen,
  *
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
@@ -10,8 +10,8 @@
  * See COPYING for license information
  */
 
-#ifndef __LINBOX_matrix_transpose_H
-#define __LINBOX_matrix_transpose_H
+#ifndef __LINBOX_MATRIX_TRANSPOSE_SUBMATRIX_H
+#define __LINBOX_MATRIX_TRANSPOSE_SUBMATRIX_H
 
 #include <iostream>
 #include <vector>
@@ -19,66 +19,42 @@
 
 #include "linbox/vector/stream.h"
 #include "linbox/matrix/traits.h"
+#include "linbox/matrix/transpose.h"
 
 #undef _A
 
 namespace LinBox
 {
 
-// Forward declaration
-template <class Matrix, class Trait = typename Matrix::IteratorType>
-class TransposeSubmatrix;
-
-/** Matrix transpose
+/** Submatrix of a transposed matrix
  * 
- * This class takes a matrix meeting the @ref{DenseMatrixBase} archetype and
- * switches the row and column iterators, giving the transpose of the original
- * matrix. It is generic with respect to the matrix given.
- * 
- * If the matrix given has limited iterators, then its transpose will have
- * limited iterators as well. In particular, if the matrix given has only row
- * iterators, then the transpose object will have only column iterators, and
- * vice versa.
- * 
- * This class differs from @ref{Transpose} in that it constructs a full matrix
- * representation, with row and/or column iterators. It does not include any
- * logic for matrix-vector products, and does not meet the
- * @ref{BlackboxArchetype} interface. Nor does it make such assumptions about
- * the matrix given.
- *
- * This class gives a constant matrix as output. It provides no iterators for
- * modification of the data in the matrix.
- * 
- * The input/output functionality of this class passes requests directly through
- * to the underlying matrix. In particular, the output will be the transpose of
- * the matrix expected and the input will expect the transpose of the matrix
- * given. Thus, it is not recommended to use TransposeMatrix for reading and
- * writing matrices, except for testing purposes.
+ * This is the submatrix-type for Transpose, making it possible to
+ * take submatrices of transposed matrices.
  */
   
-template <class Matrix, class Trait = typename Matrix::IteratorType>
-class TransposeMatrix
+template <class Matrix, class Trait>
+class TransposeSubmatrix
 {
     public:
 
 	typedef typename Matrix::Element Element;
-	typedef TransposeMatrix<Matrix, Trait> Self_t;
+	typedef TransposeSubmatrix<Matrix, Trait> Self_t;
 
 	typedef MatrixIteratorTypes::Generic IteratorType;
 	typedef MatrixStorageTypes::Generic StorageType;
 
-	typedef typename Matrix::ColIterator RowIterator;
-	typedef typename Matrix::RowIterator ColIterator;
-	typedef typename Matrix::RawIterator RawIterator;
-	typedef typename Matrix::RawIndexedIterator RawIndexedIterator;
-	typedef typename Matrix::ConstColIterator ConstRowIterator;
-	typedef typename Matrix::ConstRowIterator ConstColIterator;
-	typedef typename Matrix::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::ConstRawIndexedIterator ConstRawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::ColIterator RowIterator;
+	typedef typename Matrix::SubmatrixType::RowIterator ColIterator;
+	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
+	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::ConstColIterator ConstRowIterator;
+	typedef typename Matrix::SubmatrixType::ConstRowIterator ConstColIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
-	typedef typename Matrix::Row Column;
-	typedef typename Matrix::Row Col;
-	typedef typename Matrix::Col Row;
+	typedef typename Matrix::SubmatrixType::Row Column;
+	typedef typename Matrix::SubmatrixType::Row Col;
+	typedef typename Matrix::SubmatrixType::Col Row;
 
 	typedef TransposeSubmatrix<Self_t> SubmatrixType;
 	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
@@ -93,11 +69,25 @@ class TransposeMatrix
 	/** Constructor.
 	 * @param  A  Underlying matrix of which to construct the transpose
 	 */
-	TransposeMatrix (Matrix &A)
-		: _A (A)
+	TransposeSubmatrix (const TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
+	{}
+	
+	template <class M2>
+	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
 	{}
 
-	TransposeMatrix (const TransposeMatrix &M)
+	TransposeSubmatrix (const TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	template <class M2>
+	TransposeSubmatrix (const TransposeSubmatrix<M2, Trait> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	TransposeSubmatrix (const TransposeSubmatrix &M)
 		: _A (M._A)
 	{}
 
@@ -130,40 +120,37 @@ class TransposeMatrix
 
     protected:
 
-	friend class TransposeMatrix<Matrix, Trait>;
-	friend class TransposeMatrix<const Matrix, Trait>;
-
-	Matrix &_A;
+	typename Matrix::SubmatrixType _A;
 };
 
 // Specialization for matrices that have both row and column iterators
 
 template <class Matrix>
-class TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol>
+class TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol>
 {
     public:
 
 	typedef typename Matrix::Element Element;
-	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol> Self_t;
+	typedef TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol> Self_t;
 	typedef MatrixIteratorTypes::RowCol IteratorType;
 	typedef typename Matrix::StorageType StorageType;
 
-	typedef typename Matrix::ColIterator RowIterator;
-	typedef typename Matrix::RowIterator ColIterator;
-	typedef typename Matrix::RawIterator RawIterator;
-	typedef typename Matrix::RawIndexedIterator RawIndexedIterator;
-	typedef typename Matrix::ConstColIterator ConstRowIterator;
-	typedef typename Matrix::ConstRowIterator ConstColIterator;
-	typedef typename Matrix::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::ConstRawIndexedIterator ConstRawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::ColIterator RowIterator;
+	typedef typename Matrix::SubmatrixType::RowIterator ColIterator;
+	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
+	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::ConstColIterator ConstRowIterator;
+	typedef typename Matrix::SubmatrixType::ConstRowIterator ConstColIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
-	typedef typename Matrix::Row Column;
-	typedef typename Matrix::Row Col;
-	typedef typename Matrix::Col Row;
+	typedef typename Matrix::SubmatrixType::Row Column;
+	typedef typename Matrix::SubmatrixType::Row Col;
+	typedef typename Matrix::SubmatrixType::Col Row;
 
-	typedef typename Matrix::ConstRow ConstColumn;
-	typedef typename Matrix::ConstRow ConstCol;
-	typedef typename Matrix::ConstCol ConstRow;
+	typedef typename Matrix::SubmatrixType::ConstRow ConstColumn;
+	typedef typename Matrix::SubmatrixType::ConstRow ConstCol;
+	typedef typename Matrix::SubmatrixType::ConstCol ConstRow;
 
 	typedef TransposeSubmatrix<Self_t> SubmatrixType;
 	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
@@ -175,8 +162,25 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol>
 
 	typedef Matrix ContainerType;
 
-	TransposeMatrix (Matrix &A) : _A (A) {}
-	TransposeMatrix (const TransposeMatrix &M) : _A (M._A) {}
+	TransposeSubmatrix (const TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
+	{}
+
+	template <class M2>
+	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
+	{}
+
+	TransposeSubmatrix (const TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	template <class M2>
+	TransposeSubmatrix (const TransposeSubmatrix<M2, MatrixIteratorTypes::RowCol> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	TransposeSubmatrix (const TransposeSubmatrix &M) : _A (M._A) {}
 
 	inline size_t rowdim () const { return _A.coldim (); }
 	inline size_t coldim () const { return _A.rowdim (); }
@@ -206,36 +210,33 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol>
 
     protected:
 
-	friend class TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol>;
-	friend class TransposeSubmatrix<const Matrix, MatrixIteratorTypes::RowCol>;
-
-	Matrix &_A;
+	typename Matrix::SubmatrixType _A;
 };
 
 // Specialization for matrices that have only row iterators
 
 template <class Matrix>
-class TransposeMatrix<Matrix, MatrixIteratorTypes::Row>
+class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>
 {
     public:
 
 	typedef typename Matrix::Element Element;
-	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::Row> Self_t;
+	typedef TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row> Self_t;
 	typedef typename MatrixIteratorTypes::Col IteratorType;
 	typedef typename Matrix::StorageType StorageType;
 
-	typedef typename Matrix::RowIterator ColIterator;
-	typedef typename Matrix::RawIterator RawIterator;
-	typedef typename Matrix::RawIndexedIterator RawIndexedIterator;
-	typedef typename Matrix::ConstRowIterator ConstColIterator;
-	typedef typename Matrix::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::ConstRawIndexedIterator ConstRawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::RowIterator ColIterator;
+	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
+	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::ConstRowIterator ConstColIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
-	typedef typename Matrix::Row Column;
-	typedef typename Matrix::Row Col;
+	typedef typename Matrix::SubmatrixType::Row Column;
+	typedef typename Matrix::SubmatrixType::Row Col;
 
-	typedef typename Matrix::ConstRow ConstColumn;
-	typedef typename Matrix::ConstRow ConstCol;
+	typedef typename Matrix::SubmatrixType::ConstRow ConstColumn;
+	typedef typename Matrix::SubmatrixType::ConstRow ConstCol;
 
 	typedef TransposeSubmatrix<Self_t> SubmatrixType;
 	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
@@ -247,9 +248,25 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Row>
 
 	typedef Matrix ContainerType;
 
-	//TransposeMatrix () {}
-	TransposeMatrix (Matrix &A) : _A (A) {}
-	TransposeMatrix (const TransposeMatrix &M) : _A (M._A) {}
+	TransposeSubmatrix (const TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
+	{}
+
+	template <class M2>
+	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
+	{}
+
+	TransposeSubmatrix (const TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	template <class M2>
+	TransposeSubmatrix (const TransposeSubmatrix<M2, MatrixIteratorTypes::Row> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	TransposeSubmatrix (const TransposeSubmatrix &M) : _A (M._A) {}
 
 	inline size_t rowdim () const { return _A.coldim (); }
 	inline size_t coldim () const { return _A.rowdim (); }
@@ -274,33 +291,30 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Row>
 
     protected:
 
-	friend class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>;
-	friend class TransposeSubmatrix<const Matrix, MatrixIteratorTypes::Row>;
-
-	Matrix &_A;
+	typename Matrix::SubmatrixType _A;
 };
 
 // Specialization for matrices that have only column iterators
 
 template <class Matrix>
-class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
+class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>
 {
     public:
 
 	typedef typename Matrix::Element Element;
-	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::Col> Self_t;
+	typedef TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col> Self_t;
 	typedef typename MatrixIteratorTypes::Row IteratorType;
 	typedef typename Matrix::StorageType StorageType;
 
-	typedef typename Matrix::ColIterator RowIterator;
-	typedef typename Matrix::RawIterator RawIterator;
-	typedef typename Matrix::RawIndexedIterator RawIndexedIterator;
-	typedef typename Matrix::ConstColIterator ConstRowIterator;
-	typedef typename Matrix::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::ConstRawIndexedIterator ConstRawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::ColIterator RowIterator;
+	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
+	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
+	typedef typename Matrix::SubmatrixType::ConstColIterator ConstRowIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
+	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
-	typedef typename Matrix::Col Row;
-	typedef typename Matrix::ConstCol ConstRow;
+	typedef typename Matrix::SubmatrixType::Col Row;
+	typedef typename Matrix::SubmatrixType::ConstCol ConstRow;
 
 	typedef TransposeSubmatrix<Self_t> SubmatrixType;
 	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
@@ -312,8 +326,25 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
 
 	typedef Matrix ContainerType;
 
-	TransposeMatrix (Matrix &A) : _A (A) {}
-	TransposeMatrix (const TransposeMatrix &M) : _A (M._A) {}
+	TransposeSubmatrix (TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
+	{}
+
+	template <class M2>
+	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (A._A, col, row, coldim, rowdim)
+	{}
+
+	TransposeSubmatrix (TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	template <class M2>
+	TransposeSubmatrix (TransposeSubmatrix<M2, MatrixIteratorTypes::Col> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: _A (M._A, col, row, coldim, rowdim)
+	{}
+
+	TransposeSubmatrix (const TransposeSubmatrix &M) : _A (M._A) {}
 
 	inline size_t rowdim () const { return _A.coldim (); }
 	inline size_t coldim () const { return _A.rowdim (); }
@@ -338,17 +369,12 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
 
     protected:
 
-	friend class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>;
-	friend class TransposeSubmatrix<const Matrix, MatrixIteratorTypes::Col>;
-
-	const Matrix &_A;
+	typename Matrix::SubmatrixType _A;
 };
 
 } // namespace LinBox
 
-#include "linbox/matrix/transpose-submatrix.h"
-
-#endif // __LINBOX_matrix_transpose_H
+#endif // __LINBOX_MATRIX_TRANSPOSE_SUBMATRIX_H
 
 // Local Variables:
 // mode: C++

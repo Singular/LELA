@@ -416,9 +416,9 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 
 	bool ret = true;
 
-	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
-	Matrix2 B1 (B.rowdim (), B.coldim ());
-	DenseMatrix<typename Field::Element> C (B.rowdim (), B.coldim ());
+	typename Matrix1::ContainerType A1 (A.rowdim (), A.coldim ());
+	typename Matrix2::ContainerType B1 (B.rowdim (), B.coldim ());
+	typename Matrix2::ContainerType C (B.rowdim (), B.coldim ());
 
 	BLAS3::copy (ctx, A, A1);
 	BLAS3::copy (ctx, B, B1);
@@ -478,9 +478,9 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 
 	bool ret = true;
 
-	DenseMatrix<typename Field::Element> A1 (A.rowdim (), A.coldim ());
-	Matrix2 B1 (B.rowdim (), B.coldim ());
-	DenseMatrix<typename Field::Element> C (B.rowdim (), B.coldim ());
+	typename Matrix1::ContainerType A1 (A.rowdim (), A.coldim ());
+	typename Matrix2::ContainerType B1 (B.rowdim (), B.coldim ());
+	typename Matrix2::ContainerType C (B.rowdim (), B.coldim ());
 
 	BLAS3::copy (ctx, A, A1);
 	BLAS3::copy (ctx, B, B1);
@@ -1203,11 +1203,11 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (ctx, text, M1)) pass = false;
-//	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
-//	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;   Disabled pending generic way to create deep copies
+//	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
+//	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
 	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
 
-#if 0 // disabled because of TransposeMatrix-issues
+#if 0
 	if (M1.rowdim () == M1.coldim ()) {
 		if (!testTrsmLower (ctx, text, M1, M2)) pass = false;
 		if (!testTrsmUpper (ctx, text, M1, M2)) pass = false;
