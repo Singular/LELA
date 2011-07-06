@@ -16,16 +16,42 @@
       <title>Generalities</title>
 
       <para>
-	LELA is a C++ template-library. All functionality is designed
-	to be as generic as possible while providing the best possible
-	performance in the chosen case. This means in particular that
+	LELA is a library in C++ which is intended for exact
+	calculations in linear algebra. It is flexible in two
+	respects:
+      </para>
+
+      <itemizedlist>
+	<listitem>the choice of ring over which vectors and matrices are defined, and</listitem>
+	<listitem>the representation of those vectors or matrices, e.g. dense versus sparse.</listitem>
+      </itemizedlist>
+
+      <para>
+	LELA is designed so that it will use the most efficient
+	available method for the above choices. To that end, various
+	algorithms are implemented for different cases and selected
+	automatically at compile-time. There are also wrappers for
+	certain libraries which contain specialised implementations
+	for specific cases, such as M4RI for dense matrices over
+	GF(2).
+      </para>
+
+      <para>
+	LELA is a C++ template-library. This means in particular that
 	algorithms and classes which require arithmetic are
 	parametrised by the ring of computation as well as vector- and
-	matrix-types. In addition, all interfaces are designed to be
-	generic with respect to the data-types involved so that they
-	can be made as efficient as possible in all cases. It is
+	matrix-types. Many functions are then specialised to provide
+	better performance in specific cases, for example a specific
+	choice of vector-representation over a specific ring. It is
 	possible to extend the functionality of LELA by providing
-	types which meet well-defined interfaces.
+	types which meet well-defined interfaces (see Chapter 3).
+      </para>
+
+      <para>
+	All definitions in LELA are in the
+	namespace <type>LinBox</type>. A simple program using LELA may
+	include the line <type>using namespace LinBox;</type> at the
+	top of the file to avoid unneeded verbage.
       </para>
 
       <para>
@@ -33,22 +59,41 @@
       </para>
 
       <itemizedlist>
-	<listitem><emphasis>Rings</emphasis>, which provide ring-arithmetic</listitem>
-	<listitem><emphasis>Ring-elements</emphasis>, defined by the ring</listitem>
-	<listitem><emphasis>Vectors</emphasis></listitem>
-	<listitem><emphasis>Matrices</emphasis></listitem>
-	<listitem><emphasis>Context-objects</emphasis>, which encapsulate
-	a ring and allow the configuration of matrix-arithmetic</listitem>
-	<listitem><emphasis>Solution-objects</emphasis>, which encapsulate
-	more sophisticated algorithms</listitem>
+	<listitem><emphasis>Rings</emphasis>, which provide
+	ring-arithmetic;</listitem>
+	<listitem><emphasis>Ring-elements</emphasis>, the type of
+	which is defined by the ring;</listitem>
+	<listitem><emphasis>Vectors in a free module over a
+	ring;</emphasis></listitem>
+	<listitem><emphasis>Matrices over a
+	ring;</emphasis></listitem>
+	<listitem><emphasis>Context-objects</emphasis>, which allow
+	the matrix-arithmetic to be configured;</listitem>
+	<listitem><emphasis>Solution-objects</emphasis>, which provide
+	a simple interface to the more sophisticated algorithms, such
+	as computing the reduced row-echelon form of a
+	matrix.</listitem>
       </itemizedlist>
+
+      <para>
+	This chapter is divided as follows. First there are
+	instructions on how to define rings followed by some basics on
+	arithmetic over rings. Then the definition of vectors and
+	matrices is described. Then the facilities for vector- and
+	matrix-arithmetic are introduced. After that, a
+	solution-object for a higher-level interface is briefly
+	described. Then one learns how to input and output vectors and
+	matrices to and from the console and files. Finally, there is
+	some information on support for reporting, benchmarking, and
+	debugging in LELA.
+      </para>
     </section>
 
     <section xml:id="ringsel">
       <title>Selecting the ring</title>
 
       <para>
-	The first step is to select the ring over which you wish to
+	The first step is to define the ring over which you wish to
 	compute. You must include the ring's corresponding header-file
 	and then declare the ring-object. There are four ring-types
 	built in to LELA:
@@ -60,8 +105,9 @@
 	computed with GMP</listitem>
 	<listitem><type>GF2</type> (for fast computations over GF(2)),
 	and</listitem>
-	<listitem><type>UnparametricRing</type> (a wrapper around any type
-	which implements the basic arithmetic-operations</listitem>
+	<listitem><type>UnparametricRing</type> (a wrapper around any
+	type which implements the basic arithmetic-operations +, -, *,
+	/, and %)</listitem>
       </itemizedlist>
 
       <section xml:id="modularring">
@@ -76,6 +122,8 @@
 #include &lt;linbox/integer.h&gt;
 #include &lt;linbox/ring/modular.h&gt;
 
+using namespace LinBox;
+
 int main ()
 {
 	Modular&lt;uint8&gt; F (101);
@@ -85,23 +133,25 @@ int main ()
 	</programlisting>
 
 	<para>
-	  The included header-files declare the
-	  type <type>uint8</type> and the class <type>Modular</type>,
-	  respectively. The file <filename>linbox/integer.h</filename>
-	  declares the
-	  types <type>uint8</type>, <type>uint16</type>, <type>uint32</type>,
-	  and so on of known width as well as the
-	  arbitrary-precision <type>integer</type>.
+	  The type <type>Modular</type> is parametrised by the
+	  element-type, which may be any C++-type which supports basic
+	  arithmetic operations (i.e. binary +, -, *, /, and %). The
+	  parameter passed to the constructor is the modulus. It may
+	  not exceed the maximum value allowed by the type. It is
+	  advantageous to use the smallest type which will accommodate
+	  the chosen modulus, since this can save memory and improve
+	  performance. In the case above, the modulus 101 fits in an
+	  8-bit word so the 8-bit type uint8, which is just a
+	  redefinition of unsigned char, is used.
 	</para>
 
 	<para>
-	  The type <type>Modular</type> is parametrised by the
-	  element-type, which may be any C++-type which supports basic
-	  arithmetic operations. The modulus is passed as a parameter
-	  to the constructor. It may not exceed the maximum value
-	  allowed by the type. It is advantageous to use the smallest
-	  type which will accommodate the chosen modulus, since this
-	  can save memory and improve performance.
+	  The included header-files declare the
+	  type <type>uint8</type> and the class <type>Modular</type>,
+	  respectively. The file <filename>linbox/integer.h</filename>
+	  declares the types <type>uint8</type>, <type>uint16</type>,
+	  and <type>uint32</type> of known width as well as the
+	  type <type>integer</type> of arbitrary precision.
 	</para>
       </section>
 
@@ -115,6 +165,8 @@ int main ()
 	<programlisting>
 #include &lt;linbox/ring/gmp-rational.h&gt;
 
+using namespace LinBox;
+
 int main ()
 {
 	GMPRationalField F;
@@ -124,8 +176,8 @@ int main ()
 	</programlisting>
 
 	<para>
-	  The element-type of <type>GMPRationalField</type>
-	  is <type>GMPRational</type>, a wrapper over the
+	  The element-type of <type>GMPRationalField</type> is
+	  called <type>GMPRational</type>, a wrapper over the
 	  corresponding GMP-type. It is defined
 	  in <filename>linbox/element/gmp-rational.h</filename>.
 	</para>
@@ -140,6 +192,8 @@ int main ()
 
 	<programlisting>
 #include &lt;linbox/ring/gf2.h&gt;
+
+using namespace LinBox;
 
 int main ()
 {
@@ -157,7 +211,10 @@ int main ()
 	</para>
 
 	<para>
-	  The element-type of <type>GF2</type> is <type>bool</type>.
+	  The element-type of <type>GF2</type>
+	  is <type>bool</type>. The value <literal>true</literal>
+	  corresponds to the field-element 1
+	  and <literal>false</literal> to 0.
 	</para>
       </section>
 
@@ -165,15 +222,18 @@ int main ()
 	<title><type>UnparametricRing</type></title>
 
 	<para>
-	  If desired, is is possible to wrap a C++-type which supports
-	  standard arithmetic into LELA-ring so that it may be used
-	  within LELA. For example, wrapping <type>float</type>
-	  or <type>double</type> permits that LELA be used for
-	  numerical linear algebra. To do this, use the following;
+	  If desired, it is possible to wrap a C++-type (builtin or
+	  user-defined) which supports standard arithmetic into
+	  LELA-ring so that it may be used within LELA. For example,
+	  wrapping <type>float</type> or <type>double</type> permits
+	  that LELA be used for numerical linear algebra. To do this,
+	  use the following;
 	</para>
 
 	<programlisting>
 #include &lt;linbox/ring/unparametric.h&gt;
+
+using namespace LinBox;
 
 int main ()
 {
@@ -185,7 +245,8 @@ int main ()
 
 	<para>
 	  The class <type>UnparametricRing</type> is parametrised by
-	  the type being wrapped.
+	  the type being wrapped, which is then the element-type of
+	  the resulting ring.
 	</para>
       </section>
 
@@ -197,8 +258,11 @@ int main ()
 	</para>
 
 	<programlisting>
+#include &lt;iostream&gt;
 #include &lt;linbox/integer.h&gt;
 #include &lt;linbox/ring/modular.h&gt;
+
+using namespace LinBox;
 
 int main ()
 {
@@ -252,6 +316,8 @@ int main ()
 #include &lt;linbox/integer.h&gt;
 #include &lt;linbox/ring/modular.h&gt;
 
+using namespace LinBox;
+
 int main ()
 {
 	Modular&lt;uint8&gt; F (101);
@@ -282,6 +348,18 @@ int main ()
 	</programlisting>
 
 	<para>
+	  The method <function>assign</function> makes a copy of its
+	  second argument and stores it in its first argument. In
+	  generic code, it is recommended to
+	  use <function>assign</function> rather than the
+	  assignment-operator, since the latter may result in only a
+	  shallow copy, depending on the element-type. In the case
+	  of <type>Modular&lt;uint8&gt;</type> above, the call
+	  <literal>assign (b, a)</literal> is entirely equivalent to
+	  the assignment <literal>b = a</literal>.
+	</para>
+
+	<para>
 	  Ring-elements may be read from or written to a C++-stream
 	  with the methods <function>read</function> and <function>write</function>:
 	</para>
@@ -289,6 +367,8 @@ int main ()
 	<programlisting>
 #include &lt;linbox/integer.h&gt;
 #include &lt;linbox/ring/modular.h&gt;
+
+using namespace LinBox;
 
 int main ()
 {
@@ -307,6 +387,13 @@ int main ()
 	</programlisting>
 
 	<para>
+	  The precise meaning of these methods depends on the
+	  ring. The method <type>Modular::read</type> interprets the
+	  input as an integer and maps it to the modular field under
+	  the canonical homomorphism.
+	</para>
+
+	<para>
 	  Equality of elements may be checked with the
 	  method <function>areEqual</function>:
 	</para>
@@ -314,6 +401,8 @@ int main ()
 	<programlisting>
 #include &lt;linbox/integer.h&gt;
 #include &lt;linbox/ring/modular.h&gt;
+
+using namespace LinBox;
 
 int main ()
 {
@@ -344,6 +433,8 @@ int main ()
 #include &lt;linbox/integer.h&gt;
 #include &lt;linbox/ring/modular.h&gt;
 
+using namespace LinBox;
+
 int main ()
 {
 	Modular&lt;uint8&gt; F (101);
@@ -372,6 +463,8 @@ int main ()
 	<programlisting>
 #include &lt;linbox/integer.h&gt;
 #include &lt;linbox/ring/modular.h&gt;
+
+using namespace LinBox;
 
 int main ()
 {
@@ -479,8 +572,8 @@ void MyAlgorithm (const Ring &amp;R, size_t n)
 	    i.e. <type>std::vector&lt;std::pair&lt;unsigned int,
 	    typename Ring::Element&gt; &gt;</type>. There are no
 	    requirements on its size and the module in which it exists
-	    is not defined. Incides must be in strictly increasing
-	    order and the zero-element is not allowed in an entry
+	    is not defined. Indices must be in strictly increasing
+	    order and the zero-element is not allowed as an entry
 	    (such an entry should be removed from the vector). Indices
 	    which have no corresponding entry in the vector are taken
 	    to be zero. Normally such vectors are built progressively
@@ -494,6 +587,8 @@ void MyAlgorithm (const Ring &amp;R, size_t n)
 
 	  <programlisting>
 #include &lt;linbox/vector/sparse.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring&gt;
 void MyAlgorithm (const Ring &amp;R)
@@ -529,6 +624,8 @@ void MyAlgorithm (const Ring &amp;R)
 	  <programlisting>
 #include &lt;linbox/ring/gf2.h&gt;
 
+using namespace LinBox;
+
 void MyAlgorithm (const GF2 &amp;F, unsigned int n)
 {
 	Vector&lt;GF2&gt;::Dense v (n);
@@ -540,9 +637,8 @@ void MyAlgorithm (const GF2 &amp;F, unsigned int n)
 	  </programlisting>
 
 	  <para>
-	    As with dense vectors over arbitrary rings, the
-	    vector-space in which the vector exists is defined by the
-	    vector's size.
+	    As with dense vectors over arbitrary rings, the module in
+	    which the vector exists is defined by the vector's size.
 	  </para>
 
 	  <para>
@@ -555,6 +651,8 @@ void MyAlgorithm (const GF2 &amp;F, unsigned int n)
 
 	  <programlisting>
 #include &lt;linbox/ring/gf2.h&gt;
+
+using namespace LinBox;
 
 void MyAlgorithm (const GF2 &amp;F)
 {
@@ -576,7 +674,7 @@ void MyAlgorithm (const GF2 &amp;F)
 	  <para>
 	    The hybrid vector is a mixture of sparse and dense
 	    representations. As with a sparse vector, it appears as a
-	    vector of pairs. The space of incides is divided into
+	    vector of pairs. The space of indices is divided into
 	    blocks each of size equal to the number of bits in a word
 	    (normally 64 bits). The first entry of a pair is the index
 	    of the <emphasis>block</emphasis> and the second is the
@@ -601,6 +699,8 @@ void MyAlgorithm (const GF2 &amp;F)
 
 	  <programlisting>
 #include &lt;linbox/ring/gf2.h&gt;
+
+using namespace LinBox;
 
 void MyAlgorithm (const GF2 &amp;R)
 {
@@ -632,6 +732,8 @@ void MyAlgorithm (const GF2 &amp;R)
 	<programlisting>
 #include &lt;linbox/matrix/dense.h&gt;
 
+using namespace LinBox;
+
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
 {
@@ -644,7 +746,7 @@ void MyFunction (const Ring &amp;R)
 	</programlisting>
 
 	<para>
-	  Note that row- and column-incides start from zero.
+	  Note that row- and column-indices start from zero.
 	</para>
 
 	<para>
@@ -656,6 +758,8 @@ void MyFunction (const Ring &amp;R)
 
 	<programlisting>
 #include &lt;linbox/matrix/dense.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
@@ -684,6 +788,8 @@ void MyFunction (const Ring &amp;R)
 
 	<programlisting>
 #include &lt;linbox/matrix/dense.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R, DenseMatrix&lt;typename Ring::Element&gt; &amp;M)
@@ -722,6 +828,8 @@ void MyFunction (const Ring &amp;R, DenseMatrix&lt;typename Ring::Element&gt; &a
 	<programlisting>
 #include &lt;linbox/matrix/sparse.h&gt;
 
+using namespace LinBox;
+
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
 {
@@ -750,6 +858,8 @@ void MyFunction (const Ring &amp;R)
 #include &lt;linbox/ring/gf2.h&gt;
 #include &lt;linbox/matrix/sparse.h&gt;
 
+using namespace LinBox;
+
 void MyFunction (const GF2 &amp;F)
 {
 	SparseMatrix&lt;bool, Vector&lt;GF2&gt;::Hybrid&gt; M (5, 5); // Declare a 5x5 matrix
@@ -775,6 +885,8 @@ void MyFunction (const GF2 &amp;F)
 
       <programlisting>
 #include &lt;linbox/blas/context.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
@@ -816,6 +928,8 @@ void MyFunction (const Ring &amp;R)
 #include &lt;linbox/blas/context.h&gt;
 #include &lt;linbox/blas/level1.h&gt;
 
+using namespace LinBox;
+
 template &lt;class Ring, class Vector1, class Vector2&gt;
 void MyFunction (const Ring &amp;R, Vector1 &amp;v, Vector2 &amp;w)
 {
@@ -837,6 +951,8 @@ void MyFunction (const Ring &amp;R, Vector1 &amp;v, Vector2 &amp;w)
       <programlisting>
 #include &lt;linbox/blas/context.h&gt;
 #include &lt;linbox/blas/level2.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring, class Vector, class Matrix&gt;
 void MyFunction (const Ring &amp;R, Vector &amp;v, Vector &amp;w, Matrix &amp;A)
@@ -862,6 +978,8 @@ void MyFunction (const Ring &amp;R, Vector &amp;v, Vector &amp;w, Matrix &amp;A)
       <programlisting>
 #include &lt;linbox/blas/context.h&gt;
 #include &lt;linbox/blas/level3.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring, class Matrix1, class Matrix2, class Matrix3&gt;
 void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp;C)
@@ -918,6 +1036,8 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
 	<programlisting>
 #include &lt;linbox/solutions/echelon-form.h&gt;
 
+using namespace LinBox;
+
 template &lt;class Ring, class Matrix&gt;
 void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 {
@@ -935,6 +1055,8 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 
 	<programlisting>
 #include &lt;linbox/solutions/echelon-form.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring, class Matrix&gt;
 void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
@@ -964,6 +1086,8 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
       <programlisting>
 #include &lt;iostream&gt;
 #include &lt;linbox/blas/level1.h&gt;
+
+using namespace LinBox;
 
 template &lt;class Ring, class Vector&gt;
 void ReadAndWriteVector (const Ring &amp;R, Vector &amp;v)
@@ -996,6 +1120,8 @@ void ReadAndWriteVector (const Ring &amp;R, Vector &amp;v)
 #include &lt;iostream&gt;
 #include &lt;linbox/blas/level3.h&gt;
 
+using namespace LinBox;
+
 template &lt;class Ring, class Matrix&gt;
 void ReadAndWriteVector (const Ring &amp;R, Matrix &amp;A, std::istream &amp;is)
 {
@@ -1022,7 +1148,7 @@ void ReadAndWriteVector (const Ring &amp;R, Matrix &amp;A, std::istream &amp;is)
 	<listitem><literal>FORMAT_MAPLE</literal>, for interacting with
 	Maple</listitem>
 	<listitem><literal>FORMAT_MATLAB</literal>, for interacting with
-	Maple</listitem>
+	Matlab</listitem>
 	<listitem><literal>FORMAT_SAGE</literal>, for interacting with
 	Sage</listitem>
 	<listitem><literal>FORMAT_PNG</literal>, good for large matrices
@@ -1078,6 +1204,8 @@ linbox_check (condition);
 	<programlisting>
 #include &lt;linbox/util/commentator.h&gt;
 
+using namespace LinBox;
+
 void MyFunction ()
 {
 	commentator.start ("Description of activity", __FUNCTION__);
@@ -1107,6 +1235,8 @@ void MyFunction ()
 
 	<programlisting>
 #include &lt;linbox/util/commentator.h&gt;
+
+using namespace LinBox;
 
 void MyFunction ()
 {
@@ -1171,7 +1301,7 @@ void MyFunction ()
       <title>Creating new matrix-types</title>
     </section>
     <section xml:id="newblas">
-      <title>Extending arithmetic-support</title>
+      <title>Extending the BLAS-implementations</title>
     </section>
   </chapter>
 </book>
