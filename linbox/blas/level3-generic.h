@@ -137,6 +137,11 @@ class _gemm<Ring, typename GenericModule<Ring>::Tag>
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
 				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+				   MatrixIteratorTypes::Col, MatrixIteratorTypes::Row, MatrixIteratorTypes::Generic);
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const Ring &F, Modules &M,
+				   const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 				   MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol, MatrixIteratorTypes::RowCol)
 		{ return gemm_impl (F, M, a, A, B, b, C, MatrixIteratorTypes::Row (), MatrixIteratorTypes::Col (), MatrixIteratorTypes::Generic ()); }
 

@@ -214,6 +214,29 @@ Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 }
 
 template <class Ring>
+template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
+	(const Ring &F, Modules &M,
+	 const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+	 MatrixIteratorTypes::Col, MatrixIteratorTypes::Row, MatrixIteratorTypes::Generic)
+{
+	linbox_check (A.coldim () == B.rowdim ());
+	linbox_check (A.rowdim () == C.rowdim ());
+	linbox_check (B.coldim () == C.coldim ());
+
+	typename Matrix1::ConstColIterator i;
+	typename Matrix2::ConstRowIterator j;
+
+	_scal<Ring, typename Modules::Tag>::op (F, M, b, C);
+
+	for (i = A.colBegin (); i != A.colEnd (); ++i)
+		for (j = B.rowBegin (); j != B.rowEnd (); ++j)
+			BLAS2::_ger<Ring, typename Modules::Tag>::op (F, M, a, *i, *j, C);
+
+	return C;
+}
+
+template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::op
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
