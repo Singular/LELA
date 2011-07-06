@@ -246,10 +246,10 @@ public:
 	bool isZero (const Element &x) const { return x == 0; }
 	bool isOne (const Element &x) const { return x == 1; }
 
-	std::ostream &write (std::ostream &os) const { return os << "ZZ/" << integer (_modulus); }
+	std::ostream &write (std::ostream &os) const { return os << "ZZ/" << integer (_modulus).get_str (); }
 	std::istream &read (std::istream &is) { return is >> _modulus; }
 
-	std::ostream &write (std::ostream &os, const Element &x) const { return os << integer (x); }
+	std::ostream &write (std::ostream &os, const Element &x) const { return os << integer (x).get_str (); }
 
 	std::istream &read (std::istream &is, Element &x) const
 	{
