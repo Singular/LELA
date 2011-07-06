@@ -19,12 +19,68 @@
 #include "linbox/ring/gf2.h"
 
 #include "test-common.h"
+#include "test-blas-level1.h"
 #include "test-blas-level2.h"
 #include "test-blas-level3.h"
 
 using namespace LinBox;
 
 typedef GF2 Field;
+
+template <class Modules>
+bool testBLAS1 (Context<GF2, Modules> &ctx, const char *text, size_t n, unsigned int iterations) 
+{
+	std::ostringstream str;
+	str << "Testing VectorDomain <" << text << ">" << std::ends;
+	commentator.start (str.str ().c_str ());
+
+	bool pass = true;
+
+	RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (ctx.F, n, iterations), stream2 (ctx.F, n, iterations);
+	RandomSparseStream<GF2, Vector<GF2>::Sparse> stream3 (ctx.F, 0.1, n, iterations), stream4 (ctx.F, 0.1, n, iterations);
+	RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, iterations), stream6 (ctx.F, 0.1, n, iterations);
+
+	if (!testCopyEqual (ctx, "dense/dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
+	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream4)) pass = false;  stream1.reset (); stream4.reset ();
+	if (!testCopyEqual (ctx, "dense/hybrid", stream1, stream6)) pass = false;  stream1.reset (); stream6.reset ();
+	if (!testCopyEqual (ctx, "sparse/dense", stream3, stream2)) pass = false;  stream3.reset (); stream2.reset ();
+	if (!testCopyEqual (ctx, "sparse/sparse", stream3, stream4)) pass = false; stream3.reset (); stream4.reset ();
+	if (!testCopyEqual (ctx, "sparse/hybrid", stream3, stream6)) pass = false; stream3.reset (); stream6.reset ();
+	if (!testCopyEqual (ctx, "hybrid/dense", stream5, stream2)) pass = false;  stream5.reset (); stream2.reset ();
+	if (!testCopyEqual (ctx, "hybrid/sparse", stream5, stream4)) pass = false; stream5.reset (); stream4.reset ();
+	if (!testCopyEqual (ctx, "hybrid/hybrid", stream5, stream6)) pass = false; stream5.reset (); stream6.reset ();
+
+	if (!testInequality (ctx, "dense/dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
+	if (!testInequality (ctx, "dense/sparse", stream1, stream4)) pass = false;  stream1.reset (); stream4.reset ();
+	if (!testInequality (ctx, "dense/hybrid", stream1, stream6)) pass = false;  stream1.reset (); stream6.reset ();
+	if (!testInequality (ctx, "sparse/dense", stream3, stream2)) pass = false;  stream3.reset (); stream2.reset ();
+	if (!testInequality (ctx, "sparse/sparse", stream3, stream4)) pass = false; stream3.reset (); stream4.reset ();
+	if (!testInequality (ctx, "sparse/hybrid", stream3, stream6)) pass = false; stream3.reset (); stream6.reset ();
+	if (!testInequality (ctx, "hybrid/dense", stream5, stream2)) pass = false;  stream5.reset (); stream2.reset ();
+	if (!testInequality (ctx, "hybrid/sparse", stream5, stream4)) pass = false; stream5.reset (); stream4.reset ();
+	if (!testInequality (ctx, "hybrid/hybrid", stream5, stream6)) pass = false; stream5.reset (); stream6.reset ();
+
+	if (!testNonzero (ctx, "dense", stream1)) pass = false;   stream1.reset ();
+	if (!testNonzero (ctx, "sparse", stream3)) pass = false;  stream3.reset ();
+	if (!testNonzero (ctx, "hybrid", stream5)) pass = false;  stream5.reset ();
+
+	if (!testDotProduct (ctx, "dense/dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
+	if (!testDotProduct (ctx, "dense/sparse", stream1, stream3)) pass = false;  stream1.reset (); stream3.reset ();
+	if (!testDotProduct (ctx, "dense/hybrid", stream1, stream5)) pass = false;  stream1.reset (); stream5.reset ();
+	if (!testDotProduct (ctx, "sparse/sparse", stream3, stream4)) pass = false; stream3.reset (); stream4.reset ();
+
+	if (!testScal (ctx, "dense", stream1)) pass = false;   stream1.reset ();
+	if (!testScal (ctx, "sparse", stream3)) pass = false;  stream3.reset ();
+	if (!testScal (ctx, "hybrid", stream5)) pass = false;  stream5.reset ();
+
+	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
+	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;  stream3.reset (); stream4.reset ();
+	if (!testAXPY (ctx, "hybrid", stream5, stream6)) pass = false;  stream5.reset (); stream6.reset ();
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
 
 int main (int argc, char **argv)
 {
@@ -50,13 +106,16 @@ int main (int argc, char **argv)
 	parseArguments (argc, argv, args);
 
 	Field F;
+	Context<GF2, GenericModule<GF2> > ctx (F);
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 
-	commentator.start ("Matrix domain GF2 test suite", "MatrixDomainGF2");
+	commentator.start ("BLAS GenericModule, GF2-specialisation, test suite", "BLASGenericModuleGF2");
+
+	if (!testBLAS1 (ctx, "GF2", l, iterations)) pass = false;
 
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1 (F, l, 1);
 	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2 (F, m, 1);
@@ -76,8 +135,6 @@ int main (int argc, char **argv)
 	DenseMatrix<Field::Element> M1 (stream11);
 	DenseMatrix<Field::Element> M2 (stream12);
 	DenseMatrix<Field::Element> M3 (stream13);
-
-	Context<GF2> ctx (F);
 
 	if (!testBLAS2 (ctx, "dense", M1, M2, v1, v2, iterations,
 			DenseMatrix<Field::Element>::IteratorType ()))

@@ -1,4 +1,4 @@
-/* tests/benchmark-matrix-domain.C
+/* tests/benchmark-blas.C
  * Copyright 2011 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
@@ -7,7 +7,7 @@
  *
  * See COPYING for license information.
  *
- * Benchmarks for MatrixDomain
+ * Benchmarks for BLAS-routines
  */
 
 #include "linbox/util/commentator.h"
@@ -16,8 +16,6 @@
 #include "linbox/field/modular.h"
 #include "linbox/matrix/dense.h"
 #include "linbox/matrix/sparse.h"
-#include "linbox/matrix/dense-zero-one.h"
-#include "linbox/matrix/sparse-zero-one.h"
 #include "linbox/vector/stream.h"
 
 #include "test-common.h"

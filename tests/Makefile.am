@@ -29,14 +29,13 @@ BASIC_TESTS =  \
 	test-matrix		\
         test-modular            \
         test-modular-double     \
-        test-matrix-domain      \
-	test-matrix-domain-gf2	\
+        test-blas-generic-module      \
+	test-blas-generic-module-gf2	\
         test-randiter-nonzero   \
         test-subiterator        \
         test-subvector          \
 	test-bit-subvector	\
 	test-hybrid-vector	\
-        test-vector-domain      \
         test-unparametric-ring	\
 	test-strassen-winograd	\
 	test-elimination	\
@@ -44,10 +43,9 @@ BASIC_TESTS =  \
 	test-faugere-lachartre
 
 # a benchmarker, not to be included in check.
-BENCHMARKS =                    \
-        benchmark-rings        \
-	benchmark-matrix-domain	\
-        benchmark-blas-domain
+BENCHMARKS =            \
+        benchmark-rings \
+	benchmark-blas
 
 EXTRA_PROGRAMS = $(NON_COMPILING_TESTS) $(BENCHMARKS)
 
@@ -90,19 +88,18 @@ test_subvector_SOURCES =                 \
         test-subvector.C                \
         test-common.C
 
-test_vector_domain_SOURCES =                 \
-        test-vector-domain.C                \
-        test-vector-domain.h                \
-	test-common.C
-
-test_matrix_domain_SOURCES =                 \
-        test-matrix-domain.C                \
-        test-matrix-domain.h                \
+test_blas_generic_module_SOURCES =   \
+        test-blas-generic-module.C   \
+        test-blas-level1.h           \
+        test-blas-level2.h           \
+        test-blas-level3.h           \
         test-common.C
 
-test_matrix_domain_gf2_SOURCES =                 \
-        test-matrix-domain-gf2.C                \
-        test-matrix-domain.h                \
+test_blas_generic_module_gf2_SOURCES = \
+        test-blas-generic-module-gf2.C \
+        test-blas-level1.h             \
+        test-blas-level2.h             \
+        test-blas-level3.h             \
         test-common.C
 
 test_modular_double_SOURCES =                \
@@ -138,9 +135,9 @@ test_faugere_lachartre_SOURCES = \
 	test-common.C		\
 	test-faugere-lachartre.C
 
-benchmark_matrix_domain_SOURCES = \
-	benchmark-matrix-domain.C \
-	test-common.C		\
-	test-matrix-domain.h
+benchmark_blas_SOURCES =    \
+	benchmark-blas.C    \
+	test-common.C	    \
+	test-blas-level3.h
 
 benchmark_matrix_domain_CXXFLAGS = ${BENCHMARK_CXXFLAGS}

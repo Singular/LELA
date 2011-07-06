@@ -55,9 +55,8 @@ tests/test-inverse
 tests/test-isposdef
 tests/test-ispossemidef
 tests/test-matrix
-tests/test-matrix-domain
-tests/test-matrix-domain-gf2
-tests/test-matrix-stream
+tests/test-blas-generic-module
+tests/test-blas-generic-module-gf2
 tests/test-minpoly
 tests/test-modular
 tests/test-modular-byte
@@ -97,5 +96,5 @@ tests/test-strassen-winograd
 tests/test-elimination
 tests/test-gauss-jordan
 tests/test-faugere-lachartre
-tests/benchmark-matrix-domain
+tests/benchmark-blas
 doc/tutorial.html

@@ -134,10 +134,10 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 
 	for (i = x.word_begin (); i != x.word_end (); ++i, ++idx)
 		if (*i)
-			y.push_back (typename Vector1::value_type (idx, *i));
+			y.push_back (typename Vector2::value_type (idx, *i));
 
 	if (x.back_word ())
-		y.push_back (typename Vector1::value_type (idx, x.back_word ()));
+		y.push_back (typename Vector2::value_type (idx, x.back_word ()));
 
 	return y;
 }

@@ -19,6 +19,7 @@
 #include "linbox/matrix/transpose.h"
 
 #include "test-common.h"
+#include "test-blas-level1.h"
 #include "test-blas-level2.h"
 #include "test-blas-level3.h"
 
@@ -49,38 +50,39 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	typedef Modular<uint32> Field;
-	typedef Field::Element Element;
+	typedef Modular<uint32> Ring;
+	typedef Ring::Element Element;
 
-	Field F (q);
+	Ring F (q);
+	Context<Ring, GenericModule<Ring> > ctx (F);
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 
-	commentator.start ("Matrix domain test suite", "MatrixDomain");
+	commentator.start ("BLAS GenericModule test suite", "BLASGenericModule");
 
-	RandomDenseStream<Field, Vector<Field>::Dense> stream_v1 (F, l, 1);
-	RandomDenseStream<Field, Vector<Field>::Dense> stream_v2 (F, m, 1);
-	RandomDenseStream<Field, Vector<Field>::Dense> stream_v3 (F, n, 1);
-	RandomDenseStream<Field, Vector<Field>::Dense> stream_v4 (F, p, 1);
+	if (!testBLAS1 (ctx, "Modular <uint32>", l, iterations)) pass = false;
 
-	Vector<Field>::Dense v1 (l), v2 (m), v3 (n), v4 (p);
+	RandomDenseStream<Ring, Vector<Ring>::Dense> stream_v1 (F, l, 1);
+	RandomDenseStream<Ring, Vector<Ring>::Dense> stream_v2 (F, m, 1);
+	RandomDenseStream<Ring, Vector<Ring>::Dense> stream_v3 (F, n, 1);
+	RandomDenseStream<Ring, Vector<Ring>::Dense> stream_v4 (F, p, 1);
+
+	Vector<Ring>::Dense v1 (l), v2 (m), v3 (n), v4 (p);
 	stream_v1 >> v1;
 	stream_v2 >> v2;
 	stream_v3 >> v3;
 	stream_v4 >> v4;
 
-	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream11 (F, m, l);
-	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream12 (F, n, m);
-	RandomDenseStream<Field, DenseMatrix<Element>::Row> stream13 (F, p, n);
+	RandomDenseStream<Ring, DenseMatrix<Element>::Row> stream11 (F, m, l);
+	RandomDenseStream<Ring, DenseMatrix<Element>::Row> stream12 (F, n, m);
+	RandomDenseStream<Ring, DenseMatrix<Element>::Row> stream13 (F, p, n);
 
 	DenseMatrix<Element> M1 (stream11);
 	DenseMatrix<Element> M2 (stream12);
 	DenseMatrix<Element> M3 (stream13);
-
-	Context<Field> ctx (F);
 
 	if (!testBLAS2 (ctx, "dense", M1, M2, v1, v2, iterations,
 			DenseMatrix<Element>::IteratorType ()))
@@ -89,9 +91,9 @@ int main (int argc, char **argv)
 			DenseMatrix<Element>::IteratorType ()))
 		pass = false;
 
-	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream21 (F, (double) k / (double) m, m, l);
-	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream22 (F, (double) k / (double) n, n, m);
-	RandomSparseStream<Field, SparseMatrix<Element>::Row> stream23 (F, (double) k / (double) p, p, n);
+	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream21 (F, (double) k / (double) m, m, l);
+	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream22 (F, (double) k / (double) n, n, m);
+	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream23 (F, (double) k / (double) p, p, n);
 
 	SparseMatrix<Element> M4 (stream21);
 	SparseMatrix<Element> M5 (stream22);

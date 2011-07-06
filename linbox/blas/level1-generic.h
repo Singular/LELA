@@ -35,7 +35,7 @@ class _dot<Ring, typename GenericModule<Ring>::Tag>
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
 						 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
-		{ return _dot (F, M, res, y, x); }
+		{ return op (F, M, res, y, x); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
