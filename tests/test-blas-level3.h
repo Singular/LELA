@@ -1203,8 +1203,8 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (ctx, text, M1)) pass = false;
-//	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
-//	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
+	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
+	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
 	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
 
 #if 0

@@ -329,6 +329,32 @@ class VectorUtils
 			return false;
 	}
 
+	template <class Element, class Vector>
+	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Dense)
+		{ v[i] = a; }
+
+	template <class Element, class Vector>
+	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Sparse)
+		{ v.push_back (typename Vector::value_type (i, a)); }
+
+	template <class Element, class Vector>
+	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Dense01)
+		{ v[i] = a; }
+
+	template <class Element, class Vector>
+	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Sparse01)
+		{ v.push_back (i); }
+
+	template <class Element, class Vector>
+	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Hybrid01)
+	{
+		if (v.empty () || (i >> LinBox::WordTraits<typename Vector::word_type>::logof_size) != v.back ().first)
+			v.push_back (typename Vector::value_type (i >> LinBox::WordTraits<typename Vector::word_type>::logof_size,
+								  Vector::Endianness::e_j (i & LinBox::WordTraits<typename Vector::word_type>::pos_mask)));
+		else
+			v.back ().second |= Vector::Endianness::e_j (i & LinBox::WordTraits<typename Vector::word_type>::pos_mask);
+	}
+
 	template <class Vector>
 	static inline void ensureDimSpecialized (Vector &v, size_t n, VectorRepresentationTypes::Dense)
 		{ v.resize (n); }
@@ -466,28 +492,44 @@ public:
 	 *
 	 * If there is no entry at index i, then the element a is left unchanged
 	 *
+	 * @param v Vector from which obtain entry
+	 * @param a Reference to Element-object in which to store result
+	 * @param i Index at from which to obtain entry
 	 * @returns true if the entry at index i exists in the vector, false otherwise
 	 */
 	template <class Element, class Vector>
 	static inline bool getEntry (const Vector &v, Element &a, size_t i) 
-		{ return getEntrySpecialised<Element, Vector> (v, a, i, typename ElementVectorTraits<Element, Vector>::RepresentationType()); }
+		{ return getEntrySpecialised<Element, Vector> (v, a, i, typename ElementVectorTraits<Element, Vector>::RepresentationType ()); }
+
+	/** Append the given element to the end of a vector.
+	 *
+	 * If the vector is sparse, it must either be empty or the
+	 * index of its last entry must be less than the given index.
+	 *
+	 * @param v Vector to which to append entry
+	 * @param a Element to be appended
+	 * @param i Index at which to append entry
+	 */
+	template <class Element, class Vector>
+	static inline void appendEntry (Vector &v, const Element &a, size_t i)
+		{ return appendEntrySpecialised (v, a, i, typename ElementVectorTraits<Element, Vector>::RepresentationType ()); }
 
 	/** Ensure that the vector v is defined over the free module of rank n */
 	template <class Ring, class Vector>
 	static inline void ensureDim (Vector &v, size_t n) 
-		{ ensureDimSpecialized (v, n, typename VectorTraits<Ring, Vector>::RepresentationType()); }
+		{ ensureDimSpecialized (v, n, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	/// Determines whether the vector v can represent a vector of dimension n.
 	/// @returns true if v can represent a vector of dimension n and false otherwise
 	template <class Ring, class Vector>
 	static inline bool hasDim (const Vector &v, size_t n) 
-		{ return hasDimSpecialized (v, n, typename VectorTraits<Ring, Vector>::RepresentationType()); }
+		{ return hasDimSpecialized (v, n, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	/// Determines whether v is a valid vector of its format.
 	/// @returns true if v is valid or false if there is an error
 	template <class Ring, class Vector>
 	static inline bool isValid (const Vector &v) 
-		{ return isValidSpecialized (v, typename VectorTraits<Ring, Vector>::RepresentationType()); }
+		{ return isValidSpecialized (v, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	/// Compute the image of an index under a permutation
 	template <class Iterator>

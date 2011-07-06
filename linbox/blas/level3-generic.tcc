@@ -28,6 +28,28 @@ namespace BLAS3
 {
 
 template <class Ring>
+template <class Vector, class Iterator>
+void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Vector &v, size_t idx, Iterator begin, Iterator end,
+									  VectorRepresentationTypes::Dense)
+{
+	typename Vector::const_iterator i_v;
+
+	for (i_v = v.begin (); i_v != v.end (); ++i_v, ++begin)
+		VectorUtils::appendEntry (*begin, *i_v, idx);
+}
+
+template <class Ring>
+template <class Vector, class Iterator>
+void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Vector &v, size_t idx, Iterator begin, Iterator end,
+									  VectorRepresentationTypes::Sparse)
+{
+	typename Vector::const_iterator i_v;
+
+	for (i_v = v.begin (), idx = 0; i_v != v.end (); ++i_v)
+		VectorUtils::appendEntry (*(begin + i_v->first), i_v->second, idx);
+}
+
+template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	(const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
@@ -44,6 +66,42 @@ Matrix2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 
 	for (; i != A.rowEnd (); ++i, ++j)
 		BLAS1::_copy<Ring, typename Modules::Tag>::op (F, M, *i, *j);
+
+	return B;
+}
+
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
+	(const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+	 MatrixIteratorTypes::Row, MatrixIteratorTypes::Col)
+{
+	linbox_check (A.rowdim () == B.rowdim ());
+	linbox_check (A.coldim () == B.coldim ());
+
+	typename Matrix1::ConstRowIterator i;
+	size_t idx;
+
+	for (i = A.rowBegin (), idx = 0; i != A.rowEnd (); ++i, ++idx)
+		append_entries (*i, idx, B.colBegin (), B.colEnd ());
+
+	return B;
+}
+
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
+	(const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
+	 MatrixIteratorTypes::Col, MatrixIteratorTypes::Row)
+{
+	linbox_check (A.rowdim () == B.rowdim ());
+	linbox_check (A.coldim () == B.coldim ());
+
+	typename Matrix1::ConstColIterator i;
+	size_t idx;
+
+	for (i = A.colBegin (), idx = 0; i != A.colEnd (); ++i, ++idx)
+		append_entries (*i, idx, B.rowBegin (), B.rowEnd ());
 
 	return B;
 }

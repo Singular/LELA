@@ -26,6 +26,18 @@ namespace BLAS3
 template <class Ring>
 class _copy<Ring, typename GenericModule<Ring>::Tag>
 {
+	template <class Vector, class Iterator>
+	static void append_entries_spec (const Vector &v, size_t idx, Iterator begin, Iterator end,
+					 VectorRepresentationTypes::Dense);
+
+	template <class Vector, class Iterator>
+	static void append_entries_spec (const Vector &v, size_t idx, Iterator begin, Iterator end,
+					 VectorRepresentationTypes::Sparse);
+
+	template <class Vector, class Iterator>
+	static inline void append_entries (const Vector &v, size_t idx, Iterator begin, Iterator end)
+		{ append_entries_spec (v, idx, begin, end, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
+
 	template <class Modules, class Matrix1, class Matrix2>
 	static Matrix2 &copy_impl (const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,
 				   MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
