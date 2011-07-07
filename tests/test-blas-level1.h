@@ -487,7 +487,7 @@ template <class Ring, class Modules>
 bool testBLAS1 (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t n, unsigned int iterations) 
 {
 	std::ostringstream str;
-	str << "Testing VectorDomain <" << text << ">" << std::ends;
+	str << "Testing BLAS1 over <" << text << ">" << std::ends;
 	LinBox::commentator.start (str.str ().c_str ());
 
 	bool pass = true;
@@ -517,6 +517,275 @@ bool testBLAS1 (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t n,
 
 	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
 	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;  stream3.reset (); stream4.reset ();
+
+	LinBox::commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+// Tests to check that the result is the same when using two modules or two representation-types
+
+template <class Ring, class Modules1, class Modules2, class Vector1, class Vector2, class Vector3, class Vector4>
+bool testDotConsistency (LinBox::Context<Ring, Modules1> &ctx1,
+			 LinBox::Context<Ring, Modules2> &ctx2,
+			 const char *text,
+			 LinBox::VectorStream<Vector1> &stream1, 
+			 LinBox::VectorStream<Vector2> &stream2,
+			 LinBox::VectorStream<Vector3> &stream3,
+			 LinBox::VectorStream<Vector4> &stream4)
+{
+	using namespace LinBox;
+
+	bool pass = true;
+
+	std::ostringstream str;
+	str << "Testing " << text << " vector dot consistency" << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	Vector1 v1;
+	Vector2 v2;
+	Vector3 w1;
+	Vector4 w2;
+
+	VectorUtils::ensureDim<Ring, Vector1> (v1, stream1.dim ());
+	VectorUtils::ensureDim<Ring, Vector2> (v2, stream2.dim ());
+	VectorUtils::ensureDim<Ring, Vector3> (w1, stream1.dim ());
+	VectorUtils::ensureDim<Ring, Vector4> (w2, stream2.dim ());
+
+	typename Ring::Element d1, d2;
+
+	while (stream1 && stream2) {
+		stream1 >> v1;
+		stream2 >> v2;
+
+		BLAS1::copy (ctx1, v1, w1);
+		BLAS1::copy (ctx1, v2, w2);
+
+		report << "Vector v_1: ";
+		BLAS1::write (ctx1, report, v1) << std::endl;
+
+		report << "Vector v_2: ";
+		BLAS1::write (ctx1, report, v2) << std::endl;
+
+		BLAS1::dot (ctx1, d1, v1, v2);
+
+		report << "Dot product <v_1,v_2>: ";
+		ctx1.F.write (report, d1) << std::endl;
+
+		report << "Vector w_1: ";
+		BLAS1::write (ctx2, report, w1) << std::endl;
+
+		report << "Vector w_2: ";
+		BLAS1::write (ctx2, report, w2) << std::endl;
+
+		BLAS1::dot (ctx2, d2, w1, w2);
+
+		report << "Dot product <w_1,w_2>: ";
+		ctx2.F.write (report, d2) << std::endl;
+
+		if (!ctx1.F.areEqual (d1, d2)) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "ERROR: Dot products are not equal" << std::endl;
+			pass = false;
+		}
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring, class Modules1, class Modules2, class Vector1, class Vector2, class Vector3, class Vector4>
+bool testAxpyConsistency (LinBox::Context<Ring, Modules1> &ctx1,
+			  LinBox::Context<Ring, Modules2> &ctx2,
+			  const char *text,
+			  LinBox::VectorStream<Vector1> &stream1, 
+			  LinBox::VectorStream<Vector2> &stream2,
+			  LinBox::VectorStream<Vector3> &stream3,
+			  LinBox::VectorStream<Vector4> &stream4)
+{
+	using namespace LinBox;
+
+	bool pass = true;
+
+	std::ostringstream str;
+	str << "Testing " << text << " vector axpy consistency" << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	Vector1 v1;
+	Vector2 v2;
+	Vector3 w1;
+	Vector4 w2;
+
+	VectorUtils::ensureDim<Ring, Vector1> (v1, stream1.dim ());
+	VectorUtils::ensureDim<Ring, Vector2> (v2, stream2.dim ());
+	VectorUtils::ensureDim<Ring, Vector3> (w1, stream1.dim ());
+	VectorUtils::ensureDim<Ring, Vector4> (w2, stream2.dim ());
+
+	typename Ring::Element a;
+	NonzeroRandIter<Ring, typename Ring::RandIter> r (ctx1.F, typename Ring::RandIter (ctx1.F));
+
+	while (stream1 && stream2) {
+		stream1 >> v1;
+		stream2 >> v2;
+
+		BLAS1::copy (ctx1, v1, w1);
+		BLAS1::copy (ctx1, v2, w2);
+
+		r.random (a);
+
+		report << "Coefficient a: ";
+		ctx1.F.write (report, a) << std::endl;
+
+		report << "Vector v_1: ";
+		BLAS1::write (ctx1, report, v1) << std::endl;
+
+		report << "Vector v_2: ";
+		BLAS1::write (ctx1, report, v2) << std::endl;
+
+		BLAS1::axpy (ctx1, a, v1, v2);
+
+		report << "Vector a v_1 + v_2: ";
+		BLAS1::write (ctx1, report, v2) << std::endl;
+
+		report << "Vector w_1: ";
+		BLAS1::write (ctx2, report, w1) << std::endl;
+
+		report << "Vector w_2: ";
+		BLAS1::write (ctx2, report, w2) << std::endl;
+
+		BLAS1::axpy (ctx2, a, w1, w2);
+
+		report << "Vector a w_1 + w_2: ";
+		BLAS1::write (ctx1, report, w2) << std::endl;
+
+		if (!BLAS1::equal (ctx1, v2, w2)) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "ERROR: a v_1 + v_2 != a w_1 + w_2" << std::endl;
+			pass = false;
+		}
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring, class Modules1, class Modules2, class Vector1, class Vector2>
+bool testScalConsistency (LinBox::Context<Ring, Modules1> &ctx1,
+			  LinBox::Context<Ring, Modules2> &ctx2,
+			  const char *text,
+			  LinBox::VectorStream<Vector1> &stream1, 
+			  LinBox::VectorStream<Vector2> &stream2)
+{
+	using namespace LinBox;
+
+	bool pass = true;
+
+	std::ostringstream str;
+	str << "Testing " << text << " vector scal consistency" << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	Vector1 v;
+	Vector2 w;
+
+	VectorUtils::ensureDim<Ring, Vector1> (v, stream1.dim ());
+	VectorUtils::ensureDim<Ring, Vector2> (w, stream1.dim ());
+
+	typename Ring::Element a;
+	NonzeroRandIter<Ring, typename Ring::RandIter> r (ctx1.F, typename Ring::RandIter (ctx1.F));
+
+	while (stream1) {
+		stream1 >> v;
+
+		BLAS1::copy (ctx1, v, w);
+
+		r.random (a);
+
+		report << "Coefficient a: ";
+		ctx1.F.write (report, a) << std::endl;
+
+		report << "Vector v: ";
+		BLAS1::write (ctx1, report, v) << std::endl;
+
+		BLAS1::scal (ctx1, a, v);
+
+		report << "Vector a v: ";
+		BLAS1::write (ctx1, report, v) << std::endl;
+
+		report << "Vector w: ";
+		BLAS1::write (ctx2, report, w) << std::endl;
+
+		BLAS1::scal (ctx2, a, w);
+
+		report << "Vector a w: ";
+		BLAS1::write (ctx1, report, w) << std::endl;
+
+		if (!BLAS1::equal (ctx1, v, w)) {
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "ERROR: a v != a w" << std::endl;
+			pass = false;
+		}
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring, class Modules1, class Modules2>
+bool testBLAS1ModulesConsistency (LinBox::Context<Ring, Modules1> &ctx1, LinBox::Context<Ring, Modules2> &ctx2, const char *text, size_t n, unsigned int iterations) 
+{
+	std::ostringstream str;
+	str << "Testing BLAS1 consistency over <" << text << ">" << std::ends;
+	LinBox::commentator.start (str.str ().c_str ());
+
+	bool pass = true;
+
+	LinBox::RandomDenseStream<Ring, typename LinBox::Vector<Ring>::Dense> stream1 (ctx1.F, n, iterations), stream2 (ctx1.F, n, iterations);
+	LinBox::RandomSparseStream<Ring, typename LinBox::Vector<Ring>::Sparse> stream3 (ctx1.F, 0.1, n, iterations), stream4 (ctx1.F, 0.1, n, iterations);
+
+	pass = testDotConsistency (ctx1, ctx2, "dense/dense", stream1, stream2, stream1, stream1) && pass; stream1.reset (); stream2.reset ();
+	pass = testDotConsistency (ctx1, ctx2, "dense/sparse", stream1, stream3, stream1, stream3) && pass; stream1.reset (); stream3.reset ();
+	pass = testDotConsistency (ctx1, ctx2, "sparse/sparse", stream3, stream4, stream3, stream3) && pass; stream3.reset (); stream4.reset ();
+
+	pass = testAxpyConsistency (ctx1, ctx2, "dense/dense", stream1, stream2, stream1, stream1) && pass; stream1.reset (); stream2.reset ();
+	pass = testAxpyConsistency (ctx1, ctx2, "dense/sparse", stream1, stream3, stream1, stream3) && pass; stream1.reset (); stream3.reset ();
+	pass = testAxpyConsistency (ctx1, ctx2, "sparse/sparse", stream3, stream4, stream3, stream3) && pass; stream3.reset (); stream4.reset ();
+
+	pass = testScalConsistency (ctx1, ctx2, "dense", stream1, stream2) && pass; stream1.reset ();
+	pass = testScalConsistency (ctx1, ctx2, "sparse", stream3, stream4) && pass; stream3.reset ();
+
+	LinBox::commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring, class Modules>
+bool testBLAS1RepsConsistency (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t n, unsigned int iterations) 
+{
+	std::ostringstream str;
+	str << "Testing BLAS1 consistency over <" << text << ">" << std::ends;
+	LinBox::commentator.start (str.str ().c_str ());
+
+	bool pass = true;
+
+	LinBox::RandomDenseStream<Ring, typename LinBox::Vector<Ring>::Dense> stream1 (ctx.F, n, iterations), stream2 (ctx.F, n, iterations);
+	LinBox::RandomSparseStream<Ring, typename LinBox::Vector<Ring>::Sparse> stream3 (ctx.F, 0.1, n, iterations), stream4 (ctx.F, 0.1, n, iterations);
+
+	pass = testDotConsistency (ctx, ctx, "dense/sparse with dense/dense", stream1, stream3, stream1, stream1) && pass; stream1.reset (); stream3.reset ();
+	pass = testDotConsistency (ctx, ctx, "sparse/sparse with dense/dense", stream3, stream4, stream1, stream1) && pass; stream3.reset (); stream4.reset ();
+
+	pass = testAxpyConsistency (ctx, ctx, "dense/sparse with dense/dense", stream1, stream3, stream1, stream1) && pass; stream1.reset (); stream3.reset ();
+	pass = testAxpyConsistency (ctx, ctx, "sparse/sparse with dense/dense", stream3, stream4, stream1, stream1) && pass; stream3.reset (); stream4.reset ();
+
+	pass = testScalConsistency (ctx, ctx, "sparse with dense ", stream3, stream1) && pass; stream1.reset (); stream3.reset ();
 
 	LinBox::commentator.stop (MSG_STATUS (pass));
 

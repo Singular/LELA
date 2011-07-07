@@ -34,7 +34,7 @@ int main (int argc, char **argv)
 	static long n = 30;
 	static long p = 30;
 	static long k = 10;
-	static integer q = 2147483647U;
+	static integer q = 101;
 	static int iterations = 1;
 
 	static Argument args[] = {
@@ -43,14 +43,14 @@ int main (int argc, char **argv)
 		{ 'n', "-n N", "Set row-dimension of matrix C and column-dimension of B to N.", TYPE_INT, &n },
 		{ 'p', "-p P", "Set column-dimension of matrix C to P.", TYPE_INT, &p },
 		{ 'k', "-k K", "K nonzero elements per row/column in sparse matrices.", TYPE_INT, &k },
-		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint32 modulus.", TYPE_INTEGER, &q },
+		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint8 modulus (default 101).", TYPE_INTEGER, &q },
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT, &iterations },
 		{ '\0' }
 	};
 
 	parseArguments (argc, argv, args);
 
-	typedef Modular<uint32> Ring;
+	typedef Modular<uint8> Ring;
 	typedef Ring::Element Element;
 
 	Ring F (q);
@@ -64,6 +64,7 @@ int main (int argc, char **argv)
 	commentator.start ("BLAS GenericModule test suite", "BLASGenericModule");
 
 	if (!testBLAS1 (ctx, "Modular <uint32>", l, iterations)) pass = false;
+	if (!testBLAS1RepsConsistency (ctx, "Modular <uint32>", l, iterations)) pass = false;
 
 	RandomDenseStream<Ring, Vector<Ring>::Dense> stream_v1 (F, l, 1);
 	RandomDenseStream<Ring, Vector<Ring>::Dense> stream_v2 (F, m, 1);
