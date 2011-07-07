@@ -462,7 +462,6 @@ bool testBLAS2Submatrix (Context<Field, Modules> &ctx, const char *text,
 	bool pass = true;
 
 //	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false; // Needs ColIterator
-//	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
 	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
