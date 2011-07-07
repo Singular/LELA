@@ -114,7 +114,7 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
  */
 
 template <class Field, class Modules, class Matrix1, class Matrix2>
-static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::Generic, MatrixIteratorTypes::Col) 
+static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::Generic, MatrixIteratorTypes::Col) 
 {
 	linbox_check (A.coldim () == B.rowdim ());
 
@@ -145,7 +145,7 @@ static bool testGemvGemm (Context<Field, Modules> &ctx, const char *text, const 
 	ctx.F.write (report, a) << std::endl;
 
 	typename DenseMatrix<typename Field::Element>::ColIterator i_AB = ABgemv.colBegin ();
-	typename Matrix2::ColIterator i_B = B.colBegin ();
+	typename Matrix2::ConstColIterator i_B = B.colBegin ();
 
 	for (; i_AB != ABgemv.colEnd (); ++i_B, ++i_AB)
 		BLAS2::gemv (ctx, a, A, *i_B, ctx.F.zero (), *i_AB);
@@ -440,7 +440,7 @@ bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 	bool pass = true;
 
 	if (!testGerGemm (ctx, text, M1, v1, v2)) pass = false;
-//	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;    Not compiling because the compiler won't instantiate with TransposeMatrix. Hmmm....
+	if (!testGemvGemm (ctx, text, M1, M2)) pass = false;
 	if (!testGemvCoeff (ctx, text, M1, v2)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
