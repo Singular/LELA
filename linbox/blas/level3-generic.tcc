@@ -45,7 +45,7 @@ void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const 
 {
 	typename Vector::const_iterator i_v;
 
-	for (i_v = v.begin (), idx = 0; i_v != v.end (); ++i_v)
+	for (i_v = v.begin (); i_v != v.end (); ++i_v)
 		VectorUtils::appendEntry (*(begin + i_v->first), i_v->second, idx);
 }
 

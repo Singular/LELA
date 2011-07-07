@@ -61,8 +61,9 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
 
 	DenseMatrix<typename Field::Element> A2 (A.rowdim (), A.coldim ());
 
-	Matrix A1 (A);
+	typename Matrix::ContainerType A1 (A.rowdim (), A.coldim ());
 
+	BLAS3::copy (ctx, A, A1);
 	BLAS3::copy (ctx, A, A2);
 
 	DenseMatrix<typename Field::Element> U (A.rowdim (), 1);

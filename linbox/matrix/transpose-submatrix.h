@@ -45,16 +45,17 @@ class TransposeSubmatrix
 
 	typedef typename Matrix::SubmatrixType::ColIterator RowIterator;
 	typedef typename Matrix::SubmatrixType::RowIterator ColIterator;
-	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
-	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
 	typedef typename Matrix::SubmatrixType::ConstColIterator ConstRowIterator;
 	typedef typename Matrix::SubmatrixType::ConstRowIterator ConstColIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
 	typedef typename Matrix::SubmatrixType::Row Column;
 	typedef typename Matrix::SubmatrixType::Row Col;
 	typedef typename Matrix::SubmatrixType::Col Row;
+
+	typedef MatrixRawIterator<RowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> ConstRawIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	typedef TransposeSubmatrix<Self_t> SubmatrixType;
 	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
@@ -108,15 +109,13 @@ class TransposeSubmatrix
 	inline ConstColIterator colBegin () const { return _A.rowBegin (); }
 	inline ConstColIterator colEnd () const { return _A.rowEnd (); }
 
-	inline RawIterator rawBegin () { return _A.rawBegin (); }
-	inline RawIterator rawEnd () { return _A.rawEnd (); }
-	inline ConstRawIterator rawBegin () const { return _A.rawBegin (); }
-	inline ConstRawIterator rawEnd () const { return _A.rawEnd (); }
+	inline RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
+	inline RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
+	inline ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	inline ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	inline RawIndexedIterator rawIndexedBegin() { return _A.rawIndexedBegin (); }
-        inline RawIndexedIterator rawIndexedEnd() { return _A.rawIndexedEnd (); }
-	inline ConstRawIndexedIterator rawIndexedBegin() const { return _A.rawIndexedBegin (); }
-        inline ConstRawIndexedIterator rawIndexedEnd() const { return _A.rawIndexedEnd (); }
+	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
     protected:
 
@@ -137,16 +136,17 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol>
 
 	typedef typename Matrix::SubmatrixType::ColIterator RowIterator;
 	typedef typename Matrix::SubmatrixType::RowIterator ColIterator;
-	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
-	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
 	typedef typename Matrix::SubmatrixType::ConstColIterator ConstRowIterator;
 	typedef typename Matrix::SubmatrixType::ConstRowIterator ConstColIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
 	typedef typename Matrix::SubmatrixType::Row Column;
 	typedef typename Matrix::SubmatrixType::Row Col;
 	typedef typename Matrix::SubmatrixType::Col Row;
+
+	typedef MatrixRawIterator<RowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> ConstRawIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	typedef typename Matrix::SubmatrixType::ConstRow ConstColumn;
 	typedef typename Matrix::SubmatrixType::ConstRow ConstCol;
@@ -198,15 +198,13 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol>
 	inline ConstColIterator colBegin () const { return _A.rowBegin (); }
 	inline ConstColIterator colEnd () const { return _A.rowEnd (); }
 
-	inline RawIterator rawBegin () { return _A.rawBegin (); }
-	inline RawIterator rawEnd () { return _A.rawEnd (); }
-	inline ConstRawIterator rawBegin () const { return _A.rawBegin (); }
-	inline ConstRawIterator rawEnd () const { return _A.rawEnd (); }
+	inline RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
+	inline RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
+	inline ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	inline ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	inline RawIndexedIterator rawIndexedBegin() { return _A.rawIndexedBegin (); }
-        inline RawIndexedIterator rawIndexedEnd() { return _A.rawIndexedEnd (); }
-	inline ConstRawIndexedIterator rawIndexedBegin() const { return _A.rawIndexedBegin (); }
-        inline ConstRawIndexedIterator rawIndexedEnd() const { return _A.rawIndexedEnd (); }
+	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
     protected:
 
@@ -226,17 +224,18 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>
 	typedef typename Matrix::StorageType StorageType;
 
 	typedef typename Matrix::SubmatrixType::RowIterator ColIterator;
-	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
-	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
 	typedef typename Matrix::SubmatrixType::ConstRowIterator ConstColIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
 	typedef typename Matrix::SubmatrixType::Row Column;
 	typedef typename Matrix::SubmatrixType::Row Col;
 
 	typedef typename Matrix::SubmatrixType::ConstRow ConstColumn;
 	typedef typename Matrix::SubmatrixType::ConstRow ConstCol;
+
+	typedef MatrixRawIterator<ColIterator, typename ElementVectorTraits<Element, Col>::RepresentationType> RawIterator;
+	typedef MatrixRawIterator<ConstColIterator, typename ElementVectorTraits<Element, Col>::RepresentationType> ConstRawIterator;
+	typedef MatrixRawIndexedIterator<ConstColIterator, typename ElementVectorTraits<Element, Col>::RepresentationType, true> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	typedef TransposeSubmatrix<Self_t> SubmatrixType;
 	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
@@ -279,15 +278,13 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>
 	inline ConstColIterator colBegin () const { return _A.rowBegin (); }
 	inline ConstColIterator colEnd () const { return _A.rowEnd (); }
 
-	inline RawIterator rawBegin () { return _A.rawBegin (); }
-	inline RawIterator rawEnd () { return _A.rawEnd (); }
-	inline ConstRawIterator rawBegin () const { return _A.rawBegin (); }
-	inline ConstRawIterator rawEnd () const { return _A.rawEnd (); }
+	inline RawIterator      rawBegin ()       { return RawIterator      (colBegin (), 0, colEnd (), rowdim ()); }
+	inline RawIterator      rawEnd ()         { return RawIterator      (colEnd (), 0, colEnd (), rowdim ()); }
+	inline ConstRawIterator rawBegin () const { return ConstRawIterator (colBegin (), 0, colEnd (), rowdim ()); }
+	inline ConstRawIterator rawEnd () const   { return ConstRawIterator (colEnd (), 0, colEnd (), rowdim ()); }
 
-	inline RawIndexedIterator rawIndexedBegin() { return _A.rawIndexedBegin (); }
-        inline RawIndexedIterator rawIndexedEnd() { return _A.rawIndexedEnd (); }
-	inline ConstRawIndexedIterator rawIndexedBegin() const { return _A.rawIndexedBegin (); }
-        inline ConstRawIndexedIterator rawIndexedEnd() const { return _A.rawIndexedEnd (); }
+	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (colBegin (), 0, colEnd (), rowdim ()); }
+	inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (colEnd (), coldim (), colEnd (), rowdim ()); }
 
     protected:
 
@@ -307,14 +304,15 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>
 	typedef typename Matrix::StorageType StorageType;
 
 	typedef typename Matrix::SubmatrixType::ColIterator RowIterator;
-	typedef typename Matrix::SubmatrixType::RawIterator RawIterator;
-	typedef typename Matrix::SubmatrixType::RawIndexedIterator RawIndexedIterator;
 	typedef typename Matrix::SubmatrixType::ConstColIterator ConstRowIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIterator ConstRawIterator;
-	typedef typename Matrix::SubmatrixType::ConstRawIndexedIterator ConstRawIndexedIterator;
 
 	typedef typename Matrix::SubmatrixType::Col Row;
 	typedef typename Matrix::SubmatrixType::ConstCol ConstRow;
+
+	typedef MatrixRawIterator<RowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType> ConstRawIterator;
+	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType, false> RawIndexedIterator;
+	typedef RawIndexedIterator ConstRawIndexedIterator;
 
 	typedef TransposeSubmatrix<Self_t> SubmatrixType;
 	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
@@ -357,15 +355,13 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>
 	inline ConstRowIterator rowBegin () const { return _A.colBegin (); }
 	inline ConstRowIterator rowEnd () const { return _A.colEnd (); }
 
-	inline RawIterator rawBegin () { return _A.rawBegin (); }
-	inline RawIterator rawEnd () { return _A.rawEnd (); }
-	inline ConstRawIterator rawBegin () const { return _A.rawBegin (); }
-	inline ConstRawIterator rawEnd () const { return _A.rawEnd (); }
+	inline RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
+	inline RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
+	inline ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	inline ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
-	inline RawIndexedIterator rawIndexedBegin() { return _A.rawIndexedBegin (); }
-        inline RawIndexedIterator rawIndexedEnd() { return _A.rawIndexedEnd (); }
-	inline ConstRawIndexedIterator rawIndexedBegin() const { return _A.rawIndexedBegin (); }
-        inline ConstRawIndexedIterator rawIndexedEnd() const { return _A.rawIndexedEnd (); }
+	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+        inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
     protected:
 
