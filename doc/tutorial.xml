@@ -1345,8 +1345,107 @@ void MyFunction (const Matrix &amp;M)
   </chapter>
   <chapter xml:id="extending">
     <title>Extending the library</title>
+
+    <para>
+      LELA is designed to be flexible and generic so that one can
+      provide one's own types of rings, vectors, and matrices, as well
+      as one's own matrix- and vector-arithmetic, and they will be
+      properly integrated into the library.
+    </para>
+
     <section xml:id="newrings">
       <title>Creating new rings</title>
+
+      <para>
+	There are two mechanisms for creating rings:
+      </para>
+
+      <itemizedlist>
+	<listitem>The <emphasis>template-mechanism</emphasis>, whereby
+	  it is necessary to instantiate LELA functionality on the new
+	  ring. This can yield better performance when the
+	  ring-operations are quite simple, but results in
+	  code-bloat.</listitem>
+	<listitem>The <emphasis>inheritance-mechanism</emphasis>,
+	  whereby the new ring-class inherits
+	  from <type>RingInterface</type> and existing functionality
+	  is then instantiated on <type>RingInterface</type>. This
+	  involves the invocation of a virtual method for each
+	  ring-operation, implying some overhead. If ring-operations
+	  are already expensive (e.g. with GMP rationals), then this
+	  hardly makes and difference, but for rings with simple types
+	  and easy arithmetic (e.g. Modular&lt;uint8&gt;), it imposes
+	  considerable overhead.</listitem>
+      </itemizedlist>
+
+      <para>
+	To implement a ring with the first method, it is necessary to
+	create a class which exports the same interface
+	as <type>RingInterface</type>, implementing ring-arithmetic
+	I/O, and initialisation of ring-elements. One can
+	use <type>RingInterface</type> as a starting-point. One must
+	define an element-type; any C++ type, builtin or otherwise,
+	may serve as one.
+      </para>
+
+      <programlisting>
+class MyRing
+{
+public:
+	typedef int Element;
+
+	Element &amp;add (Element &amp;a, const Element &amp;b, const Element &amp;c)
+		{ a = b + c; return a; }       // Implementation
+	...
+};
+      </programlisting>
+
+      <para>
+	See <xref endterm="newblas"/> for more details on this mechanism.
+      </para>
+
+      <para>
+	To use the inheritance-method, create a class which derives
+	from <type>RingInterface</type>. The
+	class <type>RingInterface</type> is an abstract base-class
+	implementing the required ring-interface. It is necessary to
+	override all pure virtual methods in it.
+      </para>
+
+      <para>
+	The element-type must then inherit
+	from <type>ElementInterface</type>, which is in fact an empty
+	type. All parameters passed to arithmetic-operations
+	in <type>RingInterface</type> are of
+	type <type>ElementInterface</type> and must then be cast to
+	the element-type of the derived class.
+      </para>
+
+      <programlisting>
+class MyRing : public RingInterface
+{
+public:
+	typedef ElementInterface Element;
+
+	Element &amp;add (Element &amp;a, const Element &amp;b, const Element &amp;c)
+	{
+		MyRingElement &amp;a_r = static_cast&lt;MyRingElement &amp;&gt; (a);
+		MyRingElement &amp;b_r = static_cast&lt;MyRingElement &amp;&gt; (b);
+		MyRingElement &amp;c_r = static_cast&lt;MyRingElement &amp;&gt; (c);
+		a_r = b_r + c_r;
+		return a;
+	}
+	...
+};
+      </programlisting>
+
+      <para>
+	It is advantageous to define a stack of BLAS-operations for
+	the new ring. Otherwise the generic fallback operations will
+	be used in all cases, reducing performance substantially. See
+	the section <xref endterm="newblas"/> for more information on
+	this mechanism.
+      </para>
     </section>
     <section xml:id="newvectors">
       <title>Creating new vector-types</title>
