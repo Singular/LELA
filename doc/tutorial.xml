@@ -1291,6 +1291,56 @@ void MyFunction ()
     </section>
     <section xml:id="compilererrors">
       <title>Dealing with compiler-errors</title>
+
+      <para>
+	Since LELA is a template-library, it is possible to encounter
+	difficult compiler-errors when compiling against it. In
+	particular, some errors appear only when a particular class or
+	function is instantiated. The resulting output can be quite
+	difficult to understand. Here we give some tips to help to
+	solve such problems.
+      </para>
+
+      <itemizedlist>
+	<listitem>
+	  Check carefully that the template-arguments are of the
+	  correct type and in the correct order. Since there is no
+	  direct type-checking of template-arguments in C++, using the
+	  wrong types will result in unpredictable errors during
+	  instantiation.
+	</listitem>
+	<listitem>
+	  Consider using the compiler Clang (see
+	  <link address="http://clang.llvm.org/">their website</link>)
+	  rather than GCC. Its error-output is much more readable. To
+	  use Clang rather than GCC, use
+	  <programlisting>
+	    CXX=clang ./configure
+	  </programlisting>
+	  when configuring LELA.
+	</listitem>
+	<listitem>
+	  Many errors of the form "No matching function for call
+	  to..." or "No matching constructor..." result from attempts
+	  to remove a <type>const</type> from a type. For example, the
+	  following code will result in an error:
+	  <programlisting>
+void MyFunction (const Matrix &amp;M)
+{
+	typename Matrix::RowIterator i = M.rowBegin ();  // ERROR!
+}
+	  </programlisting>
+	  In this case, because <varname>M</varname>
+	  is <type>const</type>, one must
+	  use <type>ConstRowIterator</type> instead:
+	  <programlisting>
+void MyFunction (const Matrix &amp;M)
+{
+	typename Matrix::ConstRowIterator i = M.rowBegin ();  // Correct
+}
+	  </programlisting>
+	</listitem>
+      </itemizedlist>
     </section>
   </chapter>
   <chapter xml:id="extending">
