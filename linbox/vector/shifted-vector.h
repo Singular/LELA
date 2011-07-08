@@ -284,20 +284,30 @@ public:
 	inline value_type front () const { return *(begin ()); }
 	inline value_type back  () const { return *(end () - 1); }
 
-	inline void            push_back (const value_type &x)  { _v->push_back (x); }
+	inline void            push_back (const value_type &x)  { _v->push_back (x + _shift); }
 	inline void            clear     ()            { _v->clear (); }
 	inline void            resize    (size_type s) { _v->resize (s); }
 
 	template <class InputIterator>
 	void assign (InputIterator first, InputIterator last)
-		{ _v->assign (first, last); }
+	{
+		clear ();
+
+		while (first != last)
+			insert (end (), *first++);
+	}
 
 	inline iterator insert (iterator pos, const value_type &x)
-		{ return _v->insert (pos._pos, x); }
+		{ return iterator (_v->insert (pos._ref._i, x + _shift), _shift); }
 
 	template <class It>
 	void insert (iterator pos, It begin, It end)
-		{ _v->insert (pos._pos, begin, end); }
+	{
+		while (begin != end) {
+			pos = insert (pos, *begin++);
+			++pos;
+		}
+	}
 
 	inline iterator erase (iterator pos)
 		{ return _v->erase (pos._pos); }
@@ -311,7 +321,7 @@ public:
 	inline size_type       max_size  () const { return _v->max_size ();  }
 
 	inline bool operator == (const ShiftedVector &v) const
-		{ return (&_v == &v._v) && (_shift == v._shift); }
+		{ return (_v == v._v) && (_shift == v._shift); }
 
 	Vector       &parent     ()       { return *_v; }
 	const Vector &parent     () const { return *_v; }
