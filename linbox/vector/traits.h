@@ -549,7 +549,7 @@ public:
 // Forward declarations of types we're about to use
 template <typename Iterator, typename ConstIterator = Iterator> class Subvector;
 template <class Element, class IndexVector = std::vector<uint32>, class ElementVector = std::vector<Element> > class SparseVector;
-template <class Vector, class Trait = typename DefaultVectorTraits<Vector>::RepresentationType> class SparseSubvector;
+template <class Vector, class Trait> class SparseSubvector;
 
 template <class Element>
 struct DefaultVectorTraits< std::vector<Element> >
@@ -583,10 +583,10 @@ struct GF2VectorTraits<std::vector<index_type> >
 	typedef VectorRepresentationTypes::Sparse01 RepresentationType;
 	typedef VectorStorageTypes::Real StorageType;
 	typedef std::vector<index_type> ContainerType;
-	typedef SparseSubvector<ContainerType> SubvectorType;
-	typedef SparseSubvector<const ContainerType> ConstSubvectorType;
-	typedef SparseSubvector<ContainerType> AlignedSubvectorType;
-	typedef SparseSubvector<const ContainerType> ConstAlignedSubvectorType;
+	typedef SparseSubvector<ContainerType, RepresentationType> SubvectorType;
+	typedef SparseSubvector<const ContainerType, RepresentationType> ConstSubvectorType;
+	typedef SparseSubvector<ContainerType, RepresentationType> AlignedSubvectorType;
+	typedef SparseSubvector<const ContainerType, RepresentationType> ConstAlignedSubvectorType;
 	static const int align = 1;
 };
 
@@ -596,10 +596,10 @@ struct GF2VectorTraits<const std::vector<index_type> >
 	typedef VectorRepresentationTypes::Sparse01 RepresentationType;
 	typedef VectorStorageTypes::Real StorageType;
 	typedef const std::vector<index_type> ContainerType;
-	typedef SparseSubvector<ContainerType> SubvectorType;
-	typedef SparseSubvector<ContainerType> ConstSubvectorType;
-	typedef SparseSubvector<ContainerType> AlignedSubvectorType;
-	typedef SparseSubvector<ContainerType> ConstAlignedSubvectorType;
+	typedef SparseSubvector<ContainerType, RepresentationType> SubvectorType;
+	typedef SparseSubvector<ContainerType, RepresentationType> ConstSubvectorType;
+	typedef SparseSubvector<ContainerType, RepresentationType> AlignedSubvectorType;
+	typedef SparseSubvector<ContainerType, RepresentationType> ConstAlignedSubvectorType;
 	static const int align = 1;
 };
 

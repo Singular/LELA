@@ -210,10 +210,10 @@ class MutableSubvector
 	typedef VectorRepresentationTypes::Sparse01 RepresentationType;
 	typedef VectorStorageTypes::Real StorageType;
 	typedef std::vector<typename Vector::value_type> ContainerType;
-	typedef SparseSubvector<Vector> SubvectorType;
-	typedef SparseSubvector<const Vector> ConstSubvectorType;
-	typedef SparseSubvector<Vector> AlignedSubvectorType;
-	typedef SparseSubvector<const Vector> ConstAlignedSubvectorType;
+	typedef SparseSubvector<Vector, RepresentationType> SubvectorType;
+	typedef SparseSubvector<const Vector, RepresentationType> ConstSubvectorType;
+	typedef SparseSubvector<Vector, RepresentationType> AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, RepresentationType> ConstAlignedSubvectorType;
 	static const int align = 1;
 
 	// Types
