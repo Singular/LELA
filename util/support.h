@@ -71,8 +71,10 @@ LinBox::FileFormatTag get_format_tag (const char *str)
 		return LinBox::FORMAT_MATLAB;
 	if (!strcmp (str, "sage"))
 		return LinBox::FORMAT_SAGE;
+#ifdef __LINBOX_HAVE_LIBPNG
 	if (!strcmp (str, "png"))
 		return LinBox::FORMAT_PNG;
+#endif // __LINBOX_HAVE_LIBPNG
 	if (!strcmp (str, "pretty"))
 		return LinBox::FORMAT_PRETTY;
 
@@ -89,8 +91,10 @@ LinBox::FileFormatTag guess_format_tag (const char *filename)
 
 	++filename_ext;
 
+#ifdef __LINBOX_HAVE_LIBPNG
 	if (!strcmp (filename_ext, "png"))
 		return LinBox::FORMAT_PNG;
+#endif // __LINBOX_HAVE_LIBPNG
 	if (!strcmp (filename_ext, "m"))
 		return LinBox::FORMAT_MATLAB;
 	if (!strcmp (filename_ext, "sage"))
