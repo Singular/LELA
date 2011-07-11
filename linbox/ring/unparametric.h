@@ -56,7 +56,7 @@ public:
 
 	UnparametricRing (integer q = 0, size_t e = 1)
 		: _p (q),
-		  _card ((q == 0) ? integer (-1) : pow (q.get_d (), e))
+		  _card ((q == 0) ? integer (-1) : pow (q.get_d (), (double) e))
 		{}  // assuming q is a prime or zero.
 
 	UnparametricRing (const UnparametricRing &F)
