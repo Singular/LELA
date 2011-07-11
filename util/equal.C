@@ -157,10 +157,14 @@ int main (int argc, char **argv)
 	RingType ring_type = get_ring_type (ringString);
 
 	if (ring_type == RING_GUESS) {
+#ifdef __LINBOX_HAVE_LIBPNG
 		if (input1_format == FORMAT_PNG || input2_format == FORMAT_PNG)
 			ring_type = RING_GF2;
 		else
 			ring_type = RING_MODULAR;
+#else // !__LINBOX_HAVE_LIBPNG
+		ring_type = RING_MODULAR;
+#endif // __LINBOX_HAVE_LIBPNG
 	}
 
 	if (ring_type == RING_GF2)
