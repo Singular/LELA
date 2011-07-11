@@ -110,6 +110,7 @@ fi
 dnl Check m4ri version
 if test "x$m4ri_found" = "xyes" ; then
    	AC_MSG_CHECKING(whether version of M4RI is at least 20110601)
+	AC_LANG([C])
 	AC_COMPILE_IFELSE(
 		AC_LANG_PROGRAM([#include <m4ri/m4ri.h>],[mzd_t M; wi_t i = M.rowstride;]),
 		[m4ri_new_version=yes],
