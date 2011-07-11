@@ -303,7 +303,7 @@ public:
 	 * @return true if the inverse of x exists in the ring, false if not
 	 * @param  x ring element.
 	 */
-	virtual Element &invin (Element &x) const = 0;
+	virtual bool invin (Element &x) const = 0;
     
 	/** Inplace AXPY.
 	 * r  += a * x
