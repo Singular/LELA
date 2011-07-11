@@ -16,6 +16,8 @@
 namespace LinBox
 {
 
+struct HybridSubvectorWordAlignedTag;
+
 template <class _Endianness, class IndexType, class WordType>
 class HybridVector : public SparseVector<WordType, std::vector<IndexType>, std::vector<WordType> >
 {
@@ -26,8 +28,8 @@ public:
 	typedef VectorStorageTypes::Transformed StorageType;
 	typedef HybridVector ContainerType;
 	typedef SparseSubvector<HybridVector, VectorRepresentationTypes::Hybrid01> ConstSubvectorType;
-	typedef SparseSubvector<HybridVector, VectorRepresentationTypes::Hybrid01> AlignedSubvectorType;
-	typedef SparseSubvector<HybridVector, VectorRepresentationTypes::Hybrid01> ConstAlignedSubvectorType;
+	typedef SparseSubvector<HybridVector, HybridSubvectorWordAlignedTag> AlignedSubvectorType;
+	typedef SparseSubvector<const HybridVector, HybridSubvectorWordAlignedTag> ConstAlignedSubvectorType;
 	static const int align = WordTraits<WordType>::bits;
 
 	typedef _Endianness Endianness;

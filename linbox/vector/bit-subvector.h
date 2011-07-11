@@ -72,6 +72,10 @@ class BitSubvector
 	BitSubvector (BitVector<Endianness> &v, size_t start, size_t end)
 		: _begin (v.begin () + start), _end (v.begin () + end) { set_end_word (); }
 
+	template <class It, class CIt>
+	BitSubvector (BitSubvectorWordAligned<It, CIt, Endianness> &v, size_t start, size_t end)
+		: _begin (v.begin () + start), _end (v.begin () + end) { set_end_word (); }
+
 	BitSubvector (BitSubvector &v, size_t start, size_t end)
 		: _begin (v._begin + start), _end (v._begin + end) { set_end_word (); }
 

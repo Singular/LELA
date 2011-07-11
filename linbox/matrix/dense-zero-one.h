@@ -28,9 +28,6 @@ namespace LinBox
 {
 
 template <class Iterator, class ConstIterator, class Endianness>
-struct Dense01MatrixTag {};
-
-template <class Iterator, class ConstIterator, class Endianness>
 class Dense01MatrixRowIterator
 {
     public:
@@ -144,7 +141,6 @@ class Dense01Matrix
 	typedef typename std::iterator_traits<Iterator>::value_type word_type;
 	typedef MatrixIteratorTypes::Row IteratorType; 
 	typedef MatrixStorageTypes::Rows StorageType; 
-	typedef Dense01MatrixTag<Iterator, ConstIterator, Endianness> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
@@ -396,28 +392,6 @@ public:
 };
 
 #endif // !__LINBOX_HAVE_M4RI
-
-template <class Iterator, class ConstIterator, class Endianness, class Submatrix>
-class SubvectorFactory<Dense01MatrixTag<Iterator, ConstIterator, Endianness>, Submatrix, typename Dense01Matrix<Iterator, ConstIterator, Endianness>::RowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename Dense01Matrix<Iterator, ConstIterator, Endianness>::RowIterator IteratorType;
-	typedef BitSubvector<BitVectorIterator<Iterator, ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
-
-template <class Iterator, class ConstIterator, class Endianness, class Submatrix>
-class SubvectorFactory<Dense01MatrixTag<Iterator, ConstIterator, Endianness>, Submatrix, typename Dense01Matrix<Iterator, ConstIterator, Endianness>::ConstRowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename Dense01Matrix<Iterator, ConstIterator, Endianness>::ConstRowIterator IteratorType;
-	typedef BitSubvector<BitVectorConstIterator<ConstIterator, Endianness>, BitVectorConstIterator<ConstIterator, Endianness> > Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (pos->begin () + M.startCol (), pos->begin () + (M.startCol () + M.coldim ())); }
-};
 
 } // namespace LinBox
 

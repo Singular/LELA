@@ -13,8 +13,8 @@
 
 #include "linbox/util/commentator.h"
 #include "linbox/blas/context.h"
-#include "linbox/matrix/dense-zero-one.h"
-#include "linbox/matrix/sparse-zero-one.h"
+#include "linbox/matrix/dense.h"
+#include "linbox/matrix/sparse.h"
 #include "linbox/vector/stream.h"
 #include "linbox/ring/gf2.h"
 

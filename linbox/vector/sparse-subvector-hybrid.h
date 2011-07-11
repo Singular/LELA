@@ -25,7 +25,7 @@ namespace LinBox
 // Specialisation of SparseSubvector to const vector of hybrid zero-one format
 
 template <class Vector>
-class SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>
+class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 {
     public:
 	typedef VectorRepresentationTypes::Hybrid01 RepresentationType; 
@@ -82,7 +82,7 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>
 		typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
 		typedef typename Vector::Endianness Endianness;
 
-		typedef SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01> container_type;
+		typedef SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01> container_type;
 
 		class const_reference
 		{
@@ -151,7 +151,7 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Hybrid01>
 
 		void update_ref ();
 	};
-}; // template <class Vector> class SparseSubvector<const Vector, Hybrid01>
+}; // template <class Vector> class SparseSubvector<Vector, Hybrid01>
 
 } // namespace LinBox
 

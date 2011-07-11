@@ -32,9 +32,6 @@
 namespace LinBox
 {
 
-template <class _Element, class _Row, class Trait>
-struct SparseMatrixTag {};
-	
 /** Sparse matrix
  *
  * See @ref MatrixArchetype for documentation on the interface
@@ -58,7 +55,6 @@ class SparseMatrix
 	typedef std::vector<Row> Rep;
 	typedef MatrixIteratorTypes::Row IteratorType; 
 	typedef MatrixStorageTypes::Rows StorageType;
-	typedef SparseMatrixTag<Element, Row, Trait> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
@@ -179,7 +175,6 @@ class SparseMatrix<_Element, _Row, VectorRepresentationTypes::Sparse>
 	typedef std::vector<Row> Rep;
 	typedef MatrixIteratorTypes::Row IteratorType; 
 	typedef MatrixStorageTypes::Rows StorageType;
-	typedef SparseMatrixTag<Element, Row, VectorRepresentationTypes::Sparse> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
@@ -274,28 +269,6 @@ class SparseMatrix<_Element, _Row, VectorRepresentationTypes::Sparse>
 	size_t            _n;
 
     	template<class F, class R, class T> friend class SparseMatrix;
-};
-
-template <class Element, class Row, class Trait, class Submatrix>
-class SubvectorFactory<SparseMatrixTag<Element, Row, Trait>, Submatrix, typename SparseMatrix<Element, Row, Trait>::RowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename SparseMatrix<Element, Row, Trait>::RowIterator IteratorType;
-	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::Row, Trait> Subvector;
-
-	Subvector MakeSubvector (const Submatrix &M, IteratorType &pos)
-		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
-};
-
-template <class Element, class Row, class Trait, class Submatrix>
-class SubvectorFactory<SparseMatrixTag<Element, Row, Trait>, Submatrix, typename SparseMatrix<Element, Row, Trait>::ConstRowIterator, DefaultSubvectorFactoryTrait>
-{
-    public:
-	typedef typename SparseMatrix<Element, Row, Trait>::ConstRowIterator IteratorType;
-	typedef SparseSubvector<typename SparseMatrix<Element, Row, Trait>::ConstRow, Trait> Subvector;
-
-	Subvector MakeSubvector (const Submatrix &M, IteratorType &pos)
-		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 };
 
 } // namespace LinBox

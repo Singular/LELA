@@ -33,7 +33,6 @@ public:
 	typedef std::vector<Row> Rep;
 	typedef MatrixIteratorTypes::Row IteratorType; 
 	typedef MatrixStorageTypes::Rows StorageType;
-	typedef SparseMatrixTag<bool, Row, VectorRepresentationTypes::Sparse01> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
@@ -149,12 +148,11 @@ public:
 	typedef _SP_BB_VECTOR_<Row> Rep;
 	typedef MatrixIteratorTypes::Row IteratorType; 
 	typedef MatrixStorageTypes::Rows StorageType;
-	typedef SparseMatrixTag<bool, Row, VectorRepresentationTypes::Hybrid01> Tag;
 
 	typedef Submatrix<Self_t> SubmatrixType;
 	typedef Submatrix<const Self_t> ConstSubmatrixType;
-	typedef Submatrix<Self_t, HybridSubvectorWordAlignedTag, AlignedSubmatrixTag> AlignedSubmatrixType;
-	typedef Submatrix<const Self_t, HybridSubvectorWordAlignedTag, AlignedSubmatrixTag> ConstAlignedSubmatrixType;
+	typedef Submatrix<Self_t, AlignedSubmatrixTag> AlignedSubmatrixType;
+	typedef Submatrix<const Self_t, AlignedSubmatrixTag> ConstAlignedSubmatrixType;
 
 	static const size_t rowAlign = 1;
 	static const size_t colAlign = WordTraits<typename Row::word_type>::bits;
@@ -248,28 +246,6 @@ protected:
 	size_t            _n;
 
 	template<class F, class R, class T> friend class SparseMatrix;
-};
-
-template <class Row, class Trait, class Submatrix>
-class SubvectorFactory<SparseMatrixTag<bool, Row, Trait>, Submatrix, typename SparseMatrix<bool, Row, Trait>::RowIterator, HybridSubvectorWordAlignedTag>
-{
-    public:
-	typedef typename SparseMatrix<bool, Row, Trait>::RowIterator IteratorType;
-	typedef SparseSubvector<typename SparseMatrix<bool, Row, Trait>::Row, HybridSubvectorWordAlignedTag> Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
-};
-
-template <class Row, class Trait, class Submatrix>
-class SubvectorFactory<SparseMatrixTag<bool, Row, Trait>, Submatrix, typename SparseMatrix<bool, Row, Trait>::ConstRowIterator, HybridSubvectorWordAlignedTag>
-{
-    public:
-	typedef typename SparseMatrix<bool, Row, Trait>::ConstRowIterator IteratorType;
-	typedef SparseSubvector<typename SparseMatrix<bool, Row, Trait>::ConstRow, HybridSubvectorWordAlignedTag> Subvector;
-
-	Subvector MakeSubvector (Submatrix &M, IteratorType &pos)
-		{ return Subvector (*pos, M.startCol (), M.startCol () + M.coldim ()); }
 };
 
 } // namespace LinBox

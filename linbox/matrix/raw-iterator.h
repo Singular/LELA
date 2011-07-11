@@ -833,7 +833,7 @@ class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Hybrid01, fa
 	value_type operator * () const
 		{ return _pos; }
  
-	bool operator == (const MatrixRawIndexedIterator &c) const
+	bool operator == (const MatrixRawIndexedIterator &c)
 		{ return (_rowcol == c._rowcol) && ((_rowcol == _rowcol_end) || ((_iter == c._iter) && (_t == c._t))); }
 
 	bool operator != (const MatrixRawIndexedIterator &c)
