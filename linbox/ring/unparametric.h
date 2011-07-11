@@ -71,8 +71,11 @@ public:
 	Element &init (Element &x, const integer &y = 0) const 
 		{ return x = (const Element &) (static_cast<const Element> (y.get_ui ())); }
 
-	Element &init (Element &x, const double &y) const 
-		{ return x = (const Element &) (y); }
+	Element &init (Element &x, double y) const 
+		{ return x = Element (y); }
+
+	Element &init (Element &x, int y) const 
+		{ return x = Element (y); }
    
 	integer &convert (integer &x, const Element &y) const 
 	{
