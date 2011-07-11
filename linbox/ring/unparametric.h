@@ -152,7 +152,7 @@ public:
 		{ return y += a * x; }
 
 	std::ostream &write (std::ostream &os) const
-		{ return os << "unparameterized ring(" << sizeof (Element) <<',' << typeid (Element).name() << ')'; }
+		{ return os << "unparameterized ring"; }
     
 	std::istream &read (std::istream &is) const
 		{ return is; }
