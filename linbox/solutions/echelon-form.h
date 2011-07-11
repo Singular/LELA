@@ -29,10 +29,10 @@ class EchelonForm
 {
 	Context<Ring, Modules> _ctx;
 	Elimination<Ring, Modules> _elim;
-	GaussJordan<Ring, Modules> _GJ;
+	GaussJordan<Ring, Modules> GJ;
 
-	DenseMatrix<typename Ring::Element> _L;
-	typename GaussJordan<Ring, Modules>::Permutation _P;
+	DenseMatrix<typename Ring::Element> L;
+	typename GaussJordan<Ring, Modules>::Permutation P;
 
 	// Map pointers to matrices to computed ranks
 	std::map<const void *, size_t> _rank_table;
@@ -44,7 +44,7 @@ public:
 	 *
 	 * @param F Ring over which to compute
 	 */
-	EchelonForm (Context<Ring, Modules> &ctx) : _ctx (ctx), _elim (ctx), _GJ (ctx) {}
+	EchelonForm (Context<Ring, Modules> &ctx) : _ctx (ctx), _elim (ctx), GJ (ctx) {}
 
 	/** Compute the (possibly reduced) row-echelon form of a matrix
 	 *
@@ -68,8 +68,8 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			_L.resize (A.rowdim (), A.rowdim ());
-			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			L.resize (A.rowdim (), A.rowdim ());
+			_elim.RowEchelonForm (A, L, P, rank, d, reduced, false);
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
@@ -107,13 +107,13 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			_L.resize (A.rowdim (), A.rowdim ());
-			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			L.resize (A.rowdim (), A.rowdim ());
+			_elim.RowEchelonForm (A, L, P, rank, d, reduced, false);
 			break;
 
 		case METHOD_ASYMPTOTICALLY_FAST_GJ:
-			_L.resize (A.rowdim (), A.rowdim ());
-			_GJ.RowEchelonForm (A, _L, _P, rank, d, reduced);
+			L.resize (A.rowdim (), A.rowdim ());
+			GJ.RowEchelonForm (A, L, P, rank, d, reduced);
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
