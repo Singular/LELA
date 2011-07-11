@@ -18,7 +18,7 @@ namespace LinBox
 {
 
 /// Reference to an (index, entry)-pair
-template <class IndexIterator, class ElementIterator, class ConstIndexIterator, class ConstElementIterator>
+template <class IndexIterator, class ElementIterator>
 class SparseVectorReference {
 public:
 	typedef typename std::iterator_traits<IndexIterator>::value_type first_type;
@@ -36,38 +36,20 @@ public:
 	SparseVectorReference &operator = (const SparseVectorReference &r)
 		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
 
-	SparseVectorReference &operator = (const SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> &r)
+	template <class II, class EI>
+	SparseVectorReference &operator = (const SparseVectorReference<II, EI> &r)
 		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
 
 	operator std::pair<first_type, second_type> () const
 		{ return std::pair<first_type, second_type> (*first._i, *second._i); }
-};
 
-/// Specialisation of above for const references
-template <class ConstIndexIterator, class ConstElementIterator>
-class SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> {
-public:
-	typedef typename std::iterator_traits<ConstIndexIterator>::value_type first_type;
-	typedef typename std::iterator_traits<ConstElementIterator>::value_type second_type;
-
-	Property<ConstIndexIterator> first;
-	Property<ConstElementIterator> second;
-
-	SparseVectorReference () {}
-	SparseVectorReference (ConstIndexIterator idx, ConstElementIterator elt) : first (idx), second (elt) {}
-
-	SparseVectorReference &operator = (const SparseVectorReference &r)
-		{ *first._i = *r.first._i; *second._i = *r.second._i; return *this; }
-
-	bool operator == (const SparseVectorReference &r) const
+	template <class II, class EI>
+	bool operator == (const SparseVectorReference<II, EI> &r) const
 		{ return (first == r.first) && (second == r.second); }
 
-	bool operator != (const SparseVectorReference &r) const
+	template <class II, class EI>
+	bool operator != (const SparseVectorReference<II, EI> &r) const
 		{ return (first != r.first) || (second != r.second); }
-
-private:
-	template <class Element, class IV, class EV>
-	friend class SparseVector;
 };
 
 /// Iterator for sparse vectors
@@ -76,9 +58,9 @@ class SparseVectorIterator
 {
 public:
 	typedef std::random_access_iterator_tag iterator_category;
-	typedef SparseVectorReference<IndexIterator, ElementIterator, ConstIndexIterator, ConstElementIterator> reference;
+	typedef SparseVectorReference<IndexIterator, ElementIterator> reference;
 	typedef std::pair<typename IndexIterator::value_type, typename ElementIterator::value_type> value_type;
-	typedef const SparseVectorReference<ConstIndexIterator, ConstElementIterator, ConstIndexIterator, ConstElementIterator> const_reference;
+	typedef const SparseVectorReference<ConstIndexIterator, ConstElementIterator> const_reference;
 	typedef reference *pointer;
 	typedef const_reference *const_pointer;
 	typedef ptrdiff_t difference_type;

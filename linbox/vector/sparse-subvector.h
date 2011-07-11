@@ -41,7 +41,7 @@ struct HybridSubvectorWordAlignedTag {};
   \ingroup vector
  */
 
-template <class Vector, class Trait> // N.B. default argument in forward-declaration in linbox/vector/sparse.h
+template <class Vector, class Trait>
 class SparseSubvector
 {
     public:
