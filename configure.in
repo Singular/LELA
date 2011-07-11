@@ -170,6 +170,8 @@ if test "x$XSLTPROC" = "xno" ; then
   XSLTPROC=
 fi
 
+AM_CONDITIONAL(BUILD_DOCS,[test x$XSLTPROC != x])
+
 # this is bogus so far as I can tell.  -bds
 #CXXFLAGS="${GMP_CFLAGS} ${NTL_CFLAGS} ${GIVARO_CFLAGS} ${SACLIB_CFLAGS} ${CXXFLAGS}"
 #AC_SUBST(CXXFLAGS)

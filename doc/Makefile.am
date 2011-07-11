@@ -1,6 +1,10 @@
 INSTALL_TARGETS = install-doc
 
-all all-local: tutorial.html
+if BUILD_DOCS
+DOC_TARGETS = tutorial.html
+endif
+
+all all-local: $(DOC_TARGETS)
 
 install install-data-local: $(INSTALL_TARGETS)
 
