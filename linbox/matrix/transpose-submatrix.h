@@ -21,8 +21,6 @@
 #include "linbox/matrix/traits.h"
 #include "linbox/matrix/transpose.h"
 
-#undef _A
-
 namespace LinBox
 {
 
@@ -70,44 +68,44 @@ class TransposeSubmatrix
 	/** Constructor.
 	 * @param  A  Underlying matrix of which to construct the transpose
 	 */
-	TransposeSubmatrix (const TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (const TransposeMatrix<Matrix> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 	
 	template <class M2>
-	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (const TransposeMatrix<M2> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 
 	TransposeSubmatrix (const TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
 	template <class M2>
 	TransposeSubmatrix (const TransposeSubmatrix<M2, Trait> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
 	TransposeSubmatrix (const TransposeSubmatrix &M)
-		: _A (M._A)
+		: A (M.A)
 	{}
 
-	inline size_t rowdim () const { return _A.coldim (); }
-	inline size_t coldim () const { return _A.rowdim (); }
+	inline size_t rowdim () const { return A.coldim (); }
+	inline size_t coldim () const { return A.rowdim (); }
 
-	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
-	inline void eraseEntry (size_t i, size_t j) { _A.eraseEntry (j, i); }
-	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
+	inline void setEntry (size_t i, size_t j, const Element &a_ij) { A.setEntry (j, i, a_ij); }
+	inline void eraseEntry (size_t i, size_t j) { A.eraseEntry (j, i); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return A.getEntry (x, j, i); }
 
-	inline RowIterator rowBegin () { return _A.colBegin (); }
-	inline RowIterator rowEnd () { return _A.colEnd (); }
-	inline ConstRowIterator rowBegin () const { return _A.colBegin (); }
-	inline ConstRowIterator rowEnd () const { return _A.colEnd (); }
+	inline RowIterator rowBegin () { return A.colBegin (); }
+	inline RowIterator rowEnd () { return A.colEnd (); }
+	inline ConstRowIterator rowBegin () const { return A.colBegin (); }
+	inline ConstRowIterator rowEnd () const { return A.colEnd (); }
 
-	inline ColIterator colBegin () { return _A.rowBegin (); }
-	inline ColIterator colEnd () { return _A.rowEnd (); }
-	inline ConstColIterator colBegin () const { return _A.rowBegin (); }
-	inline ConstColIterator colEnd () const { return _A.rowEnd (); }
+	inline ColIterator colBegin () { return A.rowBegin (); }
+	inline ColIterator colEnd () { return A.rowEnd (); }
+	inline ConstColIterator colBegin () const { return A.rowBegin (); }
+	inline ConstColIterator colEnd () const { return A.rowEnd (); }
 
 	inline RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
 	inline RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
@@ -119,7 +117,7 @@ class TransposeSubmatrix
 
     protected:
 
-	typename Matrix::SubmatrixType _A;
+	typename Matrix::SubmatrixType A;
 };
 
 // Specialization for matrices that have both row and column iterators
@@ -162,41 +160,41 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol>
 
 	typedef Matrix ContainerType;
 
-	TransposeSubmatrix (const TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (const TransposeMatrix<Matrix> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 
 	template <class M2>
-	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (const TransposeMatrix<M2> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 
 	TransposeSubmatrix (const TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
 	template <class M2>
 	TransposeSubmatrix (const TransposeSubmatrix<M2, MatrixIteratorTypes::RowCol> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
-	TransposeSubmatrix (const TransposeSubmatrix &M) : _A (M._A) {}
+	TransposeSubmatrix (const TransposeSubmatrix &M) : A (M.A) {}
 
-	inline size_t rowdim () const { return _A.coldim (); }
-	inline size_t coldim () const { return _A.rowdim (); }
+	inline size_t rowdim () const { return A.coldim (); }
+	inline size_t coldim () const { return A.rowdim (); }
 
-	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
-	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
+	inline void setEntry (size_t i, size_t j, const Element &a_ij) { A.setEntry (j, i, a_ij); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return A.getEntry (x, j, i); }
 
-	inline RowIterator rowBegin () { return _A.colBegin (); }
-	inline RowIterator rowEnd () { return _A.colEnd (); }
-	inline ConstRowIterator rowBegin () const { return _A.colBegin (); }
-	inline ConstRowIterator rowEnd () const { return _A.colEnd (); }
+	inline RowIterator rowBegin () { return A.colBegin (); }
+	inline RowIterator rowEnd () { return A.colEnd (); }
+	inline ConstRowIterator rowBegin () const { return A.colBegin (); }
+	inline ConstRowIterator rowEnd () const { return A.colEnd (); }
 
-	inline ColIterator colBegin () { return _A.rowBegin (); }
-	inline ColIterator colEnd () { return _A.rowEnd (); }
-	inline ConstColIterator colBegin () const { return _A.rowBegin (); }
-	inline ConstColIterator colEnd () const { return _A.rowEnd (); }
+	inline ColIterator colBegin () { return A.rowBegin (); }
+	inline ColIterator colEnd () { return A.rowEnd (); }
+	inline ConstColIterator colBegin () const { return A.rowBegin (); }
+	inline ConstColIterator colEnd () const { return A.rowEnd (); }
 
 	inline RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
 	inline RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
@@ -208,7 +206,7 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol>
 
     protected:
 
-	typename Matrix::SubmatrixType _A;
+	typename Matrix::SubmatrixType A;
 };
 
 // Specialization for matrices that have only row iterators
@@ -247,36 +245,36 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>
 
 	typedef Matrix ContainerType;
 
-	TransposeSubmatrix (const TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (const TransposeMatrix<Matrix> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 
 	template <class M2>
-	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (const TransposeMatrix<M2> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 
 	TransposeSubmatrix (const TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
 	template <class M2>
 	TransposeSubmatrix (const TransposeSubmatrix<M2, MatrixIteratorTypes::Row> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
-	TransposeSubmatrix (const TransposeSubmatrix &M) : _A (M._A) {}
+	TransposeSubmatrix (const TransposeSubmatrix &M) : A (M.A) {}
 
-	inline size_t rowdim () const { return _A.coldim (); }
-	inline size_t coldim () const { return _A.rowdim (); }
+	inline size_t rowdim () const { return A.coldim (); }
+	inline size_t coldim () const { return A.rowdim (); }
 
-	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
-	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
+	inline void setEntry (size_t i, size_t j, const Element &a_ij) { A.setEntry (j, i, a_ij); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return A.getEntry (x, j, i); }
 
-	inline ColIterator colBegin () { return _A.rowBegin (); }
-	inline ColIterator colEnd () { return _A.rowEnd (); }
-	inline ConstColIterator colBegin () const { return _A.rowBegin (); }
-	inline ConstColIterator colEnd () const { return _A.rowEnd (); }
+	inline ColIterator colBegin () { return A.rowBegin (); }
+	inline ColIterator colEnd () { return A.rowEnd (); }
+	inline ConstColIterator colBegin () const { return A.rowBegin (); }
+	inline ConstColIterator colEnd () const { return A.rowEnd (); }
 
 	inline RawIterator      rawBegin ()       { return RawIterator      (colBegin (), 0, colEnd (), rowdim ()); }
 	inline RawIterator      rawEnd ()         { return RawIterator      (colEnd (), 0, colEnd (), rowdim ()); }
@@ -288,7 +286,7 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>
 
     protected:
 
-	typename Matrix::SubmatrixType _A;
+	typename Matrix::SubmatrixType A;
 };
 
 // Specialization for matrices that have only column iterators
@@ -324,36 +322,36 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>
 
 	typedef Matrix ContainerType;
 
-	TransposeSubmatrix (TransposeMatrix<Matrix> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (TransposeMatrix<Matrix> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 
 	template <class M2>
-	TransposeSubmatrix (const TransposeMatrix<M2> &A, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (A._A, col, row, coldim, rowdim)
+	TransposeSubmatrix (const TransposeMatrix<M2> &__A, size_t row, size_t col, size_t rowdim, size_t coldim)
+		: A (__A.A, col, row, coldim, rowdim)
 	{}
 
 	TransposeSubmatrix (TransposeSubmatrix &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
 	template <class M2>
 	TransposeSubmatrix (TransposeSubmatrix<M2, MatrixIteratorTypes::Col> &M, size_t row, size_t col, size_t rowdim, size_t coldim)
-		: _A (M._A, col, row, coldim, rowdim)
+		: A (M.A, col, row, coldim, rowdim)
 	{}
 
-	TransposeSubmatrix (const TransposeSubmatrix &M) : _A (M._A) {}
+	TransposeSubmatrix (const TransposeSubmatrix &M) : A (M.A) {}
 
-	inline size_t rowdim () const { return _A.coldim (); }
-	inline size_t coldim () const { return _A.rowdim (); }
+	inline size_t rowdim () const { return A.coldim (); }
+	inline size_t coldim () const { return A.rowdim (); }
 
-	inline void setEntry (size_t i, size_t j, const Element &a_ij) { _A.setEntry (j, i, a_ij); }
-	inline bool getEntry (Element &x, size_t i, size_t j) const { return _A.getEntry (x, j, i); }
+	inline void setEntry (size_t i, size_t j, const Element &a_ij) { A.setEntry (j, i, a_ij); }
+	inline bool getEntry (Element &x, size_t i, size_t j) const { return A.getEntry (x, j, i); }
 
-	inline RowIterator rowBegin () { return _A.colBegin (); }
-	inline RowIterator rowEnd () { return _A.colEnd (); }
-	inline ConstRowIterator rowBegin () const { return _A.colBegin (); }
-	inline ConstRowIterator rowEnd () const { return _A.colEnd (); }
+	inline RowIterator rowBegin () { return A.colBegin (); }
+	inline RowIterator rowEnd () { return A.colEnd (); }
+	inline ConstRowIterator rowBegin () const { return A.colBegin (); }
+	inline ConstRowIterator rowEnd () const { return A.colEnd (); }
 
 	inline RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
 	inline RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
@@ -365,7 +363,7 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>
 
     protected:
 
-	typename Matrix::SubmatrixType _A;
+	typename Matrix::SubmatrixType A;
 };
 
 } // namespace LinBox

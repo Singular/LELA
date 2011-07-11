@@ -133,28 +133,28 @@ void FaugereLachartre<Ring, Modules>::setup_splicer (Splicer &splicer, Splicer &
 template <class Ring, class Matrix1, class Matrix2, class Matrix3>
 class MatrixGrid1
 {
-	const Ring &_R;
-	Matrix1 &_X;
-	Matrix2 &_A;
-	Matrix3 &_B, &_C, &_D;
+	const Ring &R;
+	Matrix1 &X;
+	Matrix2 &A;
+	Matrix3 &B, &C, &D;
 
 public:
-	MatrixGrid1 (const Ring &R, Matrix1 &X, Matrix2 &A, Matrix3 &B, Matrix3 &C, Matrix3 &D)
-		: _R (R), _X (X), _A (A), _B (B), _C (C), _D (D)
+	MatrixGrid1 (const Ring &__R, Matrix1 &__X, Matrix2 &__A, Matrix3 &__B, Matrix3 &__C, Matrix3 &__D)
+		: R (__R), X (__X), A (__A), B (__B), C (__C), D (__D)
 		{}
 
 	void operator () (const Block &horiz_block, const Block &vert_block)
 	{
 		if (horiz_block.dest () == 0) {
 			if (vert_block.dest () == 0)
-				Splicer::copyBlock (_R, _X, _A, horiz_block, vert_block);
+				Splicer::copyBlock (R, X, A, horiz_block, vert_block);
 			else
-				Splicer::copyBlock (_R, _X, _B, horiz_block, vert_block);
+				Splicer::copyBlock (R, X, B, horiz_block, vert_block);
 		} else {
 			if (vert_block.dest () == 0)
-				Splicer::copyBlock (_R, _X, _C, horiz_block, vert_block);
+				Splicer::copyBlock (R, X, C, horiz_block, vert_block);
 			else
-				Splicer::copyBlock (_R, _X, _D, horiz_block, vert_block);
+				Splicer::copyBlock (R, X, D, horiz_block, vert_block);
 		}
 	}
 };
@@ -162,21 +162,21 @@ public:
 template <class Ring, class Matrix>
 class MatrixGrid2
 {
-	const Ring &_R;
-	Matrix &_B, &_B1, &_B2;
+	const Ring &R;
+	Matrix &B, &B1, &B2;
 
 public:
-	MatrixGrid2 (const Ring &R, Matrix &B, Matrix &B1, Matrix &B2)
-		: _R (R), _B (B), _B1 (B1), _B2 (B2)
+	MatrixGrid2 (const Ring &__R, Matrix &__B, Matrix &__B1, Matrix &__B2)
+		: R (__R), B (__B), B1 (__B1), B2 (__B2)
 		{}
 
 	void operator () (const Block &horiz_block, const Block &vert_block)
 	{
 		if (horiz_block.dest () == 0) {
 			if (vert_block.dest () == 0)
-				Splicer::copyBlock (_R, _B, _B1, horiz_block, vert_block);
+				Splicer::copyBlock (R, B, B1, horiz_block, vert_block);
 			else
-				Splicer::copyBlock (_R, _B, _B2, horiz_block, vert_block);
+				Splicer::copyBlock (R, B, B2, horiz_block, vert_block);
 		}
 	}
 };
@@ -184,28 +184,28 @@ public:
 template <class Ring, class Matrix1, class Matrix2>
 class MatrixGrid3
 {
-	const Ring &_R;
-	Matrix1 &_B2, &_D2;
-	Matrix2 &_X;
+	const Ring &R;
+	Matrix1 &B2, &D2;
+	Matrix2 &X;
 
 public:
-	MatrixGrid3 (const Ring &R, Matrix1 &B2, Matrix1 &D2, Matrix2 &X)
-		: _R (R), _B2 (B2), _D2 (D2), _X (X)
+	MatrixGrid3 (const Ring &__R, Matrix1 &__B2, Matrix1 &__D2, Matrix2 &__X)
+		: R (__R), B2 (__B2), D2 (__D2), X (__X)
 		{}
 
 	void operator () (const Block &horiz_block, const Block &vert_block)
 	{
 		if (horiz_block.source () == 0) {
 			if (vert_block.source () == 0)
-				Splicer::copyIdentity (_R, _X, horiz_block, vert_block);
+				Splicer::copyIdentity (R, X, horiz_block, vert_block);
 			else if (vert_block.source () == 2)
-				Splicer::copyBlock (_R, _B2, _X, horiz_block, vert_block);
+				Splicer::copyBlock (R, B2, X, horiz_block, vert_block);
 		}
 		else if (horiz_block.source () == 1) {
 			if (vert_block.source () == 1)
-				Splicer::copyIdentity (_R, _X, horiz_block, vert_block);
+				Splicer::copyIdentity (R, X, horiz_block, vert_block);
 			else if (vert_block.source () == 2)
-				Splicer::copyBlock (_R, _D2, _X, horiz_block, vert_block);
+				Splicer::copyBlock (R, D2, X, horiz_block, vert_block);
 		}
 	}
 };
