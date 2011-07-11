@@ -220,7 +220,7 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>
 
 	typedef typename Matrix::Element Element;
 	typedef TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row> Self_t;
-	typedef typename MatrixIteratorTypes::Col IteratorType;
+	typedef MatrixIteratorTypes::Col IteratorType;
 	typedef typename Matrix::StorageType StorageType;
 
 	typedef typename Matrix::SubmatrixType::RowIterator ColIterator;
@@ -300,7 +300,7 @@ class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>
 
 	typedef typename Matrix::Element Element;
 	typedef TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col> Self_t;
-	typedef typename MatrixIteratorTypes::Row IteratorType;
+	typedef MatrixIteratorTypes::Row IteratorType;
 	typedef typename Matrix::StorageType StorageType;
 
 	typedef typename Matrix::SubmatrixType::ColIterator RowIterator;
