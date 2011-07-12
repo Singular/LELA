@@ -493,16 +493,16 @@ bool testgemvConsistency (LinBox::Context<Ring, Modules1> &ctx1,
 	typename VectorTraits<Ring,Vector4>::ContainerType w2;
 	typename VectorTraits<Ring,Vector2>::ContainerType w3;
 
-	VectorUtils::ensureDim<Ring, Vector3> (w1, v1.size ());
-	VectorUtils::ensureDim<Ring, Vector4> (w2, v2.size ());
+	VectorUtils::ensureDim<Ring, Vector3> (w1, M1.coldim ());
+	VectorUtils::ensureDim<Ring, Vector4> (w2, M1.rowdim ());
 
-	VectorUtils::ensureDim<Ring, Vector2> (w3, v2.size ());
+	VectorUtils::ensureDim<Ring, Vector2> (w3, M1.rowdim ());
 
 	BLAS1::copy (ctx1, v1, w1);
 	BLAS1::copy (ctx1, v2, w2);
 	BLAS1::copy (ctx1, v2, w3);
 
-	typename Matrix2::ContainerType A;
+	typename Matrix2::ContainerType A (M1.rowdim (), M1.coldim ());
 
 	BLAS3::copy(ctx1,M1,A);
 
@@ -532,7 +532,7 @@ bool testgemvConsistency (LinBox::Context<Ring, Modules1> &ctx1,
 
 
 
-	report << "Vector : a Av_1 + bv_2";
+	report << "Vector a Av_1 + bv_2: ";
 	BLAS1::write (ctx1, report, w3) << std::endl;
 
 	report << "Vector w_1: ";
@@ -590,12 +590,12 @@ bool testBLAS2Consistency (LinBox::Context<Ring, Modules> &ctx, const char *text
 	stream4 >>  w2;
 	
 	pass = testgemvConsistency (ctx, ctx, "sparse(row-wise)	/dense	/dense 		with dense/dense/dense", M2, v1, v2, M1, v1, v1) && pass; 
-	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/dense	/dense 		with dense/dense/dense", M3, v1, v2, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/dense	/dense 		with dense/dense/dense", M3, v2, v1, M1, v1, v1) && pass; 
 	pass = testgemvConsistency (ctx, ctx, "sparse(row-wise)	/sparse	/sparse 	with dense/dense/dense", M2, w1, w2, M1, v1, v1) && pass; 
-	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/sparse	/sparse 	with dense/dense/dense", M3, w1, w2, M1, v1, v1) && pass; 
-	pass = testgemvConsistency (ctx, ctx, "sparse(row-wise)	/sparse	/dense		with dense/dense/dense", M2, w1, v1, M1, v1, v1) && pass; 
-	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/sparse	/dense		with dense/dense/dense", M3, w1, v1, M1, v1, v1) && pass; 
-	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/dense		with dense/dense/dense", M1, w1, v1, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/sparse	/sparse 	with dense/dense/dense", M3, w2, w1, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(row-wise)	/sparse	/dense		with dense/dense/dense", M2, w1, v2, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/sparse	/dense		with dense/dense/dense", M3, w2, v1, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/dense		with dense/dense/dense", M1, w1, v2, M1, v1, v1) && pass; 
 	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/sparse		with dense/dense/dense", M1, w1, w2, M1, v1, v1) && pass; 
 
 
