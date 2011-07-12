@@ -171,15 +171,15 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::op
 
 		if (type == LowerTriangular) {
 			typename Matrix::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
-			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A22, x2, type, diagIsOne);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
 			_gemv<Ring, typename Modules::Tag>::op (F, M, F.one (), A21, x1, F.one (), x2);
-			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A11, x1, type, diagIsOne);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
-			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A11, x1, type, diagIsOne);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
 			_gemv<Ring, typename Modules::Tag>::op (F, M, F.one (), A12, x2, F.one (), x1);
-			_trmv<Ring, typename Modules::Tag>::op (F, M, F.one (), A22, x2, type, diagIsOne);
+			_trmv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
 		}
 
 		return x;
