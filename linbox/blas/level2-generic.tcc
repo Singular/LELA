@@ -71,7 +71,7 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	if (F.isZero (b))
 		y.clear ();
 	else
-		BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, y, b);
+		BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, b, y);
 
 	for (; i != A.rowEnd (); ++i, ++idx) {
 		BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, t, x, *i);
