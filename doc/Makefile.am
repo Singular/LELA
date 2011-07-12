@@ -16,3 +16,6 @@ EXTRA_DIST = \
 
 MAINTAINERCLEANFILES = \
 	tutorial.html
+
+
+install-doc:

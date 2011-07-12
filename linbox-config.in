@@ -59,7 +59,7 @@ while test $# -gt 0; do
 	;;
 
     --libs)
-	echo -n " -L${libdir} ${libdir}/liblinbox.a @LIDIA_LIBS@ @SACLIB_LIBS@ @GMP_LIBS@"
+	echo -n " -L${libdir} ${libdir}/liblinbox.a @LIDIA_LIBS@ @SACLIB_LIBS@ @GMP_LIBS@ -lpng"
 	;;
 
     *)

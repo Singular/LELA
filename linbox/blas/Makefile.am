@@ -18,8 +18,11 @@ BASIC_HDRS =			\
 	level2-generic.tcc	\
 	level3-generic.tcc	\
 	level1-gf2.h		\
+	level1-gf2.tcc		\
 	level2-gf2.h		\
+	level2-gf2.tcc		\
 	level3-m4ri.h		\
+	level3-m4ri.tcc		\
 	level1-modular.h	\
 	level2-modular.h	\
 	level1-modular.tcc	\

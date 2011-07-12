@@ -136,7 +136,8 @@ fi
 LB_MISC
 LB_DRIVER
 
-AC_CHECK_LIB([png], [png_create_write_struct_2])
+# How to make it optionall???
+AC_CHECK_LIB([png], [png_create_write_struct_2]) 
 
 AC_LANG_CPLUSPLUS
 LB_CHECK_GMP(,,[
