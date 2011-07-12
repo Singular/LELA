@@ -34,27 +34,6 @@ using namespace LinBox;
 
 typedef std::vector<std::pair<uint32, uint32> > Permutation;
 
-/* Force the input-matrix to have nonsingular entries on the diagonal */
-
-template <class Field, class Matrix>
-static Matrix &makeNonsingDiag (Field &F, Matrix &A)
-{
-	size_t i;
-
-	typename Field::Element a;
-
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
-
-	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
-		if (!A.getEntry (a, i, i) || F.isZero (a)) {
-			r.random (a);
-			A.setEntry (i, i, a);
-		}
-	}
-
-	return A;
-}
-
 /* Construct a random nonsingular upper triangular matrix from a random matrix */
 
 template <class Field, class Matrix>

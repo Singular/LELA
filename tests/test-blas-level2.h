@@ -336,6 +336,7 @@ static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const 
 	Matrix1 U (A.rowdim (), A.coldim ());
 
 	BLAS3::copy (ctx, A, U);
+	makeNonsingDiag (ctx.F, U);
 
 	DenseMatrix<typename Field::Element> UinvBtrsm (U.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> UinvBtrsv (U.rowdim (), B.coldim ());
@@ -469,6 +470,145 @@ bool testBLAS2Submatrix (Context<Field, Modules> &ctx, const char *text,
 
 	return pass;
 }
+
+
+template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2, class Vector1, class Vector2, class Vector3, class Vector4>
+bool testgemvConsistency (LinBox::Context<Ring, Modules1> &ctx1,
+			  LinBox::Context<Ring, Modules2> &ctx2,
+			  const char *text,
+			  const Matrix1 &M1, 
+			  const Vector1 &v1, const Vector2 &v2,
+			  const Matrix2 &M2,
+			  const Vector3 &v3, const Vector4 &v4)
+{
+	ostringstream str;
+	str << "Testing " << text << " gemv consistency" << std::ends;
+	commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool pass = true;
+	
+	typename VectorTraits<Ring,Vector3>::ContainerType w1;
+	typename VectorTraits<Ring,Vector4>::ContainerType w2;
+	typename VectorTraits<Ring,Vector2>::ContainerType w3;
+
+	VectorUtils::ensureDim<Ring, Vector3> (w1, v1.size ());
+	VectorUtils::ensureDim<Ring, Vector4> (w2, v2.size ());
+
+	VectorUtils::ensureDim<Ring, Vector2> (w3, v2.size ());
+
+	BLAS1::copy (ctx1, v1, w1);
+	BLAS1::copy (ctx1, v2, w2);
+	BLAS1::copy (ctx1, v2, w3);
+
+	typename Matrix2::ContainerType A;
+
+	BLAS3::copy(ctx1,M1,A);
+
+	typename Ring::Element a,b;
+	NonzeroRandIter<Ring, typename Ring::RandIter> r (ctx1.F, typename Ring::RandIter (ctx1.F));
+
+	r.random (a);
+	r.random (b);
+
+	report << "Coefficient a: ";
+	ctx1.F.write (report, a) << std::endl;
+
+	report << "Coefficient b: ";
+	ctx1.F.write (report, b) << std::endl;
+
+	report << "Vector v_1: ";
+	BLAS1::write (ctx1, report, v1) << std::endl;
+
+	report << "Vector v_2: ";
+	BLAS1::write (ctx1, report, v2) << std::endl;
+
+	report << "Matrix A: "<< std::endl;
+	BLAS3::write (ctx1, report, A);
+
+
+	BLAS2::gemv(ctx1, a, M1, v1, b, w3);
+
+
+
+	report << "Vector : a Av_1 + bv_2";
+	BLAS1::write (ctx1, report, w3) << std::endl;
+
+	report << "Vector w_1: ";
+	BLAS1::write (ctx2, report, w1) << std::endl;
+
+	report << "Vector w_2: ";
+	BLAS1::write (ctx2, report, w2) << std::endl;
+
+	BLAS2::gemv (ctx2, a, A, w1, b, w2);
+
+	report << "Vector a Aw_1 + bw_2: ";
+	BLAS1::write (ctx1, report, w2) << std::endl;
+
+	if (!BLAS1::equal (ctx1, w3, w2))
+	{
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: a Av_1 + bv_2 != a Aw_1 + bw_2" << std::endl;
+		pass = false;
+	}
+
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}	
+
+template <class Ring, class Modules>
+bool testBLAS2Consistency (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t m, size_t n, size_t k) 
+{
+	std::ostringstream str;
+	str << "Testing BLAS1 consistency over <" << text << ">" << std::ends;
+	LinBox::commentator.start (str.str ().c_str ());
+
+	bool pass = true;
+
+	typename LinBox::Vector<Ring>::Dense v1(n), v2(m);
+	typename LinBox::Vector<Ring>::Sparse w1, w2;
+
+
+	RandomDenseStream<Ring, typename DenseMatrix<typename Ring::Element>::Row> stream11 (ctx.F, n, m); 
+	DenseMatrix<typename Ring::Element> M1 (stream11);
+
+	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> stream21 (ctx.F, (double) k / (double) n, n, m);
+	SparseMatrix<typename Ring::Element> M2 (stream21);
+
+	TransposeMatrix<SparseMatrix<typename Ring::Element> > M3 (M2);
+
+
+	LinBox::RandomDenseStream<Ring, typename LinBox::Vector<Ring>::Dense> stream1 (ctx.F, n), stream2 (ctx.F, m);
+	LinBox::RandomSparseStream<Ring, typename LinBox::Vector<Ring>::Sparse> stream3 (ctx.F, (double) k / (double) n, n), stream4 (ctx.F, (double) k / (double) n, m);
+
+	stream1 >>  v1;
+	stream2 >>  v2;
+	stream3 >>  w1;
+	stream4 >>  w2;
+	
+	pass = testgemvConsistency (ctx, ctx, "sparse(row-wise)	/dense	/dense 		with dense/dense/dense", M2, v1, v2, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/dense	/dense 		with dense/dense/dense", M3, v1, v2, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(row-wise)	/sparse	/sparse 	with dense/dense/dense", M2, w1, w2, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/sparse	/sparse 	with dense/dense/dense", M3, w1, w2, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(row-wise)	/sparse	/dense		with dense/dense/dense", M2, w1, v1, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/sparse	/dense		with dense/dense/dense", M3, w1, v1, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/dense		with dense/dense/dense", M1, w1, v1, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/sparse		with dense/dense/dense", M1, w1, w2, M1, v1, v1) && pass; 
+
+
+	LinBox::commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+
+
+
+
+
 
 #endif // __LINBOX_TESTS_TEST_BLAS_LEVEL2_H
 

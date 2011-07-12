@@ -17,6 +17,7 @@
 
 #include "linbox/ring/interface.h"
 #include "linbox/integer.h"
+#include "linbox/randiter/nonzero.h"
 
 using namespace std;
 
@@ -35,6 +36,41 @@ struct Argument
 };
 // example may be passed as null and will be generated intelligently
 // eg "-b {YN+-}" for bools, "-v v" for all else
+
+
+
+
+
+
+
+
+/* Force the input-matrix to have nonsingular entries on the diagonal */
+
+template <class Field, class Matrix>
+static Matrix &makeNonsingDiag (Field &F, Matrix &A)
+{
+	size_t i;
+
+	typename Field::Element a;
+
+	LinBox::NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+
+	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
+		if (!A.getEntry (a, i, i) || F.isZero (a)) {
+			r.random (a);
+			A.setEntry (i, i, a);
+		}
+	}
+
+	return A;
+}
+
+
+
+
+
+
+
 
 template <class Ring, class Polynomial>
 void printPolynomial (Ring &F, ostream &output, const Polynomial &v) 
