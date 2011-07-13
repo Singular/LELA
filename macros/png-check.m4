@@ -14,12 +14,14 @@ AC_ARG_WITH(png,[
 ],[
 if test "$withval" = yes ; then
     AC_CHECK_LIB([png], [png_create_write_struct_2], [
+        AC_DEFINE(HAVE_LIBPNG,1,Enable use of libpng)
     	PNG_LIBS="-lpng"
     ])
 elif test "$withval" != no ; then
     BACKUP_LIBS=$LIBS
     LIBS=$withval/lib
     AC_CHECK_LIB([png], [png_create_write_struct_2],[
+            AC_DEFINE(HAVE_LIBPNG,1,Enable use of libpng)
 	    PNG_CFLAGS="-I$withval/include -lpng"
 	    PNG_LIBS="-L$withval/lib -lpng"
     ],[
@@ -29,6 +31,7 @@ elif test "$withval" != no ; then
 fi
 ],[
     AC_CHECK_LIB([png], [png_create_write_struct_2], [
+    	AC_DEFINE(HAVE_LIBPNG,1,Enable use of libpng)
     	PNG_LIBS="-lpng"
     ],[AC_MSG_RESULT(not found)])
 ])
