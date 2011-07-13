@@ -284,8 +284,8 @@ public:
 	 * @param  x Property (reference returned).
 	 * @param  y ring element.
 	 */
-	template <class Iterator>
-	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
+	template <class Iterator, class Accessor>
+	Property<Iterator, Accessor> &mulin (Property<Iterator, Accessor> &x, const Element &y) const
 	{
 		Element t = x;
 		mulin (t, y);

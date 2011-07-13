@@ -26,12 +26,8 @@ namespace LinBox
 {
 
 /** Empty struct to be used when constructing a sparse subvector of a
- * hybrid vector with word-aligned boundaries. When SparseSubvector is
- * instantiated with this tag, the meaning of the constructor-
- * parameters start and end refers to the block-index (that is,
- * column_index = bitsof (word_type) * block_index), unlike the
- * column-index which is the case with the non-word-aligned
- * version. This version is also much faster.
+ * hybrid vector with word-aligned boundaries. This version is much
+ * faster.
  */
 struct HybridSubvectorWordAlignedTag {};
 
@@ -62,11 +58,151 @@ class SparseSubvector
 	~SparseSubvector () {}
 }; // template <class Vector, Trait> class SparseSubvector
 
+// Prototype for reference into sparse subvector
+template <class Iterator>
+struct SparseSubvectorReferencePT
+{
+	// This is idiotic: we must maintain two copies of the same
+	// iterator -- one for each property. Ordinarily we would use
+	// a union to avoid this, but this is impossible in C++
+	// because we cannot guarantee that Iterator does not have a
+	// nontrivial copy-constructor, and there is no way around
+	// this.
+	ShiftedPropertyFirstEntry<Iterator> first;
+	Property<Iterator, SecondEntryAccessor<Iterator> > second;
+
+	SparseSubvectorReferencePT () {}
+
+	SparseSubvectorReferencePT (Iterator i, typename std::iterator_traits<Iterator>::value_type::first_type shift)
+		: first (i, shift), second (i)
+		{}
+
+	SparseSubvectorReferencePT (const SparseSubvectorReferencePT &r)
+		{ first._i = r.first._i; first._shift = r.first._shift; second._i = r.second._i; }
+};
+
+// Prototype for iterator over sparse subvector
+template <class Iterator, class ConstIterator>
+class SparseSubvectorIteratorPT
+{
+public:
+	typedef std::random_access_iterator_tag iterator_category;
+	typedef SparseSubvectorReferencePT<Iterator> reference;
+	typedef SparseSubvectorReferencePT<ConstIterator> const_reference;
+	typedef typename std::iterator_traits<Iterator>::value_type value_type;
+	typedef reference *pointer;
+	typedef const_reference *const_pointer;
+	typedef ptrdiff_t difference_type;
+	typedef size_t size_type;
+
+	SparseSubvectorIteratorPT () {}
+	SparseSubvectorIteratorPT (Iterator i, typename std::iterator_traits<Iterator>::value_type::first_type shift)
+		: _ref (i, shift) {}
+	SparseSubvectorIteratorPT (const SparseSubvectorIteratorPT &i)
+		: _ref (i._ref) {}
+
+	SparseSubvectorIteratorPT &operator = (const SparseSubvectorIteratorPT &i)
+	{
+		_ref.first._i = i._ref.first._i;
+		_ref.first._shift = i._ref.first._shift;
+		_ref.second._i = i._ref.second._i;
+		return *this;
+	}
+
+	template <class It, class CIt>
+	SparseSubvectorIteratorPT &operator = (const SparseSubvectorIteratorPT<It, CIt> &i)
+	{
+		_ref.first._i = i._ref.first._i;
+		_ref.first._shift = i._ref.first._shift;
+		_ref.second._i = i._ref.second._i;
+		return *this;
+	}
+
+	SparseSubvectorIteratorPT &operator ++ () 
+		{ ++_ref.first._i; ++_ref.second._i; return *this; }
+
+	SparseSubvectorIteratorPT operator ++ (int) 
+	{
+		SparseSubvectorIteratorPT tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	SparseSubvectorIteratorPT operator + (difference_type i) const
+		{ return SparseSubvectorIteratorPT (_ref.first._i + i, _ref.first._shift); }
+
+	SparseSubvectorIteratorPT &operator += (difference_type i) 
+		{ _ref.first._i += i; _ref.second._i += i; return *this; }
+
+	SparseSubvectorIteratorPT &operator -- () 
+		{ --_ref.first._i; --_ref.second._i; return *this; }
+
+	SparseSubvectorIteratorPT operator -- (int) 
+	{
+		SparseSubvectorIteratorPT tmp (*this);
+		--*this;
+		return tmp;
+	}
+
+	SparseSubvectorIteratorPT operator - (difference_type i) const
+		{ return *this + -i; }
+
+	SparseSubvectorIteratorPT &operator -= (difference_type i) 
+		{ return *this += -i; }
+
+	difference_type operator - (SparseSubvectorIteratorPT i) const 
+		{ return _ref.first._i - i._ref.first._i; }
+
+	reference operator [] (long i) 
+		{ return *(*this + i); }
+
+	reference operator * () 
+		{ return _ref; }
+
+	const_reference operator * () const 
+		{ return _ref; }
+
+	pointer operator -> () 
+		{ return &_ref; }
+
+	const_pointer operator -> () const
+		{ return &_ref; }
+
+	bool operator == (const SparseSubvectorIteratorPT &c) const 
+		{ return (_ref.first._i == c._ref.first._i); }
+
+	bool operator < (const SparseSubvectorIteratorPT &c) const 
+		{ return (_ref.first._i < c._ref.first._i); }
+
+	bool operator != (const SparseSubvectorIteratorPT &c) const 
+		{ return (_ref.first._i != c._ref.first._i); }
+
+	template <class It, class CIt>
+	bool operator == (const SparseSubvectorIteratorPT<It, CIt> &c) const 
+		{ return (_ref.first._i == c._ref.first._i); }
+
+	template <class It, class CIt>
+	bool operator < (const SparseSubvectorIteratorPT<It, CIt> &c) const 
+		{ return (_ref.first._i < c._ref.first._i); }
+
+	template <class It, class CIt>
+	bool operator != (const SparseSubvectorIteratorPT<It, CIt> &c) const 
+		{ return (_ref.first._i != c._ref.first._i); }
+
+private:
+	template <class It, class CIt>
+	friend class SparseSubvectorIteratorPT;
+
+	template <class Vector, class Trait>
+	friend class SparseSubvector;
+
+	reference _ref;
+};
+
 // Specialisation of SparseSubvector to const vector in sparse format
 
 template <class Vector>
 class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
-	: public ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator>
 {
     public:
 	typedef VectorRepresentationTypes::Sparse RepresentationType; 
@@ -78,53 +214,67 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
 	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
 	static const int align = 1;
 
+	typedef typename Vector::value_type value_type;
+	typedef typename Vector::size_type size_type;
+
+	typedef SparseSubvectorReferencePT<typename Vector::const_iterator> const_reference;
+	typedef SparseSubvectorIteratorPT<typename Vector::const_iterator, typename Vector::const_iterator> const_iterator;
+
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
 	typedef ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator> parent_type;
 
 	SparseSubvector () {}
 	SparseSubvector (const Vector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
-		typename Vector::const_index_iterator begin = std::lower_bound (v.index_begin (), v.index_end (), start);
-		typename Vector::const_index_iterator end = std::lower_bound (v.index_begin (), v.index_end (), finish);
-		
-		_idx = ConstShiftedVector<typename Vector::const_index_iterator> (begin, end, start);
-		parent_type::_idx_begin = _idx.begin ();
-		parent_type::_idx_end = _idx.end ();
-		parent_type::_elt_begin = v.element_begin () + (begin - v.index_begin ());
+		_begin = std::lower_bound (v.begin (), v.end (), start, VectorUtils::CompareSparseEntries ());
+		_end = std::lower_bound (v.begin (), v.end (), finish, VectorUtils::CompareSparseEntries ());
+		_shift = start;
 	}
 
 	SparseSubvector (const SparseSubvector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
-		typename Vector::const_index_iterator begin = std::lower_bound (v._idx._start, v._idx._end, v._idx._shift + start);
-		typename Vector::const_index_iterator end = std::lower_bound (v._idx._start, v._idx._end, v._idx._shift + finish);
-		
-		_idx = ConstShiftedVector<typename Vector::const_index_iterator> (begin, end, v._idx._shift + start);
-		parent_type::_idx_begin = _idx.begin ();
-		parent_type::_idx_end = _idx.end ();
-		parent_type::_elt_begin = v.element_begin () + (begin - v.index_begin ());
+		_begin = std::lower_bound (v._begin, v._end, start + v._shift, VectorUtils::CompareSparseEntries ());
+		_end = std::lower_bound (v._begin, v._end, finish + v._shift, VectorUtils::CompareSparseEntries ());
+		_shift = start + v._shift;
 	}
 
 	~SparseSubvector () {}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
-		{ _idx = v._idx; this->parent_type::operator = (v); return *this; }
+		{ _begin = v._begin; _end = v._end; _shift = v._shift; return *this; }
+
+	template <class V>
+	SparseSubvector &operator = (const SparseSubvector<const V, VectorRepresentationTypes::Sparse> &v)
+		{ _begin = v._begin; _end = v._end; _shift = v._shift; return *this; }
 
 	template <class V>
 	SparseSubvector &operator = (const SparseSubvector<V, VectorRepresentationTypes::Sparse> &v)
-		{ _idx = v._idx; this->parent_type::operator = (v); return *this; }
+		{ _begin = v._v->begin () + v._begin_idx; _end = v._v->begin () + v._end_idx; _shift = v._shift; return *this; }
+
+	inline const_iterator         begin  () const { return const_iterator (_begin, _shift); }
+	inline const_iterator         end    () const { return const_iterator (_end, _shift); }
+
+	inline const_reverse_iterator rbegin () const { return const_reverse_iterator (end ()); }
+	inline const_reverse_iterator rend   () const { return const_reverse_iterator (begin ()); }
+
+	inline const_reference front     () const      { return *(begin ()); }
+	inline const_reference back      () const      { return *(end () - 1); }
+
+	inline size_type       size      () const { return _end - _begin;  }
+	inline bool            empty     () const { return _end == _begin; }
+
+	inline bool operator == (const SparseSubvector &v) const
+		{ return (_begin == v._begin) && (_end == v._end) && (_shift == v._shift); }
 
     protected:
 
-    protected:
+	typename Vector::const_iterator _begin, _end;
+	typename Vector::value_type::first_type _shift;
 
-	SparseSubvector (const Vector &v, typename Vector::const_index_iterator idx_begin, typename Vector::const_index_iterator idx_end, typename Vector::index_type start)
-	{
-		_idx = ConstShiftedVector<typename Vector::const_index_iterator> (idx_begin, idx_end, start);
-		parent_type::_idx_begin = _idx.begin ();
-		parent_type::_idx_end = _idx.end ();
-		parent_type::_elt_begin = v.element_begin () + (idx_begin - v.index_begin ());
-	}
-
-	ConstShiftedVector<typename Vector::const_index_iterator> _idx;
+	SparseSubvector (const Vector &v, typename Vector::const_iterator begin, typename Vector::const_iterator end, typename Vector::index_type start)
+		: _begin (begin), _end (end), _shift (start)
+	{}
 
 }; // template <class Vector> class SparseSubvector<const Vector, Sparse>
 
@@ -132,60 +282,109 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
 
 template <class Vector>
 class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
-	: public SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<typename Vector::index_vector> >, MutableSubvector<typename Vector::element_vector> >
 {
-	MutableSubvector<typename Vector::index_vector> _idx_v;
-
     public:
 	typedef VectorRepresentationTypes::Sparse RepresentationType; 
 	typedef VectorStorageTypes::Transformed StorageType;
-	typedef Vector ContainerType;
-	typedef SparseSubvector SubvectorType;
+	typedef const Vector ContainerType;
+	typedef SparseSubvector<Vector, VectorRepresentationTypes::Sparse> SubvectorType;
 	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstSubvectorType;
-	typedef SparseSubvector AlignedSubvectorType;
+	typedef SparseSubvector<Vector, VectorRepresentationTypes::Sparse> AlignedSubvectorType;
 	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
 	static const int align = 1;
 
-	typedef SparseVector<typename Vector::element_type, ShiftedVector<MutableSubvector<typename Vector::index_vector> >, MutableSubvector<typename Vector::element_vector> > parent_type;
+	typedef typename Vector::value_type value_type;
+	typedef typename Vector::size_type size_type;
+
+	typedef SparseSubvectorReferencePT<typename Vector::iterator> reference;
+	typedef SparseSubvectorReferencePT<typename Vector::const_iterator> const_reference;
+	typedef SparseSubvectorIteratorPT<typename Vector::iterator, typename Vector::const_iterator> iterator;
+	typedef SparseSubvectorIteratorPT<typename Vector::const_iterator, typename Vector::const_iterator> const_iterator;
+
+	typedef std::reverse_iterator<iterator> reverse_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	SparseSubvector () {}
-	SparseSubvector (Vector &v, typename Vector::index_type start, typename Vector::index_type finish)
-		: _idx_v (v._idx, std::lower_bound (v.index_begin (), v.index_end (), start), std::lower_bound (v.index_begin (), v.index_end (), finish))
+	SparseSubvector (Vector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
-		parent_type::_elt.set_parent (v._elt);
-		parent_type::_elt.set_idx_begin (_idx_v.begin () - v.index_begin ());
-		parent_type::_elt.set_idx_end (_idx_v.end () - v.index_begin ());
-		parent_type::_idx.set_parent (_idx_v);
-		parent_type::_idx.set_shift (start);
+		_v = &v;
+		_begin_idx = std::lower_bound (v.begin (), v.end (), start, VectorUtils::CompareSparseEntries ()) - v.begin ();
+		_end_idx = std::lower_bound (v.begin (), v.end (), finish, VectorUtils::CompareSparseEntries ()) - v.begin ();
+		_shift = start;
 	}
 
-	SparseSubvector (SparseSubvector &v, typename Vector::index_type start, typename Vector::index_type finish)
-		: _idx_v (v._idx_v.parent (), std::lower_bound (v._idx_v.parent ().begin (), v._idx_v.parent ().end (), v._idx.shift () + start),
-			  std::lower_bound (v._idx_v.parent ().begin (), v._idx_v.parent ().end (), v._idx.shift () + finish))
+	SparseSubvector (const SparseSubvector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
-		parent_type::_elt.set_parent (v._elt);
-		parent_type::_elt.set_idx_begin (_idx_v.begin () - v._idx_v.parent ().begin ());
-		parent_type::_elt.set_idx_end (_idx_v.end () - v._idx_v.parent ().begin ());
-		parent_type::_idx.set_parent (_idx_v);
-		parent_type::_idx.set_shift (start);
+		_v = v._v;
+		_begin_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->end () + v._end_idx, start + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
+		_end_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->end () + v._end_idx, finish + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
+		_shift = start + v._shift;
 	}
+
+	SparseSubvector (const SparseSubvector &v)
+		: _v (v._v), _begin_idx (v._begin_idx), _end_idx (v._end_idx), _shift (v._shift) {}
 
 	~SparseSubvector () {}
 
 	SparseSubvector &operator = (const SparseSubvector &v)
-		{ _idx_v = v._idx_v; this->parent_type::operator = (v); parent_type::_idx.set_parent (_idx_v); return *this; }
+		{ _v = v._v; _begin_idx = v._begin_idx; _end_idx = v._end_idx; _shift = v._shift; return *this; }
+
+	template <class V>
+	SparseSubvector &operator = (const SparseSubvector<V, VectorRepresentationTypes::Sparse> &v)
+		{ _v = v._v; _begin_idx = v._begin_idx; _end_idx = v._end_idx; _shift = v._shift; return *this; }
+
+	inline iterator               begin  ()       { return iterator (_v->begin () + _begin_idx, _shift); }
+	inline const_iterator         begin  () const { return const_iterator (_v->begin () + _begin_idx, _shift); }
+	inline iterator               end    ()       { return iterator (_v->begin () + _end_idx, _shift); }
+	inline const_iterator         end    () const { return const_iterator (_v->begin () + _end_idx, _shift); }
+
+	inline reverse_iterator       rbegin ()       { return reverse_iterator (end ()); }
+	inline const_reverse_iterator rbegin () const { return const_reverse_iterator (end ()); }
+	inline reverse_iterator       rend   ()       { return reverse_iterator (begin ()); }
+	inline const_reverse_iterator rend   () const { return const_reverse_iterator (begin ()); }
+
+	inline reference       front     ()            { return *(begin ()); }
+	inline const_reference front     () const      { return *(begin ()); }
+	inline reference       back      ()            { return *(end () - 1); }
+	inline const_reference back      () const      { return *(end () - 1); }
+
+	template <class T>
+	inline void            push_back (T v)         { insert (end (), v); }
+	inline void            clear     ()            { _v->erase (_v->begin () + _begin_idx, _v->begin () + _end_idx); _begin_idx = _end_idx = 0; }
+
+	template <class InputIterator>
+	void assign (InputIterator first, InputIterator last)
+	{
+		clear ();
+
+		while (first != last)
+			push_back (*first++);
+	}
+
+	template <class T>
+	inline iterator insert (iterator pos, const T &x)
+		{ ++_end_idx; return iterator (_v->insert (pos._ref.first._i, value_type (x.first + _shift, x.second)), _shift); }
+
+	inline iterator erase (iterator pos)
+		{ --_end_idx; return iterator (_v->erase (pos._ref._i)); }
+
+	inline size_type       size      () const { return _end_idx - _begin_idx;  }
+	inline bool            empty     () const { return _end_idx == _begin_idx; }
+
+	inline bool operator == (const SparseSubvector &v) const
+		{ return (_v == v._v) && (_begin_idx == v._begin_idx) && (_end_idx == v._end_idx) && (_shift == v._shift); }
 
     protected:
 
-	SparseSubvector (Vector &v, typename Vector::index_iterator idx_begin, typename Vector::index_iterator idx_end, typename Vector::index_type start)
-		: _idx_v (v._idx, idx_begin, idx_end)
-	{
-		parent_type::_elt.set_parent (v._elt);
-		parent_type::_elt.set_idx_begin (_idx_v.begin () - v.index_begin ());
-		parent_type::_elt.set_idx_end (_idx_v.end () - v.index_begin ());
-		parent_type::_idx.set_parent (_idx_v);
-		parent_type::_idx.set_shift (start);
-	}
+	friend class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>;
+
+	Vector *_v;
+	typename Vector::size_type _begin_idx, _end_idx;
+	typename Vector::value_type::first_type _shift;
+
+	SparseSubvector (Vector &v, typename Vector::const_iterator begin, typename Vector::const_iterator end, typename Vector::index_type start)
+		: _v (&v), _begin_idx (begin - v.begin ()), _end_idx (end - v.begin ()), _shift (start)
+	{}
 
 }; // template <class Vector> class SparseSubvector<Vector, Sparse>
 
@@ -277,15 +476,15 @@ class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 	static const int align = WordTraits<typename Vector::word_type>::bits;
 
 	typedef SparseSubvector<Vector, VectorRepresentationTypes::Sparse> parent_type;
-	typedef typename parent_type::parent_type grandparent_type;
 	typedef typename Vector::Endianness Endianness;
 	typedef typename Vector::index_type index_type;
 	typedef typename Vector::word_type word_type;
 
 	SparseSubvector () {}
 	SparseSubvector (Vector &v, size_t start, size_t finish)
-		: parent_type (v, std::lower_bound (v.index_begin () + 1, v.index_end () - 1, start >> WordTraits<word_type>::logof_size),
-			       std::lower_bound (v.index_begin () + 1, v.index_end () - 1, (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size),
+		: parent_type (v, std::lower_bound (v.begin (), v.end (), start >> WordTraits<word_type>::logof_size, VectorUtils::CompareSparseEntries ()),
+			       std::lower_bound (v.begin (), v.end (), (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size,
+						 VectorUtils::CompareSparseEntries ()),
 			       start >> WordTraits<word_type>::logof_size)
 	{
 		linbox_check ((start & WordTraits<word_type>::pos_mask) == 0);

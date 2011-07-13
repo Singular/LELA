@@ -30,6 +30,9 @@ public:
 	SparseVectorReference () {}
 	SparseVectorReference (IndexIterator idx, ElementIterator elt) : first (idx), second (elt) {}
 
+	template <class IIt2, class EIt2>
+	SparseVectorReference (const SparseVectorReference<IIt2, EIt2> &ref) : first (ref.first), second (ref.second) {}
+
 	SparseVectorReference &operator = (const std::pair<first_type, second_type> &r)
 		{ *first._i = r.first; *second._i = r.second; return *this; }
 
@@ -69,6 +72,9 @@ public:
 	SparseVectorIterator () {}
 	SparseVectorIterator (IndexIterator idx, ElementIterator elt) : _ref (idx, elt) {}
 	SparseVectorIterator (const SparseVectorIterator &i) : _ref (i._ref) {}
+
+	template <class IIt2, class EIt2, class CIIt2, class CEIt2>
+	SparseVectorIterator (const SparseVectorIterator<IIt2, EIt2, CIIt2, CEIt2> &i) : _ref (i._ref) {}
 
 	SparseVectorIterator &operator = (const SparseVectorIterator &i)
 	{
@@ -145,7 +151,7 @@ public:
 		{ return &_ref; }
 
 	const_pointer operator -> () const
-		{ return &_ref; }
+		{ return reinterpret_cast<const_pointer> (&_ref); }
 
 	bool operator == (const SparseVectorIterator &c) const 
 		{ return (_ref.first._i == c._ref.first._i); }
@@ -454,6 +460,17 @@ public:
 
 		i_idx = _idx.erase (pos._ref.first._i); 
 		i_elt = _elt.erase (pos._ref.second._i);
+
+		return iterator (i_idx, i_elt);
+	}
+
+	inline iterator erase (iterator first, iterator last)
+	{
+		typename IndexVector::iterator i_idx;
+		typename ElementVector::iterator i_elt;
+
+		i_idx = _idx.erase (first._ref.first._i, last._ref.first._i); 
+		i_elt = _elt.erase (first._ref.second._i, last._ref.second._i);
 
 		return iterator (i_idx, i_elt);
 	}

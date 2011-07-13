@@ -19,34 +19,6 @@ namespace LinBox
 {
 
 template <class Iterator>
-class ShiftedProperty {
-public:
-	typedef typename std::iterator_traits<Iterator>::value_type value_type;
-
-private:
-	Iterator _i;
-	value_type _shift;
-
-	template <class Vector>
-	friend class ShiftedVector;
-
-	template <class It>
-	friend class ShiftedVectorIterator;
-
-public:
-	ShiftedProperty () {}
-	ShiftedProperty (Iterator i, value_type shift)
-		: _i (i), _shift (shift)
-		{}
-
-	ShiftedProperty &operator = (const value_type &v)
-		{ *_i = v + _shift; return *this; }
-
-	operator value_type () const
-		{ return *_i - _shift; }
-};
-
-template <class Iterator>
 class ShiftedVectorIterator
 {
     public:

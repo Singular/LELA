@@ -168,7 +168,7 @@ Vector2 &_axpy<Ring, typename GenericModule<Ring>::Tag>::axpy_impl
 }
 
 template <class Ring, class Modules, class Vector>
-void fast_copy (const Ring &F, Modules &M, SparseVector<typename Ring::Element, std::vector<typename Vector::index_type>, std::vector<typename Vector::element_type> > &v, Vector &w)
+void fast_copy (const Ring &F, Modules &M, SparseVector<typename Ring::Element, std::vector<typename Vector::value_type::first_type>, std::vector<typename Vector::value_type::second_type> > &v, Vector &w)
 	{ _copy<Ring, typename Modules::Tag>::op (F, M, v, w); }
 
 template <class Ring, class Modules, class index_type>
@@ -183,7 +183,7 @@ Vector2 &_axpy<Ring, typename GenericModule<Ring>::Tag>::axpy_impl
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, Vector2 &y,
 	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
-	SparseVector<typename Ring::Element, std::vector<typename Vector2::index_type>, std::vector<typename Vector2::element_type> > tmp;
+	SparseVector<typename Ring::Element, std::vector<typename Vector2::value_type::first_type>, std::vector<typename Vector2::value_type::second_type> > tmp;
 
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;

@@ -54,8 +54,8 @@ struct ModularTraits
 		{ r = a % m; if (r < 0) r += m; return r; }
 
 	/// Version of above which writes into a property
-	template <class Iterator, class FE>
-	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
+	template <class Iterator, class Accessor, class FE>
+	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = a % m; return r; }
 
 	/// Initialise an element from an integer; for initialisation of the modulus
@@ -77,8 +77,8 @@ struct ModularTraits<uint8>
 		{ r = a % m; return r; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
-	template <class Iterator, class FE>
-	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
+	template <class Iterator, class Accessor, class FE>
+	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = a % m; return r; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_ui (); return elt; }
@@ -98,8 +98,8 @@ struct ModularTraits<uint16>
 		{ r = a % m; return r; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
-	template <class Iterator, class FE>
-	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
+	template <class Iterator, class Accessor, class FE>
+	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = a % m; return r; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_ui (); return elt; }
@@ -119,8 +119,8 @@ struct ModularTraits<uint32>
 		{ r = a % m; return r; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ long long t = (long long) a % (long long) m; if (t < 0) t += m; return r = t; }
-	template <class Iterator, class FE>
-	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
+	template <class Iterator, class Accessor, class FE>
+	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = a % m; return r; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_ui (); return elt; }
@@ -138,8 +138,8 @@ struct ModularTraits<float>
 	template <class FE>
 	static Element &reduce (Element &r, FE a, Element m) 
 		{ r = fmod (a, m); if (r < 0) r += m; return r; }
-	template <class Iterator, class FE>
-	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
+	template <class Iterator, class Accessor, class FE>
+	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_d (); return elt; }
@@ -157,8 +157,8 @@ struct ModularTraits<double>
 	template <class FE>
 	static Element &reduce (Element &r, FE a, Element m) 
 		{ r = fmod (a, m); if (r < 0) r += m; return r; }
-	template <class Iterator, class FE>
-	static Property<Iterator> &reduce (Property<Iterator> &r, FE a, Element m)
+	template <class Iterator, class Accessor, class FE>
+	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_d (); return elt; }
@@ -350,8 +350,8 @@ public:
 		return ModularTraits<Element>::reduce (x, tx, _modulus);
 	}
 
-	template <class Iterator>
-	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
+	template <class Iterator, class Accessor>
+	Property<Iterator, Accessor> &mulin (Property<Iterator, Accessor> &x, const Element &y) const
 	{
 		typename ModularTraits<Element>::FatElement tx = x;
 		tx *= y;
