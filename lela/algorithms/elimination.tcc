@@ -252,36 +252,36 @@ void Elimination<Ring, Modules>::RowEchelonForm (Matrix1       &A,
 
 		ctx.F.mulin (det, x);
 
-		if (ctx.F.inv (xinv, x)) {
-			ctx.F.neg (negxinv, xinv);
+		if (!ctx.F.inv (xinv, x))
+			throw LinboxError ("Could not invert pivot-element in the ring");
 
-			TIMER_START(ElimBelow);
+		ctx.F.neg (negxinv, xinv);
 
-			if (compute_L) {
-				j_L = i_L;
-				++j_L;
-			}
+		TIMER_START(ElimBelow);
 
-			for (j_A = i_A; ++j_A != A.rowEnd ();) {
-				if (BLAS1::head (ctx, a, *j_A) == (int) col) {
-					// DEBUG
-					// report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
+		if (compute_L) {
+			j_L = i_L;
+			++j_L;
+		}
 
-					ctx.F.mul (negaxinv, negxinv, a);
-					BLAS1::axpy (ctx, negaxinv, *i_A, *j_A);
+		for (j_A = i_A; ++j_A != A.rowEnd ();) {
+			if (BLAS1::head (ctx, a, *j_A) == (int) col) {
+				// DEBUG
+				// report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
 
-					if (compute_L)
-						BLAS1::axpy (ctx, negaxinv, *i_L, *j_L);
-				}
+				ctx.F.mul (negaxinv, negxinv, a);
+				BLAS1::axpy (ctx, negaxinv, *i_A, *j_A);
 
 				if (compute_L)
-					++j_L;
+					BLAS1::axpy (ctx, negaxinv, *i_L, *j_L);
 			}
-			TIMER_STOP(ElimBelow);
 
-			++rank;
-		} else
-			throw LinboxError ("Could not invert pivot-element in the ring");
+			if (compute_L)
+				++j_L;
+		}
+		TIMER_STOP(ElimBelow);
+
+		++rank;
 
 		if ((i_A - A.rowBegin ()) % PROGRESS_STEP == PROGRESS_STEP - 1)
 			commentator.progress ();
@@ -319,7 +319,7 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, b
 
 	int current_row = rank - 1, elim_row;
 
-	typename Ring::Element a, x;
+	typename Ring::Element a, x, negainv, negxainv;
 
 	i_A = A.rowBegin () + current_row;
 
@@ -331,14 +331,21 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, b
 		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
 			size_t col = BLAS1::head (ctx, a, *j_A);
 
+			if (!ctx.F.inv (negainv, a))
+				throw LinboxError ("Could not invert pivot-element in the ring");
+
+			ctx.F.negin (negainv);
+
 			if (VectorUtils::getEntry (*i_A, x, col) && !ctx.F.isZero (x)) {
 				// DEBUG
 				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
 
-				BLAS1::axpy (ctx, ctx.F.one (), *j_A, *i_A);
+				ctx.F.mul (negxainv, x, negainv);
+
+				BLAS1::axpy (ctx, negxainv, *j_A, *i_A);
 
 				if (compute_L)
-					BLAS1::axpy (ctx, ctx.F.one (), *(L.rowBegin () + elim_row), *i_L);
+					BLAS1::axpy (ctx, negxainv, *(L.rowBegin () + elim_row), *i_L);
 			}
 		}
 
