@@ -750,6 +750,20 @@ void MyFunction (const Ring &amp;R)
 	  Note that row- and column-indices start from zero.
 	</para>
 
+	<note>
+	  The state of the entries of a newly defined dense matrix is
+	  undefined. In particular, all entries should be initialised
+	  before the dense matrix is used in any calculation. This can
+	  be done:
+	  <itemizedlist>
+	    <listitem>with <function>setEntry</function> as above,</listitem>
+	    <listitem>using the row- or column-iterators as described below,</listitem>
+	    <listitem>by copying from an existing matrix with the BLAS-interface (see below),</listitem>
+	    <listitem>by reading the matrix from a file, or</listitem>
+	    <listitem>by initialising the matrix with a <type>VectorStream</type> (see reference-documentation).</listitem>
+	  </itemizedlist>
+	</note>
+
 	<para>
 	  Dense matrices provide three types of iterators: row,
 	  column, and raw. The row- and column-iterators iterate over
@@ -847,6 +861,11 @@ void MyFunction (const Ring &amp;R)
 	  iterators iterate over row-vectors which are of a sparse
 	  type. Otherwise the interface is identical to that
 	  of <type>DenseMatrix</type>.
+	</para>
+
+	<para>
+	  In contrast to dense matrices, a newly defined sparse matrix
+	  is by definition the zero-matrix.
 	</para>
 
 	<para>
