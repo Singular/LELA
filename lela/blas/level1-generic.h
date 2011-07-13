@@ -17,7 +17,10 @@
 #include "lela/vector/traits.h"
 #include "lela/blas/level1-ll.h"
 
+// These are needed for the specialisations of std::swap to that the correct overload is used
 #include "lela/vector/bit-subvector-word-aligned.h"
+#include "lela/vector/sparse.h"
+#include "lela/vector/sparse-subvector.h"
 
 namespace LELA
 {
