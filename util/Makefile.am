@@ -5,8 +5,8 @@
 INCLUDES=-I$(top_srcdir) -I$(top_builddir)
 AM_CXXFLAGS = -Wall -O2 
 
-AM_CPPFLAGS= $(GMP_CFLAGS) $(NTL_CFLAGS) $(GIVARO_CFLAGS) $(LIDIA_CFLAGS)
-LDADD = $(BLAS_LIBS) $(NTL_LIBS) $(GIVARO_LIBS) $(GMP_LIBS)  $(LIDIA_LIBS) $(M4RI_LIBS) $(top_builddir)/linbox/liblinbox.la
+AM_CPPFLAGS= $(GMP_CFLAGS) $(PNG_CFLAGS) $(M4RI_CFLAGS)
+LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/linbox/liblinbox.la
 
 noinst_PROGRAMS = \
 	row-echelon-form \
