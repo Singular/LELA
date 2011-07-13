@@ -187,9 +187,18 @@ private:
 
 /** Generic submatrix
  *
- * This is an archetype for submatrices. It is parameterised by the
- * class of containing matrix and specialisations provide support
- * for various containers.
+ * This class permits the construction of a submatrix of an arbitrary
+ * matrix. It should however not be used directly by the user; please
+ * use one of the types
+ * typename Matrix::SubmatrixType,
+ * typename Matrix::ConstSubmatrixType,
+ * typename Matrix::AlignedSubmatrixType,
+ * typename Matrix::ConstAlignedSubmatrixType,
+ * as appropriate.
+ *
+ * If defining one's own matrix-type, this class may be used in the
+ * definition of the above submatrix-types. See e.g. SparseMatrix for
+ * an example.
 
 \ingroup matrix
  */
