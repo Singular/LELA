@@ -15,10 +15,12 @@
 #define __LINBOX_RING_INTERFACE_H
 
 #include <iostream>
+
+#include "linbox/linbox-config.h"
 #include "linbox/element/interface.h"
 #include "linbox/randiter/interface.h"
 #include "linbox/integer.h"
-#include "linbox/linbox-config.h"
+#include "linbox/util/property.h"
 #include "linbox/util/error.h"
 
 namespace LinBox
@@ -91,18 +93,20 @@ public:
     
 	/** \brief Cardinality.
 	 *
-	 * Return c, integer representing cardinality of the ring.
-	 * c becomes a non-negative integer for all rings with finite
-	 * cardinality, and -1 to signify a ring of infinite cardinality.
+	 * Return c, integer representing cardinality of the ring.  c
+	 * becomes a positive integer for all rings with finite
+	 * cardinality, and 0 to signify a ring of infinite
+	 * cardinality.
 	 */
 	virtual integer &cardinality (integer &c) const = 0;
     
 	/** \brief Characteristic.
 	 *
 	 * Return c, integer representing characteristic of the ring
-	 * (the least positive n such that the sum of n copies of x is 0 for all ring elements x).
-	 * c becomes a positive integer for all rings with finite characteristic,
-	 * and 0 to signify a ring of infinite characteristic.
+	 * (the least positive n such that the sum of n copies of x is
+	 * 0 for all ring elements x).  c becomes a positive integer
+	 * for all rings with finite characteristic, and 0 to signify
+	 * a ring of infinite characteristic.
 	 */
 	virtual integer &characteristic (integer &c) const = 0;
     
@@ -268,6 +272,21 @@ public:
 	 * @param  y ring element.
 	 */
 	virtual Element &mulin (Element &x, const Element &y) const = 0;
+   
+	/** Inplace Multiplication using a property; x *= y
+	 *
+	 * This function does the same thing as above but takes a
+	 * reference to a Property rather than to an element. This is
+	 * required for that the scal operation on sparse matrices
+	 * work. Its content should be essentially identical to the
+	 * element-version above, but it may not call mulin.
+	 *
+	 * @return reference to x.
+	 * @param  x Property (reference returned).
+	 * @param  y ring element.
+	 */
+	template <class Iterator, class Accessor>
+	virtual Property<Iterator, Accessor> &mulin (Property<Iterator, Accessor> &x, const Element &y) const = 0;
    
 	/** Inplace Division; x /= y
 	 *
