@@ -43,10 +43,15 @@ template <class Ring, class Modules, class Matrix1, class Matrix2, class Matrix3
 Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 						size_t m, size_t k, size_t n)
 {
+	commentator.start ("Residual gemm", __FUNCTION__);
+
+	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
+		<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
+
 	if (2 * k < A.coldim ()) {
 		typename Matrix3::AlignedSubmatrixType      C11 (C, 0,     0,     2 * m,               2 * n);
 		typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0,     2 * k, 2 * m,               A.coldim () - 2 * k);
-		typename Matrix1::ConstAlignedSubmatrixType B21 (B, 2 * k, 0,     B.rowdim () - 2 * k, 2 * n);
+		typename Matrix2::ConstAlignedSubmatrixType B21 (B, 2 * k, 0,     B.rowdim () - 2 * k, 2 * n);
 
 		BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A12, B21, R.one (), C11);
 	}
@@ -54,13 +59,13 @@ Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const
 	if (2 * n < C.coldim ()) {
 		typename Matrix3::AlignedSubmatrixType      C12 (C, 0,     2 * n, 2 * m,               C.coldim () - 2 * n);
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0,     0,     2 * m,               2 * k);
-		typename Matrix1::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
+		typename Matrix2::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
 
 		BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A11, B12, b, C12);
 
 		if (2 * k < A.coldim ()) {
 			typename Matrix1::ConstAlignedSubmatrixType A12 (A, 0,     2 * k, 2 * m,               A.coldim () - 2 * k);
-			typename Matrix1::ConstAlignedSubmatrixType B22 (B, 2 * k, 2 * n, B.rowdim () - 2 * k, B.coldim () - 2 * n);
+			typename Matrix2::ConstAlignedSubmatrixType B22 (B, 2 * k, 2 * n, B.rowdim () - 2 * k, B.coldim () - 2 * n);
 
 			BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A12, B22, R.one (), C12);
 		}
@@ -69,13 +74,13 @@ Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const
 	if (2 * m < C.rowdim ()) {
 		typename Matrix3::AlignedSubmatrixType      C21 (C, 2 * m, 0,     C.rowdim () - 2 * m, 2 * n);
 		typename Matrix1::ConstAlignedSubmatrixType A21 (A, 2 * m, 0,     A.rowdim () - 2 * m, 2 * k);
-		typename Matrix1::ConstAlignedSubmatrixType B11 (B, 0,     0,     2 * k,               2 * n);
+		typename Matrix2::ConstAlignedSubmatrixType B11 (B, 0,     0,     2 * k,               2 * n);
 
 		BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A21, B11, b, C21);
 
 		if (2 * k < A.coldim ()) {
 			typename Matrix1::ConstAlignedSubmatrixType A22 (A, 2 * m, 2 * k, A.rowdim () - 2 * m, A.coldim () - 2 * k);
-			typename Matrix1::ConstAlignedSubmatrixType B21 (B, 2 * k, 0,     B.rowdim () - 2 * k, 2 * n);
+			typename Matrix2::ConstAlignedSubmatrixType B21 (B, 2 * k, 0,     B.rowdim () - 2 * k, 2 * n);
 
 			BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A22, B21, R.one (), C21);
 		}
@@ -84,17 +89,19 @@ Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const
 	if (2 * m < A.rowdim () && 2 * n < B.coldim ()) {
 		typename Matrix3::AlignedSubmatrixType      C22 (C, 2 * m, 2 * n, C.rowdim () - 2 * k, C.coldim () - 2 * n);
 		typename Matrix1::ConstAlignedSubmatrixType A21 (A, 2 * m, 0,     A.rowdim () - 2 * m, 2 * k);
-		typename Matrix1::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
+		typename Matrix2::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
 
 		BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A21, B12, b, C22);
 
 		if (2 * k < A.coldim ()) {
 			typename Matrix1::ConstAlignedSubmatrixType A22 (A, 2 * m, 2 * k, A.rowdim () - 2 * m, A.coldim () - 2 * k);
-			typename Matrix1::ConstAlignedSubmatrixType B22 (B, 2 * k, 2 * n, B.rowdim () - 2 * k, B.coldim () - 2 * n);
+			typename Matrix2::ConstAlignedSubmatrixType B22 (B, 2 * k, 2 * n, B.rowdim () - 2 * k, B.coldim () - 2 * n);
 
 			BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A22, B22, R.one (), C22);
 		}
 	}
+
+	commentator.stop (MSG_DONE);
 
 	return C;	
 }
@@ -112,6 +119,14 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 	if (m < _cutoff || k < _cutoff || n < _cutoff)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, R.zero (), C);
 	else {
+		commentator.start ("StrassenWinograd::mul", __FUNCTION__);
+
+		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
+			<< "Sizes: " << C.rowdim () << ", " << A.coldim () << ", " << C.coldim () << std::endl;
+
+		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
+			<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
+
 		typename Matrix3::ContainerType X1 (m, std::max (k, n)), X2 (k, n);
 
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, m, k);
@@ -179,6 +194,8 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 		typename Matrix3::AlignedSubmatrixType C_part (C, 0, 0, 2 * m, 2 * n);
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, a, C_part);
 
+		commentator.stop (MSG_DONE);
+
 		return gemm_res (R, M, a, A, B, R.zero (), C, m, k, n);
 	}
 }
@@ -196,6 +213,14 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 	if (m < _cutoff || k < _cutoff || n < _cutoff)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, b, C);
 	else {
+		commentator.start ("StrassenWinograd::mul", __FUNCTION__);
+
+		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
+			<< "Sizes: " << C.rowdim () << ", " << A.coldim () << ", " << C.coldim () << std::endl;
+
+		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
+			<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
+
 		typename Matrix3::ContainerType X1 (m, k), X2 (k, n), X3 (m, n);
 
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, m, k);
@@ -265,6 +290,8 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C22);
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.minusOne (), C21);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C21);
+
+		commentator.stop (MSG_DONE);
 
 		return gemm_res (R, M, a, A, B, b, C, m, k, n);
 	}

@@ -133,12 +133,17 @@ public:
 	}
 };
 
-template <class ParentTag>
-struct StrassenModule
-{
-	struct Tag { typedef ParentTag Parent; };
+template <class Ring, class ParentModule>
+struct StrassenModuleTag { typedef typename ParentModule::Tag Parent; };
 
-	StrassenWinograd<ParentTag> sw;
+template <class Ring, class ParentModule>
+struct StrassenModule : public ParentModule
+{
+	typedef StrassenModuleTag<Ring, ParentModule> Tag;
+
+	StrassenWinograd<typename ParentModule::Tag> sw;
+
+	StrassenModule (const Ring &R) : ParentModule (R) {}
 };
 
 } // namespace LELA

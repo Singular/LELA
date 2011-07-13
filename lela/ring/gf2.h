@@ -21,10 +21,11 @@
 #include "lela/integer.h"
 #include "lela/vector/bit-vector.h"
 #include "lela/vector/hybrid.h"
-#include "lela/vector/sparse-subvector-hybrid.h"
 
 #ifdef __LELA_HAVE_M4RI
 #  include "lela/matrix/m4ri-matrix.h"
+#else
+#  include "lela/algorithms/strassen-winograd.h"
 #endif
 
 // Namespace in which all LELA code resides
@@ -322,11 +323,11 @@ struct AllModules<GF2> : public M4RIModule
 #else // !__LELA_HAVE_M4RI
 
 template <>
-struct AllModules<GF2> : public GenericModule<GF2>
+struct AllModules<GF2> : public StrassenModule<GF2, GenericModule<GF2> >
 {
-	struct Tag { typedef GenericModule<GF2>::Tag Parent; };
+	struct Tag { typedef StrassenModule<GF2, GenericModule<GF2> >::Tag Parent; };
 
-	AllModules (const GF2 &R) : GenericModule<GF2> (R) {}
+	AllModules (const GF2 &R) : StrassenModule<GF2, GenericModule<GF2> > (R) {}
 };
 
 #endif // __LELA_HAVE_M4RI

@@ -30,17 +30,18 @@ bool testMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B, c
 	commentator.start ("Testing StrassenWinograd::gemm (b = 0)", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 
 	bool pass = true;
 
 	typename Matrix3::ContainerType Cp1 (C.rowdim (), C.coldim ()), Cp2 (C.rowdim (), C.coldim ());
 
-	report << "A = " << std::endl;
-	BLAS3::write (ctx, report, A);
+	reportUI << "A = " << std::endl;
+	BLAS3::write (ctx, reportUI, A);
 
-	report << "B = " << std::endl;
-	BLAS3::write (ctx, report, B);
+	reportUI << "B = " << std::endl;
+	BLAS3::write (ctx, reportUI, B);
 
 	typename Ring::Element a;
 	NonzeroRandIter<Ring> nri (ctx.F, typename Ring::RandIter (ctx.F));
@@ -49,7 +50,7 @@ bool testMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B, c
 	report << "Coefficient a = ";
 	ctx.F.write (report, a) << std::endl;
 
-	StrassenWinograd<typename GenericModule<Ring>::Tag> sw;
+	StrassenWinograd<typename GenericModule<Ring>::Tag> sw (1);
 
 	commentator.start ("Strassen-Winograd multiplication");
 
@@ -57,8 +58,8 @@ bool testMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B, c
 
 	commentator.stop (MSG_DONE);
 
-	report << "(From Strassen-Winograd) a * A * B = " << std::endl;
-	BLAS3::write (ctx, report, Cp1);
+	reportUI << "(From Strassen-Winograd) a * A * B = " << std::endl;
+	BLAS3::write (ctx, reportUI, Cp1);
 
 	commentator.start ("Classical multiplication");
 
@@ -66,8 +67,8 @@ bool testMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B, c
 
 	commentator.stop (MSG_DONE);
 
-	report << "(From classical method) a * A * B = " << std::endl;
-	BLAS3::write (ctx, report, Cp2);
+	reportUI << "(From classical method) a * A * B = " << std::endl;
+	BLAS3::write (ctx, reportUI, Cp2);
 
 	if (!BLAS3::equal (ctx, Cp1, Cp2)) {
 		error << "ERROR: Results differ" << std::endl;
@@ -85,6 +86,7 @@ bool testAddMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B
 	commentator.start ("Testing StrassenWinograd::gemm (b != 0)", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 
 	bool pass = true;
@@ -94,17 +96,17 @@ bool testAddMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B
 	BLAS3::copy (ctx, C, Cp1);
 	BLAS3::copy (ctx, C, Cp2);
 
-	report << "A = " << std::endl;
-	BLAS3::write (ctx, report, A);
+	reportUI << "A = " << std::endl;
+	BLAS3::write (ctx, reportUI, A);
 
-	report << "B = " << std::endl;
-	BLAS3::write (ctx, report, B);
+	reportUI << "B = " << std::endl;
+	BLAS3::write (ctx, reportUI, B);
 
-	report << "C(1) = " << std::endl;
-	BLAS3::write (ctx, report, Cp1);
+	reportUI << "C(1) = " << std::endl;
+	BLAS3::write (ctx, reportUI, Cp1);
 
-	report << "C(2) = " << std::endl;
-	BLAS3::write (ctx, report, Cp2);
+	reportUI << "C(2) = " << std::endl;
+	BLAS3::write (ctx, reportUI, Cp2);
 
 	typename Ring::Element a, b;
 	NonzeroRandIter<Ring> nri (ctx.F, typename Ring::RandIter (ctx.F));
@@ -118,7 +120,7 @@ bool testAddMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B
 	report << "Coefficient b = ";
 	ctx.F.write (report, b) << std::endl;
 
-	StrassenWinograd<typename GenericModule<Ring>::Tag> sw;
+	StrassenWinograd<typename GenericModule<Ring>::Tag> sw (1);
 
 	commentator.start ("Strassen-Winograd multiplication");
 
@@ -126,8 +128,8 @@ bool testAddMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B
 
 	commentator.stop (MSG_DONE);
 
-	report << "(From Strassen-Winograd) a * A * B + b * C = " << std::endl;
-	BLAS3::write (ctx, report, Cp1);
+	reportUI << "(From Strassen-Winograd) a * A * B + b * C = " << std::endl;
+	BLAS3::write (ctx, reportUI, Cp1);
 
 	commentator.start ("Classical multiplication");
 
@@ -135,8 +137,8 @@ bool testAddMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B
 
 	commentator.stop (MSG_DONE);
 
-	report << "(From classical method) a * A * B + b * C = " << std::endl;
-	BLAS3::write (ctx, report, Cp2);
+	reportUI << "(From classical method) a * A * B + b * C = " << std::endl;
+	BLAS3::write (ctx, reportUI, Cp2);
 
 	if (!BLAS3::equal (ctx, Cp1, Cp2)) {
 		error << "ERROR: Results differ" << std::endl;
@@ -152,9 +154,9 @@ int main (int argc, char **argv)
 {
 	bool pass1 = true, pass2 = true;
 
-	static long m = 128;
-	static long k = 128;
-	static long n = 128;
+	static long m = 90;
+	static long k = 90;
+	static long n = 90;
 	static integer q = 101U;
 
 	static Argument args[] = {
@@ -171,7 +173,7 @@ int main (int argc, char **argv)
 	GF2 gf2;
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (10);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
 

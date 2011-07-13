@@ -24,6 +24,7 @@
 #include "lela/util/property.h"
 #include "lela/blas/context.h"
 #include "lela/randiter/nonzero.h"
+#include "lela/algorithms/strassen-winograd.h"
 
 namespace LELA 
 {
@@ -461,11 +462,11 @@ private:
 };
 
 template <class Element>
-struct AllModules<Modular<Element> > : public ZpModule<Element>
+struct AllModules<Modular<Element> > : public StrassenModule<Modular<Element>, ZpModule<Element> >
 {
-	struct Tag { typedef typename ZpModule<Element>::Tag Parent; };
+	struct Tag { typedef typename StrassenModule<Modular<Element>, ZpModule<Element> >::Tag Parent; };
 
-	AllModules (const Modular<Element> &R) : ZpModule<Element> (R) {}
+	AllModules (const Modular<Element> &R) : StrassenModule<Modular<Element>, ZpModule<Element> > (R) {}
 };
 
 } // namespace LELA
@@ -475,6 +476,8 @@ struct AllModules<Modular<Element> > : public ZpModule<Element>
 
 #include "lela/blas/level1-modular.tcc"
 #include "lela/blas/level2-modular.tcc"
+
+#include "lela/blas/level3-sw.h"
 
 #include "lela/randiter/modular.h"
 

@@ -21,13 +21,13 @@ namespace LELA
 namespace BLAS3
 {
 
-template <class Ring, class ParentTag>
-class _gemm<Ring, StrassenModule<ParentTag> >
+template <class Ring, class ParentModule>
+class _gemm<Ring, StrassenModuleTag<Ring, ParentModule> >
 {
 public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C)
-		{ return ((StrassenModule &) M).sw.gemm (F, M, a, A, B, b, C); }
+		{ return ((StrassenModule<Ring, ParentModule> &) M).sw.gemm (F, M, a, A, B, b, C); }
 };
 
 } // namespace BLAS3
