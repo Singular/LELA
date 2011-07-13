@@ -613,7 +613,13 @@ std::ostream &MatrixWriter<Ring>::writePretty (std::ostream &os, const Matrix &A
 	integer c;
 
 	_F.characteristic (c);
-	unsigned col_width = (int) ceil (log (c.get_d ()) / M_LN10);
+
+	unsigned col_width;
+
+	if (c != 0)
+		col_width = (int) ceil (log (c.get_d ()) / M_LN10);
+	else
+		col_width = 10; // Choose something reasonable
 
 	typename Ring::Element a;
 
