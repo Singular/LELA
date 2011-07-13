@@ -1,34 +1,24 @@
-/* Copyright 2010 LELA
- * Written by William J Turner 
+/* lela/ring/type-wrapper.h
+ * Copyright 1999-2005 William J Turner,
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * Written by W. J. Turner <wjturner@acm.org>,
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
+ * ------------------------------------
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * See COPYING for license information.
  */
 
-#ifndef __LELA_randiter_unparametric_H
-#define __LELA_randiter_unparametric_H
+#ifndef __LELA_RANDITER_TYPE_WRAPPER_H
+#define __LELA_RANDITER_TYPE_WRAPPER_H
 
 #include <ctime>
 #include <vector>
 
-// Namespace in which all LELA library code resides
 namespace LELA
 {
 
 // forward declarations
-template <class K> class UnparametricRing;
+template <class K> class TypeWrapperRing;
 		
 /** Unparameterized random ring element generator template.
  * Implements LELA random ring element generator common object interface 
@@ -39,9 +29,9 @@ template <class K> class UnparametricRing;
  * In particular, constructs LELA random ring element generators for
  * unparameterized rings from ring types that
  * adhere to the operations for double, for
- * example UnparametricRandIter< float >.
+ * example TypeWrapperRandIter< float >.
  * Can be used as a pattern to write a particular
- * ring interface, such as, UnparametricRandIter< SaclibQ > as
+ * ring interface, such as, TypeWrapperRandIter< SaclibQ > as
  * a template specialization.
  * This implementation uses the standard C++ random number generator.  Thus,
  * only one random ring element generator can be used at a time since 
@@ -50,7 +40,7 @@ template <class K> class UnparametricRing;
  * @param  K unparameterized ring class
  */
 template <class K>
-class UnparametricRandIter
+class TypeWrapperRandIter
 {
 public:
 		
@@ -79,7 +69,7 @@ public:
 	 * @param seed constant integer reference from which to seed random number
 	 *             generator (default = 0)
 	 */
-	UnparametricRandIter (const UnparametricRing<K> &F,
+	TypeWrapperRandIter (const TypeWrapperRing<K> &F,
 			      const integer &size = 0,
 			      const integer &seed = 0)
 		: _size(size), _seed(seed)
@@ -103,15 +93,15 @@ public:
 	}
 
 	/** Copy constructor.
-	 * Constructs UnparametricRandIter object by copying the random ring
+	 * Constructs TypeWrapperRandIter object by copying the random ring
 	 * element generator.
 	 * This is required to allow generator objects to be passed by value
 	 * into functions.
 	 * In this implementation, this means copying the random ring element
 	 * generator to which R._randIter_ptr points.
-	 * @param  R UnparametricRandIter object.
+	 * @param  R TypeWrapperRandIter object.
 	 */
-	UnparametricRandIter(const UnparametricRandIter& R)
+	TypeWrapperRandIter(const TypeWrapperRandIter& R)
 		: _size(R._size), _seed(R._seed) {}
 
 	/** Destructor.
@@ -119,15 +109,15 @@ public:
 	 * In this implementation, this destroys the generator by deleting 
 	 * the random generator object to which _randIter_ptr points.
 	 */
-	~UnparametricRandIter(void) {}
+	~TypeWrapperRandIter(void) {}
 		
 	/** Assignment operator.
-	 * Assigns UnparametricRandIter object R to generator.
+	 * Assigns TypeWrapperRandIter object R to generator.
 	 * In this implementation, this means copying the generator to
 	 * which R._randIter_ptr points.
-	 * @param  R UnparametricRandIter object.
+	 * @param  R TypeWrapperRandIter object.
 	 */
-	UnparametricRandIter& operator=(const UnparametricRandIter& R)
+	TypeWrapperRandIter& operator=(const TypeWrapperRandIter& R)
 	{
 		if (this != &R) { // guard against self-assignment
 			_size = R._size;
@@ -161,7 +151,7 @@ public:
 	//@{
 
 	/// Default constructor
-	UnparametricRandIter(void) : _size(0), _seed(0) { time(NULL); }
+	TypeWrapperRandIter(void) : _size(0), _seed(0) { time(NULL); }
 		
 	//@}
 
@@ -173,11 +163,11 @@ private:
 	/// Seed
 	integer _seed;
 
-}; // template <class K> class UnparametricRandIter
+}; // template <class K> class TypeWrapperRandIter
 
 } // namespace LELA
 
-#endif // __LELA_randiter_unparametric_H
+#endif // __LELA_RANDITER_TYPE_WRAPPER_H
 
 // Local Variables:
 // mode: C++

@@ -10,7 +10,7 @@ BASIC_HDRS =				\
 	interface.h			\
 	gmp-rational.h			\
 	modular.h			\
-	unparametric.h			\
+	type-wrapper.h			\
 	gf2.h				\
 	nonzero.h			\
 	mersenne-twister.h

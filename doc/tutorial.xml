@@ -106,7 +106,7 @@
 	computed with GMP</listitem>
 	<listitem><type>GF2</type> (for fast computations over GF(2)),
 	and</listitem>
-	<listitem><type>UnparametricRing</type> (a wrapper around any
+	<listitem><type>TypeWrapperRing</type> (a wrapper around any
 	type which implements the basic arithmetic-operations +, -, *,
 	/, and %)</listitem>
       </itemizedlist>
@@ -220,7 +220,7 @@ int main ()
       </section>
 
       <section xml:id="unparamring">
-	<title><type>UnparametricRing</type></title>
+	<title><type>TypeWrapperRing</type></title>
 
 	<para>
 	  If desired, it is possible to wrap a C++-type (builtin or
@@ -238,14 +238,14 @@ using namespace LELA;
 
 int main ()
 {
-	UnparametricRing&lt;float&gt; R;
+	TypeWrapperRing&lt;float&gt; R;
 	...
 	return 0;
 }
 	</programlisting>
 
 	<para>
-	  The class <type>UnparametricRing</type> is parametrised by
+	  The class <type>TypeWrapperRing</type> is parametrised by
 	  the type being wrapped, which is then the element-type of
 	  the resulting ring.
 	</para>

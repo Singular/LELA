@@ -5,7 +5,7 @@ pkgincludesubdir=$(pkgincludedir)/ring
 
 BASIC_HDRS =			\
 	interface.h		\
-	unparametric.h		\
+	type-wrapper.h		\
 	gmp-rational.h		\
 	modular.h		\
 	gf2.h

@@ -1,6 +1,5 @@
-
-/* tests/test-unparametric-ring.C
- * Copyright (C) 2002 William J. Turner
+/* tests/test-type-wrapper-ring.C
+ * Copyright 2002 William J. Turner
  *
  * Written by William J. Turner <wjturner@math.ncsu.edu>
  *
@@ -15,7 +14,7 @@
 #include <fstream>
 #include <vector>
 
-#include "lela/ring/unparametric.h"
+#include "lela/ring/type-wrapper.h"
 
 #include "test-common.h"
 #include "test-ring.h"
@@ -34,16 +33,16 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start ("Unparametric ring test suite", "Unparametric");
+	commentator.start ("Type-wrapper-ring test suite", "TypeWrapperRing");
 	bool pass = true;
 
-	UnparametricRing<integer> F;
+	TypeWrapperRing<integer> F;
 
 	// Make sure some more detailed messages get printed
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (6);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	if (!runRingTests (F, "UnparametricRing<integer>", iterations, false, false)) pass = false;
+	if (!runRingTests (F, "TypeWrapperRing<integer>", iterations, false, false)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 

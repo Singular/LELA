@@ -321,6 +321,9 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, b
 
 	typename Ring::Element a, x, negainv, negxainv;
 
+	// Make the compiler happy
+	ctx.F.assign (a, ctx.F.zero ());
+
 	i_A = A.rowBegin () + current_row;
 
 	do {

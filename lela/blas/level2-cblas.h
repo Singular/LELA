@@ -19,7 +19,7 @@
 #include <cblas.h>
 
 #include "lela/blas/context.h"
-#include "lela/ring/unparametric.h"
+#include "lela/ring/type-wrapper.h"
 #include "lela/vector/traits.h"
 #include "lela/matrix/traits.h"
 #include "lela/matrix/dense.h"
@@ -32,10 +32,10 @@ namespace BLAS2
 {
 
 template <>
-class _gemv<UnparametricRing<float>, BLASModule<float>::Tag>
+class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const UnparametricRing<float> &F, Modules &M,
+	static Vector2 &gemv_impl (const TypeWrapperRing<float> &F, Modules &M,
 				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Generic,
@@ -43,10 +43,10 @@ class _gemv<UnparametricRing<float>, BLASModule<float>::Tag>
 				   VectorStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic)
-		{ return _gemv<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+		{ return _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const UnparametricRing<float> &F, Modules &M,
+	static Vector2 &gemv_impl (const TypeWrapperRing<float> &F, Modules &M,
 				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Dense,
@@ -63,7 +63,7 @@ class _gemv<UnparametricRing<float>, BLASModule<float>::Tag>
 
 public:
 	template <class Modules, class Matrix, class Vector1, class Vector2>
-	static Vector2 &op (const UnparametricRing<float> &F,
+	static Vector2 &op (const TypeWrapperRing<float> &F,
 			    Modules              &M,
 			    uint8                 a,
 			    const Matrix         &A,
@@ -74,24 +74,24 @@ public:
 			    size_t                end_idx = (size_t) -1)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 				    typename Matrix::StorageType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::StorageType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector2>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _trmv<UnparametricRing<float>, BLASModule<float>::Tag>
+class _trmv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
-	static Vector &trmv_impl (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trmv_impl (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
-		{ return _trmv<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
+		{ return _trmv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
-	static Vector &trmv_impl (const UnparametricRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trmv_impl (const TypeWrapperRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -105,25 +105,25 @@ class _trmv<UnparametricRing<float>, BLASModule<float>::Tag>
 	}
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+	static Vector &op (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trmv_impl (F, M, A, x, type, diagIsOne,
 				    typename Matrix::StorageType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<float>, Vector>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector>::StorageType ()); }
 };
 
 template <>
-class _trsv<UnparametricRing<float>, BLASModule<float>::Tag>
+class _trsv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
-	static Vector &trsv_impl (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trsv_impl (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
-		{ return _trsv<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
+		{ return _trsv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
-	static Vector &trsv_impl (const UnparametricRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trsv_impl (const TypeWrapperRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -137,27 +137,27 @@ class _trsv<UnparametricRing<float>, BLASModule<float>::Tag>
 	}
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const UnparametricRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+	static Vector &op (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trsv_impl (F, M, A, x, type, diagIsOne,
 				    typename Matrix::StorageType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<float>, Vector>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector>::StorageType ()); }
 };
 
 template <>
-class _ger<UnparametricRing<float>, BLASModule<float>::Tag>
+class _ger<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2, class Matrix>
-	static Matrix &ger_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A,
+	static Matrix &ger_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Generic,
 				 VectorStorageTypes::Generic,
 				 VectorRepresentationTypes::Generic,
 				 VectorStorageTypes::Generic,
 				 MatrixStorageTypes::Generic)
-		{ return _ger<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x, y, A); }
+		{ return _ger<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x, y, A); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static DenseMatrix<float> &ger_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
+	static DenseMatrix<float> &ger_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
 					     VectorRepresentationTypes::Dense,
 					     VectorStorageTypes::Real,
 					     VectorRepresentationTypes::Dense,
@@ -172,20 +172,20 @@ class _ger<UnparametricRing<float>, BLASModule<float>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2, class Matrix>
-	static Matrix &op (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A)
+	static Matrix &op (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A)
 		{ return ger_impl (F, M, a, x, y, A,
-				   typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
-				   typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType (),
+				   typename VectorTraits<TypeWrapperRing<float>, Vector1>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<float>, Vector1>::StorageType (),
+				   typename VectorTraits<TypeWrapperRing<float>, Vector2>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<float>, Vector2>::StorageType (),
 				   typename Matrix::StorageType ()); }
 };
 
 template <>
-class _gemv<UnparametricRing<double>, BLASModule<double>::Tag>
+class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const UnparametricRing<double> &F, Modules &M,
+	static Vector2 &gemv_impl (const TypeWrapperRing<double> &F, Modules &M,
 				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Generic,
@@ -193,10 +193,10 @@ class _gemv<UnparametricRing<double>, BLASModule<double>::Tag>
 				   VectorStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic)
-		{ return _gemv<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+		{ return _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const UnparametricRing<double> &F, Modules &M,
+	static Vector2 &gemv_impl (const TypeWrapperRing<double> &F, Modules &M,
 				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
 				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Dense,
@@ -213,7 +213,7 @@ class _gemv<UnparametricRing<double>, BLASModule<double>::Tag>
 
 public:
 	template <class Modules, class Matrix, class Vector1, class Vector2>
-	static Vector2 &op (const UnparametricRing<float> &F,
+	static Vector2 &op (const TypeWrapperRing<float> &F,
 			    Modules              &M,
 			    uint8                 a,
 			    const Matrix         &A,
@@ -224,24 +224,24 @@ public:
 			    size_t                end_idx = (size_t) -1)
 		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
 				    typename Matrix::StorageType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::StorageType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _trmv<UnparametricRing<double>, BLASModule<double>::Tag>
+class _trmv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
-	static Vector &trmv_impl (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trmv_impl (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
-		{ return _trmv<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
+		{ return _trmv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
-	static Vector &trmv_impl (const UnparametricRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trmv_impl (const TypeWrapperRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -255,25 +255,25 @@ class _trmv<UnparametricRing<double>, BLASModule<double>::Tag>
 	}
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+	static Vector &op (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trmv_impl (F, M, A, x, type, diagIsOne,
 				    typename Matrix::StorageType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<double>, Vector>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector>::StorageType ()); }
 };
 
 template <>
-class _trsv<UnparametricRing<double>, BLASModule<double>::Tag>
+class _trsv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix, class Vector>
-	static Vector &trsv_impl (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trsv_impl (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Generic,
 				  VectorRepresentationTypes::Generic,
 				  VectorStorageTypes::Generic)
-		{ return _trsv<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
+		{ return _trsv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
 	template <class Modules, class Vector>
-	static Vector &trsv_impl (const UnparametricRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	static Vector &trsv_impl (const TypeWrapperRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -287,27 +287,27 @@ class _trsv<UnparametricRing<double>, BLASModule<double>::Tag>
 	}
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const UnparametricRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+	static Vector &op (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
 		{ return trsv_impl (F, M, A, x, type, diagIsOne,
 				    typename Matrix::StorageType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<double>, Vector>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector>::StorageType ()); }
 };
 
 template <>
-class _ger<UnparametricRing<double>, BLASModule<double>::Tag>
+class _ger<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2, class Matrix>
-	static Matrix &ger_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A,
+	static Matrix &ger_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Generic,
 				 VectorStorageTypes::Generic,
 				 VectorRepresentationTypes::Generic,
 				 VectorStorageTypes::Generic,
 				 MatrixStorageTypes::Generic)
-		{ return _ger<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x, y, A); }
+		{ return _ger<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x, y, A); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static DenseMatrix<double> &ger_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
+	static DenseMatrix<double> &ger_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
 					      VectorRepresentationTypes::Dense,
 					      VectorStorageTypes::Real,
 					      VectorRepresentationTypes::Dense,
@@ -322,12 +322,12 @@ class _ger<UnparametricRing<double>, BLASModule<double>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2, class Matrix>
-	static Matrix &op (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A)
+	static Matrix &op (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A)
 		{ return ger_impl (F, M, a, x, y, A,
-				   typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
-				   typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType (),
+				   typename VectorTraits<TypeWrapperRing<double>, Vector1>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<double>, Vector1>::StorageType (),
+				   typename VectorTraits<TypeWrapperRing<double>, Vector2>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<double>, Vector2>::StorageType (),
 				   typename Matrix::StorageType ()); }
 };
 

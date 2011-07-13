@@ -21,7 +21,7 @@
 
 #include "lela/blas/context.h"
 #include "lela/vector/traits.h"
-#include "lela/ring/unparametric.h"
+#include "lela/ring/type-wrapper.h"
 #include "lela/blas/level1-ll.h"
 
 namespace LELA
@@ -31,16 +31,16 @@ namespace BLAS1
 {
 
 template <>
-class _dot<UnparametricRing<float>, BLASModule<float>::Tag>
+class _dot<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static float dot_impl (const UnparametricRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
+	static float dot_impl (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
 			       size_t start_idx, size_t end_idx,
 			       VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _dot<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
+		{ return _dot<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static float dot_impl (const UnparametricRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
+	static float dot_impl (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
 			       size_t start_idx, size_t end_idx,
 			       VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
@@ -50,26 +50,26 @@ class _dot<UnparametricRing<float>, BLASModule<float>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static float op (const UnparametricRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
+	static float op (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
 			 size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
-				   typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType ()); }
+				   typename VectorTraits<TypeWrapperRing<float>, Vector1>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<float>, Vector1>::StorageType (),
+				   typename VectorTraits<TypeWrapperRing<float>, Vector2>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<float>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _dot<UnparametricRing<double>, BLASModule<double>::Tag>
+class _dot<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static double dot_impl (const UnparametricRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
+	static double dot_impl (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
 				VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _dot<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
+		{ return _dot<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static double dot_impl (const UnparametricRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
+	static double dot_impl (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
 				size_t start_idx, size_t end_idx,
 				VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
@@ -79,25 +79,25 @@ class _dot<UnparametricRing<double>, BLASModule<double>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static double op (const UnparametricRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
+	static double op (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
 			  size_t start_idx = 0, size_t end_idx = (size_t) -1)
 		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
-				   typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
-				   typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
-				   typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType ()); }
+				   typename VectorTraits<TypeWrapperRing<double>, Vector1>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<double>, Vector1>::StorageType (),
+				   typename VectorTraits<TypeWrapperRing<double>, Vector2>::RepresentationType (),
+				   typename VectorTraits<TypeWrapperRing<double>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _copy<UnparametricRing<float>, BLASModule<float>::Tag>
+class _copy<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &copy_impl (const UnparametricRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y,
+	static Vector2 &copy_impl (const TypeWrapperRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _copy<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, x, y); }
+		{ return _copy<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &copy_impl (const UnparametricRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y,
+	static Vector2 &copy_impl (const TypeWrapperRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		lela_check (x.size () == y.size ());
@@ -107,24 +107,24 @@ class _copy<UnparametricRing<float>, BLASModule<float>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &op (const UnparametricRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y)
+	static Vector2 &op (const TypeWrapperRing<float> &F, Modules &M, const Vector1 &x, Vector2 &y)
 		{ return copy_impl (F, M, x, y,
-				    typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::StorageType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector2>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _copy<UnparametricRing<double>, BLASModule<double>::Tag>
+class _copy<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &copy_impl (const UnparametricRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y,
+	static Vector2 &copy_impl (const TypeWrapperRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _copy<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, x, y); }
+		{ return _copy<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &copy_impl (const UnparametricRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y,
+	static Vector2 &copy_impl (const TypeWrapperRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		lela_check (x.size () == y.size ());
@@ -134,24 +134,24 @@ class _copy<UnparametricRing<double>, BLASModule<double>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &op (const UnparametricRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y)
+	static Vector2 &op (const TypeWrapperRing<double> &F, Modules &M, const Vector1 &x, Vector2 &y)
 		{ return copy_impl (F, M, x, y,
-				    typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::StorageType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _axpy<UnparametricRing<float>, BLASModule<float>::Tag>
+class _axpy<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &axpy_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y,
+	static Vector2 &axpy_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _axpy<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x, y); }
+		{ return _axpy<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &axpy_impl (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y,
+	static Vector2 &axpy_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		lela_check (x.size () == y.size ());
@@ -161,24 +161,24 @@ class _axpy<UnparametricRing<float>, BLASModule<float>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &op (const UnparametricRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y)
+	static Vector2 &op (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, Vector2 &y)
 		{ return axpy_impl (F, M, a, x, y,
-				    typename VectorTraits<UnparametricRing<float>, Vector1>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector1>::StorageType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector2>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector2>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::StorageType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector2>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _axpy<UnparametricRing<double>, BLASModule<double>::Tag>
+class _axpy<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &axpy_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y,
+	static Vector2 &axpy_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _axpy<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x, y); }
+		{ return _axpy<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &axpy_impl (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y,
+	static Vector2 &axpy_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		lela_check (x.size () == y.size ());
@@ -188,24 +188,24 @@ class _axpy<UnparametricRing<double>, BLASModule<double>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static Vector2 &op (const UnparametricRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y)
+	static Vector2 &op (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, Vector2 &y)
 		{ return axpy_impl (F, M, a, x, y,
-				    typename VectorTraits<UnparametricRing<double>, Vector1>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector1>::StorageType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector2>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector2>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::StorageType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::StorageType ()); }
 };
 
 template <>
-class _scal<UnparametricRing<float>, BLASModule<float>::Tag>
+class _scal<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const UnparametricRing<float> &F, Modules &M, float a, Vector &x,
+	static Vector &scal_impl (const TypeWrapperRing<float> &F, Modules &M, float a, Vector &x,
 				  VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _scal<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x); }
+		{ return _scal<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x); }
 
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const UnparametricRing<float> &F, Modules &M, float a, Vector &x,
+	static Vector &scal_impl (const TypeWrapperRing<float> &F, Modules &M, float a, Vector &x,
 				  VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		cblas_sscal (x.size (), a, &x[0], &x[1] - &x[0]);
@@ -214,22 +214,22 @@ class _scal<UnparametricRing<float>, BLASModule<float>::Tag>
 
 public:
 	template <class Modules, class Vector>
-	static Vector &op (const UnparametricRing<float> &F, Modules &M, float a, Vector &x)
+	static Vector &op (const TypeWrapperRing<float> &F, Modules &M, float a, Vector &x)
 		{ return scal_impl (F, M, a, x,
-				    typename VectorTraits<UnparametricRing<float>, Vector>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<float>, Vector>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<float>, Vector>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<float>, Vector>::StorageType ()); }
 };
 
 template <>
-class _scal<UnparametricRing<double>, BLASModule<double>::Tag>
+class _scal<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const UnparametricRing<double> &F, Modules &M, double a, Vector &x,
+	static Vector &scal_impl (const TypeWrapperRing<double> &F, Modules &M, double a, Vector &x,
 				  VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _scal<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x); }
+		{ return _scal<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x); }
 
 	template <class Modules, class Vector>
-	static Vector &scal_impl (const UnparametricRing<double> &F, Modules &M, double a, Vector &x,
+	static Vector &scal_impl (const TypeWrapperRing<double> &F, Modules &M, double a, Vector &x,
 				  VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		cblas_sscal (x.size (), a, &x[0], &x[1] - &x[0]);
@@ -238,10 +238,10 @@ class _scal<UnparametricRing<double>, BLASModule<double>::Tag>
 
 public:
 	template <class Modules, class Vector>
-	static Vector &op (const UnparametricRing<double> &F, Modules &M, double a, Vector &x)
+	static Vector &op (const TypeWrapperRing<double> &F, Modules &M, double a, Vector &x)
 		{ return scal_impl (F, M, a, x,
-				    typename VectorTraits<UnparametricRing<double>, Vector>::RepresentationType (),
-				    typename VectorTraits<UnparametricRing<double>, Vector>::StorageType ()); }
+				    typename VectorTraits<TypeWrapperRing<double>, Vector>::RepresentationType (),
+				    typename VectorTraits<TypeWrapperRing<double>, Vector>::StorageType ()); }
 };
 
 } // namespace BLAS1

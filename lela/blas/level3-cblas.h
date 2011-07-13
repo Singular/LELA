@@ -19,7 +19,7 @@
 #include <cblas.h>
 
 #include "lela/blas/context.h"
-#include "lela/ring/unparametric.h"
+#include "lela/ring/type-wrapper.h"
 #include "lela/matrix/traits.h"
 #include "lela/matrix/dense.h"
 #include "lela/blas/level3-ll.h"
@@ -31,15 +31,15 @@ namespace BLAS3
 {
 
 template <>
-class _gemm<UnparametricRing<float>, BLASModule<float>::Tag>
+class _gemm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &gemm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
+	static Matrix3 &gemm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _gemm<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, b, C); }
+		{ return _gemm<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &gemm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
+	static Matrix3 &gemm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		lela_check (A.rowdim () == C.rowdim ());
@@ -52,20 +52,20 @@ class _gemm<UnparametricRing<float>, BLASModule<float>::Tag>
 
 public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C)
+	static Matrix3 &op (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C)
 		{ return gemm_impl (F, M, a, A, B, b, C, typename Matrix1::StorageType (), typename Matrix2::StorageType (), typename Matrix3::StorageType ()); }
 };
 
 template <>
-class _trmm<UnparametricRing<float>, BLASModule<float>::Tag>
+class _trmm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trmm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trmm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trmm<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trmm<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trmm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trmm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		lela_check (A.rowdim () == B.rowdim ());
@@ -78,21 +78,21 @@ class _trmm<UnparametricRing<float>, BLASModule<float>::Tag>
 public:
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix1 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B,
+	static Matrix1 &op (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B,
 			    TriangularMatrixType type, bool diagIsOne)
 		{ return trmm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };
 
 template <>
-class _trsm<UnparametricRing<float>, BLASModule<float>::Tag>
+class _trsm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trsm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trsm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trsm<UnparametricRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trsm<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trsm_impl (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trsm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		lela_check (A.rowdim () == B.rowdim ());
@@ -106,21 +106,21 @@ class _trsm<UnparametricRing<float>, BLASModule<float>::Tag>
 public:
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix1 &op (const UnparametricRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B,
+	static Matrix1 &op (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B,
 			    TriangularMatrixType type, bool diagIsOne)
 		{ return trsm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };
 
 template <>
-class _gemm<UnparametricRing<double>, BLASModule<double>::Tag>
+class _gemm<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &gemm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
+	static Matrix3 &gemm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _gemm<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, b, C); }
+		{ return _gemm<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, b, C); }
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &gemm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
+	static Matrix3 &gemm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		lela_check (A.rowdim () == C.rowdim ());
@@ -133,20 +133,20 @@ class _gemm<UnparametricRing<double>, BLASModule<double>::Tag>
 
 public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
-	static Matrix3 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C)
+	static Matrix3 &op (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C)
 		{ return gemm_impl (F, M, a, A, B, b, C, typename Matrix1::StorageType (), typename Matrix2::StorageType (), typename Matrix3::StorageType ()); }
 };
 
 template <>
-class _trmm<UnparametricRing<double>, BLASModule<double>::Tag>
+class _trmm<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trmm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trmm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trmm<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trmm<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trmm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trmm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		lela_check (A.rowdim () == B.rowdim ());
@@ -159,21 +159,21 @@ class _trmm<UnparametricRing<double>, BLASModule<double>::Tag>
 public:
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix1 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B,
+	static Matrix1 &op (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B,
 			    TriangularMatrixType type, bool diagIsOne)
 		{ return trmm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };
 
 template <>
-class _trsm<UnparametricRing<double>, BLASModule<double>::Tag>
+class _trsm<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trsm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trsm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Generic, MatrixStorageTypes::Generic)
-		{ return _trsm<UnparametricRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
+		{ return _trsm<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, B, type, diagIsOne); }
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix2 &trsm_impl (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	static Matrix2 &trsm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
 				   MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
 	{
 		lela_check (A.rowdim () == B.rowdim ());
@@ -187,7 +187,7 @@ class _trsm<UnparametricRing<double>, BLASModule<double>::Tag>
 public:
 
 	template <class Modules, class Matrix1, class Matrix2>
-	static Matrix1 &op (const UnparametricRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B,
+	static Matrix1 &op (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B,
 			    TriangularMatrixType type, bool diagIsOne)
 		{ return trsm_impl (F, M, a, A, B, type, diagIsOne, typename Matrix1::StorageType (), typename Matrix2::StorageType ()); }
 };

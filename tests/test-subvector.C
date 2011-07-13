@@ -22,7 +22,7 @@
 #include "lela/lela-config.h"
 
 #include "lela/util/commentator.h"
-#include "lela/ring/unparametric.h"
+#include "lela/ring/type-wrapper.h"
 #include "lela/blas/context.h"
 #include "lela/blas/level1.h"
 #include "lela/vector/subvector.h"
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     bool pass = true;
  
     // call tests
-    typedef LELA::UnparametricRing<int> Ring;
+    typedef LELA::TypeWrapperRing<int> Ring;
     Ring F;
     pass = testSubvector<Ring> (F, n);
  

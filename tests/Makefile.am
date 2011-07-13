@@ -36,7 +36,7 @@ BASIC_TESTS =  \
         test-subvector          \
 	test-bit-subvector	\
 	test-hybrid-vector	\
-        test-unparametric-ring	\
+        test-type-wrapper-ring	\
 	test-strassen-winograd	\
 	test-elimination	\
 	test-gauss-jordan	\
@@ -72,8 +72,8 @@ test_gmp_rational_SOURCES =               \
         test-gmp-rational.C               \
         test-common.C
 
-test_unparametric_ring_SOURCES =        \
-        test-unparametric-ring.C        \
+test_type_wrapper_ring_SOURCES =        \
+        test-type-wrapper-ring.C        \
         test-common.C
 
 test_randiter_nonzero_SOURCES =          \
