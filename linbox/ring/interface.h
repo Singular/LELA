@@ -278,15 +278,19 @@ public:
 	 * This function does the same thing as above but takes a
 	 * reference to a Property rather than to an element. This is
 	 * required for that the scal operation on sparse matrices
-	 * work. Its content should be essentially identical to the
-	 * element-version above, but it may not call mulin.
+	 * work.
 	 *
 	 * @return reference to x.
 	 * @param  x Property (reference returned).
 	 * @param  y ring element.
 	 */
-	template <class Iterator, class Accessor>
-	virtual Property<Iterator, Accessor> &mulin (Property<Iterator, Accessor> &x, const Element &y) const = 0;
+	template <class Iterator>
+	Property<Iterator> &mulin (Property<Iterator> &x, const Element &y) const
+	{
+		Element t = x;
+		mulin (t, y);
+		x = t;
+	}
    
 	/** Inplace Division; x /= y
 	 *
