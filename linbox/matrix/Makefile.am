@@ -21,17 +21,6 @@ BASIC_HDRS =			\
 	m4ri-matrix.h		\
 	submatrix.h
 
-NTL_HDRS =
-LIDIA_HDRS = 
-
-if LINBOX_HAVE_NTL
-USE_NTL_HDRS = $(NTL_HDRS)
-endif
-
-if LINBOX_HAVE_LIDIA
-USE_LIDIA_HDRS = $(LIDIA_HDRS)
-endif
-
 pkgincludesub_HEADERS =		\
 	$(BASIC_HDRS)		\
 	$(USE_NTL_HDRS)		\
