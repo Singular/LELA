@@ -16,7 +16,7 @@
  * See COPYING for license information.
  */
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
@@ -24,13 +24,13 @@
 #include <vector>
 #include <queue>
 
-#include "linbox/ring/modular.h"
+#include "lela/ring/modular.h"
 
 #include "test-common.h"
 #include "test-ring.h"
 #include "test-blas-level1.h"
 
-using namespace LinBox;
+using namespace LELA;
 using namespace std;
 
 int main (int argc, char **argv)

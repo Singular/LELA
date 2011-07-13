@@ -1,0 +1,6 @@
+/** \defgroup util lela/util
+
+Miscellaneous utilities.
+
+Basic GMP integer wrapper, timers, commentator, matrix-stream-reader, error, debug. 
+*/

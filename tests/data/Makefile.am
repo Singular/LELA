@@ -1,5 +1,5 @@
-# Copyright (c) 2010 the LinBox group
-# This file is part of LinBox
+# Copyright (c) 2010 the LELA group
+# This file is part of LELA
 # see COPYING for licence
 EXTRA_DIST = \
 	test.matrix			\

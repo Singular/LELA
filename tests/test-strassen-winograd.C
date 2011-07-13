@@ -14,15 +14,15 @@
 
 #include "test-common.h"
 
-#include <linbox/blas/context.h>
-#include <linbox/ring/gf2.h>
-#include <linbox/ring/modular.h>
-#include <linbox/matrix/dense.h>
-#include <linbox/vector/stream.h>
-#include <linbox/algorithms/strassen-winograd.h>
-#include <linbox/blas/level3.h>
+#include <lela/blas/context.h>
+#include <lela/ring/gf2.h>
+#include <lela/ring/modular.h>
+#include <lela/matrix/dense.h>
+#include <lela/vector/stream.h>
+#include <lela/algorithms/strassen-winograd.h>
+#include <lela/blas/level3.h>
 
-using namespace LinBox;
+using namespace LELA;
 
 template <class Ring, class Modules, class Matrix1, class Matrix2, class Matrix3>
 bool testMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B, const Matrix3 &C)

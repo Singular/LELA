@@ -14,11 +14,11 @@
 
 #include "test-common.h"
 
-#include "linbox/util/commentator.h"
-#include "linbox/vector/bit-vector.h"
-#include "linbox/vector/bit-subvector.h"
+#include "lela/util/commentator.h"
+#include "lela/vector/bit-vector.h"
+#include "lela/vector/bit-subvector.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 typedef BitVector<>::Endianness Endianness;
 

@@ -49,8 +49,8 @@
 
       <para>
 	All definitions in LELA are in the
-	namespace <type>LinBox</type>. A simple program using LELA may
-	include the line <type>using namespace LinBox;</type> at the
+	namespace <type>LELA</type>. A simple program using LELA may
+	include the line <type>using namespace LELA;</type> at the
 	top of the file to avoid unneeded verbage.
       </para>
 
@@ -120,10 +120,10 @@
 	</para>
 
 	<programlisting>
-#include &lt;linbox/integer.h&gt;
-#include &lt;linbox/ring/modular.h&gt;
+#include &lt;lela/integer.h&gt;
+#include &lt;lela/ring/modular.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -149,7 +149,7 @@ int main ()
 	<para>
 	  The included header-files declare the
 	  type <type>uint8</type> and the class <type>Modular</type>,
-	  respectively. The file <filename>linbox/integer.h</filename>
+	  respectively. The file <filename>lela/integer.h</filename>
 	  declares the types <type>uint8</type>, <type>uint16</type>,
 	  and <type>uint32</type> of known width as well as the
 	  type <type>integer</type> of arbitrary precision.
@@ -164,9 +164,9 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/ring/gmp-rational.h&gt;
+#include &lt;lela/ring/gmp-rational.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -180,7 +180,7 @@ int main ()
 	  The element-type of <type>GMPRationalField</type> is
 	  called <type>GMPRational</type>, a wrapper over the
 	  corresponding GMP-type. It is defined
-	  in <filename>linbox/element/gmp-rational.h</filename>.
+	  in <filename>lela/element/gmp-rational.h</filename>.
 	</para>
       </section>
 
@@ -192,9 +192,9 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/ring/gf2.h&gt;
+#include &lt;lela/ring/gf2.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -232,9 +232,9 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/ring/unparametric.h&gt;
+#include &lt;lela/ring/unparametric.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -260,10 +260,10 @@ int main ()
 
 	<programlisting>
 #include &lt;iostream&gt;
-#include &lt;linbox/integer.h&gt;
-#include &lt;linbox/ring/modular.h&gt;
+#include &lt;lela/integer.h&gt;
+#include &lt;lela/ring/modular.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -314,10 +314,10 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/integer.h&gt;
-#include &lt;linbox/ring/modular.h&gt;
+#include &lt;lela/integer.h&gt;
+#include &lt;lela/ring/modular.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -366,10 +366,10 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/integer.h&gt;
-#include &lt;linbox/ring/modular.h&gt;
+#include &lt;lela/integer.h&gt;
+#include &lt;lela/ring/modular.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -400,10 +400,10 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/integer.h&gt;
-#include &lt;linbox/ring/modular.h&gt;
+#include &lt;lela/integer.h&gt;
+#include &lt;lela/ring/modular.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -431,10 +431,10 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/integer.h&gt;
-#include &lt;linbox/ring/modular.h&gt;
+#include &lt;lela/integer.h&gt;
+#include &lt;lela/ring/modular.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -462,10 +462,10 @@ int main ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/integer.h&gt;
-#include &lt;linbox/ring/modular.h&gt;
+#include &lt;lela/integer.h&gt;
+#include &lt;lela/ring/modular.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 int main ()
 {
@@ -587,9 +587,9 @@ void MyAlgorithm (const Ring &amp;R, size_t n)
 	  </para>
 
 	  <programlisting>
-#include &lt;linbox/vector/sparse.h&gt;
+#include &lt;lela/vector/sparse.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring&gt;
 void MyAlgorithm (const Ring &amp;R)
@@ -623,9 +623,9 @@ void MyAlgorithm (const Ring &amp;R)
 	  </para>
 
 	  <programlisting>
-#include &lt;linbox/ring/gf2.h&gt;
+#include &lt;lela/ring/gf2.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 void MyAlgorithm (const GF2 &amp;F, unsigned int n)
 {
@@ -651,9 +651,9 @@ void MyAlgorithm (const GF2 &amp;F, unsigned int n)
 	  </para>
 
 	  <programlisting>
-#include &lt;linbox/ring/gf2.h&gt;
+#include &lt;lela/ring/gf2.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 void MyAlgorithm (const GF2 &amp;F)
 {
@@ -699,9 +699,9 @@ void MyAlgorithm (const GF2 &amp;F)
 	  </para>
 
 	  <programlisting>
-#include &lt;linbox/ring/gf2.h&gt;
+#include &lt;lela/ring/gf2.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 void MyAlgorithm (const GF2 &amp;R)
 {
@@ -731,9 +731,9 @@ void MyAlgorithm (const GF2 &amp;R)
 	</para>
 
 	<programlisting>
-#include &lt;linbox/matrix/dense.h&gt;
+#include &lt;lela/matrix/dense.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
@@ -758,9 +758,9 @@ void MyFunction (const Ring &amp;R)
 	</para>
 
 	<programlisting>
-#include &lt;linbox/matrix/dense.h&gt;
+#include &lt;lela/matrix/dense.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
@@ -788,9 +788,9 @@ void MyFunction (const Ring &amp;R)
 	</para>
 
 	<programlisting>
-#include &lt;linbox/matrix/dense.h&gt;
+#include &lt;lela/matrix/dense.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R, DenseMatrix&lt;typename Ring::Element&gt; &amp;M)
@@ -827,9 +827,9 @@ void MyFunction (const Ring &amp;R, DenseMatrix&lt;typename Ring::Element&gt; &a
 	</para>
 
 	<programlisting>
-#include &lt;linbox/matrix/sparse.h&gt;
+#include &lt;lela/matrix/sparse.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
@@ -856,10 +856,10 @@ void MyFunction (const Ring &amp;R)
 	</para>
 
 	<programlisting>
-#include &lt;linbox/ring/gf2.h&gt;
-#include &lt;linbox/matrix/sparse.h&gt;
+#include &lt;lela/ring/gf2.h&gt;
+#include &lt;lela/matrix/sparse.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 void MyFunction (const GF2 &amp;F)
 {
@@ -885,9 +885,9 @@ void MyFunction (const GF2 &amp;F)
       </para>
 
       <programlisting>
-#include &lt;linbox/blas/context.h&gt;
+#include &lt;lela/blas/context.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring&gt;
 void MyFunction (const Ring &amp;R)
@@ -915,7 +915,7 @@ void MyFunction (const Ring &amp;R)
 
       <para>
 	Use use BLAS-routines at a given level, include the
-	header-file <filename>linbox/blas/level&lt;l&gt;.h</filename>,
+	header-file <filename>lela/blas/level&lt;l&gt;.h</filename>,
 	where &lt;l&gt; is respectively 1, 2, or 3. Then declare the
 	context-object and simply invoke the function. The arguments
 	generally follow the BLAS-standard.
@@ -926,10 +926,10 @@ void MyFunction (const Ring &amp;R)
       </para>
 
       <programlisting>
-#include &lt;linbox/blas/context.h&gt;
-#include &lt;linbox/blas/level1.h&gt;
+#include &lt;lela/blas/context.h&gt;
+#include &lt;lela/blas/level1.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring, class Vector1, class Vector2&gt;
 void MyFunction (const Ring &amp;R, Vector1 &amp;v, Vector2 &amp;w)
@@ -950,10 +950,10 @@ void MyFunction (const Ring &amp;R, Vector1 &amp;v, Vector2 &amp;w)
       </para>
 
       <programlisting>
-#include &lt;linbox/blas/context.h&gt;
-#include &lt;linbox/blas/level2.h&gt;
+#include &lt;lela/blas/context.h&gt;
+#include &lt;lela/blas/level2.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring, class Vector, class Matrix&gt;
 void MyFunction (const Ring &amp;R, Vector &amp;v, Vector &amp;w, Matrix &amp;A)
@@ -977,10 +977,10 @@ void MyFunction (const Ring &amp;R, Vector &amp;v, Vector &amp;w, Matrix &amp;A)
       </para>
 
       <programlisting>
-#include &lt;linbox/blas/context.h&gt;
-#include &lt;linbox/blas/level3.h&gt;
+#include &lt;lela/blas/context.h&gt;
+#include &lt;lela/blas/level3.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring, class Matrix1, class Matrix2, class Matrix3&gt;
 void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp;C)
@@ -1027,7 +1027,7 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
 	<para>
 	  To compute the row echelon form of a matrix, use the
 	  solution <type>EchelonForm</type>. Its header-file
-	  is <filename>linbox/solutions/echelon-form.h</filename>.
+	  is <filename>lela/solutions/echelon-form.h</filename>.
 	</para>
 
 	<para>
@@ -1035,9 +1035,9 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
 	</para>
 
 	<programlisting>
-#include &lt;linbox/solutions/echelon-form.h&gt;
+#include &lt;lela/solutions/echelon-form.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring, class Matrix&gt;
 void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
@@ -1055,9 +1055,9 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 	</para>
 
 	<programlisting>
-#include &lt;linbox/solutions/echelon-form.h&gt;
+#include &lt;lela/solutions/echelon-form.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring, class Matrix&gt;
 void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
@@ -1086,9 +1086,9 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 
       <programlisting>
 #include &lt;iostream&gt;
-#include &lt;linbox/blas/level1.h&gt;
+#include &lt;lela/blas/level1.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring, class Vector&gt;
 void ReadAndWriteVector (const Ring &amp;R, Vector &amp;v)
@@ -1119,9 +1119,9 @@ void ReadAndWriteVector (const Ring &amp;R, Vector &amp;v)
 
       <programlisting>
 #include &lt;iostream&gt;
-#include &lt;linbox/blas/level3.h&gt;
+#include &lt;lela/blas/level3.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 template &lt;class Ring, class Matrix&gt;
 void ReadAndWriteVector (const Ring &amp;R, Matrix &amp;A, std::istream &amp;is)
@@ -1175,7 +1175,7 @@ void ReadAndWriteVector (const Ring &amp;R, Matrix &amp;A, std::istream &amp;is)
 	<para>
 	  Throughout LELA there are checks of the form
 	  <programlisting>
-linbox_check (condition);
+lela_check (condition);
 	  </programlisting>
 	  These check that the input to algorithms meets the required
 	  preconditions. These checks are disabled by default, but can
@@ -1203,9 +1203,9 @@ linbox_check (condition);
 	</para>
 
 	<programlisting>
-#include &lt;linbox/util/commentator.h&gt;
+#include &lt;lela/util/commentator.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 void MyFunction ()
 {
@@ -1235,9 +1235,9 @@ void MyFunction ()
 	</para>
 
 	<programlisting>
-#include &lt;linbox/util/commentator.h&gt;
+#include &lt;lela/util/commentator.h&gt;
 
-using namespace LinBox;
+using namespace LELA;
 
 void MyFunction ()
 {

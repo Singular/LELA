@@ -1,4 +1,4 @@
-/* linbox/tests/test-matrix.h
+/* lela/tests/test-matrix.h
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Generic tests for matrices
@@ -6,18 +6,18 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_TESTS_TEST_MATRIX_H
-#define __LINBOX_TESTS_TEST_MATRIX_H
+#ifndef __LELA_TESTS_TEST_MATRIX_H
+#define __LELA_TESTS_TEST_MATRIX_H
 
 #include <iostream>
 #include <sstream>
 
-#include "linbox/util/commentator.h"
-#include "linbox/blas/context.h"
-#include "linbox/blas/level3.h"
-#include "linbox/matrix/transpose.h"
+#include "lela/util/commentator.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level3.h"
+#include "lela/matrix/transpose.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 /* Test 1: getEntry and Row/ColIterator (reading)
  *
@@ -528,7 +528,7 @@ bool testTransposeMatrix (const Field &F, Matrix &M)
 	return pass;
 }
 
-#endif // __LINBOX_TESTS_TEST_MATRIX_H
+#endif // __LELA_TESTS_TEST_MATRIX_H
 
 // Local Variables:
 // mode: C++

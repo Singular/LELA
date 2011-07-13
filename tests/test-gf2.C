@@ -13,7 +13,7 @@
  * See COPYING for license information.
  */
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
@@ -21,16 +21,16 @@
 #include <vector>
 #include <queue>
 
-#include "linbox/ring/gf2.h"
-#include "linbox/ring/modular.h"
-#include "linbox/blas/context.h"
+#include "lela/ring/gf2.h"
+#include "lela/ring/modular.h"
+#include "lela/blas/context.h"
 
 #include "test-generic-for-quad.h"
 #include "test-blas-level1.h"
 
-using namespace LinBox;
-using LinBox::uint16;
-using LinBox::uint32;
+using namespace LELA;
+using LELA::uint16;
+using LELA::uint32;
 
 int main (int argc, char **argv)
 {

@@ -3,7 +3,7 @@ AC_DEFUN([LB_OPT],
 AC_MSG_CHECKING([whether to use run time optimization])
 
 AC_ARG_ENABLE(optimization, 
-[  --enable-optimization  Enable run time optimization in LinBox code],
+[  --enable-optimization  Enable run time optimization in LELA code],
 [
 AC_MSG_RESULT(yes)
 
@@ -15,33 +15,33 @@ if test "x$HAVE_BLAS" = "xyes" ;then
 AC_MSG_CHECKING([best threshold for Strassen-Winograd matrix multiplication])
 
 
-CXXFLAGS="${BACKUP_CXXFLAGS} -I`pwd` -I`pwd`/linbox ${BLAS_CFLAGS} ${GMP_CFLAGS}  ${GIVARO_CFLAGS} ${CBLAS_FLAG}" 
+CXXFLAGS="${BACKUP_CXXFLAGS} -I`pwd` -I`pwd`/lela ${BLAS_CFLAGS} ${GMP_CFLAGS}  ${GIVARO_CFLAGS} ${CBLAS_FLAG}" 
 LIBS="${BACKUP_LIBS} ${BLAS_LIBS} ${GIVARO_LIBS} ${GMP_LIBS} " 
 
 
-echo   " #define __LINBOX_INT8  $LINBOX_INT8  	 
-	 #define __LINBOX_INT16 $LINBOX_INT16 	 
-	 #define __LINBOX_INT32 $LINBOX_INT32 	 
-	 #define __LINBOX_INT64 $LINBOX_INT64 	 
-" > linbox/linbox-config.h 
+echo   " #define __LELA_INT8  $LELA_INT8  	 
+	 #define __LELA_INT16 $LELA_INT16 	 
+	 #define __LELA_INT32 $LELA_INT32 	 
+	 #define __LELA_INT64 $LELA_INT64 	 
+" > lela/lela-config.h 
 
 
 AC_TRY_RUN([	#include <iostream>
 		#include <fstream>
-		#define _LINBOX_LINBOX_CONFIG_H
-		#define __LINBOX_CONFIGURATION
-		#include <linbox/config-blas.h>
-		#include <linbox/linbox-config.h>
-		#include <linbox/ring/modular-double.h>
-		#include <linbox/fflas/fflas.h>
-		#include <linbox/util/timer.h>
+		#define _LELA_LELA_CONFIG_H
+		#define __LELA_CONFIGURATION
+		#include <lela/config-blas.h>
+		#include <lela/lela-config.h>
+		#include <lela/ring/modular-double.h>
+		#include <lela/fflas/fflas.h>
+		#include <lela/util/timer.h>
 
-		using namespace LinBox;
+		using namespace LELA;
 		int main () {  
   
 		  Modular<double> F(17);
 		  size_t n=300, nmax=5000, prec=512, nbest=0, count=0;
-		  LinBox::Timer chrono;
+		  LELA::Timer chrono;
 		  double basetime, time;
 		  bool bound=false;
   
@@ -109,8 +109,8 @@ AC_TRY_RUN([	#include <iostream>
 		  out<<nbest;
 		  out.close();
 
-		  outlog << "defined __LINBOX_STRASSEN_OPTIMIZATION" << std::endl
-			 << "defined __LINBOX_WINOTHRESHOLD to " << nbest << "" << std::endl;
+		  outlog << "defined __LELA_STRASSEN_OPTIMIZATION" << std::endl
+			 << "defined __LELA_WINOTHRESHOLD to " << nbest << "" << std::endl;
 	          outlog.close();
 
 		  delete[] A;		 
@@ -133,13 +133,13 @@ AC_TRY_RUN([	#include <iostream>
 	AC_MSG_RESULT(cross compilation)
 	strassen_opti="no"
 	break
-	\rm -f linbox/linbox-config,h 2>&1 > /dev/null
+	\rm -f lela/lela-config,h 2>&1 > /dev/null
 	])
 
 fi;
 ],[
 AC_MSG_RESULT(no)
-\rm -f linbox/linbox-config.h  2>&1 > /dev/null
+\rm -f lela/lela-config.h  2>&1 > /dev/null
 ])
 
 ])

@@ -1,4 +1,4 @@
-/* linbox/tests/test-common.C
+/* lela/tests/test-common.C
  * Copyright (C) 2001, 2002 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>
@@ -8,16 +8,16 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_test_common_H
-#define __LINBOX_test_common_H
+#ifndef __LELA_test_common_H
+#define __LELA_test_common_H
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 
-#include "linbox/ring/interface.h"
-#include "linbox/integer.h"
-#include "linbox/randiter/nonzero.h"
+#include "lela/ring/interface.h"
+#include "lela/integer.h"
+#include "lela/randiter/nonzero.h"
 
 using namespace std;
 
@@ -53,7 +53,7 @@ static Matrix &makeNonsingDiag (Field &F, Matrix &A)
 
 	typename Field::Element a;
 
-	LinBox::NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
+	LELA::NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
 	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
 		if (!A.getEntry (a, i, i) || F.isZero (a)) {
@@ -106,7 +106,7 @@ void printHelpMessage (const char *program, Argument *args, bool printDefaults =
 /** writes the values of all arguments, preceded by the programName */
 std::ostream& writeCommandString (std::ostream& os, Argument *args, char *programName);
 
-bool isPower (LinBox::integer n, LinBox::integer m);
+bool isPower (LELA::integer n, LELA::integer m);
 
 /* Give an approximation of the value of the incomplete gamma function at a, x,
  * to within the tolerance tol */
@@ -118,7 +118,7 @@ extern inline double incompleteGamma (double a, double x, double tol);
 
 double chiSquaredCDF (double chi_sqr, double df);
 
-#endif // __LINBOX_test_common_H
+#endif // __LELA_test_common_H
 
 // Local Variables:
 // mode: C++

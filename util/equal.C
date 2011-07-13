@@ -9,17 +9,17 @@
  * Utility to check whether two matrices are equal
  */
 
-#include "linbox/util/commentator.h"
-#include "linbox/blas/context.h"
-#include "linbox/ring/gf2.h"
-#include "linbox/ring/modular.h"
-#include "linbox/blas/level1.h"
-#include "linbox/blas/level3.h"
-#include "linbox/matrix/dense.h"
+#include "lela/util/commentator.h"
+#include "lela/blas/context.h"
+#include "lela/ring/gf2.h"
+#include "lela/ring/modular.h"
+#include "lela/blas/level1.h"
+#include "lela/blas/level3.h"
+#include "lela/matrix/dense.h"
 
 #include "support.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 template <class Ring>
 int check_equal (const Ring &R, const char *input1, FileFormatTag input1_format, const char *input2, FileFormatTag input2_format)
@@ -157,14 +157,14 @@ int main (int argc, char **argv)
 	RingType ring_type = get_ring_type (ringString);
 
 	if (ring_type == RING_GUESS) {
-#ifdef __LINBOX_HAVE_LIBPNG
+#ifdef __LELA_HAVE_LIBPNG
 		if (input1_format == FORMAT_PNG || input2_format == FORMAT_PNG)
 			ring_type = RING_GF2;
 		else
 			ring_type = RING_MODULAR;
-#else // !__LINBOX_HAVE_LIBPNG
+#else // !__LELA_HAVE_LIBPNG
 		ring_type = RING_MODULAR;
-#endif // __LINBOX_HAVE_LIBPNG
+#endif // __LELA_HAVE_LIBPNG
 	}
 
 	if (ring_type == RING_GF2)

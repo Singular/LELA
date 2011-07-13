@@ -10,27 +10,27 @@
  * Generic test suite for BLAS level 2 routines
  */
 
-#ifndef __LINBOX_TESTS_TEST_BLAS_LEVEL2_H
-#define __LINBOX_TESTS_TEST_BLAS_LEVEL2_H
+#ifndef __LELA_TESTS_TEST_BLAS_LEVEL2_H
+#define __LELA_TESTS_TEST_BLAS_LEVEL2_H
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 
-#include "linbox/util/commentator.h"
-#include "linbox/ring/gf2.h"
-#include "linbox/blas/context.h"
-#include "linbox/blas/level1.h"
-#include "linbox/blas/level2.h"
-#include "linbox/blas/level3.h"
-#include "linbox/vector/stream.h"
-#include "linbox/matrix/dense.h"
+#include "lela/util/commentator.h"
+#include "lela/ring/gf2.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level1.h"
+#include "lela/blas/level2.h"
+#include "lela/blas/level3.h"
+#include "lela/vector/stream.h"
+#include "lela/matrix/dense.h"
 
 using namespace std;
-using namespace LinBox;
+using namespace LELA;
 
 typedef std::vector<std::pair<uint32, uint32> > Permutation;
 
@@ -116,7 +116,7 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
 template <class Field, class Modules, class Matrix1, class Matrix2>
 static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::Generic, MatrixIteratorTypes::Col) 
 {
-	linbox_check (A.coldim () == B.rowdim ());
+	lela_check (A.coldim () == B.rowdim ());
 
 	ostringstream str;
 
@@ -172,7 +172,7 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 template <class Field, class Modules, class Matrix1, class Matrix2>
 static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, MatrixIteratorTypes::Row, MatrixIteratorTypes::Generic) 
 {
-	linbox_check (A.coldim () == B.rowdim ());
+	lela_check (A.coldim () == B.rowdim ());
 
 	ostringstream str;
 
@@ -268,7 +268,7 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	bool ret = true;
 
-	typename LinBox::Vector<Field>::Dense aAv (A.rowdim ());
+	typename LELA::Vector<Field>::Dense aAv (A.rowdim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
@@ -322,7 +322,7 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 template <class Field, class Modules, class Matrix1, class Matrix2>
 static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B, TriangularMatrixType type) 
 {
-	linbox_check (A.coldim () == B.rowdim ());
+	lela_check (A.coldim () == B.rowdim ());
 
 	ostringstream str;
 
@@ -473,8 +473,8 @@ bool testBLAS2Submatrix (Context<Field, Modules> &ctx, const char *text,
 
 
 template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2, class Vector1, class Vector2, class Vector3, class Vector4>
-bool testgemvConsistency (LinBox::Context<Ring, Modules1> &ctx1,
-			  LinBox::Context<Ring, Modules2> &ctx2,
+bool testgemvConsistency (LELA::Context<Ring, Modules1> &ctx1,
+			  LELA::Context<Ring, Modules2> &ctx2,
 			  const char *text,
 			  const Matrix1 &M1, 
 			  const Vector1 &v1, const Vector2 &v2,
@@ -560,16 +560,16 @@ bool testgemvConsistency (LinBox::Context<Ring, Modules1> &ctx1,
 }	
 
 template <class Ring, class Modules>
-bool testBLAS2Consistency (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t m, size_t n, size_t k) 
+bool testBLAS2Consistency (LELA::Context<Ring, Modules> &ctx, const char *text, size_t m, size_t n, size_t k) 
 {
 	std::ostringstream str;
 	str << "Testing BLAS1 consistency over <" << text << ">" << std::ends;
-	LinBox::commentator.start (str.str ().c_str ());
+	LELA::commentator.start (str.str ().c_str ());
 
 	bool pass = true;
 
-	typename LinBox::Vector<Ring>::Dense v1(n), v2(m);
-	typename LinBox::Vector<Ring>::Sparse w1, w2;
+	typename LELA::Vector<Ring>::Dense v1(n), v2(m);
+	typename LELA::Vector<Ring>::Sparse w1, w2;
 
 
 	RandomDenseStream<Ring, typename DenseMatrix<typename Ring::Element>::Row> stream11 (ctx.F, n, m); 
@@ -581,8 +581,8 @@ bool testBLAS2Consistency (LinBox::Context<Ring, Modules> &ctx, const char *text
 	TransposeMatrix<SparseMatrix<typename Ring::Element> > M3 (M2);
 
 
-	LinBox::RandomDenseStream<Ring, typename LinBox::Vector<Ring>::Dense> stream1 (ctx.F, n), stream2 (ctx.F, m);
-	LinBox::RandomSparseStream<Ring, typename LinBox::Vector<Ring>::Sparse> stream3 (ctx.F, (double) k / (double) n, n), stream4 (ctx.F, (double) k / (double) n, m);
+	LELA::RandomDenseStream<Ring, typename LELA::Vector<Ring>::Dense> stream1 (ctx.F, n), stream2 (ctx.F, m);
+	LELA::RandomSparseStream<Ring, typename LELA::Vector<Ring>::Sparse> stream3 (ctx.F, (double) k / (double) n, n), stream4 (ctx.F, (double) k / (double) n, m);
 
 	stream1 >>  v1;
 	stream2 >>  v2;
@@ -599,7 +599,7 @@ bool testBLAS2Consistency (LinBox::Context<Ring, Modules> &ctx, const char *text
 	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/sparse		with dense/dense/dense", M1, w1, w2, M1, v1, v1) && pass; 
 
 
-	LinBox::commentator.stop (MSG_STATUS (pass));
+	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
@@ -610,7 +610,7 @@ bool testBLAS2Consistency (LinBox::Context<Ring, Modules> &ctx, const char *text
 
 
 
-#endif // __LINBOX_TESTS_TEST_BLAS_LEVEL2_H
+#endif // __LELA_TESTS_TEST_BLAS_LEVEL2_H
 
 // Local Variables:
 // mode: C++

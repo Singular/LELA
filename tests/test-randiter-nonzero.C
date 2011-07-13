@@ -9,21 +9,21 @@
  * See COPYING for license information.
  */
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 
-#include "linbox/util/commentator.h"
-#include "linbox/ring/modular.h"
-#include "linbox/randiter/modular.h"
-#include "linbox/randiter/nonzero.h"
+#include "lela/util/commentator.h"
+#include "lela/ring/modular.h"
+#include "lela/randiter/modular.h"
+#include "lela/randiter/nonzero.h"
 
 #include "test-common.h"
 
 using namespace std;
-using namespace LinBox;
+using namespace LELA;
 
 /* Test 1: Nonzero random elements
  *

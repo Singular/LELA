@@ -1,4 +1,4 @@
-/* Copyright (C) LinBox
+/* Copyright (C) LELA
  *
  *
  *
@@ -21,10 +21,10 @@
 
 
 #include <iostream>
-#include <linbox/util/commentator.h>
+#include <lela/util/commentator.h>
 #include "test-common.h"
-#include <linbox/vector/subiterator.h>
-using namespace LinBox;
+#include <lela/vector/subiterator.h>
+using namespace LELA;
 bool test() ;
 int main(int argc, char** argv)
 {	

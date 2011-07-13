@@ -1,44 +1,44 @@
 
 /* tests/test-rings.C
  * Written by Dan Roche
- * Copyright (C) June 2004 Dan Roche, part of LinBox, GNU LGPL. See COPYING for license.
+ * Copyright (C) June 2004 Dan Roche, part of LELA, GNU LGPL. See COPYING for license.
  */
 
-#include "linbox/linbox-config.h"
-#include "linbox/util/timer.h"
-// #include "linbox/ring/givaro-gfq.h"
+#include "lela/lela-config.h"
+#include "lela/util/timer.h"
+// #include "lela/ring/givaro-gfq.h"
 
-#ifdef __LINBOX_HAVE_NTL
-#include "linbox/ring/ntl-lzz_p.h"
-#include "linbox/ring/ntl-ZZ.h"
-#include "linbox/ring/ntl-ZZ_p.h"
-#include "linbox/ring/ntl-pid-lzz_p.h"
-#include "linbox/ring/PIR-ntl-ZZ_p.h"
+#ifdef __LELA_HAVE_NTL
+#include "lela/ring/ntl-lzz_p.h"
+#include "lela/ring/ntl-ZZ.h"
+#include "lela/ring/ntl-ZZ_p.h"
+#include "lela/ring/ntl-pid-lzz_p.h"
+#include "lela/ring/PIR-ntl-ZZ_p.h"
 #endif
 
-#include "linbox/ring/modular.h"
-#include "linbox/ring/modular-int32.h"
-#include "linbox/ring/modular-int.h"
-#include "linbox/ring/modular-double.h"
-#include "linbox/ring/traits.h"
-#include "linbox/vector/stream.h"
-#include "linbox/integer.h"
-#include "linbox/ring/PIR-modular-int32.h"
-// #include "linbox/ring/gf2.h"
-#include "linbox/ring/gmp-rational.h"
-#include "linbox/ring/local2_32.h"
-#include "linbox/ring/modular-byte.h"
-#include "linbox/ring/modular-short.h"
+#include "lela/ring/modular.h"
+#include "lela/ring/modular-int32.h"
+#include "lela/ring/modular-int.h"
+#include "lela/ring/modular-double.h"
+#include "lela/ring/traits.h"
+#include "lela/vector/stream.h"
+#include "lela/integer.h"
+#include "lela/ring/PIR-modular-int32.h"
+// #include "lela/ring/gf2.h"
+#include "lela/ring/gmp-rational.h"
+#include "lela/ring/local2_32.h"
+#include "lela/ring/modular-byte.h"
+#include "lela/ring/modular-short.h"
 
-#ifdef __LINBOX_HAVE_LIDIA
-#include "linbox/ring/lidia.h"
+#ifdef __LELA_HAVE_LIDIA
+#include "lela/ring/lidia.h"
 #endif
 
 #include <iostream>
 #include <iomanip>
 #include <vector>
 
-using namespace LinBox;
+using namespace LELA;
 
 /* ringTest is a template function to test out the performance of a given ring on a
  * machine.  Taken are three arguments.  The first is a ring class object.  The second
@@ -323,14 +323,14 @@ int main(int argc, char** argv) {
     doTest< Modular<double> >( "Modular<double>", prime, exp, iterations, fulltest );
     doTest< Modular<float> >( "Modular<float>", prime, exp, iterations, fulltest );
 
-#ifdef __LINBOX_HAVE_NTL
+#ifdef __LELA_HAVE_NTL
     doTest< NTL_zz_p >( "NTL_zz_p", prime, exp, iterations, fulltest );
     doTest< NTL_PID_zz_p >( "NTL_PID_zz_p", prime, exp, iterations, fulltest ); 
     doTest< NTL_ZZ_p >( "NTL_ZZ_p", prime, exp, iterations, fulltest );
     doTest< PIR_ntl_ZZ_p >( "PIR_ntl_ZZ_p", prime, exp, iterations, fulltest );
     doTest< NTL_ZZ >( "NTL_ZZ", prime, exp, iterations, fulltest );
 #endif
-#ifdef __LINBOX_HAVE_LIDIA
+#ifdef __LELA_HAVE_LIDIA
     doTest< LidiaGfq >( "LidiaGfq", prime, exp, iterations, fulltest );
 #endif
 //	doTest< GF2 >( "GF2", prime, exp, iterations, fulltest );

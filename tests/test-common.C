@@ -1,4 +1,4 @@
-/* linbox/tests/test-common.C
+/* lela/tests/test-common.C
  * Copyright 2001, 2002 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
@@ -6,10 +6,10 @@
  * See COPYING for license information.
  */
 
-#ifndef __LINBOX_test_common_C
-#define __LINBOX_test_common_C
+#ifndef __LELA_test_common_C
+#define __LELA_test_common_C
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
@@ -19,12 +19,12 @@
 #include <cstring>
 #include <cmath>
 
-#include "linbox/util/commentator.h"
-#include "linbox/ring/interface.h"
+#include "lela/util/commentator.h"
+#include "lela/ring/interface.h"
 
 #include "test-common.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 /* Display a help message on command usage */
 
@@ -236,7 +236,7 @@ double chiSquaredCDF (double chi_sqr, double df)
 	return incompleteGamma (df / 2.0, chi_sqr / 2.0, 1e-10) / exp (gamma (df / 2.0));
 }
 
-#endif // __LINBOX_test_common_C
+#endif // __LELA_test_common_C
 
 // Local Variables:
 // mode: C++

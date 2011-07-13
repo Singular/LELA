@@ -18,7 +18,7 @@ AC_DEFUN([LB_CHECK_M4RI],
 AC_ARG_WITH(m4ri,
 [  --with-m4ri=<path>|yes Use libm4ri. This is a library for extremely fast
    			 calculations with dense matrices over GF(2). Enabling
-			 it creates a wrapper for this library in LinBox so
+			 it creates a wrapper for this library in LELA so
 			 that it can be used. Without it, calculations over
 			 GF(2) are much slower.
 ],		  
@@ -124,7 +124,7 @@ if test "x$m4ri_found" = "xyes" ; then
 	fi
 fi
 
-AM_CONDITIONAL(LINBOX_HAVE_M4RI, test "x$HAVE_M4RI" = "xyes")
+AM_CONDITIONAL(LELA_HAVE_M4RI, test "x$HAVE_M4RI" = "xyes")
 
 CXXFLAGS=${BACKUP_CXXFLAGS}
 LIBS=${BACKUP_LIBS}

@@ -15,13 +15,13 @@
 
 #include "test-common.h"
 
-#include "linbox/util/commentator.h"
-#include "linbox/ring/gf2.h"
-#include "linbox/randiter/mersenne-twister.h"
-#include "linbox/algorithms/faugere-lachartre.h"
-#include "linbox/algorithms/elimination.h"
+#include "lela/util/commentator.h"
+#include "lela/ring/gf2.h"
+#include "lela/randiter/mersenne-twister.h"
+#include "lela/algorithms/faugere-lachartre.h"
+#include "lela/algorithms/elimination.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 typedef GF2 Ring;
 
@@ -97,7 +97,7 @@ void createRandomF4Matrix (Matrix &A)
 	size_t col = 0;
 
 	for (i_A = A.rowBegin (); i_A != A.rowEnd (); ++i_A) {
-		LinBox::uint32 v = MT.randomIntRange (0, 7);
+		LELA::uint32 v = MT.randomIntRange (0, 7);
 
 		switch (v) {
 		case 0:

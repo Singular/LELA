@@ -1,4 +1,4 @@
-/* linbox/tests/test-ring.h
+/* lela/tests/test-ring.h
  * Copyright 2001, 2002 Bradford Hovinen
  *
  * See COPYING for license information.
@@ -6,8 +6,8 @@
  * Extracted by bds from test-generic.h, written by Bradford Hovinen <hovinen@cis.udel.edu>
  */
 
-#ifndef __LINBOX_test_ring_H
-#define __LINBOX_test_ring_H
+#ifndef __LELA_test_ring_H
+#define __LELA_test_ring_H
 
 #include <iostream>
 #include <sstream>
@@ -15,17 +15,17 @@
 #include <cstdio>
 #include <cmath>
 
-#include "linbox/util/commentator.h"
-#include "linbox/integer.h"
+#include "lela/util/commentator.h"
+#include "lela/integer.h"
 
 #include "test-common.h" 
 
 /* Modular exponentiation */
 using namespace std;
-using namespace LinBox;
+using namespace LELA;
 
 template <class Ring>
-typename Ring::Element &expt (const Ring &F, typename Ring::Element &res, const typename Ring::Element &a, LinBox::integer &n) 
+typename Ring::Element &expt (const Ring &F, typename Ring::Element &res, const typename Ring::Element &a, LELA::integer &n) 
 {
 	if (n == 0) {
 		F.init (res, 1);
@@ -48,7 +48,7 @@ typename Ring::Element &expt (const Ring &F, typename Ring::Element &res, const 
 
 bool reportError(string rep, bool& flag)
 {
-	ostream &report = commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+	ostream &report = commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 	report << "ERROR: " << rep << endl;
 	return flag = false;
 }
@@ -68,7 +68,7 @@ template<class Ring>
 bool testRing (Ring &F, const char *title, bool ringp = true) 
 {
 	commentator.start (title, "testRing", 5);
-	ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+	ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	typename Ring::Element zero, one, two, three;
 	F.init (zero, 0); F.init (one, 1); F.init (two, 2); F.init (three, 3);
@@ -78,7 +78,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 
 	report << "Ring self description: " << F.write (report) << endl;
 
-	LinBox::integer n, m;
+	LELA::integer n, m;
 	bool pass = true, part_pass = true;
 
 	commentator.start ("Testing characteristic/cardinality match");
@@ -301,7 +301,7 @@ bool testRingNegation (const Ring &F, const char *name, unsigned int iterations)
 		
 		r.random (a);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random element a: ";
 		F.write (report, a) << endl;
 
@@ -352,7 +352,7 @@ bool testRingInversion (const Ring &F, const char *name, unsigned int iterations
 
 		do r.random (a); while (F.isZero (a));
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random element a: ";
 		F.write (report, a) << endl;
 
@@ -410,7 +410,7 @@ bool testRingDistributivity(const Ring &F, const char *name, unsigned int iterat
 		r.random (b);
 		r.random (c);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random elements a = ";
 		F.write (report, a) << ", b = ";
 		F.write (report, b) << ", c = ";
@@ -483,7 +483,7 @@ bool testRingCommutativity (const Ring &F, const char *name, unsigned int iterat
 		r.random (a);
 		r.random (b);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random elements a = ";
 		F.write (report, a) << ", b = ";
 		F.write (report, b) << endl;
@@ -551,7 +551,7 @@ bool testRingAssociativity (const Ring &F, const char *name, unsigned int iterat
 		r.random (b);
 		r.random (c);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random elements a = ";
 		F.write (report, a) << ", b = ";
 		F.write (report, b) << ", c = ";
@@ -622,7 +622,7 @@ bool testGeometricSummation (const Ring &F, const char *name, unsigned int itera
 
 		do r.random (a); while (F.areEqual (a, one));
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random element a: ";
 		F.write (report, a) << endl;
 
@@ -683,7 +683,7 @@ bool testRingCharacteristic (const Ring &F, const char *name, unsigned int itera
 	strcpy (st, str.str().c_str());
 	commentator.start (string(str.str()).c_str(), "testRingCharacteristic", iterations);
 
-	LinBox::integer p, j;
+	LELA::integer p, j;
 	typename Ring::Element a, sigma, zero;
 	typename Ring::RandIter r (F);
 
@@ -693,7 +693,7 @@ bool testRingCharacteristic (const Ring &F, const char *name, unsigned int itera
         
 	bool ret = true;
 
-	ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+	ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Ring characteristic: " << p << endl;
 
 	for (unsigned int i = 0; i < iterations; i++) {
@@ -701,7 +701,7 @@ bool testRingCharacteristic (const Ring &F, const char *name, unsigned int itera
 
 		r.random (a);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random element a: ";
 		F.write (report, a) << endl;
 
@@ -740,7 +740,7 @@ bool testFreshmansDream (const Ring &F, const char *name, unsigned int iteration
 	strcpy (st, str.str().c_str());
 	commentator.start (st, "testFreshmansDream", iterations);
 
-	LinBox::integer c, j;
+	LELA::integer c, j;
 
 	F.characteristic (c);
 
@@ -764,7 +764,7 @@ bool testFreshmansDream (const Ring &F, const char *name, unsigned int iteration
 		r.random (a);
 		r.random (b);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random elements a = ";
 		F.write (report, a) << ", b = ";
 		F.write (report, b) << endl;
@@ -851,7 +851,7 @@ bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned in
 		if (F.isZero (a) && !F.isZero (b))
 			std::swap (a, b);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random elements a = ";
 		F.write (report, a) << ", b = ";
 		F.write (report, b) << endl;
@@ -929,7 +929,7 @@ bool testInvDivConsistency (const Ring &F, const char *name, unsigned int iterat
 		if (F.isZero (a) && !F.isZero (b))
 		std::swap (a, b);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random elements a = ";
 		F.write (report, a) << ", b = ";
 		F.write (report, b) << endl;
@@ -995,7 +995,7 @@ bool testAxpyConsistency (const Ring &F, const char *name, unsigned int iteratio
 		r.random (x);
 		r.random (y);
 
-		ostream &report = commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		ostream &report = commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Random elements a = ";
 		F.write (report, a) << ", x = ";
 		F.write (report, x) << ", y = ";
@@ -1136,12 +1136,12 @@ bool testRandomIteratorStep (const Ring &F,
 
 	//str << "Testing " << text << "::RandIter" << std::ends;
 
-	//LinBox::commentator.start (str.str ().c_str (), "testRandomIteratorStep");
-	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	//LELA::commentator.start (str.str ().c_str (), "testRandomIteratorStep");
+	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	bool ret = true;
 
-	LinBox::integer card;
+	LELA::integer card;
 	unsigned int i;
 	std::vector<int> categories1 (num_categories, 0);
 	std::vector<int> categories2 (num_categories, 0);
@@ -1235,7 +1235,7 @@ bool testRandomIteratorStep (const Ring &F,
 			reportError("Difference values do not appear to be uniformly distributed", ret);
 	}
 
-	//LinBox::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRandomIteratorStep");
+	//LELA::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRandomIteratorStep");
 	return ret;
 }
 
@@ -1258,16 +1258,16 @@ bool testRandomIterator (const Ring &F, const char *text,
 	char * st = new char[str.str().size()];
 	strcpy (st, str.str().c_str());
 
-	LinBox::commentator.start (st, "testRandomIterator");
+	LELA::commentator.start (st, "testRandomIterator");
 
-	std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	/* This test either passes or runs a lot of times */
 	for (int i = 1; !testRandomIteratorStep (F, text, num_trials, num_categories, hist_len) && i < 20; ++i)
 		if (0 == i % 10)  
 			report << "Warning! Probable failure of uniformity" << std::endl;
 
-	LinBox::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
+	LELA::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
 
 	delete[] st;
 	return true;
@@ -1276,7 +1276,7 @@ bool testRandomIterator (const Ring &F, const char *text,
 
 //@}
 
-#endif // __LINBOX_test_ring_H
+#endif // __LELA_test_ring_H
 
 // Local Variables:
 // mode: C++

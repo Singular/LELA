@@ -1,4 +1,4 @@
-/* Copyright (C) LinBox
+/* Copyright (C) LELA
  *
  * Evolved from Will Turner's test-subvector.cpp  -bds
  *
@@ -19,17 +19,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
-#include "linbox/util/commentator.h"
-#include "linbox/ring/unparametric.h"
-#include "linbox/blas/context.h"
-#include "linbox/blas/level1.h"
-#include "linbox/vector/subvector.h"
+#include "lela/util/commentator.h"
+#include "lela/ring/unparametric.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level1.h"
+#include "lela/vector/subvector.h"
 
 #include "test-common.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 template <class Ring>
 static bool testSubvector(Ring &F, size_t n); 
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     bool pass = true;
  
     // call tests
-    typedef LinBox::UnparametricRing<int> Ring;
+    typedef LELA::UnparametricRing<int> Ring;
     Ring F;
     pass = testSubvector<Ring> (F, n);
  
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
  * can invalidate iterators.
  */
 
-using namespace LinBox;
+using namespace LELA;
 
 template <class Ring>
 static bool testSubvector(Ring &F, size_t n) 
@@ -82,8 +82,8 @@ static bool testSubvector(Ring &F, size_t n)
 	typedef std::vector<Element>	Vector;
 	typedef typename Vector::iterator       Iter;
 	typedef Subiterator<typename Vector::iterator>	Subiter;
-	typedef typename LinBox::Subvector<Subiter>	Subvect;
-	//typedef typename LinBox::Subvector<Vector, Subiter>	Subvect;
+	typedef typename LELA::Subvector<Subiter>	Subvect;
+	//typedef typename LELA::Subvector<Vector, Subiter>	Subvect;
 	typedef typename Subvect::const_iterator	ConstSubiterator;
 
 	typedef typename Subvect::reverse_iterator	ReverseIterator;

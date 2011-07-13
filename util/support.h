@@ -9,12 +9,12 @@
  * Support-routines for utilities: command-line-processing etc.
  */
 
-#ifndef __LINBOX_UTIL_SUPPORT_H
-#define __LINBOX_UTIL_SUPPORT_H
+#ifndef __LELA_UTIL_SUPPORT_H
+#define __LELA_UTIL_SUPPORT_H
 
 #ifndef __SUPPORT_C
-#  include "linbox/ring/gf2.h"
-#  include "linbox/matrix/io.h"
+#  include "lela/ring/gf2.h"
+#  include "lela/matrix/io.h"
 #endif
 
 enum ArgumentType {
@@ -57,50 +57,50 @@ RingType get_ring_type (const char *str)
 	return RING_UNKNOWN;
 }
 
-LinBox::FileFormatTag get_format_tag (const char *str)
+LELA::FileFormatTag get_format_tag (const char *str)
 {
 	if (!strcmp (str, "guess"))
-		return LinBox::FORMAT_DETECT;
+		return LELA::FORMAT_DETECT;
 	if (!strcmp (str, "dumas"))
-		return LinBox::FORMAT_DUMAS;
+		return LELA::FORMAT_DUMAS;
 	if (!strcmp (str, "turner"))
-		return LinBox::FORMAT_TURNER;
+		return LELA::FORMAT_TURNER;
 	if (!strcmp (str, "maple"))
-		return LinBox::FORMAT_MAPLE;
+		return LELA::FORMAT_MAPLE;
 	if (!strcmp (str, "matlab"))
-		return LinBox::FORMAT_MATLAB;
+		return LELA::FORMAT_MATLAB;
 	if (!strcmp (str, "sage"))
-		return LinBox::FORMAT_SAGE;
-#ifdef __LINBOX_HAVE_LIBPNG
+		return LELA::FORMAT_SAGE;
+#ifdef __LELA_HAVE_LIBPNG
 	if (!strcmp (str, "png"))
-		return LinBox::FORMAT_PNG;
-#endif // __LINBOX_HAVE_LIBPNG
+		return LELA::FORMAT_PNG;
+#endif // __LELA_HAVE_LIBPNG
 	if (!strcmp (str, "pretty"))
-		return LinBox::FORMAT_PRETTY;
+		return LELA::FORMAT_PRETTY;
 
-	return LinBox::FORMAT_UNKNOWN;
+	return LELA::FORMAT_UNKNOWN;
 }
 
 // Try to guess the format-tag by looking at the filename
-LinBox::FileFormatTag guess_format_tag (const char *filename)
+LELA::FileFormatTag guess_format_tag (const char *filename)
 {
 	const char *filename_ext = strrchr (filename, '.');
 
 	if (filename_ext == NULL || filename_ext[1] == '\0')
-		return LinBox::FORMAT_UNKNOWN;
+		return LELA::FORMAT_UNKNOWN;
 
 	++filename_ext;
 
-#ifdef __LINBOX_HAVE_LIBPNG
+#ifdef __LELA_HAVE_LIBPNG
 	if (!strcmp (filename_ext, "png"))
-		return LinBox::FORMAT_PNG;
-#endif // __LINBOX_HAVE_LIBPNG
+		return LELA::FORMAT_PNG;
+#endif // __LELA_HAVE_LIBPNG
 	if (!strcmp (filename_ext, "m"))
-		return LinBox::FORMAT_MATLAB;
+		return LELA::FORMAT_MATLAB;
 	if (!strcmp (filename_ext, "sage"))
-		return LinBox::FORMAT_SAGE;
+		return LELA::FORMAT_SAGE;
 
-	return LinBox::FORMAT_UNKNOWN;
+	return LELA::FORMAT_UNKNOWN;
 }
 
 template <class Ring>
@@ -115,7 +115,7 @@ MatrixType get_matrix_type (const char *str)
 }
 
 template <>
-MatrixType get_matrix_type<LinBox::GF2> (const char *str)
+MatrixType get_matrix_type<LELA::GF2> (const char *str)
 {
 	if (!strcmp (str, "dense"))
 		return MATRIX_DENSE;
@@ -127,14 +127,14 @@ MatrixType get_matrix_type<LinBox::GF2> (const char *str)
 	return MATRIX_UNKNOWN;
 }
 
-LinBox::FileFormatTag guess_format (char *filename)
+LELA::FileFormatTag guess_format (char *filename)
 {
 	std::ifstream file (filename);
 
 	if (!file.good ())
-		return LinBox::FORMAT_UNKNOWN;
+		return LELA::FORMAT_UNKNOWN;
 
-	return LinBox::MatrixReader<LinBox::GF2>::detectFormat (file);
+	return LELA::MatrixReader<LELA::GF2>::detectFormat (file);
 }
 
 #endif // __SUPPORT_C
@@ -145,7 +145,7 @@ LinBox::FileFormatTag guess_format (char *filename)
 void parseArguments (int argc, char **argv, Argument *args, const char *freeArgsText, int freeArgs, ...);
 void printHelpMessage (const char *program, Argument *args, const char *freeArgsText, bool printDefaults = false);
 
-#endif // __LINBOX_UTIL_SUPPORT_H
+#endif // __LELA_UTIL_SUPPORT_H
 
 // Local Variables:
 // mode: C++

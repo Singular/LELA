@@ -1,13 +1,13 @@
-# Copyright (c) 2010 the LinBox group
-# This file is part of LinBox (and probably stolen here and there)
+# Copyright (c) 2010 the LELA group
+# This file is part of LELA (and probably stolen here and there)
 # see COPYING for licence
 AC_PREREQ(2.50)
-#AC_INIT(linbox/linbox.doxy)
-AC_INIT(linbox, 1.1.7,linbox-use@googlegroups.com) 
+#AC_INIT(lela/lela.doxy)
+AC_INIT(lela, 1.1.7,lela-use@googlegroups.com) 
 AM_INIT_AUTOMAKE([1.8 gnu no-dependencies])
 #AM_CONFIG_HEADER([config.h])
-AM_CONFIG_HEADER([linbox/linbox-config.h])
-AX_PREFIX_CONFIG_H(linbox/linbox-config.h, __LINBOX)
+AM_CONFIG_HEADER([lela/lela-config.h])
+AX_PREFIX_CONFIG_H(lela/lela-config.h, __LELA)
 AC_PATH_PROG(RM, rm, $FALSE)
 RM="$RM -f"
 
@@ -52,7 +52,7 @@ AC_C_BIGENDIAN(
 # Create some useful data types of fixed, known lengths
 
 # We hereby assume that a character is always one byte
-LINBOX_INT8="char";
+LELA_INT8="char";
 
 case $ac_cv_sizeof_char in
   1)
@@ -72,64 +72,64 @@ esac
 
 case $TWO_BYTES in
   $ac_cv_sizeof_short)
-     LINBOX_INT16="short";
+     LELA_INT16="short";
      ;;
   $ac_cv_sizeof_int)
-     LINBOX_INT16="int";
+     LELA_INT16="int";
      ;;
 esac
 
 case $FOUR_BYTES in
   $ac_cv_sizeof_short)
-     LINBOX_INT32="short";
+     LELA_INT32="short";
      ;;
   $ac_cv_sizeof_int)
-     LINBOX_INT32="int";
+     LELA_INT32="int";
      ;;
   $ac_cv_sizeof_long)
-     LINBOX_INT32="long";
+     LELA_INT32="long";
      ;;
 esac
 
 case $EIGHT_BYTES in
   $ac_cv_sizeof_short)
-     LINBOX_INT64="short";
+     LELA_INT64="short";
      ;;
   $ac_cv_sizeof_int)
-     LINBOX_INT64="int";
+     LELA_INT64="int";
      ;;
   $ac_cv_sizeof_long)
-     LINBOX_INT64="long";
+     LELA_INT64="long";
      ;;
   $ac_cv_sizeof_long_long)
-     LINBOX_INT64="long long";
+     LELA_INT64="long long";
      ;;
   $ac_cv_sizeof___int64)
-     LINBOX_INT64="__int64";
+     LELA_INT64="__int64";
      ;;
 esac
 
 case $SIXTEEN_BYTES in
   $ac_cv_sizeof___uint128_t)
-     LINBOX_UINT128="__uint128_t";
+     LELA_UINT128="__uint128_t";
      ;;
 esac
 
 case $THIRTY_TWO_BYTES in
   $ac_cv_sizeof___uint256_t)
-     LINBOX_UINT256="__uint256_t";
+     LELA_UINT256="__uint256_t";
      ;;
 esac
 
-AC_DEFINE_UNQUOTED(INT8, $LINBOX_INT8, Canonical 8-bit data type)
-AC_DEFINE_UNQUOTED(INT16, $LINBOX_INT16, Canonical 16-bit data type)
-AC_DEFINE_UNQUOTED(INT32, $LINBOX_INT32, Canonical 32-bit data type)
-AC_DEFINE_UNQUOTED(INT64, $LINBOX_INT64, Canonical 64-bit data type)
-if test "x$LINBOX_UINT128" != "x"; then
-  AC_DEFINE_UNQUOTED(UINT128, $LINBOX_UINT128, Canonical 128-bit data type)
+AC_DEFINE_UNQUOTED(INT8, $LELA_INT8, Canonical 8-bit data type)
+AC_DEFINE_UNQUOTED(INT16, $LELA_INT16, Canonical 16-bit data type)
+AC_DEFINE_UNQUOTED(INT32, $LELA_INT32, Canonical 32-bit data type)
+AC_DEFINE_UNQUOTED(INT64, $LELA_INT64, Canonical 64-bit data type)
+if test "x$LELA_UINT128" != "x"; then
+  AC_DEFINE_UNQUOTED(UINT128, $LELA_UINT128, Canonical 128-bit data type)
 fi
-if test "x$LINBOX_UINT256" != "x"; then
-  AC_DEFINE_UNQUOTED(UINT256, $LINBOX_UINT256, Canonical 256-bit data type)
+if test "x$LELA_UINT256" != "x"; then
+  AC_DEFINE_UNQUOTED(UINT256, $LELA_UINT256, Canonical 256-bit data type)
 fi
 
 # Feature checks
@@ -174,17 +174,17 @@ AM_CONDITIONAL(BUILD_DOCS,[test x$XSLTPROC != x])
 
 AC_OUTPUT([
 Makefile
-linbox-config
-linbox/Makefile
-linbox/algorithms/Makefile
-linbox/solutions/Makefile
-linbox/blas/Makefile
-linbox/element/Makefile
-linbox/ring/Makefile
-linbox/matrix/Makefile
-linbox/randiter/Makefile
-linbox/util/Makefile
-linbox/vector/Makefile
+lela-config
+lela/Makefile
+lela/algorithms/Makefile
+lela/solutions/Makefile
+lela/blas/Makefile
+lela/element/Makefile
+lela/ring/Makefile
+lela/matrix/Makefile
+lela/randiter/Makefile
+lela/util/Makefile
+lela/vector/Makefile
 util/Makefile
 tests/Makefile
 tests/data/Makefile

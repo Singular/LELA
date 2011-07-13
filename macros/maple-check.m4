@@ -25,7 +25,7 @@ compile_drivers="yes"
 AC_MSG_RESULT(no)
 compile_drivers="no"
 ])
-AM_CONDITIONAL(LINBOX_COMPILE_DRIVERS, test "x$compile_drivers" = "xyes")
+AM_CONDITIONAL(LELA_COMPILE_DRIVERS, test "x$compile_drivers" = "xyes")
 ])
 
 dnl LB_CHECK_MAPLE()
@@ -127,8 +127,8 @@ if test "x$maple_found" = "xno" ; then
 	AC_DEFINE(HAVE_MAPLE,0)
 fi
 
-AM_CONDITIONAL(LINBOX_HAVE_MAPLE, test "x$HAVE_MAPLE" = "xyes")
-AM_CONDITIONAL(LINBOX_COMPILE_DRIVERS, test "x$compile_drivers" = "xyes" -o "x$HAVE_MAPLE" = "xyes" )
+AM_CONDITIONAL(LELA_HAVE_MAPLE, test "x$HAVE_MAPLE" = "xyes")
+AM_CONDITIONAL(LELA_COMPILE_DRIVERS, test "x$compile_drivers" = "xyes" -o "x$HAVE_MAPLE" = "xyes" )
 
 ])
 

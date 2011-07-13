@@ -9,19 +9,19 @@
  * See COPYING for license information.
  */
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 
-#include "linbox/ring/unparametric.h"
+#include "lela/ring/unparametric.h"
 
 #include "test-common.h"
 #include "test-ring.h"
 #include "test-blas-level1.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 int main (int argc, char **argv)
 {

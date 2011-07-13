@@ -1,12 +1,12 @@
-# Copyright 2010 the LinBox group
-# This file is part of LinBox
+# Copyright 2010 the LELA group
+# This file is part of LELA
 # see COPYING for licence
 
 INCLUDES=-I$(top_srcdir) -I$(top_builddir)
 #AM_LDFLAGS = -llapack -lcblas -latlas 
 #AM_CXXFLAGS = -g -Wall -O2 
 AM_CXXFLAGS = -g -Wall -DDEBUG -O0
-#AM_CXXFLAGS = -g -Wall -D__LINBOX_HAVE_DGETRF -D__LINBOX_HAVE_DGETRI 
+#AM_CXXFLAGS = -g -Wall -D__LELA_HAVE_DGETRF -D__LELA_HAVE_DGETRI 
 #AM_CFLAGS = -g -Wall
 
 BENCHMARK_CXXFLAGS = -O2
@@ -14,7 +14,7 @@ BENCHMARK_CXXFLAGS = -O2
 SUBDIRS = data
 
 AM_CPPFLAGS= $(GMP_CFLAGS) $(PNG_CFLAGS) $(M4RI_CFLAGS)
-LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/linbox/liblinbox.la
+LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/lela/liblela.la
 
 # Put an entry for your test-mycomponent.C here (or in one of the other test groups).  
 # Don't forget to add a test_mycomponent_SOURCES entry below.

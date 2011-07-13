@@ -1,4 +1,4 @@
-/* linbox/tests/test-matrix.C
+/* lela/tests/test-matrix.C
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Generic tests for matrices
@@ -6,16 +6,16 @@
  * See COPYING for license information.
  */
 
-#include "linbox/ring/gf2.h"
-#include "linbox/ring/modular.h"
-#include "linbox/blas/context.h"
-#include "linbox/blas/level1.h"
-#include "linbox/blas/level3.h"
-#include "linbox/matrix/dense.h"
-#include "linbox/matrix/sparse.h"
-#include "linbox/matrix/dense-zero-one.h"
-#include "linbox/matrix/sparse-zero-one.h"
-#include "linbox/vector/stream.h"
+#include "lela/ring/gf2.h"
+#include "lela/ring/modular.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level1.h"
+#include "lela/blas/level3.h"
+#include "lela/matrix/dense.h"
+#include "lela/matrix/sparse.h"
+#include "lela/matrix/dense-zero-one.h"
+#include "lela/matrix/sparse-zero-one.h"
+#include "lela/vector/stream.h"
 
 #include "test-common.h"
 #include "test-matrix.h"

@@ -109,7 +109,7 @@ elif test "x$expat_found" = "xno" ; then
 	ifelse([$3], , :, [$3])
 fi	
 	
-AM_CONDITIONAL(LINBOX_HAVE_EXPAT, test "x$HAVE_EXPAT" = "xyes")
+AM_CONDITIONAL(LELA_HAVE_EXPAT, test "x$HAVE_EXPAT" = "xyes")
 
 CXXFLAGS=${BACKUP_CXXFLAGS}
 LIBS=${BACKUP_LIBS}

@@ -10,19 +10,19 @@
  * Benchmarks for BLAS-routines
  */
 
-#include "linbox/util/commentator.h"
-#include "linbox/blas/context.h"
-#include "linbox/field/gf2.h"
-#include "linbox/field/modular.h"
-#include "linbox/matrix/dense.h"
-#include "linbox/matrix/sparse.h"
-#include "linbox/vector/stream.h"
+#include "lela/util/commentator.h"
+#include "lela/blas/context.h"
+#include "lela/field/gf2.h"
+#include "lela/field/modular.h"
+#include "lela/matrix/dense.h"
+#include "lela/matrix/sparse.h"
+#include "lela/vector/stream.h"
 
 #include "test-common.h"
 #include "test-blas-level2.h"
 #include "test-blas-level3.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 static long l = 5000;
 static long n = 5000;
@@ -123,7 +123,7 @@ void runBenchmarks (const GF2 &F)
 
 	if (enable_sparse) {
 		typedef std::vector<uint32> Sparse01Vector;
-		typedef LinBox::SparseMatrix<bool, Sparse01Vector, VectorRepresentationTypes::Sparse01> Sparse01Matrix;
+		typedef LELA::SparseMatrix<bool, Sparse01Vector, VectorRepresentationTypes::Sparse01> Sparse01Matrix;
 
 		RandomSparseStream<Field, Sparse01Matrix::Row> stream1 (F, (double) k / (double) m, m, l);
 		RandomSparseStream<Field, Sparse01Matrix::Row> stream2 (F, (double) k / (double) n, n, m);

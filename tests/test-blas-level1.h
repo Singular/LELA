@@ -10,8 +10,8 @@
  * Generic test suite for BLAS Level 1 routines
  */
 
-#ifndef __LINBOX_TEST_BLAS_LEVEL1_H
-#define __LINBOX_TEST_BLAS_LEVEL1_H
+#ifndef __LELA_TEST_BLAS_LEVEL1_H
+#define __LELA_TEST_BLAS_LEVEL1_H
 
 #include <iostream>
 #include <fstream>
@@ -19,10 +19,10 @@
 #include <vector>
 #include <cstdio>
 
-#include "linbox/util/commentator.h"
-#include "linbox/vector/stream.h"
-#include "linbox/blas/context.h"
-#include "linbox/blas/level1.h"
+#include "lela/util/commentator.h"
+#include "lela/vector/stream.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level1.h"
 
 #include "test-common.h" 
 
@@ -38,12 +38,12 @@
  * Return true on success and false on failure
  */
 template <class Ring, class Modules, class Vector1, class Vector2>
-static bool testCopyEqual (LinBox::Context<Ring, Modules> &ctx, const char *text, LinBox::VectorStream<Vector1> &stream, LinBox::VectorStream<Vector2> &stream2) 
+static bool testCopyEqual (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::VectorStream<Vector1> &stream, LELA::VectorStream<Vector2> &stream2) 
 {
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector copy, equal" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream.size ());
+	LELA::commentator.start (str.str ().c_str (), __FUNCTION__, stream.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -51,36 +51,36 @@ static bool testCopyEqual (LinBox::Context<Ring, Modules> &ctx, const char *text
 	Vector1 v;
 	Vector2 w;
 
-	LinBox::VectorUtils::ensureDim<Ring, Vector1> (v, stream.dim ());
-	LinBox::VectorUtils::ensureDim<Ring, Vector2> (w, stream.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector1> (v, stream.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector2> (w, stream.dim ());
 
 	while (stream) {
-		LinBox::commentator.startIteration (stream.pos ());
+		LELA::commentator.startIteration (stream.pos ());
 
 		iter_passed = true;
 
 		stream.get (v);
-		LinBox::BLAS1::copy (ctx, v, w);
+		LELA::BLAS1::copy (ctx, v, w);
 
-		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector:   ";
-		LinBox::BLAS1::write (ctx, report, v) << std::endl;
+		LELA::BLAS1::write (ctx, report, v) << std::endl;
 
 		report << "Output vector:  ";
-		LinBox::BLAS1::write (ctx, report, w) << std::endl;
+		LELA::BLAS1::write (ctx, report, w) << std::endl;
 
-		if (!LinBox::BLAS1::equal (ctx, v, w))
+		if (!LELA::BLAS1::equal (ctx, v, w))
 			ret = iter_passed = false;
 
 		if (!iter_passed)
-			LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: Vectors are not equal" << std::endl;
 
-		LinBox::commentator.stop ("done");
-		LinBox::commentator.progress ();
+		LELA::commentator.stop ("done");
+		LELA::commentator.progress ();
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (ret));
+	LELA::commentator.stop (MSG_STATUS (ret));
 
 	stream.reset ();
 	stream2.reset ();
@@ -103,71 +103,71 @@ static bool testCopyEqual (LinBox::Context<Ring, Modules> &ctx, const char *text
 
 // Set the given entry of the input-vector (assumed zero) to the given value (assumed nonzero)
 template <class Element, class Vector>
-void set_entry_spec (Vector &v, size_t idx, Element &e, LinBox::VectorRepresentationTypes::Dense)
+void set_entry_spec (Vector &v, size_t idx, Element &e, LELA::VectorRepresentationTypes::Dense)
 	{ v[idx] = e; }
 
 template <class Element, class Vector>
-void set_entry_spec (Vector &v, size_t idx, Element &e, LinBox::VectorRepresentationTypes::Sparse)
+void set_entry_spec (Vector &v, size_t idx, Element &e, LELA::VectorRepresentationTypes::Sparse)
 	{ v.push_back (typename Vector::value_type (idx, e)); }
 
 template <class Element, class Vector>
-void set_entry_spec (Vector &v, size_t idx, Element &e, LinBox::VectorRepresentationTypes::Dense01)
+void set_entry_spec (Vector &v, size_t idx, Element &e, LELA::VectorRepresentationTypes::Dense01)
 	{ v[idx] = true; }
 
 template <class Element, class Vector>
-void set_entry_spec (Vector &v, size_t idx, Element &e, LinBox::VectorRepresentationTypes::Sparse01)
+void set_entry_spec (Vector &v, size_t idx, Element &e, LELA::VectorRepresentationTypes::Sparse01)
 	{ v.push_back (idx); }
 
 template <class Element, class Vector>
-void set_entry_spec (Vector &v, size_t idx, Element &e, LinBox::VectorRepresentationTypes::Hybrid01)
-	{ v.push_back (typename Vector::value_type (idx >> LinBox::WordTraits<typename Vector::word_type>::logof_size,
-						    Vector::Endianness::e_j (idx & LinBox::WordTraits<typename Vector::word_type>::pos_mask))); }
+void set_entry_spec (Vector &v, size_t idx, Element &e, LELA::VectorRepresentationTypes::Hybrid01)
+	{ v.push_back (typename Vector::value_type (idx >> LELA::WordTraits<typename Vector::word_type>::logof_size,
+						    Vector::Endianness::e_j (idx & LELA::WordTraits<typename Vector::word_type>::pos_mask))); }
 
 template <class Ring, class Vector>
 void set_entry (Vector &v, size_t idx, const typename Ring::Element &e)
-	{ set_entry_spec (v, idx, e, typename LinBox::VectorTraits<Ring, Vector>::RepresentationType ()); }
+	{ set_entry_spec (v, idx, e, typename LELA::VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 template <class Ring, class Modules, class Vector1, class Vector2>
-bool testInequality (LinBox::Context<Ring, Modules> &ctx, const char *text, LinBox::VectorStream<Vector1> &stream1, LinBox::VectorStream<Vector2> &stream2)
+bool testInequality (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::VectorStream<Vector1> &stream1, LELA::VectorStream<Vector2> &stream2)
 {
 	bool pass = true;
 
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector inequality" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
+	LELA::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	Vector1 v;
-	typename LinBox::VectorTraits<Ring, Vector2>::ContainerType v_c, e_i;
+	typename LELA::VectorTraits<Ring, Vector2>::ContainerType v_c, e_i;
 
-	LinBox::VectorUtils::ensureDim<Ring, Vector1> (v, stream1.dim ());
-	LinBox::VectorUtils::ensureDim<Ring, Vector2> (v_c, stream1.dim ());
-	LinBox::VectorUtils::ensureDim<Ring, Vector2> (e_i, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector1> (v, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector2> (v_c, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector2> (e_i, stream1.dim ());
 
 	while (stream1) {
 		stream1 >> v;
 
-		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Testing with vector: ";
-		LinBox::BLAS1::write (ctx, report, v) << std::endl;
+		LELA::BLAS1::write (ctx, report, v) << std::endl;
 
 		for (size_t i; i < stream1.dim (); ++i) {
-			LinBox::BLAS1::copy (ctx, v, v_c);
-			LinBox::BLAS1::scal (ctx, ctx.F.zero (), e_i);
-			set_entry<Ring, typename LinBox::VectorTraits<Ring, Vector2>::ContainerType> (e_i, i, ctx.F.one ());
-			LinBox::BLAS1::axpy (ctx, ctx.F.one (), e_i, v_c);
+			LELA::BLAS1::copy (ctx, v, v_c);
+			LELA::BLAS1::scal (ctx, ctx.F.zero (), e_i);
+			set_entry<Ring, typename LELA::VectorTraits<Ring, Vector2>::ContainerType> (e_i, i, ctx.F.one ());
+			LELA::BLAS1::axpy (ctx, ctx.F.one (), e_i, v_c);
 
-			if (LinBox::BLAS1::equal (ctx, v, v_c)) {
-				std::ostream &error = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+			if (LELA::BLAS1::equal (ctx, v, v_c)) {
+				std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 				error << "ERROR: Vectors still reported as equal after change at position " << i << std::endl;
 				error << "Modified copy  : ";
-				LinBox::BLAS1::write (ctx, error, v_c) << std::endl;
+				LELA::BLAS1::write (ctx, error, v_c) << std::endl;
 				pass = false;
 			}
 		}
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (pass));
+	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
@@ -184,33 +184,33 @@ bool testInequality (LinBox::Context<Ring, Modules> &ctx, const char *text, LinB
  */
 
 template <class Ring, class Modules, class Vector>
-bool testNonzero (LinBox::Context<Ring, Modules> &ctx, const char *text, LinBox::VectorStream<Vector> &stream)
+bool testNonzero (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::VectorStream<Vector> &stream)
 {
 	bool pass = true;
 
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector nonzero" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream.size ());
+	LELA::commentator.start (str.str ().c_str (), __FUNCTION__, stream.size ());
 
-	typename LinBox::VectorTraits<Ring, Vector>::ContainerType e_i;
+	typename LELA::VectorTraits<Ring, Vector>::ContainerType e_i;
 
-	LinBox::VectorUtils::ensureDim<Ring, Vector> (e_i, stream.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector> (e_i, stream.dim ());
 
 	for (size_t i; i < stream.dim (); ++i) {
-		LinBox::BLAS1::scal (ctx, ctx.F.zero (), e_i);
-		set_entry<Ring, typename LinBox::VectorTraits<Ring, Vector>::ContainerType> (e_i, i, ctx.F.one ());
+		LELA::BLAS1::scal (ctx, ctx.F.zero (), e_i);
+		set_entry<Ring, typename LELA::VectorTraits<Ring, Vector>::ContainerType> (e_i, i, ctx.F.one ());
 
-		if (LinBox::BLAS1::is_zero (ctx, e_i)) {
-			std::ostream &error = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+		if (LELA::BLAS1::is_zero (ctx, e_i)) {
+			std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 			error << "ERROR: Vector e_" << i << " reported zero" << std::endl;
 			error << "Vector e_i: ";
-			LinBox::BLAS1::write (ctx, error, e_i) << std::endl;
+			LELA::BLAS1::write (ctx, error, e_i) << std::endl;
 			pass = false;
 		}
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (pass));
+	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
@@ -240,21 +240,21 @@ typename Ring::Element &manualDot (const Ring &F, typename Ring::Element &x, con
 	F.assign (x, F.zero ());
 
 	for (size_t j = 0; j < dim; j++)
-		if (LinBox::VectorUtils::getEntry (v1, a, j) && LinBox::VectorUtils::getEntry (v2, b, j))
+		if (LELA::VectorUtils::getEntry (v1, a, j) && LELA::VectorUtils::getEntry (v2, b, j))
 			F.axpyin (x, a, b);
 
 	return x;
 }
 
 template <class Ring, class Modules, class Vector1, class Vector2>
-static bool testDotProduct (LinBox::Context<Ring, Modules> &ctx, const char *text, LinBox::VectorStream<Vector1> &stream1, LinBox::VectorStream<Vector2> &stream2) 
+static bool testDotProduct (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::VectorStream<Vector1> &stream1, LELA::VectorStream<Vector2> &stream2) 
 {
-	linbox_check (stream1.dim () == stream2.dim ());
+	lela_check (stream1.dim () == stream2.dim ());
 
 	std::ostringstream str;
 
 	str << "Testing " << text << " dot product)" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
+	LELA::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;
 
@@ -262,29 +262,29 @@ static bool testDotProduct (LinBox::Context<Ring, Modules> &ctx, const char *tex
 	Vector2 v2;
 	typename Ring::Element sigma, rho;
 
-	LinBox::VectorUtils::ensureDim<Ring, Vector1> (v1, stream1.dim ());
-	LinBox::VectorUtils::ensureDim<Ring, Vector2> (v2, stream2.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector1> (v1, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector2> (v2, stream2.dim ());
 
-	LinBox::Timer timer;
+	LELA::Timer timer;
 	double totaltime = 0.0;
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.pos ());
+		LELA::commentator.startIteration (stream1.pos ());
 
 		stream1.get (v1);
 		stream2.get (v2);
 
 		manualDot (ctx.F, sigma, v1, v2, stream1.dim ());
 
-		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 of size " << v1.size() << ":  ";
-		LinBox::BLAS1::write (ctx, report, v1) << std::endl;
+		LELA::BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Input vector 2 of size " << v2.size() << ":  ";
-		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
+		LELA::BLAS1::write (ctx, report, v2) << std::endl;
 
 		timer.start ();
-		LinBox::BLAS1::dot (ctx, rho, v1, v2);
+		LELA::BLAS1::dot (ctx, rho, v1, v2);
 		timer.stop ();
 		totaltime += timer.realtime ();
 
@@ -296,18 +296,18 @@ static bool testDotProduct (LinBox::Context<Ring, Modules> &ctx, const char *tex
 
 		if (!ctx.F.areEqual (sigma, rho)) {
 			ret = false;
-			std::ostream &error = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+			std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 			error << "ERROR: Dot products are not equal" << std::endl;
 		}
 
-		LinBox::commentator.stop ("done");
-		LinBox::commentator.progress ();
+		LELA::commentator.stop ("done");
+		LELA::commentator.progress ();
 	}
 
-	LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, TIMING_MEASURE)
+	LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, TIMING_MEASURE)
 		<< "Average time for dot product: " << totaltime / stream1.size () << std::endl;
 
-	LinBox::commentator.stop (MSG_STATUS (ret));
+	LELA::commentator.stop (MSG_STATUS (ret));
 
 	stream1.reset ();
 	stream2.reset ();
@@ -328,12 +328,12 @@ static bool testDotProduct (LinBox::Context<Ring, Modules> &ctx, const char *tex
  */
 
 template <class Ring, class Modules, class Vector>
-static bool testScal (LinBox::Context<Ring, Modules> &ctx, const char *text, LinBox::VectorStream<Vector> &stream1) 
+static bool testScal (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::VectorStream<Vector> &stream1) 
 {
 	std::ostringstream str;
 
 	str << "Testing " << text << " vector scal" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
+	LELA::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -343,11 +343,11 @@ static bool testScal (LinBox::Context<Ring, Modules> &ctx, const char *text, Lin
 	typename Ring::Element nega;
 	typename Ring::RandIter r (ctx.F);
 
-	LinBox::VectorUtils::ensureDim<Ring, Vector> (v1, stream1.dim ());
-	LinBox::VectorUtils::ensureDim<Ring, Vector> (v2, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector> (v1, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector> (v2, stream1.dim ());
 
 	while (stream1) {
-		LinBox::commentator.startIteration (stream1.pos ());
+		LELA::commentator.startIteration (stream1.pos ());
 
 		iter_passed = true;
 
@@ -355,40 +355,40 @@ static bool testScal (LinBox::Context<Ring, Modules> &ctx, const char *text, Lin
 
 		do r.random (a); while (ctx.F.isZero (a));
 
-		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 of size " << v1.size() << ":  ";
-		LinBox::BLAS1::write (ctx, report, v1) << std::endl;
+		LELA::BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Element a:  ";
 		ctx.F.write (report, a) << std::endl;
 
 		ctx.F.neg (nega, a);
 
-		LinBox::BLAS1::copy (ctx, v1, v2);
+		LELA::BLAS1::copy (ctx, v1, v2);
 
-		LinBox::BLAS1::scal (ctx, nega, v2);
+		LELA::BLAS1::scal (ctx, nega, v2);
 
 		report << "         -a * x = ";
-		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
+		LELA::BLAS1::write (ctx, report, v2) << std::endl;
 		report.flush ();
 
-		LinBox::BLAS1::axpy (ctx, a, v1, v2);
+		LELA::BLAS1::axpy (ctx, a, v1, v2);
 
 		report << " a * x + -a * x = ";
-		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
+		LELA::BLAS1::write (ctx, report, v2) << std::endl;
 
-		if (!LinBox::BLAS1::is_zero (ctx, v2))
+		if (!LELA::BLAS1::is_zero (ctx, v2))
 			ret = iter_passed = false;
 
 		if (!iter_passed)
-			LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: a * x + -a * x != 0" << std::endl;
 
-		LinBox::commentator.stop ("done");
-		LinBox::commentator.progress ();
+		LELA::commentator.stop ("done");
+		LELA::commentator.progress ();
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (ret));
+	LELA::commentator.stop (MSG_STATUS (ret));
 
 	stream1.reset ();
 
@@ -408,11 +408,11 @@ static bool testScal (LinBox::Context<Ring, Modules> &ctx, const char *text, Lin
  */
 
 template <class Ring, class Modules, class Vector>
-static bool testAXPY (LinBox::Context<Ring, Modules> &ctx, const char *text, LinBox::VectorStream<Vector> &stream1, LinBox::VectorStream<Vector> &stream2) 
+static bool testAXPY (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::VectorStream<Vector> &stream1, LELA::VectorStream<Vector> &stream2) 
 {
 	std::ostringstream str;
 	str << "Testing " << text << " vector axpy" << std::ends;
-	LinBox::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
+	LELA::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;
 	bool iter_passed;
@@ -421,12 +421,12 @@ static bool testAXPY (LinBox::Context<Ring, Modules> &ctx, const char *text, Lin
 	typename Ring::Element a, ainv, aneg;
 	typename Ring::RandIter r (ctx.F);
 
-	LinBox::VectorUtils::ensureDim<Ring, Vector> (v1, stream1.dim ());
-	LinBox::VectorUtils::ensureDim<Ring, Vector> (v2, stream2.dim ());
-	LinBox::VectorUtils::ensureDim<Ring, Vector> (v3, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector> (v1, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector> (v2, stream2.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector> (v3, stream1.dim ());
 
 	while (stream1 && stream2) {
-		LinBox::commentator.startIteration (stream1.pos ());
+		LELA::commentator.startIteration (stream1.pos ());
 
 		iter_passed = true;
 
@@ -435,12 +435,12 @@ static bool testAXPY (LinBox::Context<Ring, Modules> &ctx, const char *text, Lin
 
 		do r.random (a); while (ctx.F.isZero (a));
 
-		std::ostream &report = LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 		report << "Input vector 1 v_1 of size " << v1.size() << ":  ";
-		LinBox::BLAS1::write (ctx, report, v1) << std::endl;
+		LELA::BLAS1::write (ctx, report, v1) << std::endl;
 
 		report << "Input vector 2 v_2 of size " << v2.size() << ":  ";
-		LinBox::BLAS1::write (ctx, report, v2) << std::endl;
+		LELA::BLAS1::write (ctx, report, v2) << std::endl;
 
 		report << "Element a:  ";
 		ctx.F.write (report, a) << std::endl;
@@ -448,34 +448,34 @@ static bool testAXPY (LinBox::Context<Ring, Modules> &ctx, const char *text, Lin
 		ctx.F.inv (ainv, a);
 		ctx.F.neg (aneg, a);
 
-		LinBox::BLAS1::copy (ctx, v1, v3);
-		LinBox::BLAS1::axpy (ctx, a, v2, v3);
+		LELA::BLAS1::copy (ctx, v1, v3);
+		LELA::BLAS1::axpy (ctx, a, v2, v3);
 
 		report << "av_2 + v_1 = ";
-		LinBox::BLAS1::write (ctx, report, v3) << std::endl;
+		LELA::BLAS1::write (ctx, report, v3) << std::endl;
 
-		LinBox::BLAS1::axpy (ctx, ainv, v1, v2);
+		LELA::BLAS1::axpy (ctx, ainv, v1, v2);
 
 		report << "a^-1 v_1 + v_2 = ";
-		LinBox::BLAS1::write (ctx, report, v3) << std::endl;
+		LELA::BLAS1::write (ctx, report, v3) << std::endl;
 
-		LinBox::BLAS1::axpy (ctx, aneg, v2, v3);
+		LELA::BLAS1::axpy (ctx, aneg, v2, v3);
 
 		report << "(av_2 + v_1) + -a (a^-1 v_1 + v_2) = ";
-		LinBox::BLAS1::write (ctx, report, v3) << std::endl;
+		LELA::BLAS1::write (ctx, report, v3) << std::endl;
 
-		if (!LinBox::BLAS1::is_zero (ctx, v3))
+		if (!LELA::BLAS1::is_zero (ctx, v3))
 			ret = iter_passed = false;
 
 		if (!iter_passed)
-			LinBox::commentator.report (LinBox::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 				<< "ERROR: (av_2 + v_1) + -a (a^-1 v_1 + v_2) != 0" << std::endl;
 
-		LinBox::commentator.stop ("done");
-		LinBox::commentator.progress ();
+		LELA::commentator.stop ("done");
+		LELA::commentator.progress ();
 	}
 
-	LinBox::commentator.stop (MSG_STATUS (ret));
+	LELA::commentator.stop (MSG_STATUS (ret));
 
 	stream1.reset ();
 	stream2.reset ();
@@ -484,16 +484,16 @@ static bool testAXPY (LinBox::Context<Ring, Modules> &ctx, const char *text, Lin
 }
 
 template <class Ring, class Modules>
-bool testBLAS1 (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t n, unsigned int iterations) 
+bool testBLAS1 (LELA::Context<Ring, Modules> &ctx, const char *text, size_t n, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing BLAS1 over <" << text << ">" << std::ends;
-	LinBox::commentator.start (str.str ().c_str ());
+	LELA::commentator.start (str.str ().c_str ());
 
 	bool pass = true;
 
-	LinBox::RandomDenseStream<Ring, typename LinBox::Vector<Ring>::Dense> stream1 (ctx.F, n, iterations), stream2 (ctx.F, n, iterations);
-	LinBox::RandomSparseStream<Ring, typename LinBox::Vector<Ring>::Sparse> stream3 (ctx.F, 0.1, n, iterations), stream4 (ctx.F, 0.1, n, iterations);
+	LELA::RandomDenseStream<Ring, typename LELA::Vector<Ring>::Dense> stream1 (ctx.F, n, iterations), stream2 (ctx.F, n, iterations);
+	LELA::RandomSparseStream<Ring, typename LELA::Vector<Ring>::Sparse> stream3 (ctx.F, 0.1, n, iterations), stream4 (ctx.F, 0.1, n, iterations);
 
 	if (!testCopyEqual (ctx, "dense/dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
 	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream4)) pass = false;  stream1.reset (); stream4.reset ();
@@ -518,7 +518,7 @@ bool testBLAS1 (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t n,
 	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
 	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;  stream3.reset (); stream4.reset ();
 
-	LinBox::commentator.stop (MSG_STATUS (pass));
+	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
@@ -526,15 +526,15 @@ bool testBLAS1 (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t n,
 // Tests to check that the result is the same when using two modules or two representation-types
 
 template <class Ring, class Modules1, class Modules2, class Vector1, class Vector2, class Vector3, class Vector4>
-bool testDotConsistency (LinBox::Context<Ring, Modules1> &ctx1,
-			 LinBox::Context<Ring, Modules2> &ctx2,
+bool testDotConsistency (LELA::Context<Ring, Modules1> &ctx1,
+			 LELA::Context<Ring, Modules2> &ctx2,
 			 const char *text,
-			 LinBox::VectorStream<Vector1> &stream1, 
-			 LinBox::VectorStream<Vector2> &stream2,
-			 LinBox::VectorStream<Vector3> &stream3,
-			 LinBox::VectorStream<Vector4> &stream4)
+			 LELA::VectorStream<Vector1> &stream1, 
+			 LELA::VectorStream<Vector2> &stream2,
+			 LELA::VectorStream<Vector3> &stream3,
+			 LELA::VectorStream<Vector4> &stream4)
 {
-	using namespace LinBox;
+	using namespace LELA;
 
 	bool pass = true;
 
@@ -598,15 +598,15 @@ bool testDotConsistency (LinBox::Context<Ring, Modules1> &ctx1,
 }
 
 template <class Ring, class Modules1, class Modules2, class Vector1, class Vector2, class Vector3, class Vector4>
-bool testAxpyConsistency (LinBox::Context<Ring, Modules1> &ctx1,
-			  LinBox::Context<Ring, Modules2> &ctx2,
+bool testAxpyConsistency (LELA::Context<Ring, Modules1> &ctx1,
+			  LELA::Context<Ring, Modules2> &ctx2,
 			  const char *text,
-			  LinBox::VectorStream<Vector1> &stream1, 
-			  LinBox::VectorStream<Vector2> &stream2,
-			  LinBox::VectorStream<Vector3> &stream3,
-			  LinBox::VectorStream<Vector4> &stream4)
+			  LELA::VectorStream<Vector1> &stream1, 
+			  LELA::VectorStream<Vector2> &stream2,
+			  LELA::VectorStream<Vector3> &stream3,
+			  LELA::VectorStream<Vector4> &stream4)
 {
-	using namespace LinBox;
+	using namespace LELA;
 
 	bool pass = true;
 
@@ -676,13 +676,13 @@ bool testAxpyConsistency (LinBox::Context<Ring, Modules1> &ctx1,
 }
 
 template <class Ring, class Modules1, class Modules2, class Vector1, class Vector2>
-bool testScalConsistency (LinBox::Context<Ring, Modules1> &ctx1,
-			  LinBox::Context<Ring, Modules2> &ctx2,
+bool testScalConsistency (LELA::Context<Ring, Modules1> &ctx1,
+			  LELA::Context<Ring, Modules2> &ctx2,
 			  const char *text,
-			  LinBox::VectorStream<Vector1> &stream1, 
-			  LinBox::VectorStream<Vector2> &stream2)
+			  LELA::VectorStream<Vector1> &stream1, 
+			  LELA::VectorStream<Vector2> &stream2)
 {
-	using namespace LinBox;
+	using namespace LELA;
 
 	bool pass = true;
 
@@ -740,16 +740,16 @@ bool testScalConsistency (LinBox::Context<Ring, Modules1> &ctx1,
 }
 
 template <class Ring, class Modules1, class Modules2>
-bool testBLAS1ModulesConsistency (LinBox::Context<Ring, Modules1> &ctx1, LinBox::Context<Ring, Modules2> &ctx2, const char *text, size_t n, unsigned int iterations) 
+bool testBLAS1ModulesConsistency (LELA::Context<Ring, Modules1> &ctx1, LELA::Context<Ring, Modules2> &ctx2, const char *text, size_t n, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing BLAS1 consistency over <" << text << ">" << std::ends;
-	LinBox::commentator.start (str.str ().c_str ());
+	LELA::commentator.start (str.str ().c_str ());
 
 	bool pass = true;
 
-	LinBox::RandomDenseStream<Ring, typename LinBox::Vector<Ring>::Dense> stream1 (ctx1.F, n, iterations), stream2 (ctx1.F, n, iterations);
-	LinBox::RandomSparseStream<Ring, typename LinBox::Vector<Ring>::Sparse> stream3 (ctx1.F, 0.1, n, iterations), stream4 (ctx1.F, 0.1, n, iterations);
+	LELA::RandomDenseStream<Ring, typename LELA::Vector<Ring>::Dense> stream1 (ctx1.F, n, iterations), stream2 (ctx1.F, n, iterations);
+	LELA::RandomSparseStream<Ring, typename LELA::Vector<Ring>::Sparse> stream3 (ctx1.F, 0.1, n, iterations), stream4 (ctx1.F, 0.1, n, iterations);
 
 	pass = testDotConsistency (ctx1, ctx2, "dense/dense", stream1, stream2, stream1, stream1) && pass; stream1.reset (); stream2.reset ();
 	pass = testDotConsistency (ctx1, ctx2, "dense/sparse", stream1, stream3, stream1, stream3) && pass; stream1.reset (); stream3.reset ();
@@ -762,22 +762,22 @@ bool testBLAS1ModulesConsistency (LinBox::Context<Ring, Modules1> &ctx1, LinBox:
 	pass = testScalConsistency (ctx1, ctx2, "dense", stream1, stream2) && pass; stream1.reset ();
 	pass = testScalConsistency (ctx1, ctx2, "sparse", stream3, stream4) && pass; stream3.reset ();
 
-	LinBox::commentator.stop (MSG_STATUS (pass));
+	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
 
 template <class Ring, class Modules>
-bool testBLAS1RepsConsistency (LinBox::Context<Ring, Modules> &ctx, const char *text, size_t n, unsigned int iterations) 
+bool testBLAS1RepsConsistency (LELA::Context<Ring, Modules> &ctx, const char *text, size_t n, unsigned int iterations) 
 {
 	std::ostringstream str;
 	str << "Testing BLAS1 consistency over <" << text << ">" << std::ends;
-	LinBox::commentator.start (str.str ().c_str ());
+	LELA::commentator.start (str.str ().c_str ());
 
 	bool pass = true;
 
-	LinBox::RandomDenseStream<Ring, typename LinBox::Vector<Ring>::Dense> stream1 (ctx.F, n, iterations), stream2 (ctx.F, n, iterations);
-	LinBox::RandomSparseStream<Ring, typename LinBox::Vector<Ring>::Sparse> stream3 (ctx.F, 0.1, n, iterations), stream4 (ctx.F, 0.1, n, iterations);
+	LELA::RandomDenseStream<Ring, typename LELA::Vector<Ring>::Dense> stream1 (ctx.F, n, iterations), stream2 (ctx.F, n, iterations);
+	LELA::RandomSparseStream<Ring, typename LELA::Vector<Ring>::Sparse> stream3 (ctx.F, 0.1, n, iterations), stream4 (ctx.F, 0.1, n, iterations);
 
 	pass = testDotConsistency (ctx, ctx, "dense/sparse with dense/dense", stream1, stream3, stream1, stream1) && pass; stream1.reset (); stream3.reset ();
 	pass = testDotConsistency (ctx, ctx, "sparse/sparse with dense/dense", stream3, stream4, stream1, stream1) && pass; stream3.reset (); stream4.reset ();
@@ -787,12 +787,12 @@ bool testBLAS1RepsConsistency (LinBox::Context<Ring, Modules> &ctx, const char *
 
 	pass = testScalConsistency (ctx, ctx, "sparse with dense ", stream3, stream1) && pass; stream1.reset (); stream3.reset ();
 
-	LinBox::commentator.stop (MSG_STATUS (pass));
+	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
 
-#endif // __LINBOX_TEST_BLAS_LEVEL1_H
+#endif // __LELA_TEST_BLAS_LEVEL1_H
 
 // Local Variables:
 // mode: C++

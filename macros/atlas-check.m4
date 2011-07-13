@@ -153,7 +153,7 @@ elif test "x$atlas_found" = "xno" ; then
 	ifelse([$3], , :, [$3])
 fi	
 
-AM_CONDITIONAL(LINBOX_HAVE_ATLAS, test "x$HAVE_ATLAS" = "xyes")
+AM_CONDITIONAL(LELA_HAVE_ATLAS, test "x$HAVE_ATLAS" = "xyes")
 
 CXXFLAGS=${BACKUP_CXXFLAGS}
 LIBS=${BACKUP_LIBS}

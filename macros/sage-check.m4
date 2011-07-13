@@ -11,5 +11,5 @@ sage_interface="yes"
 AC_MSG_RESULT(no)
 sage_interface="no"
 ])
-AM_CONDITIONAL(LINBOX_HAVE_SAGE, test "x$sage_interface" = "xyes")
+AM_CONDITIONAL(LELA_HAVE_SAGE, test "x$sage_interface" = "xyes")
 ])

@@ -1,4 +1,4 @@
-# linbox miscellaneous functonnnalities
+# lela miscellaneous functonnnalities
 
 
 AC_DEFUN([LB_MISC],

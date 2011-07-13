@@ -13,15 +13,15 @@
 
 #include "test-common.h"
 
-#include <linbox/blas/context.h>
-#include <linbox/ring/gf2.h>
-#include <linbox/ring/modular.h>
-#include <linbox/matrix/dense.h>
-#include <linbox/matrix/sparse.h>
-#include <linbox/vector/stream.h>
-#include <linbox/algorithms/elimination.h>
+#include <lela/blas/context.h>
+#include <lela/ring/gf2.h>
+#include <lela/ring/modular.h>
+#include <lela/matrix/dense.h>
+#include <lela/matrix/sparse.h>
+#include <lela/vector/stream.h>
+#include <lela/algorithms/elimination.h>
 
-using namespace LinBox;
+using namespace LELA;
 
 template <class Ring>
 bool testElimination (const Ring &F, size_t m, size_t n, size_t k, bool reduce)

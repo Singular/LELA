@@ -1,32 +1,20 @@
-  ******  The Linbox Library  ******  
+Library for Exact Linear Algebra (LELA)
+=======================================
 
-PURPOSE:
+LELA is a C++ template-library for computations in (normally) exact
+linear algebra. It is flexible in two respects:
+  - the choice of ring over which to compute
+  - the choice of vector- and matrix-representation, i.e. dense vs. sparse
 
-The Linbox library provides functionalities for exact linear algebra.
-See doc/mainpage.doxy for more info.
+LELA uses C++ templates to provide the best feasible performance for
+each of the above choices. It also includes wrappers for some other
+libraries, such as M4RI (see http://m4ri.sourceforge.net/) and CBLAS
+to make use of highly specialised implementations available in certain
+cases. All of these dependencies are optional; if the libraries are
+not present, LELA will fall back to its own routines at a cost of some
+performance.
 
-INSTALLATION:
+An introductory tutorial on the use of LELA may be found in the file
+doc/tutorial.html
 
-See doc/install*html for particulars.
-See INSTALL for generic installation information.
-
-
-AVAILABILITY: from linalg.org
-
-
-REQUIREMENTS:  GMP, ATLAS (or other cblas, lapack), NTL, Givaro
-See  doc/install*html for details.
-
-This library requires the GNU C++ compiler (gcc-2.95.1 or newer) or any 
-compiler supporting advanced template features.
-
-
-==========================================================
-The linbox website is http://linalg.org
-
-Corrections, suggestions and comments to : 
-linbox-use@googlegroups.com
- 
-Last update : 2009 September
- 
-
+LELA was originally derived from LinBox (see http://www.linalg.org/).

@@ -1,4 +1,4 @@
-Todo on LinBox (current as of 7.7.2011)
+Todo on LELA (current as of 7.7.2011)
 
 Critical (before leaving):
   • ZpModule-work
@@ -83,8 +83,8 @@ Lower priority:
   • Output-improvements to Commentator?
   • Remove some matrix output-formats
   • Create mechanism for "preferred matrix-type" over a given field which can be changed according to available libraries
-  • Replace "namespace LinBox" with macro to fix indentation-sillyness
-  • Replace __LINBOX_BITVECTOR_WORD_TYPE with a typedef
+  • Replace "namespace LELA" with macro to fix indentation-sillyness
+  • Replace __LELA_BITVECTOR_WORD_TYPE with a typedef
   • Improvements to MatrixDomain
     ∘ Function to read a permutation from stream
   • Merge FieldTraits and ModularFieldTraits

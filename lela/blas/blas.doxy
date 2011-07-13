@@ -1,0 +1,6 @@
+/** \defgroup BLAS for LELA
+ *
+ * This directory contains a BLAS-like interface for vector- and
+ * matrix-arithmetic in LELA, as well as specialisations for various
+ * fields, support-libraries, and special cases.
+ */

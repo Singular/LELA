@@ -9,17 +9,17 @@
  * Utility to convert a matrix to row-echelon form
  */
 
-#include "linbox/util/commentator.h"
-#include "linbox/blas/context.h"
-#include "linbox/ring/gf2.h"
-#include "linbox/ring/modular.h"
-#include "linbox/blas/level3.h"
-#include "linbox/solutions/echelon-form.h"
-#include "linbox/solutions/echelon-form-gf2.h"
+#include "lela/util/commentator.h"
+#include "lela/blas/context.h"
+#include "lela/ring/gf2.h"
+#include "lela/ring/modular.h"
+#include "lela/blas/level3.h"
+#include "lela/solutions/echelon-form.h"
+#include "lela/solutions/echelon-form-gf2.h"
 
 #include "support.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 template <class Ring, class Matrix>
 int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_format, const char *output, FileFormatTag output_format,
@@ -122,10 +122,10 @@ EchelonForm<GF2>::Method get_method<GF2> (const char *str)
 		return EchelonForm<GF2>::METHOD_STANDARD_GJ;
 	if (!strcmp (str, "afast"))
 		return EchelonForm<GF2>::METHOD_ASYMPTOTICALLY_FAST_GJ;
-#ifdef __LINBOX_HAVE_M4RI
+#ifdef __LELA_HAVE_M4RI
 	if (!strcmp (str, "m4ri"))
 		return EchelonForm<GF2>::METHOD_M4RI;
-#endif // __LINBOX_HAVE_M4RI
+#endif // __LELA_HAVE_M4RI
 	if (!strcmp (str, "f4"))
 		return EchelonForm<GF2>::METHOD_FAUGERE_LACHARTRE;
 
@@ -152,11 +152,11 @@ struct ErrorText<GF2>
 	static const char *type;
 };
 
-#ifdef __LINBOX_HAVE_M4RI
+#ifdef __LELA_HAVE_M4RI
 const char *ErrorText<GF2>::method = "Invalid method (use 'standard', 'afast', 'm4ri', or 'f4')";
 #else
 const char *ErrorText<GF2>::method = "Invalid method (use 'standard', 'afast', or 'f4')";
-#endif // __LINBOX_HAVE_M4RI
+#endif // __LELA_HAVE_M4RI
 
 const char *ErrorText<GF2>::type = "Invalid matrix-type (use 'dense', 'sparse', or 'hybrid')";
 
@@ -223,11 +223,11 @@ int main (int argc, char **argv)
 		{ 'k', "-k", "Ring over which to compute ('guess', 'gf2', 'modular')", TYPE_STRING, &ringString },
 		{ 'p', "-p", "Modulus of ring, when ring is 'modular'", TYPE_INT, &p },
 		{ 'f', "-f", "Compute using floating point, when ring is 'modular'", TYPE_NONE, &floatingPoint },
-#ifdef __LINBOX_HAVE_M4RI
+#ifdef __LELA_HAVE_M4RI
 		{ 'm', "-m", "Method to be used ('standard', 'afast', 'm4ri', or 'f4')", TYPE_STRING, &methodString },
 #else
 		{ 'm', "-m", "Method to be used ('standard', 'afast', or 'f4')", TYPE_STRING, &methodString },
-#endif // __LINBOX_HAVE_M4RI
+#endif // __LELA_HAVE_M4RI
 		{ 'i', "-i", "Input file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty')", TYPE_STRING, &inputFileFormat },
 		{ 'o', "-o", "Output file format ('guess', 'dumas', 'turner', 'maple', 'matlab', 'sage', 'png', 'pretty')", TYPE_STRING, &outputFileFormat },
 		{ 't', "-t", "Type to use for matrix ('dense', 'sparse', 'hybrid')", TYPE_STRING, &matrixType },
@@ -274,14 +274,14 @@ int main (int argc, char **argv)
 	RingType ring_type = get_ring_type (ringString);
 
 	if (ring_type == RING_GUESS) {
-#ifdef __LINBOX_HAVE_LIBPNG
+#ifdef __LELA_HAVE_LIBPNG
 		if (input_format == FORMAT_PNG || output_format == FORMAT_PNG)
 			ring_type = RING_GF2;
 		else
 			ring_type = RING_MODULAR;
-#else // !__LINBOX_HAVE_LIBPNG
+#else // !__LELA_HAVE_LIBPNG
 		ring_type = RING_MODULAR;
-#endif // __LINBOX_HAVE_LIBPNG
+#endif // __LELA_HAVE_LIBPNG
 	}
 
 	if (ring_type == RING_GF2)

@@ -17,7 +17,7 @@ AC_DEFUN([LB_CHECK_GIVARO],
 
 AC_ARG_WITH(givaro,
 [  --with-givaro=<path>|yes Use Givaro library. This library is mandatory for 
-                           LinBox compilation. If argument is yes or <empty> 
+                           LELA compilation. If argument is yes or <empty> 
 			   that means the library is reachable with the standard
 			   search path (/usr or /usr/local). Otherwise you give 
 			   the <path> to the directory which contain the 
@@ -109,7 +109,7 @@ elif test "x$givaro_found" = "xno" ; then
 	ifelse([$3], , :, [$3])
 fi	
 
-AM_CONDITIONAL(LINBOX_HAVE_GIVARO, test "x$HAVE_GIVARO" = "xyes")
+AM_CONDITIONAL(LELA_HAVE_GIVARO, test "x$HAVE_GIVARO" = "xyes")
 
 CXXFLAGS=${BACKUP_CXXFLAGS}
 LIBS=${BACKUP_LIBS}

@@ -16,17 +16,17 @@
  * (specified on the command line) for any anomolies.
  */
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-#include "linbox/util/commentator.h"
+#include "lela/util/commentator.h"
 
 #include "test-common.h"
 
-using namespace LinBox;
+using namespace LELA;
 using namespace std;
 
 // Output various report strings

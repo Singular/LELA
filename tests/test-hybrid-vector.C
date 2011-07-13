@@ -13,13 +13,13 @@
 
 #include "test-common.h"
 
-#include "linbox/ring/gf2.h"
-#include "linbox/blas/context.h"
-#include "linbox/blas/level1.h"
-#include "linbox/blas/level3.h"
-#include "linbox/vector/sparse-subvector-hybrid.h"
+#include "lela/ring/gf2.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level1.h"
+#include "lela/blas/level3.h"
+#include "lela/vector/sparse-subvector-hybrid.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 typedef GF2 Field;
 

@@ -10,27 +10,27 @@
  * Generic test suite for BLAS Level 3 routines
  */
 
-#ifndef __LINBOX_TESTS_TEST_BLAS_LEVEL3_H
-#define __LINBOX_TESTS_TEST_BLAS_LEVEL3_H
+#ifndef __LELA_TESTS_TEST_BLAS_LEVEL3_H
+#define __LELA_TESTS_TEST_BLAS_LEVEL3_H
 
-#include "linbox/linbox-config.h"
+#include "lela/lela-config.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 
-#include "linbox/util/commentator.h"
-#include "linbox/ring/gf2.h"
-#include "linbox/blas/context.h"
-#include "linbox/blas/level1.h"
-#include "linbox/blas/level2.h"
-#include "linbox/blas/level3.h"
-#include "linbox/vector/stream.h"
-#include "linbox/matrix/dense.h"
+#include "lela/util/commentator.h"
+#include "lela/ring/gf2.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level1.h"
+#include "lela/blas/level2.h"
+#include "lela/blas/level3.h"
+#include "lela/vector/stream.h"
+#include "lela/matrix/dense.h"
 
 using namespace std;
-using namespace LinBox;
+using namespace LELA;
 
 typedef std::vector<std::pair<uint32, uint32> > Permutation;
 
@@ -196,7 +196,7 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 template <class Field, class Modules, class Matrix1, class Matrix2>
 static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B)
 {
-	linbox_check (A.coldim () == B.rowdim ());
+	lela_check (A.coldim () == B.rowdim ());
 
 	ostringstream str;
 
@@ -262,8 +262,8 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 template <class Field, class Modules, class Matrix>
 static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const Matrix &A, const Matrix &B, const Matrix &C)
 {
-	linbox_check (A.coldim () == B.rowdim ());
-	linbox_check (B.coldim () == C.rowdim ());
+	lela_check (A.coldim () == B.rowdim ());
+	lela_check (B.coldim () == C.rowdim ());
 
 	ostringstream str;
 
@@ -529,10 +529,10 @@ void eliminate (Context<Field, Modules> &ctx, Matrix1 &M, Matrix2 &pivotRow,
 template <class Field, class Modules, class Matrix1, class Matrix2>
 void rowEchelon (Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Matrix2 &A, size_t &rank) 
 {
-	linbox_check (U.rowdim () == A.rowdim ());
-	linbox_check (U.coldim () == A.rowdim ());
-	linbox_check (R.rowdim () == A.rowdim ());
-	linbox_check (R.coldim () == A.coldim ());
+	lela_check (U.rowdim () == A.rowdim ());
+	lela_check (U.coldim () == A.rowdim ());
+	lela_check (R.rowdim () == A.rowdim ());
+	lela_check (R.coldim () == A.coldim ());
 
 	typename Matrix1::ContainerType M (U.rowdim (), U.coldim () + R.coldim ());
 	typename Matrix1::ContainerType::SubmatrixType M1 (M, 0, 0, R.rowdim (), R.coldim ());
@@ -805,7 +805,7 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 template <class Field, class Modules, class Matrix1, class Matrix2>
 static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const Matrix1 &A, const Matrix2 &B) 
 {
-	linbox_check (A.coldim () == B.rowdim ());
+	lela_check (A.coldim () == B.rowdim ());
 
 	ostringstream str;
 
@@ -1005,9 +1005,9 @@ bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const 
 		pass = false;
 	}
 
-#ifdef __LINBOX_HAVE_LIBPNG
+#ifdef __LELA_HAVE_LIBPNG
 	if (format != FORMAT_PNG)
-#endif // __LINBOX_HAVE_LIBPNG
+#endif // __LELA_HAVE_LIBPNG
 	report << "Matrix-output as string:" << std::endl << output.str ();
 
 	istringstream input (output.str ());
@@ -1075,11 +1075,11 @@ bool testReadWrite (Context<GF2, Modules> &ctx, const char *text, const Matrix &
 	report << "Input matrix M:" << std::endl;
 	BLAS3::write (ctx, report, M);
 
-#ifdef __LINBOX_HAVE_LIBPNG
+#ifdef __LELA_HAVE_LIBPNG
 	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_DUMAS, FORMAT_MATLAB, FORMAT_PRETTY, FORMAT_PNG };
-#else // !__LINBOX_HAVE_LIBPNG
+#else // !__LELA_HAVE_LIBPNG
 	FileFormatTag formats[] = { FORMAT_TURNER, FORMAT_DUMAS, FORMAT_MATLAB, FORMAT_PRETTY };
-#endif // __LINBOX_HAVE_LIBPNG
+#endif // __LELA_HAVE_LIBPNG
 
 	for (size_t i = 0; i < sizeof (formats) / sizeof (FileFormatTag); ++i)
 		pass = testReadWriteFormat (ctx, text, M, formats[i]) && pass;
@@ -1239,7 +1239,7 @@ bool testBLAS3Submatrix (Context<Field, Modules> &ctx, const char *text, //
 	return pass;
 }
 
-#endif // __LINBOX_TESTS_TEST_MATRIX_DOMAIN_H
+#endif // __LELA_TESTS_TEST_MATRIX_DOMAIN_H
 
 // Local Variables:
 // mode: C++

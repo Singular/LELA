@@ -1,6 +1,0 @@
-/** \defgroup BLAS for LinBox
- *
- * This directory contains a BLAS-like interface for vector- and
- * matrix-arithmetic in LinBox, as well as specialisations for various
- * fields, support-libraries, and special cases.
- */

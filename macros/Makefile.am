@@ -1,5 +1,5 @@
-# Copyright (c) 2010 the LinBox group
-# This file is part of LinBox
+# Copyright (c) 2010 the LELA group
+# This file is part of LELA
 # see COPYING for licence
 EXTRA_DIST=\
 	aclocal-include.m4	\
@@ -14,5 +14,5 @@ EXTRA_DIST=\
 	expat-check.m4		\
 	m4ri-check.m4		\
 	config-header.m4	\
-	linbox-misc.m4		\
+	lela-misc.m4		\
 	maple-check-version.mpl

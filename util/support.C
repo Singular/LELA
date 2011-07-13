@@ -14,14 +14,14 @@
 #include <cstdlib>
 #include <cstdarg>
 
-#include "linbox/util/commentator.h"
-#include "linbox/integer.h"
+#include "lela/util/commentator.h"
+#include "lela/integer.h"
 
 #define __SUPPORT_C
 
 #include "support.h"
 
-using namespace LinBox;
+using namespace LELA;
 
 const char *format_names[] = { "detect", "unknown", "Turner", "one-based", "Dumas", "Maple", "Matlab", "Sage", "pretty", "PNG" };
 

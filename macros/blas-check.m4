@@ -10,7 +10,7 @@ AC_DEFUN([LB_CHECK_BLAS],
 [
 
 AC_ARG_WITH(blas,
-[  --with-blas=<lib>|yes Use BLAS library. This library is mandatory for LinBox
+[  --with-blas=<lib>|yes Use BLAS library. This library is mandatory for LELA
    			compilation. If argument is yes or <empty> that means 
 			the library is reachable with the standard search path 
 			(/usr or /usr/local). Otherwise you give the <path> to 
@@ -46,7 +46,7 @@ if test -n "$BLAS_VAL"; then
 
 	## check with user supplied value
 	CBLAS="yes"	 	
-	CBLAS_FLAG="-D__LINBOX_HAVE_CBLAS"
+	CBLAS_FLAG="-D__LELA_HAVE_CBLAS"
 
 	if   test -d "$BLAS_VAL"; then
 		if test -r "$BLAS_VAL/lib/libcblas.a" ; then 
@@ -75,7 +75,7 @@ if test -n "$BLAS_VAL"; then
 					MKL_ARCH=em64t;
 					;;
 				*)
-					echo "Sorry unsupported arch, please complain in linbox-use discussion group";
+					echo "Sorry unsupported arch, please complain in lela-use discussion group";
 					;;
 			esac	
                         BLAS_LIBS="-L${BLAS_VAL}/lib/${MKL_ARCH}/ -lmkl_lapack64 -lmkl -lvml -lguide"
@@ -87,13 +87,13 @@ if test -n "$BLAS_VAL"; then
 	LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 	AC_TRY_LINK(
-	[#define __LINBOX_CONFIGURATION
-         #include "linbox/config-blas.h"],
+	[#define __LELA_CONFIGURATION
+         #include "lela/config-blas.h"],
 	[double a;],
 	[
 	AC_TRY_RUN(
-	[#define __LINBOX_CONFIGURATION
-       	 #include "linbox/config-blas.h"
+	[#define __LELA_CONFIGURATION
+       	 #include "lela/config-blas.h"
 	 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 			cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 			if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))
@@ -124,7 +124,7 @@ else
 	for BLAS_HOME in ${DEFAULT_CHECKING_PATH} 
 	do		
 		CBLAS="yes"
-		CBLAS_FLAG="-D__LINBOX_HAVE_CBLAS"
+		CBLAS_FLAG="-D__LELA_HAVE_CBLAS"
 	
 		if test -r "/System/Library/Frameworks/Accelerate.framework"; then
 			BLAS_LIBS="-Wl,-framework -Wl,Accelerate"
@@ -156,13 +156,13 @@ else
 		LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 		AC_TRY_LINK(
-		[#define __LINBOX_CONFIGURATION
-       		  #include "linbox/config-blas.h"],
+		[#define __LELA_CONFIGURATION
+       		  #include "lela/config-blas.h"],
 		[double a;],
 		[
 		AC_TRY_RUN(
-		[#define __LINBOX_CONFIGURATION
-     	         #include "linbox/config-blas.h"
+		[#define __LELA_CONFIGURATION
+     	         #include "lela/config-blas.h"
 		 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 				cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 				if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))
@@ -235,13 +235,13 @@ if test "x$blas_found" != "xyes" ; then
 		LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 		AC_TRY_LINK(
-		[#define __LINBOX_CONFIGURATION
-       		 #include "linbox/config-blas.h"],
+		[#define __LELA_CONFIGURATION
+       		 #include "lela/config-blas.h"],
 		[double a;],
 		[
 		AC_TRY_RUN(
-		[#define __LINBOX_CONFIGURATION
-       		 #include "linbox/config-blas.h"
+		[#define __LELA_CONFIGURATION
+       		 #include "lela/config-blas.h"
 		 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 				cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 				if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))
@@ -298,13 +298,13 @@ if test "x$blas_found" != "xyes" ; then
 			LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 			AC_TRY_LINK(	
-			[#define __LINBOX_CONFIGURATION
-       		         #include "linbox/config-blas.h"],	
+			[#define __LELA_CONFIGURATION
+       		         #include "lela/config-blas.h"],	
 			[double a;],
 			[
 			AC_TRY_RUN(
-			[#define __LINBOX_CONFIGURATION
-     		         #include "linbox/config-blas.h"
+			[#define __LELA_CONFIGURATION
+     		         #include "lela/config-blas.h"
 			 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 					cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 					if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))
@@ -361,9 +361,9 @@ if test "x$blas_found" != "xyes" ; then
 ## Check for dgetrf (mainly for Goto less than 1.7)
 	AC_MSG_CHECKING(for dgetrf)
 	AC_TRY_RUN(
-	[#define __LINBOX_CONFIGURATION
-	 #define __LINBOX_HAVE_DGETRF 1
-       	 #include "linbox/config-blas.h"
+	[#define __LELA_CONFIGURATION
+	 #define __LELA_HAVE_DGETRF 1
+       	 #include "lela/config-blas.h"
 	 int main () {  double a[4] = {1.,2.,3.,4.};
 			int ipiv[2];
 			clapack_dgetrf(CblasRowMajor, 2, 2, a, 2, ipiv);
@@ -392,9 +392,9 @@ if test "x$blas_found" != "xyes" ; then
 ## Check for dtrtri (mainly for Goto less than 1.7)
 	AC_MSG_CHECKING(for dtrtri)
 	AC_TRY_RUN(
-	[#define __LINBOX_CONFIGURATION
-	 #define __LINBOX_HAVE_DTRTRI
-       	 #include "linbox/config-blas.h"
+	[#define __LELA_CONFIGURATION
+	 #define __LELA_HAVE_DTRTRI
+       	 #include "lela/config-blas.h"
 	 int main () {  double a[4] = {1.,2.,3.,4.};
 			int ipiv[2];
 			clapack_dtrtri(CblasRowMajor,CblasUpper,CblasNonUnit,2, a, 2);
@@ -423,10 +423,10 @@ if test "x$blas_found" != "xyes" ; then
 ## Check for dgetri (mainly for Goto less than 1.7)
 	AC_MSG_CHECKING(for dgetri)
 	AC_TRY_RUN(
-	[#define __LINBOX_CONFIGURATION
-	 #define __LINBOX_HAVE_DGETRF 1
-	 #define __LINBOX_HAVE_DGETRI 1
-       	 #include "linbox/config-blas.h"
+	[#define __LELA_CONFIGURATION
+	 #define __LELA_HAVE_DGETRF 1
+	 #define __LELA_HAVE_DGETRI 1
+       	 #include "lela/config-blas.h"
 	 int main () {  double a[4] = {2.,0.5,4.,1.};
 			int ipiv[2] = {2,2};
 			clapack_dgetri(CblasRowMajor, 2, a, 2, ipiv);
@@ -449,11 +449,11 @@ if test "x$blas_found" != "xyes" ; then
 			AC_MSG_RESULT(no)
 			AC_MSG_CHECKING(for autoimplementation of dgetri)
 			AC_TRY_RUN(
-			[#define __LINBOX_CONFIGURATION
-		 	 #define __LINBOX_AUTOIMPLEMENT_DGETRI
-		 	 #define __LINBOX_HAVE_DGETRI 
-		 	 #define __LINBOX_HAVE_DTRTRI
-	 	 	 #include "linbox/config-blas.h"
+			[#define __LELA_CONFIGURATION
+		 	 #define __LELA_AUTOIMPLEMENT_DGETRI
+		 	 #define __LELA_HAVE_DGETRI 
+		 	 #define __LELA_HAVE_DTRTRI
+	 	 	 #include "lela/config-blas.h"
 		 	 int main () {  double a[4] = {2.,0.5,4.,1.};
 					int ipiv[2] = {2,2};				
 					clapack_dgetri(CblasRowMajor, 2, a, 2, ipiv);
@@ -490,7 +490,7 @@ fi
 
 
 
-AM_CONDITIONAL(LINBOX_HAVE_BLAS, test "x$HAVE_BLAS" = "xyes")
+AM_CONDITIONAL(LELA_HAVE_BLAS, test "x$HAVE_BLAS" = "xyes")
 
 CXXFLAGS=${BACKUP_CXXFLAGS}
 LIBS=${BACKUP_LIBS}

@@ -6,15 +6,15 @@ AC_MSG_CHECKING(whether to build documentation)
 
 
 AC_ARG_WITH(docdir,
-[  --with-docdir=<path> Where the LinBox documentation should be installed],
+[  --with-docdir=<path> Where the LELA documentation should be installed],
             [
-		LINBOX_DOC_PATH="$withval"
+		LELA_DOC_PATH="$withval"
 	    ],
 	    [
-		eval LINBOX_DOC_PATH="${prefix}/doc"
+		eval LELA_DOC_PATH="${prefix}/doc"
 	    ])
 
-AC_SUBST(LINBOX_DOC_PATH)
+AC_SUBST(LELA_DOC_PATH)
 
 AC_ARG_WITH(doxygen,
 [  --with-doxygen=<path> Give the path to Doxygen. Note: --enable-doc needed],
@@ -34,16 +34,16 @@ export PATH=$DOXYGEN_PATH
 	AC_MSG_RESULT(no)
 	echo
 	echo "You must have doxygen installed to create documentation for"
-	echo "LinBox. This error only happens if you use --enable-doc."
+	echo "LELA. This error only happens if you use --enable-doc."
 	echo "Download the appropriate package for your distribution, or get"
 	echo "the source tarball from http://www.stack.nl/~dimitri/doxygen/"
 	exit -1
 }
 AC_MSG_RESULT(yes)
-AM_CONDITIONAL(LINBOX_BUILD_DOC, true)	
+AM_CONDITIONAL(LELA_BUILD_DOC, true)	
 ],
 [
 AC_MSG_RESULT(no)
-AM_CONDITIONAL(LINBOX_BUILD_DOC, false)
+AM_CONDITIONAL(LELA_BUILD_DOC, false)
 ])
 ])
