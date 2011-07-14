@@ -483,8 +483,16 @@ public:
 		inline bool operator () (size_t i, const PairType &j) const
 			{ return i < j.first; }
 
-		template<typename PairType1, typename PairType2>
-		inline bool operator () (const PairType1 &i, const PairType2 &j) const
+		template<typename PairType, typename T1, typename T2>
+		inline bool operator () (const PairType &i, const std::pair<T1, T2> &j) const
+			{ return i.first < j.first; }
+
+		template<typename T1, typename T2, typename PairType>
+		inline bool operator () (const std::pair<T1, T2> &i, const PairType &j) const
+			{ return i.first < j.first; }
+
+		template<typename PairType>
+		inline bool operator () (const PairType &i, const PairType &j) const
 			{ return i.first < j.first; }
 	};
 
