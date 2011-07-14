@@ -1487,6 +1487,212 @@ public:
     </section>
     <section xml:id="newblas">
       <title>Extending the BLAS-implementations</title>
+
+      <para>
+	LELA provides a flexible mechanism for extending its vector-
+	and matrix-arithmetic system to support new algorithms and to
+	provide wrappers for specialised libraries. Here we explain a
+	bit how this system works then how to extend it.
+      </para>
+
+      <para>
+	The BLAS-subsystem is divided into
+	<emphasis>Modules</emphasis> which exist in a hierarchy. Each
+	module takes responsibility for some calculations and passes
+	those which it cannot handle to the next module down in
+	hierarchy. At the bottom is <type>GenericModule</type> which
+	acts as a catch-all for calculations which cannot be performed
+	elsewhere. It should take any reasonable combination of input
+	and produce the correct output, possibly with limited
+	performance.
+      </para>
+
+      <para>
+	At the top is <type>AllModules</type>, a type parametrised on
+	the ring whose specialisation to a given ring should provide
+	all available functionality over that ring given the library's
+	configuration. This type merely specifies in a generic way
+	what the highest level of the hierachy is; it provides no
+	functionality of its own.
+      </para>
+
+      <para>
+	An example of a hierarchy is that for computations over GF2 in
+	the case that M4RI is installed. We have the following:
+      </para>
+
+      <itemizedlist>
+	<listitem><type>AllModules&lt;GF2&gt;</type></listitem>
+	<listitem><type>M4RIModules</type>, which acts as a wrapper for M4RI</listitem>
+	<listitem><type>GenericModule</type>, which provides the remaining functionality not provided by M4RI</listitem>
+      </itemizedlist>
+
+      <para>
+	Each BLAS-routine has a associated class which has the same
+	name as the routine with a preceeding underscore. The class is
+	parametrised by the Ring and by the
+	<emphasis>module-tag</emphasis>, which is an memberless
+	structure whose type is obtained from a Module with
+	<literal>typename Module::Tag</literal>. This allows the class
+	to be specialised for both the ring-type and the module of
+	computation.
+      </para>
+
+      <para>
+	Each class should in turn contain a single static public
+	method <function>op</function> which implements the required
+	functionality. It may invoke a specialised function based on
+	the representation-type of the vector-input, the iterator-type
+	of the matrix-input, and other things. It must be parametrised
+	by Modules (the computational module-object itself) as well as
+	any vector- or matrix-types which appear in the input.
+      </para>
+
+      <para>
+	As an example, we provide here the class for
+	<function>gemm</function>.
+      </para>
+
+      <programlisting>
+template &lt;class Ring, class ModulesTag&gt;
+class _gemm
+{
+public:
+	template &lt;class Modules, class Matrix1, class Matrix2, class Matrix3&gt;
+	static Matrix3 &amp;op (const Ring &amp;F, Modules &amp;M, const typename Ring::Element &amp;a, const Matrix1 &amp;A, const Matrix2 &amp;B, const typename Ring::Element &amp;b, Matrix3 &amp;C)
+		{ return _gemm&lt;Ring, typename ModulesTag::Parent&gt;::op (F, M, a, A, B, b, C); }
+};
+      </programlisting>
+
+      <para>
+	This is the default implementation which passes the
+	calculation onto the next module-type, whose tag is given by
+	<type>ModulesTag::Parent</type>. Eventually the generic module
+	is reached which will handle the calculation.
+      </para>
+
+      <para>
+	To create a new module it is therefore necessary to create
+
+	<itemizedlist>
+	  <listitem>a <type>Module</type> structure,</listitem>
+	  <listitem>a specialisation of the implementation-class for each function being implemented in that module</listitem>
+	</itemizedlist>
+      </para>
+
+      <para>
+	Here is an example of a Module-structure:
+      </para>
+
+      <programlisting>
+template &lt;class Element&gt;
+struct ZpModule&lt;integer&gt; : public GenericModule&lt;Modular&lt;integer&gt; &gt;
+{
+	struct Tag { typedef typename GenericModule&lt;Modular&lt;Element&gt; &gt;::Tag Parent; };
+
+	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
+	size_t block_size;
+
+	mutable std::vector&lt;typename ModularTraits&lt;Element&gt;::DoubleFatElement&gt; _tmp;
+
+	ZpModule (const Modular&lt;Element&gt; &amp;R) : block_size (((typename ModularTraits&lt;Element&gt;::DoubleFatElement) -1LL) / ((R._modulus - 1) * (R._modulus - 1))) {}
+};
+      </programlisting>
+
+      <para>
+	The structure should inherit from its parent-module, in this
+	case <type>GenericModule</type>.
+      </para>
+
+      <para>
+	The first member is the <type>Tag</type>, which contains a
+	single typedef giving the parent-module's tag. Note that both
+	this typedef and inheritance of the parent-module are
+	required.
+      </para>
+
+      <para>
+	The Module-structure may contain parameters to configure the
+	computation, such as <varname>block_size</varname> above, as
+	well as temporary storage, such as <varname>_tmp</varname>
+	above.
+      </para>
+
+      <para>
+	A module must contain a constructor which takes a ring. This
+	allows for example <varname>block_size</varname> to be
+	configured based on the ring. So that modules may be
+	construted generically, every module must have such a
+	constructor.
+      </para>
+
+      <para>
+	Once the module is defined, the implementation-classes for
+	functionality which the module implements should be
+	specialised to the module's tag and, if necessary, to the ring
+	over which the module operates. As an example, we show the
+	definition of the dot-product with <type>ZpModule</type>:
+      </para>
+
+      <programlisting>
+template &lt;&gt;
+class _dot&lt;Modular&lt;uint8&gt;, ZpModule&lt;uint8&gt;::Tag&gt;
+{
+	template &lt;class reference, class Vector1, class Vector2&gt;
+	static reference &amp;dot_impl (const Modular&lt;uint8&gt; &amp;F, ZpModule&lt;uint8&gt; &amp;M, reference &amp;res, const Vector1 &amp;x, const Vector2 &amp;y,
+				    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
+
+	template &lt;class reference, class Vector1, class Vector2&gt;
+	static reference &amp;dot_impl (const Modular&lt;uint8&gt; &amp;F, ZpModule&lt;uint8&gt; &amp;M, reference &amp;res, const Vector1 &amp;x, const Vector2 &amp;y,
+				    VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
+
+	template &lt;class reference, class Vector1, class Vector2&gt;
+	static reference &amp;dot_impl (const Modular&lt;uint8&gt; &amp;F, ZpModule&lt;uint8&gt; &amp;M, reference &amp;res, const Vector1 &amp;x, const Vector2 &amp;y,
+				    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
+		{ return op (F, M, res, y, x); }
+
+	template &lt;class reference, class Vector1, class Vector2&gt;
+	static reference &amp;dot_impl (const Modular&lt;uint8&gt; &amp;F, ZpModule&lt;uint8&gt; &amp;M, reference &amp;res, const Vector1 &amp;x, const Vector2 &amp;y,
+				    VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
+
+public:
+	template &lt;class Modules, class reference, class Vector1, class Vector2&gt;
+	static reference &amp;op (const Modular&lt;uint8&gt; &amp;F, Modules &amp;M, reference &amp;res, const Vector1 &amp;x, const Vector2 &amp;y)
+		{ return dot_impl (F, M, res, x, y,
+				   typename VectorTraits&lt;Modular&lt;uint8&gt;, Vector1&gt;::RepresentationType (),
+				   typename VectorTraits&lt;Modular&lt;uint8&gt;, Vector2&gt;::RepresentationType ()); }
+};
+      </programlisting>
+
+      <para>
+	In this case the dot-product is specialised on the
+	representation-types of the input-vectors.
+      </para>
+
+      <para>
+	When defining a new ring, it is important to define a
+	module-hierarchy for it. Otherwise the generic module is used
+	for all calculations and this may be quite slow. To do this,
+	simply specialise <type>AllModules</type> to the ring-type and
+	define the next module in the hierachy. Some modules, such as
+	<type>StrassenModule</type> providing fast
+	matrix-multiplication, are in turn parametrised by
+	<emphasis>their</emphasis> intended parent-modules so that one
+	can put them on top of any other module. Here is an example of
+	the construction of a hierarchy for a user-defined ring-type
+	<type>MyRing</type>. This hierarchy will support fast
+	matrix-multiplication but use <type>GenericModule</type> for
+	everything else:
+      </para>
+
+      <programlisting>
+struct AllModules&lt;MyRing&gt; : public StrassenModule&lt;MyRing, GenericModule&lt;MyRing&gt; &gt;
+{
+	struct Tag { typedef typename StrassenModule&lt;MyRing, GenericModule&lt;MyRing&gt; &gt;::Tag Parent; };
+
+	AllModules (const MyRing &amp;R) : StrassenModule&lt;MyRing, GenericModule&lt;MyRing&gt; &gt; (R) {}
+};
+      </programlisting>
     </section>
   </chapter>
 </book>
