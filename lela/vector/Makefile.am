@@ -8,6 +8,11 @@ EXTRA_DIST=			\
 
 pkgincludesub_HEADERS=		\
 	traits.h		\
+	dense-interface.h	\
+	sparse-interface.h	\
+	dense01-interface.h	\
+	sparse01-interface.h	\
+	hybrid01-interface.h	\
 	subvector.h		\
 	subiterator.h		\
 	sparse.h		\

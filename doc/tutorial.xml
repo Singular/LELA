@@ -1467,10 +1467,23 @@ public:
       </para>
     </section>
     <section xml:id="newvectors">
-      <title>Creating new vector-types</title>
-    </section>
-    <section xml:id="newmatrices">
-      <title>Creating new matrix-types</title>
+      <title>Creating new vector- and matrix-types</title>
+
+      <para>
+	Creating new types of vectors and matrices is a matter of
+	creating a class which meets the proper interface. LELA
+	provides example-files which can be used as a starting-point
+	and which have documentation for the required members.
+      </para>
+
+      <itemizedlist>
+	<listitem>For matrices, see <filename>lela/matrix/interface.h</filename></listitem>
+	<listitem>For dense vectors, see <filename>lela/vector/dense-interface.h</filename></listitem>
+	<listitem>For sparse vectors, see <filename>lela/vector/sparse-interface.h</filename></listitem>
+	<listitem>For dense 0-1 vectors, see <filename>lela/vector/dense01-interface.h</filename></listitem>
+	<listitem>For sparse 0-1 vectors, see <filename>lela/vector/sparse01-interface.h</filename></listitem>
+	<listitem>For hybrid 0-1 vectors, see <filename>lela/vector/hybrid01-interface.h</filename></listitem>
+      </itemizedlist>
     </section>
     <section xml:id="newblas">
       <title>Extending the BLAS-implementations</title>
