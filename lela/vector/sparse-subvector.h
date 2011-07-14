@@ -222,8 +222,6 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
 
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	typedef ConstSparseVector<typename ConstShiftedVector<typename Vector::const_index_iterator>::const_iterator, typename Vector::const_element_iterator> parent_type;
-
 	SparseSubvector () {}
 	SparseSubvector (const Vector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
@@ -272,7 +270,8 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
 	typename Vector::const_iterator _begin, _end;
 	typename Vector::value_type::first_type _shift;
 
-	SparseSubvector (const Vector &v, typename Vector::const_iterator begin, typename Vector::const_iterator end, typename Vector::index_type start)
+	SparseSubvector (const Vector &v, typename Vector::const_iterator begin, typename Vector::const_iterator end,
+			 typename std::iterator_traits<typename Vector::const_iterator>::value_type::first_type start)
 		: _begin (begin), _end (end), _shift (start)
 	{}
 
@@ -382,7 +381,8 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 	typename Vector::size_type _begin_idx, _end_idx;
 	typename Vector::value_type::first_type _shift;
 
-	SparseSubvector (Vector &v, typename Vector::const_iterator begin, typename Vector::const_iterator end, typename Vector::index_type start)
+	SparseSubvector (Vector &v, typename Vector::const_iterator begin, typename Vector::const_iterator end,
+			 typename std::iterator_traits<typename Vector::const_iterator>::value_type::first_type start)
 		: _v (&v), _begin_idx (begin - v.begin ()), _end_idx (end - v.begin ()), _shift (start)
 	{}
 

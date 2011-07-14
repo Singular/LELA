@@ -44,8 +44,7 @@ namespace LELA
  * std::vector<std::pair<index_type, element_type> >, a vector of
  * index-entry pairs. Here index_type is an integral type giving the
  * index of a given entry and element_type is the type of the
- * underlying field-element. It must include appropriate typedefs for
- * index_type and element_type. Indices must be in strictly ascending
+ * underlying field-element. Indices must be in strictly ascending
  * order and zero is not allowed as the element in a pair (such an
  * entry should be removed from the vector). The class @ref
  * SparseVector implements this interface.
