@@ -999,9 +999,9 @@ bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const 
 	try {
 		BLAS3::write (ctx, output, M, format);
 	}
-	catch (LinboxError e) {
+	catch (LELAError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: Caught LinboxError: " << e << endl;
+			<< "ERROR: Caught LELAError: " << e << endl;
 		pass = false;
 	}
 
@@ -1028,9 +1028,9 @@ bool testReadWriteFormat (Context<Field, Modules> &ctx, const char *text, const 
 			<< "ERROR: Caught InvalidMatrixInput while trying to read the matrix" << endl;
 		pass = false;
 	}
-	catch (LinboxError e) {
+	catch (LELAError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: Caught LinboxError: " << e << endl;
+			<< "ERROR: Caught LELAError: " << e << endl;
 		pass = false;
 	}
 

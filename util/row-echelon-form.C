@@ -52,7 +52,7 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 	try {
 		BLAS3::read (ctx, ifile, A, input_format);
 	}
-	catch (LinboxError e) {
+	catch (LELAError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << e;
 		commentator.stop ("error");
 		commentator.stop ("error");

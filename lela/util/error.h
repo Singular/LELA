@@ -28,14 +28,14 @@
 namespace LELA
 {
 
-// ------------------------------- LinboxError
+// ------------------------------- LELAError
 /** base class for execption handling in Givaro
 \ingroup util
 */
-class LinboxError {
+class LELAError {
 	static const size_t max_error_string = 256;
 public:
-	LinboxError (const char* msg = '\0') {
+	LELAError (const char* msg = '\0') {
 		std::strncpy(strg, msg, max_error_string);
 		strg[max_error_string-1] = 0;
 	};
@@ -46,37 +46,37 @@ public:
 	{ return o << strg<<std::endl ; }
   
 	// -- non virtual output operator
-	friend std::ostream &operator << (std::ostream &o, const LinboxError &E);
+	friend std::ostream &operator << (std::ostream &o, const LELAError &E);
 
 	// - useful to setup a break point on it
-	static void throw_error (const LinboxError &err)
+	static void throw_error (const LELAError &err)
 		{ throw err; }
 
-    	virtual ~LinboxError() {}        
+    	virtual ~LELAError() {}        
 
     protected:
 	char strg[max_error_string]; 
 };
 
-class LinboxMathError : public LinboxError {
+class LELAMathError : public LELAError {
  public:
-	LinboxMathError (const char* msg) : LinboxError (msg) {};
+	LELAMathError (const char* msg) : LELAError (msg) {};
 };
 
-class LinboxMathDivZero : public LinboxMathError {
+class LELAMathDivZero : public LELAMathError {
  public:
-	LinboxMathDivZero (const char* msg) : LinboxMathError (msg) {};
+	LELAMathDivZero (const char* msg) : LELAMathError (msg) {};
 };
 
-class LinboxMathInconsistentSystem : public LinboxMathError {
+class LELAMathInconsistentSystem : public LELAMathError {
  public:
-	LinboxMathInconsistentSystem (const char* msg) : LinboxMathError (msg) {};
+	LELAMathInconsistentSystem (const char* msg) : LELAMathError (msg) {};
 };
 
 // -- Exception thrown in input of data structure 
-class LinboxBadFormat : public LinboxError {
+class LELABadFormat : public LELAError {
  public:
-	LinboxBadFormat (const char* msg) : LinboxError (msg) {};
+	LELABadFormat (const char* msg) : LELAError (msg) {};
 };
 
 class DiagonalEntryNotInvertible 

@@ -253,7 +253,7 @@ void Elimination<Ring, Modules>::RowEchelonForm (Matrix1       &A,
 		ctx.F.mulin (det, x);
 
 		if (!ctx.F.inv (xinv, x))
-			throw LinboxError ("Could not invert pivot-element in the ring");
+			throw LELAError ("Could not invert pivot-element in the ring");
 
 		ctx.F.neg (negxinv, xinv);
 
@@ -335,7 +335,7 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, b
 			size_t col = BLAS1::head (ctx, a, *j_A);
 
 			if (!ctx.F.inv (negainv, a))
-				throw LinboxError ("Could not invert pivot-element in the ring");
+				throw LELAError ("Could not invert pivot-element in the ring");
 
 			ctx.F.negin (negainv);
 

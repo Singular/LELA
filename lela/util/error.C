@@ -27,7 +27,7 @@
 namespace LELA
 {
 
-std::ostream& operator<< (std::ostream& o, const LinboxError& E) 
+std::ostream& operator<< (std::ostream& o, const LELAError& E) 
 {
 	E.print(o) ; 
 	return o ;

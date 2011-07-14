@@ -47,7 +47,7 @@ int check_equal (const Ring &R, const char *input1, FileFormatTag input1_format,
 	try {
 		BLAS3::read (ctx, ifile1, A, input1_format);
 	}
-	catch (LinboxError e) {
+	catch (LELAError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << e;
 		commentator.stop ("error");
 		commentator.stop ("error");
@@ -78,7 +78,7 @@ int check_equal (const Ring &R, const char *input1, FileFormatTag input1_format,
 	try {
 		BLAS3::read (ctx, ifile2, B, input2_format);
 	}
-	catch (LinboxError e) {
+	catch (LELAError e) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << e;
 		commentator.stop ("error");
 		commentator.stop ("error");

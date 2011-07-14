@@ -74,11 +74,11 @@ public:
 				FaugereLachartre<GF2, AllModules<GF2> > FL (_ctx);
 				FL.RowEchelonForm (A, A, rank, d);
 			} else
-				throw LinboxError ("Only reduced row-echelon form is available with Faugère-Lachartre");
+				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;
 
 		default:
-			throw LinboxError ("Invalid method for choice of matrix");
+			throw LELAError ("Invalid method for choice of matrix");
 		}
 
 		_rank_table[&A] = rank;
@@ -123,11 +123,11 @@ public:
 				FaugereLachartre<GF2, AllModules<GF2> > FL (_ctx);
 				FL.RowEchelonForm (A, A, rank, d);
 			} else
-				throw LinboxError ("Only reduced row-echelon form is available with Faugère-Lachartre");
+				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;
 
 		default:
-			throw LinboxError ("Invalid method for choice of matrix");
+			throw LELAError ("Invalid method for choice of matrix");
 		}
 
 		commentator.stop (MSG_DONE);

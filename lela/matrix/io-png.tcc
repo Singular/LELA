@@ -132,25 +132,25 @@ std::istream &MatrixReader<Ring>::readPNGSpecialised (std::istream &is, Matrix &
 	png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
 	if (png_ptr == NULL)
-		throw LinboxError ("Cannot initialise PNG-library");
+		throw LELAError ("Cannot initialise PNG-library");
 
 	info_ptr = png_create_info_struct (png_ptr);
 
 	if (info_ptr == NULL) {
 		png_destroy_read_struct (&png_ptr, NULL, NULL);
-		throw LinboxError ("Cannot initialise PNG-library");
+		throw LELAError ("Cannot initialise PNG-library");
 	}
 
 	end_ptr = png_create_info_struct (png_ptr);
 
 	if (end_ptr == NULL) {
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-		throw LinboxError ("Cannot initialise PNG-library");
+		throw LELAError ("Cannot initialise PNG-library");
 	}
 
 	if (setjmp (png_jmpbuf (png_ptr))) {
 		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
-		throw LinboxError ("Error reading PNG-data");
+		throw LELAError ("Error reading PNG-data");
 	}
 
 	png_set_read_fn (png_ptr, (voidp) &is, PNGReadData);
@@ -162,13 +162,13 @@ std::istream &MatrixReader<Ring>::readPNGSpecialised (std::istream &is, Matrix &
 	if ((bit_depth = png_get_bit_depth (png_ptr, info_ptr)) != 1) {
 		std::ostringstream str;
 		str << "Incorrect bit_depth " << bit_depth << " (should be 1)" << std::ends;
-		throw LinboxError (str.str ().c_str ());
+		throw LELAError (str.str ().c_str ());
 	}
 
 	if ((colour_type = png_get_color_type (png_ptr, info_ptr)) != 0) {
 		std::ostringstream str;
 		str << "Incorrect colour_type " << colour_type << " (should be 0)" << std::ends;
-		throw LinboxError (str.str ().c_str ());
+		throw LELAError (str.str ().c_str ());
 	}
 
 	width = png_get_image_width (png_ptr, info_ptr);
@@ -279,18 +279,18 @@ std::ostream &MatrixWriter<Ring>::writePNGSpecialised (std::ostream &os, const M
 	png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
 	if (png_ptr == NULL)
-		throw LinboxError ("Cannot initialise PNG-library");
+		throw LELAError ("Cannot initialise PNG-library");
 
 	info_ptr = png_create_info_struct (png_ptr);
 
 	if (info_ptr == NULL) {
 		png_destroy_write_struct (&png_ptr, NULL);
-		throw LinboxError ("Cannot initialise PNG-library");
+		throw LELAError ("Cannot initialise PNG-library");
 	}
 
 	if (setjmp (png_jmpbuf (png_ptr))) {
 		png_destroy_write_struct (&png_ptr, &info_ptr);
-		throw LinboxError ("Error writing PNG-data");
+		throw LELAError ("Error writing PNG-data");
 	}
 
 	png_set_write_fn (png_ptr, (voidp) &os, PNGWriteData, PNGFlush);

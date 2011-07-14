@@ -80,7 +80,7 @@ bool MatrixReader<Ring>::isDumas (char *buf, std::streamsize n)
 	regex_t re;
 
 	if (regcomp (&re, "^[:digit:]+ [:digit:]+ M$", REG_EXTENDED) != 0)
-		throw LinboxError ("regcomp failure (isDumas)");
+		throw LELAError ("regcomp failure (isDumas)");
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -91,7 +91,7 @@ bool MatrixReader<Ring>::isTurner (char *buf, std::streamsize n)
 	regex_t re;
 
 	if (regcomp (&re, "^[:digit:]+ [:digit:]+ [:digit:]+$", REG_EXTENDED) != 0)
-		throw LinboxError ("regcomp failure (isTurner)");
+		throw LELAError ("regcomp failure (isTurner)");
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -102,7 +102,7 @@ bool MatrixReader<Ring>::isMaple (char *buf, std::streamsize n)
 	regex_t re;
 
 	if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
-		throw LinboxError ("regcomp failure (isMaple)");
+		throw LELAError ("regcomp failure (isMaple)");
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -113,7 +113,7 @@ bool MatrixReader<Ring>::isMatlab (char *buf, std::streamsize n)
 	regex_t re;
 
 	if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
-		throw LinboxError ("regcomp failure (isMatlab)");
+		throw LELAError ("regcomp failure (isMatlab)");
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -124,7 +124,7 @@ bool MatrixReader<Ring>::isSage (char *buf, std::streamsize n)
 	regex_t re;
 
 	if (regcomp (&re, "matrix\\((GF\\([:digit:]+\\),|ZZ|QQ)?[ \t\n]+\\[[ \t\n]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+", REG_EXTENDED) != 0)
-		throw LinboxError ("regcomp failure (isSage)");
+		throw LELAError ("regcomp failure (isSage)");
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -135,7 +135,7 @@ bool MatrixReader<Ring>::isPretty (char *buf, std::streamsize n)
 	regex_t re;
 
 	if (regcomp (&re, "((\\[[:space:]+\\])|(\\[[:space:]+((\\.|[:digit:]+)[:space:]+)*(\\.|[:digit:]+)))", REG_EXTENDED) != 0)
-		throw LinboxError ("regcomp failure (isPretty)");
+		throw LELAError ("regcomp failure (isPretty)");
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }

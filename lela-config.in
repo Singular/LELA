@@ -12,7 +12,7 @@ Usage: lela-config [OPTION]
 
 Known values for OPTION are:
 
-  --prefix		show Linbox installation prefix 
+  --prefix		show LELA installation prefix 
   --libs		print library linking information
   --cflags		print pre-processor and compiler flags
   --help		display this help and exit

@@ -46,7 +46,7 @@
 namespace LELA
 {
 
-class PreconditionFailed //: public LinboxError BB: otherwise,  error.h:39 segfaults
+class PreconditionFailed //: public LELAError BB: otherwise,  error.h:39 segfaults
 {
 	static std::ostream *_errorStream;
 
@@ -71,12 +71,12 @@ public:
 
 	static void setErrorStream (std::ostream &stream);
 
-	// -- overload the virtual print of LinboxError
+	// -- overload the virtual print of LELAError
 	std::ostream &print (std::ostream &o) const { 
 		if (std::ostringstream * str = dynamic_cast<std::ostringstream*>(_errorStream))
 			return o << str->str() ; 
 		else
-			throw LinboxError("LELA ERROR: PreconditionFailed exception is not initialized correctly");
+			throw LELAError("LELA ERROR: PreconditionFailed exception is not initialized correctly");
 	}
 };
 
