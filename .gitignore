@@ -98,3 +98,7 @@ tests/test-gauss-jordan
 tests/test-faugere-lachartre
 tests/benchmark-blas
 doc/tutorial.html
+doc/reference*
+doc/xml
+doc/boost*
+doc/doxy.debug

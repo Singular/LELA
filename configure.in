@@ -166,7 +166,14 @@ if test "x$XSLTPROC" = "xno" ; then
   XSLTPROC=
 fi
 
-AM_CONDITIONAL(BUILD_DOCS,[test x$XSLTPROC != x])
+AC_PATH_PROG(DOXYGEN,doxygen,"no")
+
+if test "x$DOXYGEN" = "xno" ; then
+  echo "Note: doxygen not found. Cannot rebuild reference-documentation."
+  DOXYGEN=
+fi
+
+AM_CONDITIONAL(BUILD_DOCS,[test x$XSLTPROC != x -a x$DOXYGEN != x])
 
 # this is bogus so far as I can tell.  -bds
 #CXXFLAGS="${GMP_CFLAGS} ${NTL_CFLAGS} ${GIVARO_CFLAGS} ${SACLIB_CFLAGS} ${CXXFLAGS}"
