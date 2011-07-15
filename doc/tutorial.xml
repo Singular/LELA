@@ -102,8 +102,8 @@
 
       <itemizedlist>
 	<listitem><type>Modular</type>, for integers modulo n,</listitem>
-	<listitem><type>GMPRationalField</type>, for rational numbers,
-	computed with GMP</listitem>
+	<listitem><type>Rationals</type>, for rational numbers
+	(actually a wrapper for GMP)</listitem>
 	<listitem><type>GF2</type> (for fast computations over GF(2)),
 	and</listitem>
 	<listitem><type>TypeWrapperRing</type> (a wrapper around any
@@ -156,31 +156,30 @@ int main ()
 	</para>
       </section>
 
-      <section xml:id="gmprationalfield">
-	<title><type>GMPRationalField</type></title>
+      <section xml:id="rationals">
+	<title><type>Rationals</type></title>
 
 	<para>
-	  To work with rational numbers over GMP, use the following:
+	  To work with rational numbers, use the following:
 	</para>
 
 	<programlisting>
-#include &lt;lela/ring/gmp-rational.h&gt;
+#include &lt;lela/ring/rationals.h&gt;
 
 using namespace LELA;
 
 int main ()
 {
-	GMPRationalField F;
+	Rationals F;
 	...
 	return 0;
 }
 	</programlisting>
 
 	<para>
-	  The element-type of <type>GMPRationalField</type> is
-	  called <type>GMPRational</type>, a wrapper over the
-	  corresponding GMP-type. It is defined
-	  in <filename>lela/element/gmp-rational.h</filename>.
+	  The element-type of <type>Rationals</type> is
+	  called <type>RationalElement</type>. It is defined
+	  in <filename>lela/element/rational.h</filename>.
 	</para>
       </section>
 
