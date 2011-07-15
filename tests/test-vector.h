@@ -16,21 +16,26 @@
 #include "lela/blas/level1.h"
 
 // Some parameters for the tests
-#define DEFAULT_DIM 50;
-#define DEFAULT_CYCLE_LEN 10;
-#define DEFAULT_GAP_CYCLE_LEN 5;
-#define DEFAULT_MID_SUBVECTOR_START_IDX 10;
+#define DEFAULT_DIM 50
+#define DEFAULT_CYCLE_LEN 10
+#define DEFAULT_GAP_CYCLE_LEN 5
+#define DEFAULT_MID_SUBVECTOR_START_IDX 10
 
 template <class Vector, class Ring>
-bool testDenseConstSubvector (const Ring &R, const Vector &v, typename Vector::ConstSubvectorType &v_sub, size_t offset)
+bool testDenseConstSubvector (const Ring &R, Vector &v, typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType &v_sub, size_t offset)
 {
-	typename Vector::ConstSubvectorType::const_iterator i_sub;
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType::const_iterator i_sub;
+	typename Vector::iterator j;
+
+	typename Ring::Element a;
 
 	size_t idx;
 
 	bool pass = true;
 
-	for (j = v.begin (); j != v.end (); ++j)
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
+
+	for (j = v.begin (), idx = 0; j != v.end (); ++j, ++idx)
 		R.init (*j, (idx + offset) % DEFAULT_CYCLE_LEN);
 
 	for (i_sub = v_sub.begin (), idx = 0; i_sub != v_sub.end (); ++i_sub, ++idx) {
@@ -59,19 +64,23 @@ bool testDenseConstSubvector (const Ring &R, const Vector &v, typename Vector::C
 }
 
 template <class Vector, class Ring>
-bool testDenseSubvector (const Ring &R, Vector &v, typename Vector::SubvectorType &v_sub, size_t offset)
+bool testDenseSubvector (const Ring &R, Vector &v, typename LELA::VectorTraits<Ring, Vector>::SubvectorType &v_sub, size_t offset)
 {	
-	typename Vector::SubvectorType::const_iterator i_sub;
-	typename Vector::SubvectorType::iterator j_sub;
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType::const_iterator i_sub;
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType::iterator j_sub;
+
+	typename Ring::Element a;
 
 	size_t idx;
 
 	bool pass = true;
 
-	for (j_sub = v_sub.begin (); j_sub != v_sub.end (); ++j_sub)
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
+
+	for (j_sub = v_sub.begin (), idx = 0; j_sub != v_sub.end (); ++j_sub, ++idx)
 		R.init (*j_sub, (idx + offset) % DEFAULT_CYCLE_LEN);
 
-	for (i_sub = v_sub.begin (), idx = offset; i_sub != v_sub.end (); ++i_sub, ++offset)
+	for (i_sub = v_sub.begin (), idx = 0; i_sub != v_sub.end (); ++i_sub, ++idx) {
 		R.init (a, (idx + offset) % DEFAULT_CYCLE_LEN);
 		if (!R.areEqual (a, *i_sub)) {
 			error << "ERROR: Error at vector index " << idx << " (subvector offset " << offset << "; iterator access): expected value ";
@@ -80,10 +89,10 @@ bool testDenseSubvector (const Ring &R, Vector &v, typename Vector::SubvectorTyp
 			pass = false;
 		}
 
-		if (!R.areEqual (a, v[idx])) {
+		if (!R.areEqual (a, v[idx + offset])) {
 			error << "ERROR: Error at vector index " << idx << " (subvector offset " << offset << "; array access): expected value ";
 			R.write (error, a) << " but got ";
-			R.write (error, v[idx]) << std::endl;
+			R.write (error, v[idx + offset]) << std::endl;
 			pass = false;
 		}
 	}
@@ -109,7 +118,6 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense)
 
 	LELA::commentator.start ("Testing vector (dense)", __FUNCTION__);
 
-	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
 
 	// Test 1: Array-access vs. const_iterator
@@ -149,7 +157,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense)
 
 	Vector v2 (DEFAULT_DIM);
 
-	for (j = v2.begin (); j != v2.end (); ++j)
+	for (j = v2.begin (), idx = 0; j != v2.end (); ++j, ++idx)
 		R.init (*j, idx % DEFAULT_CYCLE_LEN);
 
 	for (idx = 0; idx < DEFAULT_DIM; ++idx) {
@@ -217,9 +225,9 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense)
 	part_pass = true;
 
 	Vector v6 (DEFAULT_DIM);
-	typename Vector::ConstSubvectorType v6_sub1 (v6, 0, DEFAULT_CYCLE_LEN);
-	typename Vector::ConstSubvectorType v6_sub2 (v6, DEFAULT_MID_SUBVECTOR_START_IDX, DEFAULT_MID_SUBVECTOR_START_IDX + DEFAULT_CYCLE_LEN);
-	typename Vector::ConstSubvectorType v6_sub3 (v6, DEFAULT_DIM - DEFAULT_CYCLE_LEN, DEFAULT_DIM);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v6_sub1 (v6, 0, DEFAULT_CYCLE_LEN);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v6_sub2 (v6, DEFAULT_MID_SUBVECTOR_START_IDX, DEFAULT_MID_SUBVECTOR_START_IDX + DEFAULT_CYCLE_LEN);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v6_sub3 (v6, DEFAULT_DIM - DEFAULT_CYCLE_LEN, DEFAULT_DIM);
 
 	part_pass = testDenseConstSubvector (R, v6, v6_sub1, 0) && part_pass;
 	part_pass = testDenseConstSubvector (R, v6, v6_sub2, DEFAULT_MID_SUBVECTOR_START_IDX) && part_pass;
@@ -235,9 +243,9 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense)
 	part_pass = true;
 
 	Vector v7 (DEFAULT_DIM);
-	typename Vector::ConstSubvectorType v7_sub1 (v7, 0, DEFAULT_CYCLE_LEN);
-	typename Vector::ConstSubvectorType v7_sub2 (v7, DEFAULT_MID_SUBVECTOR_START_IDX, DEFAULT_MID_SUBVECTOR_START_IDX + DEFAULT_CYCLE_LEN);
-	typename Vector::ConstSubvectorType v7_sub3 (v7, DEFAULT_DIM - DEFAULT_CYCLE_LEN, DEFAULT_DIM);
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v7_sub1 (v7, 0, DEFAULT_CYCLE_LEN);
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v7_sub2 (v7, DEFAULT_MID_SUBVECTOR_START_IDX, DEFAULT_MID_SUBVECTOR_START_IDX + DEFAULT_CYCLE_LEN);
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v7_sub3 (v7, DEFAULT_DIM - DEFAULT_CYCLE_LEN, DEFAULT_DIM);
 
 	part_pass = testDenseSubvector (R, v7, v7_sub1, 0) && part_pass;
 	part_pass = testDenseSubvector (R, v7, v7_sub2, DEFAULT_MID_SUBVECTOR_START_IDX) && part_pass;
@@ -252,22 +260,22 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense)
 }
 
 template <class Vector, class Ring>
-bool buildSparseVector (const Ring &R, Vector &v, size_t &front_idx, typename Ring::Element &f, size_t &back_idx, typename Ring::Element &e) 
+void buildSparseVector (const Ring &R, Vector &v, size_t &front_idx, typename Ring::Element &f, size_t &back_idx, typename Ring::Element &e) 
 {
 	size_t idx;
 	typename Ring::Element a;
 
-	first_idx = 0xffffffff;
+	front_idx = 0xffffffff;
 
 	for (idx = 0, back_idx = 0; idx < DEFAULT_DIM; ++idx, back_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
 		R.init (e, idx % DEFAULT_CYCLE_LEN);
 
 		if (!R.isZero (a)) {
-			v1.push_back (typename Vector::value_type (back_idx, typename Ring::Element ()));
-			R.assign (v1.back ().second, e);
+			v.push_back (typename Vector::value_type (back_idx, typename Ring::Element ()));
+			R.assign (v.back ().second, e);
 
-			if (first_idx == 0xffffffff) {
-				first_idx = back_idx;
+			if (front_idx == 0xffffffff) {
+				front_idx = back_idx;
 				R.assign (f, e);
 			}
 		}
@@ -283,6 +291,8 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 	size_t idx, curr_idx, curr_idx_1;
 
 	typename Ring::Element a, b;
+
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
 
 	if (v.front ().first != front_idx) {
 		error << "ERROR: Incorrect index of front (): " << v.front ().first << ", expected " << front_idx << std::endl;
@@ -306,8 +316,8 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 			}
 
 			while (curr_idx_1 < i->first) {
-				if (VectorUtils::getEntry (v1, b, curr_idx_1)) {
-					error << "ERROR: VectorUtils::getEntry obtained an entry for index " << curr_idx_1
+				if (LELA::VectorUtils::getEntry (v, b, curr_idx_1)) {
+					error << "ERROR: LELA::VectorUtils::getEntry obtained an entry for index " << curr_idx_1
 					      << " where there should not be one; entry is ";
 					R.write (error, b) << std::endl;
 					pass = false;
@@ -316,8 +326,8 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 				++curr_idx_1;
 			}
 
-			if (!VectorUtils::getEntry (v1, b, curr_idx_1)) {
-				error << "ERROR: VectorUtils::getEntry failed to obtain an entry for index " << curr_idx_1
+			if (!LELA::VectorUtils::getEntry (v, b, curr_idx_1)) {
+				error << "ERROR: LELA::VectorUtils::getEntry failed to obtain an entry for index " << curr_idx_1
 				      << " where there should be one; entry should be ";
 				R.write (error, a) << std::endl;
 				pass = false;
@@ -331,7 +341,7 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 			}
 
 			if (!R.areEqual (a, b)) {
-				error << "ERROR: Entry at index " << curr_idx << " obtained by VectorUtils::getEntry is ";
+				error << "ERROR: Entry at index " << curr_idx << " obtained by LELA::VectorUtils::getEntry is ";
 				R.write (error, b) << "; expected ";
 				R.write (error, a) << std::endl;
 				pass = false;
@@ -359,26 +369,127 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 }
 
 template <class Vector, class Ring>
+bool checkSparseAfterSubConstruction (const Ring &R, const Vector &v)
+{
+	bool pass = true;
+
+	typename Vector::const_iterator i;
+
+	typename Ring::Element a;
+
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
+
+	i = v.begin ();
+
+	if (i->first != 10) {
+		error << "ERROR: First index is " << i->first << ", expected 10" << std::endl;
+		pass = false;
+	}
+
+	R.init (a, 1);
+
+	if (!R.areEqual (a, i->second)) {
+		error << "ERROR: First element is ";
+		R.write (error, i->second) << ", expected ";
+		R.write (error, a) << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (i->first != 12) {
+		error << "ERROR: Second index is " << i->first << ", expected 12" << std::endl;
+		pass = false;
+	}
+
+	R.init (a, 2);
+
+	if (!R.areEqual (a, i->second)) {
+		error << "ERROR: Second element is ";
+		R.write (error, i->second) << ", expected ";
+		R.write (error, a) << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (i->first != 14) {
+		error << "ERROR: Third index is " << i->first << ", expected 14" << std::endl;
+		pass = false;
+	}
+
+	R.init (a, 3);
+
+	if (!R.areEqual (a, i->second)) {
+		error << "ERROR: Third element is ";
+		R.write (error, i->second) << ", expected ";
+		R.write (error, a) << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (i->first != 16) {
+		error << "ERROR: Fourth index is " << i->first << ", expected 16" << std::endl;
+		pass = false;
+	}
+
+	R.init (a, 4);
+
+	if (!R.areEqual (a, i->second)) {
+		error << "ERROR: Fourth element is ";
+		R.write (error, i->second) << ", expected ";
+		R.write (error, a) << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (i->first != 20) {
+		error << "ERROR: Fifth index is " << i->first << ", expected 20" << std::endl;
+		pass = false;
+	}
+
+	R.init (a, 5);
+
+	if (!R.areEqual (a, i->second)) {
+		error << "ERROR: Fifth element is ";
+		R.write (error, i->second) << ", expected ";
+		R.write (error, a) << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (i != v.end ()) {
+		error << "ERROR: iterator does end at correct position" << std::endl;
+		pass = false;
+	}
+
+	return pass;
+}
+
+template <class Vector, class Ring>
 bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 {
 	bool pass = true, part_pass;
 
 	typename Vector::const_iterator i;
 	typename Vector::iterator j;
-	size_t idx, end_idx, first_idx, exp_size;
+	size_t idx, curr_idx, end_idx, first_idx, exp_size;
 
-	typename Ring::Element a, e;
+	typename Ring::Element a, f, e;
 
-	Context<Ring> ctx (R);
+	LELA::Context<Ring> ctx (R);
 
 	LELA::commentator.start ("Testing vector (sparse)", __FUNCTION__);
 
 	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
 
-	// Test 1: push_back, const_iterator, VectorUtils::getEntry
+	// Test 1: push_back, const_iterator, LELA::VectorUtils::getEntry
 	//
-	// Construct a sparse vector with push_back and check that the results are the same with const_iterator and VectorUtils::getEntry
+	// Construct a sparse vector with push_back and check that the results are the same with const_iterator and LELA::VectorUtils::getEntry
 	LELA::commentator.start ("Test 1: push_back vs. const_iterator", __FUNCTION__);
 	part_pass = true;
 
@@ -387,7 +498,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	buildSparseVector (R, v1, first_idx, f, end_idx, e);
 
 	report << "Vector as constructed: ";
-	BLAS1::write (ctx, report, v1) << std::endl;
+	LELA::BLAS1::write (ctx, report, v1) << std::endl;
 
 	part_pass = checkSparseVector (R, v1, first_idx, f, end_idx, e);
 
@@ -413,7 +524,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	}
 
 	report << "Vector as constructed: ";
-	BLAS1::write (ctx, report, v2) << std::endl;
+	LELA::BLAS1::write (ctx, report, v2) << std::endl;
 
 	if (v2.size () != exp_size) {
 		error << "ERROR: v2.size () reports " << v2.size () << ", expected " << exp_size << std::endl;
@@ -425,7 +536,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 		part_pass = false;
 	}
 	else if (exp_size == 0)
-		LELA::commentator.report (LELA::LEVEL_IMPORTANT, INTERNAL_WARNING)
+		LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
 			<< "WARNING: Constructed empty vector for test 2; check parameters used" << std::endl;
 
 	v2.clear ();
@@ -467,7 +578,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	R.init (v3.back ().second, 65521);
 
 	report << "Vector as constructed: ";
-	BLAS1::write (ctx, report, v2) << std::endl;
+	LELA::BLAS1::write (ctx, report, v2) << std::endl;
 
 	// Erase the second entry
 	j = v3.begin ();
@@ -529,10 +640,10 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	R.init (v4.back ().second, 65521);
 
 	report << "Vector v4 as constructed: ";
-	BLAS1::write (ctx, report, v4) << std::endl;
+	LELA::BLAS1::write (ctx, report, v4) << std::endl;
 
 	report << "Vector v1 as constructed: ";
-	BLAS1::write (ctx, report, v1) << std::endl;
+	LELA::BLAS1::write (ctx, report, v1) << std::endl;
 
 	v4.assign (v1.begin (), v1.end ());
 
@@ -546,29 +657,336 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
 
-	// Test 3: Subvector read
+	// Test 4: Subvector read
 	//
 	// Construct a sparse vector and read from a subvector thereof
-	LELA::commentator.start ("Test 3: assign", __FUNCTION__);
+	LELA::commentator.start ("Test 3: subvector read", __FUNCTION__);
 	part_pass = true;
+
+	Vector v5;
+
+	v5.push_back (typename Vector::value_type (10, typename Ring::Element ()));
+	R.init (v5.back ().second, 1);
+
+	v5.push_back (typename Vector::value_type (20, typename Ring::Element ()));
+	R.init (v5.back ().second, 2);
+
+	v5.push_back (typename Vector::value_type (30, typename Ring::Element ()));
+	R.init (v5.back ().second, 3);
+
+	v5.push_back (typename Vector::value_type (40, typename Ring::Element ()));
+	R.init (v5.back ().second, 4);
+
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub1 (v5, 0, 10);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub2 (v5, 0, 20);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub3 (v5, 10, 20);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub4 (v5, 10, 25);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub5 (v5, 30, 50);
+
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType::const_iterator i_sub;
+
+	report << "Vector v5 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v5) << std::endl;
+
+	if (!v5_sub1.empty ()) {
+		error << "ERROR: Subvector indices 0..10 not empty, reported size " << v5_sub1.size () << ", first index "
+		      << v5_sub1.front ().first << ", last index " << v5_sub1.back ().first << std::endl;
+		part_pass = false;
+	}
+	else if (v5_sub1.begin () != v5_sub1.end ()) {
+		error << "ERROR: Subvector indices 0..10: begin () != end ()" << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub2.size () != 1) {
+		error << "ERROR: Subvector indices 0..20 has wrong size, reported size " << v5_sub2.size () << ", expected 1, last index is " << v5_sub2.size () << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub2.begin ();
+
+	if (v5_sub2.front ().first != 10) {
+		error << "ERROR: First index of subvector indices 0..20 is " << v5_sub2.front ().first << " (from front ()), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	if (i_sub->first != 10) {
+		error << "ERROR: First index of subvector indices 0..20 is " << v5_sub2.front ().first << " (from *(begin ())), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	R.init (a, 1);
+
+	if (!R.areEqual (a, v5_sub2.front ().second)) {
+		error << "ERROR: First element of subvector indices 0..20 is ";
+		R.write (error, v5_sub2.front ().second) << " (from front ()), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	if (!R.areEqual (a, i_sub->second)) {
+		error << "ERROR: First element of subvector indices 0..20 is ";
+		R.write (error, v5_sub2.front ().second) << " (from *(begin ())), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub2.end ()) {
+		error << "ERROR: Iterator on subvector indices 0..20 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub3.size () != 1) {
+		error << "ERROR: Subvector indices 10..20 has wrong size, reported size " << v5_sub3.size () << ", expected 1, last index is " << v5_sub3.size () << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub3.begin ();
+
+	if (v5_sub3.front ().first != 0) {
+		error << "ERROR: First index of subvector indices 10..20 is " << v5_sub3.front ().first << " (from front ()), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	if (i_sub->first != 0) {
+		error << "ERROR: First index of subvector indices 10..20 is " << v5_sub3.front ().first << " (from *(begin ())), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	R.init (a, 1);
+
+	if (!R.areEqual (a, v5_sub3.front ().second)) {
+		error << "ERROR: First element of subvector indices 10..20 is ";
+		R.write (error, v5_sub3.front ().second) << " (from front ()), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	if (!R.areEqual (a, i_sub->second)) {
+		error << "ERROR: First element of subvector indices 10..20 is ";
+		R.write (error, v5_sub3.front ().second) << " (from *(begin ())), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub3.end ()) {
+		error << "ERROR: Iterator on subvector indices 10..20 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub4.size () != 2) {
+		error << "ERROR: Subvector indices 10..25 has wrong size, reported size " << v5_sub4.size () << ", expected 2" << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub4.begin ();
+
+	if (v5_sub4.front ().first != 0) {
+		error << "ERROR: First index of subvector indices 10..25 is " << v5_sub4.front ().first << " (from front ()), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	if (i_sub->first != 0) {
+		error << "ERROR: First index of subvector indices 10..25 is " << i_sub->first << " (from *(begin ())), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	R.init (a, 1);
+
+	if (!R.areEqual (a, v5_sub4.front ().second)) {
+		error << "ERROR: First element of subvector indices 10..25 is ";
+		R.write (error, v5_sub4.front ().second) << " (from front ()), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	if (!R.areEqual (a, i_sub->second)) {
+		error << "ERROR: First element of subvector indices 10..25 is ";
+		R.write (error, i_sub->second) << " (from *(begin ())), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (v5_sub4.back ().first != 10) {
+		error << "ERROR: Last index of subvector indices 10..25 is " << v5_sub4.back ().first << " (from back ()), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	if (i_sub->first != 10) {
+		error << "ERROR: Last index of subvector indices 10..25 is " << i_sub->first << " (from iterator), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	R.init (a, 2);
+
+	if (!R.areEqual (a, v5_sub4.back ().second)) {
+		error << "ERROR: Last element of subvector indices 10..25 is ";
+		R.write (error, v5_sub4.back ().second) << " (from back ()), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	if (!R.areEqual (a, i_sub->second)) {
+		error << "ERROR: Last element of subvector indices 10..25 is ";
+		R.write (error, i_sub->second) << " (from iterator), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub4.end ()) {
+		error << "ERROR: Iterator on subvector indices 10..25 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub5.size () != 2) {
+		error << "ERROR: Subvector indices 30..50 has wrong size, reported size " << v5_sub5.size () << ", expected 2" << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub4.begin ();
+
+	if (v5_sub5.front ().first != 0) {
+		error << "ERROR: First index of subvector indices 30..50 is " << v5_sub5.front ().first << " (from front ()), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	if (i_sub->first != 0) {
+		error << "ERROR: First index of subvector indices 30..50 is " << i_sub->first << " (from iterator), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	R.init (a, 3);
+
+	if (!R.areEqual (a, v5_sub5.front ().second)) {
+		error << "ERROR: First element of subvector indices 30..50 is ";
+		R.write (error, v5_sub5.front ().second) << " (from front ()), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	if (!R.areEqual (a, i_sub->second)) {
+		error << "ERROR: First element of subvector indices 30..50 is ";
+		R.write (error, i_sub->second) << " (from iterator), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (v5_sub5.back ().first != 10) {
+		error << "ERROR: Last index of subvector indices 30..50 is " << v5_sub5.back ().first << " (from back ()), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	if (i_sub->first != 10) {
+		error << "ERROR: Last index of subvector indices 30..50 is " << i_sub->first << " (from iterator), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	R.init (a, 4);
+
+	if (!R.areEqual (a, v5_sub5.back ().second)) {
+		error << "ERROR: Last element of subvector indices 30..50 is ";
+		R.write (error, v5_sub5.front ().second) << " (from back ()), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	if (!R.areEqual (a, i_sub->second)) {
+		error << "ERROR: Last element of subvector indices 30..50 is ";
+		R.write (error, i_sub->second) << " (from iterator), expected ";
+		R.write (error, a) << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub5.end ()) {
+		error << "ERROR: Iterator on subvector indices 30..50 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
 
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
 
-	// Test 4: Subvector push_back
+	// Test 5: Subvector push_back
 	//
 	// Construct a subvector and call push_back to it
-	LELA::commentator.start ("Test 3: assign", __FUNCTION__);
+	LELA::commentator.start ("Test 3: subvector push_back", __FUNCTION__);
 	part_pass = true;
+
+	Vector v6;
+
+	v6.push_back (typename Vector::value_type (10, typename Ring::Element ()));
+	R.init (v6.back ().second, 1);
+
+	v6.push_back (typename Vector::value_type (20, typename Ring::Element ()));
+	R.init (v6.back ().second, 5);
+
+	report << "Vector v6 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v6) << std::endl;
+
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v6_sub (v6, 10, 20);
+
+	v6_sub.push_back (typename Vector::value_type (2, typename Ring::Element ()));
+	R.init (v6.back ().second, 2);
+
+	v6_sub.push_back (typename Vector::value_type (4, typename Ring::Element ()));
+	R.init (v6.back ().second, 3);
+
+	v6_sub.push_back (typename Vector::value_type (6, typename Ring::Element ()));
+	R.init (v6.back ().second, 4);
+
+	report << "Subvector v6_sub as constructed: ";
+	LELA::BLAS1::write (ctx, report, v6_sub) << std::endl;
+
+	report << "Vector v6 after construction of subvector: ";
+	LELA::BLAS1::write (ctx, report, v6) << std::endl;
+
+	part_pass = checkSparseAfterSubConstruction (R, v6);
 
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
 
-	// Test 4: Subvector assign
+	// Test 6: Subvector assign
 	//
 	// Construct a subvector and call assign to it
-	LELA::commentator.start ("Test 3: assign", __FUNCTION__);
+	LELA::commentator.start ("Test 3: subvector assign", __FUNCTION__);
 	part_pass = true;
+
+	Vector v7, v8;
+
+	v7.push_back (typename Vector::value_type (10, typename Ring::Element ()));
+	R.init (v7.back ().second, 1);
+
+	v7.push_back (typename Vector::value_type (20, typename Ring::Element ()));
+	R.init (v7.back ().second, 5);
+
+	report << "Vector v6 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v6) << std::endl;
+
+	v8.push_back (typename Vector::value_type (2, typename Ring::Element ()));
+	R.init (v8.back ().second, 2);
+
+	v8.push_back (typename Vector::value_type (4, typename Ring::Element ()));
+	R.init (v8.back ().second, 3);
+
+	v8.push_back (typename Vector::value_type (6, typename Ring::Element ()));
+	R.init (v8.back ().second, 4);
+
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v7_sub (v6, 10, 20);
+
+	v7_sub.assign (v8.begin (), v8.end ());
+
+	part_pass = checkSparseAfterSubConstruction (R, v7);
 
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
@@ -585,7 +1003,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense01)
 
 	LELA::commentator.start ("Testing vector (dense 0-1)", __FUNCTION__);
 
-	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	// std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
@@ -599,7 +1017,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse01)
 
 	LELA::commentator.start ("Testing vector (sparse 0-1)", __FUNCTION__);
 
-	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	// std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
@@ -613,7 +1031,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Hybrid01)
 
 	LELA::commentator.start ("Testing vector (hybrid 0-1)", __FUNCTION__);
 
-	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	// std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
@@ -623,7 +1041,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Hybrid01)
 /// Run a standard set of tests on the given vector-type
 template <class Vector, class Ring>
 bool testVector (const Ring &R)
-	{ return testVectorSpec (typename VectorTraits<Vector, Ring>::RepresentationType (R)); }
+	{ return testVectorSpec<Vector> (R, typename LELA::VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 #endif // __LELA_TESTS_TEST_VECTOR_H
 

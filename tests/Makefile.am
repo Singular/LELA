@@ -24,19 +24,20 @@ LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/lela/
 # will be ignored by "make check" and can be temporary storage for problematic tests.
 BASIC_TESTS =  \
         test-commentator        \
-        test-gf2                \
-        test-rationals       \
-	test-matrix		\
         test-modular            \
         test-modular-double     \
-        test-blas-generic-module      \
-	test-blas-generic-module-gf2	\
+        test-gf2                \
+        test-rationals       \
+        test-type-wrapper-ring	\
         test-randiter-nonzero   \
+	test-vector		\
+	test-matrix		\
         test-subiterator        \
         test-subvector          \
 	test-bit-subvector	\
 	test-hybrid-vector	\
-        test-type-wrapper-ring	\
+        test-blas-generic-module      \
+	test-blas-generic-module-gf2	\
 	test-strassen-winograd	\
 	test-elimination	\
 	test-gauss-jordan	\
@@ -105,6 +106,11 @@ test_blas_generic_module_gf2_SOURCES = \
 test_modular_double_SOURCES =                \
         test-modular-double.C                \
         test-common.C
+
+test_vector_SOURCES = \
+	test-vector.C \
+	test-common.C \
+	test-vector.h
 
 test_matrix_SOURCES = \
 	test-matrix.C \

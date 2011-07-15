@@ -54,6 +54,7 @@ tests/test-hom
 tests/test-inverse
 tests/test-isposdef
 tests/test-ispossemidef
+tests/test-vector
 tests/test-matrix
 tests/test-blas-generic-module
 tests/test-blas-generic-module-gf2

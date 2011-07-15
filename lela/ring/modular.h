@@ -205,41 +205,57 @@ public:
 	double &convert (double &x, const Element &y) const {return  x = (double) y;}
 	float &convert (float &x, const Element &y) const {return  x = (float) y;}
 
-	Element &init (Element &x, const integer &y = 0) const
-	{
-		integer t = y % _modulus;
-		if (t < 0) t += _modulus;
-		ModularTraits<Element>::init_element (x, t);
-		return x;
-	}
-
-	Element &init (Element &x, const int y) const
+	template <class T>
+	Element &init (Element &x, const T &y) const
 	{
 		ModularTraits<Element>::reduce (x, y, _modulus);
 		return x;
 	}
 
-	Element &init (Element &x, const unsigned int y) const
-	{ 
+	template <class Iterator, class Accessor, class T>
+	Property<Iterator, Accessor> init (Property<Iterator, Accessor> x, const T &y) const
+	{
 		ModularTraits<Element>::reduce (x, y, _modulus);
 		return x;
 	}
 
-	Element &init (Element &x, const double &y) const
+	Element &init (Element &x, double y) const
 	{ 
 		double z = fmod (y, (double) _modulus);
 		if (z < 0) z += (double) _modulus;
 		return x = (Element) (z+.5);
 	}
 
-	Element &init (Element &x, const float &y) const
+	template <class Iterator, class Accessor>
+	Property<Iterator, Accessor> init (Property<Iterator, Accessor> x, double y) const
+	{ 
+		double z = fmod (y, (double) _modulus);
+		if (z < 0) z += (double) _modulus;
+		return x = (Element) (z+.5);
+	}
+
+	Element &init (Element &x, float y) const
 	{ 
 		float z = fmod (y, (float) _modulus);
 		if (z < 0) z += (float) _modulus;
 		return x = (Element) (z+.5);
 	}
 
-	Element &assign (Element &x, Element y) const { return x = y; }
+	template <class Iterator, class Accessor>
+	Property<Iterator, Accessor> init (Property<Iterator, Accessor> x, float y) const
+	{ 
+		float z = fmod (y, (float) _modulus);
+		if (z < 0) z += (float) _modulus;
+		return x = (Element) (z+.5);
+	}
+
+	Element &assign (Element &x, Element y) const
+		{ return x = y; }
+
+	template <class Iterator, class Accessor>
+	Property<Iterator, Accessor> assign (Property<Iterator, Accessor> x, Element y) const
+		{ return x = y; }
+
 	integer &cardinality (integer &c) const { return c = _modulus; }
 	integer &characteristic (integer &c) const { return c = _modulus; }
 
