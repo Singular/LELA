@@ -17,7 +17,6 @@
 #include <iostream>
 
 #include "lela/lela-config.h"
-#include "lela/element/interface.h"
 #include "lela/randiter/interface.h"
 #include "lela/integer.h"
 #include "lela/util/property.h"
@@ -32,6 +31,7 @@ namespace LELA
  * from which rings may be derived, though this is not required
  * provided that a ring satisfy this interface.
  */
+template <class _Element>
 class RingInterface
 {
 public:
@@ -42,10 +42,10 @@ public:
 	//@{
     
 	/// the type in which ring elements are represented.
-	typedef ElementInterface Element;
+	typedef _Element Element;
 
 	/// An object of this type is a generator of random ring elements.
-	typedef RandIterInterface RandIter;
+	typedef RandIterInterface<Element> RandIter;
     
 	/// @name Object Management
 	//@{

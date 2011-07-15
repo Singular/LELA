@@ -1,5 +1,4 @@
-
-/* tests/test-gmp-rational.C
+/* tests/test-rationals.C
  * Copyright (C) 2001, 2002 Bradford Hovinen,
  * Copyright (C) 2002 Dave Saunders
  *
@@ -17,7 +16,7 @@
 #include <fstream>
 #include <vector>
 
-#include "lela/ring/gmp-rational.h"
+#include "lela/ring/rationals.h"
 
 #include "test-common.h"
 #include "test-ring.h"
@@ -38,19 +37,26 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	commentator.start("GMP rational ring test suite", "GMPRationalField");
+	commentator.start("Rationals test suite", "GMPRationalField");
 	bool pass = true;
 
-	GMPRationalField F;
+	Rationals F;
 
 	// Make sure some more detailed messages get printed
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (4);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	if (!runRingTests (F,  "GMP Rational",  iterations, n, false)) pass = false;
+	if (!runRingTests (F, "Rationals",  iterations, n, false)) pass = false;
 
-	commentator.stop("GMP rational ring test suite");
+	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
 }
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

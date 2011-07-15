@@ -25,7 +25,7 @@ LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/lela/
 BASIC_TESTS =  \
         test-commentator        \
         test-gf2                \
-        test-gmp-rational       \
+        test-rationals       \
 	test-matrix		\
         test-modular            \
         test-modular-double     \
@@ -68,8 +68,8 @@ test_gf2_SOURCES =                        \
         test-gf2.C                        \
         test-common.C
 
-test_gmp_rational_SOURCES =               \
-        test-gmp-rational.C               \
+test_rationals_SOURCES =               \
+        test-rationals.C               \
         test-common.C
 
 test_type_wrapper_ring_SOURCES =        \

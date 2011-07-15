@@ -1,28 +1,18 @@
-/* lela/element/gmp-rational.h
- * Copyright (C) 2001-2002 Bradford Hovinen
+/* lela/element/rational.h
+ * Copyright 2001-2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * ----------------------------------------
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * See COPYING for license information
  */
 
-#ifndef __LELA_element_gmp_rational_H
-#define __LELA_element_gmp_rational_H
+#ifndef __LELA_ELEMENT_RATIONAL_H
+#define __LELA_ELEMENT_RATIONAL_H
 
 #include "lela/integer.h"
+#include "lela/element/interface.h"
 
 #include <gmp.h>
 
@@ -30,13 +20,13 @@ namespace LELA
 {
 
 // Forward declarations
-class GMPRationalField;
-class GMPRationalRandIter;
+class Rationals;
+class RationalRandIter;
 
 /** \brief elements of GMP_Rationals.
 \ingroup element
  */
-class GMPRationalElement
+class RationalElement
 {
     public:
 
@@ -55,7 +45,7 @@ class GMPRationalElement
 	 * to the null pointer.  Initialization of the element is done through
 	 * the ring function init where the ring is known.
 	 */
-	GMPRationalElement(void) { mpq_init (rep); }
+	RationalElement () { mpq_init (rep); }
 
 	/** Copy constructor.
 	 * This constructor is required to allow 
@@ -68,14 +58,14 @@ class GMPRationalElement
 	 * which a._elem_ptr points.
 	 * @param  a ring element.
 	 */
-	GMPRationalElement(const GMPRationalElement& a) 
-	{ mpq_init (rep); mpq_set (rep, a.rep); }
+	RationalElement (const RationalElement &a) 
+		{ mpq_init (rep); mpq_set (rep, a.rep); }
 
 	/** Destructor.
 	 * In this implementation, this destroys element by deleting ring 
 	 * element to which _elem_ptr points.
 	 */
-	~GMPRationalElement() { mpq_clear (rep); }
+	~RationalElement () { mpq_clear (rep); }
 
 	/** Assignment operator.
 	 * Assigns element a to element.  
@@ -83,11 +73,11 @@ class GMPRationalElement
 	 * by copying ring element to which _elem_ptr points.
 	 * @param  a ring element.
 	 */
-	GMPRationalElement& operator=(const GMPRationalElement& a)
+	RationalElement &operator = (const RationalElement& a)
 	{
-		if (this != &a) { // guard against self-assignment
+		if (this != &a) // guard against self-assignment
 			mpq_set (rep, a.rep);
-		}
+
 		return *this;
 	}
 
@@ -105,7 +95,8 @@ class GMPRationalElement
 	 * Creates new copy of element object in dynamic memory.
 	 * @param  elem_ptr  pointer to \ref{ElementAbstract}
 	 */
-	GMPRationalElement (mpq_t _rep) {
+	RationalElement (mpq_t _rep)
+	{
 		mpq_init (rep);
 		mpq_set (rep, _rep);
 	}
@@ -113,7 +104,7 @@ class GMPRationalElement
 	/** Constructor
 	 * Initialize from numerator and denominator
 	 */
-	GMPRationalElement (const integer &num, const integer &den) 
+	RationalElement (const integer &num, const integer &den) 
 	{
 		mpq_init (rep);
 		mpz_set (mpq_numref (rep), num.get_mpz_t ());
@@ -125,7 +116,7 @@ class GMPRationalElement
 	 *  Initalizes from a single integer, (which is assumed to be the
 	 *  numerator, with the denominator being 1)
 	 */
-	GMPRationalElement(const integer &num)
+	RationalElement (const integer &num)
 	{
 		mpq_init (rep);
 		/*
@@ -136,33 +127,21 @@ class GMPRationalElement
 		mpq_set_z(rep, num.get_mpz_t ());
 	}
 
-	mpq_ptr get_rep() {return rep;}
+	mpq_ptr get_rep() { return rep; }
 
 	//@}p
     
     private:
 
-	friend class GMPRationalField;
-	friend class GMPRationalRandIter;
+	friend class Rationals;
+	friend class RationalRandIter;
 
-	/** @name Implementation-Specific Data.
-	 * This data is not required of all LELA ring elements
-	 * and is included only for this implementation of the archetype.
-	 */
-	//@{
-    
-	/** Pointer to parameterized ring element.
-	 * Not part of the common object interface for \ref{LELA} ring elements.
-	 * Included to avoid code bloat.
-	 */
 	mutable mpq_t rep;
-    
-	//@} Non-Interface
 };
 
 } // namespace LELA
 
-#endif // __LELA_element_gmp_rational_H
+#endif // __LELA_ELEMENT_RATIONAL_H
 
 // Local Variables:
 // mode: C++

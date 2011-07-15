@@ -1,4 +1,4 @@
-/* lela/randiter/gmp-rational.h
+/* lela/randiter/rationals.h
  * Copyright 2001-2002 Bradford Hovinen
  *
  * Written by William J Turner <wjturner@acm.org>,
@@ -9,12 +9,13 @@
  * See COPYING for license information.
  */
 
-#ifndef __LELA_RANDITER_GMP_RATIONAL_H
-#define __LELA_RANDITER_GMP_RATIONAL_H
+#ifndef __LELA_RANDITER_RATIONALS_H
+#define __LELA_RANDITER_RATIONALS_H
 
 #include "lela/lela-config.h"
-#include "lela/ring/gmp-rational.h"
-#include "lela/element/gmp-rational.h"
+#include "lela/ring/rationals.h"
+#include "lela/element/rational.h"
+#include "lela/randiter/interface.h"
 
 #include <sys/time.h>
 #include <stdlib.h>
@@ -22,28 +23,28 @@
 namespace LELA
 {
 
-class GMPRationalRandIter
+class RationalRandIter : public RandIterInterface<RationalElement>
 {
     public:
     
-	typedef GMPRationalElement Element;
+	typedef RationalElement Element;
     
-	GMPRationalRandIter (const GMPRationalField &F,
-			     const integer &size = 0,
-			     const integer &seed = 0)
+	RationalRandIter (const Rationals &F,
+			  const integer &size = 0,
+			  const integer &seed = 0)
 		: _F (F), _size (size), _seed (seed)
 	{
 		if (seed == 0)
 			_seed = time (NULL);
 	}
 
-	GMPRationalRandIter (const GMPRationalRandIter &R)
+	RationalRandIter (const RationalRandIter &R)
 		: _F (R._F), _size (R._size), _seed (R._seed) {}
 
-	~GMPRationalRandIter() 
+	~RationalRandIter() 
 	{}
     
-	GMPRationalRandIter &operator = (const GMPRationalRandIter &R)
+	RationalRandIter &operator = (const RationalRandIter &R)
 	{
 		if (this != &R) { // guard against self-assignment
 			_F = R._F;
@@ -58,19 +59,21 @@ class GMPRationalRandIter
 		unsigned int s;
 		int value = 0;
 
+		RationalElement &a_elt = static_cast<RationalElement &> (a);
+
 		if (_size == 0) {
 			s = _seed.get_ui ();
 
 			value = rand_r (&s);
 
-			mpz_set_si (mpq_numref (a.rep), value);
+			mpz_set_si (mpq_numref (a_elt.rep), value);
 
 			do {
 				value = rand_r (&s);
 			} while (value == 0);
 
 			const_cast<integer&>(_seed) = s;
-			mpz_set_si (mpq_denref (a.rep), value);
+			mpz_set_si (mpq_denref (a_elt.rep), value);
 		}
 		else {
 			unsigned int s;
@@ -89,27 +92,27 @@ class GMPRationalRandIter
 
 			const_cast<integer&>(_seed) = s;
 
-			mpz_set_si (mpq_numref (a.rep), num);
-			mpz_set_si (mpq_denref (a.rep), den);
+			mpz_set_si (mpq_numref (a_elt.rep), num);
+			mpz_set_si (mpq_denref (a_elt.rep), den);
 		}
 
-		mpq_canonicalize (a.rep);
+		mpq_canonicalize (a_elt.rep);
 
 		return a;
 	}
  
     private:
 
-	GMPRationalField _F;
+	Rationals _F;
 
 	integer _size;
 	integer _seed;
      
-}; // class GMPRationalRandIter
+}; // class RationalRandIter
  
 } // namespace LELA
 
-#endif // __LELA_RANDITER_GMP_RANDOM_H
+#endif // __LELA_RANDITER_RATIONALS_H
 
 // Local Variables:
 // mode: C++

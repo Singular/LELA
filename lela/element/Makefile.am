@@ -7,5 +7,5 @@ EXTRA_DIST=				\
 	element.doxy
 
 pkgincludesub_HEADERS=			\
-	interface.h			\
-	gmp-rational.h
+	abstract.h			\
+	rational.h
