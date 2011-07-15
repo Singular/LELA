@@ -29,19 +29,19 @@ namespace LELA
  * A ring-implementation which uses this class must set the pointer
  * dispose whenever the element is initialised.
  */
-class ElementInterface
+class AbstractElement
 {
 public:
 	/// Pointer to a function which disposes of the ring element
-	void (*dispose) (ElementInterface &);
+	void (*dispose) (AbstractElement &);
 
 	/// Pointer to arbitrary data
 	void *ref;
 
-	ElementInterface ()
+	AbstractElement ()
 		: dispose (NULL), ref (NULL) {}
 
-	~ElementInterface () { if (dispose != NULL) dispose (*this); }
+	~AbstractElement () { if (dispose != NULL) dispose (*this); }
 };
 
 } // namespace LELA
