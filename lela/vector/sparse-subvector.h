@@ -315,8 +315,8 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 	SparseSubvector (const SparseSubvector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
 		_v = v._v;
-		_begin_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->end () + v._end_idx, start + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
-		_end_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->end () + v._end_idx, finish + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
+		_begin_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->begin () + v._end_idx, start + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
+		_end_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->begin () + v._end_idx, finish + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
 		_shift = start + v._shift;
 	}
 
@@ -349,7 +349,7 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 
 	template <class T>
 	inline void            push_back (T v)         { insert (end (), v); }
-	inline void            clear     ()            { _v->erase (_v->begin () + _begin_idx, _v->begin () + _end_idx); _begin_idx = _end_idx = 0; }
+	inline void            clear     ()            { _v->erase (_v->begin () + _begin_idx, _v->begin () + _end_idx); _end_idx = _begin_idx; }
 
 	template <class InputIterator>
 	void assign (InputIterator first, InputIterator last)

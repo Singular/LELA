@@ -122,12 +122,12 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 	lela_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 	lela_check (VectorUtils::hasDim<Ring> (y, A.rowdim ()));
 
-	typename Vector1::const_iterator j = x.begin ();
+	typename Vector1::const_iterator j;
 	typename Ring::Element d;
 
 	BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, b, y);
 
-	for (; j != x.end (); ++j) {
+	for (j = x.begin (); j != x.end (); ++j) {
 		typename Matrix::ConstColIterator i = A.colBegin () + j->first;
 		F.mul (d, a, j->second);
 		BLAS1::_axpy<Ring, typename Modules::Tag>::op (F, M, d, *i, y);
