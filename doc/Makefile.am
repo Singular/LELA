@@ -1,17 +1,14 @@
 if BUILD_DOCS
 DOC_TARGETS = tutorial.html
-REFDOC_TARGETS = reference/*
-else
-DOC_TARGETS =
+REFDOC_TARGETS = reference
 endif
 
-all all-local: $(DOC_TARGETS)
+all all-local: $(DOC_TARGETS) $(REFDOC_TARGETS)
 
 docdir = $(datadir)/doc/lela-$(VERSION)
 doc_DATA = $(DOC_TARGETS)
 
 refdocdir = $(datadir)/doc/lela-$(VERSION)/reference
-refdoc_DATA = $(REFDOC_TARGETS)
 
 tutorial.html: tutorial.xml
 	$(XSLTPROC) http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl tutorial.xml >tutorial.html
