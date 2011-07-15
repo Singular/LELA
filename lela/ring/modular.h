@@ -76,6 +76,8 @@ struct ModularTraits<uint8>
 	template <class FE>
 	static Element &reduce (Element &r, const FE &a, Element m) 
 		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_ui (); }
+	static Element &reduce (Element &r, FatElement a, Element m) 
+		{ return r = a % m; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	template <class Iterator, class Accessor, class FE>
@@ -97,6 +99,10 @@ struct ModularTraits<uint16>
 	template <class FE>
 	static Element &reduce (Element &r, const FE &a, Element m) 
 		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_ui (); }
+	static Element &reduce (Element &r, FatElement a, Element m) 
+		{ return r = a % m; }
+	static Element &reduce (Element &r, DoubleFatElement a, Element m) 
+		{ return r = a % m; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	template <class Iterator, class Accessor, class FE>
@@ -118,6 +124,8 @@ struct ModularTraits<uint32>
 	template <class FE>
 	static Element &reduce (Element &r, const FE &a, Element m) 
 		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_ui (); }
+	static Element &reduce (Element &r, FatElement a, Element m) 
+		{ return r = a % m; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ long long t = (long long) a % (long long) m; if (t < 0) t += m; return r = t; }
 	template <class Iterator, class Accessor, class FE>
@@ -139,6 +147,10 @@ struct ModularTraits<float>
 	template <class FE>
 	static Element &reduce (Element &r, const FE &a, Element m) 
 		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_d (); }
+	static Element &reduce (Element &r, FatElement a, Element m) 
+		{ r = fmod (a, m); return r; }
+	static Element &reduce (Element &r, DoubleFatElement a, Element m) 
+		{ r = fmod (a, (double) m); return r; }
 	template <class Iterator, class Accessor, class FE>
 	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
@@ -158,6 +170,8 @@ struct ModularTraits<double>
 	template <class FE>
 	static Element &reduce (Element &r, const FE &a, Element m) 
 		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_d (); }
+	static Element &reduce (Element &r, FatElement a, Element m) 
+		{ r = fmod (a, m); return r; }
 	template <class Iterator, class Accessor, class FE>
 	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
