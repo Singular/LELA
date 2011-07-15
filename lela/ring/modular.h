@@ -74,8 +74,8 @@ struct ModularTraits<uint8>
 	typedef int EEAElement;
 	static bool valid_modulus (const integer &modulus) { return modulus < integer (1U << 8); }
 	template <class FE>
-	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = a % m; return r; }
+	static Element &reduce (Element &r, const FE &a, Element m) 
+		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_ui (); }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	template <class Iterator, class Accessor, class FE>
@@ -95,8 +95,8 @@ struct ModularTraits<uint16>
 	typedef int EEAElement;
 	static bool valid_modulus (const integer &modulus) { return modulus < integer (1U << 16); }
 	template <class FE>
-	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = a % m; return r; }
+	static Element &reduce (Element &r, const FE &a, Element m) 
+		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_ui (); }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	template <class Iterator, class Accessor, class FE>
@@ -116,8 +116,8 @@ struct ModularTraits<uint32>
 	typedef int EEAElement;
 	static bool valid_modulus (const integer &modulus) { return modulus < integer (1U << 31) * 2; }
 	template <class FE>
-	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = a % m; return r; }
+	static Element &reduce (Element &r, const FE &a, Element m) 
+		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_ui (); }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ long long t = (long long) a % (long long) m; if (t < 0) t += m; return r = t; }
 	template <class Iterator, class Accessor, class FE>
@@ -137,8 +137,8 @@ struct ModularTraits<float>
 	typedef int EEAElement;
 	static bool valid_modulus (const integer &modulus) { return modulus.get_d () < 4096.0; }
 	template <class FE>
-	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = fmod (a, m); if (r < 0) r += m; return r; }
+	static Element &reduce (Element &r, const FE &a, Element m) 
+		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_d (); }
 	template <class Iterator, class Accessor, class FE>
 	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
@@ -156,8 +156,8 @@ struct ModularTraits<double>
 	typedef int EEAElement;
 	static bool valid_modulus (const integer &modulus) { return modulus.get_d () < 67108864.0; }
 	template <class FE>
-	static Element &reduce (Element &r, FE a, Element m) 
-		{ r = fmod (a, m); if (r < 0) r += m; return r; }
+	static Element &reduce (Element &r, const FE &a, Element m) 
+		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_d (); }
 	template <class Iterator, class Accessor, class FE>
 	static Property<Iterator, Accessor> &reduce (Property<Iterator, Accessor> &r, FE a, Element m)
 		{ r = fmod (a, m); return r; }
