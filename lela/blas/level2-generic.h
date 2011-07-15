@@ -169,6 +169,26 @@ class _ger<Ring, typename GenericModule<Ring>::Tag>
 	template <class Modules, class Vector1, class Vector2, class Matrix>
 	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
 				 VectorRepresentationTypes::Sparse,
+				 VectorRepresentationTypes::Dense,
+				 MatrixIteratorTypes::RowCol)
+		{ return ger_impl (F, M, a, x, y, A,
+				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
+				   typename VectorTraits<Ring, Vector2>::RepresentationType (),
+				   MatrixIteratorTypes::Row ()); }
+
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+				 VectorRepresentationTypes::Dense,
+				 VectorRepresentationTypes::Sparse,
+				 MatrixIteratorTypes::RowCol)
+		{ return ger_impl (F, M, a, x, y, A,
+				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
+				   typename VectorTraits<Ring, Vector2>::RepresentationType (),
+				   MatrixIteratorTypes::Row ()); }
+
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Vector1 &x, const Vector2 &y, Matrix &A,
+				 VectorRepresentationTypes::Sparse,
 				 VectorRepresentationTypes::Sparse,
 				 MatrixIteratorTypes::RowCol)
 		{ return ger_impl (F, M, a, x, y, A,
