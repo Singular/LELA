@@ -30,13 +30,13 @@ xml:
 	$(DOXYGEN)
 
 # Temporary solution until we get this thing online somewhere
-boostbook-xsl: boost_1_47_0.tar.bz2
-	tar jxvf boost_1_47_0.tar.bz2 boost_1_47_0/tools/boostbook/xsl/
-	mv boost_1_47_0/tools/boostbook/xsl/ boostbook-xsl
-	rm -rf boost_1_47_0
+# boostbook-xsl: boost_1_47_0.tar.bz2
+# 	tar jxvf boost_1_47_0.tar.bz2 boost_1_47_0/tools/boostbook/xsl/
+# 	mv boost_1_47_0/tools/boostbook/xsl/ boostbook-xsl
+# 	rm -rf boost_1_47_0
 
-boost_1_47_0.tar.bz2:
-	wget http://downloads.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2
+# boost_1_47_0.tar.bz2:
+# 	wget http://downloads.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2
 
 EXTRA_DIST = \
 	tutorial.html		\

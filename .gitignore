@@ -101,5 +101,5 @@ doc/tutorial.html
 doc/reference-*
 doc/reference.xml
 doc/xml
-doc/boost*
+doc/boost*bz2
 doc/doxy.debug
