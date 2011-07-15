@@ -555,6 +555,7 @@ public:
 
 // Forward declarations of types we're about to use
 template <typename Iterator, typename ConstIterator = Iterator> class Subvector;
+template <typename Iterator> class Subiterator;
 template <class Element, class IndexVector = std::vector<uint32>, class ElementVector = std::vector<Element> > class SparseVector;
 template <class Vector, class Trait> class SparseSubvector;
 
@@ -564,10 +565,10 @@ struct DefaultVectorTraits< std::vector<Element> >
 	typedef VectorRepresentationTypes::Dense RepresentationType;
 	typedef VectorStorageTypes::Real StorageType;
 	typedef std::vector<Element> ContainerType;
-	typedef Subvector<typename std::vector<Element>::iterator, typename std::vector<Element>::const_iterator> SubvectorType;
-	typedef Subvector<typename std::vector<Element>::const_iterator, typename std::vector<Element>::const_iterator> ConstSubvectorType;
-	typedef Subvector<typename std::vector<Element>::iterator, typename std::vector<Element>::const_iterator> AlignedSubvectorType;
-	typedef Subvector<typename std::vector<Element>::const_iterator, typename std::vector<Element>::const_iterator> ConstAlignedSubvectorType;
+	typedef Subvector<Subiterator<typename std::vector<Element>::iterator>, Subiterator<typename std::vector<Element>::const_iterator> > SubvectorType;
+	typedef Subvector<Subiterator<typename std::vector<Element>::const_iterator>, Subiterator<typename std::vector<Element>::const_iterator> > ConstSubvectorType;
+	typedef Subvector<Subiterator<typename std::vector<Element>::iterator>, Subiterator<typename std::vector<Element>::const_iterator> > AlignedSubvectorType;
+	typedef Subvector<Subiterator<typename std::vector<Element>::const_iterator>, Subiterator<typename std::vector<Element>::const_iterator> > ConstAlignedSubvectorType;
 	static const int align = 1;
 };
 
