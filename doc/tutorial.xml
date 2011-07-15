@@ -1376,25 +1376,36 @@ void MyFunction (const Matrix &amp;M)
       <title>Creating new rings</title>
 
       <para>
-	There are two mechanisms for creating rings:
+	There are three ways to create rings:
       </para>
 
       <itemizedlist>
-	<listitem>The <emphasis>template-mechanism</emphasis>, whereby
-	  it is necessary to instantiate LELA functionality on the new
-	  ring. This can yield better performance when the
-	  ring-operations are quite simple, but results in
-	  code-bloat.</listitem>
-	<listitem>The <emphasis>inheritance-mechanism</emphasis>,
-	  whereby the new ring-class inherits
-	  from <type>RingInterface</type> and existing functionality
-	  is then instantiated on <type>RingInterface</type>. This
-	  involves the invocation of a virtual method for each
-	  ring-operation, implying some overhead. If ring-operations
-	  are already expensive (e.g. with GMP rationals), then this
-	  hardly makes and difference, but for rings with simple types
-	  and easy arithmetic (e.g. Modular&lt;uint8&gt;), it imposes
-	  considerable overhead.</listitem>
+	<listitem>One can simply define a class meeting the proper
+	  interface and then instantiate the remaining parts of the
+	  library on that class. When the element-type and
+	  arithmetic-operations are simple (such as
+	  with <type>Modular</type>), this will typically provide the
+	  best performance by avoiding function-calls and enabling
+	  more compiler-optimisations. It comes however at the cost of
+	  more code-bloat, since practically the entire library must
+	  be instantiated for that ring-type.</listitem>
+	<listitem>One can define a class inheriting
+	  from <type>RingInterface</type>, which is parametrised by
+	  element-type. Then one instiantiate all remaining classes
+	  and functions on <type>RingInterface&lt;Element&gt;</type>,
+	  where <type>Element</type> is one's chosen
+	  element-type. This avoids multiple instantiations in the
+	  case that one uses the library with multiple rings using the
+	  same element-type, but is slower than the method above
+	  because it relies on the invocation of virtual
+	  methods.</listitem>
+	<listitem>One can define a class inheriting
+	  from <type>RingInterface&lt;AbstractElement&gt;</type>. The
+	  type <type>AbstractElement</type> allows in principle any
+	  element-type to be represented. Thus the entire library is
+	  only instantiated once, even when multiple rings with
+	  multiple element-types are used. It comes at a cost of both
+	  performance and memory-overhead.</listitem>
       </itemizedlist>
 
       <para>
@@ -1424,34 +1435,63 @@ public:
       </para>
 
       <para>
-	To use the inheritance-method, create a class which derives
-	from <type>RingInterface</type>. The
-	class <type>RingInterface</type> is an abstract base-class
-	implementing the required ring-interface. It is necessary to
-	override all pure virtual methods in it.
-      </para>
-
-      <para>
-	The element-type must then inherit
-	from <type>ElementInterface</type>, which is in fact an empty
-	type. All parameters passed to arithmetic-operations
-	in <type>RingInterface</type> are of
-	type <type>ElementInterface</type> and must then be cast to
-	the element-type of the derived class.
+	To use the second method, create a class which derives
+	from <type>RingInterface&lt;Element&gt;</type>,
+	where <type>Element</type> is the C++-type you have chosen to
+	represent elements. The class <type>RingInterface</type> is an
+	abstract base-class implementing the required
+	ring-interface. It is necessary to override all pure virtual
+	methods in it.
       </para>
 
       <programlisting>
-class MyRing : public RingInterface
+class MyRing : public RingInterface&lt;MyElement&gt;
 {
 public:
-	typedef ElementInterface Element;
+	typedef MyElement Element;
 
 	Element &amp;add (Element &amp;a, const Element &amp;b, const Element &amp;c)
 	{
-		MyRingElement &amp;a_r = static_cast&lt;MyRingElement &amp;&gt; (a);
-		MyRingElement &amp;b_r = static_cast&lt;MyRingElement &amp;&gt; (b);
-		MyRingElement &amp;c_r = static_cast&lt;MyRingElement &amp;&gt; (c);
-		a_r = b_r + c_r;
+		a = b + c;
+		return a;
+	}
+	...
+};
+      </programlisting>
+
+      <para>
+	To use the third method, define a class which inherits
+	from <type>RingInterface&lt;AbstractElement&gt;</type>. The
+	element-type is then <type>AbstractElement</type>. This type
+	contains two members:
+	<itemizedlist>
+	  <listitem><varname>ref</varname>, an void pointer to element-data, the content of which you are free to define,</listitem>
+	  <listitem><varname>dispose</varname>, a pointer to a function which disposes of a ring-element.</listitem>
+	</itemizedlist>
+	Any method in your ring-class which initialises a ring-element
+	(that
+	is <function>init</function>, <function>assign</function>, <function>read</function>,
+	and all out-of-place arithmetic operations) must
+	initialise <emphasis>both</emphasis> <varname>ref</varname>
+	and <varname>dispose</varname>. If <varname>dispose</varname>
+	is set to <constant>NULL</constant>, it will not be invoked in
+	the destructor. For example:
+      </para>
+
+      <programlisting>
+class MyRing
+{
+public:
+	typedef AbstractElement Element;
+
+	static void dispose (Element &amp;x)
+		{ if (x.ref != NULL) delete x.ref; }
+
+	Element &amp;add (Element &amp;a, const Element &amp;b, const Element &amp;c)
+	{
+		*(int *) a.ref = new int;
+		a.dispose = dispose;
+		*(int *) a.ref = *(int *) b + *(int *) c;
 		return a;
 	}
 	...
