@@ -1,6 +1,6 @@
 if BUILD_DOCS
 DOC_TARGETS = tutorial.html
-REFDOC_TARGETS = reference
+REFDOC_TARGETS = 
 endif
 
 all all-local: $(DOC_TARGETS) $(REFDOC_TARGETS)
