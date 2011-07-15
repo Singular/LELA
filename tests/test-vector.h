@@ -376,7 +376,7 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 }
 
 template <class Vector, class Ring>
-bool checkSparseAfterSubConstruction (const Ring &R, const Vector &v)
+bool checkSparseAfterSubConstruction (const Ring &R, const Vector &v, bool expect_first_elt)
 {
 	bool pass = true;
 
@@ -388,21 +388,23 @@ bool checkSparseAfterSubConstruction (const Ring &R, const Vector &v)
 
 	i = v.begin ();
 
-	if (i->first != 10) {
-		error << "ERROR: First index is " << i->first << ", expected 10" << std::endl;
-		pass = false;
+	if (expect_first_elt) {
+		if (i->first != 10) {
+			error << "ERROR: First index is " << i->first << ", expected 10" << std::endl;
+			pass = false;
+		}
+
+		R.init (a, 1);
+
+		if (!R.areEqual (a, i->second)) {
+			error << "ERROR: First element is ";
+			R.write (error, i->second) << ", expected ";
+			R.write (error, a) << std::endl;
+			pass = false;
+		}
+
+		++i;
 	}
-
-	R.init (a, 1);
-
-	if (!R.areEqual (a, i->second)) {
-		error << "ERROR: First element is ";
-		R.write (error, i->second) << ", expected ";
-		R.write (error, a) << std::endl;
-		pass = false;
-	}
-
-	++i;
 
 	if (i->first != 12) {
 		error << "ERROR: Second index is " << i->first << ", expected 12" << std::endl;
@@ -609,8 +611,8 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 
 	v3.erase (j);
 
-	if (v3.back ().first != 20) {
-		error << "ERROR: v3.back ().first = " << v3.back ().first << " after erasure of last entry, expected 20" << std::endl;
+	if (v3.back ().first != 30) {
+		error << "ERROR: v3.back ().first = " << v3.back ().first << " after erasure of last entry, expected 30" << std::endl;
 		part_pass = false;
 	}
 
@@ -618,18 +620,18 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	j = v3.begin ();
 	v3.erase (j);
 
-	if (v3.front ().first != 20) {
-		error << "ERROR: v3.front ().first = " << v3.front ().first << " after erasure of first entry, expected 20" << std::endl;
+	if (v3.front ().first != 30) {
+		error << "ERROR: v3.front ().first = " << v3.front ().first << " after erasure of first entry, expected 30" << std::endl;
 		part_pass = false;
 	}
 
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
 
-	// Test 3: assign
+	// Test 4: assign
 	//
 	// Construct two sparse vectors, assign the second to the first
-	LELA::commentator.start ("Test 3: assign", __FUNCTION__);
+	LELA::commentator.start ("Test 4: assign", __FUNCTION__);
 	part_pass = true;
 
 	Vector v4;
@@ -664,10 +666,10 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
 
-	// Test 4: Subvector read
+	// Test 5: Subvector read
 	//
 	// Construct a sparse vector and read from a subvector thereof
-	LELA::commentator.start ("Test 3: subvector read", __FUNCTION__);
+	LELA::commentator.start ("Test 5: subvector read", __FUNCTION__);
 	part_pass = true;
 
 	Vector v5;
@@ -858,7 +860,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 		part_pass = false;
 	}
 
-	i_sub = v5_sub4.begin ();
+	i_sub = v5_sub5.begin ();
 
 	if (v5_sub5.front ().first != 0) {
 		error << "ERROR: First index of subvector indices 30..50 is " << v5_sub5.front ().first << " (from front ()), expected 0" << std::endl;
@@ -924,10 +926,10 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
 
-	// Test 5: Subvector push_back
+	// Test 6: Subvector push_back
 	//
 	// Construct a subvector and call push_back to it
-	LELA::commentator.start ("Test 3: subvector push_back", __FUNCTION__);
+	LELA::commentator.start ("Test 6: subvector push_back", __FUNCTION__);
 	part_pass = true;
 
 	Vector v6;
@@ -944,13 +946,13 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v6_sub (v6, 10, 20);
 
 	v6_sub.push_back (typename Vector::value_type (2, typename Ring::Element ()));
-	R.init (v6.back ().second, 2);
+	R.init (v6_sub.back ().second, 2);
 
 	v6_sub.push_back (typename Vector::value_type (4, typename Ring::Element ()));
-	R.init (v6.back ().second, 3);
+	R.init (v6_sub.back ().second, 3);
 
 	v6_sub.push_back (typename Vector::value_type (6, typename Ring::Element ()));
-	R.init (v6.back ().second, 4);
+	R.init (v6_sub.back ().second, 4);
 
 	report << "Subvector v6_sub as constructed: ";
 	LELA::BLAS1::write (ctx, report, v6_sub) << std::endl;
@@ -958,7 +960,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	report << "Vector v6 after construction of subvector: ";
 	LELA::BLAS1::write (ctx, report, v6) << std::endl;
 
-	part_pass = checkSparseAfterSubConstruction (R, v6);
+	part_pass = checkSparseAfterSubConstruction (R, v6, true);
 
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
@@ -977,8 +979,8 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	v7.push_back (typename Vector::value_type (20, typename Ring::Element ()));
 	R.init (v7.back ().second, 5);
 
-	report << "Vector v6 as constructed: ";
-	LELA::BLAS1::write (ctx, report, v6) << std::endl;
+	report << "Vector v7 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v7) << std::endl;
 
 	v8.push_back (typename Vector::value_type (2, typename Ring::Element ()));
 	R.init (v8.back ().second, 2);
@@ -989,11 +991,17 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	v8.push_back (typename Vector::value_type (6, typename Ring::Element ()));
 	R.init (v8.back ().second, 4);
 
-	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v7_sub (v6, 10, 20);
+	report << "Vector v8 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v8) << std::endl;
+
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v7_sub (v7, 10, 20);
 
 	v7_sub.assign (v8.begin (), v8.end ());
 
-	part_pass = checkSparseAfterSubConstruction (R, v7);
+	report << "Vector v7 after assign: ";
+	LELA::BLAS1::write (ctx, report, v7) << std::endl;
+
+	part_pass = checkSparseAfterSubConstruction (R, v7, false);
 
 	LELA::commentator.stop (MSG_STATUS (part_pass));
 	pass = part_pass && pass;
