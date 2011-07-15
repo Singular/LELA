@@ -52,44 +52,50 @@ public:
     
 	/** \brief Initialization of ring element from an integer.
 	 *
-	 * x becomes the image of n under the natural map from the integers
-	 * to the prime subring.  It is the result obtained from adding n 1's 
-	 * in the ring.
-	 *
-	 * This function assumes the output ring element x
-	 * has already been constructed, but that it is not
-	 * necessarily already initialized. In this
-	 * archetype implementation, this means the <tt> _elem_ptr</tt> of
-	 * x exists, but that it may be the null pointer.
+	 * x becomes the image of n under the natural map from the
+	 * integers to the ring. The element x need not have been
+	 * previously initialised.
 	 *
 	 * @return reference to x.
 	 * @param x output ring element.
 	 * @param n input integer.
 	 */
 	virtual Element &init (Element &x, const integer &n = 0) const = 0;
+
+	/// Version of init which takes a Property rather than an element.
+	///
+	/// It should do exactly what the version above taking an element does.
+	template <class Iterator, class Accessor>
+	Property<Iterator, Accessor> init (Property<Iterator, Accessor> x, const integer &n = 0) const
+	{
+		Element t;
+		init (t, n);
+		return x = t;
+	}
   
-	/** \brief Conversion of ring element to an integer.  The
-	 * meaning of conversion is specific to each ring
-	 * class. However, if x is in the image of the integers in the
-	 * ring, the integer n returned is such that an init from n
-	 * will reproduce x. Most often 0 &leq; n &lt; characteristic.
-	 *
-	 * @return reference to n.
-	 * @param n output integer.
-	 * @param x input ring element.
-	 */
-	virtual integer &convert (integer &n, const Element &y) const = 0;
-    
 	/** \brief  Assignment of one ring element to another.
 	 *
-	 * This function assumes both ring elements have already been 
-	 * constructed and initialized.
+	 * This function makes a deep copy of the element y into the
+	 * element x (as opposed to the assignment-operator, which
+	 * makes only a shallow copy). The element x need not have
+	 * been previously initialised.
 	 *
 	 * @return reference to x
 	 * @param  x destination ring element.
 	 * @param  y source ring element.
 	 */
 	virtual Element &assign (Element &x, const Element &y) const = 0;
+
+	/// Version of assign which takes a Property rather than an element.
+	///
+	/// It should do exactly what the version above taking an element does.
+	template <class Iterator, class Accessor>
+	Property<Iterator, Accessor> assign (Property<Iterator, Accessor> x, const Element &y) const
+	{
+		Element t;
+		assign (t, y);
+		return x = t;
+	}
     
 	/** \brief Cardinality.
 	 *
@@ -285,11 +291,11 @@ public:
 	 * @param  y ring element.
 	 */
 	template <class Iterator, class Accessor>
-	Property<Iterator, Accessor> &mulin (Property<Iterator, Accessor> &x, const Element &y) const
+	Property<Iterator, Accessor> mulin (Property<Iterator, Accessor> x, const Element &y) const
 	{
 		Element t = x;
 		mulin (t, y);
-		x = t;
+		return x = t;
 	}
    
 	/** Inplace Division; x /= y

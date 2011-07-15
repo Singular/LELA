@@ -262,22 +262,23 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense)
 template <class Vector, class Ring>
 void buildSparseVector (const Ring &R, Vector &v, size_t &front_idx, typename Ring::Element &f, size_t &back_idx, typename Ring::Element &e) 
 {
-	size_t idx;
-	typename Ring::Element a;
+	size_t idx, curr_idx;
 
 	front_idx = 0xffffffff;
 
-	for (idx = 0, back_idx = 0; idx < DEFAULT_DIM; ++idx, back_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
+	for (idx = 0, curr_idx = 0; idx < DEFAULT_DIM; ++idx, curr_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
 		R.init (e, idx % DEFAULT_CYCLE_LEN);
 
-		if (!R.isZero (a)) {
-			v.push_back (typename Vector::value_type (back_idx, typename Ring::Element ()));
+		if (!R.isZero (e)) {
+			v.push_back (typename Vector::value_type (curr_idx, typename Ring::Element ()));
 			R.assign (v.back ().second, e);
 
 			if (front_idx == 0xffffffff) {
-				front_idx = back_idx;
+				front_idx = curr_idx;
 				R.assign (f, e);
 			}
+
+			back_idx = curr_idx;
 		}
 	}
 }
@@ -288,7 +289,7 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 	bool pass = true;
 
 	typename Vector::const_iterator i;
-	size_t idx, curr_idx, curr_idx_1;
+	size_t idx, curr_idx, curr_idx_1, v_back_idx;
 
 	typename Ring::Element a, b;
 
@@ -306,7 +307,7 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 		pass = false;
 	}
 
-	for (i = v.begin (), idx = curr_idx = curr_idx_1 = 0; i != v.end (); ++i, ++idx, curr_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
+	for (i = v.begin (), idx = curr_idx = curr_idx_1 = 0; i != v.end (); ++idx, curr_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
 		R.init (a, idx % DEFAULT_CYCLE_LEN);
 
 		if (!R.isZero (a)) {
@@ -315,7 +316,7 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 				pass = false;
 			}
 
-			while (curr_idx_1 < i->first) {
+			while (curr_idx_1 < curr_idx) {
 				if (LELA::VectorUtils::getEntry (v, b, curr_idx_1)) {
 					error << "ERROR: LELA::VectorUtils::getEntry obtained an entry for index " << curr_idx_1
 					      << " where there should not be one; entry is ";
@@ -333,6 +334,8 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 				pass = false;
 			}
 
+			++curr_idx_1;
+
 			if (!R.areEqual (a, i->second)) {
 				error << "ERROR: Entry at index " << i->first << " is ";
 				R.write (error, i->second) << "; expected ";
@@ -346,11 +349,15 @@ bool checkSparseVector (const Ring &R, const Vector &v, size_t front_idx, const 
 				R.write (error, a) << std::endl;
 				pass = false;
 			}
+
+			v_back_idx = curr_idx;
+
+			++i;
 		}
 	}
 
-	if (back_idx != curr_idx) {
-		error << "ERROR: Index at v.end () - 1 is " << curr_idx << " but expected " << back_idx;
+	if (back_idx != v_back_idx) {
+		error << "ERROR: Index at v.end () - 1 is " << v_back_idx << " but expected " << back_idx;
 	}
 
 	if (v.back ().first != back_idx) {
@@ -517,8 +524,8 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 		R.init (a, idx % DEFAULT_CYCLE_LEN);
 
 		if (!R.isZero (a)) {
-			v1.push_back (typename Vector::value_type (curr_idx, typename Ring::Element ()));
-			R.assign (v1.back ().second, a);
+			v2.push_back (typename Vector::value_type (curr_idx, typename Ring::Element ()));
+			R.assign (v2.back ().second, a);
 			++exp_size;
 		}
 	}
@@ -560,7 +567,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	// Test 3: erase
 	//
 	// Construct a sparse vector then erase some entries
-	LELA::commentator.start ("Test 2: clear, empty, size", __FUNCTION__);
+	LELA::commentator.start ("Test 3: erase", __FUNCTION__);
 	part_pass = true;
 
 	Vector v3;
@@ -578,7 +585,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	R.init (v3.back ().second, 65521);
 
 	report << "Vector as constructed: ";
-	LELA::BLAS1::write (ctx, report, v2) << std::endl;
+	LELA::BLAS1::write (ctx, report, v3) << std::endl;
 
 	// Erase the second entry
 	j = v3.begin ();
