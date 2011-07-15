@@ -471,7 +471,6 @@ bool testBLAS2Submatrix (Context<Field, Modules> &ctx, const char *text,
 	return pass;
 }
 
-
 template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2, class Vector1, class Vector2, class Vector3, class Vector4>
 bool testgemvConsistency (LELA::Context<Ring, Modules1> &ctx1,
 			  LELA::Context<Ring, Modules2> &ctx2,
@@ -527,10 +526,7 @@ bool testgemvConsistency (LELA::Context<Ring, Modules1> &ctx1,
 	report << "Matrix A: "<< std::endl;
 	BLAS3::write (ctx1, report, A);
 
-
 	BLAS2::gemv(ctx1, a, M1, v1, b, w3);
-
-
 
 	report << "Vector a Av_1 + bv_2: ";
 	BLAS1::write (ctx1, report, w3) << std::endl;
@@ -553,11 +549,215 @@ bool testgemvConsistency (LELA::Context<Ring, Modules1> &ctx1,
 		pass = false;
 	}
 
-
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }	
+
+template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2, class Vector1, class Vector2>
+bool testtrmvConsistency  (LELA::Context<Ring, Modules1> &ctx1,
+    			   LELA::Context<Ring, Modules2> &ctx2,
+		           const char *text,
+      			   const Matrix1 &A1, const Vector1 &x1,
+      			   const Matrix2 &A2, const Vector2 &x2,
+		           TriangularMatrixType type,
+		           bool diagIsOne)
+{
+	ostringstream str;
+	str << "Testing " << text << " trmv consistency" << std::ends;
+	commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool pass = true;
+
+	typename VectorTraits<Ring,Vector1>::ContainerType w1;
+	typename VectorTraits<Ring,Vector2>::ContainerType w2;
+
+	VectorUtils::ensureDim<Ring, Vector1> (w1, A1.coldim ());
+	VectorUtils::ensureDim<Ring, Vector2> (w2, A1.rowdim ());
+
+	BLAS1::copy (ctx1, x1, w1);
+	BLAS1::copy (ctx1, x1, w2);
+
+	typename Matrix2::ContainerType A3 (A1.rowdim (), A1.coldim ());
+
+	BLAS3::copy(ctx1,A1,A3);
+
+	report << "Vector x_1: ";
+	BLAS1::write (ctx1, report, x1) << std::endl;
+
+	report << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, report, A1);
+
+	BLAS2::trmv(ctx1, A1, w1, type, diagIsOne);
+
+	report << "Vector A_1 x_1: ";
+	BLAS1::write (ctx1, report, w1) << std::endl;
+
+	report << "Vector w_1: ";
+	BLAS1::write (ctx2, report, w1) << std::endl;
+
+	report << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, report, A3);
+
+	BLAS2::trmv (ctx2, A3, w2, type, diagIsOne);
+
+	report << "Vector A_2 w_1: ";
+	BLAS1::write (ctx1, report, w2) << std::endl;
+
+	if (!BLAS1::equal (ctx1, w1, w2))
+	{
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+    			<< "ERROR: A_1 x_1 !=  A_2 w_1 " << std::endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2, class Vector1, class Vector2>
+bool testtrsvConsistency (LELA::Context<Ring, Modules1> &ctx1,
+      			  LELA::Context<Ring, Modules2> &ctx2,
+      			  const char *text,
+      			  const Matrix1 &A1, const Vector1 &x1,
+   			  const Matrix2 &A2, const Vector2 &x2,
+      			  TriangularMatrixType type,
+    			  bool diagIsOne)
+{
+	ostringstream str;
+	str << "Testing " << text << " trsv consistency" << std::ends;
+	commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool pass = true;
+
+	typename VectorTraits<Ring,Vector1>::ContainerType w1;
+	typename VectorTraits<Ring,Vector2>::ContainerType w2;
+
+	VectorUtils::ensureDim<Ring, Vector1> (w1, A1.coldim ());
+	VectorUtils::ensureDim<Ring, Vector2> (w2, A1.rowdim ());
+
+	BLAS1::copy (ctx1, x1, w1);
+	BLAS1::copy (ctx1, x1, w2);
+
+	typename Matrix2::ContainerType A3 (A1.rowdim (), A1.coldim ());
+
+	BLAS3::copy(ctx1,A1,A3);
+
+	report << "Vector x_1: ";
+	BLAS1::write (ctx1, report, x1) << std::endl;
+
+	report << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, report, A1);
+
+	BLAS2::trsv(ctx1, A1, w1, type, diagIsOne);
+
+	report << "Vector (A_1)^-1 x_1: ";
+	BLAS1::write (ctx1, report, w1) << std::endl;
+
+	report << "Vector w_1: ";
+	BLAS1::write (ctx2, report, w1) << std::endl;
+
+	report << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, report, A3);
+
+	BLAS2::trsv (ctx2, A3, w2, type, diagIsOne);
+
+	report << "Vector (A_2)^-1 w_1: ";
+	BLAS1::write (ctx1, report, w2) << std::endl;
+
+	if (!BLAS1::equal (ctx1, w1, w2))
+	{
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+    			<< "ERROR: (A_1)^-1 x_1 !=  (A_2)^-1 w_1 " << std::endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2, class Vector1, class Vector2, class Vector3, class Vector4>
+bool testgerConsistency (LELA::Context<Ring, Modules1> &ctx1,
+      			 LELA::Context<Ring, Modules2> &ctx2,
+      			 const char *text,
+      			 const Matrix1 &A1, 
+			 const Vector1 &x1, const Vector2 &x2,
+			 const Matrix2 &A2,
+			 const Vector3 &y1, const Vector4 &y2)
+{
+	ostringstream str;
+	str << "Testing " << text << " ger consistency" << std::ends;
+	commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool pass = true;
+
+	typename VectorTraits<Ring,Vector3>::ContainerType w1;
+	typename VectorTraits<Ring,Vector4>::ContainerType w2;
+
+	VectorUtils::ensureDim<Ring, Vector3> (w1, A1.coldim ());
+	VectorUtils::ensureDim<Ring, Vector4> (w2, A1.rowdim ());
+
+	BLAS1::copy (ctx1, x1, w1);
+	BLAS1::copy (ctx1, x2, w2);
+
+	typename Ring::Element a;
+	NonzeroRandIter<Ring, typename Ring::RandIter> r (ctx1.F, typename Ring::RandIter (ctx1.F));
+
+	r.random (a);
+        
+	typename Matrix2::ContainerType A3 (A1.rowdim (), A1.coldim ());
+        typename Matrix2::ContainerType A4 (A1.rowdim (), A1.coldim ());
+
+	BLAS3::copy(ctx1,A1,A3);
+	BLAS3::copy(ctx1,A1,A4);
+
+	report << "Vector x_1: ";
+	BLAS1::write (ctx1, report, x1) << std::endl;
+
+	report << "Vector x_2: ";
+	BLAS1::write (ctx1, report, x2) << std::endl;
+
+	report << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, report, A3);
+
+	BLAS2::ger(ctx1, a, x1, x2, A3);
+
+	report << "Matrix A_1 + a x_1 y^T: ";
+	BLAS3::write (ctx1, report, A3) << std::endl;
+
+	report << "Vector w_1: ";
+	BLAS1::write (ctx2, report, w1) << std::endl;
+
+	report << "Vector w_2: ";
+	BLAS1::write (ctx2, report, w2) << std::endl;
+
+	report << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, report, A4);
+
+	BLAS2::ger (ctx2, a, w1, w2, A4);
+
+	report << "Matrix A_2 + a x_2 y^T: ";
+	BLAS3::write (ctx1, report, A4) << std::endl;
+
+	if (!BLAS3::equal (ctx1, A3, A4))
+	{
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+    			<< "ERROR: A_1 + a x_1 y^T  !=  A_2 + a x_2  y^T " << std::endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
 
 template <class Ring, class Modules>
 bool testBLAS2Consistency (LELA::Context<Ring, Modules> &ctx, const char *text, size_t m, size_t n, size_t k) 
@@ -597,18 +797,80 @@ bool testBLAS2Consistency (LELA::Context<Ring, Modules> &ctx, const char *text, 
 	pass = testgemvConsistency (ctx, ctx, "sparse(col-wise)	/sparse	/dense		with dense/dense/dense", M3, w2, v1, M1, v1, v1) && pass; 
 	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/dense		with dense/dense/dense", M1, w1, v2, M1, v1, v1) && pass; 
 	pass = testgemvConsistency (ctx, ctx, "dense		/sparse	/sparse		with dense/dense/dense", M1, w1, w2, M1, v1, v1) && pass; 
+	pass = testgemvConsistency (ctx, ctx, "dense            /dense  /sparse         with dense/dense/dense", M1, v1, w2, M1, v1, v1) && pass;
 
+	RandomDenseStream<Ring, typename DenseMatrix<typename Ring::Element>::Row> stream41 (ctx.F, n, n); 
+	DenseMatrix<typename Ring::Element> M4 (stream41);
+
+	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> stream51 (ctx.F, (double) k / (double) n, n, n);
+	SparseMatrix<typename Ring::Element> M5 (stream51);
+
+	TransposeMatrix<SparseMatrix<typename Ring::Element> > M6 (M5);
+
+	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag = 1)", M4, w1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag = 1)", M4, w1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag != 1)", M4, w1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag != 1)", M4, w1, M4, v1, UpperTriangular, false) && pass;
+	
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag = 1)", M5, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag = 1)", M5, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag != 1)", M5, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag != 1)", M5, v1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag = 1)", M6, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag = 1)", M6, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag != 1)", M6, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag != 1)", M6, v1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag = 1)", M5, w1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag = 1)", M5, w1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag != 1)", M5, w1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag != 1)", M5, w1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag = 1)", M6, w1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag = 1)", M6, w1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag != 1)", M6, w1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag != 1)", M6, w1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag = 1)", M4, w1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag = 1)", M4, w1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag != 1)", M4, w1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag != 1)", M4, w1, M4, v1, UpperTriangular, false) && pass;
+	
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag = 1)", M5, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag = 1)", M5, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag != 1)", M5, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag != 1)", M5, v1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag = 1)", M6, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag = 1)", M6, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag != 1)", M6, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag != 1)", M6, v1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag = 1)", M5, w1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag = 1)", M5, w1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag != 1)", M5, w1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag != 1)", M5, w1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag = 1)", M6, w1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag = 1)", M6, w1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag != 1)", M6, w1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag != 1)", M6, w1, M4, v1, UpperTriangular, false) && pass;
+
+	pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /dense  /dense          with dense/dense/dense", M2, v1, v2, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /dense  /dense          with dense/dense/dense", M3, v2, v1, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /sparse /sparse         with dense/dense/dense", M2, w1, w2, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /sparse /sparse         with dense/dense/dense", M3, w2, w1, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /sparse /dense          with dense/dense/dense", M2, w1, v2, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /sparse /dense          with dense/dense/dense", M3, w2, v1, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "dense            /sparse /dense          with dense/dense/dense", M1, w1, v2, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "dense            /sparse /sparse         with dense/dense/dense", M1, w1, w2, M1, v1, v1) && pass;
+	pass = testgerConsistency (ctx, ctx, "dense            /dense  /sparse         with dense/dense/dense", M1, v1, w2, M1, v1, v1) && pass;
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
-
-
-
-
-
-
 
 #endif // __LELA_TESTS_TEST_BLAS_LEVEL2_H
 
