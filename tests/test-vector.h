@@ -1729,6 +1729,10 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Hybrid01)
 
 	// std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 
+	// Note: In this version I haven't included anything, since
+	// test-hybrid-vector.C seems to give hybrid vectors a good
+	// workout already.
+
 	LELA::commentator.stop (MSG_STATUS (pass));
 
 	return pass;
