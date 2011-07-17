@@ -68,17 +68,16 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 
 	typename Vector<Ring>::Sparse yp;
 
-	if (F.isZero (b))
-		y.clear ();
-	else
-		BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, b, y);
+	BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, b, y);
 
 	for (; i != A.rowEnd (); ++i, ++idx) {
 		BLAS1::_dot<Ring, typename Modules::Tag>::op (F, M, t, x, *i);
 		F.mulin (t, a);
 
-		if (!F.isZero (t))
-			yp.push_back (typename Vector<Ring>::Sparse::value_type (idx, t));
+		if (!F.isZero (t)) {
+			yp.push_back (typename Vector<Ring>::Sparse::value_type (idx, typename Ring::Element ()));
+			F.assign (yp.back ().second, t);
+		}
 	}
 
 	return BLAS1::_axpy<Ring, typename Modules::Tag>::op (F, M, F.one (), yp, y);
@@ -155,7 +154,6 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::op
 			typename Ring::Element ai;
 
 			if (!A.getEntry (ai, 0, 0))
-				// FIXME: Should return an error
 				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, F.zero (), x);
 			else
 				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, ai, x);

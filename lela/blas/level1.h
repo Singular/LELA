@@ -61,7 +61,8 @@ void swap (Context<Ring, Modules> &ctx, Vector &x, Vector &y)
  *
  * x and y may be of different types, but must be defined over the same ring
  *
- * The entries of y need not have been previously initialised.
+ * The entries of y need not have been previously initialised. All
+ * ring-elements are deep-copied.
  *
  * @param ctx @ref Context object for calculation
  * @param x Origin vector

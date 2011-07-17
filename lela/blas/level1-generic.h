@@ -70,13 +70,7 @@ class _copy<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
-	{
-		lela_check (x.size () == y.size ());
-
-		std::copy (x.begin (), x.end (), y.begin ());
-		return y;
-	}
+				   VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
@@ -88,8 +82,7 @@ class _copy<Ring, typename GenericModule<Ring>::Tag>
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
-				   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
-		{ y.assign (x.begin (), x.end ()); return y; }
+				   VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
 	template <class Modules, class Vector1, class Vector2>

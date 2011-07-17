@@ -82,16 +82,54 @@ template <class Ring>
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	(const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
+	 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
+{
+	lela_check (x.size () == y.size ());
+
+	typename Vector1::const_iterator i;
+	typename Vector2::iterator j;
+
+	for (i = x.begin (), j = y.begin (); i != x.end (); ++i, ++j)
+		F.assign (*j, *i);
+
+	return y;
+}
+
+template <class Ring>
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
+	(const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
 	 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 {
 	typename Vector1::const_iterator i;
-	int idx;
+	size_t idx;
 
 	y.clear ();
 
-	for (i = x.begin (), idx = 0; i != x.end (); i++, idx++)
-		if (!F.isZero (*i))
-			y.push_back (typename Vector2::value_type (idx, *i));
+	for (i = x.begin (), idx = 0; i != x.end (); ++i, ++idx) {
+		if (!F.isZero (*i)) {
+			y.push_back (typename Vector2::value_type (idx, typename Ring::Element ()));
+			F.assign (y.back ().second, *i);
+		}
+	}
+
+	return y;
+}
+
+template <class Ring>
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
+	(const Ring &F, Modules &M, const Vector1 &x, Vector2 &y,
+	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
+{
+	typename Vector1::const_iterator i;
+
+	y.clear ();
+
+	for (i = x.begin (); i != x.end (); ++i) {
+		y.push_back (typename Vector2::value_type (i->first, typename Ring::Element ()));
+		F.assign (y.back ().second, i->second);
+	}
 
 	return y;
 }
@@ -104,18 +142,12 @@ Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 {
 	lela_check (VectorUtils::hasDim<Ring> (x, y.size ()));
 
-	typename Vector1::const_iterator j;
-	typename Vector2::iterator i;
-	size_t idx;
+	typename Vector1::const_iterator i;
 
-	for (i = y.begin (), j = x.begin (), idx = 0; j != x.end (); i++, j++, idx++) {
-		while (idx < j->first) {
-			F.assign (*i, F.zero ());
-			i++; idx++;
-		}
+	_scal<Ring, typename Modules::Tag>::op (F, M, F.zero (), y);
 
-		*i = j->second;
-	}
+	for (i = x.begin (); i != x.end (); i++)
+		F.assign (y[i->first], i->second);
 
 	return y;
 }
@@ -169,7 +201,7 @@ Vector2 &_axpy<Ring, typename GenericModule<Ring>::Tag>::axpy_impl
 
 template <class Ring, class Modules, class Vector>
 void fast_copy (const Ring &F, Modules &M, SparseVector<typename Ring::Element, std::vector<typename Vector::value_type::first_type>, std::vector<typename Vector::value_type::second_type> > &v, Vector &w)
-	{ _copy<Ring, typename Modules::Tag>::op (F, M, v, w); }
+	{ w.assign (v.begin (), v.end ()); }
 
 template <class Ring, class Modules, class index_type>
 void fast_copy (const Ring &F, Modules &M,
@@ -202,8 +234,10 @@ Vector2 &_axpy<Ring, typename GenericModule<Ring>::Tag>::axpy_impl
 		else
 			F.mul (c, a, i->second);
 
-		if (!F.isZero (c))
-			tmp.push_back (typename Vector2::value_type (i->first, c));
+		if (!F.isZero (c)) {
+			tmp.push_back (typename Vector2::value_type (i->first, typename Ring::Element ()));
+			F.assign (tmp.back ().second, c);
+		}
 	}
 
 	while (j != y.end ()) {
@@ -302,7 +336,7 @@ bool _equal<Ring, typename GenericModule<Ring>::Tag>::equal_impl
 	if (x.size () != y.size ())
 		return false;
 
-	for (i = x.begin (), j = y.begin (); i != x.end (); i++, j++)
+	for (i = x.begin (), j = y.begin (); i != x.end (); ++i, ++j)
 		if (!F.areEqual (*i, *j))
 			return false;
 
@@ -319,8 +353,8 @@ bool _equal<Ring, typename GenericModule<Ring>::Tag>::equal_impl
 	typename Vector2::const_iterator j;
 	size_t idx;
 
-	for (i = x.begin (), j = y.begin (), idx = 0; i != x.end () && j != y.end (); j++, idx++) {
-		if (i->first == idx) {
+	for (i = x.begin (), j = y.begin (), idx = 0; j != y.end (); ++j, ++idx) {
+		if (i != x.end () && i->first == idx) {
 			if (!F.areEqual (i->second, *j))
 				return false;
 			i++;
@@ -328,6 +362,9 @@ bool _equal<Ring, typename GenericModule<Ring>::Tag>::equal_impl
 		else if (!F.isZero (*j))
 			return false;
 	}
+
+	// If i did not reach the end of x, then the input was invalid
+	lela_check (i == x.end ());
 
 	return true;
 }
