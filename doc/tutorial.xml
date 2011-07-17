@@ -1430,7 +1430,7 @@ public:
       </programlisting>
 
       <para>
-	See <xref endterm="newblas"/> for more details on this mechanism.
+	See <xref linkend="newblas"/> for more details on this mechanism.
       </para>
 
       <para>
@@ -1501,7 +1501,7 @@ public:
 	It is advantageous to define a stack of BLAS-operations for
 	the new ring. Otherwise the generic fallback operations will
 	be used in all cases, reducing performance substantially. See
-	the section <xref endterm="newblas"/> for more information on
+	the section <xref linkend="newblas"/> for more information on
 	this mechanism.
       </para>
     </section>
