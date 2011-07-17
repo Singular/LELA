@@ -19,6 +19,7 @@
 #include "lela/randiter/nonzero.h"
 #include "lela/randiter/mersenne-twister.h"
 #include "lela/vector/bit-iterator.h"
+#include "lela/blas/context.h"
 
 namespace LELA 
 {
@@ -302,12 +303,12 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Den
 		: _F (F), _r1 (F), _r (F, _r1),
 		  _n (n), _p (p), _m (m), _j (0),
 		  _MT (0)
-		{ lela_check ((p >= 0.0) && (p <= 1.0)); _F.init (_zero, 0); }
+		{ lela_check ((p >= 0.0) && (p <= 1.0)); }
 
 	RandomSparseStream (const Ring &F, const RandIter &r, double p, size_t n, size_t m = 0, int seed = 0)
 		: _F (F), _r1 (r), _r (F, _r1), _n (n), _p (p), _m (m), _j (0),
 		  _MT (seed)
-		{ lela_check ((p >= 0.0) && (p <= 1.0)); _F.init (_zero, 0); }
+		{ lela_check ((p >= 0.0) && (p <= 1.0)); }
 
 	Vector &get (Vector &v);
 	Self_t &operator >> (Vector &v) { get (v); return *this; }
@@ -320,7 +321,6 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Den
 
     private:
 	const Ring                      &_F;
-	typename Ring::Element           _zero;
 	RandIter                          _r1;
 	NonzeroRandIter<Ring, RandIter>  _r;
 	size_t                            _n;
@@ -564,6 +564,60 @@ class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Dense> : pub
         typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense> Self_t;
 
 	StandardBasisStream (const Ring &F, size_t n)
+		: _ctx (F), _n (n), _j (0)
+	{}
+
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
+	size_t size () const { return _n; }
+	size_t pos () const { return _j; }
+	size_t dim () const { return _n; }
+	operator bool () const { return _j < _n; }
+	void advance (int k) { _j += k; }
+	void reset () { _j = 0; }
+
+    private:
+	Context<Ring>  _ctx;
+	size_t         _n;
+	size_t         _j;
+};
+
+// Specialization of standard basis stream for sparse sequence vectors
+
+template <class Ring, class _Vector>
+class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Sparse> : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse> Self_t;
+
+	StandardBasisStream (Ring &F, size_t n)
+		: _F (F), _n (n), _j (0)
+		{}
+
+	Vector &get (Vector &v);
+	Self_t &operator >> (Vector &v) { get (v); return *this; }
+	size_t size () const { return _n; }
+	size_t pos () const { return _j; }
+	size_t dim () const { return _n; }
+	operator bool () const { return _j < _n; }
+	void advance (int k) { _j += k; }
+	void reset () { _j = 0; }
+
+    private:
+	const Ring &_F;
+	size_t      _n;
+	size_t      _j;
+};
+
+template <class Ring, class _Vector>
+class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Dense01> : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense01> Self_t;
+
+	StandardBasisStream (const Ring &F, size_t n)
 		: _F (F), _n (n), _j (0)
 	{}
 
@@ -582,41 +636,12 @@ class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Dense> : pub
 	size_t                    _j;
 };
 
-// Specialization of standard basis stream for sparse sequence vectors
-
 template <class Ring, class _Vector>
-class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Sparse> : public VectorStream<_Vector>
+class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Sparse01> : public VectorStream<_Vector>
 {
     public:
 	typedef _Vector Vector;
-        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse> Self_t;
-
-	StandardBasisStream (Ring &F, size_t n)
-		: _F (F), _n (n), _j (0)
-		{ _F.init (_one, 1); }
-
-	Vector &get (Vector &v);
-	Self_t &operator >> (Vector &v) { get (v); return *this; }
-	size_t size () const { return _n; }
-	size_t pos () const { return _j; }
-	size_t dim () const { return _n; }
-	operator bool () const { return _j < _n; }
-	void advance (int k) { _j += k; }
-	void reset () { _j = 0; }
-
-    private:
-	const Ring              &_F;
-	size_t                    _n;
-	size_t                    _j;
-	typename Ring::Element   _one;
-};
-
-template <class Ring, class _Vector>
-class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Dense01> : public VectorStream<_Vector>
-{
-    public:
-	typedef _Vector Vector;
-        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense01> Self_t;
+        typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse01> Self_t;
 
 	StandardBasisStream (const Ring &F, size_t n)
 		: _F (F), _n (n), _j (0)

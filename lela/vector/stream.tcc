@@ -11,6 +11,8 @@
 #ifndef __LELA_vector_stream_TCC
 #define __LELA_vector_stream_TCC
 
+#include "lela/blas/level1.h"
+
 namespace LELA
 {
 
@@ -42,7 +44,7 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::De
 		if (val < _p)
 			_r.random (*i);
 		else
-			_F.assign (*i, _zero);
+			_F.assign (*i, _F.zero ());
 	}
 
 	return v;
@@ -159,18 +161,8 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Hy
 template <class Ring, class Vector>
 Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense>::get (Vector &v) 
 {
-	static typename Ring::Element zero;
-	typename Vector::iterator i;
-	size_t idx;
-
-	for (i = v.begin (), idx = 0; i != v.end (); i++, idx++) {
-		if (idx == _j)
-			_F.init (*i, 1);
-		else
-			_F.assign (*i, zero);
-	}
-
-	_j++;
+	BLAS1::scal (_ctx, _ctx.F.zero (), v);
+	_ctx.F.assign (v[_j++], _ctx.F.one ());
 
 	return v;
 }
@@ -180,14 +172,16 @@ Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse>::ge
 {
 	v.clear ();
 
-	if (_j < _n)
-		v.push_back (std::pair <size_t, typename Ring::Element> (_j++, _one));
+	if (_j < _n) {
+		v.push_back (typename Vector::value_type (_j++, typename Ring::Element ()));
+		_F.assign (v.back ().second, _F.one ());
+	}
 
 	return v;
 }
 
 template <class Ring, class Vector>
-Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense01 >::get (Vector &v) 
+Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense01>::get (Vector &v) 
 {
 	std::fill (v.word_begin (), v.word_end (), 0);
 	v.back_word () = 0;
@@ -195,6 +189,17 @@ Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense01 >::
 	v[_j] = true;
 
 	_j++;
+
+	return v;
+}
+
+template <class Ring, class Vector>
+Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse01>::get (Vector &v) 
+{
+	v.clear ();
+
+	if (_j < _n)
+		v.push_back (_j++);
 
 	return v;
 }
