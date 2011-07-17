@@ -559,8 +559,42 @@ void MyAlgorithm (const Ring &amp;R, size_t n)
 	  </programlisting>
 
 	  <para>
-	    Alternatively, the
-	    type <type>Vector&lt;Ring&gt;::Dense</type> may be used to
+	    The state of the entries of a just declared dense vector
+	    is undefined. All entries must be initialised in some
+	    fashion before the vector is used. There are several
+	    possibilities to do this:
+	    <itemizedlist>
+	      <listitem>Initialise the entries directly using
+	      array-notation or an iterator, as above;</listitem>
+	      <listitem>Copy another vector to the just declared
+	      vector;</listitem>
+	      <listitem>Scale the vector by zero using the
+	      BLAS-function. In this special case the entries of the
+	      vector are initialised to zero and need not have been
+	      previously initialised. For example:
+	      <programlisting>
+Context&lt;Ring&gt; ctx (R);
+std::vector&lt;typename Ring::Element&gt; v (n); // A dense vector in R^n
+
+BLAS1::scal (ctx, R.zero (), v);  // Initialise all entries in v to zero
+	      </programlisting>
+	      </listitem>
+	      <listitem>
+		Initialise the vector from a
+		<type>VectorStream</type>. For example:
+	      <programlisting>
+RandomDenseStream&lt;Ring, std::vector&lt;typename Ring::Element&gt; &gt; stream (R, n);
+std::vector&lt;typename Ring::Element&gt; v (n); // A dense vector in R^n
+
+stream &gt;&gt; v;  // Obtain a random vector in R^n
+	      </programlisting>
+	      </listitem>
+	    </itemizedlist>
+	  </para>
+
+	  <para>
+	    Alternatively, the type
+	    <type>Vector&lt;Ring&gt;::Dense</type> may be used to
 	    declare dense vectors. For general rings, this is just an
 	    alias for <type>std::vector&lt;typename
 	    Ring::Element&gt;</type>.
@@ -792,6 +826,7 @@ void MyFunction (const Ring &amp;R)
 	    <listitem>with <function>setEntry</function> as above,</listitem>
 	    <listitem>using the row- or column-iterators as described below,</listitem>
 	    <listitem>by copying from an existing matrix with the BLAS-interface (see below),</listitem>
+	    <listitem>by scaling the matrix to zero with the BLAS-interface (see below),</listitem>
 	    <listitem>by reading the matrix from a file, or</listitem>
 	    <listitem>by initialising the matrix with a <type>VectorStream</type> (see reference-documentation).</listitem>
 	  </itemizedlist>
