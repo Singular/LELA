@@ -261,9 +261,14 @@ Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 				F.mulin (cij, b);
 				F.axpyin (cij, a, d);
 				C.setEntry (row, col, cij);
+
+				if (F.isZero (cij))
+					C.eraseEntry (row, col);
 			} else {
 				F.mulin (d, a);
-				C.setEntry (row, col, d);
+
+				if (!F.isZero (d))
+					C.setEntry (row, col, d);
 			}
 		}
 	}
@@ -287,9 +292,8 @@ Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 
 	_scal<Ring, typename Modules::Tag>::op (F, M, b, C);
 
-	for (i = A.colBegin (); i != A.colEnd (); ++i)
-		for (j = B.rowBegin (); j != B.rowEnd (); ++j)
-			BLAS2::_ger<Ring, typename Modules::Tag>::op (F, M, a, *i, *j, C);
+	for (i = A.colBegin (), j = B.rowBegin (); i != A.colEnd (); ++i, ++j)
+		BLAS2::_ger<Ring, typename Modules::Tag>::op (F, M, a, *i, *j, C);
 
 	return C;
 }
