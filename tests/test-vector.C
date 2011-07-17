@@ -10,6 +10,7 @@
 
 #include "lela/integer.h"
 #include "lela/ring/modular.h"
+#include "lela/ring/gf2.h"
 #include "lela/vector/sparse.h"
 
 #include "test-common.h"
@@ -31,9 +32,9 @@ int main (int argc, char **argv)
 	parseArguments (argc, argv, args);
 
 	typedef Modular<uint32> Ring;
-	typedef Ring::Element Element;
 
 	Ring R (q);
+	GF2 gf2;
 
 	commentator.start ("Vector-test-suite", "Vector");
 
@@ -44,6 +45,8 @@ int main (int argc, char **argv)
 
 	pass = testVector<Vector<Ring>::Dense> (R) && pass;
 	pass = testVector<Vector<Ring>::Sparse> (R) && pass;
+	pass = testVector<Vector<GF2>::Dense> (gf2) && pass;
+	pass = testVector<Vector<GF2>::Sparse> (gf2) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 

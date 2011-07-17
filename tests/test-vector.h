@@ -720,7 +720,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	}
 
 	if (i_sub->first != 10) {
-		error << "ERROR: First index of subvector indices 0..20 is " << v5_sub2.front ().first << " (from *(begin ())), expected 10" << std::endl;
+		error << "ERROR: First index of subvector indices 0..20 is " << i_sub->first << " (from *(begin ())), expected 10" << std::endl;
 		part_pass = false;
 	}
 
@@ -760,7 +760,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 	}
 
 	if (i_sub->first != 0) {
-		error << "ERROR: First index of subvector indices 10..20 is " << v5_sub3.front ().first << " (from *(begin ())), expected 0" << std::endl;
+		error << "ERROR: First index of subvector indices 10..20 is " << i_sub->first << " (from *(begin ())), expected 0" << std::endl;
 		part_pass = false;
 	}
 
@@ -1014,11 +1014,182 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 template <class Vector, class Ring>
 bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense01)
 {
-	bool pass = true;
+	bool pass = true, part_pass;
 
 	LELA::commentator.start ("Testing vector (dense 0-1)", __FUNCTION__);
 
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
+
+	// First we run all the normal tests on dense vectors
+	testVectorSpec<Vector> (R, LELA::VectorRepresentationTypes::Dense ());
+
 	// std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	// Test 1: word_iterator and back_word vs iterator
+	//
+	// Build the vector with word_iterator and back_word and check that the result with iterator is as expected
+	LELA::commentator.start ("Test 1: word_iterator and back_word vs. iterator", __FUNCTION__);
+	part_pass = true;
+
+	Vector v1 (3 * LELA::WordTraits<typename Vector::word_type>::bits);
+
+	typename Vector::word_iterator i_w;
+
+	i_w = v1.word_begin ();
+	*i_w = 0xffffffffffffffffULL;
+	++i_w;
+	*i_w = 0xaaaaaaaaaaaaaaaaULL;
+	++i_w;
+
+	if (i_w != v1.word_end ()) {
+		error << "ERROR: word_iterator did not end where expected" << std::endl;
+		part_pass = false;
+	}
+
+	v1.back_word () = 0x8888888888888888ULL;
+
+	typename Vector::const_iterator i = v1.begin ();
+
+	size_t idx;
+
+	for (idx = 0; idx < LELA::WordTraits<typename Vector::word_type>::bits; ++idx, ++i) {
+		if (!*i) {
+			error << "ERROR: iterator reports 0 at position " << idx << "; expected 1" << std::endl;
+			part_pass = false;
+		}
+	}
+
+	for (idx = 0; idx < LELA::WordTraits<typename Vector::word_type>::bits; ++idx, ++i) {
+		if (Vector::Endianness::e_0 & 1) {
+			if ((idx & 1) && !*i) {
+				error << "ERROR: iterator reports 0 at position " << idx << "; expected 1" << std::endl;
+				part_pass = false;
+			}
+			else if (!(idx & 1) && *i) {
+				error << "ERROR: iterator reports 1 at position " << idx << "; expected 0" << std::endl;
+				part_pass = false;
+			}
+		} else {
+			if (!(idx & 1) && !*i) {
+				error << "ERROR: iterator reports 0 at position " << idx << "; expected 1" << std::endl;
+				part_pass = false;
+			}
+			else if ((idx & 1) && *i) {
+				error << "ERROR: iterator reports 1 at position " << idx << "; expected 0" << std::endl;
+				part_pass = false;
+			}
+		}
+	}
+
+	for (idx = 0; idx < LELA::WordTraits<typename Vector::word_type>::bits; ++idx, ++i) {
+		if (Vector::Endianness::e_0 & 1) {
+			if ((idx % 4 == 3) && !*i) {
+				error << "ERROR: iterator reports 0 at position " << idx << "; expected 1" << std::endl;
+				part_pass = false;
+			}
+			else if ((idx % 4 != 3) && *i) {
+				error << "ERROR: iterator reports 1 at position " << idx << "; expected 0" << std::endl;
+				part_pass = false;
+			}
+		} else {
+			if ((idx % 4 == 0) && !*i) {
+				error << "ERROR: iterator reports 0 at position " << idx << "; expected 1" << std::endl;
+				part_pass = false;
+			}
+			else if ((idx % 4 != 0) && *i) {
+				error << "ERROR: iterator reports 1 at position " << idx << "; expected 0" << std::endl;
+				part_pass = false;
+			}
+		}
+	}
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 2: iterator vs. word_iterator and back_word
+	//
+	// Reverse of test 1
+
+	LELA::commentator.start ("Test 2: iterator vs. word_iterator and back_word", __FUNCTION__);
+	part_pass = true;
+
+	Vector v2 (3 * LELA::WordTraits<typename Vector::word_type>::bits);
+
+	for (idx = 0; idx < LELA::WordTraits<typename Vector::word_type>::bits; ++idx)
+		v2[idx] = true;
+
+	for (; idx < 2 * LELA::WordTraits<typename Vector::word_type>::bits; ++idx) {
+		if (Vector::Endianness::e_0 & 1)
+			v2[idx] = ((idx & 1) != 0);
+		else
+			v2[idx] = ((idx & 1) == 0);
+	}
+
+	for (; idx < 3 * LELA::WordTraits<typename Vector::word_type>::bits; ++idx) {
+		if (Vector::Endianness::e_0 & 1)
+			v2[idx] = (idx % 4 == 3);
+		else
+			v2[idx] = (idx % 4 == 0);
+	}
+
+	typename Vector::const_word_iterator j_w = v2.word_begin ();
+
+	typename Vector::word_type w = 0xffffffffffffffffULL;
+
+	if (*j_w != w) {
+		error << "ERROR: First word is " << std::hex << *j_w << ", expected " << w << std::endl;
+		part_pass = false;
+	}
+
+	++j_w;
+	w = 0xaaaaaaaaaaaaaaaaULL;
+
+	if (*j_w != w) {
+		error << "ERROR: Second word is " << std::hex << *j_w << ", expected " << w << std::endl;
+		part_pass = false;
+	}
+
+	++j_w;
+
+	if (j_w != v2.word_end ()) {
+		error << "ERROR: const_word_iterator did not end at expected point" << std::endl;
+		part_pass = false;
+	}
+
+	w = 0x8888888888888888ULL;
+
+	if (v2.back_word () != w) {
+		error << "ERROR: Last word is " << std::hex << v2.back_word () << ", expected " << w << std::endl;
+		part_pass = false;
+	}
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 3: word_size
+	//
+	// Check that word_size gives the right answer
+
+	LELA::commentator.start ("Test 3: word_size", __FUNCTION__);
+	part_pass = true;
+
+	Vector v3 (4 * LELA::WordTraits<typename Vector::word_type>::bits);
+	Vector v4 (4 * LELA::WordTraits<typename Vector::word_type>::bits + 10);
+
+	if (v3.word_size () != 4) {
+		error << "ERROR: word_size of v3 is " << v3.word_size () << ", expected 4" << std::endl;
+		part_pass = false;
+	}
+
+	if (v4.word_size () != 5) {
+		error << "ERROR: word_size of v4 is " << v4.word_size () << ", expected 5" << std::endl;
+		part_pass = false;
+	}
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Note: bit-subvectors are tested in test-bit-subvector.C
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
@@ -1026,13 +1197,523 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Dense01)
 }
 
 template <class Vector, class Ring>
-bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse01)
+void buildSparse01Vector (const Ring &R, Vector &v, size_t &front_idx, size_t &back_idx) 
+{
+	size_t idx, curr_idx;
+
+	front_idx = 0xffffffff;
+
+	for (idx = 0, curr_idx = 0; idx < DEFAULT_DIM; ++idx, curr_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
+		v.push_back (curr_idx);
+
+		if (front_idx == 0xffffffff)
+			front_idx = curr_idx;
+
+		back_idx = curr_idx;
+	}
+}
+
+template <class Vector, class Ring>
+bool checkSparse01Vector (const Ring &R, const Vector &v, size_t front_idx, size_t back_idx) 
 {
 	bool pass = true;
 
+	typename Vector::const_iterator i;
+	size_t idx, curr_idx, curr_idx_1, v_back_idx;
+
+	typename Ring::Element b;
+
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
+
+	if (v.front () != front_idx) {
+		error << "ERROR: Incorrect index of front (): " << v.front () << ", expected " << front_idx << std::endl;
+		pass = false;
+	}
+
+	for (i = v.begin (), idx = curr_idx = curr_idx_1 = 0; i != v.end (); ++idx, curr_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
+		if (*i != curr_idx) {
+			error << "ERROR: Index of entry is " << *i << ", expected " << curr_idx << std::endl;
+			pass = false;
+		}
+
+		while (curr_idx_1 < curr_idx) {
+			if (LELA::VectorUtils::getEntry (v, b, curr_idx_1)) {
+				error << "ERROR: LELA::VectorUtils::getEntry obtained an entry for index " << curr_idx_1
+				      << " where there should not be one" << std::endl;
+				pass = false;
+			}
+
+			++curr_idx_1;
+		}
+
+		if (!LELA::VectorUtils::getEntry (v, b, curr_idx_1)) {
+			error << "ERROR: LELA::VectorUtils::getEntry failed to obtain an entry for index " << curr_idx_1
+			      << " where there should be one" << std::endl;
+			pass = false;
+		}
+
+		++curr_idx_1;
+
+		v_back_idx = curr_idx;
+
+		++i;
+	}
+
+	if (back_idx != v_back_idx) {
+		error << "ERROR: Index at v.end () - 1 is " << v_back_idx << " but expected " << back_idx;
+	}
+
+	if (v.back () != back_idx) {
+		error << "ERROR: Incorrect index of back (): " << v.back () << ", expected " << back_idx << std::endl;
+		pass = false;
+	}
+
+	return pass;
+}
+
+template <class Vector, class Ring>
+bool checkSparse01AfterSubConstruction (const Ring &R, const Vector &v, bool expect_first_elt)
+{
+	bool pass = true;
+
+	typename Vector::const_iterator i;
+
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
+
+	i = v.begin ();
+
+	if (expect_first_elt) {
+		if (*i != 10) {
+			error << "ERROR: First index is " << *i << ", expected 10" << std::endl;
+			pass = false;
+		}
+
+		++i;
+	}
+
+	if (*i != 12) {
+		error << "ERROR: Second index is " << *i << ", expected 12" << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (*i != 14) {
+		error << "ERROR: Third index is " << *i << ", expected 14" << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (*i != 16) {
+		error << "ERROR: Fourth index is " << *i << ", expected 16" << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (*i != 20) {
+		error << "ERROR: Fifth index is " << *i << ", expected 20" << std::endl;
+		pass = false;
+	}
+
+	++i;
+
+	if (i != v.end ()) {
+		error << "ERROR: iterator does end at correct position" << std::endl;
+		pass = false;
+	}
+
+	return pass;
+}
+
+template <class Vector, class Ring>
+bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse01)
+{
+	bool pass = true, part_pass;
+
+	typename Vector::const_iterator i;
+	typename Vector::iterator j;
+	size_t idx, curr_idx, end_idx, first_idx, exp_size;
+
+	LELA::Context<Ring> ctx (R);
+
 	LELA::commentator.start ("Testing vector (sparse 0-1)", __FUNCTION__);
 
-	// std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_ERROR);
+
+	// Test 1: push_back, const_iterator, LELA::VectorUtils::getEntry
+	//
+	// Construct a sparse vector with push_back and check that the results are the same with const_iterator and LELA::VectorUtils::getEntry
+	LELA::commentator.start ("Test 1: push_back vs. const_iterator", __FUNCTION__);
+	part_pass = true;
+
+	Vector v1;
+
+	buildSparse01Vector (R, v1, first_idx, end_idx);
+
+	report << "Vector as constructed: ";
+	LELA::BLAS1::write (ctx, report, v1) << std::endl;
+
+	part_pass = checkSparse01Vector (R, v1, first_idx, end_idx);
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 2: clear, empty, and size
+	//
+	// Construct a sparse vector, check its size, clear it, and check that it is empty
+	LELA::commentator.start ("Test 2: clear, empty, size", __FUNCTION__);
+	part_pass = true;
+
+	Vector v2;
+
+	for (idx = 0, curr_idx = 0, exp_size = 0; idx < DEFAULT_DIM; ++idx, curr_idx += idx % DEFAULT_GAP_CYCLE_LEN + 1) {
+		v2.push_back (curr_idx);
+		++exp_size;
+	}
+
+	report << "Vector as constructed: ";
+	LELA::BLAS1::write (ctx, report, v2) << std::endl;
+
+	if (v2.size () != exp_size) {
+		error << "ERROR: v2.size () reports " << v2.size () << ", expected " << exp_size << std::endl;
+		part_pass = false;
+	}
+
+	if (exp_size > 0 && v2.empty ()) {
+		error << "ERROR: v2.empty () reports true expected false" << std::endl;
+		part_pass = false;
+	}
+	else if (exp_size == 0)
+		LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
+			<< "WARNING: Constructed empty vector for test 2; check parameters used" << std::endl;
+
+	v2.clear ();
+
+	if (!v2.empty ()) {
+		error << "ERROR: v2.empty () is false after call to clear ()" << std::endl;
+		part_pass = false;
+	}
+	else if (v2.size () != 0) {
+		error << "ERROR: v2.size () != 0 after call to clear ()" << std::endl;
+		part_pass = false;
+	}
+	else if (v2.begin () != v2.end ()) {
+		error << "ERROR: v2.begin () != v2.end () after call to clear ()" << std::endl;
+		part_pass = false;
+	}
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 3: erase
+	//
+	// Construct a sparse vector then erase some entries
+	LELA::commentator.start ("Test 3: erase", __FUNCTION__);
+	part_pass = true;
+
+	Vector v3;
+
+	v3.push_back (10);
+	v3.push_back (20);
+	v3.push_back (30);
+	v3.push_back (40);
+
+	report << "Vector as constructed: ";
+	LELA::BLAS1::write (ctx, report, v3) << std::endl;
+
+	// Erase the second entry
+	j = v3.begin ();
+	++j;
+
+	j = v3.erase (j);
+
+	if (v3.size () != 3) {
+		error << "ERROR: v3.size () is " << v3.size () << " after call to erase (), expected 3" << std::endl;
+		part_pass = false;
+	}
+
+	if (*j != 30) {
+		error << "ERROR: Return-value of erase () appears to point to wrong place; index is " << *j << ", expected 30" << std::endl;
+		part_pass = false;
+	}
+
+	// Erase the last entry
+	j = v3.begin ();
+	++j; ++j;
+
+	v3.erase (j);
+
+	if (v3.back () != 30) {
+		error << "ERROR: v3.back () = " << v3.back () << " after erasure of last entry, expected 30" << std::endl;
+		part_pass = false;
+	}
+
+	// Erase the first entry
+	j = v3.begin ();
+	v3.erase (j);
+
+	if (v3.front () != 30) {
+		error << "ERROR: v3.front () = " << v3.front () << " after erasure of first entry, expected 30" << std::endl;
+		part_pass = false;
+	}
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 4: assign
+	//
+	// Construct two sparse vectors, assign the second to the first
+	LELA::commentator.start ("Test 4: assign", __FUNCTION__);
+	part_pass = true;
+
+	Vector v4;
+
+	v4.push_back (10);
+	v4.push_back (20);
+	v4.push_back (30);
+	v4.push_back (40);
+
+	report << "Vector v4 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v4) << std::endl;
+
+	report << "Vector v1 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v1) << std::endl;
+
+	v4.assign (v1.begin (), v1.end ());
+
+	if (v4.size () != v1.size ()) {
+		error << "ERROR: after assign v4.size () = " << v4.size () << ", expected " << v1.size () << std::endl;
+		part_pass = false;
+	}
+
+	part_pass = checkSparse01Vector (R, v4, first_idx, end_idx) && part_pass;
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 5: Subvector read
+	//
+	// Construct a sparse vector and read from a subvector thereof
+	LELA::commentator.start ("Test 5: subvector read", __FUNCTION__);
+	part_pass = true;
+
+	Vector v5;
+
+	v5.push_back (10);
+	v5.push_back (20);
+	v5.push_back (30);
+	v5.push_back (40);
+
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub1 (v5, 0, 10);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub2 (v5, 0, 20);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub3 (v5, 10, 20);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub4 (v5, 10, 25);
+	typename LELA::VectorTraits<Ring, Vector>::ConstSubvectorType v5_sub5 (v5, 30, 50);
+
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType::const_iterator i_sub;
+
+	report << "Vector v5 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v5) << std::endl;
+
+	if (!v5_sub1.empty ()) {
+		error << "ERROR: Subvector indices 0..10 not empty, reported size " << v5_sub1.size () << ", first index "
+		      << v5_sub1.front () << ", last index " << v5_sub1.back () << std::endl;
+		part_pass = false;
+	}
+	else if (v5_sub1.begin () != v5_sub1.end ()) {
+		error << "ERROR: Subvector indices 0..10: begin () != end ()" << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub2.size () != 1) {
+		error << "ERROR: Subvector indices 0..20 has wrong size, reported size " << v5_sub2.size () << ", expected 1, last index is " << v5_sub2.size () << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub2.begin ();
+
+	if (v5_sub2.front () != 10) {
+		error << "ERROR: First index of subvector indices 0..20 is " << v5_sub2.front () << " (from front ()), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	if (*i_sub != 10) {
+		error << "ERROR: First index of subvector indices 0..20 is " << *i_sub << " (from *(begin ())), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub2.end ()) {
+		error << "ERROR: Iterator on subvector indices 0..20 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub3.size () != 1) {
+		error << "ERROR: Subvector indices 10..20 has wrong size, reported size " << v5_sub3.size () << ", expected 1, last index is " << v5_sub3.size () << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub3.begin ();
+
+	if (v5_sub3.front () != 0) {
+		error << "ERROR: First index of subvector indices 10..20 is " << v5_sub3.front () << " (from front ()), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	if (*i_sub != 0) {
+		error << "ERROR: First index of subvector indices 10..20 is " << *i_sub << " (from *(begin ())), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub3.end ()) {
+		error << "ERROR: Iterator on subvector indices 10..20 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub4.size () != 2) {
+		error << "ERROR: Subvector indices 10..25 has wrong size, reported size " << v5_sub4.size () << ", expected 2" << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub4.begin ();
+
+	if (v5_sub4.front () != 0) {
+		error << "ERROR: First index of subvector indices 10..25 is " << v5_sub4.front () << " (from front ()), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	if (*i_sub != 0) {
+		error << "ERROR: First index of subvector indices 10..25 is " << *i_sub << " (from *(begin ())), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (v5_sub4.back () != 10) {
+		error << "ERROR: Last index of subvector indices 10..25 is " << v5_sub4.back () << " (from back ()), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	if (*i_sub != 10) {
+		error << "ERROR: Last index of subvector indices 10..25 is " << *i_sub << " (from iterator), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub4.end ()) {
+		error << "ERROR: Iterator on subvector indices 10..25 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
+
+	if (v5_sub5.size () != 2) {
+		error << "ERROR: Subvector indices 30..50 has wrong size, reported size " << v5_sub5.size () << ", expected 2" << std::endl;
+		part_pass = false;
+	}
+
+	i_sub = v5_sub5.begin ();
+
+	if (v5_sub5.front () != 0) {
+		error << "ERROR: First index of subvector indices 30..50 is " << v5_sub5.front () << " (from front ()), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	if (*i_sub != 0) {
+		error << "ERROR: First index of subvector indices 30..50 is " << *i_sub << " (from iterator), expected 0" << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (v5_sub5.back () != 10) {
+		error << "ERROR: Last index of subvector indices 30..50 is " << v5_sub5.back () << " (from back ()), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	if (*i_sub != 10) {
+		error << "ERROR: Last index of subvector indices 30..50 is " << *i_sub << " (from iterator), expected 10" << std::endl;
+		part_pass = false;
+	}
+
+	++i_sub;
+
+	if (i_sub != v5_sub5.end ()) {
+		error << "ERROR: Iterator on subvector indices 30..50 does not end at correct position." << std::endl;
+		part_pass = false;
+	}
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 6: Subvector push_back
+	//
+	// Construct a subvector and call push_back to it
+	LELA::commentator.start ("Test 6: subvector push_back", __FUNCTION__);
+	part_pass = true;
+
+	Vector v6;
+
+	v6.push_back (10);
+	v6.push_back (20);
+
+	report << "Vector v6 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v6) << std::endl;
+
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v6_sub (v6, 10, 20);
+
+	v6_sub.push_back (2);
+	v6_sub.push_back (4);
+	v6_sub.push_back (6);
+
+	report << "Subvector v6_sub as constructed: ";
+	LELA::BLAS1::write (ctx, report, v6_sub) << std::endl;
+
+	report << "Vector v6 after construction of subvector: ";
+	LELA::BLAS1::write (ctx, report, v6) << std::endl;
+
+	part_pass = checkSparse01AfterSubConstruction (R, v6, true);
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
+
+	// Test 6: Subvector assign
+	//
+	// Construct a subvector and call assign to it
+	LELA::commentator.start ("Test 3: subvector assign", __FUNCTION__);
+	part_pass = true;
+
+	Vector v7, v8;
+
+	v7.push_back (10);
+	v7.push_back (20);
+
+	report << "Vector v7 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v7) << std::endl;
+
+	v8.push_back (2);
+	v8.push_back (4);
+	v8.push_back (6);
+
+	report << "Vector v8 as constructed: ";
+	LELA::BLAS1::write (ctx, report, v8) << std::endl;
+
+	typename LELA::VectorTraits<Ring, Vector>::SubvectorType v7_sub (v7, 10, 20);
+
+	v7_sub.assign (v8.begin (), v8.end ());
+
+	report << "Vector v7 after assign: ";
+	LELA::BLAS1::write (ctx, report, v7) << std::endl;
+
+	part_pass = checkSparse01AfterSubConstruction (R, v7, false);
+
+	LELA::commentator.stop (MSG_STATUS (part_pass));
+	pass = part_pass && pass;
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
