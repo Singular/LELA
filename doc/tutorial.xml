@@ -1380,7 +1380,7 @@ void MyFunction (const Matrix &amp;M)
 
       <itemizedlist>
 	<listitem>One can simply define a class meeting the proper
-	  interface and then instantiate the remaining parts of the
+	  interface and then instantiates the remaining parts of the
 	  library on that class. When the element-type and
 	  arithmetic-operations are simple (such as
 	  with <type>Modular</type>), this will typically provide the
@@ -1390,7 +1390,7 @@ void MyFunction (const Matrix &amp;M)
 	  be instantiated for that ring-type.</listitem>
 	<listitem>One can define a class inheriting
 	  from <type>RingInterface</type>, which is parametrised by
-	  element-type. Then one instiantiate all remaining classes
+	  element-type. Then one instantiates all remaining classes
 	  and functions on <type>RingInterface&lt;Element&gt;</type>,
 	  where <type>Element</type> is one's chosen
 	  element-type. This avoids multiple instantiations in the
@@ -1661,7 +1661,7 @@ struct ZpModule&lt;integer&gt; : public GenericModule&lt;Modular&lt;integer&gt; 
 	A module must contain a constructor which takes a ring. This
 	allows for example <varname>block_size</varname> to be
 	configured based on the ring. So that modules may be
-	construted generically, every module must have such a
+	constructed generically, every module must have such a
 	constructor.
       </para>
 
