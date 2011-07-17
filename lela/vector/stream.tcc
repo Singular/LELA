@@ -51,7 +51,6 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::De
 template <class Ring, class Vector, class RandIter>
 Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Sparse>::get (Vector &v) 
 {
-	typename Ring::Element x;
 	size_t i = (size_t) -1;
 	double val;
 	int skip;
@@ -72,8 +71,8 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Sp
 
 		if (i >= _n) break;
 
-		_r.random (x);
-		v.push_back (std::pair<size_t, typename Ring::Element> (i, x));
+		v.push_back (std::pair<size_t, typename Ring::Element> (i, typename Ring::Element ()));
+		_r.random (v.back ().second);
 	}
 
 	return v;

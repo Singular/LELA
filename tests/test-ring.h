@@ -117,6 +117,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
 
+#if 0 // This test makes no sense any more, since convert has been removed
 	commentator.start ("Testing init/convert");
 	part_pass = true;
 
@@ -137,6 +138,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
+#endif // Test disabled
 
 	commentator.start ("Testing ring arithmetic");
 	part_pass = true;

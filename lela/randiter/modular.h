@@ -20,7 +20,7 @@
 #include "lela/ring/modular.h"
 #include "lela/util/commentator.h"
 #include "lela/randiter/mersenne-twister.h"
-#include "lela/lela-config.h"
+#include "lela/util/property.h"
 
 namespace LELA 
 { 
@@ -42,19 +42,6 @@ class ModularRandIter
 {
 public:
 
-	/** Constructor from field, sampling size, and seed.
-	 * The random field element iterator works in the field F, is seeded
-	 * by seed, and it returns any one element with probability no more
-	 * than 1/min (size, F.cardinality (c)).
-	 * A sampling size of zero means to sample from the entire field.
-	 * A seed of zero means to use some arbitrary seed for the generator.
-	 * Purely virtual.
-	 * @param F LELA field archetype object in which to do arithmetic
-	 * @param size constant integer reference of sample size from which to 
-	 *             sample (default = modulus of field)
-	 * @param seed constant integer reference from which to seed random number
-	 *             generator (default = 0)
-	 */
 	ModularRandIter (const Modular<Element> &F, 
 			 const integer &size = 0, 
 			 const integer &seed = 0)
@@ -72,25 +59,11 @@ public:
 			<< " and seed " << _seed << std::endl;
 	}
 
-	/** Copy constructor.
-	 * Constructs ModularRandIter object by copying the random field
-	 * element generator.
-	 * This is required to allow generator objects to be passed by value
-	 * into functions.
-	 * @param  R ModularRandIter object.
-	 */
 	ModularRandIter (const ModularRandIter<Element> &R) 
 		: _F (R._F), _size (R._size), _seed (R._seed) {}
 
-	/** Destructor.
-	 * This destructs the random field element generator object.
-	 */
 	~ModularRandIter () {}
     
-	/** Assignment operator.
-	 * Assigns ModularRandIter object R to generator.
-	 * @param  R ModularRandIter object.
-	 */
 	ModularRandIter<Element> &operator = (const ModularRandIter<Element> &R)
 	{
 		if (this != &R) { // guard against self-assignment
@@ -101,15 +74,13 @@ public:
 
 		return *this;
 	}
- 
-	/** Random field element creator.
-	 * This returns a random field element from the information supplied
-	 * at the creation of the generator.
-	 * Required by abstract base class.
-	 * @return reference to random field element
-	 */
+
 	Element &random (Element &a) const
 		{ return _F.init (a, _MT.randomIntRange (0, _size.get_ui ())); }
+
+	template <class Iterator, class Accessor>
+	Element &random (Property<Iterator, Accessor> a) const
+		{ return random (a.ref ()); }
 
 private:
 	MersenneTwister _MT;
@@ -142,6 +113,10 @@ public:
 
 	Element &random (Element &a) const
 		{ return _r.random (a); }
+
+	template <class Iterator, class Accessor>
+	Element &random (Property<Iterator, Accessor> a) const
+		{ return random (a.ref ()); }
 };
 
 template <>
@@ -176,6 +151,10 @@ public:
 
 	Element &random (Element &a) const
 		{ return a = _r.randomIntRange (0, _size); }
+
+	template <class Iterator, class Accessor>
+	Element &random (Property<Iterator, Accessor> a) const
+		{ return random (a.ref ()); }
 };
 
 template <>
@@ -211,6 +190,10 @@ public:
 
 	Element &random (Element &a) const
 		{ return a = _r.randomIntRange (0, _size); }
+
+	template <class Iterator, class Accessor>
+	Element &random (Property<Iterator, Accessor> a) const
+		{ return random (a.ref ()); }
 };
 
 } // namespace LELA 

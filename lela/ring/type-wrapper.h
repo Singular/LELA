@@ -22,6 +22,7 @@
 #include "lela/integer.h"
 #include "lela/randiter/type-wrapper.h"
 #include "lela/blas/context.h"
+#include "lela/util/property.h"
 
 namespace LELA 
 {
@@ -69,27 +70,17 @@ public:
 
 	Element &init (Element &x, int y) const 
 		{ return x = Element (y); }
-   
-	integer &convert (integer &x, const Element &y) const 
-	{
-		Element temp (y);
-		return x = static_cast<integer> (temp); 
-	}
-    
-	double &convert (double &x, const Element &y) const 
-	{ 
-		Element temp (y);
-		return x = static_cast<double> (temp); 
-	}
- 
-	float &convert (float &x, const Element &y) const 
-	{ 
-		Element temp (y);
-		return x = static_cast<float> (temp); 
-	}
 
+	template <class Iterator, class Accessor>
+	Element &init (Property<Iterator, Accessor> &x, int y) const 
+		{ return init (x.ref (), y); }
+   
 	Element &assign (Element &x, const Element &y) const
 		{ return x = y; }
+
+	template <class Iterator, class Accessor>
+	Element &assign (Property<Iterator, Accessor> &x, const Element &y) const
+		{ return assign (x.ref (), y); }
 
 	integer &cardinality (integer &c) const
 		{ return c = _card; }
@@ -134,6 +125,10 @@ public:
     
 	Element &mulin (Element &x, const Element &y) const
 		{ return x *= y; }
+
+	template <class Iterator, class Accessor>
+	Element &mulin (Property<Iterator, Accessor> &x, const Element &y) const
+		{ return mulin (x.ref (), y); }
     
 	bool divin (Element &x, const Element &y) const
 		{ if (!isZero (y)) { x /= y; return true; } else return false; }

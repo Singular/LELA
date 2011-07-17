@@ -61,6 +61,8 @@ void swap (Context<Ring, Modules> &ctx, Vector &x, Vector &y)
  *
  * x and y may be of different types, but must be defined over the same ring
  *
+ * The entries of y need not have been previously initialised.
+ *
  * @param ctx @ref Context object for calculation
  * @param x Origin vector
  * @param y Destination vector
@@ -87,6 +89,11 @@ Vector2 &axpy (Context<Ring, Modules> &ctx, const typename Ring::Element &a, con
 	{ return _axpy<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, a, x, y); }
 
 /** x -> ax
+ *
+ * If the scalar a is zero, then the entries of y need not have been
+ * previously initialised -- they will be set to zero. If a is
+ * nonzero, then the entries of y must have been previously
+ * initialised.
  *
  * @param ctx @ref Context object for calculation
  * @param a Ring::Element scalar a

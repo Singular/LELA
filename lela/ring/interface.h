@@ -66,12 +66,8 @@ public:
 	///
 	/// It should do exactly what the version above taking an element does.
 	template <class Iterator, class Accessor>
-	Property<Iterator, Accessor> init (Property<Iterator, Accessor> x, const integer &n = 0) const
-	{
-		Element t;
-		init (t, n);
-		return x = t;
-	}
+	Element &init (Property<Iterator, Accessor> x, const integer &n = 0) const
+		{ return init (x.ref (), n); }
   
 	/** \brief  Assignment of one ring element to another.
 	 *
@@ -90,12 +86,8 @@ public:
 	///
 	/// It should do exactly what the version above taking an element does.
 	template <class Iterator, class Accessor>
-	Property<Iterator, Accessor> assign (Property<Iterator, Accessor> x, const Element &y) const
-	{
-		Element t;
-		assign (t, y);
-		return x = t;
-	}
+	Element &assign (Property<Iterator, Accessor> x, const Element &y) const
+		{ return assign (x.ref (), y); }
     
 	/** \brief Cardinality.
 	 *
@@ -291,12 +283,8 @@ public:
 	 * @param  y ring element.
 	 */
 	template <class Iterator, class Accessor>
-	Property<Iterator, Accessor> mulin (Property<Iterator, Accessor> x, const Element &y) const
-	{
-		Element t = x;
-		mulin (t, y);
-		return x = t;
-	}
+	Element &mulin (Property<Iterator, Accessor> x, const Element &y) const
+		{ return mulin (x.ref (), y); }
    
 	/** Inplace Division; x /= y
 	 *

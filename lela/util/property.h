@@ -22,16 +22,22 @@ template <class Iterator>
 struct SimpleAccessor
 {
 	typedef typename std::iterator_traits<Iterator>::value_type value_type;
+	typedef typename std::iterator_traits<Iterator>::reference reference;
 	static value_type get (const Iterator &i) { return *i; }
+	static reference ref (Iterator &i) { return *i; }
 	static void set (Iterator &i, const value_type &T) { *i = T; }
 };
 
 /// Closure which gets the second entry in a pair
+///
+/// This version assumes that the value_type of the iterator is a pair of properties
 template <class Iterator>
 struct SecondEntryAccessor
 {
 	typedef typename std::iterator_traits<Iterator>::value_type::second_type value_type;
+	typedef typename std::iterator_traits<Iterator>::value_type::second_type &reference;
 	static value_type get (const Iterator &i) { return i->second; }
+	static reference ref (Iterator &i) { return i->second.ref (); }
 	static void set (Iterator &i, const value_type &T) { i->second = T; }
 };
 
@@ -48,6 +54,7 @@ struct Property
 	Iterator _i;
 
 	typedef typename Accessor::value_type value_type;
+	typedef typename Accessor::reference reference;
 
 	Property () {}
 	Property (Iterator i) : _i (i) {}
@@ -113,6 +120,9 @@ struct Property
 
 	operator value_type () const
 		{ return Accessor::get (_i); }
+
+	reference ref ()
+		{ return Accessor::ref (_i); }
 };
 
 /// Similar to Property above but shifts the value by a fixed

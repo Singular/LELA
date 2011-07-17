@@ -595,18 +595,52 @@ void MyAlgorithm (const Ring &amp;R)
 {
 	typename Vector&lt;Ring&gt;::Sparse v;
 
-	// Initialise some entries
-	typename Ring::Element a, b, c;
-	R.init (a, -1);
-	R.init (b, 3);
-	R.init (c, 10);
+	// Index zero gets value -1
+	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (0, Ring::Element ()));
+	R.init (v.back ().second, -1);
 
-	// Append entries to the vector
-	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (0, a));   // Index zero gets value a
-	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (15, b));  // Index 15 gets value b
-	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (23, c));  // Index 23 gets value c
+	// Index 15 gets value 3
+	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (15, Ring::Element ()));
+	R.init (v.back ().second, 3);
+
+	// Index 23 gets value 10
+	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (23, Ring::Element ()));
+	R.init (v.back ().second, 10);
 }
 	  </programlisting>
+
+	  <para>
+	    The manner by which new entries are initialised is
+	    important: the pair must be appended to the vector with a
+	    newly constructed <type>Ring::Element</type> and the
+	    element must then be initialised by the ring. It is
+	    important for certain ring-types not merely to make a
+	    shallow copy of a ring-element into the vector. For
+	    example:
+	  </para>
+
+	  <programlisting>
+typename Vector&lt;Ring&gt;::Sparse v;
+
+// ERROR: The content of a may be destroyed when the function leaves, leaving the vector in an invalid state
+typename Ring::Element a;
+R.init (a, -1);
+v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (0, a));
+
+// Correct
+v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (0, Ring::Element ()));
+R.init (v.back ().second, -1);
+	  </programlisting>
+
+	  <para>
+	    If the element-type is simple (such as a C++ int) or is a
+	    class with a copy-constructor and assignment-operator
+	    which perform deep copies, then both methods above are
+	    equivalent. This is true for the type <type>integer</type>
+	    as well as elements of <type>Rationals</type>. However,
+	    when writing generic code parametrised by the ring, one
+	    should not assume that this is the case.
+	  </para>
 	</section>
 	<section xml:id="vecgf2">
 	  <title>Representation-types for GF(2)</title>

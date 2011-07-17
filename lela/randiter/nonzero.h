@@ -15,6 +15,7 @@
 #include "lela/lela-config.h"
 #include "lela/ring/interface.h"
 #include "lela/randiter/interface.h"
+#include "lela/util/property.h"
 
 namespace LELA
 {
@@ -55,6 +56,10 @@ public:
 		do _r.random (a); while (_F.isZero (a));
 		return a;
 	}
+
+	template <class Iterator, class Accessor>
+	typename Ring::Element &random (Property<Iterator, Accessor> a) const
+		{ return random (a.ref ()); }
 
 private:
 

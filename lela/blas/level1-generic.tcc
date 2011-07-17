@@ -223,8 +223,12 @@ Vector &_scal<Ring, typename GenericModule<Ring>::Tag>::scal_impl
 {
 	typename Vector::iterator i;
 
-	for (i = x.begin (); i != x.end (); i++)
-		F.mulin (*i, a);
+	if (F.isZero (a))
+		for (i = x.begin (); i != x.end (); i++)
+			F.assign (*i, F.zero ());
+	else
+		for (i = x.begin (); i != x.end (); i++)
+			F.mulin (*i, a);
 
 	return x;
 }

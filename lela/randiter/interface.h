@@ -13,6 +13,8 @@
 #ifndef __LELA_RANDITER_INTERFACE_H
 #define __LELA_RANDITER_INTERFACE_H
 
+#include "lela/util/property.h"
+
 namespace LELA
 {
 
@@ -40,6 +42,11 @@ public:
 	 * @return reference to random ring element
 	 */
 	virtual Element &random (Element &a) const = 0;
+
+	/** Version of random taking a property as input */
+	template <class Iterator, class Accessor>
+	Element &random (Property<Iterator, Accessor> a) const
+		{ return random (a.ref ()); }
 
 	//@} Common Object Iterface
     
