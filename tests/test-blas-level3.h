@@ -1819,8 +1819,8 @@ bool testBLAS3Consistency (LELA::Context<Ring, Modules> &ctx, const char *text, 
 
         TransposeMatrix<SparseMatrix<typename Ring::Element> > M6p (M5p);
 
-        RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> stream81 (ctx.F, (double) k / (double) n, n, m);
-        SparseMatrix<typename Ring::Element> M5n (stream51);
+        RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> stream81 (ctx.F, (double) k / (double) n, m, n);
+        SparseMatrix<typename Ring::Element> M5n (stream81);
 
         pass = testtrsmConsistency (ctx, ctx, "sparse(row-wise)/dense   with dense/dense (LT, diag = 1)", M5, M4, M4, M4, LowerTriangular, true) && pass;
         pass = testtrsmConsistency (ctx, ctx, "sparse(row-wise)/dense   with dense/dense (UT, diag = 1)", M5, M4, M4, M4,  UpperTriangular, true) && pass;
