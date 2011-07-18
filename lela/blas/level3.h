@@ -81,6 +81,9 @@ Matrix3 &gemm (Context<Ring, Modules> &ctx, const typename Ring::Element &a, con
  *
  * A must be square
  *
+ * B may not be a sparse matrix represented by columns (a sparse
+ * matrix represented by rows is okay, though).
+ *
  * @param a Ring::Element scalar a
  * @param A Matrix A
  * @param B Matrix B
@@ -97,6 +100,9 @@ Matrix2 &trmm (Context<Ring, Modules> &ctx, const typename Ring::Element &a, con
  *
  * A must be square. If diagIsOne is false and there are zeros on the
  * diagonal, an exception is thrown.
+ *
+ * B may not be a sparse matrix represented by columns (a sparse
+ * matrix represented by rows is okay, though).
  *
  * @param a Ring::Element scalar a
  * @param A Matrix A

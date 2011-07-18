@@ -336,7 +336,7 @@ static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const 
 	Matrix1 U (A.rowdim (), A.coldim ());
 
 	BLAS3::copy (ctx, A, U);
-	makeNonsingDiag (ctx.F, U);
+	makeNonsingDiag (ctx.F, U, false);
 
 	DenseMatrix<typename Field::Element> UinvBtrsm (U.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> UinvBtrsv (U.rowdim (), B.coldim ());
@@ -702,8 +702,8 @@ bool testgerConsistency (LELA::Context<Ring, Modules1> &ctx1,
 	typename VectorTraits<Ring,Vector3>::ContainerType w1;
 	typename VectorTraits<Ring,Vector4>::ContainerType w2;
 
-	VectorUtils::ensureDim<Ring, Vector3> (w1, A1.coldim ());
-	VectorUtils::ensureDim<Ring, Vector4> (w2, A1.rowdim ());
+	VectorUtils::ensureDim<Ring, Vector3> (w1, A1.rowdim ());
+	VectorUtils::ensureDim<Ring, Vector4> (w2, A1.coldim ());
 
 	BLAS1::copy (ctx1, x1, w1);
 	BLAS1::copy (ctx1, x2, w2);
@@ -807,65 +807,41 @@ bool testBLAS2Consistency (LELA::Context<Ring, Modules> &ctx, const char *text, 
 
 	TransposeMatrix<SparseMatrix<typename Ring::Element> > M6 (M5);
 
-	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag = 1)", M4, w1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag = 1)", M4, w1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag != 1)", M4, w1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag != 1)", M4, w1, M4, v1, UpperTriangular, false) && pass;
-	
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag = 1)", M5, v1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag = 1)", M5, v1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag != 1)", M5, v1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag != 1)", M5, v1, M4, v1, UpperTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag = 1)", M5, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag = 1)", M5, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag != 1)", M5, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag != 1)", M5, v1, M4, v1, UpperTriangular, false) && pass;
 
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag = 1)", M6, v1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag = 1)", M6, v1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag != 1)", M6, v1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag != 1)", M6, v1, M4, v1, UpperTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag = 1)", M6, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag = 1)", M6, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag != 1)", M6, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag != 1)", M6, v1, M4, v1, UpperTriangular, false) && pass;
 
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag = 1)", M5, w1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag = 1)", M5, w1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag != 1)", M5, w1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag != 1)", M5, w1, M4, v1, UpperTriangular, false) && pass;
+	SparseMatrix<typename Ring::Element> M5p (n, n);
+	BLAS3::copy (ctx, M5, M5p);
+	makeNonsingDiag (ctx.F, M5p, false);
 
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag = 1)", M6, w1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag = 1)", M6, w1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag != 1)", M6, w1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrmvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag != 1)", M6, w1, M4, v1, UpperTriangular, false) && pass;
+	TransposeMatrix<SparseMatrix<typename Ring::Element> > M6p (M5p);
 
-	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag = 1)", M4, w1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag = 1)", M4, w1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (LT, diag != 1)", M4, w1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "dense/sparse	with dense/dense (UT, diag != 1)", M4, w1, M4, v1, UpperTriangular, false) && pass;
-	
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag = 1)", M5, v1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag = 1)", M5, v1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (LT, diag != 1)", M5, v1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/dense	with dense/dense (UT, diag != 1)", M5, v1, M4, v1, UpperTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag = 1)", M5, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag = 1)", M5, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag != 1)", M5p, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag != 1)", M5p, v1, M4, v1, UpperTriangular, false) && pass;
 
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag = 1)", M6, v1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag = 1)", M6, v1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (LT, diag != 1)", M6, v1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/dense	with dense/dense (UT, diag != 1)", M6, v1, M4, v1, UpperTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag = 1)", M6, v1, M4, v1, LowerTriangular, true) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag = 1)", M6, v1, M4, v1, UpperTriangular, true) && pass;	
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag != 1)", M6p, v1, M4, v1, LowerTriangular, false) && pass;
+	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag != 1)", M6p, v1, M4, v1, UpperTriangular, false) && pass;
 
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag = 1)", M5, w1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag = 1)", M5, w1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (LT, diag != 1)", M5, w1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(row-wise)/sparse	with dense/dense (UT, diag != 1)", M5, w1, M4, v1, UpperTriangular, false) && pass;
-
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag = 1)", M6, w1, M4, v1, LowerTriangular, true) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag = 1)", M6, w1, M4, v1, UpperTriangular, true) && pass;	
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (LT, diag != 1)", M6, w1, M4, v1, LowerTriangular, false) && pass;
-	pass = testtrsvConsistency (ctx, ctx, "sparse(col-wise)/sparse	with dense/dense (UT, diag != 1)", M6, w1, M4, v1, UpperTriangular, false) && pass;
-
-	pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /dense  /dense          with dense/dense/dense", M2, v1, v2, M1, v1, v1) && pass;
-        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /dense  /dense          with dense/dense/dense", M3, v2, v1, M1, v1, v1) && pass;
-        pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /sparse /sparse         with dense/dense/dense", M2, w1, w2, M1, v1, v1) && pass;
-        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /sparse /sparse         with dense/dense/dense", M3, w2, w1, M1, v1, v1) && pass;
-        pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /sparse /dense          with dense/dense/dense", M2, w1, v2, M1, v1, v1) && pass;
-        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /sparse /dense          with dense/dense/dense", M3, w2, v1, M1, v1, v1) && pass;
-        pass = testgerConsistency (ctx, ctx, "dense            /sparse /dense          with dense/dense/dense", M1, w1, v2, M1, v1, v1) && pass;
-        pass = testgerConsistency (ctx, ctx, "dense            /sparse /sparse         with dense/dense/dense", M1, w1, w2, M1, v1, v1) && pass;
-	pass = testgerConsistency (ctx, ctx, "dense            /dense  /sparse         with dense/dense/dense", M1, v1, w2, M1, v1, v1) && pass;
+	pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /dense  /dense          with dense/dense/dense", M2, v2, v1, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /dense  /dense          with dense/dense/dense", M3, v1, v2, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /sparse /sparse         with dense/dense/dense", M2, w2, w1, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /sparse /sparse         with dense/dense/dense", M3, w1, w2, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(row-wise) /sparse /dense          with dense/dense/dense", M2, v2, w1, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "sparse(col-wise) /sparse /dense          with dense/dense/dense", M3, v1, w2, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "dense            /sparse /dense          with dense/dense/dense", M1, v2, w1, M1, v1, v1) && pass;
+        pass = testgerConsistency (ctx, ctx, "dense            /sparse /sparse         with dense/dense/dense", M1, w2, w1, M1, v1, v1) && pass;
+	pass = testgerConsistency (ctx, ctx, "dense            /dense  /sparse         with dense/dense/dense", M1, w2, v1, M1, v1, v1) && pass;
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 

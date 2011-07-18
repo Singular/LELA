@@ -49,7 +49,10 @@ Vector2 &gemv (Context<Ring, Modules>       &ctx,
 
 /** Triangular matrix-vector multiply, x <- Ax, where A is triangular
  *
- * A must be square
+ * A must be square.
+ *
+ * x must have a dense or dense 0-1 representation. This function is
+ * not available for sparse or hybrid vectors.
  *
  * @param A Matrix A
  * @param x Vector x
@@ -66,6 +69,9 @@ Vector &trmv (Context<Ring, Modules> &ctx, const Matrix &A, Vector &x, Triangula
  *
  * A must be square. If diagIsOne is false and there are zeros on the
  * diagonal, an exception is thrown.
+ *
+ * x must have a dense or dense 0-1 representation. This function is
+ * not available for sparse or hybrid vectors.
  *
  * @param A Matrix A
  * @param x Vector x

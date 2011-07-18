@@ -278,6 +278,8 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
 }; // template <class Vector> class SparseSubvector<const Vector, Sparse>
 
 // Specialisation of SparseSubvector to vector in sparse format
+//
+// Note: only const subvectors of a mutable sparse subvector may be created!
 
 template <class Vector>
 class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
@@ -286,9 +288,9 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 	typedef VectorRepresentationTypes::Sparse RepresentationType; 
 	typedef VectorStorageTypes::Transformed StorageType;
 	typedef const Vector ContainerType;
-	typedef SparseSubvector<Vector, VectorRepresentationTypes::Sparse> SubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> SubvectorType;
 	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstSubvectorType;
-	typedef SparseSubvector<Vector, VectorRepresentationTypes::Sparse> AlignedSubvectorType;
+	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> AlignedSubvectorType;
 	typedef SparseSubvector<const Vector, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
 	static const int align = 1;
 
@@ -310,14 +312,6 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 		_begin_idx = std::lower_bound (v.begin (), v.end (), start, VectorUtils::CompareSparseEntries ()) - v.begin ();
 		_end_idx = std::lower_bound (v.begin (), v.end (), finish, VectorUtils::CompareSparseEntries ()) - v.begin ();
 		_shift = start;
-	}
-
-	SparseSubvector (const SparseSubvector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
-	{
-		_v = v._v;
-		_begin_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->begin () + v._end_idx, start + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
-		_end_idx = std::lower_bound (v._v->begin () + v._begin_idx, v._v->begin () + v._end_idx, finish + v._shift, VectorUtils::CompareSparseEntries ()) - v._v->begin ();
-		_shift = start + v._shift;
 	}
 
 	SparseSubvector (const SparseSubvector &v)

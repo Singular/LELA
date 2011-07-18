@@ -137,8 +137,9 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 
 template <class Ring>
 template <class Modules, class Matrix, class Vector>
-Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::op
-	(const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::trmv_impl
+	(const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	 VectorRepresentationTypes::Dense)
 {
 	lela_check (A.coldim () == A.rowdim ());
 	lela_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
@@ -208,8 +209,9 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::op
 
 template <class Ring>
 template <class Modules, class Matrix, class Vector>
-Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::op
-	(const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::trsv_impl
+	(const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	 VectorRepresentationTypes::Dense)
 {
 	lela_check (A.coldim () == A.rowdim ());
 	lela_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));

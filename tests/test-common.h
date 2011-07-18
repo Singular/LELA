@@ -37,17 +37,10 @@ struct Argument
 // example may be passed as null and will be generated intelligently
 // eg "-b {YN+-}" for bools, "-v v" for all else
 
-
-
-
-
-
-
-
 /* Force the input-matrix to have nonsingular entries on the diagonal */
 
 template <class Field, class Matrix>
-static Matrix &makeNonsingDiag (Field &F, Matrix &A)
+static Matrix &makeNonsingDiag (Field &F, Matrix &A, bool set_one)
 {
 	size_t i;
 
@@ -56,7 +49,9 @@ static Matrix &makeNonsingDiag (Field &F, Matrix &A)
 	LELA::NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
 
 	for (i = 0; i < std::min (A.rowdim (), A.coldim ()); ++i) {
-		if (!A.getEntry (a, i, i) || F.isZero (a)) {
+		if (set_one)
+			A.setEntry (i, i, F.one ());
+		else if (!A.getEntry (a, i, i) || F.isZero (a)) {
 			r.random (a);
 			A.setEntry (i, i, a);
 		}
@@ -64,13 +59,6 @@ static Matrix &makeNonsingDiag (Field &F, Matrix &A)
 
 	return A;
 }
-
-
-
-
-
-
-
 
 template <class Ring, class Polynomial>
 void printPolynomial (Ring &F, ostream &output, const Polynomial &v) 

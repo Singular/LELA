@@ -116,17 +116,37 @@ public:
 template <class Ring>
 class _trmv<Ring, typename GenericModule<Ring>::Tag>
 {
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  VectorRepresentationTypes::Dense);
+
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  VectorRepresentationTypes::Dense01)
+		{ return trmv_impl (F, M, A, x, type, diagIsOne, VectorRepresentationTypes::Dense ()); }
+
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
+	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return trmv_impl (F, M, A, x, type, diagIsOne, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 template <class Ring>
 class _trsv<Ring, typename GenericModule<Ring>::Tag>
 {
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  VectorRepresentationTypes::Dense);
+
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  VectorRepresentationTypes::Dense01)
+		{ return trsv_impl (F, M, A, x, type, diagIsOne, VectorRepresentationTypes::Dense ()); }
+
 public:
 	template <class Modules, class Matrix, class Vector>
-	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne);
+	static Vector &op (const Ring &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
+		{ return trsv_impl (F, M, A, x, type, diagIsOne, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 template <class Ring>

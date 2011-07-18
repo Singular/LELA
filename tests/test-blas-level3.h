@@ -692,7 +692,7 @@ static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const
 	Matrix B1 (B.rowdim (), B.coldim ());
 
 	BLAS3::copy (ctx, A, U);
-	makeNonsingDiag (ctx.F, U);
+	makeNonsingDiag (ctx.F, U, false);
 
 	BLAS3::copy (ctx, B, B1);
 
@@ -753,7 +753,7 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 	Matrix B1 (B.rowdim (), B.coldim ());
 
 	BLAS3::copy (ctx, A, U);
-	makeNonsingDiag (ctx.F, U);
+	makeNonsingDiag (ctx.F, U, false);
 
 	BLAS3::copy (ctx, B, B1);
 
