@@ -34,10 +34,12 @@ class _gemm<Ring, StrassenModuleTag<Ring, ParentModule> >
 				   VectorRepresentationTypes::Dense)
 		{ return ((StrassenModule<Ring, ParentModule> &) M).sw.gemm (F, M, a, A, B, b, C); }
 
+#if 0 // Not working
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 				   VectorRepresentationTypes::Dense01)
 		{ return ((StrassenModule<Ring, ParentModule> &) M).sw.gemm (F, M, a, A, B, b, C); }
+#endif
 
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
