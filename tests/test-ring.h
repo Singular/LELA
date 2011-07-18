@@ -76,7 +76,8 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	typename Ring::Element a, b, c, d, e, f;
 	F.init (a, 0); F.init (b, 0); F.init (c, 0); F.init (d, 0); F.init (e, 0); F.init (f, 0);
 
-	report << "Ring self description: " << F.write (report) << endl;
+	report << "Ring self description: ";
+	F.write (report) << endl;
 
 	LELA::integer n, m;
 	bool pass = true, part_pass = true;

@@ -26,6 +26,9 @@
 #include "lela/randiter/nonzero.h"
 #include "lela/algorithms/strassen-winograd.h"
 
+#define FLOAT_MANTISSA 24
+#define DOUBLE_MANTISSA 53
+
 namespace LELA 
 {
 
@@ -57,6 +60,10 @@ struct ModularTraits
 	/// Initialise an element from an integer; for initialisation of the modulus
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x; return elt; }
+
+	/// Write an element to the given stream
+	static std::ostream &write (std::ostream &os, const Element &x)
+		{ return os << x; }
 };
 
 // Specialisation for uint8
@@ -77,6 +84,8 @@ struct ModularTraits<uint8>
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_ui (); return elt; }
+	static std::ostream &write (std::ostream &os, const Element &x)
+		{ return os << (int) x; }
 };
 
 // Specialisation for uint16
@@ -99,6 +108,8 @@ struct ModularTraits<uint16>
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_ui (); return elt; }
+	static std::ostream &write (std::ostream &os, const Element &x)
+		{ return os << x; }
 };
 
 // Specialisation for uint32
@@ -119,6 +130,8 @@ struct ModularTraits<uint32>
 		{ long long t = (long long) a % (long long) m; if (t < 0) t += m; return r = t; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_ui (); return elt; }
+	static std::ostream &write (std::ostream &os, const Element &x)
+		{ return os << x; }
 };
 
 // Specialisation for float
@@ -139,6 +152,8 @@ struct ModularTraits<float>
 		{ r = fmod (a, (double) m); return r; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_d (); return elt; }
+	static std::ostream &write (std::ostream &os, const Element &x)
+		{ return os << (int) x; }
 };
 
 // Specialisation for double
@@ -157,6 +172,8 @@ struct ModularTraits<double>
 		{ r = fmod (a, m); return r; }
 	static Element &init_element (Element &elt, integer x)
 		{ elt = x.get_d (); return elt; }
+	static std::ostream &write (std::ostream &os, const Element &x)
+		{ return os << (long long) x; }
 };
 
 /** @name ModularBase 
@@ -238,10 +255,10 @@ public:
 	bool isZero (const Element &x) const { return x == 0; }
 	bool isOne (const Element &x) const { return x == 1; }
 
-	std::ostream &write (std::ostream &os) const { return os << "ZZ/" << integer (_modulus).get_str (); }
+	std::ostream &write (std::ostream &os) const { os << "ZZ/"; return ModularTraits<Element>::write (os, _modulus); }
 	std::istream &read (std::istream &is) { return is >> _modulus; }
 
-	std::ostream &write (std::ostream &os, const Element &x) const { return os << integer (x).get_str (); }
+	std::ostream &write (std::ostream &os, const Element &x) const { return ModularTraits<Element>::write (os, x); }
 
 	std::istream &read (std::istream &is, Element &x) const
 	{
@@ -446,6 +463,32 @@ private:
 
 		return two_64;
 	}
+};
+
+template <>
+struct ZpModule<float> : public GenericModule<float>
+{
+	struct Tag { typedef GenericModule<Modular<float> >::Tag Parent; };
+
+	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
+	size_t block_size;
+
+	mutable std::vector<ModularTraits<float>::DoubleFatElement> _tmp;
+
+	ZpModule (const Modular<double> &R) : block_size (floor (float (1 << FLOAT_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))) {}
+};
+
+template <>
+struct ZpModule<double> : public GenericModule<double>
+{
+	struct Tag { typedef GenericModule<Modular<double> >::Tag Parent; };
+
+	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
+	size_t block_size;
+
+	mutable std::vector<ModularTraits<double>::DoubleFatElement> _tmp;
+
+	ZpModule (const Modular<double> &R) : block_size (floor (double (1ULL << DOUBLE_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))) {}
 };
 
 template <class Element>
