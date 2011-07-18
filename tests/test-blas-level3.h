@@ -1455,7 +1455,7 @@ bool testpermute_rowsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::permute_rows (ctx1, P.begin (), P.end (), A3);
 
-	report << "Matrix AP: " << std::endl;
+	report << "Matrix A_1 P: " << std::endl;
 	BLAS3::write(ctx1, report, A3);
 
 	report << "Matrix A_2: "<< std::endl;
@@ -1463,7 +1463,7 @@ bool testpermute_rowsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::permute_rows (ctx1, P.begin (), P.end (), A4);
 
-        report << "AP: "<< std::endl;
+        report << "A_2 P: "<< std::endl;
 	BLAS3::write (ctx2, report, A4);
 
         if (!BLAS3::equal (ctx1, A3, A4))
@@ -1520,7 +1520,7 @@ bool testpermute_colsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::permute_cols (ctx1, P.begin (), P.end (), A3);
 
-	report << "Matrix AP: " << std::endl;
+	report << "Matrix A_1 P: " << std::endl;
 	BLAS3::write(ctx1, report, A3);
 
 	report << "Matrix A_2: "<< std::endl;
@@ -1528,7 +1528,7 @@ bool testpermute_colsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::permute_cols (ctx1, P.begin (), P.end (), A4);
 
-        report << "AP: "<< std::endl;
+        report << "A_2 P: "<< std::endl;
 	BLAS3::write (ctx2, report, A4);
 
         if (!BLAS3::equal (ctx1, A3, A4))
