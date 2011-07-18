@@ -315,6 +315,77 @@ static bool testDotProduct (LELA::Context<Ring, Modules> &ctx, const char *text,
 	return ret;
 }
 
+/** Test 2.1: swap
+ *
+ * Construct two random vector v1 and v2
+ * Swap vector v1 and vector v2 
+ * Check whether the results are equal.
+ *
+ * F - Ring over which to perform computations
+ * text - Text describing types of vectors
+ * stream1 - Source of random vectors v1
+ *
+ * Return true on success and false on failure
+ */
+
+template <class Ring, class Modules, class Vector1>
+bool testswap (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::VectorStream<Vector1> &stream1)
+{
+	ostringstream str;
+
+	str << "Testing " << text << " test swap " << ends;
+	LELA::commentator.start (str.str ().c_str (), __FUNCTION__);
+	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool ret = true;
+	
+	typename LELA::VectorTraits<Ring,Vector1>::ContainerType v1, v2, w1, w2;
+
+	LELA::VectorUtils::ensureDim<Ring, Vector1> (v1, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector1> (v2, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector1> (w1, stream1.dim ());
+	LELA::VectorUtils::ensureDim<Ring, Vector1> (w2, stream1.dim ());
+
+	stream1 >> v1;
+
+	stream1.reset ();
+
+        stream1 >> v2;
+
+        while(LELA::BLAS1::equal(ctx, v1 , v2)) {
+		stream1.reset ();
+		stream1 >> v2;
+	}
+
+	LELA::BLAS1::copy(ctx, v1, w1);
+	LELA::BLAS1::copy(ctx, v2, w2);
+
+	report << "(Before swap) Vector v_1: ";
+	LELA::BLAS1::write (ctx, report, v1) << std::endl;
+
+	report << "(Before swap) Vector v_2: ";
+	LELA::BLAS1::write (ctx, report, v2) << std::endl;
+
+	LELA::BLAS1::swap(ctx, w1, w2);
+
+	report << "(After swap) Vector v_1: ";
+	LELA::BLAS1::write(ctx, report, w1) << std::endl;
+
+	report << "(After swap) Vector v_2: ";
+	LELA::BLAS1::write(ctx, report, w2) << std::endl;
+
+	if((LELA::BLAS1::equal(ctx, v1 , w1)) || (LELA::BLAS1::equal(ctx ,v2, w2)))
+	{
+		ret = false;
+		std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+		error << "ERROR: Swap unseccessfull! " << std::endl;
+	}
+
+	LELA::commentator.stop (MSG_STATUS (ret));
+
+	return ret;
+}
+
 /** Test 3: Vector scal
  *
  * Construct a random vector x and a random element a and compute -a*x
@@ -517,6 +588,10 @@ bool testBLAS1 (LELA::Context<Ring, Modules> &ctx, const char *text, size_t n, u
 
 	if (!testAXPY (ctx, "dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
 	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;  stream3.reset (); stream4.reset ();
+
+	if (!testswap(ctx, "dense", stream1)) pass = false; stream1.reset ();
+        if (!testswap(ctx, "sparse", stream3)) pass = false; stream3.reset ();
+
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
