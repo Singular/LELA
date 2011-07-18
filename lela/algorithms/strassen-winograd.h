@@ -47,7 +47,7 @@ class StrassenWinograd
 	bool _use_ip;
 
 	// FIXME
-	static const size_t default_cutoff = 64;
+	static const size_t default_cutoff = 4096;
 
 	// Calculate the product of the residual part of the input classically
 	template <class Ring, class Modules, class Matrix1, class Matrix2, class Matrix3>
