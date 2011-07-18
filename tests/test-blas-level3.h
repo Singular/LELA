@@ -881,7 +881,7 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 
 	bool ret = true;
 
-	MersenneTwister MT (time (NULL));
+	MersenneTwister MT;
 
 	Permutation P, Pinv;
 
