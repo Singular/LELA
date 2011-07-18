@@ -1129,8 +1129,8 @@ bool testscalConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::scal (ctx2, a, A4);
 
-	report << "Matrix a A_2: ";
-	BLAS3::write (ctx2, report, A4) << std::endl;
+	report << "Matrix a A_2: " << std::endl;;
+	BLAS3::write (ctx2, report, A4);
 
 	if (!BLAS3::equal (ctx1, A3, A4))
 	{
@@ -1184,8 +1184,8 @@ bool testaxpyConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::axpy (ctx1, a, A1, A7);
 
-        report << "Matrix a A_1 + A_2: ";
-	BLAS3::write (ctx1, report, A7) << std::endl;
+        report << "Matrix a A_1 + A_2: " << std::endl;;
+	BLAS3::write (ctx1, report, A7);
 
         report << "Matrix A_1: "<< std::endl;
 	BLAS3::write (ctx1, report, A6);
@@ -1195,8 +1195,8 @@ bool testaxpyConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::axpy (ctx2, a, A6, A8);
 
-        report << "Matrix a A_3 + A_4: ";
-	BLAS3::write (ctx2, report, A8) << std::endl;
+        report << "Matrix a A_3 + A_4: " << std::endl;
+	BLAS3::write (ctx2, report, A8);
 
         if (!BLAS3::equal (ctx1, A7, A8))
         {
@@ -1256,8 +1256,8 @@ bool testgemmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::gemm (ctx1, a, A1, A2, b, A9);
 
-        report << "Matrix a A_1 A_2 + c A_3: ";
-	BLAS3::write (ctx1, report, A6) << std::endl;
+        report << "Matrix a A_1 A_2 + c A_3: " << std::endl;
+	BLAS3::write (ctx1, report, A6);
 
         report << "Matrix A_4: "<< std::endl;
 	BLAS3::write (ctx1, report, A7);
@@ -1270,8 +1270,8 @@ bool testgemmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::gemm (ctx2, a, A7, A8, b, A10);
 
-        report << "Matrix a A_4 A_5 + b A_6: ";
-	BLAS3::write (ctx2, report, A10) << std::endl;
+        report << "Matrix a A_4 A_5 + b A_6: " << std::endl;
+	BLAS3::write (ctx2, report, A10);
 
         if (!BLAS3::equal (ctx1, A9, A10))
 	{
@@ -1323,8 +1323,8 @@ bool testtrmmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::trmm (ctx1, a, A1, A6, type, diagIsOne);
 
-        report << "Matrix a A_1 A_2: ";
-	BLAS3::write (ctx1, report, A6) << std::endl;
+        report << "Matrix a A_1 A_2: "<< std::endl;
+	BLAS3::write (ctx1, report, A6);
 
         report << "Matrix A_3: "<< std::endl;
 	BLAS3::write (ctx1, report, A5);
@@ -1334,8 +1334,8 @@ bool testtrmmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::trmm (ctx2, a, A5, A7, type, diagIsOne);
 
-        report << "Matrix a A_3 A_4: ";
-	BLAS3::write (ctx2, report, A7) << std::endl;
+        report << "Matrix a A_3 A_4: "<< std::endl;
+	BLAS3::write (ctx2, report, A7);
 
         if (!BLAS3::equal (ctx1, A6, A7))
         {
@@ -1367,7 +1367,7 @@ bool testtrsmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         bool pass = true;
 
         typename Matrix3::ContainerType A5 (A1.rowdim (), A1.coldim ());
-        typename Matrix2::ContainerType A6 (A2.rowdim (), A1.coldim ());
+        typename Matrix2::ContainerType A6 (A2.rowdim (), A2.coldim ());
         typename Matrix4::ContainerType A7 (A2.rowdim (), A2.coldim ());
 
 	BLAS3::copy(ctx1, A1, A5);
@@ -1387,20 +1387,19 @@ bool testtrsmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::trsm (ctx1, a, A1, A6, type, diagIsOne);
 
-        report << "Matrix a ((A_1)^-1) A_2: ";
-	BLAS3::write (ctx1, report, A6) << std::endl;
+        report << "Matrix a ((A_1)^-1) A_2: "<<std::endl;
+	BLAS3::write (ctx1, report, A6);
 
         report << "Matrix A_3: "<< std::endl;
 	BLAS3::write (ctx1, report, A5);
 
         report << "Matrix A_4: "<< std::endl;
-
 	BLAS3::write (ctx1, report, A7);
 
 	BLAS3::trsm (ctx2, a, A5, A7, type, diagIsOne);
 
-        report << "Matrix a ((A_3)^-1) A_4: ";
-	BLAS3::write (ctx2, report, A7) << std::endl;
+        report << "Matrix a ((A_3)^-1) A_4: "<< std::endl; 
+	BLAS3::write (ctx2, report, A7);
 
         if (!BLAS3::equal (ctx1, A6, A7))
         {
@@ -1414,6 +1413,135 @@ bool testtrsmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         return pass;
 }
 
+template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2>
+bool testpermute_rowsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
+                           LELA::Context<Ring, Modules2> &ctx2,
+                           const char *text,
+                           const Matrix1 &A1, const Matrix2 &A2)
+{
+
+        ostringstream str;
+        str << "Testing " << text << " permute_rows consistency" << std::ends;
+        commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+        bool pass = true;
+
+	typename Matrix1::ContainerType A3 (A1.rowdim (), A1.coldim ());
+        typename Matrix2::ContainerType A4 (A1.rowdim (), A1.coldim ());
+
+	BLAS3::copy(ctx1, A1, A3);
+	BLAS3::copy(ctx1, A1, A4);
+
+	MersenneTwister MT;
+
+	Permutation P;
+
+	// Create a random row permutation
+	for (unsigned int i = 0; i < A1.rowdim (); ++i) {
+		unsigned int row1, row2;
+
+		do {
+			row1 = MT.randomInt () % A1.rowdim ();
+			row2 = MT.randomInt () % A1.rowdim ();
+		} while (row1 == row2);
+
+		P.push_back (Permutation::value_type (row1, row2));
+	}
+
+        report << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, report, A1);
+
+	BLAS3::permute_rows (ctx1, P.begin (), P.end (), A3);
+
+	report << "Matrix AP: " << std::endl;
+	BLAS3::write(ctx1, report, A3);
+
+	report << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, report, A4);
+
+	BLAS3::permute_rows (ctx1, P.begin (), P.end (), A4);
+
+        report << "AP: "<< std::endl;
+	BLAS3::write (ctx2, report, A4);
+
+        if (!BLAS3::equal (ctx1, A3, A4))
+	{
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: A_1 P  !=  A_2 P " << std::endl;
+		pass = false;
+	}
+
+        commentator.stop (MSG_STATUS (pass));
+
+        return pass;
+}
+
+template <class Ring, class Modules1, class Modules2, class Matrix1, class Matrix2>
+bool testpermute_colsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
+				   LELA::Context<Ring, Modules2> &ctx2,
+				   const char *text,
+				   const Matrix1 &A1, const Matrix2 &A2)
+{
+
+        ostringstream str;
+        str << "Testing " << text << " permute_cols consistency" << std::ends;
+        commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+        bool pass = true;
+
+	typename Matrix1::ContainerType A3 (A1.rowdim (), A1.coldim ());
+        typename Matrix2::ContainerType A4 (A1.rowdim (), A1.coldim ());
+
+	BLAS3::copy(ctx1, A1, A3);
+	BLAS3::copy(ctx1, A1, A4);
+
+	MersenneTwister MT;
+
+	Permutation P;
+
+	// Create a random column permutation
+	for (unsigned int i = 0; i < A1.coldim (); ++i) {
+		unsigned int col1, col2;
+
+		do {
+			col1 = MT.randomInt () % A1.coldim ();
+			col2 = MT.randomInt () % A1.coldim ();
+		} while (col1 == col2);
+
+		P.push_back (Permutation::value_type (col1, col2));
+	}
+
+        report << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, report, A1);
+
+	BLAS3::permute_cols (ctx1, P.begin (), P.end (), A3);
+
+	report << "Matrix AP: " << std::endl;
+	BLAS3::write(ctx1, report, A3);
+
+	report << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, report, A4);
+
+	BLAS3::permute_cols (ctx1, P.begin (), P.end (), A4);
+
+        report << "AP: "<< std::endl;
+	BLAS3::write (ctx2, report, A4);
+
+        if (!BLAS3::equal (ctx1, A3, A4))
+	{
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: A_1 P  !=  A_2 P " << std::endl;
+		pass = false;
+	}
+
+        commentator.stop (MSG_STATUS (pass));
+
+        return pass;
+}
 
 template <class Field, class Modules, class Matrix>
 bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
@@ -1713,6 +1841,12 @@ bool testBLAS3Consistency (LELA::Context<Ring, Modules> &ctx, const char *text, 
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/sparse(row-wise)   with dense/dense (UT, diag = 1)", M6, M5n, M4, M4,  UpperTriangular, true) && pass;
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/sparse(row-wise)   with dense/dense (LT, diag != 1)", M6p, M5n, M4, M4, LowerTriangular, false) && pass;
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/sparse(row-wise)   with dense/dense (UT, diag != 1)", M6p, M5n, M4, M4, UpperTriangular, false) && pass;
+
+	pass = testpermute_rowsConsistency(ctx, ctx, "sparse(row-wise)   with dense", M2, M1) && pass;
+	pass = testpermute_rowsConsistency(ctx, ctx, "sparse(col-wise)   with dense", M3, M1) && pass;
+
+        pass = testpermute_colsConsistency(ctx, ctx, "sparse(row-wise)   with dense", M2, M1) && pass;
+        pass = testpermute_colsConsistency(ctx, ctx, "sparse(col-wise)   with dense", M3, M1) && pass;
 
 	LELA::commentator.stop (MSG_STATUS (pass));
 
