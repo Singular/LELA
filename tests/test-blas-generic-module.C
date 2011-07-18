@@ -120,7 +120,7 @@ int main (int argc, char **argv)
 
 
 	testBLAS2Consistency(ctx, "Modular<uint8>", m, n, k);
-
+	testBLAS3Consistency(ctx, "Modular<uint8>", m, n, p, k);
 
 	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
