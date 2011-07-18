@@ -347,7 +347,7 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 	Splicer composed_splicer, subst_splicer, D_splicer_rev;
 
 	D_splicer.reverse (D_splicer_rev);
-	X_reconst_splicer.compose (subst_splicer, D_reconst_splicer, 1, (unsigned int) -1, 0, (unsigned int) -1);
+	X_reconst_splicer.compose (subst_splicer, D_reconst_splicer, 1, Splicer::noSource, 0, Splicer::noSource);
 	subst_splicer.removeGaps ();
 	subst_splicer.consolidate ();
 	subst_splicer.compose (composed_splicer, D_splicer_rev, 1, 1);

@@ -475,7 +475,7 @@ struct ZpModule<float> : public GenericModule<float>
 
 	mutable std::vector<ModularTraits<float>::DoubleFatElement> _tmp;
 
-	ZpModule (const Modular<double> &R) : block_size (floor (float (1 << FLOAT_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))) {}
+	ZpModule (const Modular<float> &R) : block_size (floor (float (1 << FLOAT_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))) {}
 };
 
 template <>

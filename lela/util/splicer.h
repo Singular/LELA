@@ -281,6 +281,9 @@ public:
 	 */
 	void removeGaps ();
 
+	/// Use this value to disable a given source in compose
+	static const unsigned int noSource = 0xdeadbeef;
+
 	/** Compose this Splicer with another and produce a new Splicer
 	 *
 	 * To make a direct copy of either horizontal or vertical
@@ -300,8 +303,8 @@ public:
 			  const Splicer &inner,
 			  unsigned int horiz_inner_source,
 			  unsigned int vert_inner_source,
-			  unsigned int horiz_only_source = -1,
-			  unsigned int vert_only_source = -1) const;
+			  unsigned int horiz_only_source = noSource,
+			  unsigned int vert_only_source = noSource) const;
 
 	/** Construct the reverse of this splicer and place it in output
 	 *

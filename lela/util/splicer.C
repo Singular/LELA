@@ -41,7 +41,7 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 
 	commentator.start ("Mapping blocks", __FUNCTION__);
 
-	size_t max_inner_block = (only_source == (unsigned int) -1) ? (std::max_element (inner_blocks.begin (), inner_blocks.end (), CompareBlockSources ()))->source () : 0;
+	size_t max_inner_block = (only_source == noSource) ? (std::max_element (inner_blocks.begin (), inner_blocks.end (), CompareBlockSources ()))->source () : 0;
 
 	for (outer_block = outer_blocks.begin (); outer_block != outer_blocks.end (); ++outer_block) {
 		if (curr_dest_idx.find (outer_block->dest ()) == curr_dest_idx.end ())
@@ -62,8 +62,8 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 			if (rest_size > 0) {
 				curr_size = std::min (rest_size, outer_block->size ());
 
-				if (only_source == (unsigned int) -1 || inner_block->source () == only_source) {
-					use_source = (only_source == (unsigned int) -1) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
+				if (only_source == noSource || inner_block->source () == only_source) {
+					use_source = (only_source == noSource) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
 
 					output.push_back (Block (use_source, outer_block->dest (), curr_source_idx[inner_block->source ()], curr_dest_idx[outer_block->dest ()], curr_size));
 
@@ -87,8 +87,8 @@ std::vector<Block> &Splicer::map_blocks (std::vector<Block> &output,
 				if (curr_source_idx.find (inner_block->source ()) == curr_source_idx.end ())
 					curr_source_idx[inner_block->source ()] = 0;
 
-				if (only_source == (unsigned int) -1 || inner_block->source () == only_source) {
-					use_source = (only_source == (unsigned int) -1) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
+				if (only_source == noSource || inner_block->source () == only_source) {
+					use_source = (only_source == noSource) ? (inner_block->source () + outer_block->source ()) : outer_block->source ();
 
 					output.push_back (Block (use_source, outer_block->dest (), curr_source_idx[inner_block->source ()], curr_dest_idx[outer_block->dest ()], curr_size));
 
