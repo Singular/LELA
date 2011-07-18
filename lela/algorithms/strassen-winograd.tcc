@@ -23,6 +23,9 @@
 #include "lela/algorithms/strassen-winograd.h"
 #include "lela/integer.h"
 
+// Define to get a detailed profile of what the algorithm is doing at a cost of performance
+#undef __LELA_SW_DETAILED_PROFILE
+
 namespace LELA
 {
 
@@ -43,10 +46,12 @@ template <class Ring, class Modules, class Matrix1, class Matrix2, class Matrix3
 Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
 						size_t m, size_t k, size_t n)
 {
+#ifdef __LELA_SW_DETAILED_PROFILE
 	commentator.start ("Residual gemm", __FUNCTION__);
 
 	commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 		<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
+#endif // __LELA_SW_DETAILED_PROFILE
 
 	if (2 * k < A.coldim ()) {
 		typename Matrix3::AlignedSubmatrixType      C11 (C, 0,     0,     2 * m,               2 * n);
@@ -57,9 +62,9 @@ Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const
 	}
 
 	if (2 * n < C.coldim ()) {
-		typename Matrix3::AlignedSubmatrixType      C12 (C, 0,     2 * n, 2 * m,               C.coldim () - 2 * n);
-		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0,     0,     2 * m,               2 * k);
-		typename Matrix2::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
+		typename Matrix3::AlignedSubmatrixType      C12 (C, 0,     2 * n, 2 * m, C.coldim () - 2 * n);
+		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0,     0,     2 * m, 2 * k);
+		typename Matrix2::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k, B.coldim () - 2 * n);
 
 		BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A11, B12, b, C12);
 
@@ -87,7 +92,7 @@ Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const
 	}
 
 	if (2 * m < A.rowdim () && 2 * n < B.coldim ()) {
-		typename Matrix3::AlignedSubmatrixType      C22 (C, 2 * m, 2 * n, C.rowdim () - 2 * k, C.coldim () - 2 * n);
+		typename Matrix3::AlignedSubmatrixType      C22 (C, 2 * m, 2 * n, C.rowdim () - 2 * m, C.coldim () - 2 * n);
 		typename Matrix1::ConstAlignedSubmatrixType A21 (A, 2 * m, 0,     A.rowdim () - 2 * m, 2 * k);
 		typename Matrix2::ConstAlignedSubmatrixType B12 (B, 0,     2 * n, 2 * k,               B.coldim () - 2 * n);
 
@@ -101,7 +106,9 @@ Matrix3 &StrassenWinograd<ParentTag>::gemm_res (const Ring &R, Modules &M, const
 		}
 	}
 
+#ifdef __LELA_SW_DETAILED_PROFILE
 	commentator.stop (MSG_DONE);
+#endif // __LELA_SW_DETAILED_PROFILE
 
 	return C;	
 }
@@ -119,6 +126,7 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 	if (m < _cutoff || k < _cutoff || n < _cutoff)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, R.zero (), C);
 	else {
+#ifdef __LELA_SW_DETAILED_PROFILE
 		commentator.start ("StrassenWinograd::mul", __FUNCTION__);
 
 		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
@@ -126,6 +134,7 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 
 		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 			<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
+#endif // __LELA_SW_DETAILED_PROFILE
 
 		typename Matrix3::ContainerType X1 (m, std::max (k, n)), X2 (k, n);
 
@@ -189,12 +198,14 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 
 		mul (R, M, R.one (), A12, B21, C11);
 
-		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X1, C11);
+		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X12, C11);
 
 		typename Matrix3::AlignedSubmatrixType C_part (C, 0, 0, 2 * m, 2 * n);
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, a, C_part);
 
+#ifdef __LELA_SW_DETAILED_PROFILE
 		commentator.stop (MSG_DONE);
+#endif // __LELA_SW_DETAILED_PROFILE
 
 		return gemm_res (R, M, a, A, B, R.zero (), C, m, k, n);
 	}
@@ -213,6 +224,7 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 	if (m < _cutoff || k < _cutoff || n < _cutoff)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, b, C);
 	else {
+#ifdef __LELA_SW_DETAILED_PROFILE
 		commentator.start ("StrassenWinograd::mul", __FUNCTION__);
 
 		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
@@ -220,6 +232,7 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 
 		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 			<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
+#endif // __LELA_SW_DETAILED_PROFILE
 
 		typename Matrix3::ContainerType X1 (m, k), X2 (k, n), X3 (m, n);
 
@@ -291,7 +304,9 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.minusOne (), C21);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C21);
 
+#ifdef __LELA_SW_DETAILED_PROFILE
 		commentator.stop (MSG_DONE);
+#endif // __LELA_SW_DETAILED_PROFILE
 
 		return gemm_res (R, M, a, A, B, b, C, m, k, n);
 	}
