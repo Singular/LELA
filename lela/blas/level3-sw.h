@@ -24,10 +24,40 @@ namespace BLAS3
 template <class Ring, class ParentModule>
 class _gemm<Ring, StrassenModuleTag<Ring, ParentModule> >
 {
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+				   VectorRepresentationTypes::Generic)
+		{ return _gemm<Ring, typename ParentModule::Tag>::op (F, M, a, A, B, b, C); }
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+				   VectorRepresentationTypes::Dense)
+		{ return ((StrassenModule<Ring, ParentModule> &) M).sw.gemm (F, M, a, A, B, b, C); }
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+				   VectorRepresentationTypes::Dense01)
+		{ return ((StrassenModule<Ring, ParentModule> &) M).sw.gemm (F, M, a, A, B, b, C); }
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+				   MatrixIteratorTypes::Row)
+		{ return gemm_impl (F, M, a, A, B, b, C, typename VectorTraits<Ring, typename Matrix3::Row>::RepresentationType ()); }
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+				   MatrixIteratorTypes::Col)
+		{ return gemm_impl (F, M, a, A, B, b, C, typename VectorTraits<Ring, typename Matrix3::Col>::RepresentationType ()); }
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C,
+				   MatrixIteratorTypes::RowCol)
+		{ return gemm_impl (F, M, a, A, B, b, C, typename VectorTraits<Ring, typename Matrix3::Row>::RepresentationType ()); }
+
 public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &op (const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C)
-		{ return ((StrassenModule<Ring, ParentModule> &) M).sw.gemm (F, M, a, A, B, b, C); }
+		{ return gemm_impl (F, M, a, A, B, b, C, typename Matrix3::IteratorType ()); }
 };
 
 } // namespace BLAS3
