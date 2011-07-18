@@ -300,7 +300,7 @@ Matrix3 &_gemm<Ring, typename GenericModule<Ring>::Tag>::gemm_impl
 
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::op
+Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::trmm_impl
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
 {
 	lela_check (A.coldim () == B.rowdim ());
@@ -375,7 +375,7 @@ Matrix2 &_trmm<Ring, typename GenericModule<Ring>::Tag>::op
 
 template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
-Matrix2 &_trsm<Ring, typename GenericModule<Ring>::Tag>::op
+Matrix2 &_trsm<Ring, typename GenericModule<Ring>::Tag>::trsm_impl
 	(const Ring &F, Modules &M, const typename Ring::Element &a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne)
 {
 	lela_check (A.coldim () == B.rowdim ());
