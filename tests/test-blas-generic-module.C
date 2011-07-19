@@ -1,4 +1,4 @@
-/* tests/test-matrix-domain.C
+/* tests/test-blas-generic-module.C
  * Copyright 2001, 2002 Bradford Hovinen
  *
  * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
@@ -7,7 +7,7 @@
  *
  * See COPYING for license information.
  *
- * Test suite for MatrixDomain
+ * Test suite for BLAS-routines using GenericModule
  */
 
 #include "lela/util/commentator.h"
@@ -118,9 +118,8 @@ int main (int argc, char **argv)
 			TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
 		pass = false;
 
-
-	testBLAS2Consistency(ctx, "Modular<uint8>", m, n, k);
-	testBLAS3Consistency(ctx, "Modular<uint8>", m, n, p, k);
+	pass = testBLAS2Consistency(ctx, "Modular<uint8>", m, n, k) && pass;
+	pass = testBLAS3Consistency(ctx, "Modular<uint8>", m, n, p, k) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;

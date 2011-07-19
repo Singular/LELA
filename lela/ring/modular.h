@@ -175,7 +175,7 @@ struct ModularTraits<float>
 {
 	typedef float Element;
 	typedef float FatElement;
-	typedef double DoubleFatElement;
+	typedef float DoubleFatElement;
 	typedef int EEAElement;
 	static bool valid_modulus (const integer &modulus) { return modulus.get_d () < 4096.0; }
 	template <class FE>
@@ -183,10 +183,8 @@ struct ModularTraits<float>
 		{ integer t = (integer) a % (integer) m; shift_down (t, m); return r = t.get_d (); }
 	static Element &reduce (Element &r, FatElement a, Element m) 
 		{ r = fmod (a, m); return shift_up (shift_down (r, m), m); }
-	static Element &reduce (Element &r, DoubleFatElement a, Element m) 
-		{ r = fmod (a, (double) m); return shift_up (shift_down (r, m), m); }
-	static DoubleFatElement &reduce (DoubleFatElement &r, DoubleFatElement a, Element m) 
-		{ r = fmod (a, (double) m); return shift_up (shift_down (r, m), m); }
+	static double &reduce (double &r, FatElement a, Element m) 
+		{ r = fmod (a, m); return shift_up (shift_down (r, m), m); }
 	static Element &init_modulus (Element &elt, integer x)
 		{ elt = x.get_d (); return elt; }
 	static std::ostream &write (std::ostream &os, const Element &x)
@@ -480,9 +478,15 @@ struct ZpModule : public GenericModule<Modular<Element> >
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
 
+	/// Modules for the switch over to TypeWrapperRing
+	AllModules<TypeWrapperRing<Element> > TWM;
+
 	mutable std::vector<typename ModularTraits<Element>::DoubleFatElement> _tmp;
 
-	ZpModule (const Modular<Element> &R) : block_size (((typename ModularTraits<Element>::DoubleFatElement) -1LL) / ((R._modulus - 1) * (R._modulus - 1))) {}
+	ZpModule (const Modular<Element> &R)
+		: block_size (((typename ModularTraits<Element>::DoubleFatElement) -1LL) / ((R._modulus - 1) * (R._modulus - 1))),
+		  TWM (TypeWrapperRing<Element> ())
+		{}
 };
 
 template <>
@@ -497,9 +501,12 @@ struct ZpModule<integer> : public GenericModule<Modular<integer> >
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
 
+	/// Modules for the switch over to TypeWrapperRing
+	AllModules<TypeWrapperRing<integer> > TWM;
+
 	mutable std::vector<integer> _tmp;
 
-	ZpModule (const Modular<integer> &R) : block_size (0) {}
+	ZpModule (const Modular<integer> &R) : block_size (0), TWM (TypeWrapperRing<integer> ()) {}
 };
 
 template <>
@@ -538,9 +545,14 @@ struct ZpModule<float> : public GenericModule<float>
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
 
+	/// Modules for the switch over to TypeWrapperRing
+	AllModules<TypeWrapperRing<float> > TWM;
+
 	mutable std::vector<ModularTraits<float>::DoubleFatElement> _tmp;
 
-	ZpModule (const Modular<float> &R) : block_size (floor (float (1 << FLOAT_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))) {}
+	ZpModule (const Modular<float> &R)
+		: block_size (floor (float (1 << FLOAT_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))),
+		  TWM (TypeWrapperRing<float> ()) {}
 };
 
 template <>
@@ -555,9 +567,14 @@ struct ZpModule<double> : public GenericModule<double>
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
 
+	/// Modules for the switch over to TypeWrapperRing
+	AllModules<TypeWrapperRing<double> > TWM;
+
 	mutable std::vector<ModularTraits<double>::DoubleFatElement> _tmp;
 
-	ZpModule (const Modular<double> &R) : block_size (floor (double (1ULL << DOUBLE_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))) {}
+	ZpModule (const Modular<double> &R)
+		: block_size (floor (double (1ULL << DOUBLE_MANTISSA) / ((R._modulus - 1) * (R._modulus - 1)))),
+		  TWM (TypeWrapperRing<double> ()) {}
 };
 
 template <class Element>

@@ -130,7 +130,11 @@ public:
 	template <class Iterator, class Accessor>
 	Element &mulin (Property<Iterator, Accessor> &x, const Element &y) const
 		{ return mulin (x.ref (), y); }
-    
+
+	template <class T>
+	T &mulin (T &x, const Element &y) const
+		{ return x *= y; }
+
 	bool divin (Element &x, const Element &y) const
 		{ if (!isZero (y)) { x /= y; return true; } else return false; }
     

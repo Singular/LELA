@@ -34,9 +34,9 @@ namespace BLAS2
 template <>
 class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
-	template <class Modules, class Vector1, class Vector2>
+	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<float> &F, Modules &M,
-				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
+				   float a, const Matrix &A, const Vector1 &x, float b, Vector2 &y,
 				   MatrixStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic,
@@ -44,9 +44,9 @@ class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 				   VectorStorageTypes::Generic)
 		{ return _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, x, b, y); }
 
-	template <class Modules, class Vector1, class Vector2>
+	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<float> &F, Modules &M,
-				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
+				   float a, const Matrix &A, const Vector1 &x, float b, Vector2 &y,
 				   MatrixStorageTypes::Dense,
 				   VectorRepresentationTypes::Dense,
 				   VectorStorageTypes::Real,
@@ -55,7 +55,23 @@ class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_sgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
+		cblas_sgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
+		return y;
+	}
+
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const TypeWrapperRing<float> &F, Modules &M,
+				   float a, const Matrix &A, const Vector1 &x, float b, Vector2 &y,
+				   MatrixStorageTypes::DenseTranspose,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real)
+	{
+		lela_check (A.coldim () == x.size ());
+		lela_check (A.rowdim () == y.size ());
+		cblas_sgemv (CblasRowMajor, CblasTrans, A.coldim (), A.rowdim (), a, &(A.parent ())[0][0], A.parent ().disp (),
+			     &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
 
@@ -86,8 +102,8 @@ class _trmv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 				  VectorStorageTypes::Generic)
 		{ return _trmv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
-	template <class Modules, class Vector>
-	static Vector &trmv_impl (const TypeWrapperRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -99,6 +115,21 @@ class _trmv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
 		return x;
 	}
+
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixStorageTypes::DenseTranspose,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		lela_check (A.rowdim () == x.size ());
+		lela_check (A.coldim () == x.size ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strmv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &(A.parent ())[0][0], A.parent ().disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+
 public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
@@ -118,8 +149,8 @@ class _trsv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 				  VectorStorageTypes::Generic)
 		{ return _trsv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
-	template <class Modules, class Vector>
-	static Vector &trsv_impl (const TypeWrapperRing<float> &F, Modules &M, const DenseMatrix<float> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -131,6 +162,21 @@ class _trsv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
 		return x;
 	}
+
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixStorageTypes::DenseTranspose,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		lela_check (A.rowdim () == x.size ());
+		lela_check (A.coldim () == x.size ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strsv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &(A.parent ())[0][0], A.parent ().disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+
 public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const TypeWrapperRing<float> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
@@ -152,17 +198,32 @@ class _ger<TypeWrapperRing<float>, BLASModule<float>::Tag>
 				 MatrixStorageTypes::Generic)
 		{ return _ger<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, x, y, A); }
 
-	template <class Modules, class Vector1, class Vector2>
-	static DenseMatrix<float> &ger_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, DenseMatrix<float> &A,
-					     VectorRepresentationTypes::Dense,
-					     VectorStorageTypes::Real,
-					     VectorRepresentationTypes::Dense,
-					     VectorStorageTypes::Real,
-					     MatrixStorageTypes::Dense)
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A,
+				 VectorRepresentationTypes::Dense,
+				 VectorStorageTypes::Real,
+				 VectorRepresentationTypes::Dense,
+				 VectorStorageTypes::Real,
+				 MatrixStorageTypes::Dense)
 	{
 		lela_check (A.rowdim () == x.size ());
 		lela_check (A.coldim () == y.size ());
 		cblas_sger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
+		return A;
+	}
+
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Vector1 &x, const Vector2 &y, Matrix &A,
+				 VectorRepresentationTypes::Dense,
+				 VectorStorageTypes::Real,
+				 VectorRepresentationTypes::Dense,
+				 VectorStorageTypes::Real,
+				 MatrixStorageTypes::DenseTranspose)
+	{
+		lela_check (A.rowdim () == x.size ());
+		lela_check (A.coldim () == y.size ());
+		cblas_sger (CblasRowMajor, A.coldim (), A.rowdim (), a, &y[0], &y[1] - &y[0], &x[0], &x[1] - &x[0],
+			    &(A.parent ())[0][0], A.parent ().disp ());
 		return A;
 	}
 
@@ -180,9 +241,9 @@ public:
 template <>
 class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
-	template <class Modules, class Vector1, class Vector2>
+	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<double> &F, Modules &M,
-				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
+				   double a, const Matrix &A, const Vector1 &x, double b, Vector2 &y,
 				   MatrixStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic,
@@ -190,9 +251,9 @@ class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 				   VectorStorageTypes::Generic)
 		{ return _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, x, b, y); }
 
-	template <class Modules, class Vector1, class Vector2>
+	template <class Modules, class Matrix, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<double> &F, Modules &M,
-				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
+				   double a, const Matrix &A, const Vector1 &x, double b, Vector2 &y,
 				   MatrixStorageTypes::Dense,
 				   VectorRepresentationTypes::Dense,
 				   VectorStorageTypes::Real,
@@ -201,13 +262,29 @@ class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_dgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
+		cblas_dgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
+		return y;
+	}
+
+	template <class Modules, class Matrix, class Vector1, class Vector2>
+	static Vector2 &gemv_impl (const TypeWrapperRing<double> &F, Modules &M,
+				   double a, const Matrix &A, const Vector1 &x, double b, Vector2 &y,
+				   MatrixStorageTypes::DenseTranspose,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real,
+				   VectorRepresentationTypes::Dense,
+				   VectorStorageTypes::Real)
+	{
+		lela_check (A.coldim () == x.size ());
+		lela_check (A.rowdim () == y.size ());
+		cblas_dgemv (CblasRowMajor, CblasTrans, A.coldim (), A.rowdim (), a, &(A.parent ())[0][0], A.parent ().disp (),
+			     &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
 
 public:
 	template <class Modules, class Matrix, class Vector1, class Vector2>
-	static Vector2 &op (const TypeWrapperRing<float> &F,
+	static Vector2 &op (const TypeWrapperRing<double> &F,
 			    Modules              &M,
 			    uint8                 a,
 			    const Matrix         &A,
@@ -232,8 +309,8 @@ class _trmv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 				  VectorStorageTypes::Generic)
 		{ return _trmv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
-	template <class Modules, class Vector>
-	static Vector &trmv_impl (const TypeWrapperRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -245,6 +322,21 @@ class _trmv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
 		return x;
 	}
+
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trmv_impl (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixStorageTypes::DenseTranspose,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		lela_check (A.rowdim () == x.size ());
+		lela_check (A.coldim () == x.size ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrmv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &(A.parent ())[0][0], A.parent ().disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+
 public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
@@ -264,8 +356,8 @@ class _trsv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 				  VectorStorageTypes::Generic)
 		{ return _trsv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, A, x, type, diagIsOne); }
 
-	template <class Modules, class Vector>
-	static Vector &trsv_impl (const TypeWrapperRing<double> &F, Modules &M, const DenseMatrix<double> &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
 				  MatrixStorageTypes::Dense,
 				  VectorRepresentationTypes::Dense,
 				  VectorStorageTypes::Real)
@@ -277,6 +369,21 @@ class _trsv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 			     A.rowdim (), &A[0][0], A.disp (), &x[0], &x[1] - &x[0]);
 		return x;
 	}
+
+	template <class Modules, class Matrix, class Vector>
+	static Vector &trsv_impl (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne,
+				  MatrixStorageTypes::DenseTranspose,
+				  VectorRepresentationTypes::Dense,
+				  VectorStorageTypes::Real)
+	{
+		lela_check (A.rowdim () == x.size ());
+		lela_check (A.coldim () == x.size ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrsv (CblasRowMajor, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     A.rowdim (), &(A.parent ())[0][0], A.parent ().disp (), &x[0], &x[1] - &x[0]);
+		return x;
+	}
+
 public:
 	template <class Modules, class Matrix, class Vector>
 	static Vector &op (const TypeWrapperRing<double> &F, Modules &M, const Matrix &A, Vector &x, TriangularMatrixType type, bool diagIsOne)
@@ -298,8 +405,8 @@ class _ger<TypeWrapperRing<double>, BLASModule<double>::Tag>
 				 MatrixStorageTypes::Generic)
 		{ return _ger<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, x, y, A); }
 
-	template <class Modules, class Vector1, class Vector2>
-	static DenseMatrix<double> &ger_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, DenseMatrix<double> &A,
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A,
 					      VectorRepresentationTypes::Dense,
 					      VectorStorageTypes::Real,
 					      VectorRepresentationTypes::Dense,
@@ -309,6 +416,20 @@ class _ger<TypeWrapperRing<double>, BLASModule<double>::Tag>
 		lela_check (A.rowdim () == x.size ());
 		lela_check (A.coldim () == y.size ());
 		cblas_dger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
+		return A;
+	}
+
+	template <class Modules, class Vector1, class Vector2, class Matrix>
+	static Matrix &ger_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Vector1 &x, const Vector2 &y, Matrix &A,
+					      VectorRepresentationTypes::Dense,
+					      VectorStorageTypes::Real,
+					      VectorRepresentationTypes::Dense,
+					      VectorStorageTypes::Real,
+					      MatrixStorageTypes::DenseTranspose)
+	{
+		lela_check (A.rowdim () == x.size ());
+		lela_check (A.coldim () == y.size ());
+		cblas_dger (CblasRowMajor, A.coldim (), A.rowdim (), a, &y[0], &y[1] - &y[0], &x[0], &x[1] - &x[0], &(A.parent ())[0][0], A.parent ().disp ());
 		return A;
 	}
 

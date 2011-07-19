@@ -66,34 +66,32 @@ Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
 {
 	lela_check (VectorUtils::hasDim<Modular<Element> > (x, y.size ()));
 
-	typename Vector1::const_iterator i = x.begin ();
+	size_t block_size = (M.block_size == 0) ? x.size () : M.block_size;
+
+	typename Vector1::const_iterator i;
 
 	typename ModularTraits<Element>::DoubleFatElement t = 0;
 
-	if (x.end () - i < (long) M.block_size) {
-		for (; i != x.end (); ++i)
+	if (x.size () <= block_size) {
+		for (i = x.begin (); i != x.end (); ++i)
 			t += (typename ModularTraits<Element>::DoubleFatElement) i->second * (typename ModularTraits<Element>::DoubleFatElement) y[i->first];
 
-		return res = t % (typename ModularTraits<Element>::DoubleFatElement) F._modulus;
+		return ModularTraits<Element>::reduce (res, t, F._modulus);
 	} else {
-		// i still points to the beginning
-		typename Vector1::const_iterator iterend = i + (x.end () - i) % M.block_size;
+		typename Vector1::const_iterator iterend = x.begin () + (x.end () - i) % block_size;
 
-		for (; i != iterend; ++i)
+		for (i = x.begin (); i != iterend; ++i)
 			t += (typename ModularTraits<Element>::DoubleFatElement) i->second * (typename ModularTraits<Element>::DoubleFatElement) y[i->first];
 
-		ModularTraits<Element>::reduce (t, F._modulus);
+		ModularTraits<Element>::reduce (t, t, F._modulus);
 
 		while (iterend != x.end ()) {
-			typename Vector1::const_iterator iter_i = iterend;
+			iterend += block_size;
 
-			iterend += M.block_size;
-			i += M.block_size;
+			for (; i != iterend; ++i)
+				t += (typename ModularTraits<Element>::DoubleFatElement) i->second * (typename ModularTraits<Element>::DoubleFatElement) y[i->first];
 
-			for (; iter_i != iterend; ++iter_i)
-				t += (typename ModularTraits<Element>::DoubleFatElement) iter_i->second * (typename ModularTraits<Element>::DoubleFatElement) y[iter_i->first];
-
-			ModularTraits<Element>::reduce (t, F._modulus);
+			ModularTraits<Element>::reduce (t, t, F._modulus);
 		}
 
 		return res = t;
@@ -106,6 +104,8 @@ Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
 	(const Modular<Element> &F, ZpModule<Element> &M, Element &res, const Vector1 &x, const Vector2 &y,
 	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
+	size_t block_size = (M.block_size == 0) ? x.size () : M.block_size;
+
 	typename Vector1::const_iterator i = x.begin ();
 	typename Vector2::const_iterator j = y.begin ();
 
@@ -113,7 +113,7 @@ Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
 	size_t count;
 
 	while (i != x.end () && j != y.end ()) {
-		for (count = 0; count < M.block_size && i != x.end () && j != y.end (); ++i) {
+		for (count = 0; count < block_size && i != x.end () && j != y.end (); ++i) {
 			while (j != y.end () && j->first < i->first) ++j;
 
 			if (j != y.end () && i->first == j->first) {
@@ -122,7 +122,7 @@ Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
 			}
 		}
 
-		ModularTraits<Element>::reduce (t, F._modulus);
+		ModularTraits<Element>::reduce (t, t, F._modulus);
 	}
 
 	return res = t;

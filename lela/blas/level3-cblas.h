@@ -50,6 +50,42 @@ class _gemm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 		return C;
 	}
 
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == C.rowdim ());
+		lela_check (B.coldim () == C.coldim ());
+		lela_check (A.coldim () == B.rowdim ());
+		cblas_sgemm (CblasRowMajor, CblasTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.rowdim (),
+			     a, &(A.parent ())[0][0], A.parent ().disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == C.rowdim ());
+		lela_check (B.coldim () == C.coldim ());
+		lela_check (A.coldim () == B.rowdim ());
+		cblas_sgemm (CblasRowMajor, CblasNoTrans, CblasTrans, C.rowdim (), C.coldim (), A.coldim (),
+			     a, &A[0][0], A.disp (), &(B.parent ())[0][0], B.parent ().disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == C.rowdim ());
+		lela_check (B.coldim () == C.coldim ());
+		lela_check (A.coldim () == B.rowdim ());
+		cblas_sgemm (CblasRowMajor, CblasTrans, CblasTrans, C.rowdim (), C.coldim (), A.rowdim (),
+			     a, &(A.parent ())[0][0], A.parent ().disp (), &(B.parent ())[0][0], B.parent ().disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+
 public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &op (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C)
@@ -75,6 +111,19 @@ class _trmm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
 		return B;
 	}
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trmm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == B.rowdim ());
+		lela_check (A.coldim () == B.rowdim ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strmm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (), &B[0][0], B.disp ());
+		return B;
+	}
+
 public:
 
 	template <class Modules, class Matrix1, class Matrix2>
@@ -100,6 +149,18 @@ class _trsm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 		lela_check (type == UpperTriangular || type == LowerTriangular);
 		cblas_strsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
+		return B;
+	}
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trsm_impl (const TypeWrapperRing<float> &F, Modules &M, float a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == B.rowdim ());
+		lela_check (A.coldim () == B.rowdim ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_strsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (), &B[0][0], B.disp ());
 		return B;
 	}
 
@@ -131,6 +192,42 @@ class _gemm<TypeWrapperRing<double>, BLASModule<double>::Tag>
 		return C;
 	}
 
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == C.rowdim ());
+		lela_check (B.coldim () == C.coldim ());
+		lela_check (A.coldim () == B.rowdim ());
+		cblas_dgemm (CblasRowMajor, CblasTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.rowdim (),
+			     a, &(A.parent ())[0][0], A.parent ().disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
+				   MatrixStorageTypes::Dense, MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == C.rowdim ());
+		lela_check (B.coldim () == C.coldim ());
+		lela_check (A.coldim () == B.rowdim ());
+		cblas_dgemm (CblasRowMajor, CblasNoTrans, CblasTrans, C.rowdim (), C.coldim (), A.coldim (),
+			     a, &A[0][0], A.disp (), &(B.parent ())[0][0], B.parent ().disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+
+	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+	static Matrix3 &gemm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == C.rowdim ());
+		lela_check (B.coldim () == C.coldim ());
+		lela_check (A.coldim () == B.rowdim ());
+		cblas_dgemm (CblasRowMajor, CblasTrans, CblasTrans, C.rowdim (), C.coldim (), A.rowdim (),
+			     a, &(A.parent ())[0][0], A.parent ().disp (), &(B.parent ())[0][0], B.parent ().disp (), b, &C[0][0], C.disp ());
+		return C;
+	}
+
 public:
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &op (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C)
@@ -156,6 +253,19 @@ class _trmm<TypeWrapperRing<double>, BLASModule<double>::Tag>
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
 		return B;
 	}
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trmm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == B.rowdim ());
+		lela_check (A.coldim () == B.rowdim ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrmm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (), &B[0][0], B.disp ());
+		return B;
+	}
+
 public:
 
 	template <class Modules, class Matrix1, class Matrix2>
@@ -181,6 +291,18 @@ class _trsm<TypeWrapperRing<double>, BLASModule<double>::Tag>
 		lela_check (type == UpperTriangular || type == LowerTriangular);
 		cblas_dtrsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasNoTrans, diagIsOne ? CblasUnit : CblasNonUnit,
 			     B.rowdim (), B.coldim (), a, &A[0][0], A.disp (), &B[0][0], B.disp ());
+		return B;
+	}
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static Matrix2 &trsm_impl (const TypeWrapperRing<double> &F, Modules &M, double a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+				   MatrixStorageTypes::DenseTranspose, MatrixStorageTypes::Dense)
+	{
+		lela_check (A.rowdim () == B.rowdim ());
+		lela_check (A.coldim () == B.rowdim ());
+		lela_check (type == UpperTriangular || type == LowerTriangular);
+		cblas_dtrsm (CblasRowMajor, CblasLeft, (type == UpperTriangular) ? CblasUpper : CblasLower, CblasTrans, diagIsOne ? CblasUnit : CblasNonUnit,
+			     B.rowdim (), B.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (), &B[0][0], B.disp ());
 		return B;
 	}
 

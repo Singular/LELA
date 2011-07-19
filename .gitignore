@@ -58,6 +58,7 @@ tests/test-vector
 tests/test-matrix
 tests/test-blas-generic-module
 tests/test-blas-generic-module-gf2
+tests/test-blas-zp-module
 tests/test-minpoly
 tests/test-modular
 tests/test-modular-byte

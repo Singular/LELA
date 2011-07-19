@@ -38,6 +38,10 @@ namespace MatrixIteratorTypes
  * matrix should provide the method disp () which indicates the
  * displacement from one row to the next in the array.
  *
+ * DenseTranspose is similar to dense, but the matrix is stored in
+ * column-major order rather than row-major order, i.e. it is the
+ * transpose of an ordinary dense matrix.
+ *
  * M4RI means that the matrix is a wrapper for a matrix in
  * libm4ri. This is only meaningful if libm4ri is enabled.
  */
@@ -46,6 +50,7 @@ namespace MatrixStorageTypes
 	struct Generic {};
 	struct Rows : public Generic {};
 	struct Dense : public Generic {};
+	struct DenseTranspose : public Generic {};
 	struct M4RI : public Generic {};
 }
 

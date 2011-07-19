@@ -1,13 +1,9 @@
-# Copyright 2010 the LELA group
+# Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
 # This file is part of LELA
 # see COPYING for licence
 
 INCLUDES=-I$(top_srcdir) -I$(top_builddir)
-#AM_LDFLAGS = -llapack -lcblas -latlas 
-#AM_CXXFLAGS = -g -Wall -O2 
 AM_CXXFLAGS = -g -Wall -DDEBUG -O0
-#AM_CXXFLAGS = -g -Wall -D__LELA_HAVE_DGETRF -D__LELA_HAVE_DGETRI 
-#AM_CFLAGS = -g -Wall
 
 BENCHMARK_CXXFLAGS = -O2
 
@@ -31,13 +27,14 @@ BASIC_TESTS =  \
         test-type-wrapper-ring	\
         test-randiter-nonzero   \
 	test-vector		\
-	test-matrix		\
         test-subiterator        \
         test-subvector          \
 	test-bit-subvector	\
 	test-hybrid-vector	\
+	test-matrix		\
         test-blas-generic-module      \
 	test-blas-generic-module-gf2	\
+        test-blas-zp-module     \
 	test-strassen-winograd	\
 	test-elimination	\
 	test-gauss-jordan	\
@@ -101,6 +98,13 @@ test_blas_generic_module_gf2_SOURCES = \
         test-blas-level1.h             \
         test-blas-level2.h             \
         test-blas-level3.h             \
+        test-common.C
+
+test_blas_zp_module_SOURCES =   \
+        test-blas-zp-module.C   \
+        test-blas-level1.h           \
+        test-blas-level2.h           \
+        test-blas-level3.h           \
         test-common.C
 
 test_modular_double_SOURCES =                \

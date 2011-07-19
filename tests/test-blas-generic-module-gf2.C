@@ -1,14 +1,13 @@
-/* tests/test-matrix-domain-gf2.C
+/* tests/test-blas-generic-module-gf2.C
  * Copyright 2011 Bradford Hovinen
  *
- * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
- * Based on test-matrix-domain.C by same author
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ---------------------------------------------------------
  *
  * See COPYING for license information.
  *
- * Test suite for MatrixDomain
+ * Test suite for BLAS-routines using GenericModule over GF(2)
  */
 
 #include "lela/util/commentator.h"

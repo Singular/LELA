@@ -232,7 +232,7 @@ class _scal<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	static Vector &scal_impl (const TypeWrapperRing<double> &F, Modules &M, double a, Vector &x,
 				  VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
-		cblas_sscal (x.size (), a, &x[0], &x[1] - &x[0]);
+		cblas_dscal (x.size (), a, &x[0], &x[1] - &x[0]);
 		return x;
 	}
 

@@ -25,8 +25,13 @@ namespace LELA
 {
 
 // Forward declaration
-template <class Matrix, class Trait = typename Matrix::IteratorType>
+template <class Matrix, class Submatrix, class Trait = typename Matrix::IteratorType>
 class TransposeSubmatrix;
+
+// Struct to determine which StorageType to use
+template <class ST> struct TransposeStorageType { typedef ST StorageType; };
+template <> struct TransposeStorageType<MatrixStorageTypes::Dense> { typedef MatrixStorageTypes::DenseTranspose StorageType; };
+template <> struct TransposeStorageType<MatrixStorageTypes::DenseTranspose> { typedef MatrixStorageTypes::Generic StorageType; };
 
 /** Matrix transpose
  * 
@@ -64,7 +69,7 @@ class TransposeMatrix
 	typedef TransposeMatrix<Matrix, Trait> Self_t;
 
 	typedef MatrixIteratorTypes::Generic IteratorType;
-	typedef MatrixStorageTypes::Generic StorageType;
+	typedef typename TransposeStorageType<typename Matrix::StorageType>::StorageType StorageType;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RowIterator ColIterator;
@@ -80,8 +85,8 @@ class TransposeMatrix
 	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-	typedef TransposeSubmatrix<Self_t> SubmatrixType;
-	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
+	typedef TransposeSubmatrix<Self_t, typename Matrix::SubmatrixType> SubmatrixType;
+	typedef TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType> ConstSubmatrixType;
 	typedef SubmatrixType AlignedSubmatrixType;
 	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
 
@@ -126,10 +131,12 @@ class TransposeMatrix
 	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
         inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
+	inline const Matrix &parent () const { return A; }
+
     protected:
 
-	friend class TransposeSubmatrix<Matrix, Trait>;
-	friend class TransposeSubmatrix<const Matrix, Trait>;
+	friend class TransposeSubmatrix<Matrix, typename Matrix::SubmatrixType, Trait>;
+	friend class TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType, Trait>;
 
 	Matrix &A;
 };
@@ -144,7 +151,7 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol>
 	typedef typename Matrix::Element Element;
 	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol> Self_t;
 	typedef MatrixIteratorTypes::RowCol IteratorType;
-	typedef typename Matrix::StorageType StorageType;
+	typedef typename TransposeStorageType<typename Matrix::StorageType>::StorageType StorageType;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::RowIterator ColIterator;
@@ -164,8 +171,8 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol>
 	typedef typename Matrix::ConstRow ConstCol;
 	typedef typename Matrix::ConstCol ConstRow;
 
-	typedef TransposeSubmatrix<Self_t> SubmatrixType;
-	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
+	typedef TransposeSubmatrix<Self_t, typename Matrix::SubmatrixType> SubmatrixType;
+	typedef TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType> ConstSubmatrixType;
 	typedef SubmatrixType AlignedSubmatrixType;
 	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
 
@@ -201,10 +208,12 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::RowCol>
 	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
         inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
+	inline const Matrix &parent () const { return A; }
+
     protected:
 
-	friend class TransposeSubmatrix<Matrix, MatrixIteratorTypes::RowCol>;
-	friend class TransposeSubmatrix<const Matrix, MatrixIteratorTypes::RowCol>;
+	friend class TransposeSubmatrix<Matrix, typename Matrix::SubmatrixType, MatrixIteratorTypes::RowCol>;
+	friend class TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType, MatrixIteratorTypes::RowCol>;
 
 	Matrix &A;
 };
@@ -219,7 +228,7 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Row>
 	typedef typename Matrix::Element Element;
 	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::Row> Self_t;
 	typedef MatrixIteratorTypes::Col IteratorType;
-	typedef typename Matrix::StorageType StorageType;
+	typedef typename TransposeStorageType<typename Matrix::StorageType>::StorageType StorageType;
 
 	typedef typename Matrix::RowIterator ColIterator;
 	typedef typename Matrix::ConstRowIterator ConstColIterator;
@@ -235,8 +244,8 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Row>
 	typedef typename Matrix::ConstRow ConstColumn;
 	typedef typename Matrix::ConstRow ConstCol;
 
-	typedef TransposeSubmatrix<Self_t> SubmatrixType;
-	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
+	typedef TransposeSubmatrix<Self_t, typename Matrix::SubmatrixType> SubmatrixType;
+	typedef TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType> ConstSubmatrixType;
 	typedef SubmatrixType AlignedSubmatrixType;
 	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
 
@@ -268,10 +277,12 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Row>
 	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (colBegin (), 0, colEnd (), rowdim ()); }
 	inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (colEnd (), coldim (), colEnd (), rowdim ()); }
 
+	inline const Matrix &parent () const { return A; }
+
     protected:
 
-	friend class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Row>;
-	friend class TransposeSubmatrix<const Matrix, MatrixIteratorTypes::Row>;
+	friend class TransposeSubmatrix<Matrix, typename Matrix::SubmatrixType, MatrixIteratorTypes::Row>;
+	friend class TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType, MatrixIteratorTypes::Row>;
 
 	Matrix &A;
 };
@@ -286,7 +297,7 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
 	typedef typename Matrix::Element Element;
 	typedef TransposeMatrix<Matrix, MatrixIteratorTypes::Col> Self_t;
 	typedef MatrixIteratorTypes::Row IteratorType;
-	typedef typename Matrix::StorageType StorageType;
+	typedef typename TransposeStorageType<typename Matrix::StorageType>::StorageType StorageType;
 
 	typedef typename Matrix::ColIterator RowIterator;
 	typedef typename Matrix::ConstColIterator ConstRowIterator;
@@ -299,8 +310,8 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
 	typedef MatrixRawIndexedIterator<ConstRowIterator, typename ElementVectorTraits<Element, Row>::RepresentationType, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
 
-	typedef TransposeSubmatrix<Self_t> SubmatrixType;
-	typedef TransposeSubmatrix<const Matrix> ConstSubmatrixType;
+	typedef TransposeSubmatrix<Self_t, typename Matrix::SubmatrixType> SubmatrixType;
+	typedef TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType> ConstSubmatrixType;
 	typedef SubmatrixType AlignedSubmatrixType;
 	typedef ConstSubmatrixType ConstAlignedSubmatrixType;
 
@@ -331,10 +342,12 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
 	inline ConstRawIndexedIterator rawIndexedBegin() const { return ConstRawIndexedIterator (rowBegin (), 0, rowEnd (), coldim ()); }
         inline ConstRawIndexedIterator rawIndexedEnd() const   { return ConstRawIndexedIterator (rowEnd (), rowdim (), rowEnd (), coldim ()); }
 
+	inline const Matrix &parent () const { return A; }
+
     protected:
 
-	friend class TransposeSubmatrix<Matrix, MatrixIteratorTypes::Col>;
-	friend class TransposeSubmatrix<const Matrix, MatrixIteratorTypes::Col>;
+	friend class TransposeSubmatrix<Matrix, typename Matrix::SubmatrixType, MatrixIteratorTypes::Col>;
+	friend class TransposeSubmatrix<const Matrix, typename Matrix::ConstSubmatrixType, MatrixIteratorTypes::Col>;
 
 	const Matrix &A;
 };

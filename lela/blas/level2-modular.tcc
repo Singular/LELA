@@ -28,13 +28,13 @@ Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
 	 Element a, const Matrix &A, const Vector1 &x, Element b, Vector2 &y,
 	 MatrixIteratorTypes::Col,
 	 VectorRepresentationTypes::Dense,
-	 VectorRepresentationTypes::Generic)
+	 VectorRepresentationTypes::Dense)
 {
 	lela_check (VectorUtils::hasDim<Modular<Element> > (x, A.coldim ()));
 	lela_check (VectorUtils::hasDim<Modular<Element> > (y, A.rowdim ()));
 
 	if (M.block_size == 1)
-		return _gemv<Modular<Element>, typename ZpModule<Element>::Tag::Parent> (F, M, a, A, x, b, y);
+		return _gemv<Modular<Element>, typename ZpModule<Element>::Tag::Parent>::op (F, M, a, A, x, b, y);
 
 	size_t block_size = (M.block_size == 0) ? x.size () : M.block_size;
 	size_t first_col = x.size () % block_size;
@@ -51,7 +51,7 @@ Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
 	Subvector<typename Vector1::const_iterator> x_sub_1 (x.begin (), block_1_end_x);
 	typename Matrix::ConstSubmatrixType A_sub_1 (A, 0, 0, A.rowdim (), first_col);
 
-	_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, a, A_sub_1, x_sub_1, Rp.one (), M._tmp);
+	_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, a, A_sub_1, x_sub_1, Rp.one (), M._tmp);
 
 	for (l = M._tmp.begin (); l != M._tmp.end (); ++l)
 		ModularTraits<Element>::reduce (*l, *l, F._modulus);
@@ -60,7 +60,7 @@ Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
 		Subvector<typename Vector1::const_iterator> x_sub (i, i + block_size);
 		typename Matrix::ConstSubmatrixType A_sub (A, 0, first_col, A.rowdim (), block_size);
 
-		_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, a, A_sub, x_sub, Rp.one (), M._tmp);
+		_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, a, A_sub, x_sub, Rp.one (), M._tmp);
 
 		for (l = M._tmp.begin (); l != M._tmp.end (); ++l)
 			ModularTraits<Element>::reduce (*l, *l, F._modulus);
@@ -77,13 +77,14 @@ Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
 									uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
+									VectorRepresentationTypes::Dense,
 									VectorRepresentationTypes::Dense)
 {
 	lela_check (VectorUtils::hasDim<Modular<uint32> > (x, A.coldim ()));
 	lela_check (VectorUtils::hasDim<Modular<uint32> > (y, A.rowdim ()));
 
 	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j;
+	typename Vector1::const_iterator j;
 	typename Matrix::ConstColumn::const_iterator k;
 	std::vector<ModularTraits<uint32>::DoubleFatElement>::iterator l;
 
@@ -121,7 +122,8 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 template <class Matrix, class Vector1, class Vector2>
 Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Modular<uint32> &F, ZpModule<uint32> &M,
 									uint32 a, const Matrix &A, const Vector1 &x, uint32 b, Vector2 &y,
-									VectorRepresentationTypes::Sparse)
+									VectorRepresentationTypes::Sparse,
+									VectorRepresentationTypes::Dense)
 {
 	lela_check (VectorUtils::hasDim<Modular<uint32> > (x, A.coldim ()));
 	lela_check (VectorUtils::hasDim<Modular<uint32> > (y, A.rowdim ()));
