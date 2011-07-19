@@ -343,6 +343,8 @@ public:
 
 #include "lela/blas/level3-generic.tcc"
 
+#include "lela/matrix/io.tcc"
+
 #endif // __BLAS_LEVEL3_GENERIC_H
 
 // Local Variables:

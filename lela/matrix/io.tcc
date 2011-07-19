@@ -18,6 +18,7 @@
 #include "lela/lela-config.h"
 #include "lela/util/commentator.h"
 #include "lela/matrix/io.h"
+#include "lela/blas/level3.h"
 
 #define BUF_SIZE 32
 
@@ -31,42 +32,37 @@ std::istream &MatrixReader<Ring>::read (std::istream &is, Matrix &A, FileFormatT
 	if (format == FORMAT_DETECT)
 		format = detectFormat (is);
 
+	Context<Ring> ctx (_F);
+	BLAS3::scal (ctx, _F.zero (), A);
+
 	switch (format) {
 	case FORMAT_UNKNOWN:
 		throw UnrecognisedFormat ();
 
 	case FORMAT_TURNER:
 		return readTurner (is, A);
-		break;
 
 	case FORMAT_ONE_BASED:
 		return readOneBased (is, A);
-		break;
 
 	case FORMAT_DUMAS:
 		return readDumas (is, A);
-		break;
 
 	case FORMAT_MAPLE:
 		return readMaple (is, A);
-		break;
 
 	case FORMAT_MATLAB:
 		return readMatlab (is, A);
-		break;
 
 	case FORMAT_SAGE:
 		return readSage (is, A);
-		break;
 
 	case FORMAT_PRETTY:
 		return readPretty (is, A);
-		break;
 
 #ifdef __LELA_HAVE_LIBPNG
 	case FORMAT_PNG:
 		return readPNG (is, A);
-		break;
 #endif // __LELA_HAVE_LIBPNG
 
 	default:
@@ -270,29 +266,31 @@ std::istream &MatrixReader<Ring>::readMatlab (std::istream &is, Matrix &A) const
 	char c;
 	typename Ring::Element a_ij;
 
+	do
+		is >> c;
+	while (isspace (c));
+
+	if (c != '[')
+		throw InvalidMatrixInput ();
+
 	while (1) {
 		do
 			is >> c;
-		while (is && !isdigit (c));
+		while (isspace (c));
 
-		if (!is)
-			break;
+		if (!is || !(isdigit (c) || c == '-'))
+			throw InvalidMatrixInput ();
 
 		is.putback (c);
 
 		_F.read (is, a_ij);
 
-		if (! _F.isZero (a_ij))
+		if (!_F.isZero (a_ij))
 			A.setEntry (i, j, a_ij);
-
-		++j;
 
 		do
 			is >> c;
-		while (is && c != ',' && c != ';' && c != ']');
-
-		if (!is)
-			break;
+		while (isspace (c));
 
 		if (c == ';') {
 			++i;
@@ -300,6 +298,10 @@ std::istream &MatrixReader<Ring>::readMatlab (std::istream &is, Matrix &A) const
 		}
 		else if (c == ']')
 			break;
+		else if (c == ',')
+			++j;
+		else
+			throw InvalidMatrixInput ();
 	}
 
 	return is;

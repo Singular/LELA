@@ -22,10 +22,6 @@
 #include "lela/matrix/m4ri-matrix.h"
 #include "lela/matrix/submatrix.h"
 
-#ifdef __BLAS_LEVEL3_H
-#  warning "lela/blas/level3.h has already been included by this point. The M4RI-specialisations may not work."
-#endif // __BLAS_LEVEL3_H
-
 namespace LELA
 {
 

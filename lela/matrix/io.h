@@ -233,8 +233,6 @@ private:
 
 } // namespace LELA
 
-#include "lela/matrix/io.tcc"
-
 #endif // __LELA_MATRIX_IO_H
 
 // Local Variables:
