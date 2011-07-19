@@ -40,10 +40,10 @@ class MatrixRawIterator<Iterator, VectorRepresentationTypes::Dense>
     public:
 	typedef typename Iterator::value_type Vector;
 
-	typedef typename std::iterator_traits<typename Vector::const_iterator>::reference reference;
+	typedef typename std::iterator_traits<typename Vector::iterator>::reference reference;
 	typedef const reference const_reference;
-	typedef typename std::iterator_traits<typename Vector::const_iterator>::value_type value_type;
-	typedef typename std::iterator_traits<typename Vector::const_iterator>::difference_type difference_type;
+	typedef typename std::iterator_traits<typename Vector::iterator>::value_type value_type;
+	typedef typename std::iterator_traits<typename Vector::iterator>::difference_type difference_type;
 
 	MatrixRawIterator (Iterator rowcol, size_t pos, Iterator rowcol_end, size_t rowcol_len)
 		: _rowcol (rowcol), _pos (rowcol->begin ()) {}
@@ -76,7 +76,7 @@ class MatrixRawIterator<Iterator, VectorRepresentationTypes::Dense>
 		return tmp;
 	}
 
-	const_reference operator * () const
+	reference operator * ()
 		{ return *_pos; }
  
 	bool operator == (const MatrixRawIterator &c) const
@@ -87,7 +87,7 @@ class MatrixRawIterator<Iterator, VectorRepresentationTypes::Dense>
 
     private:
 	Iterator _rowcol;
-	typename Vector::const_iterator _pos;
+	typename Vector::iterator _pos;
 };
 
 template <class Iterator>

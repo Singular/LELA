@@ -389,13 +389,13 @@ class DenseMatrix
 	ConstColIterator colBegin () const { return ConstColIterator (_rep_begin, _disp, _rows); }
 	ConstColIterator colEnd ()   const { return ConstColIterator (_rep_begin + _cols, _disp, _rows); }
 
-	typedef typename Rep::iterator RawIterator;
-	typedef typename Rep::const_iterator ConstRawIterator;
+	typedef MatrixRawIterator<RowIterator, VectorRepresentationTypes::Dense> RawIterator;
+	typedef MatrixRawIterator<ConstRowIterator, VectorRepresentationTypes::Dense> ConstRawIterator;
     
-	RawIterator      rawBegin ()       { return _rep_begin; }  
-	RawIterator      rawEnd ()         { return _rep_end; }
-	ConstRawIterator rawBegin () const { return _rep_begin; }  
-	ConstRawIterator rawEnd ()   const { return _rep_end; }
+	RawIterator      rawBegin ()       { return RawIterator      (rowBegin (), 0, rowEnd (), coldim ()); }
+	RawIterator      rawEnd ()         { return RawIterator      (rowEnd (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawBegin () const { return ConstRawIterator (rowBegin (), 0, rowEnd (), coldim ()); }
+	ConstRawIterator rawEnd () const   { return ConstRawIterator (rowEnd (), 0, rowEnd (), coldim ()); }
 
 	typedef MatrixRawIndexedIterator<ConstRowIterator, VectorRepresentationTypes::Dense, false> RawIndexedIterator;
 	typedef RawIndexedIterator ConstRawIndexedIterator;
