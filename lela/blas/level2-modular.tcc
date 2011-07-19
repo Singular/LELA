@@ -51,7 +51,7 @@ Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
 	Subvector<typename Vector1::const_iterator> x_sub_1 (x.begin (), block_1_end_x);
 	typename Matrix::ConstSubmatrixType A_sub_1 (A, 0, 0, A.rowdim (), first_col);
 
-	_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, a, A_sub_1, x_sub_1, Rp.one (), M._tmp);
+	_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, Rp.one (), A_sub_1, x_sub_1, Rp.one (), M._tmp);
 
 	for (l = M._tmp.begin (); l != M._tmp.end (); ++l)
 		ModularTraits<Element>::reduce (*l, *l, F._modulus);
@@ -60,7 +60,7 @@ Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
 		Subvector<typename Vector1::const_iterator> x_sub (i, i + block_size);
 		typename Matrix::ConstSubmatrixType A_sub (A, 0, first_col, A.rowdim (), block_size);
 
-		_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, a, A_sub, x_sub, Rp.one (), M._tmp);
+		_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, Rp.one (), A_sub, x_sub, Rp.one (), M._tmp);
 
 		for (l = M._tmp.begin (); l != M._tmp.end (); ++l)
 			ModularTraits<Element>::reduce (*l, *l, F._modulus);

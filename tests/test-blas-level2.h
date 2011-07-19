@@ -725,13 +725,13 @@ bool testgerConsistency (LELA::Context<Ring, Modules1> &ctx1,
 	report << "Vector x_2: ";
 	BLAS1::write (ctx1, report, x2) << std::endl;
 
-	report << "Matrix A_1: "<< std::endl;
+	report << "Matrix A_1: " << std::endl;
 	BLAS3::write (ctx1, report, A3);
 
 	BLAS2::ger(ctx1, a, x1, x2, A3);
 
-	report << "Matrix A_1 + a x_1 y^T: ";
-	BLAS3::write (ctx1, report, A3) << std::endl;
+	report << "Matrix A_1 + a x_1 y^T: " << std::endl;
+	BLAS3::write (ctx1, report, A3);
 
 	report << "Vector w_1: ";
 	BLAS1::write (ctx2, report, w1) << std::endl;
@@ -744,8 +744,8 @@ bool testgerConsistency (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS2::ger (ctx2, a, w1, w2, A4);
 
-	report << "Matrix A_2 + a x_2 y^T: ";
-	BLAS3::write (ctx1, report, A4) << std::endl;
+	report << "Matrix A_2 + a x_2 y^T: " << std::endl;
+	BLAS3::write (ctx1, report, A4);
 
 	if (!BLAS3::equal (ctx1, A3, A4))
 	{

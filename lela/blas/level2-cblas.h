@@ -70,7 +70,7 @@ class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_sgemv (CblasRowMajor, CblasTrans, A.coldim (), A.rowdim (), a, &(A.parent ())[0][0], A.parent ().disp (),
+		cblas_sgemv (CblasColMajor, CblasTrans, A.rowdim (), A.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (),
 			     &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
@@ -277,7 +277,7 @@ class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_dgemv (CblasRowMajor, CblasTrans, A.coldim (), A.rowdim (), a, &(A.parent ())[0][0], A.parent ().disp (),
+		cblas_dgemv (CblasColMajor, CblasTrans, A.rowdim (), A.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (),
 			     &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
