@@ -44,7 +44,7 @@ Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
 	typename std::vector<typename ModularTraits<Element>::DoubleFatElement>::iterator l;
 
 	M._tmp.resize (y.size ());
-	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
+	std::fill (M._tmp.begin (), M._tmp.end (), 0);
 
 	TypeWrapperRing<Element> Rp;
 
@@ -90,10 +90,8 @@ Vector2 &_gemv<Modular<uint32>, ZpModule<uint32>::Tag>::gemv_col_dense (const Mo
 
 	uint64 t;
 
-	if (M._tmp.size () < y.size ())
-		M._tmp.resize (y.size ());
-
-	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
+	M._tmp.resize (y.size ());
+	std::fill (M._tmp.begin (), M._tmp.end (), 0);
 
 	for (j = x.begin (); j != x.end (); ++j, ++i) {
 		for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l) {

@@ -55,7 +55,8 @@ class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_sgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
+		cblas_sgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (),
+			     &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
 
@@ -70,7 +71,7 @@ class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_sgemv (CblasColMajor, CblasTrans, A.rowdim (), A.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (),
+		cblas_sgemv (CblasRowMajor, CblasTrans, A.coldim (), A.rowdim (), a, &(A.parent ())[0][0], A.parent ().disp (),
 			     &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
@@ -208,7 +209,8 @@ class _ger<TypeWrapperRing<float>, BLASModule<float>::Tag>
 	{
 		lela_check (A.rowdim () == x.size ());
 		lela_check (A.coldim () == y.size ());
-		cblas_sger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
+		cblas_sger (CblasRowMajor, A.rowdim (), A.coldim (), a,
+			    &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
 		return A;
 	}
 
@@ -222,7 +224,8 @@ class _ger<TypeWrapperRing<float>, BLASModule<float>::Tag>
 	{
 		lela_check (A.rowdim () == x.size ());
 		lela_check (A.coldim () == y.size ());
-		cblas_sger (CblasRowMajor, A.coldim (), A.rowdim (), a, &y[0], &y[1] - &y[0], &x[0], &x[1] - &x[0],
+		cblas_sger (CblasRowMajor, A.coldim (), A.rowdim (), a,
+			    &y[0], &y[1] - &y[0], &x[0], &x[1] - &x[0],
 			    &(A.parent ())[0][0], A.parent ().disp ());
 		return A;
 	}
@@ -262,7 +265,8 @@ class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_dgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a, &A[0][0], A.disp (), &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
+		cblas_dgemv (CblasRowMajor, CblasNoTrans, A.rowdim (), A.coldim (), a,
+			     &A[0][0], A.disp (), &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
 
@@ -277,7 +281,7 @@ class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	{
 		lela_check (A.coldim () == x.size ());
 		lela_check (A.rowdim () == y.size ());
-		cblas_dgemv (CblasColMajor, CblasTrans, A.rowdim (), A.coldim (), a, &(A.parent ())[0][0], A.parent ().disp (),
+		cblas_dgemv (CblasRowMajor, CblasTrans, A.coldim (), A.rowdim (), a, &(A.parent ())[0][0], A.parent ().disp (),
 			     &x[0], &x[1] - &x[0], b, &y[0], &y[1] - &y[0]);
 		return y;
 	}
@@ -415,7 +419,8 @@ class _ger<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	{
 		lela_check (A.rowdim () == x.size ());
 		lela_check (A.coldim () == y.size ());
-		cblas_dger (CblasRowMajor, A.rowdim (), A.coldim (), a, &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
+		cblas_dger (CblasRowMajor, A.rowdim (), A.coldim (), a,
+			    &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0], &A[0][0], A.disp ());
 		return A;
 	}
 
@@ -429,7 +434,8 @@ class _ger<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	{
 		lela_check (A.rowdim () == x.size ());
 		lela_check (A.coldim () == y.size ());
-		cblas_dger (CblasRowMajor, A.coldim (), A.rowdim (), a, &y[0], &y[1] - &y[0], &x[0], &x[1] - &x[0], &(A.parent ())[0][0], A.parent ().disp ());
+		cblas_dger (CblasRowMajor, A.coldim (), A.rowdim (), a,
+			    &y[0], &y[1] - &y[0], &x[0], &x[1] - &x[0], &(A.parent ())[0][0], A.parent ().disp ());
 		return A;
 	}
 

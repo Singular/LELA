@@ -48,7 +48,7 @@ Matrix3 &_gemm<Modular<float>, typename ZpModule<float>::Tag>::gemm_impl
 	typename Matrix1::ConstSubmatrixType A_sub_1 (A, 0, 0, A.rowdim (), first_block_end);
 	typename Matrix2::ConstSubmatrixType B_sub_1 (B, 0, 0, first_block_end, B.coldim ());
 
-	_gemm<TypeWrapperRing<float>, typename ZpModule<float>::Tag::TWParent>::op (Rp, M, F.one (), A_sub_1, B_sub_1, ainvb, C);
+	_gemm<TypeWrapperRing<float>, typename ZpModule<float>::Tag::TWParent>::op (Rp, M.TWM, F.one (), A_sub_1, B_sub_1, ainvb, C);
 
 	typename Matrix3::RawIterator i_C;
 
@@ -59,7 +59,7 @@ Matrix3 &_gemm<Modular<float>, typename ZpModule<float>::Tag>::gemm_impl
 		typename Matrix1::ConstSubmatrixType A_sub (A, 0, k, A.rowdim (), M.block_size - 1);
 		typename Matrix2::ConstSubmatrixType B_sub (B, k, 0, M.block_size - 1, B.coldim ());
 
-		_gemm<TypeWrapperRing<float>, typename ZpModule<float>::Tag::TWParent>::op (Rp, M, F.one (), A_sub, B_sub, F.one (), C);
+		_gemm<TypeWrapperRing<float>, typename ZpModule<float>::Tag::TWParent>::op (Rp, M.TWM, F.one (), A_sub, B_sub, F.one (), C);
 
 		for (i_C = C.rawBegin (); i_C != C.rawEnd (); ++i_C)
 			ModularTraits<float>::reduce (*i_C, *i_C, F._modulus);
@@ -95,7 +95,7 @@ Matrix3 &_gemm<Modular<double>, typename ZpModule<double>::Tag>::gemm_impl
 	typename Matrix1::ConstSubmatrixType A_sub_1 (A, 0, 0, A.rowdim (), first_block_end);
 	typename Matrix2::ConstSubmatrixType B_sub_1 (B, 0, 0, first_block_end, B.coldim ());
 
-	_gemm<TypeWrapperRing<double>, typename ZpModule<double>::Tag::TWParent>::op (Rp, M, F.one (), A_sub_1, B_sub_1, ainvb, C);
+	_gemm<TypeWrapperRing<double>, typename ZpModule<double>::Tag::TWParent>::op (Rp, M.TWM, F.one (), A_sub_1, B_sub_1, ainvb, C);
 
 	typename Matrix3::RawIterator i_C;
 
@@ -106,7 +106,7 @@ Matrix3 &_gemm<Modular<double>, typename ZpModule<double>::Tag>::gemm_impl
 		typename Matrix1::ConstSubmatrixType A_sub (A, 0, k, A.rowdim (), M.block_size - 1);
 		typename Matrix2::ConstSubmatrixType B_sub (B, k, 0, M.block_size - 1, B.coldim ());
 
-		_gemm<TypeWrapperRing<double>, typename ZpModule<double>::Tag::TWParent>::op (Rp, M, F.one (), A_sub, B_sub, F.one (), C);
+		_gemm<TypeWrapperRing<double>, typename ZpModule<double>::Tag::TWParent>::op (Rp, M.TWM, F.one (), A_sub, B_sub, F.one (), C);
 
 		for (i_C = C.rawBegin (); i_C != C.rawEnd (); ++i_C)
 			ModularTraits<double>::reduce (*i_C, *i_C, F._modulus);
