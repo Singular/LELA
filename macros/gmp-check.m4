@@ -10,12 +10,8 @@ AC_DEFUN([LB_CHECK_GMP],
 DEFAULT_CHECKING_PATH="/usr /usr/local /sw /opt/local"
 
 AC_ARG_WITH(gmp,
-[  --with-gmp= <path>|yes Use GMP library. This library is mandatory for Singular
-	                 compilation. If argument is yes or <empty> that means 
-   	       		 the library is reachable with the standard search path
-			 "/usr" or "/usr/local" (set as default). Otherwise you
-			 give the <path> to the directory which contain the 
-			 library.
+[  --with-gmp= <path>|yes Use GMP library. This library supports arbitrary-precision integers
+   	       		  and rational numbers and is mandatory to compile LELA.
 ],
 		[if test "$withval" = yes ; then
 			GMP_HOME_PATH="${DEFAULT_CHECKING_PATH}"

@@ -10,11 +10,7 @@ AC_DEFUN([LB_CHECK_BLAS],
 [
 
 AC_ARG_WITH(blas,
-[  --with-blas=<lib>|yes Use BLAS library. This library is mandatory for LELA
-   			compilation. If argument is yes or <empty> that means 
-			the library is reachable with the standard search path 
-			(/usr or /usr/local). Otherwise you give the <path> to 
-			the directory which contain the library.
+[  --with-blas=<lib>|yes Use BLAS library. This enables faster calculations for dense matrices in some cases.
 	     ],
 	     [if test "$withval" = yes ; then
 			BLAS_HOME_PATH="${DEFAULT_CHECKING_PATH}"
@@ -52,18 +48,18 @@ if test -n "$BLAS_VAL"; then
 		if test -r "$BLAS_VAL/lib/libcblas.a" ; then 
 			ATLAS_NEEDED=`nm -u $BLAS_VAL/lib/libcblas.a | grep ATL`
 			if test -n "$ATLAS_NEEDED"; then
-				ATLAS_LIBS="-llapack -lcblas -latlas"	
+				ATLAS_LIBS="-lcblas -latlas"	
 			else
-				ATLAS_LIBS="-lcblas -llapack"
+				ATLAS_LIBS="-lcblas"
 			fi		
 			BLAS_LIBS="-L${BLAS_VAL}/lib $ATLAS_LIBS" 
 
 		elif test -r "$BLAS_VAL/libcblas.a" ; then 
 			ATLAS_NEEDED=`nm -u $BLAS_VAL/libcblas.a | grep ATL`
 			if test -n "$ATLAS_NEEDED"; then
-				ATLAS_LIBS="-llapack -lcblas -latlas"	
+				ATLAS_LIBS="-lcblas -latlas"	
 			else
-				ATLAS_LIBS="-lcblas -llapack"
+				ATLAS_LIBS="-lcblas"
 			fi		
 			BLAS_LIBS="-L${BLAS_VAL} $ATLAS_LIBS" 
                 elif test -r "$BLAS_VAL/include/mkl_cblas.h"; then
@@ -78,7 +74,7 @@ if test -n "$BLAS_VAL"; then
 					echo "Sorry unsupported arch, please complain in lela-use discussion group";
 					;;
 			esac	
-                        BLAS_LIBS="-L${BLAS_VAL}/lib/${MKL_ARCH}/ -lmkl_lapack64 -lmkl -lvml -lguide"
+                        BLAS_LIBS="-L${BLAS_VAL}/lib/${MKL_ARCH}/ -lmkl -lvml -lguide"
 		fi
 	else
 		BLAS_LIBS="$BLAS_VAL"
@@ -132,9 +128,9 @@ else
 
 			ATLAS_NEEDED=`nm -u $BLAS_HOME/lib/libcblas.a | grep ATL`
 			if test -n "$ATLAS_NEEDED"; then
-				ATLAS_LIBS="-llapack -lcblas -latlas"	
+				ATLAS_LIBS="-lcblas -latlas"	
 			else
-				ATLAS_LIBS="-lcblas -llapack"
+				ATLAS_LIBS="-lcblas"
 			fi		
 			if test "x$BLAS_HOME" = "x/usr" -o "x$BLAS_HOME" = "x/usr/local" ; then
  				BLAS_LIBS=" ${ATLAS_LIBS}"
@@ -145,9 +141,9 @@ else
 		elif test -r "$BLAS_HOME/libcblas.a"; then
 			ATLAS_NEEDED=`nm -u $BLAS_HOME/lib/libcblas.a | grep ATL`
 			if test -n "$ATLAS_NEEDED"; then
-				ATLAS_LIBS="-llapack -lcblas -latlas"
+				ATLAS_LIBS="-lcblas -latlas"
 			else
-				ATLAS_LIBS="-lcblas -llapack"	
+				ATLAS_LIBS="-lcblas"
 			fi		
 			BLAS_LIBS="-L${BLAS_HOME} ${ATLAS_LIBS}"
 		fi 
@@ -274,11 +270,7 @@ if test "x$blas_found" != "xyes" ; then
 			CBLAS="no"
 			CBLAS_FLAG=""
 
-			if test -r "$BLAS_HOME/lib64/libblas.a" && test -r "$BLAS_HOME/lib64/liblapack.a" ; then
-				BLAS_LIBS="-L${BLAS_HOME}/lib64 -llapack -lblas"
-			elif test -r "$BLAS_HOME/lib/libblas.a" && test -r "$BLAS_HOME/lib/liblapack.a" ; then
-				BLAS_LIBS="-L${BLAS_HOME}/lib -llapack -lblas"
-			elif test -r "$BLAS_HOME/lib/libblas.a"; then
+			test -r "$BLAS_HOME/lib/libblas.a"; then
 				if test "x$BLAS_HOME" = "x/usr" -o "x$BLAS_HOME" = "/usr/local" ; then
  					BLAS_LIBS="-lblas"
 				else
@@ -354,141 +346,7 @@ if test "x$blas_found" != "xyes" ; then
 		AC_MSG_RESULT(not found)
 		ifelse([$3], , :, [$3])
 	fi
-
-
-
-
-## Check for dgetrf (mainly for Goto less than 1.7)
-	AC_MSG_CHECKING(for dgetrf)
-	AC_TRY_RUN(
-	[#define __LELA_CONFIGURATION
-	 #define __LELA_HAVE_DGETRF 1
-       	 #include "lela/config-blas.h"
-	 int main () {  double a[4] = {1.,2.,3.,4.};
-			int ipiv[2];
-			clapack_dgetrf(CblasRowMajor, 2, 2, a, 2, ipiv);
-			if ( (a[0]!=2.) && (a[1]!=0.5) && (a[2]!=4.) && (a[3]!=1.))
-				return -1;
-			else
-				return 0;
-		      }
-	],[	
-	dgetrf_found="yes"	
-	break
-	],[	
-	dgetrf_problem="$problem"	
-	],[
-	break
-	])	
-
-	if test "x$dgetrf_found" = "xyes"; then
-		AC_MSG_RESULT(found)
-		AC_DEFINE(HAVE_DGETRF,1,[Define if dgetrf is available])
-	else
-		AC_MSG_RESULT(disabling)
-		#AC_DEFINE(HAVE_DGETRF,0,[Define if dgetrf is available])	
-	fi
-	
-## Check for dtrtri (mainly for Goto less than 1.7)
-	AC_MSG_CHECKING(for dtrtri)
-	AC_TRY_RUN(
-	[#define __LELA_CONFIGURATION
-	 #define __LELA_HAVE_DTRTRI
-       	 #include "lela/config-blas.h"
-	 int main () {  double a[4] = {1.,2.,3.,4.};
-			int ipiv[2];
-			clapack_dtrtri(CblasRowMajor,CblasUpper,CblasNonUnit,2, a, 2);
-			if ( (a[0]!=1.) && (a[1]!=-0.5) && (a[2]!=0.) && (a[3]!=0.25))
-				return -1;
-			else
-				return 0;
-		      }
-	],[	
-	dtrtri_found="yes"	
-	break
-	],[	
-	dtrtri_problem="$problem"	
-	],[
-	break
-	])	
-
-	if test "x$dtrtri_found" = "xyes"; then
-		AC_MSG_RESULT(found)
-		AC_DEFINE(HAVE_DTRTRI,1,[Define if dtrtri is available])
-	else
-		AC_MSG_RESULT(disabling)
-	fi
-
-
-## Check for dgetri (mainly for Goto less than 1.7)
-	AC_MSG_CHECKING(for dgetri)
-	AC_TRY_RUN(
-	[#define __LELA_CONFIGURATION
-	 #define __LELA_HAVE_DGETRF 1
-	 #define __LELA_HAVE_DGETRI 1
-       	 #include "lela/config-blas.h"
-	 int main () {  double a[4] = {2.,0.5,4.,1.};
-			int ipiv[2] = {2,2};
-			clapack_dgetri(CblasRowMajor, 2, a, 2, ipiv);
-			if ( (a[0]!=-2.) && (a[1]!=1.) && (a[2]!=1.5) && (a[3]!=-0.5))
-				return -1;
-			else
-				return 0;
-		      }
-	],[	
-	dgetri_found="yes"	
-	break
-	],[	
-	dgetri_problem="autoimplement"	
-	],[
-	break
-	])
-
-	if test "x$dgetri_problem" = "xautoimplement"; then
-		if test "x$dtrtri_found" = "xyes"; then
-			AC_MSG_RESULT(no)
-			AC_MSG_CHECKING(for autoimplementation of dgetri)
-			AC_TRY_RUN(
-			[#define __LELA_CONFIGURATION
-		 	 #define __LELA_AUTOIMPLEMENT_DGETRI
-		 	 #define __LELA_HAVE_DGETRI 
-		 	 #define __LELA_HAVE_DTRTRI
-	 	 	 #include "lela/config-blas.h"
-		 	 int main () {  double a[4] = {2.,0.5,4.,1.};
-					int ipiv[2] = {2,2};				
-					clapack_dgetri(CblasRowMajor, 2, a, 2, ipiv);
-					if ( (a[0]!=-2.) && (a[1]!=1.) && (a[2]!=1.5) && (a[3]!=-0.5))
-						return -1;
-					else
-						return 0;
-				      }
-			],[	
-			dgetri_found="yes"	
-			break
-			],[	
-			dgetri_problem="$problem"	
-			],[
-			break
-			])
-			if test "x$dgetri_found" = "xyes"; then
-				AC_MSG_RESULT(working)
-				AC_DEFINE(HAVE_DGETRI,1,[Define if dgetri is available])
-				AC_DEFINE(AUTOIMPLEMENT_DGETRI,,[Enable Autoimplementation of dgetri routine with dtrti and dtrsm])
-			else
-				AC_MSG_RESULT(disabling)
-				AC_DEFINE(HAVE_DGETRI,0,[Define if dgetri is available])
-			fi				
-		else	
-			AC_MSG_RESULT(disabling)
-			#AC_DEFINE(HAVE_DGETRI,0,[Define if dgetri is available])
-		fi
-	else
-		AC_MSG_RESULT(working)
-		AC_DEFINE(HAVE_DGETRI,1,[Define if dgetri is available])
-	fi	
 fi
-
-
 
 AM_CONDITIONAL(LELA_HAVE_BLAS, test "x$HAVE_BLAS" = "xyes")
 

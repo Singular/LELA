@@ -253,7 +253,7 @@ static bool testDotProduct (LELA::Context<Ring, Modules> &ctx, const char *text,
 
 	std::ostringstream str;
 
-	str << "Testing " << text << " dot product)" << std::ends;
+	str << "Testing " << text << " dot product" << std::ends;
 	LELA::commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	bool ret = true;

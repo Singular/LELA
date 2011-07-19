@@ -35,14 +35,14 @@ Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
 	typename Vector1::const_iterator block_1_end_x = x.begin () + (x.size () % block_size);
 	typename Vector2::const_iterator block_1_end_y = y.begin () + (y.size () % block_size);
 
-	typename ModularTraits<Element>::DoubleFatElement t;
+	typename ModularTraits<Element>::DoubleFatElement t = 0, s;
 
 	TypeWrapperRing<Element> Rp;
 
 	Subvector<typename Vector1::const_iterator> x_sub_1 (x.begin (), block_1_end_x);
 	Subvector<typename Vector2::const_iterator> y_sub_1 (y.begin (), block_1_end_y);
 
-	_dot<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, t, x, y);
+	_dot<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, t, x_sub_1, y_sub_1);
 
 	ModularTraits<Element>::reduce (t, t, F._modulus);
 
@@ -50,8 +50,9 @@ Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
 		Subvector<typename Vector1::const_iterator> x_sub (i, i + block_size);
 		Subvector<typename Vector2::const_iterator> y_sub (j, j + block_size);
 
-		_dot<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, t, x, y);
+		_dot<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M.TWM, s, x_sub, y_sub);
 
+		t += s;
 		ModularTraits<Element>::reduce (t, t, F._modulus);
 	}
 
@@ -78,7 +79,7 @@ Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
 
 		return ModularTraits<Element>::reduce (res, t, F._modulus);
 	} else {
-		typename Vector1::const_iterator iterend = x.begin () + (x.end () - i) % block_size;
+		typename Vector1::const_iterator iterend = x.begin () + x.size () % block_size;
 
 		for (i = x.begin (); i != iterend; ++i)
 			t += (typename ModularTraits<Element>::DoubleFatElement) i->second * (typename ModularTraits<Element>::DoubleFatElement) y[i->first];

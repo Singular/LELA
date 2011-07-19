@@ -179,7 +179,7 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 
 	if (!BLAS3::is_zero (ctx, M1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix M1 is not zero" << endl;
+			<< "ERROR: BLAS3 reported matrix M1 is not zero" << endl;
 		ret = false;
 	}
 
@@ -245,7 +245,7 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	if (!BLAS3::is_zero (ctx, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix D is not zero" << endl;
+			<< "ERROR: BLAS3 reported matrix D is not zero" << endl;
 		ret = false;
 	}
 
@@ -309,7 +309,7 @@ static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const
 
 	if (!BLAS3::equal (ctx, ABpC, ApBC)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported (A * B) * C != A * (B * C)" << endl;
+			<< "ERROR: BLAS3 reported (A * B) * C != A * (B * C)" << endl;
 		ret = false;
 	}
 
@@ -358,7 +358,7 @@ static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const
 
 	if (!BLAS3::equal (ctx, A, IA)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported A != I * A" << endl;
+			<< "ERROR: BLAS3 reported A != I * A" << endl;
 		ret = false;
 	}
 
@@ -369,7 +369,7 @@ static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const
 
 	if (!BLAS3::equal (ctx, AI, A)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported A * I != A" << endl;
+			<< "ERROR: BLAS3 reported A * I != A" << endl;
 		ret = false;
 	}
 
@@ -431,7 +431,7 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 
 	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported results from trmm and gemm are not equal" << endl;
+			<< "ERROR: BLAS3 reported results from trmm and gemm are not equal" << endl;
 		ret = false;
 	}
 
@@ -493,7 +493,7 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 
 	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported results from trmm and gemm are not equal" << endl;
+			<< "ERROR: BLAS3 reported results from trmm and gemm are not equal" << endl;
 		ret = false;
 	}
 
@@ -639,7 +639,7 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 
 	if (!BLAS3::equal (ctx, UM, R)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrix UM != R" << endl;
+			<< "ERROR: BLAS3 reported matrix UM != R" << endl;
 		ret = false;
 	}
 
@@ -648,7 +648,7 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 
 		if (!BLAS3::equal (ctx, UM, I)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: MatrixDomain reported matrix R is not identity" << endl;
+				<< "ERROR: BLAS3 reported matrix R is not identity" << endl;
 			ret = false;
 		}
 
@@ -661,7 +661,7 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 
 		if (!BLAS3::equal (ctx, UM, R)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "ERROR: MatrixDomain reported matrix MU is not identity" << endl;
+				<< "ERROR: BLAS3 reported matrix MU is not identity" << endl;
 			ret = false;
 		}
 	} else {
@@ -857,7 +857,7 @@ static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	if (!BLAS3::equal (ctx, UinvB, aUinvB)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported a U^-1 * B != a (U^-1 * B)" << endl;
+			<< "ERROR: BLAS3 reported a U^-1 * B != a (U^-1 * B)" << endl;
 		ret = false;
 	}
 
@@ -1550,7 +1550,7 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 		       MatrixIteratorTypes::RowCol)
 {
 	ostringstream str;
-	str << "Testing MatrixDomain with " << text << " matrices" << ends;
+	str << "Testing BLAS3 with " << text << " matrices" << ends;
 	commentator.start (str.str ().c_str ());
 
 	bool pass = true;
@@ -1588,7 +1588,7 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 		MatrixIteratorTypes::Row) 
 {
 	ostringstream str;
-	str << "Testing MatrixDomain with " << text << " matrices" << ends;
+	str << "Testing BLAS3 with " << text << " matrices" << ends;
 	commentator.start (str.str ().c_str ());
 
 	bool pass = true;
@@ -1626,7 +1626,7 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 		MatrixIteratorTypes::Col) 
 {
 	ostringstream str;
-	str << "Testing MatrixDomain with " << text << " matrices" << ends;
+	str << "Testing BLAS3 with " << text << " matrices" << ends;
 	commentator.start (str.str ().c_str ());
 
 	bool pass = true;
@@ -1665,7 +1665,7 @@ bool testBLAS3Submatrix (Context<Field, Modules> &ctx, const char *text, //
 			 MatrixIteratorTypes::Row) 
 {
 	ostringstream str;
-	str << "Testing MatrixDomain with " << text << " matrices" << ends;
+	str << "Testing BLAS3 with " << text << " matrices" << ends;
 	commentator.start (str.str ().c_str ());
 
 	bool pass = true;

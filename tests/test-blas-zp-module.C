@@ -38,6 +38,10 @@ bool runTests (const integer &q, const char *text, long l, long m, long n, long 
 
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
+	std::ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+	report << "Working over ";
+	F.write (report) << std::endl;
+
 	if (!testBLAS1 (ctx, text, l, iterations)) pass = false;
 	if (!testBLAS1RepsConsistency (ctx, text, l, iterations)) pass = false;
 
@@ -111,11 +115,13 @@ int main (int argc, char **argv)
 	static long p = 30;
 	static long k = 10;
 	static integer q_integer = 65521;
-	static integer q_uint32 = 65521;
+	static integer q_uint32 = 2147483647;
 	static integer q_uint16 = 65521;
-	static integer q_uint8 = 101;
-	static integer q_float = 101;
-	static integer q_double = 65521;
+	static integer q_uint8 = 251;
+	static integer q_float_small = 2039;
+	static integer q_float_big = 4093;
+	static integer q_double_small = 33554393;
+	static integer q_double_big = 67108859;
 	static int iterations = 1;
 
 	static Argument args[] = {
@@ -124,7 +130,7 @@ int main (int argc, char **argv)
 		{ 'n', "-n N", "Set row-dimension of matrix C and column-dimension of B to N.", TYPE_INT, &n },
 		{ 'p', "-p P", "Set column-dimension of matrix C to P.", TYPE_INT, &p },
 		{ 'k', "-k K", "K nonzero elements per row/column in sparse matrices.", TYPE_INT, &k },
-		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint8 modulus (default 101).", TYPE_INTEGER, &q_uint8 },
+		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint8 modulus", TYPE_INTEGER, &q_uint8 },
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT, &iterations },
 		{ '\0' }
 	};
@@ -132,8 +138,8 @@ int main (int argc, char **argv)
 	parseArguments (argc, argv, args);
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (6);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (7);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (7);
 
 	commentator.start ("BLAS ZpModule test-suite", "ZpModule");
@@ -142,8 +148,10 @@ int main (int argc, char **argv)
 	pass = runTests<uint32> (q_uint32, "Modular<uint32>", l, m, n, p, k, iterations) && pass;
 	pass = runTests<uint16> (q_uint16, "Modular<uint16>", l, m, n, p, k, iterations) && pass;
 	pass = runTests<uint8> (q_uint8, "Modular<uint8>", l, m, n, p, k, iterations) && pass;
-	pass = runTests<float> (q_float, "Modular<float>", l, m, n, p, k, iterations) && pass;
-	pass = runTests<double> (q_double, "Modular<double>", l, m, n, p, k, iterations) && pass;
+	pass = runTests<float> (q_float_small, "Modular<float>", l, m, n, p, k, iterations) && pass;
+	pass = runTests<float> (q_float_big, "Modular<float>", l, m, n, p, k, iterations) && pass;
+	pass = runTests<double> (q_double_small, "Modular<double>", l, m, n, p, k, iterations) && pass;
+	pass = runTests<double> (q_double_big, "Modular<double>", l, m, n, p, k, iterations) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
