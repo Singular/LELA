@@ -113,7 +113,7 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	Modular<uint32> GFq (q);
+	Modular<float> GFq (q);
 	GF2 gf2;
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);

@@ -25,6 +25,7 @@
 #include "lela/blas/context.h"
 #include "lela/randiter/nonzero.h"
 #include "lela/algorithms/strassen-winograd.h"
+#include "lela/ring/type-wrapper.h"
 
 #define FLOAT_MANTISSA 24
 #define DOUBLE_MANTISSA 53
@@ -90,6 +91,8 @@ struct ModularTraits<uint8>
 		{ integer t = (integer) a % (integer) m; shift_up (t, m); return r = t.get_ui (); }
 	static Element &reduce (Element &r, FatElement a, Element m) 
 		{ return r = a % m; }
+	static DoubleFatElement &reduce (DoubleFatElement &r, DoubleFatElement a, Element m) 
+		{ return r = a % m; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	static Element &init_modulus (Element &elt, integer x)
@@ -120,6 +123,8 @@ struct ModularTraits<uint16>
 		{ return r = a % m; }
 	static Element &reduce (Element &r, DoubleFatElement a, Element m) 
 		{ return r = a % m; }
+	static DoubleFatElement &reduce (DoubleFatElement &r, DoubleFatElement a, Element m) 
+		{ return r = a % m; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ int t = a % (int) m; if (t < 0) t += m; return r = t; }
 	static Element &init_modulus (Element &elt, integer x)
@@ -147,6 +152,8 @@ struct ModularTraits<uint32>
 	static Element &reduce (Element &r, const FE &a, Element m) 
 		{ integer t = (integer) a % (integer) m; if (t < 0) t += m; return r = t.get_ui (); }
 	static Element &reduce (Element &r, FatElement a, Element m) 
+		{ return r = a % m; }
+	static DoubleFatElement &reduce (DoubleFatElement &r, DoubleFatElement a, Element m) 
 		{ return r = a % m; }
 	static Element &reduce (Element &r, int a, Element m) 
 		{ long long t = (long long) a % (long long) m; shift_up (t, m); return r = t; }
@@ -177,6 +184,8 @@ struct ModularTraits<float>
 	static Element &reduce (Element &r, FatElement a, Element m) 
 		{ r = fmod (a, m); return shift_up (shift_down (r, m), m); }
 	static Element &reduce (Element &r, DoubleFatElement a, Element m) 
+		{ r = fmod (a, (double) m); return shift_up (shift_down (r, m), m); }
+	static DoubleFatElement &reduce (DoubleFatElement &r, DoubleFatElement a, Element m) 
 		{ r = fmod (a, (double) m); return shift_up (shift_down (r, m), m); }
 	static Element &init_modulus (Element &elt, integer x)
 		{ elt = x.get_d (); return elt; }
@@ -462,7 +471,11 @@ private:
 template <class Element>
 struct ZpModule : public GenericModule<Modular<Element> >
 {
-	struct Tag { typedef typename GenericModule<Modular<Element> >::Tag Parent; };
+	struct Tag
+	{
+		typedef typename GenericModule<Modular<Element> >::Tag Parent;
+		typedef typename AllModules<TypeWrapperRing<Element> >::Tag TWParent;
+	};
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
@@ -475,7 +488,11 @@ struct ZpModule : public GenericModule<Modular<Element> >
 template <>
 struct ZpModule<integer> : public GenericModule<Modular<integer> >
 {
-	struct Tag { typedef GenericModule<Modular<integer> >::Tag Parent; };
+	struct Tag
+	{
+		typedef typename GenericModule<Modular<integer> >::Tag Parent;
+		typedef typename AllModules<TypeWrapperRing<integer> >::Tag TWParent;
+	};
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
@@ -512,7 +529,11 @@ private:
 template <>
 struct ZpModule<float> : public GenericModule<float>
 {
-	struct Tag { typedef GenericModule<Modular<float> >::Tag Parent; };
+	struct Tag
+	{
+		typedef typename GenericModule<Modular<float> >::Tag Parent;
+		typedef typename AllModules<TypeWrapperRing<float> >::Tag TWParent;
+	};
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
@@ -525,7 +546,11 @@ struct ZpModule<float> : public GenericModule<float>
 template <>
 struct ZpModule<double> : public GenericModule<double>
 {
-	struct Tag { typedef GenericModule<Modular<double> >::Tag Parent; };
+	struct Tag
+	{
+		typedef typename GenericModule<Modular<double> >::Tag Parent;
+		typedef typename AllModules<TypeWrapperRing<double> >::Tag TWParent;
+	};
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
 	size_t block_size;
@@ -547,9 +572,15 @@ struct AllModules<Modular<Element> > : public StrassenModule<Modular<Element>, Z
 
 #include "lela/blas/level1-modular.h"
 #include "lela/blas/level2-modular.h"
+#include "lela/blas/level3-modular.h"
+
+#include "lela/blas/level1-generic.h"
+#include "lela/blas/level2-generic.h"
+#include "lela/blas/level3-generic.h"
 
 #include "lela/blas/level1-modular.tcc"
 #include "lela/blas/level2-modular.tcc"
+#include "lela/blas/level3-modular.tcc"
 
 #include "lela/blas/level3-sw.h"
 

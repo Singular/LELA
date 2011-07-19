@@ -34,54 +34,54 @@ template <>
 class _dot<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static float dot_impl (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
-			       size_t start_idx, size_t end_idx,
+	static float &dot_impl (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
 			       VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _dot<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
+		{ return _dot<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, res, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static float dot_impl (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
-			       size_t start_idx, size_t end_idx,
+	static float &dot_impl (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
 			       VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		lela_check (x.size () == y.size ());
-		return cblas_sdot (((end_idx == (size_t) -1) ? x.size () : end_idx) - start_idx, &x[start_idx], &x[1] - &x[0], &y[start_idx], &y[1] - &y[0]);
+		res = cblas_sdot (x.size (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
+		return res;
 	}
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static float op (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y,
-			 size_t start_idx = 0, size_t end_idx = (size_t) -1)
-		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
+	static float &op (const TypeWrapperRing<float> &F, Modules &M, float &res, const Vector1 &x, const Vector2 &y)
+		{ return dot_impl (F, M, res, x, y,
 				   typename VectorTraits<TypeWrapperRing<float>, Vector1>::RepresentationType (),
 				   typename VectorTraits<TypeWrapperRing<float>, Vector1>::StorageType (),
 				   typename VectorTraits<TypeWrapperRing<float>, Vector2>::RepresentationType (),
 				   typename VectorTraits<TypeWrapperRing<float>, Vector2>::StorageType ()); }
+
+	template <class Modules, class Vector1, class Vector2>
+	static double &op (const TypeWrapperRing<float> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y)
+		{ return _dot<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, res, x, y); }
 };
 
 template <>
 class _dot<TypeWrapperRing<double>, BLASModule<double>::Tag>
 {
 	template <class Modules, class Vector1, class Vector2>
-	static double dot_impl (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
-				size_t start_idx, size_t end_idx,
+	static double &dot_impl (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
 				VectorRepresentationTypes::Generic, VectorStorageTypes::Generic, VectorRepresentationTypes::Generic, VectorStorageTypes::Generic)
-		{ return _dot<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, res, x, y, start_idx, end_idx); }
+		{ return _dot<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, res, x, y); }
 
 	template <class Modules, class Vector1, class Vector2>
-	static double dot_impl (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
-				size_t start_idx, size_t end_idx,
+	static double &dot_impl (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
 				VectorRepresentationTypes::Dense, VectorStorageTypes::Real, VectorRepresentationTypes::Dense, VectorStorageTypes::Real)
 	{
 		lela_check (x.size () == y.size ());
-		return cblas_ddot (((end_idx == (size_t) -1) ? x.size () : end_idx) - start_idx, &x[start_idx], &x[1] - &x[0], &y[start_idx], &y[1] - &y[0]);
+		res = cblas_ddot (x.size (), &x[0], &x[1] - &x[0], &y[0], &y[1] - &y[0]);
+		return res;
 	}
 
 public:
 	template <class Modules, class Vector1, class Vector2>
-	static double op (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y,
-			  size_t start_idx = 0, size_t end_idx = (size_t) -1)
-		{ return dot_impl (F, M, res, x, y, start_idx, end_idx,
+	static double &op (const TypeWrapperRing<double> &F, Modules &M, double &res, const Vector1 &x, const Vector2 &y)
+		{ return dot_impl (F, M, res, x, y,
 				   typename VectorTraits<TypeWrapperRing<double>, Vector1>::RepresentationType (),
 				   typename VectorTraits<TypeWrapperRing<double>, Vector1>::StorageType (),
 				   typename VectorTraits<TypeWrapperRing<double>, Vector2>::RepresentationType (),

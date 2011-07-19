@@ -31,26 +31,26 @@ namespace BLAS1
 template <class Ring>
 class _dot<Ring, typename GenericModule<Ring>::Tag>
 {
-	template <class Modules, class Vector1, class Vector2>
-	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
+	template <class Modules, class T, class Vector1, class Vector2>
+	static T &dot_impl (const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y,
+			    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense);
 
-	template <class Modules, class Vector1, class Vector2>
-	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
+	template <class Modules, class T, class Vector1, class Vector2>
+	static T &dot_impl (const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y,
+			    VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 		{ return op (F, M, res, y, x); }
 
-	template <class Modules, class Vector1, class Vector2>
-	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
+	template <class Modules, class T, class Vector1, class Vector2>
+	static T &dot_impl (const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y,
+			    VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
 
-	template <class Modules, class Vector1, class Vector2>
-	static typename Ring::Element &dot_impl (const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
-						 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
+	template <class Modules, class T, class Vector1, class Vector2>
+	static T &dot_impl (const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y,
+			    VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
 
 public:
-	template <class Modules, class reference, class Vector1, class Vector2>
-	static reference &op (const Ring &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y)
+	template <class Modules, class T, class Vector1, class Vector2>
+	static T &op (const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y)
 		{ return dot_impl (F, M, res, x, y,
 				   typename VectorTraits<Ring, Vector1>::RepresentationType (),
 				   typename VectorTraits<Ring, Vector2>::RepresentationType ()); }

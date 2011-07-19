@@ -14,6 +14,8 @@
 
 #include "lela/blas/context.h"
 #include "lela/blas/level1-ll.h"
+#include "lela/util/property.h"
+#include "lela/vector/bit-iterator.h"
 
 namespace LELA
 {
@@ -40,8 +42,17 @@ namespace BLAS1
  * @returns Reference to res
  */
 
-template <class reference, class Ring, class Modules, class Vector1, class Vector2>
-reference &dot (Context<Ring, Modules> &ctx, reference &res, const Vector1 &x, const Vector2 &y)
+template <class Ring, class Modules, class Vector1, class Vector2>
+typename Ring::Element &dot (Context<Ring, Modules> &ctx, typename Ring::Element &res, const Vector1 &x, const Vector2 &y)
+	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res, x, y); }
+
+template <class Iterator, class Accessor, class Ring, class Modules, class Vector1, class Vector2>
+typename Ring::Element &dot (Context<Ring, Modules> &ctx, Property<Iterator, Accessor> res, const Vector1 &x, const Vector2 &y)
+	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res.ref (), x, y); }
+
+template <class Iterator, class Endianness, class Ring, class Modules, class Vector1, class Vector2>
+BitVectorReference<Iterator, Endianness> &dot (Context<Ring, Modules> &ctx, BitVectorReference<Iterator, Endianness> &res,
+					       const Vector1 &x, const Vector2 &y)
 	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res, x, y); }
 
 /** Swap two vectors

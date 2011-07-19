@@ -62,8 +62,13 @@ template <class Ring, class ModulesTag>
 class _dot
 {
 public:
-	template <class Modules, class reference, class Vector1, class Vector2>
-	static reference &op (const Ring &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y)
+	template <class Modules, class T, class Vector1, class Vector2>
+	static T &op (const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y)
+		{ return _dot<Ring, typename ModulesTag::Parent>::op (F, M, res, x, y); }
+
+	template <class Modules, class Iterator, class Endianness, class Vector1, class Vector2>
+	static BitVectorReference<Iterator, Endianness> &op (const Ring &F, Modules &M, BitVectorReference<Iterator, Endianness> &res,
+							     const Vector1 &x, const Vector2 &y)
 		{ return _dot<Ring, typename ModulesTag::Parent>::op (F, M, res, x, y); }
 };
 

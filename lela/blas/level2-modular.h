@@ -22,92 +22,37 @@ namespace LELA
 namespace BLAS2
 {
 
-template <>
-class _gemv<Modular<uint8>, ZpModule<uint8>::Tag>
+template <class Element>
+class _gemv<Modular<Element>, typename ZpModule<Element>::Tag>
 {
 	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
-					uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-					VectorRepresentationTypes::Dense);
-
-	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
-					uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-					VectorRepresentationTypes::Sparse);
-
-	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const Modular<uint8> &F, ZpModule<uint8> &M,
-				   uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
+	static Vector2 &gemv_impl (const Modular<Element> &F, ZpModule<Element> &M,
+				   Element a, const Matrix &A, const Vector1 &x, Element b, Vector2 &y,
 				   MatrixIteratorTypes::Col,
 				   VectorRepresentationTypes::Dense,
-				   VectorRepresentationTypes::Generic)
-		{ return gemv_col_dense (F, M, a, A, x, b, y, typename VectorTraits<Modular<uint8>, typename Matrix::Column>::RepresentationType ()); }
+				   VectorRepresentationTypes::Generic);
 
 	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const Modular<uint8> &F, ZpModule<uint8> &M,
-				   uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
+	static Vector2 &gemv_impl (const Modular<Element> &F, ZpModule<Element> &M,
+				   Element a, const Matrix &A, const Vector1 &x, Element b, Vector2 &y,
 				   MatrixIteratorTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorRepresentationTypes::Generic)
-		{ return _gemv<Modular<uint8>, ZpModule<uint8>::Tag::Parent>::op (F, M, a, A, x, b, y); }
+		{ return _gemv<Modular<Element>, typename ZpModule<Element>::Tag::Parent>::op (F, M, a, A, x, b, y); }
 
 public:
 	template <class Modules, class Matrix, class Vector1, class Vector2>
-	static Vector2 &op (const Modular<uint8> &F,
-			    Modules              &M,
-			    uint8                 a,
-			    const Matrix         &A,
-			    const Vector1        &x,
-			    uint8                 b,
-			    Vector2              &y)
+	static Vector2 &op (const Modular<Element> &F,
+			    Modules                &M,
+			    Element                 a,
+			    const Matrix           &A,
+			    const Vector1          &x,
+			    Element                 b,
+			    Vector2                &y)
 		{ return gemv_impl (F, M, a, A, x, b, y,
 				    typename Matrix::IteratorType (),
-				    typename VectorTraits<Modular<uint8>, Vector1>::RepresentationType (),
-				    typename VectorTraits<Modular<uint8>, Vector2>::RepresentationType ()); }
-};
-
-template <>
-class _gemv<Modular<uint16>, ZpModule<uint16>::Tag>
-{
-	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
-					uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-					VectorRepresentationTypes::Dense);
-
-	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
-					uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-					VectorRepresentationTypes::Sparse);
-
-	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const Modular<uint16> &F, ZpModule<uint16> &M,
-				   uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-				   MatrixIteratorTypes::Col,
-				   VectorRepresentationTypes::Dense,
-				   VectorRepresentationTypes::Generic)
-		{ return gemv_col_dense (F, M, a, A, x, b, y, typename VectorTraits<Modular<uint16>, typename Matrix::Column>::RepresentationType ()); }
-
-	template <class Matrix, class Vector1, class Vector2>
-	static Vector2 &gemv_impl (const Modular<uint16> &F, ZpModule<uint16> &M,
-				   uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-				   MatrixIteratorTypes::Generic,
-				   VectorRepresentationTypes::Generic,
-				   VectorRepresentationTypes::Generic)
-		{ return _gemv<Modular<uint16>, ZpModule<uint16>::Tag::Parent>::op (F, M, a, A, x, b, y); }
-
-public:
-	template <class Modules, class Matrix, class Vector1, class Vector2>
-	static Vector2 &op (const Modular<uint16> &F,
-			    Modules               &M,
-			    uint16                 a,
-			    const Matrix          &A,
-			    const Vector1         &x,
-			    uint16                 b,
-			    Vector2               &y)
-		{ return gemv_impl (F, M, a, A, x, b, y,
-				    typename Matrix::IteratorType (),
-				    typename VectorTraits<Modular<uint16>, Vector1>::RepresentationType (),
-				    typename VectorTraits<Modular<uint16>, Vector2>::RepresentationType ()); }
+				    typename VectorTraits<Modular<Element>, Vector1>::RepresentationType (),
+				    typename VectorTraits<Modular<Element>, Vector2>::RepresentationType ()); }
 };
 
 template <>

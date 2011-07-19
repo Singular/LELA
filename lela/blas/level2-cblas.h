@@ -37,18 +37,16 @@ class _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag>
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<float> &F, Modules &M,
 				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic)
-		{ return _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+		{ return _gemv<TypeWrapperRing<float>, BLASModule<float>::Tag::Parent>::op (F, M, a, A, x, b, y); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<float> &F, Modules &M,
 				   float a, const DenseMatrix<float> &A, const Vector1 &x, float b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Dense,
 				   VectorRepresentationTypes::Dense,
 				   VectorStorageTypes::Real,
@@ -69,10 +67,8 @@ public:
 			    const Matrix         &A,
 			    const Vector1        &x,
 			    uint8                 b,
-			    Vector2              &y,
-			    size_t                start_idx = 0,
-			    size_t                end_idx = (size_t) -1)
-		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+			    Vector2              &y)
+		{ return gemv_impl (F, M, a, A, x, b, y,
 				    typename Matrix::StorageType (),
 				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::RepresentationType (),
 				    typename VectorTraits<TypeWrapperRing<float>, Vector1>::StorageType (),
@@ -187,18 +183,16 @@ class _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag>
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<double> &F, Modules &M,
 				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic,
 				   VectorRepresentationTypes::Generic,
 				   VectorStorageTypes::Generic)
-		{ return _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, x, b, y, start_idx, end_idx); }
+		{ return _gemv<TypeWrapperRing<double>, BLASModule<double>::Tag::Parent>::op (F, M, a, A, x, b, y); }
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &gemv_impl (const TypeWrapperRing<double> &F, Modules &M,
 				   double a, const DenseMatrix<double> &A, const Vector1 &x, double b, Vector2 &y,
-				   size_t start_idx, size_t end_idx,
 				   MatrixStorageTypes::Dense,
 				   VectorRepresentationTypes::Dense,
 				   VectorStorageTypes::Real,
@@ -219,10 +213,8 @@ public:
 			    const Matrix         &A,
 			    const Vector1        &x,
 			    uint8                 b,
-			    Vector2              &y,
-			    size_t                start_idx = 0,
-			    size_t                end_idx = (size_t) -1)
-		{ return gemv_impl (F, M, a, A, x, b, y, start_idx, end_idx,
+			    Vector2              &y)
+		{ return gemv_impl (F, M, a, A, x, b, y,
 				    typename Matrix::StorageType (),
 				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::RepresentationType (),
 				    typename VectorTraits<TypeWrapperRing<double>, Vector1>::StorageType (),

@@ -11,6 +11,7 @@
 #define __BLAS_LEVEL1_MODULAR_TCC
 
 #include "lela/blas/level1-modular.h"
+#include "lela/ring/type-wrapper.h"
 
 namespace LELA
 {
@@ -18,62 +19,70 @@ namespace LELA
 namespace BLAS1 
 {
 
+template <class Element>
 template <class Vector1, class Vector2>
-uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-							     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
+Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
+	(const Modular<Element> &F, ZpModule<Element> &M, Element &res, const Vector1 &x, const Vector2 &y,
+	 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	lela_check (x.size () == y.size ());
 
-	typename Vector1::const_iterator i = x.begin ();
-	typename Vector2::const_iterator j = y.begin ();
+	typename Vector1::const_iterator i;
+	typename Vector2::const_iterator j;
 
-	typename Vector1::const_iterator iterend = x.begin () + (x.size () % M.block_size);
+	size_t block_size = (M.block_size == 0) ? x.size () : M.block_size;
 
-	uint64 t = 0;
+	typename Vector1::const_iterator block_1_end_x = x.begin () + (x.size () % block_size);
+	typename Vector2::const_iterator block_1_end_y = y.begin () + (y.size () % block_size);
 
-	for (; i != iterend; ++i, ++j)
-		t += (uint64) *i * (uint64) *j;
+	typename ModularTraits<Element>::DoubleFatElement t;
 
-	t %= (uint64) F._modulus;
+	TypeWrapperRing<Element> Rp;
 
-	for (; iterend != x.end (); j += M.block_size) {
-		typename Vector1::const_iterator iter_i = iterend;
-		typename Vector2::const_iterator iter_j;
+	Subvector<typename Vector1::const_iterator> x_sub_1 (x.begin (), block_1_end_x);
+	Subvector<typename Vector2::const_iterator> y_sub_1 (y.begin (), block_1_end_y);
 
-		iterend += M.block_size;
+	_dot<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, t, x, y);
 
-		for (iter_j = j; iter_i != iterend; ++iter_i, ++iter_j)
-			t += (uint64) *iter_i * (uint64) *j;
+	ModularTraits<Element>::reduce (t, t, F._modulus);
 
-		t %= (uint64) F._modulus;
+	for (i = block_1_end_x, j = block_1_end_y; i != x.end (); i += block_size, j += block_size) {
+		Subvector<typename Vector1::const_iterator> x_sub (i, i + block_size);
+		Subvector<typename Vector2::const_iterator> y_sub (j, j + block_size);
+
+		_dot<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, t, x, y);
+
+		ModularTraits<Element>::reduce (t, t, F._modulus);
 	}
 
 	return res = t;
 }
 
+template <class Element>
 template <class Vector1, class Vector2>
-uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
+Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
+	(const Modular<Element> &F, ZpModule<Element> &M, Element &res, const Vector1 &x, const Vector2 &y,
+	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
-	lela_check (VectorUtils::hasDim<Modular<uint8> > (x, y.size ()));
+	lela_check (VectorUtils::hasDim<Modular<Element> > (x, y.size ()));
 
 	typename Vector1::const_iterator i = x.begin ();
 
-	uint64 t = 0;
+	typename ModularTraits<Element>::DoubleFatElement t = 0;
 
 	if (x.end () - i < (long) M.block_size) {
 		for (; i != x.end (); ++i)
-			t += (uint64) i->second * (uint64) y[i->first];
+			t += (typename ModularTraits<Element>::DoubleFatElement) i->second * (typename ModularTraits<Element>::DoubleFatElement) y[i->first];
 
-		return res = t % (uint64) F._modulus;
+		return res = t % (typename ModularTraits<Element>::DoubleFatElement) F._modulus;
 	} else {
 		// i still points to the beginning
 		typename Vector1::const_iterator iterend = i + (x.end () - i) % M.block_size;
 
 		for (; i != iterend; ++i)
-			t += (uint64) i->second * (uint64) y[i->first];
+			t += (typename ModularTraits<Element>::DoubleFatElement) i->second * (typename ModularTraits<Element>::DoubleFatElement) y[i->first];
 
-		t %= (uint64) F._modulus;
+		ModularTraits<Element>::reduce (t, F._modulus);
 
 		while (iterend != x.end ()) {
 			typename Vector1::const_iterator iter_i = iterend;
@@ -82,133 +91,38 @@ uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8
 			i += M.block_size;
 
 			for (; iter_i != iterend; ++iter_i)
-				t += (uint64) iter_i->second * (uint64) y[iter_i->first];
+				t += (typename ModularTraits<Element>::DoubleFatElement) iter_i->second * (typename ModularTraits<Element>::DoubleFatElement) y[iter_i->first];
 
-			t %= (uint64) F._modulus;
+			ModularTraits<Element>::reduce (t, F._modulus);
 		}
 
 		return res = t;
 	}
 }
 
+template <class Element>
 template <class Vector1, class Vector2>
-uint8 &_dot<Modular<uint8>, ZpModule<uint8>::Tag>::dot_impl (const Modular<uint8> &F, ZpModule<uint8> &M, uint8 &res, const Vector1 &x, const Vector2 &y,
-							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
+Element &_dot<Modular<Element>, typename ZpModule<Element>::Tag>::dot_impl
+	(const Modular<Element> &F, ZpModule<Element> &M, Element &res, const Vector1 &x, const Vector2 &y,
+	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	typename Vector1::const_iterator i = x.begin ();
 	typename Vector2::const_iterator j = y.begin ();
 
-	uint64 t = 0, count;
+	typename ModularTraits<Element>::DoubleFatElement t = 0;
+	size_t count;
 
 	while (i != x.end () && j != y.end ()) {
 		for (count = 0; count < M.block_size && i != x.end () && j != y.end (); ++i) {
 			while (j != y.end () && j->first < i->first) ++j;
 
 			if (j != y.end () && i->first == j->first) {
-				t += (uint64) i->second * (uint64) j->second;
+				t += (typename ModularTraits<Element>::DoubleFatElement) i->second * (typename ModularTraits<Element>::DoubleFatElement) j->second;
 				++count;
 			}
 		}
 
-		t %= (uint64) F._modulus;
-	}
-
-	return res = t;
-}
-
-template <class Vector1, class Vector2>
-uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
-{
-	lela_check (x.size () == y.size ());
-
-	typename Vector1::const_iterator i = x.begin ();
-	typename Vector2::const_iterator j = y.begin ();
-
-	typename Vector1::const_iterator iterend = x.begin () + x.size () % M.block_size;
-
-	uint64 t = 0;
-
-	for (; i != iterend; ++i, ++j)
-		t += (uint64) *i * (uint64) *j;
-
-	t %= (uint64) F._modulus;
-
-	for (; iterend != x.end (); j += M.block_size) {
-		typename Vector1::const_iterator iter_i = iterend;
-		typename Vector2::const_iterator iter_j;
-
-		iterend += M.block_size;
-
-		for (iter_j = j; iter_i != iterend; ++iter_i, ++iter_j)
-			t += (uint64) *iter_i * (uint64) *j;
-
-		t %= (uint64) F._modulus;
-	}
-
-	return res = t;
-}
-
-template <class Vector1, class Vector2>
-uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
-{
-	lela_check (VectorUtils::hasDim<Modular<uint16> > (x, y.size ()));
-
-	typename Vector1::const_iterator i = x.begin ();
-
-	uint64 t = 0;
-
-	if (x.end () - i < (long) M.block_size) {
-		for (; i != x.end (); ++i)
-			t += (uint64) i->second * (uint64) y[i->first];
-
-		return res = t % (uint64) F._modulus;
-	} else {
-		// i still points to the beginning
-		typename Vector1::const_iterator iterend = i + (x.end () - i) % M.block_size;
-
-		for (; i != iterend; ++i)
-			t += (uint64) i->second * (uint64) y[i->first];
-
-		t %= (uint64) F._modulus;
-
-		while (iterend != x.end ()) {
-			typename Vector1::const_iterator iter_i = iterend;
-
-			iterend += M.block_size;
-			i += M.block_size;
-
-			for (; iter_i != iterend; ++iter_i)
-				t += (uint64) iter_i->second * (uint64) y[iter_i->first];
-
-			t %= (uint64) F._modulus;
-		}
-
-		return res = t;
-	}
-}
-
-template <class Vector1, class Vector2>
-uint16 &_dot<Modular<uint16>, ZpModule<uint16>::Tag>::dot_impl (const Modular<uint16> &F, ZpModule<uint16> &M, uint16 &res, const Vector1 &x, const Vector2 &y,
-								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
-{
-	typename Vector1::const_iterator i = x.begin ();
-	typename Vector2::const_iterator j = y.begin ();
-
-	uint64 t = 0, count;
-
-	while (i != x.end () && j != y.end ()) {
-		for (count = 0; count < M.block_size && i != x.end () && j != y.end (); ++i) {
-			while (j != y.end () && j->first < i->first) ++j;
-
-			if (j != y.end () && i->first == j->first) {
-				t += (uint64) i->second * (uint64) j->second;
-				++count;
-			}
-		}
-
-		t %= (uint64) F._modulus;
+		ModularTraits<Element>::reduce (t, F._modulus);
 	}
 
 	return res = t;
@@ -284,138 +198,6 @@ uint32 &_dot<Modular<uint32>, ZpModule<uint32>::Tag>::dot_impl (const Modular<ui
 	}
 
 	return res = s % (uint64) F._modulus;
-}
-
-template <class Vector1, class Vector2>
-float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
-							     VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
-{
-	float s = 0.;
-	float t = 0.;
-
-	if (x.size () < M.block_size) {
-		for (size_t i = 0; i < x.size (); ++i)
-			s += x[i] * y[i];
-
-		s = fmod (s, F._modulus);
-	} else {
-		size_t i = 0;
-
-		for (; i < x.size () - M.block_size ;i = i + M.block_size) {
-			for (size_t j = i; j < i + M.block_size; ++j)
-				s += x[j] * y[j];
-
-			t += fmod (s, F._modulus);
-			s = 0.;
-		}
-
-		for (; i < x.size (); ++i)
-			t += x[i] * y[i];
-
-		t += fmod (s, F._modulus);
-		s = fmod (t, F._modulus);
-	}
-
-	return res = s;
-}
-
-template <class Vector1, class Vector2>
-float &_dot<Modular<float>, ZpModule<float>::Tag>::dot_impl (const Modular<float> &F, ZpModule<float> &M, float &res, const Vector1 &x, const Vector2 &y,
-							     VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
-{
-	float s = 0.;
-	float t = 0.;
-
-	if (x.size () < M.block_size) {
-		for (size_t i = 0; i < x.size (); ++i)
-			s += x[i].second * y[x[i].first];
-
-		s = fmod (s, F._modulus);
-	} else {
-		size_t i = 0;
-
-		for (; i < x.size() - M.block_size; i = i + M.block_size) {
-			for (size_t j = i; j < i + M.block_size; ++j)
-				s += x[j].second * y[x[j].first];
-
-			t += fmod (s, F._modulus);
-			s = 0.;
-		}
-		for (; i < x.size (); ++i)
-			s += x[i].second * y[x[i].first];
-
-		t += fmod (s, F._modulus);
-		s = fmod (t, F._modulus);
-	}
-
-	return res = s;
-}
-
-template <class Vector1, class Vector2>
-double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
-								VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
-{
-	double s = 0.;
-	double t = 0.;
-
-	if (x.size () < M.block_size) {
-		for (size_t i = 0; i < x.size(); ++i)
-			s += x[i] * y[i];
-
-		s = fmod (s, F._modulus);
-	} else {			
-		size_t i = 0;
-
-		for (; i < x.size () - M.block_size; i = i + M.block_size) {
-			for (size_t j = i; j < i + M.block_size; ++j)
-				s += x[j] * y[j];
-
-			t += fmod (s, F._modulus);
-			s = 0.;
-		}
-
-		for (; i < x.size (); ++i)
-			s += x[i] * y[i];
-
-		t += fmod (s, F._modulus);
-		s = fmod (t, F._modulus);
-	}
-
-	return res = s;
-}
-
-template <class Vector1, class Vector2>
-double &_dot<Modular<double>, ZpModule<double>::Tag>::dot_impl (const Modular<double> &F, ZpModule<double> &M, double &res, const Vector1 &x, const Vector2 &y,
-								VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
-{
-	double s = 0.;
-	double t = 0.;
-
-	if (x.size () < M.block_size) {
-		for (size_t i = 0; i < x.size (); ++i)
-			s += x[i].second * y[x[i].first];
-
-		s = fmod (s, F._modulus);
-	}
-	else {
-		size_t i = 0;
-
-		for (; i < x.size () - M.block_size; i = i + M.block_size) {
-			for (size_t j = i; j < i + M.block_size; ++j)
-				s += x[j].second * y[x[j].first];
-
-			t += fmod (s, F._modulus);
-			s = 0.;
-		}
-
-		for (; i < x.size (); ++i)
-			s += x[i].second * y[x[i].first];
-
-		t += fmod (s, F._modulus);
-		s = fmod (t, F._modulus);
-	}
-
-	return res = s;
 }
 
 } // namespace BLAS1

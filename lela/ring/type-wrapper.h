@@ -74,8 +74,9 @@ public:
 	template <class Iterator, class Accessor>
 	Element &init (Property<Iterator, Accessor> &x, int y) const 
 		{ return init (x.ref (), y); }
-   
-	Element &assign (Element &x, const Element &y) const
+
+	template <class T>
+	T &assign (T &x, const Element &y) const
 		{ return x = y; }
 
 	template <class Iterator, class Accessor>
@@ -138,9 +139,10 @@ public:
     
 	bool invin (Element &x) const
 		{ if (!isZero (x)) { x = Element (1) / x; return true; } else return false; }
-    
-	Element &axpyin (Element &y, const Element &a, const Element &x) const
-		{ return y += a * x; }
+
+	template <class T>
+	T &axpyin (T &y, const Element &a, const Element &x) const
+		{ return y += T (a) * T (x); }
 
 	std::ostream &write (std::ostream &os) const
 		{ return os << "type-wrapper-ring"; }

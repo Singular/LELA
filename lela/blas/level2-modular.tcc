@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include "lela/blas/level2-modular.h"
+#include "lela/ring/type-wrapper.h"
 
 namespace LELA
 {
@@ -20,172 +21,55 @@ namespace LELA
 namespace BLAS2
 {
 
+template <class Element>
 template <class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
-								      uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-								      VectorRepresentationTypes::Dense)
+Vector2 &_gemv<Modular<Element>, typename ZpModule<Element>::Tag>::gemv_impl
+	(const Modular<Element> &F, ZpModule<Element> &M,
+	 Element a, const Matrix &A, const Vector1 &x, Element b, Vector2 &y,
+	 MatrixIteratorTypes::Col,
+	 VectorRepresentationTypes::Dense,
+	 VectorRepresentationTypes::Generic)
 {
-	lela_check (VectorUtils::hasDim<Modular<uint8> > (x, A.coldim ()));
-	lela_check (VectorUtils::hasDim<Modular<uint8> > (y, A.rowdim ()));
+	lela_check (VectorUtils::hasDim<Modular<Element> > (x, A.coldim ()));
+	lela_check (VectorUtils::hasDim<Modular<Element> > (y, A.rowdim ()));
 
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j, j_end;
-	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<ModularTraits<uint8>::DoubleFatElement>::iterator l, l_end;
+	if (M.block_size == 1)
+		return _gemv<Modular<Element>, typename ZpModule<Element>::Tag::Parent> (F, M, a, A, x, b, y);
+
+	size_t block_size = (M.block_size == 0) ? x.size () : M.block_size;
+	size_t first_col = x.size () % block_size;
+
+	typename Vector1::const_iterator i;
+	typename Vector1::const_iterator block_1_end_x = x.begin () + first_col;
+	typename std::vector<typename ModularTraits<Element>::DoubleFatElement>::iterator l;
 
 	M._tmp.resize (y.size ());
-
 	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
 
-	l_end = M._tmp.begin () + y.size ();
+	TypeWrapperRing<Element> Rp;
 
-	do {
-		j = x.begin ();
-		j_end = j + std::min (x.size (), M.block_size);
+	Subvector<typename Vector1::const_iterator> x_sub_1 (x.begin (), block_1_end_x);
+	typename Matrix::ConstSubmatrixType A_sub_1 (A, 0, 0, A.rowdim (), first_col);
 
-		for (; j != j_end; ++j, ++i)
-			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
-				*l += *k * *j;
+	_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, a, A_sub_1, x_sub_1, Rp.one (), M._tmp);
 
-		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
+	for (l = M._tmp.begin (); l != M._tmp.end (); ++l)
+		ModularTraits<Element>::reduce (*l, *l, F._modulus);
 
-		for (l = M._tmp.begin (); l != l_end; ++l)
-			*l %= F._modulus;
+	for (i = block_1_end_x; i != x.end (); i += block_size, first_col += block_size) {
+		Subvector<typename Vector1::const_iterator> x_sub (i, i + block_size);
+		typename Matrix::ConstSubmatrixType A_sub (A, 0, first_col, A.rowdim (), block_size);
 
-	} while (j_end != x.end ());
+		_gemv<TypeWrapperRing<Element>, typename ZpModule<Element>::Tag::TWParent>::op (Rp, M, a, A_sub, x_sub, Rp.one (), M._tmp);
 
-	typename Vector2::iterator y_j;
+		for (l = M._tmp.begin (); l != M._tmp.end (); ++l)
+			ModularTraits<Element>::reduce (*l, *l, F._modulus);
+	}
 
-	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l)
-		*y_j = (a * *l + b * *y_j) % F._modulus;
+	typename Vector2::iterator j;
 
-	return y;
-}
-
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv<Modular<uint8>, ZpModule<uint8>::Tag>::gemv_col_dense (const Modular<uint8> &F, ZpModule<uint8> &M,
-								      uint8 a, const Matrix &A, const Vector1 &x, uint8 b, Vector2 &y,
-								      VectorRepresentationTypes::Sparse)
-{
-	lela_check (VectorUtils::hasDim<Modular<uint8> > (x, A.coldim ()));
-	lela_check (VectorUtils::hasDim<Modular<uint8> > (y, A.rowdim ()));
-
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j, j_end;
-	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<ModularTraits<uint8>::DoubleFatElement>::iterator l, l_end;
-
-	M._tmp.resize (y.size ());
-
-	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
-
-	l_end = M._tmp.begin () + y.size ();
-
-	do {
-		j = x.begin ();
-		j_end = j + std::min (x.size (), M.block_size);
-
-		for (; j != j_end; ++j, ++i)
-			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
-				M._tmp[k->first] += k->second * *j;
-
-		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
-
-		for (l =M._tmp.begin (); l != l_end; ++l)
-			*l %= F._modulus;
-
-	} while (j_end != x.end ());
-
-	typename Vector2::iterator y_j;
-
-	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l)
-		*y_j = (a * *l + b * *y_j) % F._modulus;
-
-	return y;
-}
-
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
-									uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-									VectorRepresentationTypes::Dense)
-{
-	lela_check (VectorUtils::hasDim<Modular<uint16> > (x, A.coldim ()));
-	lela_check (VectorUtils::hasDim<Modular<uint16> > (y, A.rowdim ()));
-
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j = x.begin (), j_end;
-	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<ModularTraits<uint16>::DoubleFatElement>::iterator l, l_end;
-
-	if (M._tmp.size () < y.size ())
-		M._tmp.resize (y.size ());
-
-	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
-
-	l_end = M._tmp.begin () + y.size ();
-
-	do {
-		j = x.begin ();
-		j_end = j + std::min (x.size (), M.block_size);
-
-		for (; j != j_end; ++j, ++i)
-			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
-				*l += *k * *j;
-
-		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
-
-		for (l = M._tmp.begin (); l != l_end; ++l)
-			*l %= F._modulus;
-
-	} while (j_end != x.end ());
-
-	typename Vector2::iterator y_j;
-
-	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l)
-		*y_j = (a * *l + b * *y_j) % F._modulus;
-
-	return y;
-}
-
-template <class Matrix, class Vector1, class Vector2>
-Vector2 &_gemv<Modular<uint16>, ZpModule<uint16>::Tag>::gemv_col_dense (const Modular<uint16> &F, ZpModule<uint16> &M,
-									uint16 a, const Matrix &A, const Vector1 &x, uint16 b, Vector2 &y,
-									VectorRepresentationTypes::Sparse)
-{
-	lela_check (VectorUtils::hasDim<Modular<uint16> > (x, A.coldim ()));
-	lela_check (VectorUtils::hasDim<Modular<uint16> > (y, A.rowdim ()));
-
-	typename Matrix::ConstColIterator i = A.colBegin ();
-	typename Vector2::const_iterator j, j_end;
-	typename Matrix::ConstColumn::const_iterator k;
-	std::vector<ModularTraits<uint16>::DoubleFatElement>::iterator l, l_end;
-
-	if (M._tmp.size () < y.size ())
-		M._tmp.resize (y.size ());
-
-	std::fill (M._tmp.begin (), M._tmp.begin () + y.size (), 0);
-
-	l_end = M._tmp.begin () + y.size ();
-
-	do {
-		j = x.begin ();
-		j_end = j + std::min (x.size (), M.block_size);
-
-		for (; j != j_end; ++j, ++i)
-			for (k = i->begin (), l = M._tmp.begin (); k != i->end (); ++k, ++l)
-				M._tmp[k->first] += k->second * *j;
-
-		j_end += std::min (x.size () - (j_end - x.begin ()), M.block_size);
-
-		for (l =M._tmp.begin (); l != l_end; ++l)
-			*l %= F._modulus;
-
-	} while (j_end != x.end ());
-
-	typename Vector2::iterator y_j;
-
-	for (y_j = y.begin (), l = M._tmp.begin (); y_j != y.end (); ++y_j, ++l)
-		*y_j = (a * *l + b * *y_j) % F._modulus;
+	for (j = y.begin (), l = M._tmp.begin (); j != y.end (); ++j, ++l)
+		ModularTraits<Element>::reduce (*j, a * *l + b * *j, F._modulus);
 
 	return y;
 }

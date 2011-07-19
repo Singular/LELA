@@ -163,13 +163,13 @@ int main (int argc, char **argv)
 		{ 'm', "-m M", "Set row-dimension of matrix A to M.", TYPE_INT, &m },
 		{ 'k', "-k K", "Set column-dimension of matrix A to K.", TYPE_INT, &k },
 		{ 'n', "-n N", "Set column-dimension of matrix B to N.", TYPE_INT, &n },
-		{ 'q', "-q Q", "Operate over the ring ZZ/Q [1] for uint32 modulus.", TYPE_INTEGER, &q },
+		{ 'q', "-q Q", "Operate over the ring ZZ/Q [1] for float modulus.", TYPE_INTEGER, &q },
 		{ '\0' }
 	};
 
 	parseArguments (argc, argv, args);
 
-	Modular<uint32> GFq (q);
+	Modular<float> GFq (q);
 	GF2 gf2;
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, false, false, false);
@@ -182,13 +182,13 @@ int main (int argc, char **argv)
 	std::ostringstream str;
 	str << "Running tests over GF(" << q << ")" << std::ends;
 
-	Context<Modular<uint32> > ctx_GFq (GFq);
+	Context<Modular<float> > ctx_GFq (GFq);
 
-	RandomDenseStream<Modular<uint32>, DenseMatrix<uint32>::Row> stream_A_gfq (GFq, k, m);
-	RandomDenseStream<Modular<uint32>, DenseMatrix<uint32>::Row> stream_B_gfq (GFq, n, k);
-	RandomDenseStream<Modular<uint32>, DenseMatrix<uint32>::Row> stream_C_gfq (GFq, n, m);
+	RandomDenseStream<Modular<float>, DenseMatrix<float>::Row> stream_A_gfq (GFq, k, m);
+	RandomDenseStream<Modular<float>, DenseMatrix<float>::Row> stream_B_gfq (GFq, n, k);
+	RandomDenseStream<Modular<float>, DenseMatrix<float>::Row> stream_C_gfq (GFq, n, m);
 
-	DenseMatrix<uint32> A_gfq (stream_A_gfq), B_gfq (stream_B_gfq), C_gfq (stream_C_gfq);
+	DenseMatrix<float> A_gfq (stream_A_gfq), B_gfq (stream_B_gfq), C_gfq (stream_C_gfq);
 
 	commentator.start (str.str ().c_str (), "Strassen-Winograd");
 

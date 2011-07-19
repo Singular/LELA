@@ -231,6 +231,7 @@ template <class Element, class Vector>
 struct ElementVectorTraits
 {
 	typedef typename DefaultVectorTraits<Vector>::RepresentationType RepresentationType;
+	typedef typename DefaultVectorTraits<Vector>::StorageType StorageType;
 	typedef typename DefaultVectorTraits<Vector>::ContainerType ContainerType;
 	typedef typename DefaultVectorTraits<Vector>::SubvectorType SubvectorType;
 	typedef typename DefaultVectorTraits<Vector>::ConstSubvectorType ConstSubvectorType;
@@ -245,6 +246,7 @@ template <class Ring, class Vector>
 struct VectorTraits
 {
 	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::RepresentationType RepresentationType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::StorageType StorageType;
 	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ContainerType ContainerType;
 	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::SubvectorType SubvectorType;
 	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ConstSubvectorType ConstSubvectorType;
@@ -258,6 +260,7 @@ template <class Vector>
 struct ElementVectorTraits<bool, Vector>
 {
 	typedef typename GF2VectorTraits<Vector>::RepresentationType RepresentationType;
+	typedef typename GF2VectorTraits<Vector>::StorageType StorageType;
 	typedef typename GF2VectorTraits<Vector>::ContainerType ContainerType;
 	typedef typename GF2VectorTraits<Vector>::SubvectorType SubvectorType;
 	typedef typename GF2VectorTraits<Vector>::ConstSubvectorType ConstSubvectorType;

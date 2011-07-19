@@ -21,9 +21,9 @@ namespace BLAS1
 {
 
 template <class Ring>
-template <class Modules, class Vector1, class Vector2>
-typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
-	(const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
+template <class Modules, class T, class Vector1, class Vector2>
+T &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
+	(const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y,
 	 VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
 {
 	lela_check (x.size () == y.size ());
@@ -40,9 +40,9 @@ typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 }
 
 template <class Ring>
-template <class Modules, class Vector1, class Vector2>
-typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
-	(const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
+template <class Modules, class T, class Vector1, class Vector2>
+T &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
+	(const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y,
 	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
 {
 	lela_check (VectorUtils::hasDim<Ring> (x, y.size ()));
@@ -58,9 +58,9 @@ typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 }
 
 template <class Ring>
-template <class Modules, class Vector1, class Vector2>
-typename Ring::Element &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
-	(const Ring &F, Modules &M, typename Ring::Element &res, const Vector1 &x, const Vector2 &y,
+template <class Modules, class T, class Vector1, class Vector2>
+T &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
+	(const Ring &F, Modules &M, T &res, const Vector1 &x, const Vector2 &y,
 	 VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
 	typename Vector1::const_iterator i = x.begin ();

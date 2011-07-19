@@ -25,8 +25,10 @@ BASIC_HDRS =			\
 	level3-m4ri.tcc		\
 	level1-modular.h	\
 	level2-modular.h	\
+	level3-modular.h	\
 	level1-modular.tcc	\
 	level2-modular.tcc	\
+	level3-modular.tcc	\
 	level1-cblas.h		\
 	level2-cblas.h		\
 	level3-cblas.h		\
