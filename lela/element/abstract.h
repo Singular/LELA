@@ -25,9 +25,8 @@ namespace LELA
  *
  * This class contains two public members: ref, which is a pointer to
  * arbitrary data and ring, which is a pointer to the element's ring
- * from which refElement and unrefElement are invoked. An
- * implementation of RingInterface can set ref to point to
- * element-data.
+ * from which ref and unref are invoked. An implementation of
+ * RingInterface can set ref to point to element-data.
  *
  * A ring-implementation which uses this class must set the pointer
  * dispose whenever the element is initialised.
@@ -46,15 +45,15 @@ public:
 
 	AbstractElement (const AbstractElement &e)
 		: ring (e.ring), ref (e.ref)
-		{ if (ring != NULL) ring->refElement (*this); }
+		{ if (ring != NULL) ring->ref (*this); }
 
-	~AbstractElement () { if (ring != NULL) ring->unrefElement (*this); }
+	~AbstractElement () { if (ring != NULL) ring->unref (*this); }
 
 	AbstractElement &operator = (const AbstractElement &e)
 	{
 		ring = e.ring;
 		ref = e.ref;
-		if (ring != NULL) ring->refElement (*this);
+		if (ring != NULL) ring->ref (*this);
 	}
 };
 

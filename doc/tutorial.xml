@@ -1888,11 +1888,11 @@ public:
 
       <para>
 	The class <type>RingInterface</type> implements the virtual
-	methods <function>refElement</function>
-	and <function>unrefElement</function>, which are called in the
+	methods <function>ref</function> and
+	<function>unref</function>, which are called in the
 	copy-constructor and assignment-operator and in the destructor
-	of <type>ElementAbstract</type>, respectively
-	(provided <varname>ring</varname> is properly initialised).
+	of <type>ElementAbstract</type>, respectively (provided
+	<varname>ring</varname> is properly initialised).
       </para>
 
       <para>
@@ -1906,10 +1906,10 @@ class MyRing
 public:
 	typedef AbstractElement Element;
 
-	void refElement (Element &amp;x)
+	void ref (Element &amp;x)
 		{ if (x.ref != NULL) ++static_cast&lt;MyElement *&gt; (x.ref).refcount; }
 
-	void unrefElement (Element &amp;x)
+	void unref (Element &amp;x)
 	{
 		if (x.ref != NULL) {
 			--static_cast&lt;MyElement *&gt; (x.ref).refcount;
@@ -1921,7 +1921,7 @@ public:
 	Element &amp;add (Element &amp;a, const Element &amp;b, const Element &amp;c)
 	{
 		a.ring = this;
-		unrefElement (a);
+		unref (a);
 		static_cast&lt;MyElement *&gt; (a.ref) = new MyElement;  // Assume MyElement::refcount initialised to 1
 		*static_cast&lt;MyElement *&gt; (a.ref) = *static_cast&lt;MyElement *&gt; (b) + *static_cast&lt;MyElement *&gt; (c);
 		return a;

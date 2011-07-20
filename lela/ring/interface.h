@@ -412,8 +412,8 @@ public:
 	 */
 	//@{
 
-	virtual void refElement (Element &x) const {}
-	virtual void unrefElement (Element &x) const {}
+	virtual void ref (Element &x) const {}
+	virtual void unref (Element &x) const {}
 	
 	//@}
 }; // class RingInterface
