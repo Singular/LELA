@@ -25,7 +25,7 @@
 #include "lela/ring/modular.h"
 #include "lela/blas/context.h"
 
-#include "test-generic-for-quad.h"
+#include "test-ring.h"
 #include "test-blas-level1.h"
 
 using namespace LELA;
@@ -66,16 +66,8 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
 	commentator.start ("Testing GF2", "main", 10);
-	
-	if (!testFieldNegation         (F, "GF2", iterations))      pass = false; commentator.progress ();
-	if (!testFieldInversion        (F, "GF2", iterations))      pass = false; commentator.progress ();
-	if (!testFieldAxioms           (F, "GF2", iterations))      pass = false; commentator.progress ();
-	if (!testFieldAssociativity    (F, "GF2", iterations))      pass = false; commentator.progress ();
-	if (!testFieldCharacteristic   (F, "GF2", iterations))      pass = false; commentator.progress ();
-	if (!testGeometricSummation    (F, "GF2", iterations, 100)) pass = false; commentator.progress ();
-	if (!testFreshmansDream        (F, "GF2", iterations))      pass = false; commentator.progress ();
-	if (!testArithmeticConsistency (F, "GF2", iterations))      pass = false; commentator.progress ();
-	if (!testAxpyConsistency       (F, "GF2", iterations))      pass = false; commentator.progress ();
+
+	pass = runBasicRingTests (F, "GF(2)", iterations);
 
 	commentator.stop (MSG_STATUS (pass), (const char *) 0, "main");
 

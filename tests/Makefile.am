@@ -154,7 +154,6 @@ benchmark_matrix_domain_CXXFLAGS = ${BENCHMARK_CXXFLAGS}
 noinst_HEADERS =	\
 	test-common.h	\
 	test-ring.h	\
-	test-generic-for-quad.h	\
 	test-vector.h	\
 	test-matrix.h	\
 	test-blas-level1.h	\
