@@ -20,10 +20,11 @@ LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/lela/
 # will be ignored by "make check" and can be temporary storage for problematic tests.
 BASIC_TESTS =  \
         test-commentator        \
+        test-integers		\
+        test-rationals		\
         test-modular            \
         test-modular-double     \
         test-gf2                \
-        test-rationals       \
         test-type-wrapper-ring	\
         test-randiter-nonzero   \
 	test-vector		\
@@ -63,6 +64,10 @@ test_modular_SOURCES =                        \
 
 test_gf2_SOURCES =                        \
         test-gf2.C                        \
+        test-common.C
+
+test_integers_SOURCES =               \
+        test-integers.C               \
         test-common.C
 
 test_rationals_SOURCES =               \

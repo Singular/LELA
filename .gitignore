@@ -49,6 +49,7 @@ tests/test-ffpack
 tests/test-frobenius
 tests/test-getentry
 tests/test-gf2
+tests/test-integers
 tests/test-rationals
 tests/test-hilbert
 tests/test-hom

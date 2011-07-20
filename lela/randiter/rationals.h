@@ -60,21 +60,19 @@ class RationalRandIter : public RandIterInterface<RationalElement>
 		unsigned int s;
 		int value = 0;
 
-		RationalElement &a_elt = static_cast<RationalElement &> (a);
-
 		if (_size == 0) {
 			s = _seed.get_ui ();
 
 			value = rand_r (&s);
 
-			mpz_set_si (mpq_numref (a_elt.rep), value);
+			mpz_set_si (mpq_numref (a.rep), value);
 
 			do {
 				value = rand_r (&s);
 			} while (value == 0);
 
 			const_cast<integer&>(_seed) = s;
-			mpz_set_si (mpq_denref (a_elt.rep), value);
+			mpz_set_si (mpq_denref (a.rep), value);
 		}
 		else {
 			unsigned int s;
@@ -93,11 +91,11 @@ class RationalRandIter : public RandIterInterface<RationalElement>
 
 			const_cast<integer&>(_seed) = s;
 
-			mpz_set_si (mpq_numref (a_elt.rep), num);
-			mpz_set_si (mpq_denref (a_elt.rep), den);
+			mpz_set_si (mpq_numref (a.rep), num);
+			mpz_set_si (mpq_denref (a.rep), den);
 		}
 
-		mpq_canonicalize (a_elt.rep);
+		mpq_canonicalize (a.rep);
 
 		return a;
 	}

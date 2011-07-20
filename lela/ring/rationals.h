@@ -28,12 +28,7 @@ namespace LELA
 // Forward declarations
 class RationalRandIter;
 
-/**
- * \brief Field of rational numbers using GMP
- \ingroup ring
- *
- * This is a wrapper for the GMP rational number facility, built to the
- * interface of the ring archetype. 
+/** Field of rational numbers
  */
 
 class Rationals : public RingInterface<RationalElement>
@@ -199,10 +194,7 @@ class Rationals : public RingInterface<RationalElement>
 	}
     
 	std::ostream &write (std::ostream &os) const 
-	{ 
-		os << "QQ"; 
-		return os;
-	}
+		{ return os << "QQ"; }
     
 	std::istream &read (std::istream &is) { return is; }
 

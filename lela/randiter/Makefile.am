@@ -8,6 +8,7 @@ AM_CXXFLAGS = -O2 -Wall -DDISABLE_COMMENTATOR $(GMP_CFLAGS) $(ATLAS_CFLAGS)
 
 BASIC_HDRS =				\
 	interface.h			\
+	integers.h			\
 	rationals.h			\
 	modular.h			\
 	type-wrapper.h			\
