@@ -101,15 +101,71 @@
       </para>
 
       <itemizedlist>
+	<listitem><type>Integers</type>, for integers (actually a
+	wrapper for GMP)</listitem>
+	<listitem><type>Rationals</type>, for rational numbers (also a
+	wrapper for GMP)</listitem>
 	<listitem><type>Modular</type>, for integers modulo n,</listitem>
-	<listitem><type>Rationals</type>, for rational numbers
-	(actually a wrapper for GMP)</listitem>
 	<listitem><type>GF2</type> (for fast computations over GF(2)),
 	and</listitem>
 	<listitem><type>TypeWrapperRing</type> (a wrapper around any
 	type which implements the basic arithmetic-operations +, -, *,
 	/, and %)</listitem>
       </itemizedlist>
+
+      <section xml:id="integers">
+	<title><type>Integers</type></title>
+
+	<para>
+	  To work with integers (of arbitrary precision), use the following:
+	</para>
+
+	<programlisting>
+#include &lt;lela/ring/integers.h&gt;
+
+using namespace LELA;
+
+int main ()
+{
+	Integers Z;
+	...
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  The element-type of <type>Integers</type> is called
+	  <type>integer</type>. It is defined in
+	  <filename>lela/integer.h</filename>.
+	</para>
+      </section>
+
+      <section xml:id="rationals">
+	<title><type>Rationals</type></title>
+
+	<para>
+	  To work with rational numbers, use the following:
+	</para>
+
+	<programlisting>
+#include &lt;lela/ring/rationals.h&gt;
+
+using namespace LELA;
+
+int main ()
+{
+	Rationals F;
+	...
+	return 0;
+}
+	</programlisting>
+
+	<para>
+	  The element-type of <type>Rationals</type> is
+	  called <type>RationalElement</type>. It is defined
+	  in <filename>lela/element/rational.h</filename>.
+	</para>
+      </section>
 
       <section xml:id="modularring">
 	<title><type>Modular</type></title>
@@ -223,33 +279,6 @@ int main ()
 	  double) are in <filename>lela/integer.h</filename>. The
 	  header-file <filename>lela/ring/modular.h</filename>
 	  declares the class <type>Modular</type>.
-	</para>
-      </section>
-
-      <section xml:id="rationals">
-	<title><type>Rationals</type></title>
-
-	<para>
-	  To work with rational numbers, use the following:
-	</para>
-
-	<programlisting>
-#include &lt;lela/ring/rationals.h&gt;
-
-using namespace LELA;
-
-int main ()
-{
-	Rationals F;
-	...
-	return 0;
-}
-	</programlisting>
-
-	<para>
-	  The element-type of <type>Rationals</type> is
-	  called <type>RationalElement</type>. It is defined
-	  in <filename>lela/element/rational.h</filename>.
 	</para>
       </section>
 
