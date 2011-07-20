@@ -25,7 +25,7 @@ namespace BLAS3
 {
 
 template <>
-class _gemm<Modular<float>, typename ZpModule<float>::Tag>
+class _gemm<Modular<float>, ZpModule<float>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Modular<float> &F, Modules &M, float a, const Matrix1 &A, const Matrix2 &B, float b, Matrix3 &C,
@@ -46,7 +46,7 @@ public:
 };
 
 template <>
-class _gemm<Modular<double>, typename ZpModule<double>::Tag>
+class _gemm<Modular<double>, ZpModule<double>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2, class Matrix3>
 	static Matrix3 &gemm_impl (const Modular<double> &F, Modules &M, double a, const Matrix1 &A, const Matrix2 &B, double b, Matrix3 &C,

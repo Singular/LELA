@@ -494,8 +494,8 @@ struct ZpModule<integer> : public GenericModule<Modular<integer> >
 {
 	struct Tag
 	{
-		typedef typename GenericModule<Modular<integer> >::Tag Parent;
-		typedef typename AllModules<TypeWrapperRing<integer> >::Tag TWParent;
+		typedef GenericModule<Modular<integer> >::Tag Parent;
+		typedef AllModules<TypeWrapperRing<integer> >::Tag TWParent;
 	};
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
@@ -538,8 +538,8 @@ struct ZpModule<float> : public GenericModule<float>
 {
 	struct Tag
 	{
-		typedef typename GenericModule<Modular<float> >::Tag Parent;
-		typedef typename AllModules<TypeWrapperRing<float> >::Tag TWParent;
+		typedef GenericModule<Modular<float> >::Tag Parent;
+		typedef AllModules<TypeWrapperRing<float> >::Tag TWParent;
 	};
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited
@@ -560,8 +560,8 @@ struct ZpModule<double> : public GenericModule<double>
 {
 	struct Tag
 	{
-		typedef typename GenericModule<Modular<double> >::Tag Parent;
-		typedef typename AllModules<TypeWrapperRing<double> >::Tag TWParent;
+		typedef GenericModule<Modular<double> >::Tag Parent;
+		typedef AllModules<TypeWrapperRing<double> >::Tag TWParent;
 	};
 
 	/// Number of times a product of two elements can be added before it is necessary to reduce by the modulus; 0 for unlimited

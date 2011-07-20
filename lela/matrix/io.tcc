@@ -32,9 +32,6 @@ std::istream &MatrixReader<Ring>::read (std::istream &is, Matrix &A, FileFormatT
 	if (format == FORMAT_DETECT)
 		format = detectFormat (is);
 
-	Context<Ring> ctx (_F);
-	BLAS3::scal (ctx, _F.zero (), A);
-
 	switch (format) {
 	case FORMAT_UNKNOWN:
 		throw UnrecognisedFormat ();
@@ -181,6 +178,9 @@ std::istream &MatrixReader<Ring>::readTurner (std::istream &is, Matrix &A) const
 {
 	size_t i, j;
 
+	Context<Ring> ctx (_F);
+	BLAS3::scal (ctx, _F.zero (), A);
+
 	typename Ring::Element x;
 
 	char buf[BUF_SIZE];
@@ -220,6 +220,9 @@ std::istream &MatrixReader<Ring>::readDumas (std::istream &is, Matrix &A) const
 		throw InvalidMatrixInput ();
 
 	A.resize (m, n);
+
+	Context<Ring> ctx (_F);
+	BLAS3::scal (ctx, _F.zero (), A);
 
 	typename Ring::Element x;
 
@@ -265,6 +268,9 @@ std::istream &MatrixReader<Ring>::readMatlab (std::istream &is, Matrix &A) const
 	size_t i = 0, j = 0;
 	char c;
 	typename Ring::Element a_ij;
+
+	Context<Ring> ctx (_F);
+	BLAS3::scal (ctx, _F.zero (), A);
 
 	do
 		is >> c;
@@ -323,6 +329,9 @@ std::istream &MatrixReader<Ring>::readPretty (std::istream &is, Matrix &A) const
 	char c;
 
 	i = 0;
+
+	Context<Ring> ctx (_F);
+	BLAS3::scal (ctx, _F.zero (), A);
 
 	while (!is.eof ()) {
 		while (isspace (is.peek ()))
