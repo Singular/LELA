@@ -62,6 +62,9 @@ class SparseSubvector
 template <class Iterator>
 struct SparseSubvectorReferencePT
 {
+	typedef typename ShiftedPropertyFirstEntry<Iterator>::value_type first_type;
+	typedef typename Property<Iterator, SecondEntryAccessor<Iterator> >::value_type second_type;
+
 	// This is idiotic: we must maintain two copies of the same
 	// iterator -- one for each property. Ordinarily we would use
 	// a union to avoid this, but this is impossible in C++

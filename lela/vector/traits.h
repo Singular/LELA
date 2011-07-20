@@ -481,6 +481,18 @@ public:
 		inline bool operator () (const PairType &i, uint64 j) const
 			{ return i.first < j; }
 
+		template<typename T1, typename T2>
+		inline bool operator () (const std::pair<T1, T2> &i, uint16 j) const
+			{ return i.first < j; }
+
+		template<typename T1, typename T2>
+		inline bool operator () (const std::pair<T1, T2> &i, uint32 j) const
+			{ return i.first < j; }
+
+		template<typename T1, typename T2>
+		inline bool operator () (const std::pair<T1, T2> &i, uint64 j) const
+			{ return i.first < j; }
+
 		template<typename PairType>
 		inline bool operator () (size_t i, const PairType &j) const
 			{ return i < j.first; }
@@ -491,6 +503,10 @@ public:
 
 		template<typename T1, typename T2, typename PairType>
 		inline bool operator () (const std::pair<T1, T2> &i, const PairType &j) const
+			{ return i.first < j.first; }
+
+		template<typename T1, typename T2>
+		inline bool operator () (const std::pair<T1, T2> &i, const std::pair<T1, T2> &j) const
 			{ return i.first < j.first; }
 
 		template<typename PairType>
@@ -585,6 +601,32 @@ struct DefaultVectorTraits< const std::vector<Element> >
 	typedef Subvector<typename std::vector<Element>::const_iterator, typename std::vector<Element>::const_iterator> ConstSubvectorType;
 	typedef Subvector<typename std::vector<Element>::iterator, typename std::vector<Element>::const_iterator> AlignedSubvectorType;
 	typedef Subvector<typename std::vector<Element>::const_iterator, typename std::vector<Element>::const_iterator> ConstAlignedSubvectorType;
+	static const int align = 1;
+};
+
+template <class index_type, class Element>
+struct DefaultVectorTraits< std::vector<std::pair<index_type, Element> > >
+{ 
+	typedef VectorRepresentationTypes::Sparse RepresentationType;
+	typedef VectorStorageTypes::Real StorageType;
+	typedef std::vector<std::pair<index_type, Element> > ContainerType;
+	typedef SparseSubvector<ContainerType, VectorRepresentationTypes::Sparse> SubvectorType;
+	typedef SparseSubvector<const ContainerType, VectorRepresentationTypes::Sparse> ConstSubvectorType;
+	typedef SparseSubvector<ContainerType, VectorRepresentationTypes::Sparse> AlignedSubvectorType;
+	typedef SparseSubvector<const ContainerType, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
+	static const int align = 1;
+};
+
+template <class index_type, class Element>
+struct DefaultVectorTraits< const std::vector<std::pair<index_type, Element> > >
+{ 
+	typedef VectorRepresentationTypes::Sparse RepresentationType;
+	typedef VectorStorageTypes::Real StorageType;
+	typedef std::vector<std::pair<index_type, Element> > ContainerType;
+	typedef SparseSubvector<const ContainerType, VectorRepresentationTypes::Sparse> SubvectorType;
+	typedef SparseSubvector<const ContainerType, VectorRepresentationTypes::Sparse> ConstSubvectorType;
+	typedef SparseSubvector<const ContainerType, VectorRepresentationTypes::Sparse> AlignedSubvectorType;
+	typedef SparseSubvector<const ContainerType, VectorRepresentationTypes::Sparse> ConstAlignedSubvectorType;
 	static const int align = 1;
 };
 
