@@ -32,6 +32,8 @@ class TransposeSubmatrix;
 template <class ST> struct TransposeStorageType { typedef ST StorageType; };
 template <> struct TransposeStorageType<MatrixStorageTypes::Dense> { typedef MatrixStorageTypes::DenseTranspose StorageType; };
 template <> struct TransposeStorageType<MatrixStorageTypes::DenseTranspose> { typedef MatrixStorageTypes::Generic StorageType; };
+template <> struct TransposeStorageType<MatrixStorageTypes::M4RI> { typedef MatrixStorageTypes::M4RITranspose StorageType; };
+template <> struct TransposeStorageType<MatrixStorageTypes::M4RITranspose> { typedef MatrixStorageTypes::Generic StorageType; };
 
 /** Matrix transpose
  * 

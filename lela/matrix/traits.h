@@ -44,6 +44,9 @@ namespace MatrixIteratorTypes
  *
  * M4RI means that the matrix is a wrapper for a matrix in
  * libm4ri. This is only meaningful if libm4ri is enabled.
+ *
+ * M4RITranspose refers to the transpose of a M4RI-matrix. This is
+ * only meaningful if libm4ri is enabled.
  */
 namespace MatrixStorageTypes
 {
@@ -52,6 +55,7 @@ namespace MatrixStorageTypes
 	struct Dense : public Generic {};
 	struct DenseTranspose : public Generic {};
 	struct M4RI : public Generic {};
+	struct M4RITranspose : public Generic {};
 }
 
 } // namespace LELA

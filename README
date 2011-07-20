@@ -18,3 +18,39 @@ An introductory tutorial on the use of LELA may be found in the file
 doc/tutorial.html
 
 LELA was originally derived from LinBox (see http://www.linalg.org/).
+
+Some key differences between LELA and LinBox are the following:
+
+ - LELA does not have any built-in facilities for black-box linear
+   algebra.
+
+ - LELA uses a completely new system for vector- and
+   matrix-arithmetic. There is a single BLAS-like interface which
+   handles all cases and the underlying mechanism is designed to be
+   versatile and extensible. LinBox in contrast has two separate
+   interfaces (MatrixDomain and VectorDomain vs. fflas) for matrix-
+   and vector-arithmetic, each one with its own advantages and
+   limitations.
+
+ - LELA currently does not implement many of the high-level algorithms
+   which are present in LinBox, particularly for calculations over the
+   integers.
+
+ - LELA has far fewer vector-representation-types over general rings
+   than LinBox: only one for sparse vectors vs. three.
+
+ - LELA has far better support for GF2 than LinBox, including fast
+   word-based operations, a wrapper for M4RI, and a new "hybrid"
+   vector-representation-type which is well suited to elimination
+   problems with sparse matrices over GF(2).
+
+ - LELA defines an interface for rings while LinBox defines an
+   interface for fields. LELA-rings do not assume that all non-zero
+   entries are invertible or that all nonzero elements divide all
+   others. Instead the ring-interface reports whether inversion
+   respectively division was successful.
+
+ - LELA is licensed under the GNU General Public License (GPL), while
+   LinBox is licensed under the GNU Lesser General Public License
+   (LGPL). This means that it is in general forbidden to use LELA in
+   software with a license which is incompatible with the GPL.
