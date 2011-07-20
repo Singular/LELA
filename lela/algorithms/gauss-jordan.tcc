@@ -52,7 +52,7 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 
 		r = 0;
 		h = A.rowdim () - k;
-		ctx.F.assign (d, d_0);
+		ctx.F.copy (d, d_0);
 	}
 	else if (A.coldim () <= _cutoff) {
 		// DEBUG
@@ -214,7 +214,7 @@ void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
 
 		r = 0;
 		h = A.rowdim ();
-		ctx.F.assign (d, d_0);
+		ctx.F.copy (d, d_0);
 	}
 	else if (A.coldim () <= _cutoff) {
 		// DEBUG

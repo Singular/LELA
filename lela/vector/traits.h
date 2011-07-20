@@ -333,11 +333,11 @@ class VectorUtils
 
 	template <class Ring, class Vector>
 	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Dense)
-		{ R.assign (v[i], a); }
+		{ R.copy (v[i], a); }
 
 	template <class Ring, class Vector>
 	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Sparse)
-		{ v.push_back (typename Vector::value_type (i, typename Ring::Element ())); R.assign (v.back ().second, a); }
+		{ v.push_back (typename Vector::value_type (i, typename Ring::Element ())); R.copy (v.back ().second, a); }
 
 	template <class Ring, class Vector>
 	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Dense01)

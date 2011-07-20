@@ -93,7 +93,7 @@ class Rationals : public RingInterface<RationalElement>
 		return x;
 	}
     
-	Element &assign (Element &x, const Element &y) const
+	Element &copy (Element &x, const Element &y) const
 	{
 		mpq_set (x.rep, y.rep);
 		return x;

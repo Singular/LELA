@@ -346,12 +346,12 @@ public:
 		return x = (Element) (z+.5);
 	}
 
-	Element &assign (Element &x, Element y) const
+	Element &copy (Element &x, Element y) const
 		{ return x = y; }
 
 	template <class Iterator, class Accessor>
-	Element &assign (Property<Iterator, Accessor> x, Element y) const
-		{ return assign (x.ref (), y); }
+	Element &copy (Property<Iterator, Accessor> x, Element y) const
+		{ return copy (x.ref (), y); }
 
 	integer &cardinality (integer &c) const { return c = _modulus; }
 	integer &characteristic (integer &c) const { return c = _modulus; }

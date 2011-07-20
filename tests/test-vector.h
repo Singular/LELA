@@ -271,11 +271,11 @@ void buildSparseVector (const Ring &R, Vector &v, size_t &front_idx, typename Ri
 
 		if (!R.isZero (e)) {
 			v.push_back (typename Vector::value_type (curr_idx, typename Ring::Element ()));
-			R.assign (v.back ().second, e);
+			R.copy (v.back ().second, e);
 
 			if (front_idx == 0xffffffff) {
 				front_idx = curr_idx;
-				R.assign (f, e);
+				R.copy (f, e);
 			}
 
 			back_idx = curr_idx;
@@ -527,7 +527,7 @@ bool testVectorSpec (const Ring &R, LELA::VectorRepresentationTypes::Sparse)
 
 		if (!R.isZero (a)) {
 			v2.push_back (typename Vector::value_type (curr_idx, typename Ring::Element ()));
-			R.assign (v2.back ().second, a);
+			R.copy (v2.back ().second, a);
 			++exp_size;
 		}
 	}

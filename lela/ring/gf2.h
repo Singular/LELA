@@ -85,13 +85,13 @@ class GF2
 	integer &convert (integer &x, Element y) const { return x = y; }
          std::_Bit_reference convert (std::_Bit_reference x, Element y) const { return x = y; }
 
-	Element &assign (Element &x, Element y) const { return x = y; }
+	Element &copy (Element &x, Element y) const { return x = y; }
 
 	template <class Iterator, class Endianness>
-        BitVectorReference<Iterator, Endianness> assign (BitVectorReference<Iterator, Endianness> x, Element y) const
+        BitVectorReference<Iterator, Endianness> copy (BitVectorReference<Iterator, Endianness> x, Element y) const
 		{ return x = y; }
 
-        std::_Bit_reference assign (std::_Bit_reference x, Element y) const
+        std::_Bit_reference copy (std::_Bit_reference x, Element y) const
 		{ return x = y; }
     
 	integer &cardinality (integer &c) const { return c = 2; }

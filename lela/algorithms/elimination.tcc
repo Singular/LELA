@@ -197,8 +197,8 @@ void Elimination<Ring, Modules>::RowEchelonForm (Matrix1       &A,
 	int k = start_row;
 	Element a, x, xinv, negxinv, negaxinv;
 
-	ctx.F.assign (a, ctx.F.zero ());
-	ctx.F.assign (x, ctx.F.zero ());
+	ctx.F.copy (a, ctx.F.zero ());
+	ctx.F.copy (x, ctx.F.zero ());
 
 	typename Matrix2::RowIterator i_L, j_L;
 
@@ -322,7 +322,7 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, b
 	typename Ring::Element a, x, negainv, negxainv;
 
 	// Make the compiler happy
-	ctx.F.assign (a, ctx.F.zero ());
+	ctx.F.copy (a, ctx.F.zero ());
 
 	i_A = A.rowBegin () + current_row;
 

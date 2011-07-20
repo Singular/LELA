@@ -44,7 +44,7 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::De
 		if (val < _p)
 			_r.random (*i);
 		else
-			_F.assign (*i, _F.zero ());
+			_F.copy (*i, _F.zero ());
 	}
 
 	return v;
@@ -162,7 +162,7 @@ template <class Ring, class Vector>
 Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense>::get (Vector &v) 
 {
 	BLAS1::scal (_ctx, _ctx.F.zero (), v);
-	_ctx.F.assign (v[_j++], _ctx.F.one ());
+	_ctx.F.copy (v[_j++], _ctx.F.one ());
 
 	return v;
 }
@@ -174,7 +174,7 @@ Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse>::ge
 
 	if (_j < _n) {
 		v.push_back (typename Vector::value_type (_j++, typename Ring::Element ()));
-		_F.assign (v.back ().second, _F.one ());
+		_F.copy (v.back ().second, _F.one ());
 	}
 
 	return v;

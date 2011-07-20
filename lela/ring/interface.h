@@ -70,7 +70,7 @@ public:
 	Element &init (Property<Iterator, Accessor> x, const integer &n = 0) const
 		{ return init (x.ref (), n); }
   
-	/** \brief  Assignment of one ring element to another.
+	/** \brief  Copy one ring element to another.
 	 *
 	 * This function makes a deep copy of the element y into the
 	 * element x (as opposed to the assignment-operator, which
@@ -81,14 +81,14 @@ public:
 	 * @param  x destination ring element.
 	 * @param  y source ring element.
 	 */
-	virtual Element &assign (Element &x, const Element &y) const = 0;
+	virtual Element &copy (Element &x, const Element &y) const = 0;
 
-	/// Version of assign which takes a Property rather than an element.
+	/// Version of copy which takes a Property rather than an element.
 	///
 	/// It should do exactly what the version above taking an element does.
 	template <class Iterator, class Accessor>
-	Element &assign (Property<Iterator, Accessor> x, const Element &y) const
-		{ return assign (x.ref (), y); }
+	Element &copy (Property<Iterator, Accessor> x, const Element &y) const
+		{ return copy (x.ref (), y); }
     
 	/** \brief Cardinality.
 	 *

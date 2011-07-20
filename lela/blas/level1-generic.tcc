@@ -31,7 +31,7 @@ T &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 	typename Vector1::const_iterator i;
 	typename Vector2::const_iterator j;
 
-	F.assign (res, F.zero ());
+	F.copy (res, F.zero ());
 
 	for (i = x.begin (), j = y.begin (); i != x.end (); ++i, ++j)
 		F.axpyin (res, *i, *j);
@@ -49,7 +49,7 @@ T &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 
 	typename Vector1::const_iterator i = x.begin ();
 
-	F.assign (res, F.zero ());
+	F.copy (res, F.zero ());
 
 	for (; i != x.end (); ++i)
 		F.axpyin (res, i->second, y[i->first]);
@@ -66,7 +66,7 @@ T &_dot<Ring, typename GenericModule<Ring>::Tag>::dot_impl
 	typename Vector1::const_iterator i = x.begin ();
 	typename Vector2::const_iterator j = y.begin ();
 
-	F.assign (res, F.zero ());
+	F.copy (res, F.zero ());
 
 	for (; i != x.end () && j != y.end (); ++i) {
 		while (j != y.end () && j->first < i->first) ++j;
@@ -90,7 +90,7 @@ Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	typename Vector2::iterator j;
 
 	for (i = x.begin (), j = y.begin (); i != x.end (); ++i, ++j)
-		F.assign (*j, *i);
+		F.copy (*j, *i);
 
 	return y;
 }
@@ -109,7 +109,7 @@ Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	for (i = x.begin (), idx = 0; i != x.end (); ++i, ++idx) {
 		if (!F.isZero (*i)) {
 			y.push_back (typename Vector2::value_type (idx, typename Ring::Element ()));
-			F.assign (y.back ().second, *i);
+			F.copy (y.back ().second, *i);
 		}
 	}
 
@@ -128,7 +128,7 @@ Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 
 	for (i = x.begin (); i != x.end (); ++i) {
 		y.push_back (typename Vector2::value_type (i->first, typename Ring::Element ()));
-		F.assign (y.back ().second, i->second);
+		F.copy (y.back ().second, i->second);
 	}
 
 	return y;
@@ -147,7 +147,7 @@ Vector2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	_scal<Ring, typename Modules::Tag>::op (F, M, F.zero (), y);
 
 	for (i = x.begin (); i != x.end (); i++)
-		F.assign (y[i->first], i->second);
+		F.copy (y[i->first], i->second);
 
 	return y;
 }
@@ -236,7 +236,7 @@ Vector2 &_axpy<Ring, typename GenericModule<Ring>::Tag>::axpy_impl
 
 		if (!F.isZero (c)) {
 			tmp.push_back (typename Vector2::value_type (i->first, typename Ring::Element ()));
-			F.assign (tmp.back ().second, c);
+			F.copy (tmp.back ().second, c);
 		}
 	}
 
@@ -259,7 +259,7 @@ Vector &_scal<Ring, typename GenericModule<Ring>::Tag>::scal_impl
 
 	if (F.isZero (a))
 		for (i = x.begin (); i != x.end (); i++)
-			F.assign (*i, F.zero ());
+			F.copy (*i, F.zero ());
 	else
 		for (i = x.begin (); i != x.end (); i++)
 			F.mulin (*i, a);
@@ -429,7 +429,7 @@ int _head<Ring, typename GenericModule<Ring>::Tag>::head_impl
 	if (i == x.end ())
 		return -1;
 	else {
-		F.assign (a, *i);
+		F.copy (a, *i);
 		return i - x.begin ();
 	}
 }
@@ -442,7 +442,7 @@ int _head<Ring, typename GenericModule<Ring>::Tag>::head_impl
 	if (x.empty ())
 		return -1;
 	else {
-		F.assign (a, x.front ().second);
+		F.copy (a, x.front ().second);
 		return x.front ().first;
 	}
 }

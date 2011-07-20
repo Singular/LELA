@@ -237,7 +237,7 @@ typename Ring::Element &manualDot (const Ring &F, typename Ring::Element &x, con
 {
 	typename Ring::Element a, b;
 
-	F.assign (x, F.zero ());
+	F.copy (x, F.zero ());
 
 	for (size_t j = 0; j < dim; j++)
 		if (LELA::VectorUtils::getEntry (v1, a, j) && LELA::VectorUtils::getEntry (v2, b, j))

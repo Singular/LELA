@@ -76,7 +76,7 @@ Vector2 &_gemv<Ring, typename GenericModule<Ring>::Tag>::gemv_impl
 
 		if (!F.isZero (t)) {
 			yp.push_back (typename Vector<Ring>::Sparse::value_type (idx, typename Ring::Element ()));
-			F.assign (yp.back ().second, t);
+			F.copy (yp.back ().second, t);
 		}
 	}
 

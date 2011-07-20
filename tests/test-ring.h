@@ -31,7 +31,7 @@ typename Ring::Element &expt (const Ring &F, typename Ring::Element &res, const 
 		F.init (res, 1);
 	}
 	else if (n == 1) {
-		F.assign (res, a);
+		F.copy (res, a);
 	}
 	else if (n.get_ui () & 1) {
 		n -= 1;
@@ -150,7 +150,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 
 	F.add (a, three, two);
 	F.write (report << "Result of 2 + 3: ", a) << endl;
-	F.assign (d, three);
+	F.copy (d, three);
 	F.addin (d, two);
 	F.write (report << "Result of 2 + 3 (inplace): ", d) << endl;
 
@@ -159,7 +159,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 
 	F.neg (a, two);
 	F.write (report << "Result of -2: ", a) << endl;
-	F.assign (d, two);
+	F.copy (d, two);
 	F.negin (d);
 	F.write (report << "Result of -2 (inplace): ", d) << endl;
 	F.init (f, -2);
@@ -179,7 +179,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 
 	F.mul (a, two, three);
 	F.write (report << "Result of 2 * 3: ", a) << endl;
-	F.assign (d, two);
+	F.copy (d, two);
 	F.mulin (d, three);
 	F.write (report << "Result of 2 * 3 (inplace): ", d) << endl;
 	F.init (f, 6);
@@ -189,7 +189,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 
 	F.inv (a, one);
 	F.write (report << "Result of inverting 1: ", a) << endl;
-	F.assign (d, one);
+	F.copy (d, one);
 	F.invin (d);
 	F.write (report << "Result of inverting 1 (inplace): ", d) << endl;
 
@@ -197,13 +197,13 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 		part_pass = reportError ("Results of inv incorrect", pass);
 
 	if (F.isZero (two))
-		F.assign(f, three);
+		F.copy(f, three);
 	else
-		F.assign(f, two);
+		F.copy(f, two);
 
 	F.div (a, f, f);
 	F.write ( report << "Result of f/f: ", a) << endl;
-	F.assign(d, f);
+	F.copy(d, f);
 	F.divin (d, f);
 	F.write ( report << "Result of f/f (inplace): ", d) << endl;
 
@@ -212,7 +212,7 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 
 	F.axpy (a, two, three, two);
 	F.write (report << "Result of axpy 2*3 + 2: ", a) << endl;
-	F.assign (d, two);
+	F.copy (d, two);
 	F.axpyin (d, two, three);
 	F.write (report << "Result of axpy 2*3 + 2 (inplace): ", d) << endl;
 	F.init (f, 8);
@@ -249,10 +249,10 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 		part_pass = reportError( "2^101 - 1 != 1 + 2 + .. + 2^100", pass);
 
 	// 1 + 2*(1 + 2*( ... (1) ... )), 100 times.
-	F.assign (d, one);
+	F.copy (d, one);
 	for (int i = 1; i < 101; ++i) {
 		F.axpy (b, two, d, one);
-		F.assign (d, b);
+		F.copy (d, b);
 	}
 
 	F.write( report << "using axpy, 1 + 2(1 + ... + 2(1)...), with 100 '+'s: ", d) << endl;
@@ -629,8 +629,8 @@ bool testGeometricSummation (const Ring &F, const char *name, unsigned int itera
 		report << "Random element a: ";
 		F.write (report, a) << endl;
 
-		F.assign (k, one);
-		F.assign (a_n, a);
+		F.copy (k, one);
+		F.copy (a_n, a);
 
 		for (unsigned int j = 0; j < n; ++j) {
 			F.addin (k, a_n);
@@ -708,7 +708,7 @@ bool testRingCharacteristic (const Ring &F, const char *name, unsigned int itera
 		report << "Random element a: ";
 		F.write (report, a) << endl;
 
-		F.assign (sigma, zero);
+		F.copy (sigma, zero);
 
 		for (j = 0; j < p; j += 1)
 			F.addin (sigma, a);
@@ -860,7 +860,7 @@ bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned in
 		F.write (report, b) << endl;
 
 		F.add (c1, a, b);
-		F.assign (c2, a);
+		F.copy (c2, a);
 		F.addin (c2, b);
 
 		report << "a + b = (out-of-place) ";
@@ -870,7 +870,7 @@ bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned in
 		if (!F.areEqual (c1, c2)) reportError("Consistency failure for addition", ret);
 
 		F.sub (c1, a, b);
-		F.assign (c2, a);
+		F.copy (c2, a);
 		F.subin (c2, b);
 
 		report << "a - b = (out-of-place) ";
@@ -880,7 +880,7 @@ bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned in
 		if (!F.areEqual (c1, c2)) reportError("Consistency failure for subtraction", ret);
 
 		F.neg (c1, a);
-		F.assign (c2, a);
+		F.copy (c2, a);
 		F.negin (c2);
 
 		report << "-a = (out-of-place) ";
@@ -890,7 +890,7 @@ bool testRingArithmeticConsistency (const Ring &F, const char *name, unsigned in
 		if (!F.areEqual (c1, c2)) reportError("Consistency failure for negation", ret);
 
 		F.mul (c1, a, b);
-		F.assign (c2, a);
+		F.copy (c2, a);
 		F.mulin (c2, b);
 
 		report << "a * b = (out-of-place) ";
@@ -940,7 +940,7 @@ bool testInvDivConsistency (const Ring &F, const char *name, unsigned int iterat
 
 		if (!F.isZero (a)) {
 			F.div (c1, b, a);
-			F.assign (c2, b);
+			F.copy (c2, b);
 			F.divin (c2, a);
 
 			report << "b / a = (out-of-place) ";
@@ -950,7 +950,7 @@ bool testInvDivConsistency (const Ring &F, const char *name, unsigned int iterat
 			if (!F.areEqual (c1, c2)) reportError("Consistency failure for division", ret);
 
 			F.inv (c1, a);
-			F.assign (c2, a);
+			F.copy (c2, a);
 			F.invin (c2);
 
 			report << "a^-1 = (out-of-place) ";
@@ -1007,7 +1007,7 @@ bool testAxpyConsistency (const Ring &F, const char *name, unsigned int iteratio
 		F.mul (c1, a, x);
 		F.addin (c1, y);
 		F.axpy (c2, a, x, y);
-		F.assign (c3, y);
+		F.copy (c3, y);
 		F.axpyin (c3, a, x);
 
 		report << "a * x + y = (add-mul) ";

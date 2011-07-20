@@ -394,7 +394,7 @@ int main ()
 
 	uint8 a, b, c, d; // Declare ring-elements
 	F.init (a, -1);   // Set a to -1 in the ring
-	F.assign (b, a);  // Set b to a
+	F.copy (b, a);    // Copy a to b
 	F.negin (b);      // Replace b to -b
 	F.init (c, 2);    // Set c to 2 in the ring
 	F.addin (a, b);   // Set a &lt;- a + b
@@ -418,15 +418,15 @@ int main ()
 	</programlisting>
 
 	<para>
-	  The method <function>assign</function> makes a copy of its
+	  The method <function>copy</function> makes a copy of its
 	  second argument and stores it in its first argument. In
-	  generic code, it is recommended to
-	  use <function>assign</function> rather than the
+	  generic code, it is recommended to use
+	  <function>copy</function> rather than the
 	  assignment-operator, since the latter may result in only a
-	  shallow copy, depending on the element-type. In the case
-	  of <type>Modular&lt;uint8&gt;</type> above, the call
-	  <literal>assign (b, a)</literal> is entirely equivalent to
-	  the assignment <literal>b = a</literal>.
+	  shallow copy, depending on the element-type. In the case of
+	  <type>Modular&lt;uint8&gt;</type> above, the call
+	  <literal>copy (b, a)</literal> is entirely equivalent to the
+	  assignment <literal>b = a</literal>.
 	</para>
 
 	<para>
@@ -1880,11 +1880,10 @@ public:
 	  <listitem><varname>ring</varname>, a pointer to the ring.</listitem>
 	</itemizedlist>
 	Any method in your ring-class which initialises a ring-element
-	(that
-	is <function>init</function>, <function>assign</function>, <function>read</function>,
-	and all out-of-place arithmetic operations) must
-	initialise <emphasis>both</emphasis> <varname>ref</varname>
-	and <varname>ring</varname>.
+	(that is <function>init</function>, <function>copy</function>,
+	<function>read</function>, and all out-of-place arithmetic
+	operations) must initialise <emphasis>both</emphasis>
+	<varname>ref</varname> and <varname>ring</varname>.
       </para>
 
       <para>

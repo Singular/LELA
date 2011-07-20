@@ -76,12 +76,12 @@ public:
 		{ return init (x.ref (), y); }
 
 	template <class T>
-	T &assign (T &x, const Element &y) const
+	T &copy (T &x, const Element &y) const
 		{ return x = y; }
 
 	template <class Iterator, class Accessor>
-	Element &assign (Property<Iterator, Accessor> &x, const Element &y) const
-		{ return assign (x.ref (), y); }
+	Element &copy (Property<Iterator, Accessor> &x, const Element &y) const
+		{ return copy (x.ref (), y); }
 
 	integer &cardinality (integer &c) const
 		{ return c = _card; }
