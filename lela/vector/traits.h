@@ -331,24 +331,24 @@ class VectorUtils
 			return false;
 	}
 
-	template <class Element, class Vector>
-	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Dense)
+	template <class Ring, class Vector>
+	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Dense)
+		{ R.assign (v[i], a); }
+
+	template <class Ring, class Vector>
+	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Sparse)
+		{ v.push_back (typename Vector::value_type (i, typename Ring::Element ())); R.assign (v.back ().second, a); }
+
+	template <class Ring, class Vector>
+	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Dense01)
 		{ v[i] = a; }
 
-	template <class Element, class Vector>
-	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Sparse)
-		{ v.push_back (typename Vector::value_type (i, a)); }
-
-	template <class Element, class Vector>
-	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Dense01)
-		{ v[i] = a; }
-
-	template <class Element, class Vector>
-	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Sparse01)
+	template <class Ring, class Vector>
+	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Sparse01)
 		{ v.push_back (i); }
 
-	template <class Element, class Vector>
-	static inline void appendEntrySpecialised (Vector &v, const Element &a, size_t i, VectorRepresentationTypes::Hybrid01)
+	template <class Ring, class Vector>
+	static inline void appendEntrySpecialised (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i, VectorRepresentationTypes::Hybrid01)
 	{
 		if (v.empty () || (i >> LELA::WordTraits<typename Vector::word_type>::logof_size) != v.back ().first)
 			v.push_back (typename Vector::value_type (i >> LELA::WordTraits<typename Vector::word_type>::logof_size,
@@ -536,9 +536,9 @@ public:
 	 * @param a Element to be appended
 	 * @param i Index at which to append entry
 	 */
-	template <class Element, class Vector>
-	static inline void appendEntry (Vector &v, const Element &a, size_t i)
-		{ return appendEntrySpecialised (v, a, i, typename ElementVectorTraits<Element, Vector>::RepresentationType ()); }
+	template <class Ring, class Vector>
+	static inline void appendEntry (const Ring &R, Vector &v, const typename Ring::Element &a, size_t i)
+		{ return appendEntrySpecialised (R, v, a, i, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	/** Ensure that the vector v is defined over the free module of rank n */
 	template <class Ring, class Vector>

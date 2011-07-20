@@ -1908,14 +1908,14 @@ public:
 	typedef AbstractElement Element;
 
 	void refElement (Element &amp;x)
-		{ if (x.ref != NULL) ++static_cast<MyElement *> (x.ref).refcount; }
+		{ if (x.ref != NULL) ++static_cast&lt;MyElement *&gt; (x.ref).refcount; }
 
 	void unrefElement (Element &amp;x)
 	{
 		if (x.ref != NULL) {
-			--static_cast<MyElement *> (x.ref).refcount;
-			if (static_cast<MyElement *> (x.ref).refcount == 0)
-				delete static_cast<MyElement *> (x.ref);
+			--static_cast&lt;MyElement *&gt; (x.ref).refcount;
+			if (static_cast&lt;MyElement *&gt; (x.ref).refcount == 0)
+				delete static_cast&lt;MyElement *&gt; (x.ref);
 		}
 	}
 
@@ -1923,8 +1923,8 @@ public:
 	{
 		a.ring = this;
 		unrefElement (a);
-		static_cast<MyElement *> (a.ref) = new MyElement;  // Assume MyElement::refcount initialised to 1
-		*static_cast<MyElement *> (a.ref) = *static_cast<MyElement *> (b) + *static_cast<MyElement *> (c);
+		static_cast&lt;MyElement *&gt; (a.ref) = new MyElement;  // Assume MyElement::refcount initialised to 1
+		*static_cast&lt;MyElement *&gt; (a.ref) = *static_cast&lt;MyElement *&gt; (b) + *static_cast&lt;MyElement *&gt; (c);
 		return a;
 	}
 	...

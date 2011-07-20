@@ -29,24 +29,24 @@ namespace BLAS3
 
 template <class Ring>
 template <class Vector, class Iterator>
-void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Vector &v, size_t idx, Iterator begin, Iterator end,
+void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
 									  VectorRepresentationTypes::Dense)
 {
 	typename Vector::const_iterator i_v;
 
 	for (i_v = v.begin (); i_v != v.end (); ++i_v, ++begin)
-		VectorUtils::appendEntry (*begin, *i_v, idx);
+		VectorUtils::appendEntry (R, *begin, *i_v, idx);
 }
 
 template <class Ring>
 template <class Vector, class Iterator>
-void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Vector &v, size_t idx, Iterator begin, Iterator end,
+void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
 									  VectorRepresentationTypes::Sparse)
 {
 	typename Vector::const_iterator i_v;
 
 	for (i_v = v.begin (); i_v != v.end (); ++i_v)
-		VectorUtils::appendEntry (*(begin + i_v->first), i_v->second, idx);
+		VectorUtils::appendEntry (R, *(begin + i_v->first), i_v->second, idx);
 }
 
 template <class Ring>
@@ -83,7 +83,7 @@ Matrix2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	size_t idx;
 
 	for (i = A.rowBegin (), idx = 0; i != A.rowEnd (); ++i, ++idx)
-		append_entries (*i, idx, B.colBegin (), B.colEnd ());
+		append_entries (F, *i, idx, B.colBegin (), B.colEnd ());
 
 	return B;
 }
@@ -101,7 +101,7 @@ Matrix2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	size_t idx;
 
 	for (i = A.colBegin (), idx = 0; i != A.colEnd (); ++i, ++idx)
-		append_entries (*i, idx, B.rowBegin (), B.rowEnd ());
+		append_entries (F, *i, idx, B.rowBegin (), B.rowEnd ());
 
 	return B;
 }
