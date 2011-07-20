@@ -39,8 +39,8 @@ xml:
 # 	wget http://downloads.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2
 
 EXTRA_DIST = \
-	tutorial.html		\
-	reference.html
+	tutorial.xml	\
+	tutorial.html
 
 MAINTAINERCLEANFILES = \
 	tutorial.html		\

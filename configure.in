@@ -3,7 +3,7 @@
 # see COPYING for licence
 AC_PREREQ(2.50)
 #AC_INIT(lela/lela.doxy)
-AC_INIT(lela, 1.1.7,lela-use@googlegroups.com) 
+AC_INIT(lela,0.1.0,hovinen@gmail.com) 
 AM_INIT_AUTOMAKE([1.8 gnu no-dependencies])
 #AM_CONFIG_HEADER([config.h])
 AM_CONFIG_HEADER([lela/lela-config.h])

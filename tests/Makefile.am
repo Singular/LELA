@@ -42,7 +42,6 @@ BASIC_TESTS =  \
 
 # a benchmarker, not to be included in check.
 BENCHMARKS =            \
-        benchmark-rings \
 	benchmark-blas
 
 EXTRA_PROGRAMS = $(NON_COMPILING_TESTS) $(BENCHMARKS)
@@ -151,3 +150,13 @@ benchmark_blas_SOURCES =    \
 	test-blas-level3.h
 
 benchmark_matrix_domain_CXXFLAGS = ${BENCHMARK_CXXFLAGS}
+
+noinst_HEADERS =	\
+	test-common.h	\
+	test-ring.h	\
+	test-generic-for-quad.h	\
+	test-vector.h	\
+	test-matrix.h	\
+	test-blas-level1.h	\
+	test-blas-level2.h	\
+	test-blas-level3.h

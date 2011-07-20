@@ -3,16 +3,10 @@
 # see COPYING for licence
 EXTRA_DIST=\
 	aclocal-include.m4	\
-	givaro-check.m4		\
 	gmp-check.m4		\
-	ntl-check.m4		\
-	saclib-check.m4		\
-	lidia-check.m4		\
-	atlas-check.m4		\
+	m4ri-check.m4		\
+	png-check.m4		\
+	blas-check.m4		\
 	maple-check.m4		\
 	sage-check.m4		\
-	expat-check.m4		\
-	m4ri-check.m4		\
-	config-header.m4	\
-	lela-misc.m4		\
 	maple-check-version.mpl
