@@ -190,12 +190,6 @@ class MatrixRawIterator<Iterator, VectorRepresentationTypes::Dense01>
 	MatrixRawIterator &operator ++ ()
 	{
 		++_pos;
-
-		if (_pos == _rowcol->end ()) {
-			++_rowcol;
-			_pos = _rowcol->begin ();
-		}
-
 		return *this;
 	}
     
@@ -206,8 +200,15 @@ class MatrixRawIterator<Iterator, VectorRepresentationTypes::Dense01>
 		return tmp;
 	}
 
-	const_reference operator * () const
-		{ return *_pos; }
+	reference operator * ()
+	{
+		if (_pos == _rowcol->end ()) {
+			++_rowcol;
+			_pos = _rowcol->begin ();
+		}
+
+		return *_pos;
+	}
  
 	bool operator == (const MatrixRawIterator &c) const
 		{ return (_rowcol == c._rowcol) && (_pos == c._pos); }
