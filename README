@@ -50,6 +50,12 @@ Some key differences between LELA and LinBox are the following:
    others. Instead the ring-interface reports whether inversion
    respectively division was successful.
 
+ - Unlike fflas, LELA does not currently automatically convert
+   matrices with an integral representation to a floating point
+   representation before multiplying them. To take advantage of fast
+   floating-point operations, the user must use such a representation
+   throughout.
+
  - LELA is licensed under the GNU General Public License (GPL), while
    LinBox is licensed under the GNU Lesser General Public License
    (LGPL). This means that it is in general forbidden to use LELA in

@@ -135,24 +135,94 @@ int main ()
 
 	<para>
 	  The type <type>Modular</type> is parametrised by the
-	  element-type, which may be any C++-type which supports basic
-	  arithmetic operations (i.e. binary +, -, *, /, and %). The
-	  parameter passed to the constructor is the modulus. It may
-	  not exceed the maximum value allowed by the type. It is
-	  advantageous to use the smallest type which will accommodate
-	  the chosen modulus, since this can save memory and improve
-	  performance. In the case above, the modulus 101 fits in an
-	  8-bit word so the 8-bit type uint8, which is just a
-	  redefinition of unsigned char, is used.
+	  element-type, which may in principle be any C++-type which
+	  supports basic arithmetic operations (i.e. binary +, -, *,
+	  /, and %). The parameter passed to the constructor is the
+	  modulus. It may not exceed the maximum value allowed by the
+	  type.
 	</para>
 
 	<para>
-	  The included header-files declare the
-	  type <type>uint8</type> and the class <type>Modular</type>,
-	  respectively. The file <filename>lela/integer.h</filename>
-	  declares the types <type>uint8</type>, <type>uint16</type>,
-	  and <type>uint32</type> of known width as well as the
-	  type <type>integer</type> of arbitrary precision.
+	  The choice of which element-type to use is based on the size
+	  of the modulus (since obviously some moduli are too big for
+	  some element-types) as well as whether one wishes to use an
+	  integral of a floating-point representation. A
+	  floating-point representation generally uses more memory for
+	  the same modulus but enables the use of highly tuned
+	  BLAS-implementations which can greatly improve performance
+	  as compared with the integral representation.
+	</para>
+
+	<para>
+	  While with a given element-type one can use any modulus up
+	  to the maximum (see below), we recommend using a somewhat
+	  larger element-type than is necessary, since this can
+	  improve performance greatly. Here we present some
+	  recommendations.
+	</para>
+
+	<table>
+	  <title>Element-types to be used with <type>Modular</type></title>
+	  <thead>
+	    <row>
+	      <entry>Element-type</entry>
+	      <entry>Size</entry>
+	      <entry>Integral vs. FP</entry>
+	      <entry>Maximum allowed modulus</entry>
+	      <entry>Maximum recommended modulus</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>uint8</entry>
+	      <entry>1 byte</entry>
+	      <entry>Integral</entry>
+	      <entry>255 (2<superscript>8</superscript>-1)</entry>
+	      <entry>255</entry>
+	    </row>
+	    <row>
+	      <entry>uint16</entry>
+	      <entry>2 bytes</entry>
+	      <entry>Integral</entry>
+	      <entry>65535 (2<superscript>16</superscript>-1)</entry>
+	      <entry>65535</entry>
+	    </row>
+	    <row>
+	      <entry>uint32</entry>
+	      <entry>4 bytes</entry>
+	      <entry>Integral</entry>
+	      <entry>4294967295 (2<superscript>32</superscript>-1)</entry>
+	      <entry>4294967295</entry>
+	    </row>
+	    <row>
+	      <entry>float</entry>
+	      <entry>4 bytes</entry>
+	      <entry>Floating point</entry>
+	      <entry>4095 (2<superscript>12</superscript>-1)</entry>
+	      <entry>127</entry>
+	    </row>
+	    <row>
+	      <entry>double</entry>
+	      <entry>8 bytes</entry>
+	      <entry>Floating point</entry>
+	      <entry>67108863 (2<superscript>26</superscript>-1)</entry>
+	      <entry>2097151</entry>
+	    </row>
+	    <row>
+	      <entry>integer</entry>
+	      <entry>Variable</entry>
+	      <entry>Integral</entry>
+	      <entry>Unlimited</entry>
+	      <entry>Unlimited</entry>
+	    </row>
+	  </tbody>
+	</table>
+
+	<para>
+	  The definitions of the types above (other than float and
+	  double) are in <filename>lela/integer.h</filename>. The
+	  header-file <filename>lela/ring/modular.h</filename>
+	  declares the class <type>Modular</type>.
 	</para>
       </section>
 
