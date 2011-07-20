@@ -712,39 +712,6 @@ void MyAlgorithm (const Ring &amp;R)
 	R.init (v.back ().second, 10);
 }
 	  </programlisting>
-
-	  <para>
-	    The manner by which new entries are initialised is
-	    important: the pair must be appended to the vector with a
-	    newly constructed <type>Ring::Element</type> and the
-	    element must then be initialised by the ring. It is
-	    important for certain ring-types not merely to make a
-	    shallow copy of a ring-element into the vector. For
-	    example:
-	  </para>
-
-	  <programlisting>
-typename Vector&lt;Ring&gt;::Sparse v;
-
-// ERROR: The content of a may be destroyed when the function leaves, leaving the vector in an invalid state
-typename Ring::Element a;
-R.init (a, -1);
-v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (0, a));
-
-// Correct
-v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (0, Ring::Element ()));
-R.init (v.back ().second, -1);
-	  </programlisting>
-
-	  <para>
-	    If the element-type is simple (such as a C++ int) or is a
-	    class with a copy-constructor and assignment-operator
-	    which perform deep copies, then both methods above are
-	    equivalent. This is true for the type <type>integer</type>
-	    as well as elements of <type>Rationals</type>. However,
-	    when writing generic code parametrised by the ring, one
-	    should not assume that this is the case.
-	  </para>
 	</section>
 	<section xml:id="vecgf2">
 	  <title>Representation-types for GF(2)</title>
