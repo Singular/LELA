@@ -22,7 +22,6 @@
 #include "lela/lela-config.h"
 #include "lela/util/debug.h"
 
-// Namespace in which all LELA library code resides
 namespace LELA
 {
 
@@ -79,20 +78,6 @@ class Rationals : public RingInterface<RationalElement>
 	        return x;
 	}
   
-	integer &convert (integer &x, const Element &y) const
-	{
-		mpz_t n, d;
-
-		mpz_init (n);
-		mpz_init (d);
-		mpq_get_num (n, y.rep);
-		mpq_get_den (d, y.rep);
-
-		mpz_divexact (x.get_mpz_t (), n, d);
-
-		return x;
-	}
-    
 	Element &copy (Element &x, const Element &y) const
 	{
 		mpq_set (x.rep, y.rep);
@@ -221,145 +206,9 @@ class Rationals : public RingInterface<RationalElement>
     
 	std::istream &read (std::istream &is) { return is; }
 
-	std::ostream &write (std::ostream &os, const Element &x) const 
-	{
-		char *str;
+	std::ostream &write (std::ostream &os, const Element &x) const;
 
-		str = new char[mpz_sizeinbase (mpq_numref (x.rep), 10) + 2];
-		mpz_get_str (str, 10, mpq_numref (x.rep));
-		os << str;
-		delete[] str;
-
-		if (mpz_cmp_ui (mpq_denref (x.rep), 1L) != 0) {
-			str = new char[mpz_sizeinbase (mpq_denref (x.rep), 10) + 2];
-			mpz_get_str (str, 10, mpq_denref (x.rep));
-			os << '/' << str;
-			delete[] str;
-		}
-
-		return os;
-	}
-
-	std::istream &read (std::istream &is, Element &x) const
-	{
-		char buffer[65535], endc;
-		bool found_space = false;
-		int i = 0;			
-
-		do {
-			is.get (endc);
-		} while (is && !isdigit (endc) && endc != '-' && endc != '.' &&  endc !='e' && endc != 'E');		
-
-		buffer[i]=endc;
-		
-		while ((buffer[i] == '-' || isdigit (buffer[i])) && i < 65535)  {
-			i++;
-			is.get (buffer[i]);
-		}
-
-		endc = buffer[i];
-	       	buffer[i] = '\0';
-
-		if (i > 0)
-			mpz_set_str (mpq_numref (x.rep), buffer, 10);
-		else
-			mpq_set_si (x.rep, 0L, 1L);
-
-		if (endc == ' ') {
-			found_space = true;
-			while (endc == ' ') is >> endc;
-		}
-
-		if (endc == '/') {
-			i = 0;
-
-			is.get (endc);
-			while (isspace (endc)) is.get (endc);
-			is.putback (endc);
-
-			do {
-				is.get (buffer[i++]);
-			} while (isdigit (buffer[i - 1]) && i < 65536);
-
-			is.putback (buffer[i - 1]);
-			buffer[i - 1] = '\0';
-
-			mpz_set_str (mpq_denref (x.rep), buffer, 10);
-			mpq_canonicalize (x.rep);
-			return is;
-		} else {
-			 mpz_set_si (mpq_denref (x.rep), 1L);
-		}
-
-		if (endc == '.' && !found_space) {
-			Element decimal_part;
-
-			mpz_set_si (mpq_denref (x.rep), 1L);
-			mpq_set_si (decimal_part.rep, 1L, 1L);
-			mpz_set_si (mpq_denref (decimal_part.rep), 1L);
-
-			i = 0;
-
-			do {
-				is.get (buffer[i++]);
-				if (isdigit (buffer[i - 1]))
-					mpz_mul_ui (mpq_denref (decimal_part.rep),
-						    mpq_denref (decimal_part.rep), 10L);
-			} while (isdigit (buffer[i - 1]) && i < 65536);
-
-			is.putback (buffer[i - 1]);
-			buffer[i - 1] = '\0';
-
-			mpz_set_str (mpq_numref (decimal_part.rep), buffer, 10);
-			mpq_canonicalize (decimal_part.rep);
-
-			mpq_add (x.rep, x.rep, decimal_part.rep);
-
-			do {
-				is.get (endc);
-			} while (is && endc == ' ') ;
-		}
-		
-		if ((endc == 'e') || (endc == 'E')) {
-	                is.get(endc);
-
-	                bool minus = false;
-
-                        if (endc == '-')
-                                minus = true;
-                        else if (endc == '+')
-                                minus = false;
-                        else
-	                        is.putback(endc);
-
-	                i=0;
-
-	                do {
-		                is.get (buffer[i++]);
-		        } while (isdigit (buffer[i-1]) && i < 65536);
-
-		        is.putback (buffer[i-1]);
-		        buffer[i-1] = '\0';
-
-			integer pow (buffer), powten = 1;
-
-			for (integer it = 0; it < pow; ++it)
-				powten *= 10;
-
-                        if (minus)
-	                        div (x, x, Element (powten, 1));
-	                else
-	                        mul (x, x, Element (powten, 1));
-                }
-		else {
-			is.putback (endc);
-		//	mpz_set_si (mpq_denref (x.rep), 1L);
-		}
-
-		mpq_canonicalize (x.rep);
-
-		return is;
-	}
+	std::istream &read (std::istream &is, Element &x) const;
 
 	size_t elementWidth () const
 		{ return 10; }

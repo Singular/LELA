@@ -22,6 +22,7 @@ lela/algorithms/libalgorithms.la
 lela/liblela.la
 lela/lela-config.h.in
 lela/lela-config.h
+lela/ring/libring.la
 lela/randiter/libranditer.la
 lela/stamp-h1
 lela/util/libutil.la

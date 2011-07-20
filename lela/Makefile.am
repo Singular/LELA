@@ -18,4 +18,5 @@ liblela_la_SOURCES = dummy.C
 
 liblela_la_LIBADD = \
 	util/libutil.la		\
+	ring/libring.la		\
 	randiter/libranditer.la
