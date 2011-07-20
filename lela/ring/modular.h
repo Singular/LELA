@@ -75,6 +75,16 @@ struct ModularTraits
 	template <class T>
 	static T &shift_down (T &v, const Element &modulus)
 		{ if (v >= modulus) v -= modulus; return v; }
+
+	/// Move v to within the valid range for the modulus
+	template <class T>
+	static T &valid_rep (T &v, const Element &modulus)
+		{ return shift_down (v, modulus); }
+
+	/// Get what is in any event a positive representation of the given element
+	template <class T>
+	static T &positive_rep (T &v, const Element &modulus)
+		{ return v; }
 };
 
 // Specialisation for uint8
@@ -105,6 +115,12 @@ struct ModularTraits<uint8>
 	template <class T>
 	static T &shift_down (T &v, uint8 modulus)
 		{ if (v >= modulus) v -= modulus; return v; }
+	template <class T>
+	static T &valid_rep (T &v, const Element &modulus)
+		{ return shift_down (v, modulus); }
+	template <class T>
+	static T &positive_rep (T &v, const Element &modulus)
+		{ return v; }
 };
 
 // Specialisation for uint16
@@ -137,6 +153,12 @@ struct ModularTraits<uint16>
 	template <class T>
 	static T &shift_down (T &v, uint16 modulus)
 		{ if (v >= modulus) v -= modulus; return v; }
+	template <class T>
+	static T &valid_rep (T &v, const Element &modulus)
+		{ return shift_down (v, modulus); }
+	template <class T>
+	static T &positive_rep (T &v, const Element &modulus)
+		{ return v; }
 };
 
 // Specialisation for uint32
@@ -167,6 +189,12 @@ struct ModularTraits<uint32>
 	template <class T>
 	static T &shift_down (T &v, uint32 modulus)
 		{ if ((FatElement) v >= (FatElement) modulus) v -= modulus; return v; }
+	template <class T>
+	static T &valid_rep (T &v, const Element &modulus)
+		{ return shift_down (v, modulus); }
+	template <class T>
+	static T &positive_rep (T &v, const Element &modulus)
+		{ return v; }
 };
 
 // Specialisation for float
@@ -195,6 +223,12 @@ struct ModularTraits<float>
 	template <class T>
 	static T &shift_down (T &v, float modulus)
 		{ if (v > modulus / 2) v -= modulus; return v; }
+	template <class T>
+	static T &valid_rep (T &v, const Element &modulus)
+		{ return shift_up (shift_down (v, modulus), modulus); }
+	template <class T>
+	static T positive_rep (T v, const Element &modulus)
+		{ if (v < 0) return v + modulus; else return v; }
 };
 
 // Specialisation for double
@@ -221,6 +255,12 @@ struct ModularTraits<double>
 	template <class T>
 	static T &shift_down (T &v, double modulus)
 		{ if (v > modulus / 2) v -= modulus; return v; }
+	template <class T>
+	static T &valid_rep (T &v, const Element &modulus)
+		{ return shift_up (shift_down (v, modulus), modulus); }
+	template <class T>
+	static T positive_rep (T v, const Element &modulus)
+		{ if (v < 0) return v + modulus; else return v; }
 };
 
 /** @name ModularBase 
@@ -322,8 +362,7 @@ public:
 	{
 		typename ModularTraits<Element>::FatElement ty = y;
 		ty += z;
-		ModularTraits<Element>::shift_up (ty, _modulus);
-		ModularTraits<Element>::shift_down (ty, _modulus);
+		ModularTraits<Element>::valid_rep (ty, _modulus);
 		return x = ty;
 	}
  
@@ -331,8 +370,7 @@ public:
 	{ 
 		typename ModularTraits<Element>::FatElement ty = y;
 		ty += _modulus - z;
-		ModularTraits<Element>::shift_up (ty, _modulus);
-		ModularTraits<Element>::shift_down (ty, _modulus);
+		ModularTraits<Element>::valid_rep (ty, _modulus);
 		return x = ty;
 	}
  
@@ -349,7 +387,7 @@ public:
 		typename ModularTraits<Element>::EEAElement gcd;
 		Element yremgcd;
 
-		eea (gcd, a, (z < 0) ? z + _modulus : z, b, _modulus);
+		eea (gcd, a, ModularTraits<Element>::positive_rep (z, _modulus), b, _modulus);
 
 		if (ModularTraits<Element>::reduce (yremgcd, y, Element (gcd)) == 0) {
 			ModularTraits<Element>::shift_down (ModularTraits<Element>::shift_up (a, _modulus), _modulus);
@@ -367,7 +405,7 @@ public:
 		typename ModularTraits<Element>::EEAElement ty, tm;
 		typename ModularTraits<Element>::EEAElement gcd;
 
-		eea (gcd, ty, (y < 0) ? y + _modulus : y, tm, _modulus);
+		eea (gcd, ty, ModularTraits<Element>::positive_rep (y, _modulus), tm, _modulus);
 
 		if (gcd == 1) {
 			ModularTraits<Element>::shift_up (ty, _modulus);
@@ -389,8 +427,7 @@ public:
 	{ 
 		typename ModularTraits<Element>::FatElement tx = x;
 		tx += y;
-		ModularTraits<Element>::shift_up (tx, _modulus);
-		ModularTraits<Element>::shift_down (tx, _modulus);
+		ModularTraits<Element>::valid_rep (tx, _modulus);
 		return x = tx;
 	}
 
@@ -398,8 +435,7 @@ public:
 	{
 		typename ModularTraits<Element>::FatElement tx = x;
 		tx += _modulus - y;
-		ModularTraits<Element>::shift_up (tx, _modulus);
-		ModularTraits<Element>::shift_down (tx, _modulus);
+		ModularTraits<Element>::valid_rep (tx, _modulus);
 		return x = tx;
 	}
  
