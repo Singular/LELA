@@ -1025,6 +1025,220 @@ void MyFunction (const GF2 &amp;F)
 }
 	</programlisting>
       </section>
+      <section>
+	<title>Declaring subvectors, submatrices, and transposed matrices</title>
+
+	<para>
+	  LELA provides support for declaring subvectors, submatrices,
+	  and transposed matrices which are just windows into their
+	  respective containers and therefore require no additional
+	  copying. There are, however, some caveats which we will
+	  discuss here.
+	</para>
+
+	<para>
+	  There are two types of subvectors and respectively
+	  submatrices: arbitrary and aligned. The starting and
+	  possibly ending indices of an aligned subvector or submatrix
+	  may be limited to an integral multiple of some
+	  value. However, calculations with aligned subvectors and
+	  submatrices may be much faster than with arbitrary ones. In
+	  addition, the hybrid vector-representation does not permit
+	  arbitrary subvectors which can be modified. Aligned
+	  subvector and submatrices are useful in recursive algorithms
+	  which divide matrices and vectors up and where the decision
+	  of where to make the division is open to the implementor of
+	  the algorithm. Currently these types are only distinct with
+	  vectors over GF(2).
+	</para>
+
+	<para>
+	  One may declare an arbitrary subvector of a vector of
+	  type <type>Vector</type> by defining an object of the
+	  type <type>VectorTraits&lt;Ring,
+	  Vector&gt;::SubvectorType</type> and passing to its
+	  constructor the parent-vector and the starting and ending
+	  indices of the subvector. Here we define a
+	  subvector <varname>w</varname> of a previously defined
+	  vector <varname>v</varname> to span the indices 10 through
+	  100 (not including 100 itself).
+	</para>
+
+	<programlisting>
+Vector v;
+...
+typename VectorTraits&lt;Ring, Vector&gt;::SubvectorType w (v, 10, 100);
+	</programlisting>
+
+	<para>
+	  If the parent-vector is const, then it is required to
+	  use <type>VectorTraits&lt;Ring,
+	  Vector&gt;::ConstSubvectorType</type> instead.
+	</para>
+
+	<programlisting>
+const Vector v;
+...
+typename VectorTraits&lt;Ring, Vector&gt;::ConstSubvectorType w (v, 10, 100);
+	</programlisting>
+
+	<para>
+	  To declare an aligned subvector,
+	  use <type>VectorTraits&lt;Ring,
+	  Vector&gt;::AlignedSubvectorType</type>,
+	  respectively <type>VectorTraits&lt;Ring,
+	  Vector&gt;::ConstAlignedSubvectorType</type>. In this case
+	  the starting index must be an integral multiple of the
+	  static integer <type>VectorTraits&lt;Ring,
+	  Vector&gt;::align</type>. The ending index should either be
+	  an integral multiple of <type>VectorTraits&lt;Ring,
+	  Vector&gt;::align</type> or coincide with the end of the
+	  vector.
+	</para>
+
+	<para>
+	  This basic mechanism works for all vector-types but there
+	  are a few limitations:
+	  <itemizedlist>
+	    <listitem>Mutable (i.e. non-const) subvectors of sparse
+	      vectors are not permitted;</listitem>
+	    <listitem>Arbitrary mutable subvectors of hybrid vectors
+	      are not permitted.</listitem>
+	  </itemizedlist>
+	</para>
+
+	<note>
+	  <para>
+	    It is important to be extremely careful with mutable
+	    subvectors of sparse or hybrid vectors. If a subvector is
+	    changed, then other subvectors of the same vector will not
+	    be updated to reflect that change. For example, suppose you
+	    have two subvectors <varname>x_1</varname>
+	    and <varname>x_2</varname> of a
+	    vector <varname>x</varname>. If you append an entry
+	    to <varname>x_1</varname> it will appear correctly
+	    in <varname>x</varname>, but <varname>x_2</varname> will be
+	    left in an invalid state:
+	  </para>
+
+	  <programlisting>
+Vector&lt;Ring&gt;::Sparse x;
+...
+typename Vector&lt;Ring&gt;::Sparse::SubvectorType x_1 (x, 0, 10);
+typename Vector&lt;Ring&gt;::Sparse::SubvectorType x_2 (x, 10, 20);
+x_1.push_back (5, typename Ring::Element ());
+// x_2 now invalid
+	  </programlisting>
+
+	  <para>
+	    Failure to take this into account may lead to random
+	    memory-corruption.
+	  </para>
+
+	  <para>
+	    This can also be a problem when using the
+	    arithmetic-routines described below. It is advised to
+	    avoid using two subvectors of a given sparse vector as
+	    inputs to the same operation if one of them will be
+	    changed, for example:
+	  </para>
+
+	  <programlisting>
+BLAS2::gemv (ctx, a, A, x_2, b, x_1);  // DANGER: Using both x_1 and x_2!
+	  </programlisting>
+	</note>
+
+	<para>
+	  Declaring a submatrix is similar. To create an arbitrary
+	  mutable submatrix of a given matrix of
+	  type <type>Matrix</type>,
+	  use <type>Matrix::SubmatrixType</type> and supply to the
+	  constructor the containing matrix, the row- and
+	  column-indices of the upper left entry (indexed from 0, as
+	  usual), and the row- and column-dimensions. The following
+	  creates a 5x5 submatrix starting at index (2,2) of a 10x10
+	  matrix.
+	</para>
+
+	<programlisting>
+Matrix M (10, 10);  // M has size 10x10
+
+typename Matrix::SubmatrixType S (M, 2, 2, 5, 5);
+	</programlisting>
+
+	<para>
+	  Note the difference with subvectors: for submatrices one
+	  supplies the <emphasis>dimensions</emphasis> of the
+	  submatrix, while for subvectors one supplies instead
+	  the <emphasis>ending index</emphasis>.
+	</para>
+
+	<para>
+	  If the matrix is const, then
+	  use <type>Matrix::ConstSubmatrixType</type>.
+	</para>
+
+	<programlisting>
+const Matrix M (10, 10);  // M has size 10x10
+
+typename Matrix::ConstSubmatrixType S (M, 2, 2, 5, 5);
+	</programlisting>
+
+	<para>
+	  One can create aligned submatrices
+	  with <type>Matrix::AlignedSubmatrixType</type>
+	  and <type>Matrix::ConstAlignedSubmatrixType</type>. In this
+	  case the starting row- and column-indices must be integer
+	  multiples of <type>Matrix::rowAlign</type> and respectively
+	  <type>Matrix::colAlign</type>. The dimensions should be such
+	  that either the ending row and column are aligned with an
+	  integer multiple of the above values or they coincide with
+	  the end of the matrix.
+	</para>
+
+	<para>
+	  As with subvectors, it is not permitted to take an mutable
+	  arbitrary submatrix of a sparse matrix whose rows or columns
+	  are hybrid vectors. Unlike subvectors it is okay to
+	  construct a mutable submatrix of a mutable submatrix of a
+	  sparse matrix.
+	</para>
+
+	<para>
+	  To construct a transposed matrix, use the
+	  class <type>TransposeMatrix</type>, defined
+	  in <filename>lela/matrix/transpose.h</filename>. This class
+	  is parametrised by matrix-type.
+	</para>
+
+	<programlisting>
+#include "lela/matrix/transpose.h"
+...
+Matrix M;
+
+TransposeMatrix&lt;Matrix&gt; MT (M);
+	</programlisting>
+
+	<para>
+	  If the matrix is const, then <type>TransposeMatrix</type>
+	  should also be instantiated with the const variant.
+	</para>
+
+	<programlisting>
+const Matrix M;
+
+TransposeMatrix&lt;const Matrix&gt; MT (M);
+	</programlisting>
+
+	<note>
+	  In LELA there also exist
+	  classes <type>Subvector</type>, <type>SparseSubvector</type>,
+	  and <type>Submatrix</type>. These are basically for internal
+	  use. Do not use them unless you are creating your own
+	  vector- or matrix-type and wish to employ them to define the
+	  subvector or submatrix-types used above.
+	</note>
+      </section>
     </section>
     <section xml:id="arith">
       <title>Vector- and matrix-arithmetic</title>
@@ -1167,6 +1381,41 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
 	Support for symmetric, skew-symmetric, and banded matrices has
 	not been implemented.
       </note>
+
+      <para>
+	While LELA strives to be as flexible as possible with respect
+	to the inputs to the BLAS-routines, there are some
+	combinations whose support is essentially impossible (or at
+	least far to difficult to implement). They must therefore be
+	avoided. Examples include:
+      </para>
+
+      <itemizedlist>
+	<listitem><function>BLAS3::axpy</function> (i.e. aX + Y -&gt;
+	  Y, X and Y matrices) where X and Y not support an
+	  interator-type in common, e.g. if X is a sparse matrix and Y
+	  is the transpose of a sparse matrix;</listitem>
+	<listitem><function>BLAS3::gemm</function> (i.e. aAB + bC
+	  -&gt; C, A, B, and C matrices) where A and B are both sparse
+	  matrices and C is the transpose of a sparse matrix, or where
+	  A and B are both transposed sparse matrices and C is an
+	  ordinary sparse matrix;</listitem>
+	<listitem><function>BLAS2::trmv</function>
+	  and <function>BLAS2::trsv</function> (i.e. Tx -&gt; x,
+	  T<superscript>-1</superscript>x -&gt; x, T a triangular
+	  matrix, x a vector) where x is a sparse or hybrid
+	  vector;</listitem>
+	<listitem><function>BLAS2::trmm</function>
+	  and <function>BLAS2::trsm</function> (i.e. TB -&gt; B,
+	  T<superscript>-1</superscript>B -&gt; B, T a triangular
+	  matrix, B a matrix) where B is a transposed sparse or hybrid
+	  matrix.</listitem>
+      </itemizedlist>
+
+      <para>
+	Please consult the reference-documentation for a more detailed
+	account.
+      </para>
     </section>
     <section xml:id="highlevel">
       <title>Using higher level solutions</title>
@@ -1467,14 +1716,23 @@ void MyFunction ()
 	  instantiation.
 	</listitem>
 	<listitem>
-	  Consider using the compiler Clang (see
-	  <link address="http://clang.llvm.org/">their website</link>)
-	  rather than GCC. Its error-output is much more readable. To
-	  use Clang rather than GCC, use
+	  If using submatrices or subvectors, check that you have
+	  properly declared subobjects of const objects using the
+	  corresponding const type. For example:
 	  <programlisting>
-	    CXX=clang ./configure
+const Matrix M;
+
+typename Matrix::SubmatrixType N (M, 2, 2, 5, 5);       // ERROR!
+typename Matrix::ConstSubmatrixType N (M, 2, 2, 5, 5);  // Correct
 	  </programlisting>
-	  when configuring LELA.
+	</listitem>
+	<listitem>
+	  Check that you are not using a forbidden combination of
+	  types for BLAS-routines (see section on matrix- and
+	  vector-arithmetic above). This type of error will usually
+	  manifest itself when compiling as "No matching function for
+	  call to &lt;function&gt;_impl", where &lt;function&gt; is
+	  the name of the offending BLAS-routine.
 	</listitem>
 	<listitem>
 	  Many errors of the form "No matching function for call
@@ -1496,6 +1754,21 @@ void MyFunction (const Matrix &amp;M)
 	typename Matrix::ConstRowIterator i = M.rowBegin ();  // Correct
 }
 	  </programlisting>
+	</listitem>
+	<listitem>
+	  Consider using the compiler Clang (see
+	  <link address="http://clang.llvm.org/">their website</link>)
+	  rather than GCC. Its error-output is much more readable. To
+	  use Clang rather than GCC, use
+	  <programlisting>
+	    CXX=clang ./configure
+	  </programlisting>
+	  when configuring LELA.
+	</listitem>
+	<listitem>
+	  If you are really stuck, send an email to Bradford Hovinen
+	  &lt;hovinen@gmail.com&gt; with your compiler-output and if
+	  possible representative source-code.
 	</listitem>
       </itemizedlist>
     </section>
