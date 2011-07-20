@@ -24,8 +24,8 @@ template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
 {
-	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorUtils::FindSparseEntryLB ());
+	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorUtils::FindSparseEntryLB ());
 
 	for (; i != i_end; ++i)
 		out.push_back (typename Vector1::value_type (i->first - src_idx + dest_idx, i->second));
@@ -46,8 +46,8 @@ template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
 {
-	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorUtils::CompareSparseEntries ());
-	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorUtils::CompareSparseEntries ());
+	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorUtils::FindSparseEntryLB ());
+	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorUtils::FindSparseEntryLB ());
 
 	for (; i != i_end; ++i)
 		out[i->first - src_idx + dest_idx] = i->second;

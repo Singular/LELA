@@ -285,7 +285,7 @@ class VectorUtils
 		if (v.size () == 0)
 			return false;
 
-		j = std::lower_bound (v.begin (), v.end (), i, CompareSparseEntries ());
+		j = std::lower_bound (v.begin (), v.end (), i, FindSparseEntryLB ());
 
 		if (j == v.end () || j->first != i)
 			return false;
@@ -322,7 +322,7 @@ class VectorUtils
 	{
 		typename Vector::const_iterator idx;
 
-		idx = std::lower_bound (v.begin (), v.end (), i >> WordTraits<typename Vector::word_type>::logof_size, CompareSparseEntries ());
+		idx = std::lower_bound (v.begin (), v.end (), i >> WordTraits<typename Vector::word_type>::logof_size, FindSparseEntryLB ());
 
 		if (idx != v.end () && idx->first == i >> WordTraits<typename Vector::word_type>::logof_size) {
 			a = idx->second & Vector::Endianness::e_j (i & WordTraits<typename Vector::word_type>::pos_mask);
@@ -460,57 +460,42 @@ class VectorUtils
 	}
 
 public:
+	/** Closure to find an entry with a given index in a sparse
+	 * vector, to be used with std::lower_bound
+	 *
+	 * This can be used to perform a binary search on entries.
+	 */
+	class FindSparseEntryLB
+	{
+	public:
+		template<typename PairType, typename T>
+		inline bool operator () (const PairType &i, const T &j) const
+			{ return i.first < j; }
+	};
+
+	/** Closure to find an entry with a given index in a sparse
+	 * vector, to be used with std::upper_bound
+	 *
+	 * This can be used to perform a binary search on entries.
+	 */
+	class FindSparseEntryUB
+	{
+	public:
+		template<typename T, typename PairType>
+		inline bool operator () (const T &i, const PairType &j) const
+			{ return i < j.first; }
+	};
+
 	/** Closure to compare entries in a sparse vector
 	 *
-	 * This can be used either to sort entries by index
-	 * (e.g. after performing a permutation) or to perform a
-	 * binary search on entries.
+	 * This can be used to sort entries by index (e.g. after
+	 * performing a permutation).
 	 */
 	class CompareSparseEntries
 	{
 	public:
-		template<typename PairType>
-		inline bool operator () (const PairType &i, uint16 j) const
-			{ return i.first < j; }
-
-		template<typename PairType>
-		inline bool operator () (const PairType &i, uint32 j) const
-			{ return i.first < j; }
-
-		template<typename PairType>
-		inline bool operator () (const PairType &i, uint64 j) const
-			{ return i.first < j; }
-
-		template<typename T1, typename T2>
-		inline bool operator () (const std::pair<T1, T2> &i, uint16 j) const
-			{ return i.first < j; }
-
-		template<typename T1, typename T2>
-		inline bool operator () (const std::pair<T1, T2> &i, uint32 j) const
-			{ return i.first < j; }
-
-		template<typename T1, typename T2>
-		inline bool operator () (const std::pair<T1, T2> &i, uint64 j) const
-			{ return i.first < j; }
-
-		template<typename PairType>
-		inline bool operator () (size_t i, const PairType &j) const
-			{ return i < j.first; }
-
-		template<typename PairType, typename T1, typename T2>
-		inline bool operator () (const PairType &i, const std::pair<T1, T2> &j) const
-			{ return i.first < j.first; }
-
-		template<typename T1, typename T2, typename PairType>
-		inline bool operator () (const std::pair<T1, T2> &i, const PairType &j) const
-			{ return i.first < j.first; }
-
-		template<typename T1, typename T2>
-		inline bool operator () (const std::pair<T1, T2> &i, const std::pair<T1, T2> &j) const
-			{ return i.first < j.first; }
-
-		template<typename PairType>
-		inline bool operator () (const PairType &i, const PairType &j) const
+		template<typename PairType1, typename PairType2>
+		inline bool operator () (const PairType1 &i, const PairType2 &j) const
 			{ return i.first < j.first; }
 	};
 

@@ -35,7 +35,7 @@ bool SparseMatrix<Element, Row, VectorRepresentationTypes::Hybrid01>::getEntry (
 
 	typename Row::const_iterator idx;
 
-	idx = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorUtils::CompareSparseEntries ());
+	idx = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorUtils::FindSparseEntryLB ());
 
 	if (idx != v.end () && idx->first == j >> WordTraits<typename Row::word_type>::logof_size) {
 		x = idx->second & Row::Endianness::e_j (j & WordTraits<typename Row::word_type>::pos_mask);
@@ -84,7 +84,7 @@ void SparseMatrix<Element, Row, VectorRepresentationTypes::Hybrid01>::setEntry (
 	if (value && v.empty ()) {
 		v.push_back (typename Row::value_type (j >> WordTraits<typename Row::word_type>::logof_size, m));
 	} else {
-		it = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorUtils::CompareSparseEntries ());
+		it = std::lower_bound (v.begin (), v.end (), j >> WordTraits<typename Row::word_type>::logof_size, VectorUtils::FindSparseEntryLB ());
 
 		if (it == v.end () || it->first != (j >> WordTraits<typename Row::word_type>::logof_size)) {
 			if (value)

@@ -228,15 +228,15 @@ class SparseSubvector<const Vector, VectorRepresentationTypes::Sparse>
 	SparseSubvector () {}
 	SparseSubvector (const Vector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
-		_begin = std::lower_bound (v.begin (), v.end (), start, VectorUtils::CompareSparseEntries ());
-		_end = std::lower_bound (v.begin (), v.end (), finish, VectorUtils::CompareSparseEntries ());
+		_begin = std::lower_bound (v.begin (), v.end (), start, VectorUtils::FindSparseEntryLB ());
+		_end = std::lower_bound (v.begin (), v.end (), finish, VectorUtils::FindSparseEntryLB ());
 		_shift = start;
 	}
 
 	SparseSubvector (const SparseSubvector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
-		_begin = std::lower_bound (v._begin, v._end, start + v._shift, VectorUtils::CompareSparseEntries ());
-		_end = std::lower_bound (v._begin, v._end, finish + v._shift, VectorUtils::CompareSparseEntries ());
+		_begin = std::lower_bound (v._begin, v._end, start + v._shift, VectorUtils::FindSparseEntryLB ());
+		_end = std::lower_bound (v._begin, v._end, finish + v._shift, VectorUtils::FindSparseEntryLB ());
 		_shift = start + v._shift;
 	}
 
@@ -312,8 +312,8 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Sparse>
 	SparseSubvector (Vector &v, typename Vector::value_type::first_type start, typename Vector::value_type::first_type finish)
 	{
 		_v = &v;
-		_begin_idx = std::lower_bound (v.begin (), v.end (), start, VectorUtils::CompareSparseEntries ()) - v.begin ();
-		_end_idx = std::lower_bound (v.begin (), v.end (), finish, VectorUtils::CompareSparseEntries ()) - v.begin ();
+		_begin_idx = std::lower_bound (v.begin (), v.end (), start, VectorUtils::FindSparseEntryLB ()) - v.begin ();
+		_end_idx = std::lower_bound (v.begin (), v.end (), finish, VectorUtils::FindSparseEntryLB ()) - v.begin ();
 		_shift = start;
 	}
 
@@ -479,9 +479,9 @@ class SparseSubvector<Vector, HybridSubvectorWordAlignedTag>
 
 	SparseSubvector () {}
 	SparseSubvector (Vector &v, size_t start, size_t finish)
-		: parent_type (v, std::lower_bound (v.begin (), v.end (), start >> WordTraits<word_type>::logof_size, VectorUtils::CompareSparseEntries ()),
+		: parent_type (v, std::lower_bound (v.begin (), v.end (), start >> WordTraits<word_type>::logof_size, VectorUtils::FindSparseEntryLB ()),
 			       std::lower_bound (v.begin (), v.end (), (finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size,
-						 VectorUtils::CompareSparseEntries ()),
+						 VectorUtils::FindSparseEntryLB ()),
 			       start >> WordTraits<word_type>::logof_size)
 	{
 		lela_check ((start & WordTraits<word_type>::pos_mask) == 0);

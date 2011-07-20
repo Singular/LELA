@@ -22,8 +22,8 @@ template <class Vector>
 void SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>::set_start_end (typename Vector::const_iterator begin,
 										  typename Vector::const_iterator end)
 {
-	_begin = std::lower_bound (begin, end, _start >> WordTraits<word_type>::logof_size, VectorUtils::CompareSparseEntries ());
-	_end = std::upper_bound (begin, end, _finish >> WordTraits<word_type>::logof_size, VectorUtils::CompareSparseEntries ());
+	_begin = std::lower_bound (begin, end, _start >> WordTraits<word_type>::logof_size, VectorUtils::FindSparseEntryLB ());
+	_end = std::upper_bound (begin, end, _finish >> WordTraits<word_type>::logof_size, VectorUtils::FindSparseEntryUB ());
 
 	if (_end != _begin && (static_cast<size_t> ((_end - 1)->first) << WordTraits<word_type>::logof_size) + (_start & WordTraits<word_type>::pos_mask) >= _finish)
 		_end_marker = _end - 1;
