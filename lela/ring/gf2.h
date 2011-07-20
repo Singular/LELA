@@ -116,6 +116,9 @@ class GF2
 	std::istream &read (std::istream &is, std::_Bit_reference x) const
 		{ bool a; is >> a; x=a; return is; }
 
+	size_t elementWidth () const
+		{ return 1; }
+
 	Element &add (Element &x, Element y, Element z) const
 		{ return x = y ^ z; }
 

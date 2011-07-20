@@ -1877,16 +1877,28 @@ public:
 	contains two members:
 	<itemizedlist>
 	  <listitem><varname>ref</varname>, an void pointer to element-data, the content of which you are free to define,</listitem>
-	  <listitem><varname>dispose</varname>, a pointer to a function which disposes of a ring-element.</listitem>
+	  <listitem><varname>ring</varname>, a pointer to the ring.</listitem>
 	</itemizedlist>
 	Any method in your ring-class which initialises a ring-element
 	(that
 	is <function>init</function>, <function>assign</function>, <function>read</function>,
 	and all out-of-place arithmetic operations) must
 	initialise <emphasis>both</emphasis> <varname>ref</varname>
-	and <varname>dispose</varname>. If <varname>dispose</varname>
-	is set to <constant>NULL</constant>, it will not be invoked in
-	the destructor. For example:
+	and <varname>ring</varname>.
+      </para>
+
+      <para>
+	The class <type>RingInterface</type> implements the virtual
+	methods <function>refElement</function>
+	and <function>unrefElement</function>, which are called in the
+	copy-constructor and assignment-operator and in the destructor
+	of <type>ElementAbstract</type>, respectively
+	(provided <varname>ring</varname> is properly initialised).
+      </para>
+
+      <para>
+	This mechanism allows a simple memory-model based on
+	reference-counting. For example:
       </para>
 
       <programlisting>
@@ -1895,14 +1907,24 @@ class MyRing
 public:
 	typedef AbstractElement Element;
 
-	static void dispose (Element &amp;x)
-		{ if (x.ref != NULL) delete x.ref; }
+	void refElement (Element &amp;x)
+		{ if (x.ref != NULL) ++static_cast<MyElement *> (x.ref).refcount; }
+
+	void unrefElement (Element &amp;x)
+	{
+		if (x.ref != NULL) {
+			--static_cast<MyElement *> (x.ref).refcount;
+			if (static_cast<MyElement *> (x.ref).refcount == 0)
+				delete static_cast<MyElement *> (x.ref);
+		}
+	}
 
 	Element &amp;add (Element &amp;a, const Element &amp;b, const Element &amp;c)
 	{
-		*(int *) a.ref = new int;
-		a.dispose = dispose;
-		*(int *) a.ref = *(int *) b + *(int *) c;
+		a.ring = this;
+		unrefElement (a);
+		static_cast<MyElement *> (a.ref) = new MyElement;  // Assume MyElement::refcount initialised to 1
+		*static_cast<MyElement *> (a.ref) = *static_cast<MyElement *> (b) + *static_cast<MyElement *> (c);
 		return a;
 	}
 	...

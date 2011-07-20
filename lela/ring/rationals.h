@@ -361,6 +361,9 @@ class Rationals : public RingInterface<RationalElement>
 		return is;
 	}
 
+	size_t elementWidth () const
+		{ return 10; }
+
 	Rationals (int p = 0, int exp = 1)
 		: _cardinality (0), _characteristic (0), _zero (0, 1), _one (1, 1), _minus_one (-1, 1)
 	{

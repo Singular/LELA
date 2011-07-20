@@ -15,6 +15,7 @@
 #define __LELA_RING_INTERFACE_H
 
 #include <iostream>
+#include <cmath>
 
 #include "lela/lela-config.h"
 #include "lela/randiter/interface.h"
@@ -337,19 +338,19 @@ public:
     
 	/** @name Input/Output Operations */
 	//@{
-    
+
 	/** Print ring.
 	 * @return output stream to which ring is written.
 	 * @param  os  output stream to which ring is written.
 	 */
 	virtual std::ostream &write (std::ostream &os) const = 0;
-    
+
 	/** Read ring.
 	 * @return input stream from which ring is read.
 	 * @param  is  input stream from which ring is read.
 	 */
 	virtual std::istream &read (std::istream &is) = 0;
-    
+
 	/** Print ring element.
 	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
@@ -363,7 +364,7 @@ public:
 	 * @param  x   ring element.
 	 */
 	virtual std::ostream &write (std::ostream &os, const Element &x) const = 0;
-    
+
 	/** Read ring element.
 	 * This function assumes the ring element has already been 
 	 * constructed and initialized.
@@ -377,8 +378,17 @@ public:
 	 * @param  x   ring element.
 	 */
 	virtual std::istream &read (std::istream &is, Element &x) const = 0;
-    
+
+	/** Obtain the width in characters of a typical element
+	 *
+	 * This can be used to format the output of a matrix in a
+	 * readable way.
+	 */
+	virtual size_t elementWidth () const
+		{ integer c; return (cardinality (c) == 0) ? 10 : (size_t) ceil (log (c.get_d ()) / M_LN10); }
+
 	//@} Input/Output Operations
+
 	/** @name Standard elements
 	 */
 	//@{
@@ -394,7 +404,18 @@ public:
 
 	//@}
 	//@} Common Object Interface
-    
+
+	/** @name Reference-counting of elements
+	 *
+	 * These functions need not be implemented, but are useful for
+	 * memory-management with elements.
+	 */
+	//@{
+
+	virtual void refElement (Element &x) const {}
+	virtual void unrefElement (Element &x) const {}
+	
+	//@}
 }; // class RingInterface
   
 } // namespace LELA

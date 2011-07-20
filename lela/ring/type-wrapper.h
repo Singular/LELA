@@ -160,6 +160,9 @@ public:
 	std::istream &read (std::istream &is, Element &x) const
 		{ return is >> x; }
 
+	size_t elementWidth () const
+		{ return 10; }
+
 	Element zero () const { return Element (0); }
 	Element one () const { return Element (1); }
 	Element minusOne () const { return Element (-1); }

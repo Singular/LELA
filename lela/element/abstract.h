@@ -11,6 +11,8 @@
 #ifndef __LELA_ELEMENT_ABSTRACT_H
 #define __LELA_ELEMENT_ABSTRACT_H
 
+#include "lela/ring/interface.h"
+
 namespace LELA 
 { 
 
@@ -22,9 +24,10 @@ namespace LELA
  * multiple rings with multiple element-types are used.
  *
  * This class contains two public members: ref, which is a pointer to
- * arbitrary data and dispose, which is a pointer to a function which
- * is invoked by the destructor. An implementation of RingInterface
- * can set ref to point to element-data.
+ * arbitrary data and ring, which is a pointer to the element's ring
+ * from which refElement and unrefElement are invoked. An
+ * implementation of RingInterface can set ref to point to
+ * element-data.
  *
  * A ring-implementation which uses this class must set the pointer
  * dispose whenever the element is initialised.
@@ -32,16 +35,27 @@ namespace LELA
 class AbstractElement
 {
 public:
-	/// Pointer to a function which disposes of the ring element
-	void (*dispose) (AbstractElement &);
+	/// Pointer back to the ring
+	RingInterface *ring;
 
 	/// Pointer to arbitrary data
 	void *ref;
 
 	AbstractElement ()
-		: dispose (NULL), ref (NULL) {}
+		: ring (NULL), ref (NULL) {}
 
-	~AbstractElement () { if (dispose != NULL) dispose (*this); }
+	AbstractElement (const AbstractElement &e)
+		: ring (e.ring), ref (e.ref)
+		{ if (ring != NULL) ring->refElement (*this); }
+
+	~AbstractElement () { if (ring != NULL) ring->unrefElement (*this); }
+
+	AbstractElement &operator = (const AbstractElement &e)
+	{
+		ring = e.ring;
+		ref = e.ref;
+		if (ring != NULL) ring->refElement (*this);
+	}
 };
 
 } // namespace LELA

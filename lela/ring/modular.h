@@ -66,6 +66,14 @@ struct ModularTraits
 	static std::ostream &write (std::ostream &os, const Element &x)
 		{ return os << x; }
 
+	/// Get the width of a typical element of the ring
+	static size_t element_width (const integer &modulus)
+		{ return (size_t) ceil (log (modulus.get_d ()) / M_LN10); }
+
+	template <class T>
+	static size_t element_width (const T &modulus)
+		{ return (size_t) ceil (log (double (modulus)) / M_LN10); }
+
 	/// If v is too low for the window of validity, shift it up by the value of the modulus
 	template <class T>
 	static T &shift_up (T &v, const Element &modulus)
@@ -109,6 +117,8 @@ struct ModularTraits<uint8>
 		{ elt = x.get_ui (); return elt; }
 	static std::ostream &write (std::ostream &os, const Element &x)
 		{ return os << (int) x; }
+	static size_t element_width (Element modulus)
+		{ return (size_t) ceil (log (double (modulus)) / M_LN10); }
 	template <class T>
 	static T &shift_up (T &v, uint8 modulus)
 		{ if (v < 0) v += modulus; return v; }
@@ -147,6 +157,8 @@ struct ModularTraits<uint16>
 		{ elt = x.get_ui (); return elt; }
 	static std::ostream &write (std::ostream &os, const Element &x)
 		{ return os << x; }
+	static size_t element_width (Element modulus)
+		{ return (size_t) ceil (log (double (modulus)) / M_LN10); }
 	template <class T>
 	static T &shift_up (T &v, uint16 modulus)
 		{ if (v < 0) v += modulus; return v; }
@@ -183,6 +195,8 @@ struct ModularTraits<uint32>
 		{ elt = x.get_ui (); return elt; }
 	static std::ostream &write (std::ostream &os, const Element &x)
 		{ return os << x; }
+	static size_t element_width (Element modulus)
+		{ return (size_t) ceil (log (double (modulus)) / M_LN10); }
 	template <class T>
 	static T &shift_up (T &v, uint32 modulus)
 		{ if (v < 0) v += modulus; return v; }
@@ -217,6 +231,8 @@ struct ModularTraits<float>
 		{ elt = x.get_d (); return elt; }
 	static std::ostream &write (std::ostream &os, const Element &x)
 		{ return os << (int) x; }
+	static size_t element_width (Element modulus)
+		{ return (size_t) ceil (log (modulus / 2) / M_LN10) + 1; }
 	template <class T>
 	static T &shift_up (T &v, float modulus)
 		{ if (v < -modulus / 2) v += modulus; return v; }
@@ -249,6 +265,8 @@ struct ModularTraits<double>
 		{ elt = x.get_d (); return elt; }
 	static std::ostream &write (std::ostream &os, const Element &x)
 		{ return os << (long long) x; }
+	static size_t element_width (Element modulus)
+		{ return (size_t) ceil (log (modulus / 2) / M_LN10) + 1; }
 	template <class T>
 	static T &shift_up (T &v, double modulus)
 		{ if (v < -modulus / 2) v += modulus; return v; }
@@ -357,6 +375,9 @@ public:
 
 		return is; 
 	}
+
+	size_t elementWidth () const
+		{ return ModularTraits<Element>::element_width (_modulus); }
 
 	Element &add (Element &x, const Element &y, const Element &z) const
 	{
