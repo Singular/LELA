@@ -48,7 +48,7 @@ if test -n "$BLAS_VAL"; then
 		if test -r "$BLAS_VAL/lib/libcblas.a" ; then 
 			ATLAS_NEEDED=`nm -u $BLAS_VAL/lib/libcblas.a | grep ATL`
 			if test -n "$ATLAS_NEEDED"; then
-				ATLAS_LIBS="-lcblas -latlas"	
+				ATLAS_LIBS="-lcblas -latlas"
 			else
 				ATLAS_LIBS="-lcblas"
 			fi		
@@ -57,7 +57,7 @@ if test -n "$BLAS_VAL"; then
 		elif test -r "$BLAS_VAL/libcblas.a" ; then 
 			ATLAS_NEEDED=`nm -u $BLAS_VAL/libcblas.a | grep ATL`
 			if test -n "$ATLAS_NEEDED"; then
-				ATLAS_LIBS="-lcblas -latlas"	
+				ATLAS_LIBS="-lcblas -latlas"
 			else
 				ATLAS_LIBS="-lcblas"
 			fi		
@@ -128,7 +128,7 @@ else
 
 			ATLAS_NEEDED=`nm -u $BLAS_HOME/lib/libcblas.a | grep ATL`
 			if test -n "$ATLAS_NEEDED"; then
-				ATLAS_LIBS="-lcblas -latlas"	
+				ATLAS_LIBS="-lcblas -latlas"
 			else
 				ATLAS_LIBS="-lcblas"
 			fi		
@@ -214,7 +214,7 @@ fi
 ###
 if test "x$blas_found" != "xyes" ; then
 	AC_MSG_CHECKING(for others BLAS)
-	CBLAS="no"	 	
+	CBLAS="no"
 	CBLAS_FLAG=""
 	if test -n "$BLAS_VAL"; then
 		if   test -d "$BLAS_VAL"; then
@@ -270,7 +270,7 @@ if test "x$blas_found" != "xyes" ; then
 			CBLAS="no"
 			CBLAS_FLAG=""
 
-			test -r "$BLAS_HOME/lib/libblas.a"; then
+			if test -r "$BLAS_HOME/lib/libblas.a"; then
 				if test "x$BLAS_HOME" = "x/usr" -o "x$BLAS_HOME" = "/usr/local" ; then
  					BLAS_LIBS="-lblas"
 				else
