@@ -5,9 +5,10 @@ INCLUDES=-I$(top_srcdir)
 
 SUBDIRS=util element ring blas vector matrix randiter algorithms solutions
 
-BASIC_HDRS =				\
+BASIC_HDRS =		\
 	integer.h	\
-	config-blas.h	lela-config.h
+	cblas.h		\
+	lela-config.h
 
 pkginclude_HEADERS =			\
 	$(BASIC_HDRS)

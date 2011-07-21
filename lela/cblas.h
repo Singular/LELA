@@ -1,27 +1,19 @@
-/* config-blas.h
+/* lela/cblas.h
  * Copyright (C) 2005  Pascal Giorgi
  *               2007  Clement Pernet
+ *               2011  Bradford Hovinen
  * Written by Pascal Giorgi <pgiorgi@uwaterloo.ca>
+ * Modifications and additions by Bradford Hovinen <hovinen@gmail.com>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * Interface to Fortran-based BLAS-implementation
+ * ------------------------------------
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * See COPYING for license information.
  */
 
 
-#ifndef __LELA_config_blas_H
-#define __LELA_config_blas_H
+#ifndef __LELA_CBLAS_H
+#define __LELA_CBLAS_H
 
 // #ifndef __LELA_CONFIGURATION
 // #include <lela-config.h>
@@ -41,6 +33,8 @@
 extern "C" {
   
 	// level 1 routines
+	void   saxpy_   (const int*, const float*, const float*, const int*, float*, const int*);
+	float  sdot_    (const int*, const float*, const int*, const float*, const int*);
 	void   daxpy_   (const int*, const double*, const double*, const int*, double*, const int*);
 	double ddot_    (const int*, const double*, const int*, const double*, const int*);
 	double dasum_   (const int*, const double*, const int*);
@@ -51,6 +45,7 @@ extern "C" {
 	void dgemv_ (const char*, const int*, const int*, const double*, const double*, const int*, const double*, const int*, const double*, double*, const int*);
 	void sgemv_ (const char*, const int*, const int*, const float*, const float*, const int*, const float*, const int*, const float*, float*, const int*);
 	void dger_  (const int*, const int*, const double*, const double*, const int*, const double*, const int*, double*, const int*);
+	void sger_  (const int*, const int*, const float*, const float*, const int*, const float*, const int*, float*, const int*);
 
 	// level 3 routines
 	void dtrsm_ (const char*, const char*, const char*, const char*, const int*, const int*, const double*, const double*, const int*, double*, const int*);
@@ -101,6 +96,28 @@ extern "C" {
 
 	// level 1 routines
 
+	void cblas_sscal(int N, const float alpha, float *X, const int incX)
+	{
+		for (; N-- > 0; X += incX)
+			*X *= alpha;
+	}
+  
+	void cblas_dscal(int N, const float alpha, double *X, const int incX)
+	{
+		for (; N-- > 0; X += incX)
+			*X *= alpha;
+	}
+  
+	void cblas_saxpy(const int N, const float alpha, const float *X, const int incX, float *Y, const int incY)
+	{
+		saxpy_ (&N,&alpha, X, &incX, Y, &incY);
+	}
+  
+	float cblas_sdot(const int N, const float *X, const int incX, const float *Y, const int incY)
+	{
+		return sdot_ (&N, X, &incX, Y, &incY);
+	}
+  
 	void cblas_daxpy(const int N, const double alpha, const double *X, const int incX, double *Y, const int incY)
 	{
 		daxpy_ (&N,&alpha, X, &incX, Y, &incY);
@@ -152,6 +169,64 @@ extern "C" {
 			dger_ (&M, &N, &alpha, X, &incX, Y, &incY, A, &lda);
 	}
 
+	void cblas_sger(const enum CBLAS_ORDER Order, const int M, const int N, const float alpha, const float *X, const int incX,
+			const float *Y, const int incY, float *A, const int lda)
+	{  
+		if (Order == CblasRowMajor)
+			sger_ (&N, &M, &alpha, Y, &incY, X, &incX, A, &lda);
+		else
+			sger_ (&M, &N, &alpha, X, &incX, Y, &incY, A, &lda);
+	}
+
+	void cblas_dtrsv(const enum CBLAS_ORDER Order, const enum CBLAS_SIDE Side, const enum CBLAS_UPLO Uplo, const enum CBLAS_TRANSPOSE TransA,
+			 const enum CBLAS_DIAG Diag, const int M, const double *A, const int lda,
+			 double *B, const int ldb)
+	{  
+		static const double alpha = 1.0;
+		static const int N = 1;
+
+		if (Order == CblasRowMajor) 
+			dtrsm_ ( EXT_BLAS_SIDE_tr(Side), EXT_BLAS_UPLO_tr(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &N, &M, &alpha, A, &lda, B, &ldb); 
+		else
+			dtrsm_ ( EXT_BLAS_SIDE(Side), EXT_BLAS_UPLO(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &M, &N, &alpha, A, &lda, B, &ldb);
+	}
+	void cblas_strsv(const enum CBLAS_ORDER Order, const enum CBLAS_SIDE Side, const enum CBLAS_UPLO Uplo, const enum CBLAS_TRANSPOSE TransA,
+			 const enum CBLAS_DIAG Diag, const int M, const float *A, const int lda,
+			 float *B, const int ldb)
+	{  
+		static const float alpha = 1.0;
+		static const int N = 1;
+
+		if (Order == CblasRowMajor) 
+			strsm_ ( EXT_BLAS_SIDE_tr(Side), EXT_BLAS_UPLO_tr(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &N, &M, &alpha, A, &lda, B, &ldb); 
+		else
+			strsm_ ( EXT_BLAS_SIDE(Side), EXT_BLAS_UPLO(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &M, &N, &alpha, A, &lda, B, &ldb);
+	}
+  
+	void cblas_dtrmv(const enum CBLAS_ORDER Order, const enum CBLAS_SIDE Side, const enum CBLAS_UPLO Uplo, const enum CBLAS_TRANSPOSE TransA,
+			 const enum CBLAS_DIAG Diag, const int M, const double *A, const int lda,
+			 double *B, const int ldb)
+	{  
+		static const double alpha = 1.0;
+		static const int N = 1;
+
+		if (Order == CblasRowMajor)
+			dtrmm_ ( EXT_BLAS_SIDE_tr(Side), EXT_BLAS_UPLO_tr(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &N, &M, &alpha, A, &lda, B, &ldb);
+		else
+			dtrmm_ ( EXT_BLAS_SIDE(Side), EXT_BLAS_UPLO(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &M, &N, &alpha, A, &lda, B, &ldb);
+	}
+	void cblas_strmv(const enum CBLAS_ORDER Order, const enum CBLAS_SIDE Side, const enum CBLAS_UPLO Uplo, const enum CBLAS_TRANSPOSE TransA,
+			 const enum CBLAS_DIAG Diag, const int M, const float *A, const int lda,
+			 float *B, const int ldb)
+	{  
+		static const float alpha = 1.0;
+		static const int N = 1;
+
+		if (Order == CblasRowMajor)
+			strmm_ ( EXT_BLAS_SIDE_tr(Side), EXT_BLAS_UPLO_tr(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &N, &M, &alpha, A, &lda, B, &ldb);
+		else
+			strmm_ ( EXT_BLAS_SIDE(Side), EXT_BLAS_UPLO(Uplo), EXT_BLAS_TRANSPOSE(TransA), EXT_BLAS_DIAG(Diag), &M, &N, &alpha, A, &lda, B, &ldb);
+	}
 
 
 	// level 3 routines
@@ -368,7 +443,13 @@ extern "C" {
 }
 #endif
 
-#endif //__LELA_config_blas_H
+#endif //__LELA_CBLAS_H
 
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

@@ -84,12 +84,12 @@ if test -n "$BLAS_VAL"; then
 
 	AC_TRY_LINK(
 	[#define __LELA_CONFIGURATION
-         #include "lela/config-blas.h"],
+         #include "lela/cblas.h"],
 	[double a;],
 	[
 	AC_TRY_RUN(
 	[#define __LELA_CONFIGURATION
-       	 #include "lela/config-blas.h"
+       	 #include "lela/cblas.h"
 	 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 			cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 			if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))
@@ -153,12 +153,12 @@ else
 
 		AC_TRY_LINK(
 		[#define __LELA_CONFIGURATION
-       		  #include "lela/config-blas.h"],
+       		  #include "lela/cblas.h"],
 		[double a;],
 		[
 		AC_TRY_RUN(
 		[#define __LELA_CONFIGURATION
-     	         #include "lela/config-blas.h"
+     	         #include "lela/cblas.h"
 		 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 				cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 				if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))
@@ -213,7 +213,7 @@ fi
 ### Check if other BLAS are available (only if C BLAS are not available)
 ###
 if test "x$blas_found" != "xyes" ; then
-	AC_MSG_CHECKING(for others BLAS)
+	AC_MSG_CHECKING(for other BLAS)
 	CBLAS="no"
 	CBLAS_FLAG=""
 	if test -n "$BLAS_VAL"; then
@@ -232,12 +232,12 @@ if test "x$blas_found" != "xyes" ; then
 
 		AC_TRY_LINK(
 		[#define __LELA_CONFIGURATION
-       		 #include "lela/config-blas.h"],
+       		 #include "lela/cblas.h"],
 		[double a;],
 		[
 		AC_TRY_RUN(
 		[#define __LELA_CONFIGURATION
-       		 #include "lela/config-blas.h"
+       		 #include "lela/cblas.h"
 		 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 				cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 				if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))
@@ -291,12 +291,12 @@ if test "x$blas_found" != "xyes" ; then
 
 			AC_TRY_LINK(	
 			[#define __LELA_CONFIGURATION
-       		         #include "lela/config-blas.h"],	
+       		         #include "lela/cblas.h"],	
 			[double a;],
 			[
 			AC_TRY_RUN(
 			[#define __LELA_CONFIGURATION
-     		         #include "lela/config-blas.h"
+     		         #include "lela/cblas.h"
 			 int main () {  double a[4] = {1.,2.,3.,4.}; double b[4]= {4.,3.,2.,1.}; double c[4]; 
 					cblas_dgemm(CblasRowMajor, CblasNoTrans,CblasNoTrans,2,2,2,1., a,2,b,2,0.,c,2);
 					if ( (c[0]!=8.) && (c[1]!=5.) && (c[2]!=20.) && (c[3]!=13))

@@ -17,7 +17,11 @@
 #  error "A working installation of BLAS is required to use this header-file."
 #endif // __LELA_BLAS_AVAILABLE
 
-#include <cblas.h>
+#ifdef __LELA_HAVE_CBLAS
+#  include <cblas.h>
+#else // !__LELA_HAVE_CBLAS
+#  include "lela/cblas.h"
+#endif // __LELA_HAVE_CBLAS
 
 #include "lela/blas/context.h"
 #include "lela/vector/traits.h"
