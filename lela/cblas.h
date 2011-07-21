@@ -11,7 +11,6 @@
  * See COPYING for license information.
  */
 
-
 #ifndef __LELA_CBLAS_H
 #define __LELA_CBLAS_H
 
@@ -289,82 +288,10 @@ extern "C" {
 	}
 
 	// LAPACK routines
-
-#ifdef  __LELA_HAVE_DGETRF
-
-	// return A=P.L.U (L unitary) with ColMajor
-	// return A=L.U.P (U unitary) with RowMajor
-	int clapack_dgetrf(const enum CBLAS_ORDER Order, const int M, const int N,
-			   double *A, const int lda, int *ipiv) 
-        {
-            int info;
-	    dgetrf_ ( &M, &N, A, &lda, ipiv, &info);
-            return info;
-        }
-#endif
-
-#ifdef  __LELA_HAVE_DGETRI
-	int clapack_dgetri(const enum CBLAS_ORDER Order, const int N, double *A,
-			   const int lda, const int *ipiv)
-	{
-		int info;
-		double *work;	
-
-#ifndef __LELA_AUTOIMPLEMENT_DGETRI
-		// the optimum size of work can be determinted via the 
-		// Lapack function ilaenv. 
-		work= new double[N];
-		dgetri_ (&N, A, &lda, ipiv, work, &N,  &info);
-		delete[] work;
-#else
-		work= new double[N*N];
-		dtrtri_("U","N", &N, A, &lda, &info);
-		if (info > 0) 
-			return 0;
-		
-		for (int i=0;i<N;++i){
-			for(int j=i;j<N;++j){
-				work[i*N+j]=A[i*N+j];
-				if (j>i) A[i*N+j]=0.0;
-			}	      
-			work[i*N+i]=1.;
-		}
-		
-		double cst=1.;
-		dtrsm_ ("R", "L", "N", "U", &N, &N, &cst, work, &N, A, &N);
-		
-		int ip;
-		const int incr=1;
-		for (int i=0; i<N; ++i){
-			ip = ipiv[i]-1;
-			if (ip != i) 
-				dswap_ (&N, &A[i*lda],&incr , &A[ip*lda], &incr);
-		}
-		
-		delete[] work;
-#endif
-		return info;	
-	}
-#endif
-
-#ifdef  __LELA_HAVE_DTRTRI
-	int clapack_dtrtri(const enum CBLAS_ORDER Order,const enum CBLAS_UPLO Uplo,
-			   const enum CBLAS_DIAG Diag,const int N, double *A, const int lda)
-	{
-		int info;
-		if (Order == CblasRowMajor)
-			dtrtri_ (EXT_BLAS_UPLO_tr(Uplo), EXT_BLAS_DIAG(Diag), &N, A, &lda, &info);
-		else
-			dtrtri_ (EXT_BLAS_UPLO(Uplo), EXT_BLAS_DIAG(Diag), &N, A, &lda, &info);
-		
-		return info;		
-	}
-#endif
-
-
 } 
 
-#else
+#else // __LELA_HAVE_CBLAS
+
 extern "C" {
 	
 
@@ -384,9 +311,25 @@ extern "C" {
 
 	// level 1 routines
 
+	void cblas_sscal(int N, const float alpha, float *X, const int incX)
+	{
+		for (; N-- > 0; X += incX)
+			*X *= alpha;
+	}
+  
+	void cblas_dscal(int N, const float alpha, double *X, const int incX)
+	{
+		for (; N-- > 0; X += incX)
+			*X *= alpha;
+	}
+  
 	void   cblas_daxpy(const int N, const double alpha, const double *X, const int incX, double *Y, const int incY);
 
+	void   cblas_saxpy(const int N, const float alpha, const float *X, const int incX, float *Y, const int incY);
+
 	double cblas_ddot(const int N, const double *X, const int incX, const double *Y, const int incY);
+
+	double cblas_sdot(const int N, const float *X, const int incX, const float *Y, const int incY);
   
 	double cblas_dasum(const int N, const double *X, const int incX);
   
@@ -441,7 +384,8 @@ extern "C" {
 	int clapack_dtrtri(const enum CBLAS_ORDER Order,const enum CBLAS_UPLO Uplo,
 			   const enum CBLAS_DIAG Diag,const int N, double *A, const int lda);
 }
-#endif
+
+#endif // __LELA_HAVE_CBLAS
 
 #endif //__LELA_CBLAS_H
 

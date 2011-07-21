@@ -233,7 +233,7 @@ int main (int argc, char **argv)
 
 	commentator.start ("Faugère-Lachartre test suite", "FaugereLachartre");
 
-	Modular<uint8> R (5);
+	Modular<float> R (101);
 
 	pass = testFaugereLachartre (R, "GF(5)", m, n);
 

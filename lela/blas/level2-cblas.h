@@ -16,11 +16,7 @@
 #  error "A working installation of BLAS is required to use this header-file."
 #endif // __LELA_BLAS_AVAILABLE
 
-#ifdef __LELA_HAVE_CBLAS
-#  include <cblas.h>
-#else // !__LELA_HAVE_CBLAS
-#  include "lela/cblas.h"
-#endif // __LELA_HAVE_CBLAS
+#include "lela/cblas.h"
 
 #include "lela/blas/context.h"
 #include "lela/ring/type-wrapper.h"
