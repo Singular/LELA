@@ -16,6 +16,7 @@
 #include "test-common.h"
 
 #include "lela/util/commentator.h"
+#include "lela/ring/modular.h"
 #include "lela/ring/gf2.h"
 #include "lela/randiter/mersenne-twister.h"
 #include "lela/algorithms/faugere-lachartre.h"
@@ -31,8 +32,28 @@ typedef Vector<GF2>::Hybrid::Endianness Endianness;
 
 // Generate a random sparse vector in which all nonzero entries occur after column col and the entry at col is guaranteed to be one
 
-template <class Vector>
-void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Sparse01)
+template <class Ring, class Vector>
+void randomVectorStartingAtSpec (const Ring &R, Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Sparse)
+{
+	double val;
+	int skip;
+	typename Vector::value_type::first_type idx = col;
+
+	NonzeroRandIter<Ring> ri (R, typename Ring::RandIter (R));
+
+	v.clear ();
+
+	while (idx < coldim) {
+		v.push_back (typename Vector::value_type (idx, typename Ring::Element ()));
+		ri.random (v.back ().second);
+		val = MT.randomDouble ();
+		skip = (int) (ceil (log (val) / log (1 - nonzero_density)));
+		idx += std::max (skip, 1);
+	}
+}
+
+template <class Ring, class Vector>
+void randomVectorStartingAtSpec (const Ring &R, Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Sparse01)
 {
 	double val;
 	int skip;
@@ -48,8 +69,8 @@ void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneT
 	}
 }
 
-template <class Vector>
-void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Hybrid01)
+template <class Ring, class Vector>
+void randomVectorStartingAtSpec (const Ring &R, Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Hybrid01)
 {
 	size_t t;
 	typename Vector::index_type idx;
@@ -84,12 +105,12 @@ void randomVectorStartingAtSpec (Vector &v, size_t col, size_t coldim, MersenneT
 	}
 }
 
-template <class Vector>
-void randomVectorStartingAt (Vector &v, size_t col, size_t coldim, MersenneTwister &MT)
-	{ randomVectorStartingAtSpec (v, col, coldim, MT, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
+template <class Ring, class Vector>
+void randomVectorStartingAt (const Ring &R, Vector &v, size_t col, size_t coldim, MersenneTwister &MT)
+	{ randomVectorStartingAtSpec (R, v, col, coldim, MT, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
-template <class Matrix>
-void createRandomF4Matrix (Matrix &A)
+template <class Ring, class Matrix>
+void createRandomF4Matrix (const Ring &R, Matrix &A)
 {
 	MersenneTwister MT;
 	typename Matrix::RowIterator i_A;
@@ -119,24 +140,27 @@ void createRandomF4Matrix (Matrix &A)
 		if (col >= A.coldim ())
 			break;
 
-		randomVectorStartingAt (*i_A, col, A.coldim (), MT);
+		randomVectorStartingAt (R, *i_A, col, A.coldim (), MT);
 	}
 }
 
 // Small version of the test, for debugging
 
 template <class Ring>
-bool testFaugereLachartre (const Ring &R, size_t m, size_t n)
+bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n)
 {
 	bool pass = true;
 
-	commentator.start ("Testing Faugère-Lachartre implementation", __FUNCTION__);
+	std::ostringstream str;
+	str << "Testing Faugère-Lachartre implementation over " << text << std::ends;
+
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	typename DefaultSparseMatrix<Ring>::Type A (m, n), C (m, n);
 	DenseMatrix<typename Ring::Element> L (m, m);
 	typename GaussJordan<Ring>::Permutation P;
 
-	createRandomF4Matrix (A);
+	createRandomF4Matrix (R, A);
 
 	Context<Ring> ctx (R);
 	FaugereLachartre<Ring> Solver (ctx);
@@ -209,9 +233,13 @@ int main (int argc, char **argv)
 
 	commentator.start ("Faugère-Lachartre test suite", "FaugereLachartre");
 
+	Modular<uint8> R (5);
+
+	pass = testFaugereLachartre (R, "GF(5)", m, n);
+
 	GF2 gf2;
 
-	pass = testFaugereLachartre (gf2, m, n);
+	pass = testFaugereLachartre (gf2, "GF(2)", m, n) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 

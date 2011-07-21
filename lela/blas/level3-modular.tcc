@@ -35,8 +35,11 @@ Matrix3 &_gemm<Modular<float>, typename ZpModule<float>::Tag>::gemm_impl
 	if (M.block_size == 1 || !F.div (ainvb, b, a))
 		return _gemm<Modular<float>, typename ZpModule<float>::Tag::Parent>::op (F, M, a, A, B, b, C);
 
-	if (F.isZero (a))
+	if (F.isZero (a) || A.coldim () == 0)
 		return _scal<Modular<float>, typename ZpModule<float>::Tag>::op (F, M, b, C);
+
+	if (C.coldim () == 0)
+		return C;
 
 	TypeWrapperRing<float> Rp;
 
@@ -82,8 +85,11 @@ Matrix3 &_gemm<Modular<double>, typename ZpModule<double>::Tag>::gemm_impl
 	if (M.block_size == 1 || !F.div (ainvb, b, a))
 		return _gemm<Modular<double>, typename ZpModule<double>::Tag::Parent>::op (F, M, a, A, B, b, C);
 
-	if (F.isZero (a))
+	if (F.isZero (a) || A.coldim () == 0)
 		return _scal<Modular<double>, typename ZpModule<double>::Tag>::op (F, M, b, C);
+
+	if (C.coldim () == 0)
+		return C;
 
 	TypeWrapperRing<double> Rp;
 
