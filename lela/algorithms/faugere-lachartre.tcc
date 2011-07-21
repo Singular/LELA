@@ -268,7 +268,7 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 
 	commentator.start ("Constructing A^-1 B");
 
-	BLAS3::trsm (ctx, ctx.F.one (), A, B, UpperTriangular, true);
+	BLAS3::trsm (ctx, ctx.F.one (), A, B, UpperTriangular, false);
 
 	commentator.stop (MSG_DONE);
 
@@ -331,7 +331,7 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 
 	commentator.start ("Constructing D1^-1 D2");
 
-	BLAS3::trsm (ctx, ctx.F.one (), D1, D2, UpperTriangular, true);			
+	BLAS3::trsm (ctx, ctx.F.one (), D1, D2, UpperTriangular, false);
 
 	commentator.stop (MSG_DONE);
 
