@@ -319,7 +319,7 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, b
 
 	int current_row = rank - 1, elim_row;
 
-	typename Ring::Element a, x, negainv, negxainv;
+	typename Ring::Element a, x, ainv, negx;
 
 	// Make the compiler happy
 	ctx.F.copy (a, ctx.F.zero ());
@@ -334,26 +334,30 @@ Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, b
 		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
 			size_t col = BLAS1::head (ctx, a, *j_A);
 
-			if (!ctx.F.inv (negainv, a))
-				throw LELAError ("Could not invert pivot-element in the ring");
-
-			ctx.F.negin (negainv);
-
 			if (VectorUtils::getEntry (*i_A, x, col) && !ctx.F.isZero (x)) {
 				// DEBUG
 				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
 
-				ctx.F.mul (negxainv, x, negainv);
+				ctx.F.neg (negx, x);
 
-				BLAS1::axpy (ctx, negxainv, *j_A, *i_A);
+				BLAS1::axpy (ctx, negx, *j_A, *i_A);
 
 				if (compute_L)
-					BLAS1::axpy (ctx, negxainv, *(L.rowBegin () + elim_row), *i_L);
+					BLAS1::axpy (ctx, negx, *(L.rowBegin () + elim_row), *i_L);
 			}
 		}
 
-		if (compute_L)
+		BLAS1::head (ctx, a, *i_A);
+
+		if (!ctx.F.inv (ainv, a))
+			throw LELAError ("Could not invert pivot-element in the ring");
+
+		BLAS1::scal (ctx, ainv, *i_A);
+
+		if (compute_L) {
+			BLAS1::scal (ctx, ainv, *i_L);
 			--i_L;
+		}
 
 		if ((rank - current_row) % PROGRESS_STEP == 0)
 			commentator.progress ();
