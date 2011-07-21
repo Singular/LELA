@@ -65,13 +65,7 @@ int main (int argc, char **argv)
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (6);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_UNIMPORTANT);
 
-	commentator.start ("Testing GF2", "main", 10);
-
 	pass = runBasicRingTests (F, "GF(2)", iterations);
-
-	commentator.stop (MSG_STATUS (pass), (const char *) 0, "main");
-
-	if (!testRandomIterator (F, "GF2", trials, categories, hist_level)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 

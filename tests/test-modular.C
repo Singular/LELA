@@ -33,6 +33,159 @@
 using namespace LELA;
 using namespace std;
 
+/* Random number test
+ *
+ * Test that the random iterator over the given ring works
+ */
+
+template <class Element>
+bool testRandomIteratorStep (const Modular<Element> &F,
+			     const char *text,
+			     unsigned int num_trials,
+			     unsigned int num_categories,
+			     unsigned int hist_len) 
+{
+	//std::ostringstream str;
+
+	//str << "Testing " << text << "::RandIter" << std::ends;
+
+	//LELA::commentator.start (str.str ().c_str (), "testRandomIteratorStep");
+	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	bool ret = true;
+
+	LELA::integer card;
+	unsigned int i;
+	std::vector<int> categories1 (num_categories, 0);
+	std::vector<int> categories2 (num_categories, 0);
+	std::list<std::vector<int> > diff_categories;
+	std::list<Element> x_queue;
+
+	F.cardinality (card);
+
+	typename Modular<Element>::RandIter iter (F);
+	Element x,  d;
+
+	std::list<std::vector<int> >::iterator diff_cat_iter;
+
+	for (i = 0; i < hist_len; ++i)
+		diff_categories.push_back (std::vector<int> (num_categories, 0));
+
+	// I make the simplifying assumption that ring elements are actually
+	// C++ ints. Otherwise, I don't know how to place the numbers into
+	// categories in any well-defined manner.
+	for (i = 0; i < num_trials; ++i) {
+		iter.random (x);
+		integer ix (x), ixmodn;
+		ixmodn = ix % num_categories;
+		categories1[ixmodn.get_ui ()]++;
+		categories2[(unsigned int) (ix.get_d () / card.get_d () * num_categories)]++;
+
+		typename std::list<Element>::iterator x_queue_iter = x_queue.begin ();
+		diff_cat_iter = diff_categories.begin ();
+
+		for (; x_queue_iter != x_queue.end (); ++x_queue_iter, ++diff_cat_iter) {
+			integer id (F.sub (d, *x_queue_iter, x));
+			ixmodn = id % num_categories;
+			(*diff_cat_iter)[ixmodn.get_ui ()]++;
+		}
+
+		x_queue.push_front (x);
+
+		while (x_queue.size () > hist_len)
+			x_queue.pop_back ();
+	}
+
+	double p, chi_squared = 0.0;
+
+	for (i = 0; i < num_categories; ++i)
+		chi_squared += pow (double (categories1[i]) -
+				    double (num_trials) / double (num_categories), 2);
+
+	p = chiSquaredCDF (chi_squared * (double)num_categories / (double)num_trials, (double)num_categories - 1.0);
+
+	report << "Test of distribution uniformity (low-order): chi^2 = "
+	       << chi_squared * num_categories / num_trials << std::endl;
+	report << "Test of distribution uniformity (low-order):     p = " << p << std::endl;
+
+	if (p < 0.05 || p > 0.95) 
+		reportError("Random iterator's values do not appear to be uniformly distributed", ret);
+
+	chi_squared = 0.0;
+
+	for (i = 0; i < num_categories; ++i)
+		chi_squared += pow (double (categories2[i]) -
+				    double (num_trials) / double (num_categories), 2);
+
+	p = chiSquaredCDF (chi_squared * num_categories / num_trials, num_categories - 1);
+
+	report << "Test of distribution uniformity (high-order): chi^2 = "
+	       << chi_squared * num_categories / num_trials << std::endl;
+	report << "Test of distribution uniformity (high-order):     p = " << p << std::endl;
+
+	if (p < 0.05 || p > 0.95) 
+		reportError("Consistency failure for addition", ret);
+
+	diff_cat_iter = diff_categories.begin ();
+
+	int idx = 0;
+
+	for (; diff_cat_iter != diff_categories.end (); ++diff_cat_iter, ++idx) {
+		chi_squared = 0.0;
+
+		for (i = 0; i < num_categories; ++i)
+			chi_squared += pow (double ((*diff_cat_iter)[i]) -
+					    double (num_trials) / double (num_categories), 2);
+
+		p = chiSquaredCDF (chi_squared * num_categories / num_trials, num_categories - 1);
+
+		report << "Test of " << idx + 1 << " spacing: chi^2 = "
+		       << chi_squared * num_categories / num_trials << std::endl;
+		report << "Test of " << idx + 1 << " spacing:     p = " << p << std::endl;
+
+		if (p < 0.05 || p > 0.95) 
+			reportError("Difference values do not appear to be uniformly distributed", ret);
+	}
+
+	//LELA::commentator.stop (MSG_STATUS (ret), (const char *) 0, "testRandomIteratorStep");
+	return ret;
+}
+
+/** Random number test
+ *
+ * Test that the random iterator over the given ring works.
+ *
+ * Test up to five times, accepting any one, to increase probability of 
+ * passing statistical tests.
+ */
+template <class Element>
+bool testRandomIterator (const Modular<Element> &F, const char *text,
+			 unsigned int num_trials,
+			 unsigned int num_categories,
+			 unsigned int hist_len) 
+{
+	std::ostringstream str;
+
+	str << "Testing " << text << "::RandIter" << std::ends;
+	char * st = new char[str.str().size()];
+	strcpy (st, str.str().c_str());
+
+	LELA::commentator.start (st, "testRandomIterator");
+
+	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+	/* This test either passes or runs a lot of times */
+	for (int i = 1; !testRandomIteratorStep (F, text, num_trials, num_categories, hist_len) && i < 20; ++i)
+		if (0 == i % 10)  
+			report << "Warning! Probable failure of uniformity" << std::endl;
+
+	LELA::commentator.stop (MSG_STATUS (true), (const char *) 0, "testRandomIterator");
+
+	delete[] st;
+	return true;
+
+}
+
 int main (int argc, char **argv)
 {
 	static integer q1("18446744073709551557");
