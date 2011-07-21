@@ -1933,6 +1933,15 @@ public:
 	the section <xref linkend="newblas"/> for more information on
 	this mechanism.
       </para>
+
+      <para>
+	In any event, the header-files defining the BLAS-modules for
+	your new ring must be included at the end of the header-file
+	defining your ring. In particular, the
+	files <filename>lela/blas/level1-generic.h</filename>, <filename>lela/blas/level2-generic.h</filename>,
+	and <filename>lela/blas/level3-generic.h</filename> must be
+	included.
+      </para>
     </section>
     <section xml:id="newvectors">
       <title>Creating new vector- and matrix-types</title>
