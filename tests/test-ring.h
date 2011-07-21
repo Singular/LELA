@@ -1130,10 +1130,10 @@ bool runRingTests (const Ring &F, const char *desc, unsigned int iterations, boo
 
 template <class Ring>
 bool testRandomIteratorStep (const Ring &F,
-			 const char *text,
-			 unsigned int num_trials,
-			 unsigned int num_categories,
-			 unsigned int hist_len) 
+			     const char *text,
+			     unsigned int num_trials,
+			     unsigned int num_categories,
+			     unsigned int hist_len) 
 {
 	//std::ostringstream str;
 
@@ -1165,9 +1165,8 @@ bool testRandomIteratorStep (const Ring &F,
 	// C++ ints. Otherwise, I don't know how to place the numbers into
 	// categories in any well-defined manner.
 	for (i = 0; i < num_trials; ++i) {
-		integer ix, id, ixmodn;
-		F.convert(ix, iter.random (x));
-
+		iter.random (x);
+		integer ix (x), ixmodn;
 		ixmodn = ix % num_categories;
 		categories1[ixmodn.get_ui ()]++;
 		categories2[(unsigned int) (ix.get_d () / card.get_d () * num_categories)]++;
@@ -1176,7 +1175,7 @@ bool testRandomIteratorStep (const Ring &F,
 		diff_cat_iter = diff_categories.begin ();
 
 		for (; x_queue_iter != x_queue.end (); ++x_queue_iter, ++diff_cat_iter) {
-			F.convert(id, F.sub (d, *x_queue_iter, x));
+			integer id (F.sub (d, *x_queue_iter, x));
 			ixmodn = id % num_categories;
 			(*diff_cat_iter)[ixmodn.get_ui ()]++;
 		}
