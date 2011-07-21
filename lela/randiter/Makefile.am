@@ -1,10 +1,11 @@
 # Copyright (c) 2010 the LELA group
 # This file is part of LELA
 # see COPYING for licence
-INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GMP_CFLAGS)
-pkgincludesubdir=$(pkgincludedir)/randiter
 
-AM_CXXFLAGS = -O2 -Wall -DDISABLE_COMMENTATOR $(GMP_CFLAGS) $(ATLAS_CFLAGS)
+INCLUDES=-I$(top_srcdir) -I$(top_builddir) $(GMP_CFLAGS)
+AM_CXXFLAGS = -O2 -Wall
+
+pkgincludesubdir=$(pkgincludedir)/randiter
 
 BASIC_HDRS =				\
 	interface.h			\
