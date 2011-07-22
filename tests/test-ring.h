@@ -118,28 +118,62 @@ bool testRing (Ring &F, const char *title, bool ringp = true)
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
 
-#if 0 // This test makes no sense any more, since convert has been removed
-	commentator.start ("Testing init/convert");
+	commentator.start ("Testing init");
 	part_pass = true;
 
-	if (F.cardinality (m) <= 0)
-		n = 49193295;   // Just using some odd value
-	else
-		n -= 1;
+	int pos_cases[] = { 1, 10, 20, 97 };
+	int neg_cases[] = { -1, -10, -20, -97 };
+
+	// Test zero
+	F.init (a, 0);
+
+	report << "Result of F.init (a, 0): ";
+	F.write (report, a);
+
+	if (!F.isZero (a))
+		part_pass = reportError ("Ring reports F.init (a, 0) != 0", pass);
+
+	size_t j;
+	int v;
 	
-	report << "Initial integer: " << n << endl;
-	F.init (a, n);
-	F.write (report << "Result of init: ", a) << endl;
+	for (j = 0; j < sizeof (pos_cases) / sizeof (int); ++j) {
+		F.init (a, pos_cases[j]);
+		F.copy (b, F.zero ());
 
-	F.convert (m, a);
-	report << "Result of convert: " << m << endl;
+		for (v = 0; v < pos_cases[j]; ++v)
+			F.addin (b, F.one ());
 
-	if (m != n)
-		part_pass = reportError ("F.convert (m, F.init (a, n)) != n", pass);
+		if (!F.areEqual (a, b)) {
+			std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+			error << "Ring reports F.init (a, " << pos_cases[j] << ") != 1 + ... + 1 (" << pos_cases[j] << " summands)" << std::endl
+			      << "Reported value of a = ";
+			F.write (error, a) << std::endl
+					   << "Reported value of sum = ";
+			F.write (error, b) << std::endl;
+			part_pass = false;
+		}
+	}
+
+	for (j = 0; j < sizeof (neg_cases) / sizeof (int); ++j) {
+		F.init (a, neg_cases[j]);
+		F.copy (b, F.zero ());
+
+		for (v = 0; v < -neg_cases[j]; ++v)
+			F.addin (b, F.minusOne ());
+
+		if (!F.areEqual (a, b)) {
+			std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+			error << "Ring reports F.init (a, " << neg_cases[j] << ") != -1 + ... + -1 (" << neg_cases[j] << " summands)" << std::endl
+			      << "Reported value of a = ";
+			F.write (error, a) << std::endl
+					   << "Reported value of sum = ";
+			F.write (error, b) << std::endl;
+			part_pass = false;
+		}
+	}
 
 	commentator.stop (MSG_STATUS (part_pass));
 	commentator.progress ();
-#endif // Test disabled
 
 	commentator.start ("Testing ring arithmetic");
 	part_pass = true;
