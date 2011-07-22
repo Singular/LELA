@@ -129,7 +129,7 @@ public:
 		{ return ger_impl (F, M, a, x, y, A,
 				   typename VectorTraits<GF2, Vector1>::RepresentationType (),
 				   typename VectorTraits<GF2, Vector2>::RepresentationType (),
-				   typename Matrix::RepresentationType ()); }
+				   typename Matrix::IteratorType ()); }
 };
 
 } // namespace BLAS2
