@@ -144,7 +144,7 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::trmv_impl
 	lela_check (A.coldim () == A.rowdim ());
 	lela_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 
-	static const int align = const_lcm<const_lcm<Matrix::colAlign, Matrix::rowAlign>::val, Vector::align>::val;
+	static const int align = const_lcm<const_lcm<Matrix::colAlign, Matrix::rowAlign>::val, VectorTraits<Ring, Vector>::align>::val;
 
 	if (A.rowdim () == 0)
 		return x;
@@ -216,7 +216,7 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::trsv_impl
 	lela_check (A.coldim () == A.rowdim ());
 	lela_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 
-	static const int align = const_lcm<const_lcm<Matrix::colAlign, Matrix::rowAlign>::val, Vector::align>::val;
+	static const int align = const_lcm<const_lcm<Matrix::colAlign, Matrix::rowAlign>::val, VectorTraits<Ring, Vector>::align>::val;
 
 	if (A.rowdim () == 0)
 		return x;
