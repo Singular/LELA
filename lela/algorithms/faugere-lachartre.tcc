@@ -234,6 +234,8 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 
 	size_t num_pivot_rows;
 
+	ctx.F.copy (det, ctx.F.one ());
+
 	setup_splicer (X_splicer, X_reconst_splicer, X, num_pivot_rows, det);
 	rank = num_pivot_rows;
 
