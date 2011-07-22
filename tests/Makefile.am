@@ -149,6 +149,8 @@ test_faugere_lachartre_SOURCES = \
 	test-common.C		\
 	test-faugere-lachartre.C
 
+benchmark_blas_CXXFLAGS = -O2
+
 benchmark_blas_SOURCES =    \
 	benchmark-blas.C    \
 	test-common.C	    \

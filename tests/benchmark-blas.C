@@ -12,8 +12,8 @@
 
 #include "lela/util/commentator.h"
 #include "lela/blas/context.h"
-#include "lela/field/gf2.h"
-#include "lela/field/modular.h"
+#include "lela/ring/gf2.h"
+#include "lela/ring/modular.h"
 #include "lela/matrix/dense.h"
 #include "lela/matrix/sparse.h"
 #include "lela/vector/stream.h"
@@ -24,118 +24,142 @@
 
 using namespace LELA;
 
-static long l = 5000;
-static long n = 5000;
-static long m = 5000;
-static long k = 50;
+static long l = 10000;
+static long n = 10000;
+static long m = 10000;
+static long k = 100;
 static integer q_uint8 = 101U;
 static integer q_uint32 = 2147483647U;
+static integer q_float = 101U;
+static integer q_double = 2000003U;
 static int iterations = 1;
-static bool enable_dense = false;
+static bool enable_dense = true;
 static bool enable_sparse = false;
-static bool enable_gf2 = false;
-static bool enable_uint8 = false;
-static bool enable_uint32 = false;
+static bool enable_hybrid = true;
+static bool enable_gf2 = true;
+static bool enable_uint8 = true;
+static bool enable_uint32 = true;
+static bool enable_float = true;
+static bool enable_double = true;
 
-template <class Field>
-void runBenchmarks (const Field &F)
+template <class Ring, class Modules>
+void runBenchmarks (Context<Ring, Modules> &ctx, const char *text1, const char *text2)
 {
-	typedef typename Field::Element Element;
+	typedef typename Ring::Element Element;
 
-	Context<Field> ctx (F);
+	std::ostringstream str;
+	str << "Running benchmarks for " << text1 << " over " << text2 << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	NonzeroRandIter<Field> r (F, typename Field::RandIter (F));
-	typename Field::Element a;
+	NonzeroRandIter<Ring> r (ctx.F, typename Ring::RandIter (ctx.F));
+	typename Ring::Element a, b;
 	r.random (a);
-
-	DenseMatrix<Element> C (l, n), D (l, m), D1 (l, m);
+	r.random (b);
 
 	if (enable_dense) {
-		RandomDenseStream<Field, typename DenseMatrix<Element>::Row> stream1 (F, m, l);
-		RandomDenseStream<Field, typename DenseMatrix<Element>::Row> stream2 (F, n, m);
+		RandomDenseStream<Ring, typename DenseMatrix<Element>::Row> stream1 (ctx.F, m, l);
+		RandomDenseStream<Ring, typename DenseMatrix<Element>::Row> stream2 (ctx.F, n, m);
+		RandomDenseStream<Ring, typename DenseMatrix<Element>::Row> stream3 (ctx.F, n, l);
 
 		DenseMatrix<Element> M1 (stream1);
 		DenseMatrix<Element> M2 (stream2);
+		DenseMatrix<Element> M3 (stream3);
 
 		commentator.start ("gemm (dense)", "gemm");
-		BLAS3::gemm (ctx, a, M1, M2, F.zero (), C);
+		BLAS3::gemm (ctx, a, M1, M2, b, M3);
 		commentator.stop ("done");
 	}
 
 	if (enable_sparse) {
-		ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-
-		RandomSparseStream<Field, typename SparseMatrix<Element>::Row> stream1 (F, (double) k / (double) m, m, l);
-		RandomSparseStream<Field, typename SparseMatrix<Element>::Row> stream2 (F, (double) k / (double) n, n, m);
+		RandomSparseStream<Ring, typename SparseMatrix<Element>::Row> stream1 (ctx.F, (double) k / (double) m, m, l);
+		RandomSparseStream<Ring, typename SparseMatrix<Element>::Row> stream2 (ctx.F, (double) k / (double) n, n, m);
+		RandomSparseStream<Ring, typename SparseMatrix<Element>::Row> stream3 (ctx.F, (double) k / (double) n, n, l);
 
 		SparseMatrix<Element> M1 (stream1);
 		SparseMatrix<Element> M2 (stream2);
-
-		TransposeMatrix<SparseMatrix<Element> > M2T (M2);
-
-		SparseMatrix<Element> M2Tp (M2.coldim (), M2.rowdim ());
-
-		M2.transpose (M2Tp);
+		SparseMatrix<Element> M3 (stream3);
 
 		commentator.start ("gemm (SparseVector)", "gemm");
-		BLAS3::gemm (ctx, a, M1, M2Tp, F.zero (), D1);
+		BLAS3::gemm (ctx, a, M1, M2, b, M3);
 		commentator.stop ("done");
-
-		commentator.start ("gemm (SparseVector transpose)", "gemm");
-		BLAS3::gemm (ctx, a, M1, M2T, F.zero (), D);
-		commentator.stop ("done");
-
-		report << "Origial M2^T:" << std::endl;
-		BLAS3::write (ctx, report, M2T);
-
-		report << "Copy of M2^T:" << std::endl;
-		BLAS3::write (ctx, report, M2Tp);
-
-		report << "Original product:" << std::endl;
-		BLAS3::write (ctx, report, D1);
-
-		report << "Check product:" << std::endl;
-		BLAS3::write (ctx, report, D);
-
-		if (!BLAS3::equal (ctx, D, D1))
-			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-				<< "Products are not equal!" << std::endl;
 	}
+
+	commentator.stop (MSG_DONE);
 }
 
-#if 0
-
-template <>
-void runBenchmarks (const GF2 &F)
+template <class Modules>
+void runBenchmarks (Context<GF2, Modules> &ctx, const char *text)
 {
-	typedef GF2 Field;
-	typedef Field::Element Element;
+	typedef GF2 Ring;
+	typedef Ring::Element Element;
+
+	std::ostringstream str;
+	str << "Running benchmarks for " << text << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	if (enable_dense) {
-		RandomDenseStream<Field, Dense01Matrix<>::Row> stream1 (F, m, l);
-		RandomDenseStream<Field, Dense01Matrix<>::Row> stream2 (F, n, m);
+		RandomDenseStream<Ring, DenseMatrix<bool>::Row> stream1 (ctx.F, m, l);
+		RandomDenseStream<Ring, DenseMatrix<bool>::Row> stream2 (ctx.F, n, m);
+		RandomDenseStream<Ring, DenseMatrix<bool>::Row> stream3 (ctx.F, n, l);
 
-		Dense01Matrix<> M1 (stream1);
-		Dense01Matrix<> M2 (stream2);
+		DenseMatrix<bool> M1 (stream1);
+		DenseMatrix<bool> M2 (stream2);
+		DenseMatrix<bool> M3 (stream3);
 
-		testGemmCoeff (F, "dense", M1, M2);
+		commentator.start ("gemm (dense)", "gemm");
+		BLAS3::gemm (ctx, true, M1, M2, true, M3);
+		commentator.stop ("done");
 	}
 
 	if (enable_sparse) {
-		typedef std::vector<uint32> Sparse01Vector;
-		typedef LELA::SparseMatrix<bool, Sparse01Vector, VectorRepresentationTypes::Sparse01> Sparse01Matrix;
+		typedef LELA::SparseMatrix<bool> SparseMatrix;
 
-		RandomSparseStream<Field, Sparse01Matrix::Row> stream1 (F, (double) k / (double) m, m, l);
-		RandomSparseStream<Field, Sparse01Matrix::Row> stream2 (F, (double) k / (double) n, n, m);
+		RandomSparseStream<Ring, SparseMatrix::Row> stream1 (ctx.F, (double) k / (double) m, m, l);
+		RandomSparseStream<Ring, SparseMatrix::Row> stream2 (ctx.F, (double) k / (double) n, n, m);
+		RandomSparseStream<Ring, SparseMatrix::Row> stream3 (ctx.F, (double) k / (double) n, n, k);
 
-		Sparse01Matrix M1 (stream1);
-		Sparse01Matrix M2 (stream2);
+		SparseMatrix M1 (stream1);
+		SparseMatrix M2 (stream2);
+		SparseMatrix M3 (stream3);
 
-		testGemmCoeff (F, "sparse (SparseVector)", M1, M2);
+		commentator.start ("gemm (dense)", "gemm");
+		BLAS3::gemm (ctx, true, M1, M2, true, M3);
+		commentator.stop ("done");
 	}
+
+	if (enable_hybrid) {
+		typedef LELA::SparseMatrix<bool, Vector<GF2>::Hybrid> HybridMatrix;
+
+		RandomHybridStream<Ring, HybridMatrix::Row> stream1 (ctx.F, (double) k / (double) m, m, l);
+		RandomHybridStream<Ring, HybridMatrix::Row> stream2 (ctx.F, (double) k / (double) n, n, m);
+		RandomHybridStream<Ring, HybridMatrix::Row> stream3 (ctx.F, (double) k / (double) n, n, l);
+
+		HybridMatrix M1 (stream1);
+		HybridMatrix M2 (stream2);
+		HybridMatrix M3 (stream3);
+
+		commentator.start ("gemm (dense)", "gemm");
+		BLAS3::gemm (ctx, true, M1, M2, true, M3);
+		commentator.stop ("done");
+	}
+
+	commentator.stop (MSG_DONE);
 }
 
-#endif // Disabled
+template <class Element>
+void runBenchmarksForElement (const integer &q, const char *text)
+{
+	Modular<Element> F (q);
+
+	Context<Modular<Element> > ctx_all (F);
+	runBenchmarks (ctx_all, "AllModules", text);
+
+	Context<Modular<Element>, ZpModule<Element> > ctx_zp (F);
+	runBenchmarks (ctx_all, "ZpModule", text);
+
+	Context<Modular<Element>, GenericModule<Modular<Element> > > ctx_gen (F);
+	runBenchmarks (ctx_gen, "GenericModule", text);
+}
 
 int main (int argc, char **argv)
 {
@@ -144,8 +168,8 @@ int main (int argc, char **argv)
 		{ 'm', "-m M", "Set row-dimension of matrix B and column-dimension of A to M.", TYPE_INT, &m },
 		{ 'n', "-n N", "Set column-dimension of B to N.", TYPE_INT, &n },
 		{ 'k', "-k K", "K nonzero elements per row/column in sparse matrices.", TYPE_INT, &k },
-		{ 'q', "-q Q", "Operate over the \"field\" GF(Q) [1] for uint8 modulus.", TYPE_INTEGER, &q_uint8 },
-		{ 'Q', "-Q Q", "Operate over the \"field\" GF(Q) [1] for uint32 modulus.", TYPE_INTEGER, &q_uint32 },
+		{ 'q', "-q Q", "Operate over the ring Z/Q for uint8 modulus.", TYPE_INTEGER, &q_uint8 },
+		{ 'Q', "-Q Q", "Operate over the ring Z/Q for uint32 modulus.", TYPE_INTEGER, &q_uint32 },
 		{ 'i', "-i I", "Perform each test for I iterations.", TYPE_INT, &iterations },
 		{ 'd', "-d", "Enable dense tests", TYPE_NONE, &enable_dense },
 		{ 's', "-s", "Enable sparse tests (SparseVector)", TYPE_NONE, &enable_sparse },
@@ -157,41 +181,46 @@ int main (int argc, char **argv)
 
 	parseArguments (argc, argv, args);
 
-	if (!(enable_dense || enable_sparse)) {
+	if (!(enable_dense || enable_sparse || enable_hybrid)) {
 		printHelpMessage (argv[0], args);
 		return 0;
 	}
 
-	if (!(enable_gf2 || enable_uint8 || enable_uint32)) {
+	if (!(enable_gf2 || enable_uint8 || enable_uint32 || enable_float || enable_double)) {
 		printHelpMessage (argv[0], args);
 		return 0;
 	}
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, true, false, false);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_IMPORTANT);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
-	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (2);
+	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (3);
 	commentator.getMessageClass (BRIEF_REPORT).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 
-	commentator.start ("Matrix domain benchmark suite", "MatrixDomain");
+	commentator.start ("BLAS3 benchmark suite", "BLAS3");
 
-#if 0
 	if (enable_gf2) {
 		GF2 F;
-		runBenchmarks (F);
-	}
-#endif // Disabled
 
-	if (enable_uint8) {
-		Modular<uint8> F (q_uint8);
-		runBenchmarks (F);
+		Context<GF2> ctx_all (F);
+		runBenchmarks (ctx_all, "AllModules", "GF2");
+
+		Context<GF2> ctx_gen (F);
+		runBenchmarks (ctx_gen, "GenericModule", "GF2");
 	}
 
-	if (enable_uint32) {
-		Modular<uint32> F (q_uint32);
-		runBenchmarks (F);
-	}
+	if (enable_uint8)
+		runBenchmarksForElement<uint8> (q_uint8, "Modular<uint8>");
+
+	if (enable_uint32)
+		runBenchmarksForElement<uint32> (q_uint32, "Modular<uint32>");
+
+	if (enable_float)
+		runBenchmarksForElement<float> (q_float, "Modular<float>");
+
+	if (enable_double)
+		runBenchmarksForElement<double> (q_double, "Modular<double>");
 
 	commentator.stop ("done");
 

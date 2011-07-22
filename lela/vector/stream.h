@@ -386,11 +386,11 @@ class RandomDenseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Dens
         typedef RandomDenseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense01> Self_t;
 
 	RandomDenseStream (const Ring &F, size_t n, size_t m = 0)
-		: _F (F), _r (F), _n (n), _m (m), _j (0)
+		: _F (F), _MT (0), _n (n), _m (m), _j (0)
 	{}
 
 	RandomDenseStream (const Ring &F, const RandIter &r, size_t n, size_t m = 0)
-		: _F (F), _r (r), _n (n), _m (m), _j (0)
+		: _F (F), _MT (0), _n (n), _m (m), _j (0)
 	{}
 
 	Vector &get (Vector &v);
@@ -402,11 +402,11 @@ class RandomDenseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Dens
 	void reset () { _j = 0; }
 
     private:
-	const Ring &_F;
-	RandIter     _r;
-	size_t       _n;
-	size_t       _m;
-	size_t       _j;
+	const Ring      &_F;
+	MersenneTwister  _MT;
+	size_t           _n;
+	size_t           _m;
+	size_t           _j;
 };
 
 // Specialization of RandomSparseStream for sparse zero-one vectors

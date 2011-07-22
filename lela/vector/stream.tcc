@@ -83,13 +83,20 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Sp
 template <class Ring, class Vector, class RandIter>
 Vector &RandomDenseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Dense01>::get (Vector &v) 
 {
-	typename Vector::iterator i;
+	typename Vector::word_iterator i;
 
 	if ( (_m > 0) && (_j++ >= _m) )
 		return v;
 
-	for (i = v.begin (); i != v.end (); i++)
-		_r.random (*i);
+	for (i = v.word_begin (); i != v.word_end (); i++)
+		*i = _MT.randomLongLong ();
+
+	typename Vector::word_type t = _MT.randomLongLong ();
+
+	if ((v.size () & WordTraits<typename Vector::word_type>::pos_mask) != 0)
+		t &= Vector::Endianness::mask_left (v.size () & WordTraits<typename Vector::word_type>::pos_mask);
+
+	v.back_word () = t;
 
 	return v;
 }

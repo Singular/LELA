@@ -208,11 +208,12 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	DenseMatrix<typename Field::Element> C (A.rowdim (), B.coldim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
-	BLAS3::write (ctx, report, A);
+	BLAS3::write (ctx, reportUI, A);
 
 	report << "Input matrix B:" << endl;
-	BLAS3::write (ctx, report, B);
+	BLAS3::write (ctx, reportUI, B);
 
 	NonzeroRandIter<Field> r (ctx.F, typename Field::RandIter (ctx.F));
 	typename Field::Element a, b;
@@ -227,7 +228,7 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), C);
 
 	report << "Output matrix C := a * A * B:" << endl;
-	BLAS3::write (ctx, report, C);
+	BLAS3::write (ctx, reportUI, C);
 
 	typename Field::Element negainvb;
 
@@ -241,7 +242,7 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::gemm (ctx, b, A, B, negainvb, C);
 
 	report << "Output matrix D := b * A * B - b * a^-1 * C:" << endl;
-	BLAS3::write (ctx, report, C);
+	BLAS3::write (ctx, reportUI, C);
 
 	if (!BLAS3::is_zero (ctx, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
