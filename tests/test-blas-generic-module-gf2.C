@@ -67,6 +67,8 @@ bool testBLAS1 (Context<GF2, Modules> &ctx, const char *text, size_t n, unsigned
 	if (!testDotProduct (ctx, "dense/sparse", stream1, stream3)) pass = false;  stream1.reset (); stream3.reset ();
 	if (!testDotProduct (ctx, "dense/hybrid", stream1, stream5)) pass = false;  stream1.reset (); stream5.reset ();
 	if (!testDotProduct (ctx, "sparse/sparse", stream3, stream4)) pass = false; stream3.reset (); stream4.reset ();
+	if (!testDotProduct (ctx, "sparse/hybrid", stream3, stream5)) pass = false; stream3.reset (); stream5.reset ();
+	if (!testDotProduct (ctx, "hybrid/hybrid", stream5, stream6)) pass = false; stream5.reset (); stream6.reset ();
 
 	if (!testScal (ctx, "dense", stream1)) pass = false;   stream1.reset ();
 	if (!testScal (ctx, "sparse", stream3)) pass = false;  stream3.reset ();

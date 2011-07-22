@@ -106,6 +106,54 @@ reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &
 	return res;
 }
 
+template <class Modules, class reference, class Vector1, class Vector2>
+reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
+							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
+{
+	typename Vector1::const_iterator i;
+	typename Vector2::const_iterator j;
+
+	res = false;
+
+	for (i = x.begin (), j = y.begin (); i != x.end () && j != y.end (); ++i) {
+		for (; j != y.end () && *j >> WordTraits<typename Vector1::word_type>::logof_size < i->first; ++j);
+
+		for (; j != y.end () && *j >> WordTraits<typename Vector1::word_type>::logof_size == i->first; ++j)
+			if (i->second & Vector1::Endianness::e_j (*j & WordTraits<typename Vector1::word_type>::pos_mask))
+				res = !res;
+	}
+
+	return res;
+}
+
+template <class Modules, class reference, class Vector1, class Vector2>
+reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
+							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Hybrid01)
+{
+	if (x.empty () || y.empty ())
+		return res = false;
+
+	typename Vector1::word_type t = 0;
+	typename Vector1::const_iterator i = x.begin ();
+	typename Vector2::const_iterator j = y.begin ();
+
+	while (i != x.end () && j != y.end ()) {
+		while (i != x.end () && i->first < j->first)
+			++i;
+
+		if (i == x.end ())
+			break;
+
+		while (j != y.end () && j->first < i->first)
+			++j;
+
+		t ^= i->second & j->second;
+		++i; ++j;
+	}
+
+        return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
+}
+
 template <class Modules, class Vector1, class Vector2>
 Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
 							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Sparse01)
