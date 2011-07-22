@@ -66,6 +66,34 @@ class BitSubvectorWordAligned
 
 	BitSubvectorWordAligned () {}
 
+	BitSubvectorWordAligned (BitVector<Endianness> &v, size_t start, size_t finish)
+		: _begin (v.word_begin () + (start >> WordTraits<word_type>::logof_size)),
+		  _end (v.word_begin () + ((finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)),
+		  _bit_len (finish - start)
+	{
+		lela_check ((start & WordTraits<word_type>::pos_mask) == 0);
+		lela_check (finish == v.size () || (finish & WordTraits<word_type>::pos_mask) == 0);
+	}
+
+	BitSubvectorWordAligned (const BitVector<Endianness> &v, size_t start, size_t finish)
+		: _begin (v.word_begin () + (start >> WordTraits<word_type>::logof_size)),
+		  _end (v.word_begin () + ((finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)),
+		  _bit_len (finish - start)
+	{
+		lela_check ((start & WordTraits<word_type>::pos_mask) == 0);
+		lela_check (finish == v.size () || (finish & WordTraits<word_type>::pos_mask) == 0);
+	}
+
+	template <class It, class CIt>
+	BitSubvectorWordAligned (const BitSubvectorWordAligned<It, CIt, Endianness> &v, size_t start, size_t finish)
+		: _begin (v._begin + (start >> WordTraits<word_type>::logof_size)),
+		  _end (v._begin + ((finish + WordTraits<word_type>::bits - 1) >> WordTraits<word_type>::logof_size)),
+		  _bit_len (finish - start)
+	{
+		lela_check ((start & WordTraits<word_type>::pos_mask) == 0);
+		lela_check (finish == v.size () || (finish & WordTraits<word_type>::pos_mask) == 0);
+	}
+
 	BitSubvectorWordAligned (Iterator begin, Iterator end, size_t bit_len = 0)
 		: _begin (begin), _end (end)
 	{
