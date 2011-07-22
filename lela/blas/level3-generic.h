@@ -35,6 +35,18 @@ class _copy<Ring, typename GenericModule<Ring>::Tag>
 					 VectorRepresentationTypes::Sparse);
 
 	template <class Vector, class Iterator>
+	static void append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
+					 VectorRepresentationTypes::Dense01);
+
+	template <class Vector, class Iterator>
+	static void append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
+					 VectorRepresentationTypes::Sparse01);
+
+	template <class Vector, class Iterator>
+	static void append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
+					 VectorRepresentationTypes::Hybrid01);
+
+	template <class Vector, class Iterator>
 	static inline void append_entries (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end)
 		{ append_entries_spec (R, v, idx, begin, end, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 

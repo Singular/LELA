@@ -50,6 +50,43 @@ void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const 
 }
 
 template <class Ring>
+template <class Vector, class Iterator>
+void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
+									  VectorRepresentationTypes::Dense01)
+{
+	typename Vector::const_iterator i_v;
+
+	for (i_v = v.begin (); i_v != v.end (); ++i_v, ++begin)
+		VectorUtils::appendEntry (R, *begin, *i_v, idx);
+}
+
+template <class Ring>
+template <class Vector, class Iterator>
+void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
+									  VectorRepresentationTypes::Sparse01)
+{
+	typename Vector::const_iterator i_v;
+
+	for (i_v = v.begin (); i_v != v.end (); ++i_v)
+		VectorUtils::appendEntry (R, *(begin + *i_v), true, idx);
+}
+
+template <class Ring>
+template <class Vector, class Iterator>
+void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const Ring &R, const Vector &v, size_t idx, Iterator begin, Iterator end,
+									  VectorRepresentationTypes::Hybrid01)
+{
+	typename Vector::const_iterator i_v;
+
+	typename Vector::word_type t;
+	size_t t_idx;
+
+	for (i_v = v.begin (); i_v != v.end (); ++i_v)
+		for (t = Vector::Endianness::e_0, t_idx = 0; t != 0; t = Vector::Endianness::shift_right (t, 1), ++t_idx)
+			VectorUtils::appendEntry (R, *(begin + (i_v->first << WordTraits<typename Vector::word_type>::logof_size) + t_idx), i_v->second & t, idx);
+}
+
+template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 Matrix2 &_copy<Ring, typename GenericModule<Ring>::Tag>::copy_impl
 	(const Ring &F, Modules &M, const Matrix1 &A, Matrix2 &B,

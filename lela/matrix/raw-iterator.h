@@ -761,6 +761,90 @@ class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Sparse01, fa
 };
 
 template <class Iterator>
+class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Sparse01, true>
+{
+    public:
+	typedef typename Iterator::value_type Vector;
+
+	typedef std::pair<size_t, size_t> value_type;
+	typedef value_type &reference;
+	typedef const value_type &const_reference;
+	typedef typename Iterator::difference_type difference_type;
+
+	MatrixRawIndexedIterator (Iterator rowcol, size_t i, Iterator rowcol_end, size_t rowcol_len)
+		: _pos (i, 0), _rowcol (rowcol), _rowcol_end (rowcol_end), _iter_valid (false)
+	{
+		while (_rowcol != _rowcol_end && _rowcol->empty ()) {
+			++_rowcol;
+			++_pos.second;
+		}
+	}
+
+	MatrixRawIndexedIterator () {}
+
+	MatrixRawIndexedIterator& operator = (const MatrixRawIndexedIterator &p)
+	{
+		_pos = p._pos;
+		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
+		_iter = p._iter;
+		_iter_valid = p._iter_valid;
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator& operator ++ ()
+	{
+		++_iter;
+
+		if (_iter == _rowcol->end ()) {
+			do {
+				++_rowcol;
+				++_pos.second;
+			} while (_rowcol != _rowcol_end && _rowcol->empty ());
+
+			_iter_valid = false;
+		} else
+			_pos.first = *_iter;
+
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator operator ++ (int)
+	{
+		MatrixRawIndexedIterator tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	const value_type *operator -> ()
+		{ update_iter (); return &_pos; }
+
+	value_type operator * () const
+		{ update_iter (); return _pos; }
+ 
+	bool operator == (const MatrixRawIndexedIterator &c) const
+		{ return (_rowcol == c._rowcol) && (!(_iter_valid || c._iter_valid) || ((_iter_valid && c._iter_valid) && (_iter == c._iter))); }
+
+	bool operator != (const MatrixRawIndexedIterator &c) const
+		{ return (_rowcol != c._rowcol) || ((_iter_valid || c._iter_valid) && (!(_iter_valid && c._iter_valid) || (_iter != c._iter))); }
+
+    private:
+	std::pair<size_t, size_t> _pos;
+	Iterator _rowcol, _rowcol_end;
+	typename Vector::const_iterator _iter;
+	bool _iter_valid;
+
+	void update_iter ()
+	{
+		if (!_iter_valid) {
+			_iter = _rowcol->begin ();
+			_pos.first = *_iter;
+			_iter_valid = true;
+		}
+	}
+};
+
+template <class Iterator>
 class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Hybrid01, false>
 {
     public:
