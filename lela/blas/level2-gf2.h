@@ -125,7 +125,11 @@ class _ger<GF2, GenericModule<GF2>::Tag>
 
 public:
 	template <class Modules, class Vector1, class Vector2, class Matrix>
-	static Matrix &op (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A);
+	static Matrix &op (const GF2 &F, Modules &M, bool a, const Vector1 &x, const Vector2 &y, Matrix &A)
+		{ return ger_impl (F, M, a, x, y, A,
+				   typename VectorTraits<GF2, Vector1>::RepresentationType (),
+				   typename VectorTraits<GF2, Vector2>::RepresentationType (),
+				   typename Matrix::RepresentationType ()); }
 };
 
 } // namespace BLAS2
