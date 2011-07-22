@@ -591,7 +591,7 @@ private:
 };
 
 template <>
-struct ZpModule<float> : public GenericModule<float>
+struct ZpModule<float> : public GenericModule<Modular<float> >
 {
 	struct Tag
 	{
@@ -613,7 +613,7 @@ struct ZpModule<float> : public GenericModule<float>
 };
 
 template <>
-struct ZpModule<double> : public GenericModule<double>
+struct ZpModule<double> : public GenericModule<Modular<double> >
 {
 	struct Tag
 	{
