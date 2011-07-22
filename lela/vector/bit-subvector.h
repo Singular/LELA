@@ -152,6 +152,8 @@ class BitSubvector
 	inline bool operator != (const BitSubvector &v) const
 		{ return (_begin != v._begin) || (_end != v._end); }
 
+	inline size_type word_size () const { return word_end () - word_begin () + 1; }
+
     protected:
 
 	// BitVector::iterators pointing to the beginning and end of the bit-subvector, respectively
@@ -451,6 +453,12 @@ class BitSubvector
 			return tmp;
 		}
 
+		word_iterator operator - (word_iterator i) const
+			{ return _ref._pos - i._ref._pos; }
+
+		word_iterator operator - (const_word_iterator i) const
+			{ return _ref._pos - i._pos; }
+
 		word_iterator operator - (difference_type i) const
 			{ return *this + -i; }
 
@@ -557,7 +565,7 @@ class BitSubvector
 		const_word_iterator &operator -= (difference_type i) 
 			{ return *this += -i; }
 
-		difference_type operator - (const_word_iterator &i) const 
+		difference_type operator - (const_word_iterator i) const 
 			{ return _pos - i._pos; }
 
 		value_type operator [] (long i) 

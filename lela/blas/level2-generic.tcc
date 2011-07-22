@@ -144,7 +144,7 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::trmv_impl
 	lela_check (A.coldim () == A.rowdim ());
 	lela_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 
-	static const int align = const_lcm<Matrix::colAlign, Matrix::rowAlign>::val;
+	static const int align = const_lcm<const_lcm<Matrix::colAlign, Matrix::rowAlign>::val, Vector::align>::val;
 
 	if (A.rowdim () == 0)
 		return x;
@@ -165,8 +165,8 @@ Vector &_trmv<Ring, typename GenericModule<Ring>::Tag>::trmv_impl
 		typename Matrix::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
-		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x1 (x, 0, l);
-		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x2 (x, l, A.rowdim ());
+		typename VectorTraits<Ring, Vector>::SubvectorType x1 (x, 0, l);
+		typename VectorTraits<Ring, Vector>::SubvectorType x2 (x, l, A.rowdim ());
 
 		if (type == LowerTriangular) {
 			typename Matrix::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
@@ -216,7 +216,7 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::trsv_impl
 	lela_check (A.coldim () == A.rowdim ());
 	lela_check (VectorUtils::hasDim<Ring> (x, A.coldim ()));
 
-	static const int align = const_lcm<Matrix::colAlign, Matrix::rowAlign>::val;
+	static const int align = const_lcm<const_lcm<Matrix::colAlign, Matrix::rowAlign>::val, Vector::align>::val;
 
 	if (A.rowdim () == 0)
 		return x;
@@ -237,8 +237,8 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::trsv_impl
 		typename Matrix::ConstSubmatrixType A11 (A, 0, 0, l, l);
 		typename Matrix::ConstSubmatrixType A22 (A, l, l, A.rowdim () - l, A.coldim () - l);
 
-		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x1 (x, 0, l);
-		typename VectorTraits<Ring, Vector>::AlignedSubvectorType x2 (x, l, A.rowdim ());
+		typename VectorTraits<Ring, Vector>::SubvectorType x1 (x, 0, l);
+		typename VectorTraits<Ring, Vector>::SubvectorType x2 (x, l, A.rowdim ());
 
 		if (type == LowerTriangular) {
 			typename Matrix::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);

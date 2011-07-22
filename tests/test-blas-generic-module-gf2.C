@@ -110,9 +110,9 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
         bool pass = true;
 
         RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (ctx.F, n, 1), stream2 (ctx.F, m, 1);
-	Vector<GF2>::Dense v1d;
+	Vector<GF2>::Dense v1d (n);
 	stream1 >> v1d;
-	Vector<GF2>::Dense v2d;
+	Vector<GF2>::Dense v2d (m);
 	stream2 >> v2d;
         RandomSparseStream<GF2, Vector<GF2>::Sparse> stream3 (ctx.F, 0.1, n, 1), stream4 (ctx.F, 0.1, m, 1);
 	Vector<GF2>::Sparse v1s;

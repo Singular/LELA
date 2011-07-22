@@ -80,7 +80,16 @@ class _copy<GF2, GenericModule<GF2>::Tag>
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,
 				   VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
-		{ std::copy (x.word_begin (), x.word_end (), y.word_begin ()); y.back_word () = x.back_word (); return y; }
+	{
+		lela_check (x.size () == y.size ());
+
+		std::copy (x.word_begin (), x.word_end (), y.word_begin ());
+
+		if (x.size () > 0)
+			y.back_word () = x.back_word ();
+
+		return y;
+	}
 
 	template <class Modules, class Vector1, class Vector2>
 	static Vector2 &copy_impl (const GF2 &F, Modules &M, const Vector1 &x, Vector2 &y,

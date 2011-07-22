@@ -81,9 +81,16 @@ void _copy<Ring, typename GenericModule<Ring>::Tag>::append_entries_spec (const 
 	typename Vector::word_type t;
 	size_t t_idx;
 
-	for (i_v = v.begin (); i_v != v.end (); ++i_v)
-		for (t = Vector::Endianness::e_0, t_idx = 0; t != 0; t = Vector::Endianness::shift_right (t, 1), ++t_idx)
-			VectorUtils::appendEntry (R, *(begin + (i_v->first << WordTraits<typename Vector::word_type>::logof_size) + t_idx), i_v->second & t, idx);
+	for (i_v = v.begin (); i_v != v.end (); ++i_v) {
+		for (t = Vector::Endianness::e_0, t_idx = 0; t != 0; t = Vector::Endianness::shift_right (t, 1), ++t_idx) {
+			Iterator j = begin + (i_v->first << WordTraits<typename Vector::word_type>::logof_size) + t_idx;
+
+			if (j == end)
+				break;
+
+			VectorUtils::appendEntry (R, *j, i_v->second & t, idx);
+		}
+	}
 }
 
 template <class Ring>
