@@ -948,6 +948,110 @@ class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Hybrid01, fa
 	}
 };
 
+template <class Iterator>
+class MatrixRawIndexedIterator<Iterator, VectorRepresentationTypes::Hybrid01, true>
+{
+    public:
+	typedef typename Iterator::value_type Vector;
+
+	typedef typename Vector::Endianness Endianness;
+	typedef std::pair<size_t, size_t> value_type;
+	typedef value_type &reference;
+	typedef const value_type &const_reference;
+	typedef typename Iterator::difference_type difference_type;
+
+	MatrixRawIndexedIterator (Iterator rowcol, size_t i, Iterator rowcol_end, size_t rowcol_len)
+		: _pos (i, 0), _rowcol (rowcol), _rowcol_end (rowcol_end), _t (Endianness::e_0), _rowcol_len (rowcol_len)
+	{
+		while (_rowcol != _rowcol_end && _rowcol->empty ()) {
+			++_rowcol;
+			++_pos.second;
+		}
+
+		if (_rowcol != _rowcol_end) {
+			_iter = _rowcol->begin ();
+			_pos.first = (_iter->first << WordTraits<typename Vector::word_type>::logof_size);
+		}
+	}
+
+	MatrixRawIndexedIterator () {}
+
+	MatrixRawIndexedIterator &operator = (const MatrixRawIndexedIterator &p)
+	{
+		_pos = p._pos;
+		_rowcol = p._rowcol;
+		_rowcol_end = p._rowcol_end;
+		_iter = p._iter;
+		_t = p._t;
+		_rowcol_len = p._rowcol_len;
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator &operator ++ ()
+	{
+		_t = Endianness::shift_right (_t, 1);
+		++_pos.first;
+
+		if (_pos.first >= _rowcol_len) {
+			_t = Endianness::e_0;
+			advance_rowcol ();
+		}
+		else if (_t == 0) {
+			_t = Endianness::e_0;
+			++_iter;
+
+			if (_iter == _rowcol->end ()) {
+				advance_rowcol ();
+			} else
+				_pos.first = (_iter->first << WordTraits<typename Vector::word_type>::logof_size);
+		}
+
+		return *this;
+	}
+    
+	MatrixRawIndexedIterator operator ++ (int)
+	{
+		MatrixRawIndexedIterator tmp (*this);
+		++*this;
+		return tmp;
+	}
+
+	const value_type *operator -> ()
+		{ return &_pos; }
+
+	value_type operator * () const
+		{ return _pos; }
+ 
+	bool operator == (const MatrixRawIndexedIterator &c)
+		{ return (_rowcol == c._rowcol) && ((_rowcol == _rowcol_end) || ((_iter == c._iter) && (_t == c._t))); }
+
+	bool operator != (const MatrixRawIndexedIterator &c)
+		{ return (_rowcol != c._rowcol) || ((_rowcol != _rowcol_end) && ((_iter != c._iter) || (_t != c._t))); }
+
+    private:
+	std::pair<size_t, size_t> _pos;
+	Iterator _rowcol, _rowcol_end;
+	typename Vector::const_iterator _iter;
+	typename Vector::word_type _t;
+	size_t _rowcol_len;
+
+	void advance_rowcol ()
+	{
+		++_rowcol;
+		++_pos.second;
+
+		while (_rowcol != _rowcol_end && _rowcol->empty ()) {
+			++_rowcol;
+			++_pos.second;
+		}
+
+		if (_rowcol != _rowcol_end) {
+			_iter = _rowcol->begin ();
+			_pos.first = (_iter->first << WordTraits<typename Vector::word_type>::logof_size);
+		}
+	}
+};
+
 } // namespace LELA
 
 namespace std {
