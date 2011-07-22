@@ -78,10 +78,126 @@ bool testBLAS1 (Context<GF2, Modules> &ctx, const char *text, size_t n, unsigned
 	if (!testAXPY (ctx, "sparse", stream3, stream4)) pass = false;  stream3.reset (); stream4.reset ();
 	if (!testAXPY (ctx, "hybrid", stream5, stream6)) pass = false;  stream5.reset (); stream6.reset ();
 
+	if (!testDotConsistency(ctx, ctx, "dense/sparse with dense/dense", stream1, stream3, stream1, stream2)) pass = false; stream1.reset (); stream3.reset();
+        if (!testDotConsistency(ctx, ctx, "dense/hybrid with dense/dense", stream1, stream5, stream1, stream2)) pass = false; stream1.reset (); stream5.reset();       
+	if (!testDotConsistency(ctx, ctx, "hybrid/sparse with dense/dense", stream5, stream3, stream1, stream2)) pass = false; stream3.reset(); stream5.reset();
+	if (!testDotConsistency(ctx, ctx, "hybrid/dense with dense/dense", stream5, stream1, stream1, stream2)) pass = false; stream1.reset (); stream5.reset();
+	if (!testDotConsistency(ctx, ctx, "sparse/dense with dense/dense", stream3, stream1, stream1, stream2)) pass = false; stream1.reset (); stream3.reset();
+	if (!testDotConsistency(ctx, ctx, "sparse/hybrid with dense/dense", stream3, stream5, stream1, stream2)) pass = false; stream3.reset(); stream5.reset ();
+
+	if (!testAxpyConsistency(ctx, ctx, "dense/sparse with dense/dense", stream1, stream3, stream1, stream2)) pass = false; stream1.reset ();  stream3.reset();
+        if (!testAxpyConsistency(ctx, ctx, "dense/hybrid with dense/dense", stream1, stream5, stream1, stream2)) pass = false; stream1.reset ();  stream5.reset();
+        if (!testAxpyConsistency(ctx, ctx, "hybrid/sparse with dense/dense", stream5, stream3, stream1, stream2)) pass = false; stream3.reset(); stream5.reset();
+        if (!testAxpyConsistency(ctx, ctx, "hybrid/dense with dense/dense", stream5, stream1, stream1, stream2)) pass = false; stream1.reset (); stream5.reset();
+        if (!testAxpyConsistency(ctx, ctx, "sparse/dense with dense/dense", stream3, stream1, stream1, stream2)) pass = false; stream1.reset (); stream3.reset();
+        if (!testAxpyConsistency(ctx, ctx, "sparse/hybrid with dense/dense", stream3, stream5, stream1, stream2)) pass = false; stream3.reset(); stream5.reset ();
+
+	if (!testScalConsistency(ctx, ctx, "sparse with dense", stream3, stream1)) pass = false; stream1. reset (); stream3.reset ();
+        if (!testScalConsistency(ctx, ctx, "hybrid with dense", stream5, stream1)) pass = false; stream1. reset (); stream5.reset ();
+
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass;
 }
+
+template <class Modules>
+bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t n, size_t m, size_t k)
+{
+	std::ostringstream str;
+        str << "Testing BLAS2 Consistency <" << text << ">" << std::ends;
+        commentator.start (str.str ().c_str ());
+
+        bool pass = true;
+
+        RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (ctx.F, n, 1), stream2 (ctx.F, n, 1);
+	Vector<GF2>::Dense v1d;
+	stream1 >> v1d;
+	Vector<GF2>::Dense v2d;
+	stream2 >> v2d;
+        RandomSparseStream<GF2, Vector<GF2>::Sparse> stream3 (ctx.F, 0.1, n, 1), stream4 (ctx.F, 0.1, n, 1);
+	Vector<GF2>::Sparse v1s;
+	stream3 >> v1s;
+	Vector<GF2>::Sparse v2s;
+	stream4 >> v2s;
+        RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, 1), stream6 (ctx.F, 0.1, n, 1);
+	Vector<GF2>::Hybrid v1h;
+	stream5 >> v1h;
+	Vector<GF2>::Hybrid v2h;
+	stream6 >> v2h;
+
+	RandomDenseStream<GF2, DenseMatrix<bool>::Row> stream7 (ctx.F, n, m);
+	DenseMatrix<bool> A1 (stream7);
+	TransposeMatrix<DenseMatrix<bool> > A1t (A1); 
+        RandomSparseStream<GF2, SparseMatrix<bool>::Row> stream9 (ctx.F, (double) k / (double) n, n, m);
+	SparseMatrix<bool> A2 (stream9);
+	TransposeMatrix<SparseMatrix<bool> > A2t (A2);
+        RandomSparseStream<GF2, SparseMatrix<bool,Vector<GF2>::Hybrid>::Row> stream11 (ctx.F, (double) k / (double) n, n, m);
+	SparseMatrix<bool, Vector<GF2>::Hybrid> A3 (stream11);
+	TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > A3t (A3);
+
+        if (!testgemvConsistency (ctx, ctx, "sparse(row-wise)/dense/dense	with dense/dense/dense", A2, v1d, v2d, A1, v1d, v2d)) pass = false;  
+        if (!testgemvConsistency (ctx, ctx, "sparse(col-wise)/dense/dense	with dense/dense/dense", A2t, v2d, v1d, A1, v1d, v2d)) pass = false;
+        if (!testgemvConsistency (ctx, ctx, "sparse(row-wise)/sparse/sparse	with dense/dense/dense", A2, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if (!testgemvConsistency (ctx, ctx, "sparse(col-wise)/sparse/sparse	with dense/dense/dense", A2t, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if (!testgemvConsistency (ctx, ctx, "sparse(row-wise)/sparse/dense	with dense/dense/dense", A2, v1s, v2d, A1, v1d, v2d)) pass = false;
+        if (!testgemvConsistency (ctx, ctx, "sparse(col-wise)/sparse/dense	with dense/dense/dense", A2t, v2s, v1d, A1, v1d, v2d)) pass = false;
+        if (!testgemvConsistency (ctx, ctx, "dense/sparse/dense			with dense/dense/dense", A1, v1s, v2d, A1, v1d, v2d)) pass = false;
+        if (!testgemvConsistency (ctx, ctx, "dense/sparse/sparse		with dense/dense/dense", A1, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if (!testgemvConsistency (ctx, ctx, "dense/dense/sparse			with dense/dense/dense", A1, v1d, v2s, A1, v1d, v2d)) pass = false;
+
+        RandomDenseStream<GF2, DenseMatrix<bool>::Row> stream12 (ctx.F, n, n);
+        DenseMatrix<bool> Aq1 (stream12);
+        TransposeMatrix<DenseMatrix<bool> > Aq1t (Aq1);
+        RandomSparseStream<GF2, SparseMatrix<bool>::Row> stream13 (ctx.F, (double) k / (double) n, n, n);
+        SparseMatrix<bool> Aq2 (stream13);
+        TransposeMatrix<SparseMatrix<bool> > Aq2t(Aq2);
+        RandomSparseStream<GF2, SparseMatrix<bool,Vector<GF2>::Hybrid>::Row> stream14 (ctx.F, 0.1, n, n);
+        SparseMatrix<bool, Vector<GF2>::Hybrid> Aq3 (stream14);
+        TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > Aq3t (Aq3);
+	   
+	if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (LT, diag = 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (UT, diag = 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (LT, diag != 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (UT, diag != 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (LT, diag = 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (UT, diag = 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (LT, diag != 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (UT, diag != 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+
+        SparseMatrix<bool> Aq2p (n,n);
+	BLAS3::copy (ctx, Aq2, Aq2p);
+	makeNonsingDiag(ctx.F, Aq2p, false);
+        TransposeMatrix<SparseMatrix<bool> > Aq2tp (Aq2p);
+
+        SparseMatrix<bool, Vector<GF2>::Hybrid> Aq3p (n,n);
+	BLAS3::copy (ctx, Aq3, Aq3p);
+        makeNonsingDiag(ctx.F, Aq3p, false);
+        TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > Aq3tp (Aq3p);
+
+        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (LT, diag = 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (UT, diag = 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (LT, diag != 1)", Aq2p, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (UT, diag != 1)", Aq2p, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (LT, diag = 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (UT, diag = 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (LT, diag != 1)", Aq2tp, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (UT, diag != 1)", Aq2tp, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+
+	if( !testgerConsistency (ctx, ctx, "sparse/dense/dense with dense/dense/dense", A2, v2d, v1d, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid/dense/dense with dense/dense/dense", A2t, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "sparse/sparse/sparse with dense/dense/dense", A2, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid/sparse/sparse with dense/dense/dense", A2t, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "sparse/sparse/dense with dense/dense/dense", A2, v2d, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid/sparse/dense with dense/dense/dense", A2t, v1d, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense/sparse/dense with dense/dense/dense", A1, v2d, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense/sparse/sparse with dense/dense/dense", A1, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense/dense/sparse with dense/dense/dense", A1, v2s, v1d, A1, v1d, v2d)) pass = false;
+
+        commentator.stop (MSG_STATUS (pass));
+
+        return pass;
+}
+
 
 int main (int argc, char **argv)
 {
@@ -197,6 +313,9 @@ int main (int argc, char **argv)
 		pass = false;
 	if (!testBLAS3Submatrix (ctx, "dense (submatrix)", M13, M14, M15, M16,
 				 DenseMatrix<Field::Element>::IteratorType ()))
+		pass = false;
+
+	if (!testBLAS2Consistency(ctx, "Consistency", n, m, k))
 		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
