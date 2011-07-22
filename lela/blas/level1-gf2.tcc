@@ -266,6 +266,22 @@ Vector2 &_copy<GF2, GenericModule<GF2>::Tag>::copy_impl (const GF2 &F, Modules &
 }
 
 template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, typename GenericModule<GF2>::Tag>::axpy_impl
+	(const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
+	 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Generic)
+{
+	if (a) {
+		typename Vector<GF2>::Dense tmp (x.size ());
+
+		_copy<GF2, typename Modules::Tag>::op (F, M, x, tmp);
+		_axpy<GF2, typename Modules::Tag>::op (F, M, F.one (), y, tmp);
+		_copy<GF2, typename Modules::Tag>::op (F, M, tmp, y);
+	}
+
+	return y;
+}
+
+template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
 							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
 {
@@ -339,6 +355,22 @@ Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &
 }
 
 template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, typename GenericModule<GF2>::Tag>::axpy_impl
+	(const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
+	 VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01)
+{
+	if (a) {
+		typename Vector<GF2>::Hybrid tmp;
+
+		_copy<GF2, typename Modules::Tag>::op (F, M, x, tmp);
+		_axpy<GF2, typename Modules::Tag>::op (F, M, F.one (), y, tmp);
+		_copy<GF2, typename Modules::Tag>::op (F, M, tmp, y);
+	}
+
+	return y;
+}
+
+template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
 							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 {
@@ -354,6 +386,22 @@ Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &
 			else
 				y.back_word () ^= i->second;
 		}
+	}
+
+	return y;
+}
+
+template <class Modules, class Vector1, class Vector2>
+Vector2 &_axpy<GF2, typename GenericModule<GF2>::Tag>::axpy_impl
+	(const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
+	 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
+{
+	if (a) {
+		typename Vector<GF2>::Sparse tmp;
+
+		_copy<GF2, typename Modules::Tag>::op (F, M, x, tmp);
+		_axpy<GF2, typename Modules::Tag>::op (F, M, F.one (), y, tmp);
+		_copy<GF2, typename Modules::Tag>::op (F, M, tmp, y);
 	}
 
 	return y;
