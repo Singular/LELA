@@ -118,10 +118,12 @@ public:
 	Element &axpy (Element &z, const Element &a, const Element &x, const Element &y) const
 		{ return z = a * x + y; }
 
-	Element &addin (Element &x, const Element &y) const
+	template <class T>
+	T &addin (T &x, const Element &y) const
 		{ return x += y; }
     
-	Element &subin (Element &x, const Element &y) const
+	template <class T>
+	T &subin (T &x, const Element &y) const
 		{ return x -= y; }
     
 	Element &mulin (Element &x, const Element &y) const
@@ -137,8 +139,9 @@ public:
 
 	bool divin (Element &x, const Element &y) const
 		{ if (!isZero (y)) { x /= y; return true; } else return false; }
-    
-	Element &negin (Element &x) const
+
+	template <class T>
+	T &negin (T &x) const
 		{ return x = - x; }
     
 	bool invin (Element &x) const

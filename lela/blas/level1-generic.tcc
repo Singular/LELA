@@ -163,8 +163,15 @@ Vector2 &_axpy<Ring, typename GenericModule<Ring>::Tag>::axpy_impl
 	typename Vector2::iterator i;
 	typename Vector1::const_iterator j;
 
-	for (i = y.begin (), j = x.begin (); i != y.end (); ++i, ++j)
-		F.axpyin (*i, a, *j);
+	if (F.isOne (a))
+		for (i = y.begin (), j = x.begin (); i != y.end (); ++i, ++j)
+			F.addin (*i, *j);
+	else if (F.areEqual (a, F.minusOne ()))
+		for (i = y.begin (), j = x.begin (); i != y.end (); ++i, ++j)
+			F.subin (*i, *j);
+	else
+		for (i = y.begin (), j = x.begin (); i != y.end (); ++i, ++j)
+			F.axpyin (*i, a, *j);
 
 	return y;
 }
@@ -260,6 +267,9 @@ Vector &_scal<Ring, typename GenericModule<Ring>::Tag>::scal_impl
 	if (F.isZero (a))
 		for (i = x.begin (); i != x.end (); i++)
 			F.copy (*i, F.zero ());
+	else if (F.areEqual (a, F.minusOne ()))
+		for (i = x.begin (); i != x.end (); i++)
+			F.negin (*i);
 	else
 		for (i = x.begin (); i != x.end (); i++)
 			F.mulin (*i, a);
