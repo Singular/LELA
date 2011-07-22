@@ -209,6 +209,14 @@ class M4RIMatrix : public M4RIMatrixBase
 	};
 
 public:
+	typedef M4RISubmatrix SubmatrixType;
+	typedef const M4RISubmatrix ConstSubmatrixType;
+	typedef M4RIMatrix AlignedSubmatrixType;
+	typedef const M4RIMatrix ConstAlignedSubmatrixType;
+
+	static const size_t rowAlign = 1;
+	static const size_t colAlign = WordTraits<word>::bits;
+
 	typedef BitSubvectorWordAligned<word *, const word *, M4RIEndianness> Row;  
 	typedef BitSubvectorWordAligned<const word *, const word *, M4RIEndianness> ConstRow;
 

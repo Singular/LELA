@@ -283,6 +283,10 @@ class _equal<Ring, typename GenericModule<Ring>::Tag>
 {
 	template <class Modules, class Matrix1, class Matrix2>
 	static bool equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
+				MatrixIteratorTypes::Generic, MatrixIteratorTypes::Generic);
+
+	template <class Modules, class Matrix1, class Matrix2>
+	static bool equal_impl (const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
 				MatrixIteratorTypes::Row, MatrixIteratorTypes::Row);
 
 	template <class Modules, class Matrix1, class Matrix2>

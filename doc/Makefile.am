@@ -18,25 +18,16 @@ reference: reference.xml
 	$(XSLTPROC) --stringparam base.dir reference/ http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl reference.xml
 
 reference.xml: reference-boost.xml boostbook-xsl
-	$(XSLTPROC) boostbook-xsl/docbook.xsl reference-boost.xml >reference.xml
+	$(XSLTPROC) http://www.singular.uni-kl.de/lela/boostbook-xsl/docbook.xsl reference-boost.xml >reference.xml
 
 reference-boost.xml: reference-doxy.xml boostbook-xsl
-	$(XSLTPROC) boostbook-xsl/doxygen/doxygen2boostbook.xsl reference-doxy.xml >reference-boost.xml
+	$(XSLTPROC) http://www.singular.uni-kl.de/lela/boostbook-xsl/doxygen/doxygen2boostbook.xsl reference-doxy.xml >reference-boost.xml
 
 reference-doxy.xml: xml boostbook-xsl
-	$(XSLTPROC) boostbook-xsl/doxygen/collect.xsl xml/index.xml >reference-doxy.xml
+	$(XSLTPROC) http://www.singular.uni-kl.de/lela/boostbook-xsl/doxygen/collect.xsl xml/index.xml >reference-doxy.xml
 
 xml:
 	$(DOXYGEN)
-
-# Temporary solution until we get this thing online somewhere
-# boostbook-xsl: boost_1_47_0.tar.bz2
-# 	tar jxvf boost_1_47_0.tar.bz2 boost_1_47_0/tools/boostbook/xsl/
-# 	mv boost_1_47_0/tools/boostbook/xsl/ boostbook-xsl
-# 	rm -rf boost_1_47_0
-
-# boost_1_47_0.tar.bz2:
-# 	wget http://downloads.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2
 
 EXTRA_DIST = \
 	tutorial.xml	\

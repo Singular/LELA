@@ -379,7 +379,6 @@ template <class Field, class Modules, class Matrix1, class Matrix2, class Vector
 bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 		Matrix1 &M1, Matrix2 &M2,
 		Vector1 &v1, Vector2 &v2,
-		unsigned int iterations,
 		MatrixIteratorTypes::RowCol)
 {
 	ostringstream str;
@@ -409,7 +408,6 @@ template <class Field, class Modules, class Matrix1, class Matrix2, class Vector
 bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 		Matrix1 &M1, Matrix2 &M2,
 		Vector1 &v1, Vector2 &v2,
-		unsigned int iterations,
 		MatrixIteratorTypes::Row) 
 {
 	ostringstream str;
@@ -431,7 +429,6 @@ template <class Field, class Modules, class Matrix1, class Matrix2, class Vector
 bool testBLAS2 (Context<Field, Modules> &ctx, const char *text,
 		Matrix1 &M1, Matrix2 &M2,
 		Vector1 &v1, Vector2 &v2,
-		unsigned int iterations,
 		MatrixIteratorTypes::Col) 
 {
 	ostringstream str;
@@ -453,7 +450,6 @@ template <class Field, class Modules, class Matrix1, class Matrix2, class Vector
 bool testBLAS2Submatrix (Context<Field, Modules> &ctx, const char *text,
 			 const Matrix1 &M1, const Matrix2 &M2,
 			 Vector1 &v1, Vector2 &v2,
-			 unsigned int iterations,
 			 MatrixIteratorTypes::Row) 
 {
 	ostringstream str;

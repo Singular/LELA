@@ -130,45 +130,51 @@ int main (int argc, char **argv)
 	RandomDenseStream<Field, DenseMatrix<Field::Element>::Row> stream11 (F, m, l);
 	RandomDenseStream<Field, DenseMatrix<Field::Element>::Row> stream12 (F, n, m);
 	RandomDenseStream<Field, DenseMatrix<Field::Element>::Row> stream13 (F, p, n);
+	RandomDenseStream<Field, DenseMatrix<Field::Element>::Row> stream14 (F, m, m);
 
 	DenseMatrix<Field::Element> M1 (stream11);
 	DenseMatrix<Field::Element> M2 (stream12);
 	DenseMatrix<Field::Element> M3 (stream13);
+	DenseMatrix<Field::Element> M4 (stream14);
 
-	if (!testBLAS2 (ctx, "dense", M1, M2, v1, v2, iterations,
+	if (!testBLAS2 (ctx, "dense", M1, M2, v1, v2,
 			DenseMatrix<Field::Element>::IteratorType ()))
 		pass = false;
-	if (!testBLAS3 (ctx, "dense", M1, M2, M3, iterations,
+	if (!testBLAS3 (ctx, "dense", M1, M2, M3, M4,
 			DenseMatrix<Field::Element>::IteratorType ()))
 		pass = false;
 
 	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream21 (F, (double) k / (double) m, m, l);
 	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream22 (F, (double) k / (double) n, n, m);
 	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream23 (F, (double) k / (double) p, p, n);
+	RandomSparseStream<Field, Vector<Field>::Sparse, Field::RandIter> stream24 (F, (double) k / (double) p, m, m);
 
-	SparseMatrix<Field::Element, Vector<Field>::Sparse> M4 (stream21);
-	SparseMatrix<Field::Element, Vector<Field>::Sparse> M5 (stream22);
-	SparseMatrix<Field::Element, Vector<Field>::Sparse> M6 (stream23);
+	SparseMatrix<Field::Element, Vector<Field>::Sparse> M5 (stream21);
+	SparseMatrix<Field::Element, Vector<Field>::Sparse> M6 (stream22);
+	SparseMatrix<Field::Element, Vector<Field>::Sparse> M7 (stream23);
+	SparseMatrix<Field::Element, Vector<Field>::Sparse> M8 (stream24);
 
-	if (!testBLAS2 (ctx, "sparse", M4, M5, v1, v2, iterations,
+	if (!testBLAS2 (ctx, "sparse", M5, M6, v1, v2,
 			SparseMatrix<Field::Element, Vector<Field>::Sparse>::IteratorType ()))
 		pass = false;
-	if (!testBLAS3 (ctx, "sparse", M4, M5, M6, iterations,
+	if (!testBLAS3 (ctx, "sparse", M5, M6, M7, M8,
 			SparseMatrix<Field::Element, Vector<Field>::Sparse>::IteratorType ()))
 		pass = false;
 
 	RandomSparseStream<Field, Vector<Field>::Hybrid> stream31 (F, (double) k / (double) m, m, l);
 	RandomSparseStream<Field, Vector<Field>::Hybrid> stream32 (F, (double) k / (double) n, n, m);
 	RandomSparseStream<Field, Vector<Field>::Hybrid> stream33 (F, (double) k / (double) p, p, n);
+	RandomSparseStream<Field, Vector<Field>::Hybrid> stream34 (F, (double) k / (double) p, m, m);
 
-	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M7 (stream31);
-	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M8 (stream32);
-	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M9 (stream33);
+	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M9 (stream31);
+	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M10 (stream32);
+	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M11 (stream33);
+	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M12 (stream34);
 
-	if (!testBLAS2 (ctx, "hybrid", M7, M8, v1, v2, iterations,
+	if (!testBLAS2 (ctx, "hybrid", M9, M10, v1, v2,
 			SparseMatrix<Field::Element, Vector<Field>::Hybrid>::IteratorType ()))
 		pass = false;
-	if (!testBLAS3 (ctx, "hybrid", M7, M8, M9, iterations,
+	if (!testBLAS3 (ctx, "hybrid", M9, M10, M11, M12,
 			SparseMatrix<Field::Element, Vector<Field>::Hybrid>::IteratorType ()))
 		pass = false;
 
@@ -179,14 +185,15 @@ int main (int argc, char **argv)
 	stream_v1p >> v1p;
 	stream_v2p >> v2p;
 
-	DenseMatrix<Field::Element>::SubmatrixType M10 (M1, 4, 4, l - 8, m - 8);
-	DenseMatrix<Field::Element>::SubmatrixType M11 (M2, 4, 4, m - 8, n - 8);
-	DenseMatrix<Field::Element>::SubmatrixType M12 (M3, 4, 4, n - 8, p - 8);
+	DenseMatrix<Field::Element>::SubmatrixType M13 (M1, 4, 4, l - 8, m - 8);
+	DenseMatrix<Field::Element>::SubmatrixType M14 (M2, 4, 4, m - 8, n - 8);
+	DenseMatrix<Field::Element>::SubmatrixType M15 (M3, 4, 4, n - 8, p - 8);
+	DenseMatrix<Field::Element>::SubmatrixType M16 (M4, 4, 4, m - 8, m - 8);
 
-	if (!testBLAS2Submatrix (ctx, "dense (submatrix)", M10, M11, v1p, v2p, iterations,
+	if (!testBLAS2Submatrix (ctx, "dense (submatrix)", M13, M14, v1p, v2p,
 				 DenseMatrix<Field::Element>::IteratorType ()))
 		pass = false;
-	if (!testBLAS3Submatrix (ctx, "dense (submatrix)", M10, M11, M12, iterations,
+	if (!testBLAS3Submatrix (ctx, "dense (submatrix)", M13, M14, M15, M16,
 				 DenseMatrix<Field::Element>::IteratorType ()))
 		pass = false;
 

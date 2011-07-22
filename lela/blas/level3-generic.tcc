@@ -512,6 +512,32 @@ template <class Ring>
 template <class Modules, class Matrix1, class Matrix2>
 bool _equal<Ring, typename GenericModule<Ring>::Tag>::equal_impl
 	(const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
+	 MatrixIteratorTypes::Generic, MatrixIteratorTypes::Generic)
+{
+	lela_check (A.rowdim () == B.rowdim ());
+	lela_check (A.coldim () == B.coldim ());
+
+	typename Ring::Element b;
+	typename Matrix1::ConstRawIterator r_A;
+	typename Matrix1::ConstRawIndexedIterator i_A;
+
+	for (i_A = A.rawIndexedBegin (), r_A = A.rawBegin (); i_A != A.rawIndexedEnd (); ++i_A, ++r_A)
+		if (!B.getEntry (b, i_A->first, i_A->second) || !F.areEqual (*r_A, b))
+			return false;
+
+	typename Matrix2::ConstRawIndexedIterator i_B;
+
+	for (i_B = B.rawIndexedBegin (); i_B != B.rawIndexedEnd (); ++i_B)
+		if (!A.getEntry (b, i_B->first, i_B->second))
+			return false;
+
+	return true;
+}
+
+template <class Ring>
+template <class Modules, class Matrix1, class Matrix2>
+bool _equal<Ring, typename GenericModule<Ring>::Tag>::equal_impl
+	(const Ring &F, Modules &M, const Matrix1 &A, const Matrix2 &B,
 	 MatrixIteratorTypes::Row, MatrixIteratorTypes::Row)
 {
 	lela_check (A.rowdim () == B.rowdim ());

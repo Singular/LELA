@@ -80,41 +80,50 @@ int main (int argc, char **argv)
 	RandomDenseStream<Ring, DenseMatrix<Element>::Row> stream11 (F, m, l);
 	RandomDenseStream<Ring, DenseMatrix<Element>::Row> stream12 (F, n, m);
 	RandomDenseStream<Ring, DenseMatrix<Element>::Row> stream13 (F, p, n);
+	RandomDenseStream<Ring, DenseMatrix<Element>::Row> stream14 (F, m, m);
 
 	DenseMatrix<Element> M1 (stream11);
 	DenseMatrix<Element> M2 (stream12);
 	DenseMatrix<Element> M3 (stream13);
+	DenseMatrix<Element> M4 (stream14);
 
-	if (!testBLAS2 (ctx, "dense", M1, M2, v1, v2, iterations,
+	if (!testBLAS2 (ctx, "dense", M1, M2, v1, v2,
 			DenseMatrix<Element>::IteratorType ()))
 		pass = false;
-	if (!testBLAS3 (ctx, "dense", M1, M2, M3, iterations,
+	if (!testBLAS3 (ctx, "dense", M1, M2, M3, M4,
 			DenseMatrix<Element>::IteratorType ()))
 		pass = false;
 
 	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream21 (F, (double) k / (double) m, m, l);
 	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream22 (F, (double) k / (double) n, n, m);
 	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream23 (F, (double) k / (double) p, p, n);
+	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream24 (F, (double) k / (double) m, m, m);
 
-	SparseMatrix<Element> M4 (stream21);
-	SparseMatrix<Element> M5 (stream22);
-	SparseMatrix<Element> M6 (stream23);
+	SparseMatrix<Element> M5 (stream21);
+	SparseMatrix<Element> M6 (stream22);
+	SparseMatrix<Element> M7 (stream23);
+	SparseMatrix<Element> M8 (stream24);
 
-	if (!testBLAS2 (ctx, "sparse row-wise", M4, M5, v1, v2, iterations,
+	if (!testBLAS2 (ctx, "sparse row-wise", M5, M6, v1, v2,
 			SparseMatrix<Element>::IteratorType ()))
 		pass = false;
-	if (!testBLAS3 (ctx, "sparse row-wise", M4, M5, M6, iterations,
+	if (!testBLAS3 (ctx, "sparse row-wise", M5, M6, M7, M8,
 			SparseMatrix<Element>::IteratorType ()))
 		pass = false;
 
-	TransposeMatrix<SparseMatrix<Element> > M7 (M6);
-	TransposeMatrix<SparseMatrix<Element> > M8 (M5);
-	TransposeMatrix<SparseMatrix<Element> > M9 (M4);
+	TransposeMatrix<SparseMatrix<Element> > M9 (M7);
+	TransposeMatrix<SparseMatrix<Element> > M10 (M6);
+	TransposeMatrix<SparseMatrix<Element> > M11 (M5);
 
-	if (!testBLAS2 (ctx, "sparse column-wise", M7, M8, v4, v3, iterations,
+	RandomSparseStream<Ring, SparseMatrix<Element>::Row> stream31 (F, (double) k / (double) n, n, n);
+
+	SparseMatrix<Element> M12 (stream31);
+	TransposeMatrix<SparseMatrix<Element> > M12T (M12);
+
+	if (!testBLAS2 (ctx, "sparse column-wise", M9, M10, v4, v3,
 			TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
 		pass = false;
-	if (!testBLAS3 (ctx, "sparse column-wise", M7, M8, M9, iterations,
+	if (!testBLAS3 (ctx, "sparse column-wise", M9, M10, M11, M12T,
 			TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
 		pass = false;
 

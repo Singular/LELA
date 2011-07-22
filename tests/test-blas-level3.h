@@ -688,8 +688,8 @@ static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const
 
 	bool ret = true;
 
-	Matrix U (A.rowdim (), A.coldim ());
-	Matrix B1 (B.rowdim (), B.coldim ());
+	typename Matrix::ContainerType U (A.rowdim (), A.coldim ());
+	typename Matrix::ContainerType B1 (B.rowdim (), B.coldim ());
 
 	BLAS3::copy (ctx, A, U);
 	makeNonsingDiag (ctx.F, U, false);
@@ -749,8 +749,8 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 
 	bool ret = true;
 
-	Matrix U (A.rowdim (), A.coldim ());
-	Matrix B1 (B.rowdim (), B.coldim ());
+	typename Matrix::ContainerType U (A.rowdim (), A.coldim ());
+	typename Matrix::ContainerType B1 (B.rowdim (), B.coldim ());
 
 	BLAS3::copy (ctx, A, U);
 	makeNonsingDiag (ctx.F, U, false);
@@ -814,7 +814,7 @@ static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	bool ret = true;
 
-	Matrix1 U (A.rowdim (), A.coldim ());
+	typename Matrix1::ContainerType U (A.rowdim (), A.coldim ());
 
 	BLAS3::copy (ctx, A, U);
 	makeUpperTriangular (ctx.F, U, true);
@@ -1545,9 +1545,8 @@ bool testpermute_colsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 template <class Field, class Modules, class Matrix>
 bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
-		       Matrix &M1, Matrix &M2, Matrix &M3,
-		       unsigned int iterations,
-		       MatrixIteratorTypes::RowCol)
+		Matrix &M1, Matrix &M2, Matrix &M3, Matrix &M4,
+		MatrixIteratorTypes::RowCol)
 {
 	ostringstream str;
 	str << "Testing BLAS3 with " << text << " matrices" << ends;
@@ -1560,18 +1559,13 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (ctx, text, M1)) pass = false;
-	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
-	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
 	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
 
-	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsmLower (ctx, text, M1, M2)) pass = false;
-		if (!testTrsmUpper (ctx, text, M1, M2)) pass = false;
-		if (!testTrsmCoeff (ctx, text, M1, M2)) pass = false;
-	} else {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
-			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
-	}
+	if (!testTrmmGemmUpper (ctx, text, M4, M2)) pass = false;
+	if (!testTrmmGemmLower (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmLower (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmUpper (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmCoeff (ctx, text, M4, M2)) pass = false;
 
 	if (!testPermutation (ctx, text, M1)) pass = false;
 	if (!testReadWrite (ctx, text, M1)) pass = false;
@@ -1583,8 +1577,7 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 
 template <class Field, class Modules, class Matrix>
 bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
-		Matrix &M1, Matrix &M2, Matrix &M3,
-		unsigned int iterations,
+		Matrix &M1, Matrix &M2, Matrix &M3, Matrix &M4,
 		MatrixIteratorTypes::Row) 
 {
 	ostringstream str;
@@ -1598,18 +1591,14 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (ctx, text, M1)) pass = false;
-	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
-	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
-//	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
 
-	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsmLower (ctx, text, M1, M2)) pass = false;
-		if (!testTrsmUpper (ctx, text, M1, M2)) pass = false;
-		if (!testTrsmCoeff (ctx, text, M1, M2)) pass = false;
-	} else {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
-			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
-	}
+	if (!testTrmmGemmUpper (ctx, text, M4, M2)) pass = false;
+	if (!testTrmmGemmLower (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmLower (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmUpper (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmCoeff (ctx, text, M4, M2)) pass = false;
+
+//	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
 
 	if (!testPermutation (ctx, text, M1)) pass = false;
 	if (!testReadWrite (ctx, text, M1)) pass = false;
@@ -1621,8 +1610,7 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 
 template <class Field, class Modules, class Matrix>
 bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
-		Matrix &M1, Matrix &M2, Matrix &M3,
-		unsigned int iterations,
+		Matrix &M1, Matrix &M2, Matrix &M3, Matrix &M4,
 		MatrixIteratorTypes::Col) 
 {
 	ostringstream str;
@@ -1636,22 +1624,12 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 	if (!testGemmCoeff (ctx, text, M1, M2)) pass = false;
 	if (!testGemmAssoc (ctx, text, M1, M2, M3)) pass = false;
 	if (!testGemmIdent (ctx, text, M1)) pass = false;
-	if (!testTrmmGemmUpper (ctx, text, M1, M2)) pass = false;
-	if (!testTrmmGemmLower (ctx, text, M1, M2)) pass = false;
 	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;
 
-#if 0
-	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsmLower (ctx, text, M1, M2)) pass = false;
-		if (!testTrsmUpper (ctx, text, M1, M2)) pass = false;
-
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
-			<< "Input matrix M2 is not iterable by columns, so skipping tests of trsm" << std::endl;
-	} else {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
-			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
-	}
-#endif
+	if (!testTrmmGemmUpper (ctx, text, M4, M2)) pass = false;
+	if (!testTrmmGemmLower (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmLower (ctx, text, M4, M2)) pass = false;
+	if (!testTrsmUpper (ctx, text, M4, M2)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
@@ -1660,8 +1638,7 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 
 template <class Field, class Modules, class Matrix>
 bool testBLAS3Submatrix (Context<Field, Modules> &ctx, const char *text, // 
-			 const Matrix &M1, const Matrix &M2, const Matrix &M3,
-			 unsigned int iterations,
+			 const Matrix &M1, const Matrix &M2, const Matrix &M3, const Matrix &M4,
 			 MatrixIteratorTypes::Row) 
 {
 	ostringstream str;
@@ -1677,14 +1654,7 @@ bool testBLAS3Submatrix (Context<Field, Modules> &ctx, const char *text, //
 	if (!testGemmIdent (ctx, text, M1)) pass = false;
 //	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
 
-#if 0 // Disabled until we have a good candidate here
-	if (M1.rowdim () == M1.coldim ()) {
-		if (!testTrsmCoeff (ctx, text, M1, M2)) pass = false;
-	} else {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
-			<< "Input matrix M1 is not square, so skipping tests of trsv and trsm" << std::endl;
-	}
-#endif
+	if (!testTrsmCoeff (ctx, text, M4, M2)) pass = false;
 
 	if (!testPermutation (ctx, text, M1)) pass = false;
 
