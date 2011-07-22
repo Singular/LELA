@@ -69,21 +69,16 @@ template <class Modules, class reference, class Vector1, class Vector2>
 reference &_dot<GF2, GenericModule<GF2>::Tag>::dot_impl (const GF2 &F, Modules &M, reference &res, const Vector1 &x, const Vector2 &y,
 							 VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Hybrid01)
 {
-	lela_check (VectorUtils::hasDim<GF2> (y, x.size ()));
-
 	typename Vector1::word_type t = 0;
 	typename Vector1::const_word_iterator i = x.word_begin ();
-	typename Vector2::const_iterator j = y.begin ();
+	typename Vector2::const_iterator j;
 
-	typename Vector2::const_iterator j_stop;
-
-	if (j == y.end ())
-		return res = false;
-	else if (j == y.end () - 1)
-		t = *(i + j->first) & j->second;
-	else
-		for (; j != j_stop; ++j)
+	for (j = y.begin (); j != y.end (); ++j) {
+		if (j->first == x.word_size () - 1)
+			t ^= x.back_word () & j->second;
+		else
 			t ^= *(i + j->first) & j->second;
+	}
         
         return res = WordTraits<typename Vector1::word_type>::ParallelParity (t);
 }
