@@ -493,6 +493,93 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Hyb
 	MersenneTwister                   _MT;
 };
 
+/** Random hybrid vector stream
+ *
+ * Generates a sequence of random hybrid vectors over a given ring.
+ * Distinguished from RandomSparseStream in that the vectors are
+ * generated in a way which is more likely to involve word-gaps.
+ *
+ * This is only valid for hybrid vectors.
+ */
+template <class Ring, class _Vector = typename LELA::Vector<Ring>::Hybrid, class RandIter = typename Ring::RandIter>
+class RandomHybridStream : public VectorStream<_Vector>
+{
+    public:
+	typedef _Vector Vector;
+        typedef RandomHybridStream<Ring, Vector, RandIter> Self_t;
+
+	/** Constructor
+	 * Construct a new stream with the given ring and vector size.
+	 * @param F Ring over which to create random vectors
+	 * @param p Proportion of nonzero entries
+	 * @param n Size of vectors
+	 * @param m Number of vectors to return (0 for unlimited)
+	 */
+	RandomHybridStream (const Ring &F, double p, size_t n, size_t m = 0)
+		: _F (F), _n (n), _m (m), _j (0), _MT (0)
+		{ setP (p); }
+
+	/** Constructor
+	 * Construct a new stream with the given ring and vector size.
+	 * @param F Ring over which to create random vectors
+	 * @param n Size of vectors
+	 * @param p Proportion of nonzero entries
+	 * @param m Number of vectors to return (0 for unlimited)
+	 */
+	RandomHybridStream (const Ring &F, const RandIter &r, double p, size_t n, size_t m = 0)
+		: _F (F), _n (n), _m (m), _j (0), _MT (0)
+		{ setP (p); }
+
+	/** Get next element
+	 * @param v Vector into which to generate random vector
+	 * @return reference to new random vector
+	 */
+	Vector &get (Vector &v);
+
+	/** Extraction operator form
+	 */
+	Self_t &operator >> (Vector &v)
+		{ get (v); return *this; }
+
+	/** Number of vectors to be created
+	 */
+	size_t size () const { return _m; }
+
+	/** Number of vectors created so far
+	 */
+	size_t pos () const { return _j; }
+
+	/** Dimension of the space
+	 */
+	size_t dim () const { return _n; }
+
+	/** Check whether we have reached the end
+	 */
+	operator bool () const { return _m == 0 || _j < _m; }
+
+	/** Reset the stream to start at the beginning
+	 */
+	void reset () { _j = 0; }
+
+	/** Set the probability of a nonzero entry
+	 */
+	void setP (double p)
+	{
+		lela_check ((p >= 0.0) && (p <= 1.0)); 
+		_p = p;
+		_1_log_1mp   = 1 / log (1 - _p);
+	}
+
+    private:
+	const Ring       &_F;
+	size_t            _n;
+	double            _p;
+	double            _1_log_1mp;
+	size_t            _m;
+	size_t            _j;
+	MersenneTwister   _MT;
+};
+
 /** Stream for e_1,...,e_n
  * Generates the sequence e_1,...,e_n over a given ring
  * 

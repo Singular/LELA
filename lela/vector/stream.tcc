@@ -158,6 +158,42 @@ Vector &RandomSparseStream<Ring, Vector, RandIter, VectorRepresentationTypes::Hy
 	return v;
 }
 
+template <class Ring, class Vector, class RandIter>
+Vector &RandomHybridStream<Ring, Vector, RandIter>::get (Vector &v) 
+{
+	size_t i = (size_t) -1;
+	double val;
+	int skip;
+
+	typename Vector::word_type t;
+
+	if (_m > 0 && _j++ >= _m)
+		return v;
+
+	v.clear ();
+
+	while (1) {
+		val = _MT.randomDouble ();
+		skip = (int) (ceil (log (val) * _1_log_1mp));
+
+		if (skip <= 0)
+			i++;
+		else
+			i += skip;
+
+		if (i << WordTraits<typename Vector::word_type>::logof_size >= _n) break;
+
+		t = _MT.randomLongLong ();
+
+		if (i == _n >> WordTraits<typename Vector::word_type>::logof_size)
+			t &= Vector::Endianness::mask_left (_n & WordTraits<typename Vector::word_type>::pos_mask);
+
+		v.push_back (typename Vector::value_type (i, t));
+	}
+
+	return v;
+}
+
 template <class Ring, class Vector>
 Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Dense>::get (Vector &v) 
 {

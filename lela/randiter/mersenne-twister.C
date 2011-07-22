@@ -101,6 +101,19 @@ uint32 MersenneTwister::randomInt ()
 	return (y ^ (y >> 18));
 }
 
+uint64 MersenneTwister::randomLongLong ()
+{
+	union {
+		uint64 y;
+		uint32 t[2];
+	} v;
+
+	v.t[0] = randomInt ();
+	v.t[1] = randomInt ();
+
+	return v.y;
+}
+
 /* N.B. The following is adapted from Glib 2.2, g_rand_double
  */
 

@@ -42,6 +42,10 @@ class MersenneTwister
 	uint32 randomInt () const
 		{ return const_cast<MersenneTwister&>(*this).randomInt();}
 
+	uint64 randomLongLong ();
+	uint64 randomLongLong () const
+		{ return const_cast<MersenneTwister&>(*this).randomLongLong();}
+
 	uint32 randomIntRange (uint32 start, uint32 end);
 	uint32 randomIntRange (uint32 start, uint32 end) const
 		{ return const_cast<MersenneTwister&>(*this).randomIntRange(start,end); }
