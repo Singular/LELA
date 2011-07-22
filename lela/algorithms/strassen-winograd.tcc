@@ -22,9 +22,24 @@
 #include "lela/blas/level3-ll.h"
 #include "lela/algorithms/strassen-winograd.h"
 #include "lela/integer.h"
+#include "lela/util/timer.h"
 
 // Define to get a detailed profile of what the algorithm is doing at a cost of performance
-#undef __LELA_SW_DETAILED_PROFILE
+#define __LELA_SW_DETAILED_PROFILE
+
+#ifdef __LELA_SW_DETAILED_PROFILE
+#  define SW_TIMER_DECLARE(part) LELA::UserTimer part##_timer; double part##_time = 0.0;
+#  define SW_TIMER_START(part) part##_timer.start ()
+#  define SW_TIMER_STOP(part) part##_timer.stop (); part##_time += part##_timer.time ()
+#  define SW_TIMER_REPORT(part) \
+	commentator.report (Commentator::LEVEL_NORMAL, TIMING_MEASURE) \
+		<< "Total " #part " time: " << part##_time << "s" << std::endl;
+#else
+#  define SW_TIMER_DECLARE(part)
+#  define SW_TIMER_START(part)
+#  define SW_TIMER_STOP(part)
+#  define SW_TIMER_REPORT(part)
+#endif
 
 namespace LELA
 {
@@ -134,7 +149,19 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 
 		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION)
 			<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
+
 #endif // __LELA_SW_DETAILED_PROFILE
+
+		SW_TIMER_DECLARE(other);
+		SW_TIMER_DECLARE(mul1);
+		SW_TIMER_DECLARE(mul2);
+		SW_TIMER_DECLARE(mul3);
+		SW_TIMER_DECLARE(mul4);
+		SW_TIMER_DECLARE(mul5);
+		SW_TIMER_DECLARE(mul6);
+		SW_TIMER_DECLARE(mul7);
+
+		SW_TIMER_START(other);
 
 		typename Matrix3::ContainerType X1 (m, std::max (k, n)), X2 (k, n);
 
@@ -162,7 +189,13 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 		BLAS3::_copy<Ring, ParentTag>::op (R, M, B22, X2);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), B12, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul1);
 		mul (R, M, R.one (), X11, X2, C21);
+		SW_TIMER_STOP(mul1);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_copy<Ring, ParentTag>::op (R, M, A21, X11);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), A22, X11);
@@ -170,20 +203,40 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 		BLAS3::_copy<Ring, ParentTag>::op (R, M, B12, X2);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), B11, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul2);
 		mul (R, M, R.one (), X11, X2, C22);
+		SW_TIMER_STOP(mul2);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), A11, X11);
 
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.minusOne (), X2);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), B22, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul3);
 		mul (R, M, R.one (), X11, X2, C12);
+		SW_TIMER_STOP(mul3);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.minusOne (), X11);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), A12, X11);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul4);
 		mul (R, M, R.one (), X11, B22, C11);
+		SW_TIMER_STOP(mul4);
+		SW_TIMER_START(mul5);
 		mul (R, M, R.one (), A11, B11, X12);
+		SW_TIMER_STOP(mul5);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X12, C12);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), C12, C21);
@@ -192,16 +245,39 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), C11, C12);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), B21, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul6);
 		mul (R, M, R.one (), A22, X2, C11);
+		SW_TIMER_STOP(mul6);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), C11, C21);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul7);
 		mul (R, M, R.one (), A12, B21, C11);
+		SW_TIMER_STOP(mul7);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X12, C11);
 
 		typename Matrix3::AlignedSubmatrixType C_part (C, 0, 0, 2 * m, 2 * n);
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, a, C_part);
+
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_REPORT(mul1);
+		SW_TIMER_REPORT(mul2);
+		SW_TIMER_REPORT(mul3);
+		SW_TIMER_REPORT(mul4);
+		SW_TIMER_REPORT(mul5);
+		SW_TIMER_REPORT(mul6);
+		SW_TIMER_REPORT(mul7);
+		SW_TIMER_REPORT(other);
 
 #ifdef __LELA_SW_DETAILED_PROFILE
 		commentator.stop (MSG_DONE);
@@ -234,6 +310,17 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 			<< "Size-parameters: " << m << ", " << k << ", " << n << std::endl;
 #endif // __LELA_SW_DETAILED_PROFILE
 
+		SW_TIMER_DECLARE(other);
+		SW_TIMER_DECLARE(mul1);
+		SW_TIMER_DECLARE(mul2);
+		SW_TIMER_DECLARE(mul3);
+		SW_TIMER_DECLARE(mul4);
+		SW_TIMER_DECLARE(mul5);
+		SW_TIMER_DECLARE(mul6);
+		SW_TIMER_DECLARE(mul7);
+
+		SW_TIMER_START(other);
+
 		typename Matrix3::ContainerType X1 (m, k), X2 (k, n), X3 (m, n);
 
 		typename Matrix1::ConstAlignedSubmatrixType A11 (A, 0, 0, m, k);
@@ -257,7 +344,13 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		BLAS3::_copy<Ring, ParentTag>::op (R, M, B12, X2);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), B11, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul1);
 		mul (R, M, a, X1, X2, X3);
+		SW_TIMER_STOP(mul1);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, b, C22);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C22);
@@ -270,27 +363,53 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.minusOne (), X2);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), B22, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul2);
 		mul (R, M, a, A11, B11, X3);
+		SW_TIMER_STOP(mul2);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, b, C11);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C11);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul3);
 		addmul (R, M, a, X1, X2, R.one (), X3);
+		SW_TIMER_STOP(mul3);
+		SW_TIMER_START(mul4);
 		addmul (R, M, a, A12, B21, R.one (), C11);
+		SW_TIMER_STOP(mul4);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.minusOne (), X1);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), A12, X1);
 
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), B21, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul5);
 		addmul (R, M, a, X1, B22, R.one (), C12);
+		SW_TIMER_STOP(mul5);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C12);
 
 		typename Ring::Element neg_b;
 		R.neg (neg_b, b);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul6);
 		addmul (R, M, a, A22, X2, neg_b, C21);
+		SW_TIMER_STOP(mul6);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_copy<Ring, ParentTag>::op (R, M, A11, X1);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), A21, X1);
@@ -298,11 +417,28 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		BLAS3::_copy<Ring, ParentTag>::op (R, M, B22, X2);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), B12, X2);
 
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_START(mul7);
 		addmul (R, M, a, X1, X2, R.one (), X3);
+		SW_TIMER_STOP(mul7);
+
+		SW_TIMER_START(other);
 
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C22);
 		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.minusOne (), C21);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.one (), X3, C21);
+
+		SW_TIMER_STOP(other);
+
+		SW_TIMER_REPORT(mul1);
+		SW_TIMER_REPORT(mul2);
+		SW_TIMER_REPORT(mul3);
+		SW_TIMER_REPORT(mul4);
+		SW_TIMER_REPORT(mul5);
+		SW_TIMER_REPORT(mul6);
+		SW_TIMER_REPORT(mul7);
+		SW_TIMER_REPORT(other);
 
 #ifdef __LELA_SW_DETAILED_PROFILE
 		commentator.stop (MSG_DONE);
