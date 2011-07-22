@@ -109,17 +109,17 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
 
         bool pass = true;
 
-        RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (ctx.F, n, 1), stream2 (ctx.F, n, 1);
+        RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (ctx.F, n, 1), stream2 (ctx.F, m, 1);
 	Vector<GF2>::Dense v1d;
 	stream1 >> v1d;
 	Vector<GF2>::Dense v2d;
 	stream2 >> v2d;
-        RandomSparseStream<GF2, Vector<GF2>::Sparse> stream3 (ctx.F, 0.1, n, 1), stream4 (ctx.F, 0.1, n, 1);
+        RandomSparseStream<GF2, Vector<GF2>::Sparse> stream3 (ctx.F, 0.1, n, 1), stream4 (ctx.F, 0.1, m, 1);
 	Vector<GF2>::Sparse v1s;
 	stream3 >> v1s;
 	Vector<GF2>::Sparse v2s;
 	stream4 >> v2s;
-        RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, 1), stream6 (ctx.F, 0.1, n, 1);
+        RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, 1), stream6 (ctx.F, 0.1, m, 1);
 	Vector<GF2>::Hybrid v1h;
 	stream5 >> v1h;
 	Vector<GF2>::Hybrid v2h;
@@ -135,15 +135,27 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
 	SparseMatrix<bool, Vector<GF2>::Hybrid> A3 (stream11);
 	TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > A3t (A3);
 
-        if (!testgemvConsistency (ctx, ctx, "sparse(row-wise)/dense/dense	with dense/dense/dense", A2, v1d, v2d, A1, v1d, v2d)) pass = false;  
-        if (!testgemvConsistency (ctx, ctx, "sparse(col-wise)/dense/dense	with dense/dense/dense", A2t, v2d, v1d, A1, v1d, v2d)) pass = false;
-        if (!testgemvConsistency (ctx, ctx, "sparse(row-wise)/sparse/sparse	with dense/dense/dense", A2, v1s, v2s, A1, v1d, v2d)) pass = false;
-        if (!testgemvConsistency (ctx, ctx, "sparse(col-wise)/sparse/sparse	with dense/dense/dense", A2t, v2s, v1s, A1, v1d, v2d)) pass = false;
-        if (!testgemvConsistency (ctx, ctx, "sparse(row-wise)/sparse/dense	with dense/dense/dense", A2, v1s, v2d, A1, v1d, v2d)) pass = false;
-        if (!testgemvConsistency (ctx, ctx, "sparse(col-wise)/sparse/dense	with dense/dense/dense", A2t, v2s, v1d, A1, v1d, v2d)) pass = false;
-        if (!testgemvConsistency (ctx, ctx, "dense/sparse/dense			with dense/dense/dense", A1, v1s, v2d, A1, v1d, v2d)) pass = false;
-        if (!testgemvConsistency (ctx, ctx, "dense/sparse/sparse		with dense/dense/dense", A1, v1s, v2s, A1, v1d, v2d)) pass = false;
-        if (!testgemvConsistency (ctx, ctx, "dense/dense/sparse			with dense/dense/dense", A1, v1d, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "sparse(row-wise)/dense/dense	with dense/dense/dense", A2, v1d, v2d, A1, v1d, v2d)) pass = false;  
+        if( !testgemvConsistency (ctx, ctx, "sparse(col-wise)/dense/dense	with dense/dense/dense", A2t, v2d, v1d, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "sparse(row-wise)/sparse/sparse	with dense/dense/dense", A2, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "sparse(col-wise)/sparse/sparse	with dense/dense/dense", A2t, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "sparse(row-wise)/sparse/dense	with dense/dense/dense", A2, v1s, v2d, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "sparse(col-wise)/sparse/dense	with dense/dense/dense", A2t, v2s, v1d, A1, v1d, v2d)) pass = false;
+
+        if( !testgemvConsistency (ctx, ctx, "hybrid(row-wise)/dense/dense       with dense/dense/dense", A3, v1d, v2d, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "hybrid(col-wise)/dense/dense       with dense/dense/dense", A3t, v2d, v1d, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "hybrid(row-wise)/sparse/sparse     with dense/dense/dense", A3, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "hybrid(col-wise)/sparse/sparse     with dense/dense/dense", A3t, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "hybrid(row-wise)/sparse/dense      with dense/dense/dense", A3, v1s, v2d, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "hybrid(col-wise)/sparse/dense      with dense/dense/dense", A3t, v2s, v1d, A1, v1d, v2d)) pass = false;
+
+        if( !testgemvConsistency (ctx, ctx, "dense/sparse/dense			with dense/dense/dense", A1, v1s, v2d, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "dense/sparse/sparse		with dense/dense/dense", A1, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "dense/dense/sparse			with dense/dense/dense", A1, v1d, v2s, A1, v1d, v2d)) pass = false;
+
+        if( !testgemvConsistency (ctx, ctx, "dense(col-wise)/sparse/dense       with dense/dense/dense", A1t, v2s, v1d, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "dense(col-wise)/sparse/sparse      with dense/dense/dense", A1t, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgemvConsistency (ctx, ctx, "dense(col-wise)/dense/sparse       with dense/dense/dense", A1t, v2d, v1s, A1, v1d, v2d)) pass = false;
 
         RandomDenseStream<GF2, DenseMatrix<bool>::Row> stream12 (ctx.F, n, n);
         DenseMatrix<bool> Aq1 (stream12);
@@ -155,14 +167,23 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
         SparseMatrix<bool, Vector<GF2>::Hybrid> Aq3 (stream14);
         TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > Aq3t (Aq3);
 	   
-	if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (LT, diag = 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
-        if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (UT, diag = 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
-        if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (LT, diag != 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
-        if ( !testtrmvConsistency (ctx, ctx, "sparse with dense (UT, diag != 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
-        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (LT, diag = 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
-        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (UT, diag = 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
-        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (LT, diag != 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
-        if ( !testtrmvConsistency (ctx, ctx, "hybrid with dense (UT, diag != 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+	if( !testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag = 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag = 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag != 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag != 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag = 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag = 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag != 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag != 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(row-wise) with dense (LT, diag = 1)", Aq3, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(row-wise) with dense (UT, diag = 1)", Aq3, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(row-wise) with dense (LT, diag != 1)", Aq3, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(row-wise) with dense (UT, diag != 1)", Aq3, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(col-wise) with dense (LT, diag = 1)", Aq3t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(col-wise) with dense (UT, diag = 1)", Aq3t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(col-wise) with dense (LT, diag != 1)", Aq3t, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrmvConsistency (ctx, ctx, "hybrid(col-wise) with dense (UT, diag != 1)", Aq3t, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
 
         SparseMatrix<bool> Aq2p (n,n);
 	BLAS3::copy (ctx, Aq2, Aq2p);
@@ -174,24 +195,44 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
         makeNonsingDiag(ctx.F, Aq3p, false);
         TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > Aq3tp (Aq3p);
 
-        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (LT, diag = 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
-        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (UT, diag = 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
-        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (LT, diag != 1)", Aq2p, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
-        if ( !testtrsvConsistency (ctx, ctx, "sparse with dense (UT, diag != 1)", Aq2p, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
-        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (LT, diag = 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
-        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (UT, diag = 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
-        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (LT, diag != 1)", Aq2tp, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
-        if ( !testtrsvConsistency (ctx, ctx, "hybrid with dense (UT, diag != 1)", Aq2tp, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag = 1)", Aq2, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag = 1)", Aq2, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (LT, diag != 1)", Aq2p, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(row-wise) with dense (UT, diag != 1)", Aq2p, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag = 1)", Aq2t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag = 1)", Aq2t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (LT, diag != 1)", Aq2tp, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "sparse(col-wise) with dense (UT, diag != 1)", Aq2tp, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
 
-	if( !testgerConsistency (ctx, ctx, "sparse/dense/dense with dense/dense/dense", A2, v2d, v1d, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "hybrid/dense/dense with dense/dense/dense", A2t, v1s, v2s, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "sparse/sparse/sparse with dense/dense/dense", A2, v2s, v1s, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "hybrid/sparse/sparse with dense/dense/dense", A2t, v1s, v2s, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "sparse/sparse/dense with dense/dense/dense", A2, v2d, v1s, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "hybrid/sparse/dense with dense/dense/dense", A2t, v1d, v2s, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "dense/sparse/dense with dense/dense/dense", A1, v2d, v1s, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "dense/sparse/sparse with dense/dense/dense", A1, v2s, v1s, A1, v1d, v2d)) pass = false;
-        if( !testgerConsistency (ctx, ctx, "dense/dense/sparse with dense/dense/dense", A1, v2s, v1d, A1, v1d, v2d)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(row-wise) with dense (LT, diag = 1)", Aq3, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(row-wise) with dense (UT, diag = 1)", Aq3, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(row-wise) with dense (LT, diag != 1)", Aq3p, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(row-wise) with dense (UT, diag != 1)", Aq3p, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(col-wise) with dense (LT, diag = 1)", Aq3t, v1d, Aq1, v1d, LowerTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(col-wise) with dense (UT, diag = 1)", Aq3t, v1d, Aq1, v1d, UpperTriangular, true)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(col-wise) with dense (LT, diag != 1)", Aq3tp, v1d, Aq1, v1d, LowerTriangular, false)) pass = false;
+        if( !testtrsvConsistency (ctx, ctx, "hybrid(col-wise) with dense (UT, diag != 1)", Aq3tp, v1d, Aq1, v1d, UpperTriangular, false)) pass = false;
+
+	if( !testgerConsistency (ctx, ctx, "sparse(row-wise)/dense/dense	with dense/dense/dense", A2, v2d, v1d, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "sparse(col-wise)/dense/dense	with dense/dense/dense", A2t, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "sparse(row-wise)/sparse/sparse	with dense/dense/dense", A2, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "sparse(col-wise)/sparse/sparse	with dense/dense/dense", A2t, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "sparse(row-wise)/sparse/dense	with dense/dense/dense", A2, v2d, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "sparse(col-wise)/sparse/dense	with dense/dense/dense", A2t, v1d, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense/sparse/dense			with dense/dense/dense", A1, v2d, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense/sparse/sparse			with dense/dense/dense", A1, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense/dense/sparse			with dense/dense/dense", A1, v2s, v1d, A1, v1d, v2d)) pass = false;
+
+        if( !testgerConsistency (ctx, ctx, "hybrid(row-wise)/dense/dense        with dense/dense/dense", A3, v2d, v1d, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid(col-wise)/dense/dense        with dense/dense/dense", A3t, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid(row-wise)/sparse/sparse      with dense/dense/dense", A3, v2s, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid(col-wise)/sparse/sparse      with dense/dense/dense", A3t, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid(row-wise)/sparse/dense       with dense/dense/dense", A3, v2d, v1s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "hybrid(col-wise)/sparse/dense       with dense/dense/dense", A3t, v1d, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense(col-wise)/sparse/dense        with dense/dense/dense", A1t, v1d, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense(col-wise)/sparse/sparse       with dense/dense/dense", A1t, v1s, v2s, A1, v1d, v2d)) pass = false;
+        if( !testgerConsistency (ctx, ctx, "dense(col-wise)/dense/sparse        with dense/dense/dense", A1t, v1s, v2d, A1, v1d, v2d)) pass = false;
+
 
         commentator.stop (MSG_STATUS (pass));
 
