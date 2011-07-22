@@ -369,8 +369,6 @@ template <class Modules, class Vector1, class Vector2>
 Vector2 &_axpy<GF2, GenericModule<GF2>::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Vector1 &x, Vector2 &y,
 							 VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
 {
-	lela_check (VectorUtils::hasDim<GF2> (x, y.size ()));
-
 	if (a) {
 		typename Vector1::const_iterator i;
 		typename Vector2::word_iterator j = y.word_begin ();
