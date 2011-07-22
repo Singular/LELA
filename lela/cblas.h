@@ -329,7 +329,7 @@ extern "C" {
 
 	double cblas_ddot(const int N, const double *X, const int incX, const double *Y, const int incY);
 
-	double cblas_sdot(const int N, const float *X, const int incX, const float *Y, const int incY);
+	float  cblas_sdot(const int N, const float *X, const int incX, const float *Y, const int incY);
   
 	double cblas_dasum(const int N, const double *X, const int incX);
   
