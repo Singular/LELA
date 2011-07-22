@@ -247,7 +247,7 @@ Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, 
 	typename Vector1::const_iterator i_x;
 
 	for (i_x = x.begin (); i_x != x.end (); ++i_x)
-		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, y, A.rowBegin () + *i_x);
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, y, *(A.rowBegin () + *i_x));
 
 	return A;
 }
@@ -269,7 +269,7 @@ Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, 
 		row = i_x->first << WordTraits<typename Vector1::word_type>::logof_size;
 
 		for (t = Vector1::Endianness::e_0; t != 0 && row < A.rowdim (); t = Vector1::Endianness::shift_right (t, 1), ++row)
-			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, i_x->second & t, y, A.rowBegin () + row);
+			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, i_x->second & t, y, *(A.rowBegin () + row));
 	}
 
 	return A;
@@ -311,7 +311,7 @@ Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, 
 	typename Vector2::const_iterator i_y;
 
 	for (i_y = y.begin (); i_y != y.end (); ++i_y)
-		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, y, A.colBegin () + *i_y);
+		BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, true, y, *(A.colBegin () + *i_y));
 
 	return A;
 }
@@ -333,7 +333,7 @@ Matrix &_ger<GF2, GenericModule<GF2>::Tag>::ger_impl (const GF2 &F, Modules &M, 
 		col = i_y->first << WordTraits<typename Vector1::word_type>::logof_size;
 
 		for (t = Vector1::Endianness::e_0; t != 0 && col < A.coldim (); t = Vector1::Endianness::shift_right (t, 1), ++col)
-			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, i_y->second & t, y, A.colBegin () + col);
+			BLAS1::_axpy<GF2, typename Modules::Tag>::op (F, M, i_y->second & t, y, *(A.colBegin () + col));
 	}
 
 	return A;
