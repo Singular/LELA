@@ -138,7 +138,7 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 
 	size_t m = align_row<Matrix1, Matrix3> (C.rowdim () / 2), k = align_rowcol<Matrix1, Matrix2> (A.coldim () / 2), n = align_col<Matrix2, Matrix3> (C.coldim () / 2);
 
-	if (m < _cutoff || k < _cutoff || n < _cutoff)
+	if (C.rowdim () < _cutoff || C.coldim () < _cutoff || A.coldim () < _cutoff)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, R.zero (), C);
 	else {
 #ifdef __LELA_SW_DETAILED_PROFILE
@@ -297,7 +297,7 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 
 	size_t m = align_row<Matrix1, Matrix3> (C.rowdim () / 2), k = align_rowcol<Matrix1, Matrix2> (A.coldim () / 2), n = align_col<Matrix2, Matrix3> (C.coldim () / 2);
 
-	if (m < _cutoff || k < _cutoff || n < _cutoff)
+	if (C.rowdim () < _cutoff || C.coldim () < _cutoff || A.coldim () < _cutoff)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, b, C);
 	else {
 #ifdef __LELA_SW_DETAILED_PROFILE
