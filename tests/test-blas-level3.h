@@ -158,8 +158,9 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 	DenseMatrix<typename Field::Element> M1 (M.rowdim (), M.coldim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << endl;
-	BLAS3::write (ctx, report, M);
+	BLAS3::write (ctx, reportUI, M);
 
 	r.random (a);
 	ctx.F.neg (nega, a);
@@ -171,12 +172,12 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 	BLAS3::scal (ctx, a, M1);
 
 	report << "Output matrix a * M:" << endl;
-	BLAS3::write (ctx, report, M1);
+	BLAS3::write (ctx, reportUI, M1);
 
 	BLAS3::axpy (ctx, nega, M, M1);
 
 	report << "Output matrix -a * M + a * M:" << endl;
-	BLAS3::write (ctx, report, M1);
+	BLAS3::write (ctx, reportUI, M1);
 
 	if (!BLAS3::is_zero (ctx, M1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
