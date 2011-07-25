@@ -36,6 +36,7 @@ BASIC_TESTS =  \
         test-blas-generic-module      \
 	test-blas-generic-module-gf2	\
         test-blas-zp-module     \
+	test-blas-cblas-module	\
 	test-strassen-winograd	\
 	test-elimination	\
 	test-gauss-jordan	\
@@ -106,6 +107,13 @@ test_blas_generic_module_gf2_SOURCES = \
 
 test_blas_zp_module_SOURCES =   \
         test-blas-zp-module.C   \
+        test-blas-level1.h           \
+        test-blas-level2.h           \
+        test-blas-level3.h           \
+        test-common.C
+
+test_blas_cblas_module_SOURCES =   \
+        test-blas-cblas-module.C   \
         test-blas-level1.h           \
         test-blas-level2.h           \
         test-blas-level3.h           \

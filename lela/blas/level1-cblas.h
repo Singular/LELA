@@ -88,6 +88,8 @@ public:
 				   typename VectorTraits<TypeWrapperRing<double>, Vector2>::StorageType ()); }
 };
 
+#if 0 // Disabled, since cblas_scopy and cblas_dcopy don't exist
+
 template <>
 class _copy<TypeWrapperRing<float>, BLASModule<float>::Tag>
 {
@@ -141,6 +143,8 @@ public:
 				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::RepresentationType (),
 				    typename VectorTraits<TypeWrapperRing<double>, Vector2>::StorageType ()); }
 };
+
+#endif // Disabled
 
 template <>
 class _axpy<TypeWrapperRing<float>, BLASModule<float>::Tag>

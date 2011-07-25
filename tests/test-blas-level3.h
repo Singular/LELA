@@ -28,6 +28,7 @@
 #include "lela/blas/level3.h"
 #include "lela/vector/stream.h"
 #include "lela/matrix/dense.h"
+#include "lela/matrix/sparse.h"
 
 using namespace std;
 using namespace LELA;
@@ -1258,7 +1259,7 @@ bool testgemmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 	BLAS3::gemm (ctx1, a, A1, A2, b, A9);
 
         report << "Matrix a A_1 A_2 + c A_3: " << std::endl;
-	BLAS3::write (ctx1, report, A6);
+	BLAS3::write (ctx1, report, A9);
 
         report << "Matrix A_4: "<< std::endl;
 	BLAS3::write (ctx1, report, A7);
