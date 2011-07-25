@@ -24,9 +24,9 @@
 
 using namespace LELA;
 
-static long l = 10000;
-static long n = 10000;
-static long m = 10000;
+static long l = 5000;
+static long n = 5000;
+static long m = 5000;
 static long k = 100;
 static integer q_uint8 = 101U;
 static integer q_uint32 = 2147483647U;
@@ -155,7 +155,7 @@ void runBenchmarksForElement (const integer &q, const char *text)
 	runBenchmarks (ctx_all, "AllModules", text);
 
 	Context<Modular<Element>, ZpModule<Element> > ctx_zp (F);
-	runBenchmarks (ctx_all, "ZpModule", text);
+	runBenchmarks (ctx_zp, "ZpModule", text);
 
 	Context<Modular<Element>, GenericModule<Modular<Element> > > ctx_gen (F);
 	runBenchmarks (ctx_gen, "GenericModule", text);
@@ -192,10 +192,10 @@ int main (int argc, char **argv)
 	}
 
 	commentator.setBriefReportParameters (Commentator::OUTPUT_CONSOLE, true, false, false);
-	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (5);
+	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDepth (6);
 	commentator.getMessageClass (INTERNAL_DESCRIPTION).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
-	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (3);
-	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (3);
+	commentator.getMessageClass (TIMING_MEASURE).setMaxDepth (6);
+	commentator.getMessageClass (BRIEF_REPORT).setMaxDepth (6);
 	commentator.getMessageClass (BRIEF_REPORT).setMaxDetailLevel (Commentator::LEVEL_NORMAL);
 
 	commentator.start ("BLAS3 benchmark suite", "BLAS3");
@@ -210,17 +210,17 @@ int main (int argc, char **argv)
 		runBenchmarks (ctx_gen, "GenericModule", "GF2");
 	}
 
-	if (enable_uint8)
-		runBenchmarksForElement<uint8> (q_uint8, "Modular<uint8>");
-
-	if (enable_uint32)
-		runBenchmarksForElement<uint32> (q_uint32, "Modular<uint32>");
-
 	if (enable_float)
 		runBenchmarksForElement<float> (q_float, "Modular<float>");
 
 	if (enable_double)
 		runBenchmarksForElement<double> (q_double, "Modular<double>");
+
+	if (enable_uint8)
+		runBenchmarksForElement<uint8> (q_uint8, "Modular<uint8>");
+
+	if (enable_uint32)
+		runBenchmarksForElement<uint32> (q_uint32, "Modular<uint32>");
 
 	commentator.stop ("done");
 
