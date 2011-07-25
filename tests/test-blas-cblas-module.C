@@ -279,10 +279,10 @@ int main (int argc, char **argv)
 {
 	bool pass = true;
 
-	static long l = 10;
-	static long m = 12;
-	static long n = 11;
-	static long p = 13;
+	static long l = 100;
+	static long m = 121;
+	static long n = 114;
+	static long p = 137;
 	static integer q_float = 101;
 	static integer q_double = 65521;
 	static int iterations = 1;
