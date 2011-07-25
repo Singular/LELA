@@ -1,0 +1,25 @@
+/** \mainpage LELA Reference-Manual
+ *
+ * \defgroup ring Rings
+ *
+ * \defgroup vector Vectors
+ *
+ * \defgroup matrix Matrices
+ *
+ * \defgroup blas BLAS Matrix- and vector-arithmetic and I/O
+ *
+ * \defgroup algorithms Algorithms
+ *
+ * \defgroup solutions Solutions
+ *
+ * \defgroup util Utilities
+ */
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
