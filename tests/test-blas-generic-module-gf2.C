@@ -356,7 +356,7 @@ int main (int argc, char **argv)
 				 DenseMatrix<Field::Element>::IteratorType ()))
 		pass = false;
 
-	if (!testBLAS2Consistency(ctx, "Consistency", n, m, k))
+	if (!testBLAS2RepsConsistency(ctx, "BLAS2 Consistency", n, m, k))
 		pass = false;
 
 	commentator.stop (MSG_STATUS (pass));

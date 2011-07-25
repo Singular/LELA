@@ -32,6 +32,8 @@ bool runTests (const integer &q, const char *text, long l, long m, long n, long 
 
 	Modular<Element> F (q);
 	Context<Modular<Element>, ZpModule<Element> > ctx (F);
+	
+	Context<Modular<Element>, GenericModule<Modular<Element> > > ctx_gen (F);
 
 	ostringstream str;
 	str << "Testing BLAS ZpModule with ring-type " << text << std::ends;
@@ -106,8 +108,10 @@ bool runTests (const integer &q, const char *text, long l, long m, long n, long 
 			typename TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
 		pass = false;
 
-	pass = testBLAS2Consistency(ctx, text, m, n, k) && pass;
-	pass = testBLAS3Consistency(ctx, text, m, n, p, k) && pass;
+	pass = testBLAS2ModulesConsistency(ctx, ctx_gen, text, m, n, k) && pass;
+	pass = testBLAS2RepsConsistency(ctx, text, m, n, k) && pass;
+	pass = testBLAS3ModulesConsistency(ctx, ctx_gen, text, m, n, p, k) && pass;
+	pass = testBLAS3RepsConsistency(ctx, text, m, n, p, k) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 

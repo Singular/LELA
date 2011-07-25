@@ -127,8 +127,8 @@ int main (int argc, char **argv)
 			TransposeMatrix<SparseMatrix<Element> >::IteratorType ()))
 		pass = false;
 
-	pass = testBLAS2Consistency(ctx, "Modular<uint8>", m, n, k) && pass;
-	pass = testBLAS3Consistency(ctx, "Modular<uint8>", m, n, p, k) && pass;
+	pass = testBLAS2RepsConsistency(ctx, "Modular<uint8>", m, n, k) && pass;
+	pass = testBLAS3RepsConsistency(ctx, "Modular<uint8>", m, n, p, k) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
