@@ -975,6 +975,121 @@ bool testPermutation (Context<Field, Modules> &ctx, const char *text, const Matr
 	return ret;
 }
 
+template <class Ring, class Modules, class Matrix>
+bool testpermute_rows (LELA::Context<Ring, Modules> &ctx,
+		       const char *text,
+		       const Matrix &A1)
+{
+
+        ostringstream str;
+        str << "Testing " << text << " permute_rows (does it do anything?)" << std::ends;
+        commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+        bool pass = true;
+
+	if (BLAS3::is_zero (ctx, A1)) {
+		commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_WARNING)
+			<< "Input-matrix is 0. Skipping test." << std::endl;
+		commentator.stop ("skipped");
+		return true;
+	}
+
+	typename Matrix::ContainerType A2 (A1.rowdim (), A1.coldim ());
+
+	BLAS3::copy(ctx, A1, A2);
+
+	MersenneTwister MT;
+
+	Permutation P;
+
+	// Create a random row permutation
+	for (unsigned int i = 0; i < A1.rowdim (); ++i) {
+		unsigned int row1, row2;
+
+		do {
+			row1 = MT.randomInt () % A1.rowdim ();
+			row2 = MT.randomInt () % A1.rowdim ();
+		} while (row1 == row2);
+
+		P.push_back (Permutation::value_type (row1, row2));
+	}
+
+        report << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx, report, A1);
+
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), A2);
+
+	report << "Matrix A_1 P: " << std::endl;
+	BLAS3::write(ctx, report, A2);
+
+        if (BLAS3::equal (ctx, A1, A2))
+		{
+			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+				<< "ERROR: A_1 =  A_1 P " << std::endl;
+			pass = false;
+		}
+
+        commentator.stop (MSG_STATUS (pass));
+
+        return pass;
+}
+
+template <class Ring, class Modules, class Matrix>
+bool testpermute_cols (LELA::Context<Ring, Modules> &ctx,
+                       const char *text,
+                       const Matrix &A1)
+{
+
+        ostringstream str;
+        str << "Testing " << text << " permute_cols (does it do anything?)" << std::ends;
+        commentator.start (str.str ().c_str ());
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+        bool pass = true;
+
+        typename Matrix::ContainerType A2 (A1.rowdim (), A1.coldim ());
+
+	BLAS3::copy(ctx, A1, A2);
+
+        MersenneTwister MT;
+
+        Permutation P;
+
+        // Create a random row permutation
+        for (unsigned int i = 0; i < A1.coldim (); ++i) {
+                unsigned int col1,col2;
+
+                do {
+                        col1 = MT.randomInt () % A1.coldim ();
+                        col2 = MT.randomInt () % A1.coldim ();
+                } while (col1 == col2);
+
+                P.push_back (Permutation::value_type (col1, col2));
+        }
+
+        report << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx, report, A1);
+
+	BLAS3::permute_cols (ctx, P.begin (), P.end (), A2);
+
+        report << "Matrix A_1 P: " << std::endl;
+	BLAS3::write(ctx, report, A2);
+
+        if (BLAS3::equal (ctx, A1, A2))
+                {
+                        commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+                                << "ERROR: A_1 =  A_1 P " << std::endl;
+                        pass = false;
+                }
+
+        commentator.stop (MSG_STATUS (pass));
+
+        return pass;
+}
+
 /* Test 15: read and write
  *
  * Return true on success and false on failure
@@ -1570,6 +1685,8 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 	if (!testTrsmCoeff (ctx, text, M4, M2)) pass = false;
 
 	if (!testPermutation (ctx, text, M1)) pass = false;
+	if (!testpermute_rows(ctx, text, M1)) pass = false;
+	if (!testpermute_cols(ctx, text, M1)) pass = false;
 	if (!testReadWrite (ctx, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
@@ -1603,6 +1720,8 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 //	if (!testGemmRowEchelon (ctx, text, M1)) pass = false;  // Needs ColIterator
 
 	if (!testPermutation (ctx, text, M1)) pass = false;
+        if (!testpermute_rows(ctx, text, M1)) pass = false;
+        if (!testpermute_cols(ctx, text, M1)) pass = false;
 	if (!testReadWrite (ctx, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
@@ -1632,6 +1751,9 @@ bool testBLAS3 (Context<Field, Modules> &ctx, const char *text,
 	if (!testTrmmGemmLower (ctx, text, M4, M2)) pass = false;
 	if (!testTrsmLower (ctx, text, M4, M2)) pass = false;
 	if (!testTrsmUpper (ctx, text, M4, M2)) pass = false;
+
+        if (!testpermute_rows(ctx, text, M1)) pass = false;
+        if (!testpermute_cols(ctx, text, M1)) pass = false;
 
 	commentator.stop (MSG_STATUS (pass));
 
