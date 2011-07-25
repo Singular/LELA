@@ -62,12 +62,13 @@ static bool testCopyEqual (LELA::Context<Ring, Modules> &ctx, const char *text, 
 		stream.get (v);
 		LELA::BLAS1::copy (ctx, v, w);
 
-		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-		report << "Input vector:   ";
-		LELA::BLAS1::write (ctx, report, v) << std::endl;
+		std::ostream &reportUI = LELA::commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-		report << "Output vector:  ";
-		LELA::BLAS1::write (ctx, report, w) << std::endl;
+		reportUI << "Input vector:   ";
+		LELA::BLAS1::write (ctx, reportUI, v) << std::endl;
+
+		reportUI << "Output vector:  ";
+		LELA::BLAS1::write (ctx, reportUI, w) << std::endl;
 
 		if (!LELA::BLAS1::equal (ctx, v, w))
 			ret = iter_passed = false;
@@ -147,9 +148,10 @@ bool testInequality (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::
 	while (stream1) {
 		stream1 >> v;
 
-		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-		report << "Testing with vector: ";
-		LELA::BLAS1::write (ctx, report, v) << std::endl;
+		std::ostream &reportUI = LELA::commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+		reportUI << "Testing with vector: ";
+		LELA::BLAS1::write (ctx, reportUI, v) << std::endl;
 
 		for (size_t i; i < stream1.dim (); ++i) {
 			LELA::BLAS1::copy (ctx, v, v_c);
@@ -335,7 +337,7 @@ bool testswap (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::Vector
 
 	str << "Testing " << text << " test swap " << ends;
 	LELA::commentator.start (str.str ().c_str (), __FUNCTION__);
-	std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = LELA::commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	bool ret = true;
 	
@@ -360,19 +362,19 @@ bool testswap (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::Vector
 	LELA::BLAS1::copy(ctx, v1, w1);
 	LELA::BLAS1::copy(ctx, v2, w2);
 
-	report << "(Before swap) Vector v_1: ";
-	LELA::BLAS1::write (ctx, report, v1) << std::endl;
+	reportUI << "(Before swap) Vector v_1: ";
+	LELA::BLAS1::write (ctx, reportUI, v1) << std::endl;
 
-	report << "(Before swap) Vector v_2: ";
-	LELA::BLAS1::write (ctx, report, v2) << std::endl;
+	reportUI << "(Before swap) Vector v_2: ";
+	LELA::BLAS1::write (ctx, reportUI, v2) << std::endl;
 
 	LELA::BLAS1::swap(ctx, w1, w2);
 
-	report << "(After swap) Vector v_1: ";
-	LELA::BLAS1::write(ctx, report, w1) << std::endl;
+	reportUI << "(After swap) Vector v_1: ";
+	LELA::BLAS1::write(ctx, reportUI, w1) << std::endl;
 
-	report << "(After swap) Vector v_2: ";
-	LELA::BLAS1::write(ctx, report, w2) << std::endl;
+	reportUI << "(After swap) Vector v_2: ";
+	LELA::BLAS1::write(ctx, reportUI, w2) << std::endl;
 
 	if((LELA::BLAS1::equal(ctx, v1 , w1)) || (LELA::BLAS1::equal(ctx ,v2, w2)))
 	{
@@ -427,8 +429,10 @@ static bool testScal (LELA::Context<Ring, Modules> &ctx, const char *text, LELA:
 		do r.random (a); while (ctx.F.isZero (a));
 
 		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+		std::ostream &reportUI = LELA::commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
 		report << "Input vector 1 of size " << v1.size() << ":  ";
-		LELA::BLAS1::write (ctx, report, v1) << std::endl;
+		LELA::BLAS1::write (ctx, reportUI, v1) << std::endl;
 
 		report << "Element a:  ";
 		ctx.F.write (report, a) << std::endl;
@@ -439,14 +443,14 @@ static bool testScal (LELA::Context<Ring, Modules> &ctx, const char *text, LELA:
 
 		LELA::BLAS1::scal (ctx, nega, v2);
 
-		report << "         -a * x = ";
-		LELA::BLAS1::write (ctx, report, v2) << std::endl;
-		report.flush ();
+		reportUI << "         -a * x = ";
+		LELA::BLAS1::write (ctx, reportUI, v2) << std::endl;
+		reportUI.flush ();
 
 		LELA::BLAS1::axpy (ctx, a, v1, v2);
 
-		report << " a * x + -a * x = ";
-		LELA::BLAS1::write (ctx, report, v2) << std::endl;
+		reportUI << " a * x + -a * x = ";
+		LELA::BLAS1::write (ctx, reportUI, v2) << std::endl;
 
 		if (!LELA::BLAS1::is_zero (ctx, v2))
 			ret = iter_passed = false;
@@ -507,11 +511,13 @@ static bool testAXPY (LELA::Context<Ring, Modules> &ctx, const char *text, LELA:
 		do r.random (a); while (ctx.F.isZero (a));
 
 		std::ostream &report = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
-		report << "Input vector 1 v_1 of size " << v1.size() << ":  ";
-		LELA::BLAS1::write (ctx, report, v1) << std::endl;
+		std::ostream &reportUI = LELA::commentator.report (LELA::Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-		report << "Input vector 2 v_2 of size " << v2.size() << ":  ";
-		LELA::BLAS1::write (ctx, report, v2) << std::endl;
+		reportUI << "Input vector 1 v_1 of size " << v1.size() << ":  ";
+		LELA::BLAS1::write (ctx, reportUI, v1) << std::endl;
+
+		reportUI << "Input vector 2 v_2 of size " << v2.size() << ":  ";
+		LELA::BLAS1::write (ctx, reportUI, v2) << std::endl;
 
 		report << "Element a:  ";
 		ctx.F.write (report, a) << std::endl;
@@ -522,18 +528,18 @@ static bool testAXPY (LELA::Context<Ring, Modules> &ctx, const char *text, LELA:
 		LELA::BLAS1::copy (ctx, v1, v3);
 		LELA::BLAS1::axpy (ctx, a, v2, v3);
 
-		report << "av_2 + v_1 = ";
-		LELA::BLAS1::write (ctx, report, v3) << std::endl;
+		reportUI << "av_2 + v_1 = ";
+		LELA::BLAS1::write (ctx, reportUI, v3) << std::endl;
 
 		LELA::BLAS1::axpy (ctx, ainv, v1, v2);
 
-		report << "a^-1 v_1 + v_2 = ";
-		LELA::BLAS1::write (ctx, report, v3) << std::endl;
+		reportUI << "a^-1 v_1 + v_2 = ";
+		LELA::BLAS1::write (ctx, reportUI, v3) << std::endl;
 
 		LELA::BLAS1::axpy (ctx, aneg, v2, v3);
 
-		report << "(av_2 + v_1) + -a (a^-1 v_1 + v_2) = ";
-		LELA::BLAS1::write (ctx, report, v3) << std::endl;
+		reportUI << "(av_2 + v_1) + -a (a^-1 v_1 + v_2) = ";
+		LELA::BLAS1::write (ctx, reportUI, v3) << std::endl;
 
 		if (!LELA::BLAS1::is_zero (ctx, v3))
 			ret = iter_passed = false;
@@ -617,7 +623,7 @@ bool testDotConsistency (LELA::Context<Ring, Modules1> &ctx1,
 	str << "Testing " << text << " vector dot consistency" << std::ends;
 	commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
-	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	Vector1 v1;
 	Vector2 v2;
@@ -638,27 +644,27 @@ bool testDotConsistency (LELA::Context<Ring, Modules1> &ctx1,
 		BLAS1::copy (ctx1, v1, w1);
 		BLAS1::copy (ctx1, v2, w2);
 
-		report << "Vector v_1: ";
-		BLAS1::write (ctx1, report, v1) << std::endl;
+		reportUI << "Vector v_1: ";
+		BLAS1::write (ctx1, reportUI, v1) << std::endl;
 
-		report << "Vector v_2: ";
-		BLAS1::write (ctx1, report, v2) << std::endl;
+		reportUI << "Vector v_2: ";
+		BLAS1::write (ctx1, reportUI, v2) << std::endl;
 
 		BLAS1::dot (ctx1, d1, v1, v2);
 
-		report << "Dot product <v_1,v_2>: ";
-		ctx1.F.write (report, d1) << std::endl;
+		reportUI << "Dot product <v_1,v_2>: ";
+		ctx1.F.write (reportUI, d1) << std::endl;
 
-		report << "Vector w_1: ";
-		BLAS1::write (ctx2, report, w1) << std::endl;
+		reportUI << "Vector w_1: ";
+		BLAS1::write (ctx2, reportUI, w1) << std::endl;
 
-		report << "Vector w_2: ";
-		BLAS1::write (ctx2, report, w2) << std::endl;
+		reportUI << "Vector w_2: ";
+		BLAS1::write (ctx2, reportUI, w2) << std::endl;
 
 		BLAS1::dot (ctx2, d2, w1, w2);
 
-		report << "Dot product <w_1,w_2>: ";
-		ctx2.F.write (report, d2) << std::endl;
+		reportUI << "Dot product <w_1,w_2>: ";
+		ctx2.F.write (reportUI, d2) << std::endl;
 
 		if (!ctx1.F.areEqual (d1, d2)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -690,6 +696,7 @@ bool testAxpyConsistency (LELA::Context<Ring, Modules1> &ctx1,
 	commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	Vector1 v1;
 	Vector2 v2;
@@ -716,27 +723,27 @@ bool testAxpyConsistency (LELA::Context<Ring, Modules1> &ctx1,
 		report << "Coefficient a: ";
 		ctx1.F.write (report, a) << std::endl;
 
-		report << "Vector v_1: ";
-		BLAS1::write (ctx1, report, v1) << std::endl;
+		reportUI << "Vector v_1: ";
+		BLAS1::write (ctx1, reportUI, v1) << std::endl;
 
-		report << "Vector v_2: ";
-		BLAS1::write (ctx1, report, v2) << std::endl;
+		reportUI << "Vector v_2: ";
+		BLAS1::write (ctx1, reportUI, v2) << std::endl;
 
 		BLAS1::axpy (ctx1, a, v1, v2);
 
-		report << "Vector a v_1 + v_2: ";
-		BLAS1::write (ctx1, report, v2) << std::endl;
+		reportUI << "Vector a v_1 + v_2: ";
+		BLAS1::write (ctx1, reportUI, v2) << std::endl;
 
-		report << "Vector w_1: ";
-		BLAS1::write (ctx2, report, w1) << std::endl;
+		reportUI << "Vector w_1: ";
+		BLAS1::write (ctx2, reportUI, w1) << std::endl;
 
-		report << "Vector w_2: ";
-		BLAS1::write (ctx2, report, w2) << std::endl;
+		reportUI << "Vector w_2: ";
+		BLAS1::write (ctx2, reportUI, w2) << std::endl;
 
 		BLAS1::axpy (ctx2, a, w1, w2);
 
-		report << "Vector a w_1 + w_2: ";
-		BLAS1::write (ctx1, report, w2) << std::endl;
+		reportUI << "Vector a w_1 + w_2: ";
+		BLAS1::write (ctx1, reportUI, w2) << std::endl;
 
 		if (!BLAS1::equal (ctx1, v2, w2)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -766,6 +773,7 @@ bool testScalConsistency (LELA::Context<Ring, Modules1> &ctx1,
 	commentator.start (str.str ().c_str (), __FUNCTION__, stream1.size ());
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	Vector1 v;
 	Vector2 w;
@@ -786,21 +794,21 @@ bool testScalConsistency (LELA::Context<Ring, Modules1> &ctx1,
 		report << "Coefficient a: ";
 		ctx1.F.write (report, a) << std::endl;
 
-		report << "Vector v: ";
-		BLAS1::write (ctx1, report, v) << std::endl;
+		reportUI << "Vector v: ";
+		BLAS1::write (ctx1, reportUI, v) << std::endl;
 
 		BLAS1::scal (ctx1, a, v);
 
-		report << "Vector a v: ";
-		BLAS1::write (ctx1, report, v) << std::endl;
+		reportUI << "Vector a v: ";
+		BLAS1::write (ctx1, reportUI, v) << std::endl;
 
-		report << "Vector w: ";
-		BLAS1::write (ctx2, report, w) << std::endl;
+		reportUI << "Vector w: ";
+		BLAS1::write (ctx2, reportUI, w) << std::endl;
 
 		BLAS1::scal (ctx2, a, w);
 
-		report << "Vector a w: ";
-		BLAS1::write (ctx1, report, w) << std::endl;
+		reportUI << "Vector a w: ";
+		BLAS1::write (ctx1, reportUI, w) << std::endl;
 
 		if (!BLAS1::equal (ctx1, v, w)) {
 			commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)

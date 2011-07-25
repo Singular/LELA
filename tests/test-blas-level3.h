@@ -116,7 +116,8 @@ static bool testCopyEqual (Context<Field, Modules> &ctx, const char *text, const
 
 	DenseMatrix<typename Field::Element> M1 (M.rowdim (), M.coldim ());
 
-	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
 	report << "Input matrix M:" << endl;
 	BLAS3::write (ctx, report, M);
 
@@ -159,7 +160,8 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
-	report << "Input matrix M:" << endl;
+	
+	reportUI << "Input matrix M:" << endl;
 	BLAS3::write (ctx, reportUI, M);
 
 	r.random (a);
@@ -171,12 +173,12 @@ static bool testScalAxpyIsZero (Context<Field, Modules> &ctx, const char *text, 
 	BLAS3::copy (ctx, M, M1);
 	BLAS3::scal (ctx, a, M1);
 
-	report << "Output matrix a * M:" << endl;
+	reportUI << "Output matrix a * M:" << endl;
 	BLAS3::write (ctx, reportUI, M1);
 
 	BLAS3::axpy (ctx, nega, M, M1);
 
-	report << "Output matrix -a * M + a * M:" << endl;
+	reportUI << "Output matrix -a * M + a * M:" << endl;
 	BLAS3::write (ctx, reportUI, M1);
 
 	if (!BLAS3::is_zero (ctx, M1)) {
@@ -229,7 +231,7 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	BLAS3::gemm (ctx, a, A, B, ctx.F.zero (), C);
 
-	report << "Output matrix C := a * A * B:" << endl;
+	reportUI << "Output matrix C := a * A * B:" << endl;
 	BLAS3::write (ctx, reportUI, C);
 
 	typename Field::Element negainvb;
@@ -243,7 +245,7 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	BLAS3::gemm (ctx, b, A, B, negainvb, C);
 
-	report << "Output matrix D := b * A * B - b * a^-1 * C:" << endl;
+	reportUI << "Output matrix D := b * A * B - b * a^-1 * C:" << endl;
 	BLAS3::write (ctx, reportUI, C);
 
 	if (!BLAS3::is_zero (ctx, C)) {
@@ -280,7 +282,7 @@ static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const
 	DenseMatrix<typename Field::Element> ABpC (A.rowdim (), C.coldim ());
 	DenseMatrix<typename Field::Element> ApBC (A.rowdim (), C.coldim ());
 
-	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
 	BLAS3::write (ctx, report, A);
 
@@ -344,7 +346,8 @@ static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const
 	DenseMatrix<typename Field::Element> I_l (I_l_stream);
 	DenseMatrix<typename Field::Element> I_r (I_r_stream);
 
-	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
 	report << "Input matrix A:" << endl;
 	BLAS3::write (ctx, report, A);
 
@@ -395,6 +398,7 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+        ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	bool ret = true;
 
@@ -407,11 +411,11 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 
 	makeUpperTriangular (ctx.F, A1, false);
 
-	report << "Input matrix A:" << endl;
-	BLAS3::write (ctx, report, A1);
+	reportUI << "Input matrix A:" << endl;
+	BLAS3::write (ctx, reportUI, A1);
 
-	report << "Input matrix B:" << endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Input matrix B:" << endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	typename Field::Element a;
 
@@ -424,13 +428,13 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 
 	BLAS3::trmm (ctx, a, A, B1, UpperTriangular, false);
 
-	report << "Output matrix a * A * B (trmm): " << std::endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Output matrix a * A * B (trmm): " << std::endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	BLAS3::gemm (ctx, a, A1, B, ctx.F.zero (), C);
 
-	report << "Output matrix a * A * B (gemm): " << std::endl;
-	BLAS3::write (ctx, report, C);
+	reportUI << "Output matrix a * A * B (gemm): " << std::endl;
+	BLAS3::write (ctx, reportUI, C);
 
 	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -457,6 +461,7 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+        ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	bool ret = true;
 
@@ -469,11 +474,11 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 
 	makeLowerTriangular (ctx.F, A1, false);
 
-	report << "Input matrix A:" << endl;
-	BLAS3::write (ctx, report, A1);
+	reportUI << "Input matrix A:" << endl;
+	BLAS3::write (ctx, reportUI, A1);
 
-	report << "Input matrix B:" << endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Input matrix B:" << endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	typename Field::Element a;
 
@@ -486,13 +491,13 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 
 	BLAS3::trmm (ctx, a, A, B1, LowerTriangular, false);
 
-	report << "Output matrix a * A * B (trmm): " << std::endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Output matrix a * A * B (trmm): " << std::endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	BLAS3::gemm (ctx, a, A1, B, ctx.F.zero (), C);
 
-	report << "Output matrix a * A * B (gemm): " << std::endl;
-	BLAS3::write (ctx, report, C);
+	reportUI << "Output matrix a * A * B (gemm): " << std::endl;
+	BLAS3::write (ctx, reportUI, C);
 
 	if (!BLAS3::equal (ctx, B1, C)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -621,7 +626,7 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 	while (i != I.rowEnd ())
 		stream >> *i++;
 
-	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix M:" << endl;
 	BLAS3::write (ctx, report, M);
 
@@ -700,11 +705,13 @@ static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::copy (ctx, B, B1);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
-	report << "Input matrix U:" << std::endl;
-	BLAS3::write (ctx, report, U);
+        ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-	report << "Input matrix B: " << std::endl;
-	BLAS3::write (ctx, report, B);
+	reportUI << "Input matrix U:" << std::endl;
+	BLAS3::write (ctx, reportUI, U);
+
+	reportUI << "Input matrix B: " << std::endl;
+	BLAS3::write (ctx, reportUI, B);
 
 	typename Field::Element a, ainv;
 
@@ -718,13 +725,13 @@ static bool testTrsmLower (Context<Field, Modules> &ctx, const char *text, const
 
 	BLAS3::trsm (ctx, a, U, B1, LowerTriangular, false);
 
-	report << "Output matrix U^-1 * B: " << std::endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Output matrix U^-1 * B: " << std::endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	BLAS3::trmm (ctx, ainv, U, B1, LowerTriangular, false);
 
-	report << "Output matrix U U^-1 * B: " << std::endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Output matrix U U^-1 * B: " << std::endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	if (!BLAS3::equal (ctx, B, B1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -761,11 +768,13 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::copy (ctx, B, B1);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
-	report << "Input matrix U:" << std::endl;
-	BLAS3::write (ctx, report, U);
+        ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-	report << "Input matrix B: " << std::endl;
-	BLAS3::write (ctx, report, B);
+	reportUI << "Input matrix U:" << std::endl;
+	BLAS3::write (ctx, reportUI, U);
+
+	reportUI << "Input matrix B: " << std::endl;
+	BLAS3::write (ctx, reportUI, B);
 
 	typename Field::Element a, ainv;
 
@@ -779,13 +788,13 @@ static bool testTrsmUpper (Context<Field, Modules> &ctx, const char *text, const
 
 	BLAS3::trsm (ctx, a, U, B1, UpperTriangular, false);
 
-	report << "Output matrix U^-1 * B: " << std::endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Output matrix U^-1 * B: " << std::endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	BLAS3::trmm (ctx, ainv, U, B1, UpperTriangular, false);
 
-	report << "Output matrix U U^-1 * B: " << std::endl;
-	BLAS3::write (ctx, report, B1);
+	reportUI << "Output matrix U U^-1 * B: " << std::endl;
+	BLAS3::write (ctx, reportUI, B1);
 
 	if (!BLAS3::equal (ctx, B, B1)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -826,11 +835,13 @@ static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const
 	DenseMatrix<typename Field::Element> UinvB (U.rowdim (), B.coldim ());
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
-	report << "Input matrix U:" << endl;
-	BLAS3::write (ctx, report, U);
+        ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
-	report << "Input matrix B:" << endl;
-	BLAS3::write (ctx, report, B);
+	reportUI << "Input matrix U:" << endl;
+	BLAS3::write (ctx, reportUI, U);
+
+	reportUI << "Input matrix B:" << endl;
+	BLAS3::write (ctx, reportUI, B);
 
 	BLAS3::copy (ctx, B, aUinvB);
 	BLAS3::copy (ctx, B, UinvB);
@@ -845,18 +856,18 @@ static bool testTrsmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	BLAS3::trsm (ctx, a, U, aUinvB, UpperTriangular, false);
 
-	report << "Output matrix a U^-1 * B:" << endl;
-	BLAS3::write (ctx, report, aUinvB);
+	reportUI << "Output matrix a U^-1 * B:" << endl;
+	BLAS3::write (ctx, reportUI, aUinvB);
 
 	BLAS3::trsm (ctx, ctx.F.one (), U, UinvB, UpperTriangular, false);
 
-	report << "Output matrix U^-1 * B:" << endl;
-	BLAS3::write (ctx, report, UinvB);
+	reportUI << "Output matrix U^-1 * B:" << endl;
+	BLAS3::write (ctx, reportUI, UinvB);
 
 	BLAS3::scal (ctx, a, UinvB);
 
-	report << "Output matrix a (U^-1 * B):" << endl;
-	BLAS3::write (ctx, report, UinvB);
+	reportUI << "Output matrix a (U^-1 * B):" << endl;
+	BLAS3::write (ctx, reportUI, UinvB);
 
 	if (!BLAS3::equal (ctx, UinvB, aUinvB)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
@@ -986,7 +997,7 @@ bool testpermute_rows (LELA::Context<Ring, Modules> &ctx,
         str << "Testing " << text << " permute_rows (does it do anything?)" << std::ends;
         commentator.start (str.str ().c_str ());
 
-	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 
@@ -1047,7 +1058,7 @@ bool testpermute_cols (LELA::Context<Ring, Modules> &ctx,
         str << "Testing " << text << " permute_cols (does it do anything?)" << std::ends;
         commentator.start (str.str ().c_str ());
 
-	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 
@@ -1220,6 +1231,7 @@ bool testscalConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 	commentator.start (str.str ().c_str ());
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	bool pass = true;
 
@@ -1234,21 +1246,24 @@ bool testscalConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	r.random (a);
 
-	report << "Matrix A_1: "<< std::endl;
+	reportUI << "Matrix A_1: "<< std::endl;
 	BLAS3::write (ctx1, report, A3);
 
 	BLAS3::scal (ctx1, a, A3);
 
-	report << "Matrix a A_1: "<< std::endl;
-	BLAS3::write (ctx1, report, A3);
+	report << "Coefficient a: "<< std::endl;
+	ctx1.F.write(report, a);
 
-	report << "Matrix A_2: "<< std::endl;
-	BLAS3::write (ctx2, report, A4);
+	reportUI << "Matrix a A_1: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A3);
+
+	reportUI << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx2, reportUI, A4);
 
 	BLAS3::scal (ctx2, a, A4);
 
-	report << "Matrix a A_2: " << std::endl;;
-	BLAS3::write (ctx2, report, A4);
+	reportUI << "Matrix a A_2: " << std::endl;;
+	BLAS3::write (ctx2, reportUI, A4);
 
 	if (!BLAS3::equal (ctx1, A3, A4))
 	{
@@ -1276,6 +1291,7 @@ bool testaxpyConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         commentator.start (str.str ().c_str ());
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 
@@ -1294,27 +1310,30 @@ bool testaxpyConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
         r.random (a);
 
-        report << "Matrix A_1: "<< std::endl;
-	BLAS3::write (ctx1, report, A1);
+        reportUI << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A1);
 
-        report << "Matrix A_2: "<< std::endl;
-	BLAS3::write (ctx1, report, A7);
+        reportUI << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A7);
 
 	BLAS3::axpy (ctx1, a, A1, A7);
 
-        report << "Matrix a A_1 + A_2: " << std::endl;;
-	BLAS3::write (ctx1, report, A7);
+	report << "Coefficient a: "<< std::endl;
+	ctx1.F.write(report, a);
 
-        report << "Matrix A_1: "<< std::endl;
-	BLAS3::write (ctx1, report, A6);
+        reportUI << "Matrix a A_1 + A_2: " << std::endl;;
+	BLAS3::write (ctx1, reportUI, A7);
 
-        report << "Matrix A_2: "<< std::endl;
-	BLAS3::write (ctx1, report, A8);
+        reportUI << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A6);
+
+        reportUI << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A8);
 
 	BLAS3::axpy (ctx2, a, A6, A8);
 
-        report << "Matrix a A_3 + A_4: " << std::endl;
-	BLAS3::write (ctx2, report, A8);
+        reportUI << "Matrix a A_3 + A_4: " << std::endl;
+	BLAS3::write (ctx2, reportUI, A8);
 
         if (!BLAS3::equal (ctx1, A7, A8))
         {
@@ -1342,6 +1361,7 @@ bool testgemmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         commentator.start (str.str ().c_str ());
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 
@@ -1374,22 +1394,28 @@ bool testgemmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::gemm (ctx1, a, A1, A2, b, A9);
 
-        report << "Matrix a A_1 A_2 + c A_3: " << std::endl;
-	BLAS3::write (ctx1, report, A9);
+	report << "Coefficient a: "<< std::endl;
+	ctx1.F.write(report, a);
 
-        report << "Matrix A_4: "<< std::endl;
-	BLAS3::write (ctx1, report, A7);
+        report << "Coefficient b: "<< std::endl;
+        ctx1.F.write(report, b);
 
-        report << "Matrix A_5: "<< std::endl;
-	BLAS3::write (ctx1, report, A8);
+        reportUI << "Matrix a A_1 A_2 + c A_3: " << std::endl;
+	BLAS3::write (ctx1, reportUI, A9);
 
-        report << "Matrix A_6: "<< std::endl;
-	BLAS3::write (ctx1, report, A10);
+        reportUI << "Matrix A_4: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A7);
+
+        reportUI << "Matrix A_5: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A8);
+
+        reportUI << "Matrix A_6: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A10);
 
 	BLAS3::gemm (ctx2, a, A7, A8, b, A10);
 
-        report << "Matrix a A_4 A_5 + b A_6: " << std::endl;
-	BLAS3::write (ctx2, report, A10);
+        reportUI << "Matrix a A_4 A_5 + b A_6: " << std::endl;
+	BLAS3::write (ctx2, reportUI, A10);
 
         if (!BLAS3::equal (ctx1, A9, A10))
 	{
@@ -1417,6 +1443,7 @@ bool testtrmmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         commentator.start (str.str ().c_str ());
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 
@@ -1433,27 +1460,30 @@ bool testtrmmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
         r.random (a);
 
-        report << "Matrix A_1: "<< std::endl;
-	BLAS3::write (ctx1, report, A1);
+        reportUI << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A1);
 
-        report << "Matrix A_2: "<< std::endl;
-	BLAS3::write (ctx1, report, A6);
+        reportUI << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A6);
 
 	BLAS3::trmm (ctx1, a, A1, A6, type, diagIsOne);
 
-        report << "Matrix a A_1 A_2: "<< std::endl;
-	BLAS3::write (ctx1, report, A6);
+	report << "Coefficient a: "<< std::endl;
+	ctx1.F.write (report, a);
 
-        report << "Matrix A_3: "<< std::endl;
-	BLAS3::write (ctx1, report, A5);
+        reportUI << "Matrix a A_1 A_2: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A6);
 
-        report << "Matrix A_4: "<< std::endl;
-	BLAS3::write (ctx1, report, A7);
+        reportUI << "Matrix A_3: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A5);
+
+        reportUI << "Matrix A_4: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A7);
 
 	BLAS3::trmm (ctx2, a, A5, A7, type, diagIsOne);
 
-        report << "Matrix a A_3 A_4: "<< std::endl;
-	BLAS3::write (ctx2, report, A7);
+        reportUI << "Matrix a A_3 A_4: "<< std::endl;
+	BLAS3::write (ctx2, reportUI, A7);
 
         if (!BLAS3::equal (ctx1, A6, A7))
         {
@@ -1481,6 +1511,7 @@ bool testtrsmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         commentator.start (str.str ().c_str ());
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 
@@ -1497,27 +1528,30 @@ bool testtrsmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
         r.random (a);
 
-        report << "Matrix A_1: "<< std::endl;
-	BLAS3::write (ctx1, report, A1);
+        reportUI << "Matrix A_1: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A1);
 
-        report << "Matrix A_2: "<< std::endl;
-	BLAS3::write (ctx1, report, A6);
+        reportUI << "Matrix A_2: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A6);
 
 	BLAS3::trsm (ctx1, a, A1, A6, type, diagIsOne);
 
-        report << "Matrix a ((A_1)^-1) A_2: "<<std::endl;
-	BLAS3::write (ctx1, report, A6);
+	report <<"Coefficient a: "<< std::endl;
+	ctx1.F.write(report, a);
 
-        report << "Matrix A_3: "<< std::endl;
-	BLAS3::write (ctx1, report, A5);
+        reportUI << "Matrix a ((A_1)^-1) A_2: "<<std::endl;
+	BLAS3::write (ctx1, reportUI, A6);
 
-        report << "Matrix A_4: "<< std::endl;
-	BLAS3::write (ctx1, report, A7);
+        reportUI << "Matrix A_3: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A5);
+
+        reportUI << "Matrix A_4: "<< std::endl;
+	BLAS3::write (ctx1, reportUI, A7);
 
 	BLAS3::trsm (ctx2, a, A5, A7, type, diagIsOne);
 
-        report << "Matrix a ((A_3)^-1) A_4: "<< std::endl; 
-	BLAS3::write (ctx2, report, A7);
+        reportUI << "Matrix a ((A_3)^-1) A_4: "<< std::endl; 
+	BLAS3::write (ctx2, reportUI, A7);
 
         if (!BLAS3::equal (ctx1, A6, A7))
         {
@@ -1542,7 +1576,7 @@ bool testpermute_rowsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         str << "Testing " << text << " permute_rows consistency" << std::ends;
         commentator.start (str.str ().c_str ());
 
-	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 
@@ -1607,7 +1641,7 @@ bool testpermute_colsConsistency  (LELA::Context<Ring, Modules1> &ctx1,
         str << "Testing " << text << " permute_cols consistency" << std::ends;
         commentator.start (str.str ().c_str ());
 
-	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
         bool pass = true;
 

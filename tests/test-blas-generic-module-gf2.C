@@ -37,7 +37,7 @@ bool testBLAS1 (Context<GF2, Modules> &ctx, const char *text, size_t n, unsigned
 
 	RandomDenseStream<GF2, Vector<GF2>::Dense> stream1 (ctx.F, n, iterations), stream2 (ctx.F, n, iterations);
 	RandomSparseStream<GF2, Vector<GF2>::Sparse> stream3 (ctx.F, 0.1, n, iterations), stream4 (ctx.F, 0.1, n, iterations);
-	RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, iterations), stream6 (ctx.F, 0.1, n, iterations);
+	RandomHybridStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, iterations), stream6 (ctx.F, 0.1, n, iterations);
 
 	if (!testCopyEqual (ctx, "dense/dense", stream1, stream2)) pass = false;   stream1.reset (); stream2.reset ();
 	if (!testCopyEqual (ctx, "dense/sparse", stream1, stream4)) pass = false;  stream1.reset (); stream4.reset ();
@@ -119,7 +119,7 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
 	stream3 >> v1s;
 	Vector<GF2>::Sparse v2s;
 	stream4 >> v2s;
-        RandomSparseStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, 1), stream6 (ctx.F, 0.1, m, 1);
+        RandomHybridStream<GF2, Vector<GF2>::Hybrid> stream5 (ctx.F, 0.1, n, 1), stream6 (ctx.F, 0.1, m, 1);
 	Vector<GF2>::Hybrid v1h;
 	stream5 >> v1h;
 	Vector<GF2>::Hybrid v2h;
@@ -131,7 +131,7 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
         RandomSparseStream<GF2, SparseMatrix<bool>::Row> stream9 (ctx.F, (double) k / (double) n, n, m);
 	SparseMatrix<bool> A2 (stream9);
 	TransposeMatrix<SparseMatrix<bool> > A2t (A2);
-        RandomSparseStream<GF2, SparseMatrix<bool,Vector<GF2>::Hybrid>::Row> stream11 (ctx.F, (double) k / (double) n, n, m);
+        RandomHybridStream<GF2, SparseMatrix<bool,Vector<GF2>::Hybrid>::Row> stream11 (ctx.F, (double) k / (double) n, n, m);
 	SparseMatrix<bool, Vector<GF2>::Hybrid> A3 (stream11);
 	TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > A3t (A3);
 
@@ -163,7 +163,7 @@ bool testBLAS2Consistency (Context<GF2, Modules> &ctx, const char *text, size_t 
         RandomSparseStream<GF2, SparseMatrix<bool>::Row> stream13 (ctx.F, (double) k / (double) n, n, n);
         SparseMatrix<bool> Aq2 (stream13);
         TransposeMatrix<SparseMatrix<bool> > Aq2t(Aq2);
-        RandomSparseStream<GF2, SparseMatrix<bool,Vector<GF2>::Hybrid>::Row> stream14 (ctx.F, 0.1, n, n);
+        RandomHybridStream<GF2, SparseMatrix<bool,Vector<GF2>::Hybrid>::Row> stream14 (ctx.F, 0.1, n, n);
         SparseMatrix<bool, Vector<GF2>::Hybrid> Aq3 (stream14);
         TransposeMatrix<SparseMatrix<bool, Vector<GF2>::Hybrid> > Aq3t (Aq3);
 	   
@@ -244,11 +244,11 @@ int main (int argc, char **argv)
 {
 	bool pass = true;
 
-	static long l = 50;
-	static long m = 50;
-	static long n = 80;
-	static long p = 60;
-	static long k = 10;
+	static long l = 374;
+	static long m = 111;
+	static long n = 412;
+	static long p = 243;
+	static long k = 100;
 	static int iterations = 1;
 
 	static Argument args[] = {
@@ -320,10 +320,10 @@ int main (int argc, char **argv)
 			SparseMatrix<Field::Element, Vector<Field>::Sparse>::IteratorType ()))
 		pass = false;
 
-	RandomSparseStream<Field, Vector<Field>::Hybrid> stream31 (F, (double) k / (double) m, m, l);
-	RandomSparseStream<Field, Vector<Field>::Hybrid> stream32 (F, (double) k / (double) n, n, m);
-	RandomSparseStream<Field, Vector<Field>::Hybrid> stream33 (F, (double) k / (double) p, p, n);
-	RandomSparseStream<Field, Vector<Field>::Hybrid> stream34 (F, (double) k / (double) p, m, m);
+	RandomHybridStream<Field, Vector<Field>::Hybrid> stream31 (F, (double) k / (double) m, m, l);
+	RandomHybridStream<Field, Vector<Field>::Hybrid> stream32 (F, (double) k / (double) n, n, m);
+	RandomHybridStream<Field, Vector<Field>::Hybrid> stream33 (F, (double) k / (double) p, p, n);
+	RandomHybridStream<Field, Vector<Field>::Hybrid> stream34 (F, (double) k / (double) p, m, m);
 
 	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M9 (stream31);
 	SparseMatrix<Field::Element, Vector<Field>::Hybrid> M10 (stream32);
