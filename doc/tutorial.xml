@@ -1,18 +1,28 @@
-<?xml version='1.0'?>
-<book xmlns="http://docbook.org/ns/docbook" version="5.0">
-  <title>Getting started with LELA</title>
-  <chapter xml:id="dlinst">
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+               "docbook/dtd/xml/4.2/docbookx.dtd">
+
+<article>
+  <articleinfo>
+    <title>Getting started with LELA</title>
+    <copyright>
+      <year>2011</year>
+      <holder>Bradford Hovinen</holder>
+    </copyright>
+  </articleinfo>
+<!--  <section>
     <title>Downloading and installing</title>
-  </chapter>
-  <chapter xml:id="basic">
+  </section> -->
+  <section>
     <title>Basic usage</title>
 
     <para>
-      In this chapter you will learn how to use LELA for basic
+      In this section you will learn how to use LELA for basic
       calculations.
     </para>
 
-    <section xml:id="generalities">
+    <section>
       <title>Generalities</title>
 
       <para>
@@ -22,8 +32,12 @@
       </para>
 
       <itemizedlist>
-	<listitem>the choice of ring over which vectors and matrices are defined, and</listitem>
-	<listitem>the representation of those vectors or matrices, e.g. dense versus sparse.</listitem>
+	<listitem>
+	  <simpara>the choice of ring over which vectors and matrices are defined, and</simpara>
+	</listitem>
+	<listitem>
+	  <simpara>the representation of those vectors or matrices, e.g. dense versus sparse.</simpara>
+	</listitem>
       </itemizedlist>
 
       <para>
@@ -44,7 +58,7 @@
 	better performance in specific cases, for example a specific
 	choice of vector-representation over a specific ring. It is
 	possible to extend the functionality of LELA by providing
-	types which meet well-defined interfaces (see Chapter 3).
+	types which meet well-defined interfaces (see Section 3).
       </para>
 
       <para>
@@ -59,24 +73,34 @@
       </para>
 
       <itemizedlist>
-	<listitem><emphasis>Rings</emphasis>, which provide
-	ring-arithmetic;</listitem>
-	<listitem><emphasis>Ring-elements</emphasis>, the type of
-	which is defined by the ring;</listitem>
-	<listitem><emphasis>Vectors in a free module over a
-	ring;</emphasis></listitem>
-	<listitem><emphasis>Matrices over a
-	ring;</emphasis></listitem>
-	<listitem><emphasis>Context-objects</emphasis>, which allow
-	the matrix-arithmetic to be configured;</listitem>
-	<listitem><emphasis>Solution-objects</emphasis>, which provide
-	a simple interface to the more sophisticated algorithms, such
-	as computing the reduced row-echelon form of a
-	matrix.</listitem>
+	<listitem>
+	  <simpara><emphasis>Rings</emphasis>, which provide
+	    ring-arithmetic;</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><emphasis>Ring-elements</emphasis>, the type of
+	which is defined by the ring;</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><emphasis>Vectors in a free module over a
+	    ring;</emphasis></simpara>
+	</listitem>
+	<listitem>
+	  <simpara><emphasis>Matrices over a ring;</emphasis></simpara>
+	</listitem>
+	<listitem>
+	  <simpara><emphasis>Context-objects</emphasis>, which allow the
+	    matrix-arithmetic to be configured;</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><emphasis>Solution-objects</emphasis>, which provide a
+	    simple interface to the more sophisticated algorithms, such
+	    as computing the reduced row-echelon form of a matrix.</simpara>
+	</listitem>
       </itemizedlist>
 
       <para>
-	This chapter is divided as follows. First there are
+	This section is divided as follows. First there are
 	instructions on how to define rings followed by some basics on
 	arithmetic over rings. Then the definition of vectors and
 	matrices is described. Then the facilities for vector- and
@@ -90,7 +114,7 @@
       </para>
     </section>
 
-    <section xml:id="ringsel">
+    <section>
       <title>Selecting the ring</title>
 
       <para>
@@ -101,19 +125,29 @@
       </para>
 
       <itemizedlist>
-	<listitem><type>Integers</type>, for integers (actually a
-	wrapper for GMP)</listitem>
-	<listitem><type>Rationals</type>, for rational numbers (also a
-	wrapper for GMP)</listitem>
-	<listitem><type>Modular</type>, for integers modulo n,</listitem>
-	<listitem><type>GF2</type> (for fast computations over GF(2)),
-	and</listitem>
-	<listitem><type>TypeWrapperRing</type> (a wrapper around any
-	type which implements the basic arithmetic-operations +, -, *,
-	/, and %)</listitem>
+	<listitem>
+	  <simpara><type>Integers</type>, for integers (actually a
+	    wrapper for GMP)</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><type>Rationals</type>, for rational numbers (also a
+	    wrapper for GMP)</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><type>Modular</type>, for integers modulo n,</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><type>GF2</type> (for fast computations over GF(2)),
+	    and</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><type>TypeWrapperRing</type> (a wrapper around any
+	    type which implements the basic arithmetic-operations +, -, *,
+	    /, and %)</simpara>
+	</listitem>
       </itemizedlist>
 
-      <section xml:id="integers">
+      <section>
 	<title><type>Integers</type></title>
 
 	<para>
@@ -130,8 +164,7 @@ int main ()
 	Integers Z;
 	...
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The element-type of <type>Integers</type> is called
@@ -140,7 +173,7 @@ int main ()
 	</para>
       </section>
 
-      <section xml:id="rationals">
+      <section>
 	<title><type>Rationals</type></title>
 
 	<para>
@@ -157,8 +190,7 @@ int main ()
 	Rationals F;
 	...
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The element-type of <type>Rationals</type> is
@@ -167,7 +199,7 @@ int main ()
 	</para>
       </section>
 
-      <section xml:id="modularring">
+      <section>
 	<title><type>Modular</type></title>
 
 	<para>
@@ -186,8 +218,7 @@ int main ()
 	Modular&lt;uint8&gt; F (101);
 	...
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The type <type>Modular</type> is parametrised by the
@@ -211,67 +242,74 @@ int main ()
 
 	<para>
 	  While with a given element-type one can use any modulus up
-	  to the maximum (see below), we recommend using a somewhat
-	  larger element-type than is necessary, since this can
-	  improve performance greatly. Here we present some
+	  to the maximum (see table below), we recommend using a
+	  somewhat larger element-type than is necessary, since this
+	  can improve performance greatly. Here we present some
 	  recommendations.
 	</para>
 
 	<table>
 	  <title>Element-types to be used with <type>Modular</type></title>
-	  <thead>
-	    <row>
-	      <entry>Element-type</entry>
-	      <entry>Size</entry>
-	      <entry>Integral vs. FP</entry>
-	      <entry>Maximum allowed modulus</entry>
-	      <entry>Maximum recommended modulus</entry>
-	    </row>
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry>uint8</entry>
-	      <entry>1 byte</entry>
-	      <entry>Integral</entry>
-	      <entry>255 (2<superscript>8</superscript>-1)</entry>
-	      <entry>255</entry>
-	    </row>
-	    <row>
-	      <entry>uint16</entry>
-	      <entry>2 bytes</entry>
-	      <entry>Integral</entry>
-	      <entry>65535 (2<superscript>16</superscript>-1)</entry>
-	      <entry>65535</entry>
-	    </row>
-	    <row>
-	      <entry>uint32</entry>
-	      <entry>4 bytes</entry>
-	      <entry>Integral</entry>
-	      <entry>4294967295 (2<superscript>32</superscript>-1)</entry>
-	      <entry>4294967295</entry>
-	    </row>
-	    <row>
-	      <entry>float</entry>
-	      <entry>4 bytes</entry>
-	      <entry>Floating point</entry>
-	      <entry>4095 (2<superscript>12</superscript>-1)</entry>
-	      <entry>127</entry>
-	    </row>
-	    <row>
-	      <entry>double</entry>
-	      <entry>8 bytes</entry>
-	      <entry>Floating point</entry>
-	      <entry>67108863 (2<superscript>26</superscript>-1)</entry>
-	      <entry>2097151</entry>
-	    </row>
-	    <row>
-	      <entry>integer</entry>
-	      <entry>Variable</entry>
-	      <entry>Integral</entry>
-	      <entry>Unlimited</entry>
-	      <entry>Unlimited</entry>
-	    </row>
-	  </tbody>
+	  <tgroup cols='5' align='left' colsep='1' rowsep='1'>
+	    <colspec colname='type'/>
+	    <colspec colname='size'/>
+	    <colspec colname='int'/>
+	    <colspec colname='maxallowed'/>
+	    <colspec colname='maxrec'/>
+	    <thead>
+	      <row>
+		<entry>Element-type</entry>
+		<entry>Size</entry>
+		<entry>Integral vs. FP</entry>
+		<entry>Maximum allowed modulus</entry>
+		<entry>Maximum recommended modulus</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>uint8</entry>
+		<entry>1 byte</entry>
+		<entry>Integral</entry>
+		<entry>255 (2<superscript>8</superscript>-1)</entry>
+		<entry>255</entry>
+	      </row>
+	      <row>
+		<entry>uint16</entry>
+		<entry>2 bytes</entry>
+		<entry>Integral</entry>
+		<entry>65535 (2<superscript>16</superscript>-1)</entry>
+		<entry>65535</entry>
+	      </row>
+	      <row>
+		<entry>uint32</entry>
+		<entry>4 bytes</entry>
+		<entry>Integral</entry>
+		<entry>4294967295 (2<superscript>32</superscript>-1)</entry>
+		<entry>4294967295</entry>
+	      </row>
+	      <row>
+		<entry>float</entry>
+		<entry>4 bytes</entry>
+		<entry>Floating point</entry>
+		<entry>4095 (2<superscript>12</superscript>-1)</entry>
+		<entry>127</entry>
+	      </row>
+	      <row>
+		<entry>double</entry>
+		<entry>8 bytes</entry>
+		<entry>Floating point</entry>
+		<entry>67108863 (2<superscript>26</superscript>-1)</entry>
+		<entry>2097151</entry>
+	      </row>
+	      <row>
+		<entry>integer</entry>
+		<entry>Variable</entry>
+		<entry>Integral</entry>
+		<entry>Unlimited</entry>
+		<entry>Unlimited</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
 	</table>
 
 	<para>
@@ -282,7 +320,7 @@ int main ()
 	</para>
       </section>
 
-      <section xml:id="gf2">
+      <section>
 	<title><type>GF2</type></title>
 
 	<para>
@@ -299,8 +337,7 @@ int main ()
 	GF2 F;
 	...
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  It is also possible to work over GF(2) using
@@ -317,7 +354,7 @@ int main ()
 	</para>
       </section>
 
-      <section xml:id="unparamring">
+      <section>
 	<title><type>TypeWrapperRing</type></title>
 
 	<para>
@@ -339,8 +376,7 @@ int main ()
 	TypeWrapperRing&lt;float&gt; R;
 	...
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The class <type>TypeWrapperRing</type> is parametrised by
@@ -349,7 +385,7 @@ int main ()
 	</para>
       </section>
 
-      <section xml:id="ringarith">
+      <section>
 	<title>Ring-arithmetic</title>
 
 	<para>
@@ -388,8 +424,7 @@ int main ()
 		std::cout &lt;&lt; "a / b does not exist" &lt;&lt; std::endl;
 
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  All arithmetic operations take a reference to the element in
@@ -443,8 +478,7 @@ int main ()
 		std::cout &lt;&lt; "a / b does not exist" &lt;&lt; std::endl;
 
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The method <function>copy</function> makes a copy of its
@@ -482,8 +516,7 @@ int main ()
 	F.write (std::cout, a) &lt;&lt; std::endl;
 
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The precise meaning of these methods depends on the
@@ -518,8 +551,7 @@ int main ()
 		std::cout &lt;&lt; "You guessed correctly!" &lt;&lt; std::endl;
 
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  Similarly, the methods <function>isZero</function>
@@ -549,8 +581,7 @@ int main ()
 		std::cout &lt;&lt; "You entered one in the ring" &lt;&lt; std::endl;
 
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The
@@ -582,8 +613,7 @@ int main ()
 		std::cout &lt;&lt; "You entered minus one in the ring" &lt;&lt; std::endl;
 
 	return 0;
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  When writing algorithms, it is desireable that the code not
@@ -602,11 +632,10 @@ void MyAlgorithm (const Ring &amp;R, typename Ring::Element &amp;v)
 	R.init (a, 1);
 	R.init (b, 103);
 	R.add (v, a, b);
-}
-	</programlisting>
+}</programlisting>
       </section>
     </section>
-    <section xml:id="decl">
+    <section>
       <title>Declaring and filling vectors and matrices</title>
 
       <para>
@@ -616,7 +645,7 @@ void MyAlgorithm (const Ring &amp;R, typename Ring::Element &amp;v)
 	matrix-types to serve these needs.
       </para>
 
-      <section xml:id="vectypes">
+      <section>
 	<title>Types of vectors</title>
 
 	<para>
@@ -626,7 +655,7 @@ void MyAlgorithm (const Ring &amp;R, typename Ring::Element &amp;v)
 	  used in any container or algorithm which accepts that type.
 	</para>
 
-	<section xml:id="vecgeneralrings">
+	<section>
 	  <title>Representation-types for general rings</title>
 
 	  <para>
@@ -654,8 +683,7 @@ void MyAlgorithm (const Ring &amp;R, size_t n)
 	R.init (v[0], 1);
 	R.init (v[1], -1);
 	R.init (v[2], -3);
-}
-	  </programlisting>
+}</programlisting>
 
 	  <para>
 	    The state of the entries of a just declared dense vector
@@ -663,30 +691,37 @@ void MyAlgorithm (const Ring &amp;R, size_t n)
 	    fashion before the vector is used. There are several
 	    possibilities to do this:
 	    <itemizedlist>
-	      <listitem>Initialise the entries directly using
-	      array-notation or an iterator, as above;</listitem>
-	      <listitem>Copy another vector to the just declared
-	      vector;</listitem>
-	      <listitem>Scale the vector by zero using the
-	      BLAS-function. In this special case the entries of the
-	      vector are initialised to zero and need not have been
-	      previously initialised. For example:
+	      <listitem>
+		<simpara>Initialise the entries directly using
+		  array-notation or an iterator, as above;</simpara>
+	      </listitem>
+	      <listitem>
+		<simpara>Copy another vector to the just declared
+		  vector;</simpara>
+	      </listitem>
+	      <listitem>
+		<simpara>
+		  Scale the vector by zero using the
+		  BLAS-function. In this special case the entries of the
+		  vector are initialised to zero and need not have been
+		  previously initialised. For example:
+		</simpara>
 	      <programlisting>
 Context&lt;Ring&gt; ctx (R);
 std::vector&lt;typename Ring::Element&gt; v (n); // A dense vector in R^n
 
-BLAS1::scal (ctx, R.zero (), v);  // Initialise all entries in v to zero
-	      </programlisting>
+BLAS1::scal (ctx, R.zero (), v);  // Initialise all entries in v to zero</programlisting>
 	      </listitem>
 	      <listitem>
-		Initialise the vector from a
-		<type>VectorStream</type>. For example:
-	      <programlisting>
+		<simpara>
+		  Initialise the vector from a
+		  <type>VectorStream</type>. For example:
+		</simpara>
+		<programlisting>
 RandomDenseStream&lt;Ring, std::vector&lt;typename Ring::Element&gt; &gt; stream (R, n);
 std::vector&lt;typename Ring::Element&gt; v (n); // A dense vector in R^n
 
-stream &gt;&gt; v;  // Obtain a random vector in R^n
-	      </programlisting>
+stream &gt;&gt; v;  // Obtain a random vector in R^n</programlisting>
 	      </listitem>
 	    </itemizedlist>
 	  </para>
@@ -739,10 +774,9 @@ void MyAlgorithm (const Ring &amp;R)
 	// Index 23 gets value 10
 	v.push_back (typename Vector&lt;Ring&gt;::Sparse::value_type (23, Ring::Element ()));
 	R.init (v.back ().second, 10);
-}
-	  </programlisting>
+}</programlisting>
 	</section>
-	<section xml:id="vecgf2">
+	<section>
 	  <title>Representation-types for GF(2)</title>
 
 	  <para>
@@ -767,8 +801,7 @@ void MyAlgorithm (const GF2 &amp;F, unsigned int n)
 	*(v.word_begin ()) = 0xf0f0f0f0f0f0f0f0ULL;     // Set all of the first 64 bits of the vector simultaneously
 	*(v.word_begin () + 1) = 0xaaaaaaaaaaaaaaaaULL; // Set all of the second 64 bits of the vector simultaneously
 	v.back_word () = 0xeeee5555eeee5555ULL;         // Set the final 64 bits of the vector simultaneously
-}
-	  </programlisting>
+}</programlisting>
 
 	  <para>
 	    As with dense vectors over arbitrary rings, the module in
@@ -795,8 +828,7 @@ void MyAlgorithm (const GF2 &amp;F)
 	v.push_back (1);   // Index 1 gets value one
 	v.push_back (15);  // Index 15 gets value one
 	v.push_back (23);  // Index 23 gets value one
-}
-	  </programlisting>
+}</programlisting>
 
 	  <para>
 	    As with general sparse vectors, nonexistent indices are
@@ -844,11 +876,10 @@ void MyAlgorithm (const GF2 &amp;R)
 	v.push_back (Vector&lt;GF2&gt;::Hybrid::value_type (0, 0xffff0000ffff0000ULL));  // First 64 indices
 	v.push_back (Vector&lt;GF2&gt;::Hybrid::value_type (1, 0xf0f0f0f0f0f0f0f0ULL));  // Second 64 indices
 	v.push_back (Vector&lt;GF2&gt;::Hybrid::value_type (5, 0xaaaa5555aaaa5555ULL));  // Indices 5 * 64 - 6 * 64
-}
-	  </programlisting>
+}</programlisting>
 	</section>
       </section>
-      <section xml:id="mattypes">
+      <section>
 	<title>Types of matrices</title>
 
 	<para>
@@ -876,27 +907,28 @@ void MyFunction (const Ring &amp;R)
 	typename Ring::Element a;
 	R.init (a, 5);
 	M.setEntry (1, 2, a);  // Set entry (1,2) to a
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  Note that row- and column-indices start from zero.
 	</para>
 
-	<note>
-	  The state of the entries of a newly defined dense matrix is
-	  undefined. In particular, all entries should be initialised
-	  before the dense matrix is used in any calculation. This can
-	  be done:
+	<caution>
+	  <para>
+	    The state of the entries of a newly defined dense matrix is
+	    undefined. In particular, all entries should be initialised
+	    before the dense matrix is used in any calculation. This can
+	    be done:
+	  </para>
 	  <itemizedlist>
-	    <listitem>with <function>setEntry</function> as above,</listitem>
-	    <listitem>using the row- or column-iterators as described below,</listitem>
-	    <listitem>by copying from an existing matrix with the BLAS-interface (see below),</listitem>
-	    <listitem>by scaling the matrix to zero with the BLAS-interface (see below),</listitem>
-	    <listitem>by reading the matrix from a file, or</listitem>
-	    <listitem>by initialising the matrix with a <type>VectorStream</type> (see reference-documentation).</listitem>
+	    <listitem><simpara>with <function>setEntry</function> as above,</simpara></listitem>
+	    <listitem><simpara>using the row- or column-iterators as described below,</simpara></listitem>
+	    <listitem><simpara>by copying from an existing matrix with the BLAS-interface (see <xref linkend="blas"/>),</simpara></listitem>
+	    <listitem><simpara>by scaling the matrix to zero with the BLAS-interface (see <xref linkend="blas"/>),</simpara></listitem>
+	    <listitem><simpara>by reading the matrix from a file, or</simpara></listitem>
+	    <listitem><simpara>by initialising the matrix with a <type>VectorStream</type> (see reference-documentation).</simpara></listitem>
 	  </itemizedlist>
-	</note>
+	</caution>
 
 	<para>
 	  Dense matrices provide three types of iterators: row,
@@ -926,8 +958,7 @@ void MyFunction (const Ring &amp;R)
 
 	for (j = M.colBegin (); j != M.colEnd (); ++j)
 		R.init ((*i)[1], 10);
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The raw iterator iterates through all the entries of the
@@ -948,8 +979,7 @@ void MyFunction (const Ring &amp;R, DenseMatrix&lt;typename Ring::Element&gt; &a
 
 	for (i = M.rawBegin (); i != M.rawEnd (); ++i)
 		R.init (*i, 5);
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  Each of the iterators has a const equivalent, the name
@@ -963,9 +993,11 @@ void MyFunction (const Ring &amp;R, DenseMatrix&lt;typename Ring::Element&gt; &a
 	</para>
 
 	<note>
-	  If LELA is configured with support for M4RI,
-	  then <type>DenseMatrix&lt;bool&gt;</type> is a wrapper for
-	  the matrix-type in M4RI.
+	  <para>
+	    If LELA is configured with support for M4RI,
+	    then <type>DenseMatrix&lt;bool&gt;</type> is a wrapper for
+	    the matrix-type in M4RI.
+	  </para>
 	</note>
 
 	<para>
@@ -987,8 +1019,7 @@ void MyFunction (const Ring &amp;R)
 	typename Ring::Element a;
 	R.init (a, 5);
 	M.setEntry (1, 2, a);  // Set entry (1,2) to a
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  Sparse matrices have no support for column-iterators. Row
@@ -1018,8 +1049,7 @@ void MyFunction (const GF2 &amp;F)
 {
 	SparseMatrix&lt;bool, Vector&lt;GF2&gt;::Hybrid&gt; M (5, 5); // Declare a 5x5 matrix
 	...
-}
-	</programlisting>
+}</programlisting>
       </section>
       <section>
 	<title>Declaring subvectors, submatrices, and transposed matrices</title>
@@ -1063,8 +1093,7 @@ void MyFunction (const GF2 &amp;F)
 	<programlisting>
 Vector v;
 ...
-typename VectorTraits&lt;Ring, Vector&gt;::SubvectorType w (v, 10, 100);
-	</programlisting>
+typename VectorTraits&lt;Ring, Vector&gt;::SubvectorType w (v, 10, 100);</programlisting>
 
 	<para>
 	  If the parent-vector is const, then it is required to
@@ -1075,8 +1104,7 @@ typename VectorTraits&lt;Ring, Vector&gt;::SubvectorType w (v, 10, 100);
 	<programlisting>
 const Vector v;
 ...
-typename VectorTraits&lt;Ring, Vector&gt;::ConstSubvectorType w (v, 10, 100);
-	</programlisting>
+typename VectorTraits&lt;Ring, Vector&gt;::ConstSubvectorType w (v, 10, 100);</programlisting>
 
 	<para>
 	  To declare an aligned subvector,
@@ -1096,14 +1124,14 @@ typename VectorTraits&lt;Ring, Vector&gt;::ConstSubvectorType w (v, 10, 100);
 	  This basic mechanism works for all vector-types but there
 	  are a few limitations:
 	  <itemizedlist>
-	    <listitem>Mutable (i.e. non-const) subvectors of sparse
-	      vectors are not permitted;</listitem>
-	    <listitem>Arbitrary mutable subvectors of hybrid vectors
-	      are not permitted.</listitem>
+	    <listitem><simpara>Mutable (i.e. non-const) subvectors of sparse
+	      vectors are not permitted;</simpara></listitem>
+	    <listitem><simpara>Arbitrary mutable subvectors of hybrid vectors
+	      are not permitted.</simpara></listitem>
 	  </itemizedlist>
 	</para>
 
-	<note>
+	<caution>
 	  <para>
 	    It is important to be extremely careful with mutable
 	    subvectors of sparse or hybrid vectors. If a subvector is
@@ -1123,8 +1151,7 @@ Vector&lt;Ring&gt;::Sparse x;
 typename Vector&lt;Ring&gt;::Sparse::SubvectorType x_1 (x, 0, 10);
 typename Vector&lt;Ring&gt;::Sparse::SubvectorType x_2 (x, 10, 20);
 x_1.push_back (5, typename Ring::Element ());
-// x_2 now invalid
-	  </programlisting>
+// x_2 now invalid</programlisting>
 
 	  <para>
 	    Failure to take this into account may lead to random
@@ -1140,9 +1167,8 @@ x_1.push_back (5, typename Ring::Element ());
 	  </para>
 
 	  <programlisting>
-BLAS2::gemv (ctx, a, A, x_2, b, x_1);  // DANGER: Using both x_1 and x_2!
-	  </programlisting>
-	</note>
+BLAS2::gemv (ctx, a, A, x_2, b, x_1);  // DANGER: Using both x_1 and x_2!</programlisting>
+	</caution>
 
 	<para>
 	  Declaring a submatrix is similar. To create an arbitrary
@@ -1159,8 +1185,7 @@ BLAS2::gemv (ctx, a, A, x_2, b, x_1);  // DANGER: Using both x_1 and x_2!
 	<programlisting>
 Matrix M (10, 10);  // M has size 10x10
 
-typename Matrix::SubmatrixType S (M, 2, 2, 5, 5);
-	</programlisting>
+typename Matrix::SubmatrixType S (M, 2, 2, 5, 5);</programlisting>
 
 	<para>
 	  Note the difference with subvectors: for submatrices one
@@ -1177,8 +1202,7 @@ typename Matrix::SubmatrixType S (M, 2, 2, 5, 5);
 	<programlisting>
 const Matrix M (10, 10);  // M has size 10x10
 
-typename Matrix::ConstSubmatrixType S (M, 2, 2, 5, 5);
-	</programlisting>
+typename Matrix::ConstSubmatrixType S (M, 2, 2, 5, 5);</programlisting>
 
 	<para>
 	  One can create aligned submatrices
@@ -1212,8 +1236,7 @@ typename Matrix::ConstSubmatrixType S (M, 2, 2, 5, 5);
 ...
 Matrix M;
 
-TransposeMatrix&lt;Matrix&gt; MT (M);
-	</programlisting>
+TransposeMatrix&lt;Matrix&gt; MT (M);</programlisting>
 
 	<para>
 	  If the matrix is const, then <type>TransposeMatrix</type>
@@ -1223,20 +1246,21 @@ TransposeMatrix&lt;Matrix&gt; MT (M);
 	<programlisting>
 const Matrix M;
 
-TransposeMatrix&lt;const Matrix&gt; MT (M);
-	</programlisting>
+TransposeMatrix&lt;const Matrix&gt; MT (M);</programlisting>
 
 	<note>
-	  In LELA there also exist
-	  classes <type>Subvector</type>, <type>SparseSubvector</type>,
-	  and <type>Submatrix</type>. These are basically for internal
-	  use. Do not use them unless you are creating your own
-	  vector- or matrix-type and wish to employ them to define the
-	  subvector or submatrix-types used above.
+	  <para>
+	    In LELA there also exist
+	    classes <type>Subvector</type>, <type>SparseSubvector</type>,
+	    and <type>Submatrix</type>. These are basically for internal
+	    use. Do not use them unless you are creating your own
+	    vector- or matrix-type and wish to employ them to define the
+	    subvector or submatrix-types used above.
+	  </para>
 	</note>
       </section>
     </section>
-    <section xml:id="arith">
+    <section id="blas">
       <title>Vector- and matrix-arithmetic</title>
 
       <para>
@@ -1261,15 +1285,16 @@ void MyFunction (const Ring &amp;R)
 {
 	Context&lt;Ring&gt; ctx (R);
 	...
-}
-      </programlisting>
+}</programlisting>
 
-      <note>
-	Context objects are not intended to be reentrant, since they
-	contain temporary storage. If your program is multithreaded,
-	it is necessary to construct one context object per
-	thread. Context objects can be copy-constructed.
-      </note>
+      <caution>
+	<para>
+	  Context objects are not intended to be reentrant, since they
+	  contain temporary storage. If your program is multithreaded,
+	  it is necessary to construct one context object per
+	  thread. Context objects can be copy-constructed.
+	</para>
+      </caution>
 
       <para>
 	BLAS-routines are split into three levels: level 1 for
@@ -1309,8 +1334,7 @@ void MyFunction (const Ring &amp;R, Vector1 &amp;v, Vector2 &amp;w)
 	typename Ring::Element a;
 
 	BLAS1::dot (ctx, a, v, w);  // Compute the dot-product of v and w and store it in a
-}
-      </programlisting>
+}</programlisting>
 
       <para>
 	And another example with level 2 operations:
@@ -1332,8 +1356,7 @@ void MyFunction (const Ring &amp;R, Vector &amp;v, Vector &amp;w, Matrix &amp;A)
 
 	// Replace v by U^-1 v, where U is the upper triangular part of A with ones on the diagonal
 	BLAS2::trsv (ctx, A, v, UpperTriangular, true);
-}
-      </programlisting>
+}</programlisting>
 
       <para>
 	Because matrix- and vector-types in LELA are distinct, several
@@ -1358,8 +1381,7 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
 	BLAS3::scal (ctx, R.minusOne (), A); // Replace A by -A
 
 	BLAS3::gemm (ctx, R.one (), A, B, R.one (), C);  // Replace C by A * B + C
-}
-      </programlisting>
+}</programlisting>
 
       <para>
 	There are some limitations in the combinations of types which
@@ -1374,8 +1396,10 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
       </para>
 
       <note>
-	Support for symmetric, skew-symmetric, and banded matrices has
-	not been implemented.
+	<para>
+	  Support for symmetric, skew-symmetric, and banded matrices has
+	  not been implemented.
+	</para>
       </note>
 
       <para>
@@ -1387,25 +1411,33 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
       </para>
 
       <itemizedlist>
-	<listitem><function>BLAS3::axpy</function> (i.e. aX + Y -&gt;
-	  Y, X and Y matrices) where X and Y not support an
-	  interator-type in common, e.g. if X is a sparse matrix and Y
-	  is the transpose of a sparse matrix;</listitem>
-	<listitem><function>BLAS3::gemm</function> (i.e. aAB + bC
+	<listitem>
+	  <simpara><function>BLAS3::axpy</function> (i.e. aX + Y -&gt;
+	    Y, X and Y matrices) where X and Y not support an
+	    interator-type in common, e.g. if X is a sparse matrix and Y
+	    is the transpose of a sparse matrix;</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><function>BLAS3::gemm</function> (i.e. aAB + bC
 	  -&gt; C, A, B, and C matrices) where A and B are both sparse
 	  matrices and C is the transpose of a sparse matrix, or where
 	  A and B are both transposed sparse matrices and C is an
-	  ordinary sparse matrix;</listitem>
-	<listitem><function>BLAS2::trmv</function>
+	  ordinary sparse matrix;</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><function>BLAS2::trmv</function>
 	  and <function>BLAS2::trsv</function> (i.e. Tx -&gt; x,
 	  T<superscript>-1</superscript>x -&gt; x, T a triangular
 	  matrix, x a vector) where x is a sparse or hybrid
-	  vector;</listitem>
-	<listitem><function>BLAS2::trmm</function>
+	  vector;</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><function>BLAS2::trmm</function>
 	  and <function>BLAS2::trsm</function> (i.e. TB -&gt; B,
 	  T<superscript>-1</superscript>B -&gt; B, T a triangular
 	  matrix, B a matrix) where B is a transposed sparse or hybrid
-	  matrix.</listitem>
+	  matrix.</simpara>
+	</listitem>
       </itemizedlist>
 
       <para>
@@ -1413,7 +1445,7 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
 	account.
       </para>
     </section>
-    <section xml:id="highlevel">
+    <section>
       <title>Using higher level solutions</title>
 
       <para>
@@ -1423,7 +1455,7 @@ void MyFunction (const Ring &amp;R, Matrix1 &amp;A, Matrix2 &amp;B, Matrix3 &amp
 	encapsulated in a class.
       </para>
 
-      <section xml:id="rowechelon">
+      <section>
 	<title>Computing the row-echelon form</title>
 
 	<para>
@@ -1448,8 +1480,7 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 	EchelonForm&lt;Ring&gt; EF (ctx);
 
 	RowEchelonForm (A); // A now replaced by its row echelon form
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  There is also support for computing the reduced row echelon
@@ -1468,11 +1499,10 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 	EchelonForm&lt;Ring&gt; EF (ctx);
 
 	RowEchelonForm (A, true); // A now replaced by its reduced row echelon form
-}
-	</programlisting>
+}</programlisting>
       </section>
     </section>
-    <section xml:id="io">
+    <section>
       <title>Input and output of matrices and vectors</title>
 
       <para>
@@ -1502,8 +1532,7 @@ void ReadAndWriteVector (const Ring &amp;R, Vector &amp;v)
 
 	std::cout &lt;&lt; "You entered: ";
 	BLAS1::write (ctx, std::cout, v) &lt;&lt; std::endl;
-}
-      </programlisting>
+}</programlisting>
 
       <para>
 	The input-format should be a list of numbers which can be
@@ -1535,31 +1564,44 @@ void ReadAndWriteVector (const Ring &amp;R, Matrix &amp;A, std::istream &amp;is)
 
 	std::cout &lt;&lt; "Matrix: " &lt;&lt; std::endl;
 	BLAS3::write (ctx, std::cout, A, FORMAT_PRETTY);
-}
-      </programlisting>
+}</programlisting>
 
       <para>
 	Some examples of formats are:
       </para>
 
       <itemizedlist>
-	<listitem><literal>FORMAT_PRETTY</literal>, suitable for output to
-	the console or a text-file so that the matrix can be examined
-	by the user</listitem>
-	<listitem><literal>FORMAT_DUMAS</literal>, suitable for the
-	storage of sparse matrices</listitem>
-	<listitem><literal>FORMAT_MAPLE</literal>, for interacting with
-	Maple</listitem>
-	<listitem><literal>FORMAT_MATLAB</literal>, for interacting with
-	Matlab</listitem>
-	<listitem><literal>FORMAT_SAGE</literal>, for interacting with
-	Sage</listitem>
-	<listitem><literal>FORMAT_PNG</literal>, good for large matrices
-	over GF(2). Only available for matrices over GF(2) and only if
-	LELA is configured with support for libpng.</listitem>
-	<listitem><literal>FORMAT_DETECT</literal>, try to detect the
-	format of a matrix. Only makes sense
-	for <function>read</function>.</listitem>
+	<listitem>
+	  <simpara><literal>FORMAT_PRETTY</literal>, suitable for output to
+	    the console or a text-file so that the matrix can be examined
+	    by the user</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><literal>FORMAT_DUMAS</literal>, suitable for the
+	    storage of sparse matrices</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><literal>FORMAT_MAPLE</literal>, for interacting with
+	    Maple</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><literal>FORMAT_MATLAB</literal>, for interacting with
+	    Matlab</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><literal>FORMAT_SAGE</literal>, for interacting with
+	    Sage</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><literal>FORMAT_PNG</literal>, good for large matrices
+	    over GF(2). Only available for matrices over GF(2) and only if
+	    LELA is configured with support for libpng.</simpara>
+	</listitem>
+	<listitem>
+	  <simpara><literal>FORMAT_DETECT</literal>, try to detect the
+	    format of a matrix. Only makes sense
+	    for <function>read</function>.</simpara>
+	</listitem>
       </itemizedlist>
 
       <para>
@@ -1569,16 +1611,15 @@ void ReadAndWriteVector (const Ring &amp;R, Matrix &amp;A, std::istream &amp;is)
 	appears correctly in a fixed width typeface.
       </para>
     </section>
-    <section xml:id="debug">
+    <section>
       <title>The commentator and debugging-support</title>
-      <section xml:id="checks">
+      <section>
 	<title>Enabling and disabling precondition-checks</title>
 
 	<para>
 	  Throughout LELA there are checks of the form
 	  <programlisting>
-lela_check (condition);
-	  </programlisting>
+lela_check (condition);</programlisting>
 	  These check that the input to algorithms meets the required
 	  preconditions. These checks are disabled by default, but can
 	  be enabled by defining the macro <constant>DEBUG</constant>
@@ -1586,7 +1627,7 @@ lela_check (condition);
 	</para>
 
       </section>
-      <section xml:id="commentator">
+      <section>
 	<title>Using and configuring the commentator</title>
 
 	<para>
@@ -1614,8 +1655,7 @@ void MyFunction ()
 	commentator.start ("Description of activity", __FUNCTION__);
 	...
 	commentator.stop (MSG_DONE);
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The second argument
@@ -1650,8 +1690,7 @@ void MyFunction ()
 	report &lt;&lt; "Some information about the computation." &lt;&lt; std::endl;
 
 	commentator.stop (MSG_DONE);
-}
-	</programlisting>
+}</programlisting>
 
 	<para>
 	  The first parameter
@@ -1681,7 +1720,7 @@ void MyFunction ()
 	  information.
 	</para>
       </section>
-      <section xml:id="disablecommentator">
+      <section>
 	<title>Disabling the commentator entirely</title>
 
 	<para>
@@ -1691,7 +1730,7 @@ void MyFunction ()
 	</para>
       </section>
     </section>
-    <section xml:id="compilererrors">
+    <section>
       <title>Dealing with compiler-errors</title>
 
       <para>
@@ -1705,71 +1744,83 @@ void MyFunction ()
 
       <itemizedlist>
 	<listitem>
-	  Check carefully that the template-arguments are of the
-	  correct type and in the correct order. Since there is no
-	  direct type-checking of template-arguments in C++, using the
-	  wrong types will result in unpredictable errors during
-	  instantiation.
+	  <simpara>
+	    Check carefully that the template-arguments are of the
+	    correct type and in the correct order. Since there is no
+	    direct type-checking of template-arguments in C++, using the
+	    wrong types will result in unpredictable errors during
+	    instantiation.
+	  </simpara>
 	</listitem>
 	<listitem>
-	  If using submatrices or subvectors, check that you have
-	  properly declared subobjects of const objects using the
-	  corresponding const type. For example:
+	  <simpara>
+	    If using submatrices or subvectors, check that you have
+	    properly declared subobjects of const objects using the
+	    corresponding const type. For example:
+	  </simpara>
 	  <programlisting>
 const Matrix M;
 
 typename Matrix::SubmatrixType N (M, 2, 2, 5, 5);       // ERROR!
-typename Matrix::ConstSubmatrixType N (M, 2, 2, 5, 5);  // Correct
-	  </programlisting>
+typename Matrix::ConstSubmatrixType N (M, 2, 2, 5, 5);  // Correct</programlisting>
 	</listitem>
 	<listitem>
-	  Check that you are not using a forbidden combination of
-	  types for BLAS-routines (see section on matrix- and
-	  vector-arithmetic above). This type of error will usually
-	  manifest itself when compiling as "No matching function for
-	  call to &lt;function&gt;_impl", where &lt;function&gt; is
-	  the name of the offending BLAS-routine.
+	  <simpara>
+	    Check that you are not using a forbidden combination of
+	    types for BLAS-routines (see section on matrix- and
+	    vector-arithmetic above). This type of error will usually
+	    manifest itself when compiling as "No matching function for
+	    call to &lt;function&gt;_impl", where &lt;function&gt; is
+	    the name of the offending BLAS-routine.
+	  </simpara>
 	</listitem>
 	<listitem>
-	  Many errors of the form "No matching function for call
-	  to..." or "No matching constructor..." result from attempts
-	  to remove a <type>const</type> from a type. For example, the
-	  following code will result in an error:
+	  <simpara>
+	    Many errors of the form "No matching function for call
+	    to..." or "No matching constructor..." result from attempts
+	    to remove a <type>const</type> from a type. For example, the
+	    following code will result in an error:
+	  </simpara>
 	  <programlisting>
 void MyFunction (const Matrix &amp;M)
 {
 	typename Matrix::RowIterator i = M.rowBegin ();  // ERROR!
-}
-	  </programlisting>
-	  In this case, because <varname>M</varname>
-	  is <type>const</type>, one must
-	  use <type>ConstRowIterator</type> instead:
+}</programlisting>
+	  <simpara>
+	    In this case, because <varname>M</varname>
+	    is <type>const</type>, one must
+	    use <type>ConstRowIterator</type> instead:
+	  </simpara>
 	  <programlisting>
 void MyFunction (const Matrix &amp;M)
 {
 	typename Matrix::ConstRowIterator i = M.rowBegin ();  // Correct
-}
-	  </programlisting>
+}</programlisting>
 	</listitem>
 	<listitem>
-	  Consider using the compiler Clang (see
-	  <link address="http://clang.llvm.org/">their website</link>)
-	  rather than GCC. Its error-output is much more readable. To
-	  use Clang rather than GCC, use
+	  <simpara>
+	    Consider using the compiler Clang (see
+	    <ulink url="http://clang.llvm.org/">their website</ulink>)
+	    rather than GCC. Its error-output is much more readable. To
+	    use Clang rather than GCC, use
+	  </simpara>
 	  <programlisting>
-	    CXX=clang ./configure
-	  </programlisting>
-	  when configuring LELA.
+CXX=clang ./configure</programlisting>
+	  <simpara>
+	    when configuring LELA.
+	  </simpara>
 	</listitem>
 	<listitem>
-	  If you are really stuck, send an email to Bradford Hovinen
-	  &lt;hovinen@gmail.com&gt; with your compiler-output and if
-	  possible representative source-code.
+	  <simpara>
+	    If you are really stuck, send an email to Bradford Hovinen
+	    &lt;hovinen@gmail.com&gt; with your compiler-output and if
+	    possible representative source-code.
+	  </simpara>
 	</listitem>
       </itemizedlist>
     </section>
-  </chapter>
-  <chapter xml:id="extending">
+  </section>
+  <section>
     <title>Extending the library</title>
 
     <para>
@@ -1779,7 +1830,7 @@ void MyFunction (const Matrix &amp;M)
       properly integrated into the library.
     </para>
 
-    <section xml:id="newrings">
+    <section>
       <title>Creating new rings</title>
 
       <para>
@@ -1787,32 +1838,44 @@ void MyFunction (const Matrix &amp;M)
       </para>
 
       <itemizedlist>
-	<listitem>One can simply define a class meeting the proper
-	  interface and then instantiates the remaining parts of the
-	  library on that class. When the element-type and
-	  arithmetic-operations are simple (such as
-	  with <type>Modular</type>), this will typically provide the
-	  best performance by avoiding function-calls and enabling
-	  more compiler-optimisations. It comes however at the cost of
-	  more code-bloat, since practically the entire library must
-	  be instantiated for that ring-type.</listitem>
-	<listitem>One can define a class inheriting
-	  from <type>RingInterface</type>, which is parametrised by
-	  element-type. Then one instantiates all remaining classes
-	  and functions on <type>RingInterface&lt;Element&gt;</type>,
-	  where <type>Element</type> is one's chosen
-	  element-type. This avoids multiple instantiations in the
-	  case that one uses the library with multiple rings using the
-	  same element-type, but is slower than the method above
-	  because it relies on the invocation of virtual
-	  methods.</listitem>
-	<listitem>One can define a class inheriting
-	  from <type>RingInterface&lt;AbstractElement&gt;</type>. The
-	  type <type>AbstractElement</type> allows in principle any
-	  element-type to be represented. Thus the entire library is
-	  only instantiated once, even when multiple rings with
-	  multiple element-types are used. It comes at a cost of both
-	  performance and memory-overhead.</listitem>
+	<listitem>
+	  <para>
+	    One can simply define a class meeting the proper
+	    interface and then instantiates the remaining parts of the
+	    library on that class. When the element-type and
+	    arithmetic-operations are simple (such as
+	    with <type>Modular</type>), this will typically provide the
+	    best performance by avoiding function-calls and enabling
+	    more compiler-optimisations. It comes however at the cost of
+	    more code-bloat, since practically the entire library must
+	    be instantiated for that ring-type.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    One can define a class inheriting
+	    from <type>RingInterface</type>, which is parametrised by
+	    element-type. Then one instantiates all remaining classes
+	    and functions on <type>RingInterface&lt;Element&gt;</type>,
+	    where <type>Element</type> is one's chosen
+	    element-type. This avoids multiple instantiations in the
+	    case that one uses the library with multiple rings using the
+	    same element-type, but is slower than the method above
+	    because it relies on the invocation of virtual
+	    methods.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    One can define a class inheriting
+	    from <type>RingInterface&lt;AbstractElement&gt;</type>. The
+	    type <type>AbstractElement</type> allows in principle any
+	    element-type to be represented. Thus the entire library is
+	    only instantiated once, even when multiple rings with
+	    multiple element-types are used. It comes at a cost of both
+	    performance and memory-overhead.
+	  </para>
+	</listitem>
       </itemizedlist>
 
       <para>
@@ -1834,8 +1897,7 @@ public:
 	Element &amp;add (Element &amp;a, const Element &amp;b, const Element &amp;c)
 		{ a = b + c; return a; }       // Implementation
 	...
-};
-      </programlisting>
+};</programlisting>
 
       <para>
 	See <xref linkend="newblas"/> for more details on this mechanism.
@@ -1863,8 +1925,7 @@ public:
 		return a;
 	}
 	...
-};
-      </programlisting>
+};</programlisting>
 
       <para>
 	To use the third method, define a class which inherits
@@ -1872,8 +1933,8 @@ public:
 	element-type is then <type>AbstractElement</type>. This type
 	contains two members:
 	<itemizedlist>
-	  <listitem><varname>ref</varname>, an void pointer to element-data, the content of which you are free to define,</listitem>
-	  <listitem><varname>ring</varname>, a pointer to the ring.</listitem>
+	  <listitem><simpara><varname>ref</varname>, an void pointer to element-data, the content of which you are free to define,</simpara></listitem>
+	  <listitem><simpara><varname>ring</varname>, a pointer to the ring.</simpara></listitem>
 	</itemizedlist>
 	Any method in your ring-class which initialises a ring-element
 	(that is <function>init</function>, <function>copy</function>,
@@ -1923,8 +1984,7 @@ public:
 		return a;
 	}
 	...
-};
-      </programlisting>
+};</programlisting>
 
       <para>
 	It is advantageous to define a stack of BLAS-operations for
@@ -1943,7 +2003,7 @@ public:
 	included.
       </para>
     </section>
-    <section xml:id="newvectors">
+    <section>
       <title>Creating new vector- and matrix-types</title>
 
       <para>
@@ -1954,15 +2014,15 @@ public:
       </para>
 
       <itemizedlist>
-	<listitem>For matrices, see <filename>lela/matrix/interface.h</filename></listitem>
-	<listitem>For dense vectors, see <filename>lela/vector/dense-interface.h</filename></listitem>
-	<listitem>For sparse vectors, see <filename>lela/vector/sparse-interface.h</filename></listitem>
-	<listitem>For dense 0-1 vectors, see <filename>lela/vector/dense01-interface.h</filename></listitem>
-	<listitem>For sparse 0-1 vectors, see <filename>lela/vector/sparse01-interface.h</filename></listitem>
-	<listitem>For hybrid 0-1 vectors, see <filename>lela/vector/hybrid01-interface.h</filename></listitem>
+	<listitem><simpara>For matrices, see <filename>lela/matrix/interface.h</filename></simpara></listitem>
+	<listitem><simpara>For dense vectors, see <filename>lela/vector/dense-interface.h</filename></simpara></listitem>
+	<listitem><simpara>For sparse vectors, see <filename>lela/vector/sparse-interface.h</filename></simpara></listitem>
+	<listitem><simpara>For dense 0-1 vectors, see <filename>lela/vector/dense01-interface.h</filename></simpara></listitem>
+	<listitem><simpara>For sparse 0-1 vectors, see <filename>lela/vector/sparse01-interface.h</filename></simpara></listitem>
+	<listitem><simpara>For hybrid 0-1 vectors, see <filename>lela/vector/hybrid01-interface.h</filename></simpara></listitem>
       </itemizedlist>
     </section>
-    <section xml:id="newblas">
+    <section id="newblas">
       <title>Extending the BLAS-implementations</title>
 
       <para>
@@ -1999,9 +2059,9 @@ public:
       </para>
 
       <itemizedlist>
-	<listitem><type>AllModules&lt;GF2&gt;</type></listitem>
-	<listitem><type>M4RIModules</type>, which acts as a wrapper for M4RI</listitem>
-	<listitem><type>GenericModule</type>, which provides the remaining functionality not provided by M4RI</listitem>
+	<listitem><simpara><type>AllModules&lt;GF2&gt;</type></simpara></listitem>
+	<listitem><simpara><type>M4RIModules</type>, which acts as a wrapper for M4RI</simpara></listitem>
+	<listitem><simpara><type>GenericModule</type>, which provides the remaining functionality not provided by M4RI</simpara></listitem>
       </itemizedlist>
 
       <para>
@@ -2038,8 +2098,7 @@ public:
 	template &lt;class Modules, class Matrix1, class Matrix2, class Matrix3&gt;
 	static Matrix3 &amp;op (const Ring &amp;F, Modules &amp;M, const typename Ring::Element &amp;a, const Matrix1 &amp;A, const Matrix2 &amp;B, const typename Ring::Element &amp;b, Matrix3 &amp;C)
 		{ return _gemm&lt;Ring, typename ModulesTag::Parent&gt;::op (F, M, a, A, B, b, C); }
-};
-      </programlisting>
+};</programlisting>
 
       <para>
 	This is the default implementation which passes the
@@ -2052,8 +2111,8 @@ public:
 	To create a new module it is therefore necessary to create
 
 	<itemizedlist>
-	  <listitem>a <type>Module</type> structure,</listitem>
-	  <listitem>a specialisation of the implementation-class for each function being implemented in that module</listitem>
+	  <listitem><simpara>a <type>Module</type> structure,</simpara></listitem>
+	  <listitem><simpara>a specialisation of the implementation-class for each function being implemented in that module</simpara></listitem>
 	</itemizedlist>
       </para>
 
@@ -2073,8 +2132,7 @@ struct ZpModule&lt;integer&gt; : public GenericModule&lt;Modular&lt;integer&gt; 
 	mutable std::vector&lt;typename ModularTraits&lt;Element&gt;::DoubleFatElement&gt; _tmp;
 
 	ZpModule (const Modular&lt;Element&gt; &amp;R) : block_size (((typename ModularTraits&lt;Element&gt;::DoubleFatElement) -1LL) / ((R._modulus - 1) * (R._modulus - 1))) {}
-};
-      </programlisting>
+};</programlisting>
 
       <para>
 	The structure should inherit from its parent-module, in this
@@ -2138,8 +2196,7 @@ public:
 		{ return dot_impl (F, M, res, x, y,
 				   typename VectorTraits&lt;Modular&lt;uint8&gt;, Vector1&gt;::RepresentationType (),
 				   typename VectorTraits&lt;Modular&lt;uint8&gt;, Vector2&gt;::RepresentationType ()); }
-};
-      </programlisting>
+};</programlisting>
 
       <para>
 	In this case the dot-product is specialised on the
@@ -2168,8 +2225,7 @@ struct AllModules&lt;MyRing&gt; : public StrassenModule&lt;MyRing, GenericModule
 	struct Tag { typedef typename StrassenModule&lt;MyRing, GenericModule&lt;MyRing&gt; &gt;::Tag Parent; };
 
 	AllModules (const MyRing &amp;R) : StrassenModule&lt;MyRing, GenericModule&lt;MyRing&gt; &gt; (R) {}
-};
-      </programlisting>
+};</programlisting>
     </section>
-  </chapter>
-</book>
+  </section>
+</article>

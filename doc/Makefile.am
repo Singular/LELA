@@ -1,5 +1,5 @@
 if BUILD_DOCS
-DOC_TARGETS = tutorial.html
+DOC_TARGETS = index.html
 REFDOC_TARGETS = 
 endif
 
@@ -10,8 +10,8 @@ doc_DATA = $(DOC_TARGETS)
 
 refdocdir = $(datadir)/doc/lela-$(VERSION)/reference
 
-tutorial.html: tutorial.xml
-	$(XSLTPROC) http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl tutorial.xml >tutorial.html
+index.html: tutorial.xml
+	xmlto xhtml -m config.xsl tutorial.xml
 
 reference: reference.xml
 	mkdir reference
@@ -31,10 +31,14 @@ xml:
 
 EXTRA_DIST = \
 	tutorial.xml	\
-	tutorial.html
+	caution.png	\
+	note.png	\
+	config.xsl	\
+	docbook.css	\
+	index.html
 
 MAINTAINERCLEANFILES = \
-	tutorial.html		\
+	index.html		\
 	reference.html		\
 	reference.xml		\
 	reference-boost.xml	\
