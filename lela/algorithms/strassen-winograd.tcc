@@ -45,20 +45,20 @@ namespace LELA
 {
 
 template <class T1, class T2>
-T1 round_up (T1 n, const T2 m)
-	{ return m * ((n + m - 1) / m); }
+T1 round_down (T1 n, const T2 m)
+	{ return m * (n / m); }
 
 template <class Matrix1, class Matrix2>
 inline size_t align_row (size_t i)
-	{ return round_up (i, const_lcm <Matrix1::rowAlign, Matrix2::rowAlign>::val); }
+	{ return round_down (i, const_lcm <Matrix1::rowAlign, Matrix2::rowAlign>::val); }
 
 template <class Matrix1, class Matrix2>
 inline size_t align_col (size_t i)
-	{ return round_up (i, const_lcm <Matrix1::colAlign, Matrix2::colAlign>::val); }
+	{ return round_down (i, const_lcm <Matrix1::colAlign, Matrix2::colAlign>::val); }
 
 template <class RowMatrix, class ColMatrix>
 inline size_t align_rowcol (size_t i)
-	{ return round_up (i, const_lcm <RowMatrix::rowAlign, ColMatrix::colAlign>::val); }
+	{ return round_down (i, const_lcm <RowMatrix::rowAlign, ColMatrix::colAlign>::val); }
 
 template <class ParentTag>
 template <class Ring, class Modules, class Matrix1, class Matrix2, class Matrix3>
@@ -142,7 +142,7 @@ Matrix3 &StrassenWinograd<ParentTag>::mul (const Ring &R, Modules &M, const type
 
 	size_t m = align_row<Matrix1, Matrix3> (C.rowdim () / 2), k = align_rowcol<Matrix1, Matrix2> (A.coldim () / 2), n = align_col<Matrix2, Matrix3> (C.coldim () / 2);
 
-	if (C.rowdim () < _cutoff || C.coldim () < _cutoff || A.coldim () < _cutoff || m >= C.rowdim () || n >= C.coldim () || k >= A.coldim ())
+	if (C.rowdim () < _cutoff || C.coldim () < _cutoff || A.coldim () < _cutoff || m == 0 || n == 0 || k == 0)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, R.zero (), C);
 	else {
 #ifdef __LELA_SW_DETAILED_PROFILE
@@ -301,7 +301,7 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 
 	size_t m = align_row<Matrix1, Matrix3> (C.rowdim () / 2), k = align_rowcol<Matrix1, Matrix2> (A.coldim () / 2), n = align_col<Matrix2, Matrix3> (C.coldim () / 2);
 
-	if (C.rowdim () < _cutoff || C.coldim () < _cutoff || A.coldim () < _cutoff || m >= C.rowdim () || n >= C.coldim () || k >= A.coldim ())
+	if (C.rowdim () < _cutoff || C.coldim () < _cutoff || A.coldim () < _cutoff || m == 0 || n == 0 || k == 0)
 		return BLAS3::_gemm<Ring, ParentTag>::op (R, M, a, A, B, b, C);
 	else {
 #ifdef __LELA_SW_DETAILED_PROFILE
