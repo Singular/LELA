@@ -18,6 +18,13 @@ namespace LELA
 
 struct HybridSubvectorWordAlignedTag;
 
+/** Hybrid vector
+ *
+ * This is a canonical implementation of the hybrid 0-1
+ * vector-representation-type.
+ *
+ * \ingroup vector
+ */
 template <class _Endianness, class IndexType, class WordType>
 class HybridVector : public SparseVector<WordType, std::vector<IndexType>, std::vector<WordType> >
 {

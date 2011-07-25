@@ -28,10 +28,10 @@
 namespace LELA
 {
 
-// ------------------------------- LELAError
-/** base class for execption handling in Givaro
-\ingroup util
-*/
+/** Base class for exceptions
+ *
+ * \ingroup util
+ */
 class LELAError {
 	static const size_t max_error_string = 256;
 public:
@@ -77,6 +77,15 @@ class LELAMathInconsistentSystem : public LELAMathError {
 class LELABadFormat : public LELAError {
  public:
 	LELABadFormat (const char* msg) : LELAError (msg) {};
+};
+
+/// Exception class for functions which haven't been implemented
+///
+/// \ingroup util
+class NotImplemented : public LELAError
+{
+public:
+	NotImplemented () : LELAError ("Sorry, the requested function is not yet implemented.") {}
 };
 
 class DiagonalEntryNotInvertible 

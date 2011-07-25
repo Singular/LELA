@@ -39,6 +39,8 @@ namespace LELA
  * Proceedings of the 2009 international symposium on Symbolic and algebraic
  * computation ISSAC 09, 55. ACM Press. Retrieved from
  * http://arxiv.org/abs/0707.2347
+ *
+ * \ingroup algorithms
  */
 template <class ParentTag>
 class StrassenWinograd
@@ -93,7 +95,8 @@ public:
 	StrassenWinograd &operator = (const StrassenWinograd &sw)
 		{ _cutoff = sw._cutoff; _use_ip = sw._use_ip; return *this; }
 
-	/** C <- a A * B + b * C using Strassen-Winograd */
+	/** C <- a A * B + b * C using Strassen-Winograd
+	 */
 	template <class Ring, class Modules, class Matrix1, class Matrix2, class Matrix3>
 	inline Matrix3 &gemm (const Ring &R, Modules &M, const typename Ring::Element &a, const Matrix1 &A, const Matrix2 &B, const typename Ring::Element &b, Matrix3 &C)
 	{

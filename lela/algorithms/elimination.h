@@ -25,6 +25,8 @@ namespace LELA
  * This implements the naive Gaussian elimination algorithm. No
  * attempt is made to take advantage of fast matrix-multiplication,
  * cache-optimisation, or other things.
+ *
+ * \ingroup algorithms
  */
 
 template <class Ring, class Modules = AllModules<Ring> >

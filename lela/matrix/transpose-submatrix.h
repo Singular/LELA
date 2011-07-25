@@ -28,6 +28,8 @@ namespace LELA
  * 
  * This is the submatrix-type for Transpose, making it possible to
  * take submatrices of transposed matrices.
+ *
+ * \ingroup matrix
  */
   
 template <class Matrix, class Submatrix, class Trait>

@@ -28,13 +28,16 @@ namespace LELA
 /** Empty struct to be used when constructing a sparse subvector of a
  * hybrid vector with word-aligned boundaries. This version is much
  * faster.
+ *
+ * \ingroup vector
  */
 struct HybridSubvectorWordAlignedTag {};
 
 /** A subvector of a sparse vector. It provides an interface which
  * mimics that of the containing vector, but does not allow any
  * operations which modify the vector's contents.
-  \ingroup vector
+ *
+ * \ingroup vector
  */
 
 template <class Vector, class Trait>

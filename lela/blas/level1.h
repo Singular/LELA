@@ -20,7 +20,11 @@
 namespace LELA
 {
 
-/** This namespace contains the level 1 BLAS interface */
+/** This namespace contains the level 1 BLAS interface. This includes
+ * arithmetic and I/O involving only vectors.
+ *
+ * \ingroup blas
+ */
 namespace BLAS1 
 {
 
@@ -46,9 +50,13 @@ template <class Ring, class Modules, class Vector1, class Vector2>
 typename Ring::Element &dot (Context<Ring, Modules> &ctx, typename Ring::Element &res, const Vector1 &x, const Vector2 &y)
 	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res, x, y); }
 
+/// Version taking a property as input
+
 template <class Iterator, class Accessor, class Ring, class Modules, class Vector1, class Vector2>
 typename Ring::Element &dot (Context<Ring, Modules> &ctx, Property<Iterator, Accessor> res, const Vector1 &x, const Vector2 &y)
 	{ return _dot<Ring, typename Modules::Tag>::op (ctx.F, ctx.M, res.ref (), x, y); }
+
+/// Version taking a bit-vector-reference as input
 
 template <class Iterator, class Endianness, class Ring, class Modules, class Vector1, class Vector2>
 BitVectorReference<Iterator, Endianness> &dot (Context<Ring, Modules> &ctx, BitVectorReference<Iterator, Endianness> &res,

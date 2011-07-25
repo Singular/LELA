@@ -37,6 +37,8 @@ namespace LELA
  *
  * This contains parameters for computations with the modular ring
  * which depend on the element-type
+ *
+ * \ingroup ring
  */
 template <class Element>
 struct ModularTraits
@@ -281,17 +283,9 @@ struct ModularTraits<double>
 		{ if (v < 0) return v + modulus; else return v; }
 };
 
-/** @name ModularBase 
- * \brief Base for prime rings where the elements are represented by various primitive types 
- * (and their operations).
- * Normally use it's children.  This class is of interest for the developer of a new ring representation.
- *
+/** Integers modulo n
  * 
- * This parameterized ring can be used to construct any prime
- * ring. Typical use would be Modular<integer> for integers modulo a
- * large prime, Modular<long, long long> for integers modulo a wordsize
- * prime, etc. for integers modulo a half-wordsize prime.
- \ingroup ring
+ * \ingroup ring
 */
 template <class _Element>
 class Modular

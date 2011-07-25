@@ -16,7 +16,11 @@
 namespace LELA
 {
 
-/** This namespace contains the level 2 BLAS interface */
+/** This namespace contains the level 2 BLAS interface. This includes
+ * arithmetic involving both vectors and matrices.
+ *
+ * \ingroup blas
+ */
 namespace BLAS2
 {
 

@@ -30,6 +30,8 @@ namespace LELA
  *
  * A ring-implementation which uses this class must set the pointer
  * dispose whenever the element is initialised.
+ *
+ * \ingroup ring
  */
 class AbstractElement
 {

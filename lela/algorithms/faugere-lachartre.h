@@ -33,6 +33,8 @@ class EchelonForm;
  * described in J.C. Faugère's paper "Parallel Gaussian
  * Elimination for Gröbner bases computations in finite
  * fields", PASCO 2010.
+ *
+ * \ingroup algorithms
  */
 template <class Ring, class Modules = AllModules<Ring> >
 class FaugereLachartre {

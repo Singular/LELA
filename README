@@ -8,8 +8,8 @@ linear algebra. It is flexible in two respects:
 
 LELA uses C++ templates to provide the best feasible performance for
 each of the above choices. It also includes wrappers for some other
-libraries, such as M4RI (see http://m4ri.sourceforge.net/) and CBLAS
-to make use of highly specialised implementations available in certain
+libraries, such as M4RI (see http://m4ri.sagemath.org/) and CBLAS to
+make use of highly specialised implementations available in certain
 cases. All of these dependencies are optional; if the libraries are
 not present, LELA will fall back to its own routines at a cost of some
 performance.

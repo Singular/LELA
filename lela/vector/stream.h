@@ -24,12 +24,13 @@
 namespace LELA 
 {
 
-/** \brief Vector factory
-
+/** \brief Vector stream
+ *
  * This is an abstract base class that generates a sequence of vectors
  * in a generic way. Typical uses would be in tests, where the same test
  * might be run on a sequence of random vectors or on e_1, ..., e_n.
- \ingroup vector
+ *
+ * \ingroup vector
  */
 template <class _Vector>
 class VectorStream 
@@ -79,6 +80,8 @@ class VectorStream
 
 /** Constant vector factory
  * Returns the same vector repeatedly
+ *
+ * \ingroup vector
  */
 template <class _Vector>
 class ConstantVectorStream : public VectorStream<_Vector>
@@ -133,6 +136,8 @@ class ConstantVectorStream : public VectorStream<_Vector>
 
 /** Random dense vector stream
  * Generates a sequence of random dense vectors over a given ring
+ *
+ * \ingroup vector
  */
 template <class Ring, class _Vector = typename LELA::Vector<Ring>::Dense, class RandIter = typename Ring::RandIter, class Trait = typename VectorTraits<Ring, _Vector>::RepresentationType>
 class RandomDenseStream : public VectorStream<_Vector>
@@ -228,6 +233,8 @@ class RandomDenseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Dens
 
 /** Random sparse vector stream
  * Generates a sequence of random sparse vectors over a given ring
+ *
+ * \ingroup vector
  */
 template <class Ring, class _Vector = typename LELA::Vector<Ring>::Sparse, class RandIter = typename Ring::RandIter, class Trait = typename VectorTraits<Ring, _Vector>::RepresentationType>
 class RandomSparseStream : public VectorStream<_Vector>
@@ -500,6 +507,8 @@ class RandomSparseStream<Ring, _Vector, RandIter, VectorRepresentationTypes::Hyb
  * generated in a way which is more likely to involve word-gaps.
  *
  * This is only valid for hybrid vectors.
+ *
+ * \ingroup vector
  */
 template <class Ring, class _Vector = typename LELA::Vector<Ring>::Hybrid, class RandIter = typename Ring::RandIter>
 class RandomHybridStream : public VectorStream<_Vector>
@@ -585,6 +594,8 @@ class RandomHybridStream : public VectorStream<_Vector>
  * 
  * This class is generic with respect to the underlying vector
  * representation.
+ *
+ * \ingroup vector
  */
 
 template <class Ring, class _Vector, class Trait = typename VectorTraits<Ring, _Vector>::RepresentationType>

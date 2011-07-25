@@ -23,7 +23,10 @@
 namespace LELA
 {
 
-/** Solution for computing the echelon-form of a matrix */
+/** Solution for computing the echelon-form of a matrix
+ *
+ * \ingroup solutions
+ */
 template <class Ring, class Modules = AllModules<Ring> >
 class EchelonForm
 {

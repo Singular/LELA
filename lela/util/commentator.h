@@ -82,12 +82,12 @@ namespace LELA
 class MessageClass;
 class Commentator;
 
-// \class ActivityState commentator.h lela/util/commentator.h
-/** 
- * \brief used by commentator
-
+/** Activity-state used by comentator
+ *
  * This stores a snapshot of the state of the commentator's activity
  * stack, so it may be restored after an exception is thrown
+ *
+ * \ingroup util
  */
 class ActivityState
 {
@@ -104,7 +104,7 @@ private:
 	void *_act;
 };
 
-/** * \brief give information to user during runtime
+/** Class to output runtime-information to user
     \ingroup util
 
     * This object is used for reporting information about a computation to
@@ -594,6 +594,8 @@ protected:
 
 /** Message class object
  * This object encapsulates the configuration of a given message class
+ *
+ * \ingroup util
  */
 class MessageClass
 {

@@ -21,6 +21,8 @@ namespace LELA
  *
  * Forward iterator which iterates through all entries in the
  * matrix. Values are entries.
+ *
+ * \ingroup matrix
  */
 template <class Iterator, class VectorTrait>
 class MatrixRawIterator;
@@ -30,6 +32,8 @@ class MatrixRawIterator;
  * Forward iterator which iterates through all entries in the
  * matrix. Values are STL-pairs of row- and column-index of
  * corresponding entry.
+ *
+ * \ingroup matrix
  */
 template <class Iterator, class VectorTrait, bool Direction>
 class MatrixRawIndexedIterator;

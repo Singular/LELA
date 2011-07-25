@@ -35,7 +35,7 @@ template <> struct TransposeStorageType<MatrixStorageTypes::DenseTranspose> { ty
 template <> struct TransposeStorageType<MatrixStorageTypes::M4RI> { typedef MatrixStorageTypes::M4RITranspose StorageType; };
 template <> struct TransposeStorageType<MatrixStorageTypes::M4RITranspose> { typedef MatrixStorageTypes::Generic StorageType; };
 
-/** Matrix transpose
+/** Transpose of a matrix
  * 
  * This class takes a matrix meeting the @ref{DenseMatrixBase} archetype and
  * switches the row and column iterators, giving the transpose of the original
@@ -60,6 +60,8 @@ template <> struct TransposeStorageType<MatrixStorageTypes::M4RITranspose> { typ
  * the matrix expected and the input will expect the transpose of the matrix
  * given. Thus, it is not recommended to use TransposeMatrix for reading and
  * writing matrices, except for testing purposes.
+ *
+ * \ingroup matrix
  */
   
 template <class Matrix, class Trait = typename Matrix::IteratorType>

@@ -26,11 +26,13 @@
 namespace LELA
 {
 
-/** Abstract ring
+/** Ring-interface
  *
  * This class defines the ring-interface. It is an abstract base-class
  * from which rings may be derived, though this is not required
  * provided that a ring satisfy this interface.
+ *
+ * \ingroup ring
  */
 template <class _Element>
 class RingInterface
@@ -38,7 +40,7 @@ class RingInterface
 public:
 
 	/** @name Common Object Interface for a LELA Ring.
-	 * These methods are required of all \ref{LELA} rings.
+	 * These methods are required of all LELA rings.
 	 */
 	//@{
     
@@ -113,9 +115,11 @@ public:
     
 	/** @name Arithmetic Operations 
 	 * x <- y op z; x <- op y
-	 * These operations require all elements, including x, to be initialized
-	 * before the operation is called.  Uninitialized ring elements will
-	 * give undefined results.
+	 *
+	 * These operations require that the inputs y and z be
+	 * initialised before the operation is called. Uninitialised
+	 * ring elements will give undefined results. The destination
+	 * x need not have been previously initialised.
 	 */
 	//@{
     
@@ -412,7 +416,10 @@ public:
 	 */
 	//@{
 
+	/// Increment an element's reference-count
 	virtual void ref (Element &x) const {}
+
+	/// Decrement an element's reference-count and dispose of it if necessary
 	virtual void unref (Element &x) const {}
 	
 	//@}

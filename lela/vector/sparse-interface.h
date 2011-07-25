@@ -29,6 +29,8 @@ namespace LELA
  * own.
  *
  * When feasible, suggested implementations of methods are provided.
+ *
+ * \ingroup vector
  */
 class SparseVectorInterface
 {

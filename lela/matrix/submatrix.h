@@ -29,16 +29,30 @@ namespace LELA
 template <class Matrix, class AlignedTrait, class Trait>
 class Submatrix;
 
-/// Tags to show whether the submatrix is aligned or not
+/// Tag which indicates that the submatrix is not aligned
+///
+/// \ingroup matrix
 struct ArbitrarySubmatrixTag {};
+
+/// Tag which indicates that the submatrix is aligned
+///
+/// \ingroup matrix
 struct AlignedSubmatrixTag {};
 
-/// Tags to show whether an iterator is const or not
+/// Tag which indicates that the submatrix is const
+///
+/// \ingroup matrix
 struct RCConstIteratorTag {};
+
+/// Tag which indicates that the submatrix is mutable
+///
+/// \ingroup matrix
 struct RCMutableIteratorTag {};
 
 /// Structure to select the type of submatrix to be used depending on
 /// whether the parent submatrix is aligned or not
+///
+/// \ingroup matrix
 template <class Matrix, class AlignedTrait>
 struct SubSubmatrixTraits
 {
@@ -54,6 +68,8 @@ struct SubSubmatrixTraits<Matrix, AlignedSubmatrixTag>
 };
 
 /// Structure to select which subvector of a row to take
+///
+/// \ingroup matrix
 template <class Row, class Element, class AlignedTrait, class ConstTrait>
 struct SubmatrixRowTraits
 	{ typedef typename ElementVectorTraits<Element, Row>::SubvectorType SubvectorType; };
@@ -199,8 +215,14 @@ private:
  * If defining one's own matrix-type, this class may be used in the
  * definition of the above submatrix-types. See e.g. SparseMatrix for
  * an example.
-
-\ingroup matrix
+ *
+ * @param _Matrix Parent matrix-type
+ *
+ * @param AlignedTrait Indicates whether the submatrix is aligned or
+ * not. Should be ArbitrarySubmatrixTag for arbitrary submatrices or
+ * AlignedSubmatrixTag for aligned submatrices.
+ *
+ * \ingroup matrix
  */
 template<class _Matrix, class AlignedTrait = ArbitrarySubmatrixTag, class Trait = typename _Matrix::IteratorType>
 class Submatrix

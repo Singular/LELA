@@ -14,6 +14,8 @@ namespace LELA {
  * These tags indicate which iterators a matrix supports: generic
  * (unspecified), row-iterators only, column-iterators only, or both
  * row- and column-iterators.
+ *
+ * \ingroup matrix
  */
 
 namespace MatrixIteratorTypes
@@ -28,33 +30,52 @@ namespace MatrixIteratorTypes
  *
  * These tags indicate how a matrix is stored.
  *
- * Generic means that no assumptions are made about storage. This can
- * be used for "virtual" matrices which do not physically exist in
- * memory.
- *
- * Rows means that the matrix maintains a vector of row-vectors.
- *
- * Dense means that the matrix is stored as an array of elements. The
- * matrix should provide the method disp () which indicates the
- * displacement from one row to the next in the array.
- *
- * DenseTranspose is similar to dense, but the matrix is stored in
- * column-major order rather than row-major order, i.e. it is the
- * transpose of an ordinary dense matrix.
- *
- * M4RI means that the matrix is a wrapper for a matrix in
- * libm4ri. This is only meaningful if libm4ri is enabled.
- *
- * M4RITranspose refers to the transpose of a M4RI-matrix. This is
- * only meaningful if libm4ri is enabled.
+ * \ingroup matrix
  */
 namespace MatrixStorageTypes
 {
+	/** Unspecified storage-type
+	 *
+	 * Generic means that no assumptions are made about storage. This can
+	 * be used for "virtual" matrices which do not physically exist in
+	 * memory.
+	 */
 	struct Generic {};
+
+	/** Storage by rows
+	 *
+	 * Rows means that the matrix maintains a vector of row-vectors.
+	 */
 	struct Rows : public Generic {};
+
+	/** Dense storage
+	 *
+	 * Dense means that the matrix is stored as an array of elements. The
+	 * matrix should provide the method disp () which indicates the
+	 * displacement from one row to the next in the array.
+	 */
 	struct Dense : public Generic {};
+
+	/** Transposed dense storage
+	 *
+	 * DenseTranspose is similar to dense, but the matrix is stored in
+	 * column-major order rather than row-major order, i.e. it is the
+	 * transpose of an ordinary dense matrix.
+	 */
 	struct DenseTranspose : public Generic {};
+
+	/** M4RI matrix
+	 *
+	 * M4RI means that the matrix is a wrapper for a matrix in
+	 * libm4ri. This is only meaningful if libm4ri is enabled.
+	 */
 	struct M4RI : public Generic {};
+
+	/** Transposed M4RI matrix
+	 *
+	 * M4RITranspose refers to the transpose of a M4RI-matrix. This is
+	 * only meaningful if libm4ri is enabled.
+	 */
 	struct M4RITranspose : public Generic {};
 }
 

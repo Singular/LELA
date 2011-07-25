@@ -591,7 +591,49 @@ WARN_LOGFILE           = doxy.debug
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = ../lela
+INPUT                  = reference.doxy \
+		         ../lela/ring/interface.h \
+			 ../lela/element/abstract.h \
+		         ../lela/ring/integers.h \
+			 ../lela/ring/rationals.h \
+			 ../lela/element/rational-element.h \
+			 ../lela/ring/modular.h \
+			 ../lela/ring/gf2.h \
+			 ../lela/ring/type-wrapper.h \
+			 ../lela/vector/traits.h \
+			 ../lela/vector/dense-interface.h \
+			 ../lela/vector/sparse-interface.h \
+			 ../lela/vector/dense01-interface.h \
+			 ../lela/vector/sparse01-interface.h \
+			 ../lela/vector/hybrid01-interface.h \
+			 ../lela/vector/sparse.h \
+			 ../lela/vector/hybrid.h \
+			 ../lela/vector/subvector.h \
+			 ../lela/vector/sparse-subvector.h \
+			 ../lela/vector/stream.h \
+			 ../lela/matrix/traits.h \
+			 ../lela/matrix/interface.h \
+			 ../lela/matrix/dense.h \
+			 ../lela/matrix/sparse.h \
+			 ../lela/matrix/submatrix.h \
+			 ../lela/matrix/transpose.h \
+			 ../lela/matrix/transpose-submatrix.h \
+			 ../lela/matrix/raw-iterator.h \
+			 ../lela/matrix/io.h \
+			 ../lela/blas/context.h \
+			 ../lela/blas/level1.h \
+			 ../lela/blas/level2.h \
+			 ../lela/blas/level3.h \
+			 ../lela/algorithms/strassen-winograd.h \
+			 ../lela/algorithms/elimination.h \
+			 ../lela/algorithms/gauss-jordan.h \
+			 ../lela/algorithms/faugere-lachartre.h \
+			 ../lela/solutions/echelon-form.h \
+			 ../lela/util/debug.h \
+			 ../lela/util/error.h \
+			 ../lela/util/commentator.h \
+			 ../lela/util/timer.h \
+			 ../lela/util/splicer.h
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -608,19 +650,19 @@ INPUT_ENCODING         = UTF-8
 # *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx
 # *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.py *.f90
 
-FILE_PATTERNS          = *.h *.doxy
+FILE_PATTERNS          = 
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
 # If left blank NO is used.
 
-RECURSIVE              = YES
+RECURSIVE              = 
 
 # The EXCLUDE tag can be used to specify files and/or directories that should
 # excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = ../.git
+EXCLUDE                = 
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded
@@ -634,7 +676,7 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = .git/*
+EXCLUDE_PATTERNS       = 
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -784,7 +826,7 @@ IGNORE_PREFIX          =
 # If the GENERATE_HTML tag is set to YES (the default) Doxygen will
 # generate HTML output.
 
-GENERATE_HTML          = NO
+GENERATE_HTML          = YES
 
 # The HTML_OUTPUT tag is used to specify where the HTML docs will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
@@ -1252,7 +1294,7 @@ MAN_LINKS              = NO
 # generate an XML file that captures the structure of
 # the code including all documentation.
 
-GENERATE_XML           = YES
+GENERATE_XML           = NO
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be

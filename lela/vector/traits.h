@@ -24,122 +24,173 @@ namespace LELA
 /** @name Vector traits.
  * Vector traits are use to allow template specialization to choose different
  * code for dense and sparse vectors.
-	\ingroup vector
+ *
+ * \ingroup vector
  */
 //@{
 
 /** \brief Vector-representation-types.
  *
+ * The structures in this namespace identify the interface a vector
+ * provides to LELA. There are in total five supported types.
+ *
  * Over general rings there are two of vector-representations: dense
  * and sparse.
- *
- * A dense vector must support the interface of std::vector with the
- * exception of operations which invalidate iterators (e.g. insert,
- * erase, push_back, and so on). A dense vector exists in the free
- * module over its ring defined by its size. Thus it must always be
- * allocated to the correct size before any operation is performed on
- * it.
- *
- * A sparse vector must support an interface equivalent to
- * std::vector<std::pair<index_type, element_type> >, a vector of
- * index-entry pairs. Here index_type is an integral type giving the
- * index of a given entry and element_type is the type of the
- * underlying field-element. Indices must be in strictly ascending
- * order and zero is not allowed as the element in a pair (such an
- * entry should be removed from the vector). The class @ref
- * SparseVector implements this interface.
- *
- * Note that the module in which a sparse vector exists is a priori
- * undefined, since arbitrary entries may be added.
  *
  * Over GF2 there are three representation-types: dense, sparse, and
  * hybrid.
  *
- * A dense 0-1 vector is similar to that over general rings with
- * the addition of a type word_iterator which iterates over entire
- * words (of type word_type -- usually uint64 -- which must be a
- * typedef in the vector) in the vector so that operations can be done
- * in parallel. It must correspondingly support the methods word_begin
- * and word_end. The class @ref BitVector implements this interface.
- *
- * The word_iterator should iterate up to the *penultimate* word --
- * not the last word. The vector should provide the method back_word
- * () which gives a reference to the last word. This is to improve
- * performance of word-iterators of bit-subvectors.
- *
- * A sparse 0-1 vector must support the interface of std::vector,
- * treated as a vector of indices, which must be sorted in strictly
- * ascending order. It must support the full interface, including
- * operations which invalidate iterators.
- *
- * A hybrid 0-1 vector must support the interface of
- * std::vector<std::pair<index_type, word_type> >, a vector of
- * index-word pairs. The vector-entries are divided into blocks, each
- * one the size of a word (of type word_type). The index is then the
- * index of the block and the word is the block itself. The word in a
- * pair must not be identically zero (such a pair should be removed
- * from the vector). Indices must be in strictly ascending order.
- *
- * In order that subvectors of hybrid vectors work properly, it must
- * always be possible to dereference an initialised iterator on a
- * hybrid vector, even if the iterator is initialised with end () and
- * even if the vector is empty. Dereferencing end () should result in
- * a pair consisting of the previous index plus one and the zero
- * word. This can be achieved by placing a sentry at the end of the
- * vector.
- *
- * Dense and hybrid 0-1 vectors must also define a type Endianness,
- * which indicates the order of entries in a word. The classes @ref
- * BigEndian<word_type> and @ref LittleEndian<word_type> define the
- * conventions respectively that the vector e_i corresponds to the
- * word with value 2^(N-i), where N is the number of bits in a word,
- * and that the vector e_i corresponds to the word with value 2^i.
+ * \ingroup vector
  */
 namespace VectorRepresentationTypes
 {
+	/// Unspecified representation-type
 	struct Generic {};
+
+	/** Dense vector
+	 *
+	 * A dense vector must support the interface of std::vector with the
+	 * exception of operations which invalidate iterators (e.g. insert,
+	 * erase, push_back, and so on). A dense vector exists in the free
+	 * module over its ring defined by its size. Thus it must always be
+	 * allocated to the correct size before any operation is performed on
+	 * it.
+	 */
 	struct Dense : public Generic {};
+
+	/** Sparse vector
+	 *
+	 * A sparse vector must support an interface equivalent to
+	 * std::vector<std::pair<index_type, element_type> >, a vector of
+	 * index-entry pairs. Here index_type is an integral type giving the
+	 * index of a given entry and element_type is the type of the
+	 * underlying ring-element. Indices must be in strictly ascending
+	 * order and zero is not allowed as the element in a pair (such an
+	 * entry should be removed from the vector). The class @ref
+	 * SparseVector implements this interface.
+	 *
+	 * Note that the module in which a sparse vector exists is a priori
+	 * undefined, since arbitrary entries may be added.
+	 */
 	struct Sparse : public Generic {};
+
+	/** Dense 0-1 vector
+	 *
+	 * A dense 0-1 vector is similar to that over general rings with
+	 * the addition of a type word_iterator which iterates over entire
+	 * words (of type word_type -- usually uint64 -- which must be a
+	 * typedef in the vector) in the vector so that operations can be done
+	 * in parallel. It must correspondingly support the methods word_begin
+	 * and word_end. The class @ref BitVector implements this interface.
+	 *
+	 * The word_iterator should iterate up to the *penultimate* word --
+	 * not the last word. The vector should provide the method back_word
+	 * () which gives a reference to the last word. This is to improve
+	 * performance of word-iterators of bit-subvectors.
+	 *
+	 * Dense and hybrid 0-1 vectors must also define a type Endianness,
+	 * which indicates the order of entries in a word. The classes @ref
+	 * BigEndian<word_type> and @ref LittleEndian<word_type> define the
+	 * conventions respectively that the vector e_i corresponds to the
+	 * word with value 2^(N-i), where N is the number of bits in a word,
+	 * and that the vector e_i corresponds to the word with value 2^i.
+	 */
 	struct Dense01 : public Generic {};
+
+	/** Sparse 0-1 vector
+	 *
+	 *
+	 * A sparse 0-1 vector must support the interface of std::vector,
+	 * treated as a vector of indices, which must be sorted in strictly
+	 * ascending order. It must support the full interface, including
+	 * operations which invalidate iterators.
+	 */
 	struct Sparse01 : public Generic {};
+
+	/** Hybrid 0-1 vector
+	 *
+	 * A hybrid 0-1 vector must support the interface of
+	 * std::vector<std::pair<index_type, word_type> >, a vector of
+	 * index-word pairs. The vector-entries are divided into blocks, each
+	 * one the size of a word (of type word_type). The index is then the
+	 * index of the block and the word is the block itself. The word in a
+	 * pair must not be identically zero (such a pair should be removed
+	 * from the vector). Indices must be in strictly ascending order.
+	 *
+	 * In order that subvectors of hybrid vectors work properly, it must
+	 * always be possible to dereference an initialised iterator on a
+	 * hybrid vector, even if the iterator is initialised with end () and
+	 * even if the vector is empty. Dereferencing end () should result in
+	 * a pair consisting of the previous index plus one and the zero
+	 * word. This can be achieved by placing a sentry at the end of the
+	 * vector.
+	 *
+	 * Dense and hybrid 0-1 vectors must also define a type Endianness,
+	 * which indicates the order of entries in a word. The classes @ref
+	 * BigEndian<word_type> and @ref LittleEndian<word_type> define the
+	 * conventions respectively that the vector e_i corresponds to the
+	 * word with value 2^(N-i), where N is the number of bits in a word,
+	 * and that the vector e_i corresponds to the word with value 2^i.
+	 */
 	struct Hybrid01 : public Generic {};
 };
 
 /** Vector storage-types
  *
- * The tags in this namespace indicate the underlying storage of a
- * vector. They are useful when interfacing with lower-level
+ * The tags in this namespace indicate how a vector is actually stored
+ * in memory. They are useful when interfacing with lower-level
  * libraries.
  *
  * There are three storage-types: generic, transformed, and real.
  *
- * Generic indicates that no assumptions at all should be made about
- * the underlying storage of the vector. This is useful if the code
- * using this library has created a virtual vector which does not
- * correspond directly to one in memory.
- *
- * Transformed (meaningful for sparse and hybrid 0-1 vectors only)
- * indicates that a vector has undergone a transformation from a pair
- * of vectors to a vector of pairs.
- *
- * Real means that the vector represents a true array in memory. A
- * pointer to the beginning of the vector may then be attained by
- * dereferencing and then taking the address of the iterator begin ().
+ * \ingroup vector
  */
 namespace VectorStorageTypes
 {
+	/** Unspecified storage-type
+	 *
+	 * Generic indicates that no assumptions at all should be made about
+	 * the underlying storage of the vector. This is useful if the code
+	 * using this library has created a virtual vector which does not
+	 * correspond directly to one in memory.
+	 */
 	struct Generic {};
+
+	/** Transformed storage-type
+	 *
+	 * Transformed (meaningful for sparse and hybrid 0-1 vectors only)
+	 * indicates that a vector has undergone a transformation from a pair
+	 * of vectors to a vector of pairs.
+	 */
 	struct Transformed : public Generic {};
+
+	/** Actual array in memory
+	 *
+	 * Real means that the vector represents a true array in memory. A
+	 * pointer to the beginning of the vector may then be attained by
+	 * dereferencing and then taking the address of the iterator begin ().
+	 */
 	struct Real : public Generic {};
 }
 
-/** Vector traits template structure.
+// Forward-declaration
+template <class Element, class Vector> class ElementVectorTraits;
+
+/** Vector traits
  *
  * This structure defines information about a vector on which methods
  * may specialise and from which they may generically derive
  * information.
+ *
+ * Because vectors over different rings with different
+ * representation-types may nevertheless use the same underlying
+ * C++-type (e.g. dense vectors over Modular<uint32> and sparse 0-1
+ * vectors), it is necessary to parametrise this class by ring-type.
+ *
+ * \ingroup vector
  */
-template <class Vector> struct DefaultVectorTraits
+template <class Ring, class Vector>
+struct VectorTraits
 {
 	/** Representation-type
 	 *
@@ -147,20 +198,20 @@ template <class Vector> struct DefaultVectorTraits
 	 * typedef methods which vary on the representation-type
 	 * should specialise.
 	 */
-	typedef typename Vector::RepresentationType RepresentationType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::RepresentationType RepresentationType;
 
 	/** Storage-type
 	 *
 	 * See @ref VectorStorageTypes for definitions.
 	 */
-	typedef typename Vector::StorageType StorageType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::StorageType StorageType;
 
 	/** Container-type
 	 *
 	 * This defines a vector which can be declared in generic code
 	 * with the same representation-type as Vector.
 	 */
-	typedef typename Vector::ContainerType ContainerType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ContainerType ContainerType;
 
 	/** Subvector
 	 *
@@ -168,13 +219,13 @@ template <class Vector> struct DefaultVectorTraits
 	 * constructed in generic code. It must support a constructor
 	 * SubvectorType (v, start_index, size)
 	 */
-	typedef typename Vector::SubvectorType SubvectorType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::SubvectorType SubvectorType;
 
 	/** Const subvector
 	 *
 	 * Const version of @ref Subvector
 	 */
-	typedef typename Vector::ConstSubvectorType ConstSubvectorType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ConstSubvectorType ConstSubvectorType;
 
 	/** Aligned subvector
 	 *
@@ -186,13 +237,13 @@ template <class Vector> struct DefaultVectorTraits
 	 * This is useful for recursive algorithms with some control
 	 * over where a vector is to be split.
 	 */
-	typedef typename Vector::AlignedSubvectorType AlignedSubvectorType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::AlignedSubvectorType AlignedSubvectorType;
 
 	/** Const aligned subvector
 	 *
 	 * Const version of @ref AlignedSubvector
 	 */
-	typedef typename Vector::ConstAlignedSubvectorType ConstAlignedSubvectorType;
+	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ConstAlignedSubvectorType ConstAlignedSubvectorType;
 
 	/** Alignment factor
 	 *
@@ -200,6 +251,26 @@ template <class Vector> struct DefaultVectorTraits
 	 * AlignedSubvectorType must be an integral multiple of this
 	 * value.
 	 */
+	static const int align = ElementVectorTraits<typename Ring::Element, Vector>::align;
+};
+
+/** Default vector-traits
+ *
+ * Specialise this class to specify the vector-traits for a
+ * vector-type which does not already contain the required tags and
+ * which is defined over a general ring (i.e. not GF(2)).
+ *
+ * \ingroup vector
+ */
+template <class Vector> struct DefaultVectorTraits
+{
+	typedef typename Vector::RepresentationType RepresentationType;
+	typedef typename Vector::StorageType StorageType;
+	typedef typename Vector::ContainerType ContainerType;
+	typedef typename Vector::SubvectorType SubvectorType;
+	typedef typename Vector::ConstSubvectorType ConstSubvectorType;
+	typedef typename Vector::AlignedSubvectorType AlignedSubvectorType;
+	typedef typename Vector::ConstAlignedSubvectorType ConstAlignedSubvectorType;
 	static const int align = 1;
 };
 
@@ -209,7 +280,9 @@ template <class Vector> struct DefaultVectorTraits
  * GF2.
  *
  * This is required because sparse vectors over GF2 and dense vectors
- * over a field with element-type unsigned int have the same type
+ * over a ring with element-type unsigned int have the same type
+ *
+ * \ingroup vector
  */
 template <class Vector>
 struct GF2VectorTraits
@@ -224,8 +297,11 @@ struct GF2VectorTraits
 	static const int align = Vector::align;
 };
 
-/** Version which takes the field-element as a hint as to which
- * version of the above to use (useful when the field is not available)
+/** Similar to VectorTraits, but is parametrised on the element-type
+ * rather than the ring. Used in contexts where the ring is not
+ * available.
+ *
+ * \ingroup vector
  */
 template <class Element, class Vector>
 struct ElementVectorTraits
@@ -240,22 +316,7 @@ struct ElementVectorTraits
 	static const int align = DefaultVectorTraits<Vector>::align;
 };
 
-/** Version using the field rather than its element-type
- */
-template <class Ring, class Vector>
-struct VectorTraits
-{
-	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::RepresentationType RepresentationType;
-	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::StorageType StorageType;
-	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ContainerType ContainerType;
-	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::SubvectorType SubvectorType;
-	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ConstSubvectorType ConstSubvectorType;
-	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::AlignedSubvectorType AlignedSubvectorType;
-	typedef typename ElementVectorTraits<typename Ring::Element, Vector>::ConstAlignedSubvectorType ConstAlignedSubvectorType;
-	static const int align = ElementVectorTraits<typename Ring::Element, Vector>::align;
-};
-
-/** Specialisation of ElementVectorTraits for vectors over GF2 */
+// Specialisation of ElementVectorTraits for vectors over GF2
 template <class Vector>
 struct ElementVectorTraits<bool, Vector>
 {
@@ -269,7 +330,10 @@ struct ElementVectorTraits<bool, Vector>
 	static const int align = GF2VectorTraits<Vector>::align;
 };
 
-/** Utility-functions for vectors */
+/** Utility-functions for vectors
+ *
+ * \ingroup vector
+ */
 
 class VectorUtils
 {
@@ -641,27 +705,30 @@ struct GF2VectorTraits<const std::vector<index_type> >
 	static const int align = 1;
 };
 
-// Forward-declaration
-
 /** Canonical vector types
  *
  * This class includes some typedefs that avoid the necessity to typedef
  * the vector type whenever it is used. In a typical case, one would say
- * Vector<Field>::Dense for a dense vector and Vector<Field>::Sparse for
+ * Vector<Ring>::Dense for a dense vector and Vector<Ring>::Sparse for
  * a sparse vector.
+ *
+ * \ingroup vector
  */
 
+template <class Ring>
+struct Vector
+{
+	typedef typename Ring::Element Element;
+	typedef std::vector<Element> Dense;
+	typedef SparseVector<Element> Sparse;
+};
+
+// Version parametrised only by element
 template <class Element>
 struct RawVector 
 {
 	typedef std::vector<Element> Dense;
 	typedef SparseVector<Element> Sparse;
-};
-
-template <class Ring>
-struct Vector : public RawVector<typename Ring::Element>
-{
-	typedef typename Ring::Element Element;
 };
 
 //@} Vector traits

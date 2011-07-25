@@ -28,6 +28,8 @@ template <class Ring> struct DefaultCutoff { static const size_t cutoff = 1; };
 template <> struct DefaultCutoff<GF2> { static const size_t cutoff = WordTraits<Vector<GF2>::Hybrid::word_type>::bits; };
 
 /** Implementation of asymptotically fast Gauss-Jordan elimination
+ *
+ * \ingroup algorithms
  */
 template <class Ring, class Modules = AllModules<Ring> >
 class GaussJordan

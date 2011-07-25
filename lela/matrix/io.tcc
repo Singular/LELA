@@ -16,6 +16,7 @@
 #include <regex.h>
 
 #include "lela/lela-config.h"
+#include "lela/util/error.h"
 #include "lela/util/commentator.h"
 #include "lela/matrix/io.h"
 #include "lela/blas/level3.h"

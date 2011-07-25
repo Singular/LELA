@@ -302,6 +302,16 @@ struct RawVector<bool>
 	typedef HybridVector<DefaultEndianness<uint64>, uint16, uint64> Hybrid;
 };
 
+template <>
+struct Vector<GF2>
+{
+    public:
+	typedef bool Element;
+	typedef BitVector<DefaultEndianness<uint64> > Dense;
+	typedef std::vector<uint32> Sparse;
+	typedef HybridVector<DefaultEndianness<uint64>, uint16, uint64> Hybrid;
+};
+
 // Calculation-modules
 
 #ifdef __LELA_HAVE_M4RI

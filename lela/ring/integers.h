@@ -29,6 +29,8 @@ namespace LELA
 class IntegerRandIter;
 
 /** Ring of integers
+ *
+ * \ingroup ring
  */
 
 class Integers : RingInterface<integer>

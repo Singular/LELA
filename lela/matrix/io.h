@@ -23,7 +23,14 @@
 namespace LELA
 {
 
+/// @name Matrix I/O support
+///
+/// \ingroup matrix
+//@{
+
 /// File-formats for matrix-output
+///
+/// \ingroup matrix
 enum FileFormatTag {
 	FORMAT_DETECT, FORMAT_UNKNOWN, FORMAT_TURNER, FORMAT_ONE_BASED, FORMAT_DUMAS, FORMAT_MAPLE, FORMAT_MATLAB, FORMAT_SAGE, FORMAT_PRETTY,
 #ifdef __LELA_HAVE_LIBPNG
@@ -31,16 +38,19 @@ enum FileFormatTag {
 #endif // __LELA_HAVE_LIBPNG
 };
 
-/// Exception thrown when the format cannot be detected
+/// Exception thrown when the data-format of a matrix for reading cannot be detected
+///
+/// \ingroup matrix
 class UnrecognisedFormat {};
 
-/// Exception class for invalid matrix input
+/// Exception class for invalid input when reading a matrix
+///
+/// \ingroup matrix
 class InvalidMatrixInput {};
 
-/// Exception class for functions which haven't been implemented
-class NotImplemented {};
-
 /// Class to read a matrix from an istream
+///
+/// \ingroup matrix
 template <class Ring>
 class MatrixReader {
 	const Ring &_F;
@@ -156,6 +166,9 @@ private:
 	void appendEntrySpecialised (Vector &v, size_t index, const typename Ring::Element &a, VectorRepresentationTypes::Hybrid01) const;
 };
 
+/// Class for writing a matrix to a stream
+///
+/// \ingroup matrix
 template <class Ring>
 class MatrixWriter {
 	const Ring &_F;
@@ -230,6 +243,8 @@ private:
 		{ return writePNGSpecialised (is, A, typename Matrix::IteratorType ()); }
 #endif // __LELA_HAVE_LIBPNG
 };
+
+//@}
 
 } // namespace LELA
 

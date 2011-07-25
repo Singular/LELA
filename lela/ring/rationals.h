@@ -29,6 +29,8 @@ namespace LELA
 class RationalRandIter;
 
 /** Field of rational numbers
+ *
+ * \ingroup ring
  */
 
 class Rationals : public RingInterface<RationalElement>

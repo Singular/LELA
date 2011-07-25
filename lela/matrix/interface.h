@@ -33,6 +33,8 @@ namespace LELA
  *
  * This defines the interface which matrices should satisfy. It is
  * provided for documentation only.
+ *
+ * \ingroup matrix
  */
   
 template <class _Element>

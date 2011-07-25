@@ -189,6 +189,8 @@ private:
  * This class acts as a wrapper around a pair of vectors -- the first
  * for column-indices, the second for entries -- making it appear to
  * be a vector of (index, entry)-pairs.
+ *
+ * \ingroup vector
  */
 template <class IndexIterator, class ElementIterator, class ConstIndexIterator = IndexIterator, class ConstElementIterator = ElementIterator>
 class ConstSparseVector
@@ -296,6 +298,8 @@ protected:
  *
  * This class represents a sparse vector (stored as a pair of vectors)
  * as a vector of (column-index, entry)-pairs.
+ *
+ * \ingroup vector
  */
 template <class Element, class IndexVector, class ElementVector> // N.B. default argument in forward-declaration in traits.h
 class SparseVector

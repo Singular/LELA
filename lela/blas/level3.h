@@ -16,7 +16,11 @@
 namespace LELA
 {
 
-/** This namespace contains the level 3 BLAS interface */
+/** This namespace contains the level 3 BLAS interface. This includes
+ * arithmetic and I/O involving only matrices.
+ *
+ * \ingroup blas
+ */
 namespace BLAS3
 {
 

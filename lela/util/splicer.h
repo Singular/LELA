@@ -15,7 +15,10 @@
 namespace LELA
 {
 
-/** Class representing a horizontal or vertical block for the splicer. */
+/** Class representing a horizontal or vertical block for the splicer.
+ *
+ * \ingroup util
+ */
 class Block {
 private:
 
@@ -95,6 +98,8 @@ public:
  * method @ref check checks whether this is so and reports
  * problems. The method @ref removeGaps searches for gaps in the
  * horizontal and vertical blocks and removes them.
+ *
+ * \ingroup util
  */
 class Splicer {
 	std::vector<Block> _vert_blocks, _horiz_blocks;

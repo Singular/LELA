@@ -46,6 +46,10 @@
 namespace LELA
 {
 
+/** Exception thrown when a precondition-check fails
+ *
+ * \ingroup util
+ */
 class PreconditionFailed //: public LELAError BB: otherwise,  error.h:39 segfaults
 {
 	static std::ostream *_errorStream;
