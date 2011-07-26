@@ -37,6 +37,9 @@ bool testMul (Context<Ring, Modules> &ctx, const Matrix1 &A, const Matrix2 &B, c
 
 	typename Matrix3::ContainerType Cp1 (C.rowdim (), C.coldim ()), Cp2 (C.rowdim (), C.coldim ());
 
+	BLAS3::scal (ctx, ctx.F.zero (), Cp1);
+	BLAS3::scal (ctx, ctx.F.zero (), Cp2);
+
 	reportUI << "A = " << std::endl;
 	BLAS3::write (ctx, reportUI, A);
 

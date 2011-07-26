@@ -72,6 +72,8 @@ bool testGaussTransform (const Ring &F, size_t m, size_t n, bool reduce)
 	report << "PA = " << std::endl;
 	BLAS3::write (ctx, report, A);
 
+	BLAS3::scal (ctx, ctx.F.zero (), UPA);
+
 	BLAS3::gemm (ctx, F.one (), U, A, F.zero (), UPA);
 
 	report << "UPA = " << std::endl;
