@@ -348,6 +348,7 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		BLAS3::_copy<Ring, ParentTag>::op (R, M, B12, X2);
 		BLAS3::_axpy<Ring, ParentTag>::op (R, M, R.minusOne (), B11, X2);
 
+		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.zero (), X3);
 		SW_TIMER_STOP(other);
 
 		SW_TIMER_START(mul1);
@@ -370,7 +371,6 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		SW_TIMER_STOP(other);
 
 		SW_TIMER_START(mul2);
-		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.zero (), X3);
 		mul (R, M, a, A11, B11, X3);
 		SW_TIMER_STOP(mul2);
 
