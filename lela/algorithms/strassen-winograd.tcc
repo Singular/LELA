@@ -370,6 +370,7 @@ Matrix3 &StrassenWinograd<ParentTag>::addmul (const Ring &R, Modules &M, const t
 		SW_TIMER_STOP(other);
 
 		SW_TIMER_START(mul2);
+		BLAS3::_scal<Ring, ParentTag>::op (R, M, R.zero (), X3);
 		mul (R, M, a, A11, B11, X3);
 		SW_TIMER_STOP(mul2);
 
