@@ -211,6 +211,8 @@ static bool testGemmCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	DenseMatrix<typename Field::Element> C (A.rowdim (), B.coldim ());
 
+	BLAS3::scal (ctx, ctx.F.zero (), C);
+
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
@@ -282,6 +284,11 @@ static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const
 	DenseMatrix<typename Field::Element> ABpC (A.rowdim (), C.coldim ());
 	DenseMatrix<typename Field::Element> ApBC (A.rowdim (), C.coldim ());
 
+	BLAS3::scal (ctx, ctx.F.zero (), AB);
+	BLAS3::scal (ctx, ctx.F.zero (), BC);
+	BLAS3::scal (ctx, ctx.F.zero (), ABpC);
+	BLAS3::scal (ctx, ctx.F.zero (), ApBC);
+
 	ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 	report << "Input matrix A:" << endl;
 	BLAS3::write (ctx, report, A);
@@ -346,6 +353,9 @@ static bool testGemmIdent (Context<Field, Modules> &ctx, const char *text, const
 
 	DenseMatrix<typename Field::Element> AI (A.rowdim (), A.coldim ());
 	DenseMatrix<typename Field::Element> IA (A.rowdim (), A.coldim ());
+
+	BLAS3::scal (ctx, ctx.F.zero (), IA);
+	BLAS3::scal (ctx, ctx.F.zero (), AI);
 
 	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> I_l_stream (ctx.F, A.rowdim ()), I_r_stream (ctx.F, A.coldim ());
 
@@ -415,6 +425,8 @@ static bool testTrmmGemmUpper (Context<Field, Modules> &ctx, const char *text, c
 	BLAS3::copy (ctx, A, A1);
 	BLAS3::copy (ctx, B, B1);
 
+	BLAS3::scal (ctx, ctx.F.zero (), C);
+
 	makeUpperTriangular (ctx.F, A1, false);
 
 	reportUI << "Input matrix A:" << endl;
@@ -477,6 +489,8 @@ static bool testTrmmGemmLower (Context<Field, Modules> &ctx, const char *text, c
 
 	BLAS3::copy (ctx, A, A1);
 	BLAS3::copy (ctx, B, B1);
+
+	BLAS3::scal (ctx, ctx.F.zero (), C);
 
 	makeLowerTriangular (ctx.F, A1, false);
 
@@ -552,6 +566,8 @@ void rowEchelon (Context<Field, Modules> &ctx, Matrix1 &U, Matrix1 &R, const Mat
 	typename Matrix1::ContainerType::SubmatrixType M1 (M, 0, 0, R.rowdim (), R.coldim ());
 	typename Matrix1::ContainerType::SubmatrixType M2 (M, 0, R.coldim (), U.rowdim (), U.coldim ());
 
+	BLAS3::scal (ctx, ctx.F.zero (), M);
+
 	StandardBasisStream<Field, typename Matrix1::ContainerType::SubmatrixType::Row> stream (ctx.F, U.coldim ());
 	typename Matrix1::ContainerType::SubmatrixType::RowIterator ip = M2.rowBegin ();
 
@@ -623,6 +639,8 @@ static bool testGemmRowEchelon (Context<Field, Modules> &ctx, const char *text, 
 	DenseMatrix<typename Field::Element> R (M.rowdim (), M.coldim ());
 	DenseMatrix<typename Field::Element> U (M.rowdim (), M.rowdim ());
 	DenseMatrix<typename Field::Element> UM (U.rowdim (), M.coldim ());
+
+	BLAS3::scal (ctx, ctx.F.zero (), UM);
 
 	StandardBasisStream<Field, typename DenseMatrix<typename Field::Element>::Row> stream (ctx.F, M.rowdim ());
 
