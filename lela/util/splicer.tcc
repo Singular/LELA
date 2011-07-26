@@ -50,6 +50,10 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 	typename Vector2::const_iterator i = std::lower_bound (in.begin (), in.end (), src_idx, VectorUtils::FindSparseEntryLB ());
 	typename Vector2::const_iterator i_end = std::lower_bound (in.begin (), in.end (), src_idx + size, VectorUtils::FindSparseEntryLB ());
 
+	Context<Ring> ctx (F);
+	typename Vector1::SubvectorType out_sub (out, dest_idx, dest_idx + size);
+	BLAS1::scal (ctx, ctx.F.zero (), out_sub);
+
 	for (; i != i_end; ++i)
 		out[i->first - src_idx + dest_idx] = i->second;
 }

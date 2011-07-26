@@ -81,11 +81,8 @@ class Subvector
 	}
 	
 	Subvector (Subvector &v, size_type start, size_type end)
-	{
-		iterator vs = v.begin () + start, ve = v.begin () + end;
-		_begin = iterator (vs, v.begin ().stride ());
-		_end = iterator (ve, v.begin ().stride ());
-	}
+		: _begin (v.begin () + start), _end (v.begin () + end)
+	{}
 	
 	Subvector (iterator begin, iterator end)
 		: _begin (begin), _end (end) {}
