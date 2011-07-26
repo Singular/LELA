@@ -1418,11 +1418,11 @@ bool testgemmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::gemm (ctx1, a, A1, A2, b, A9);
 
-	report << "Coefficient a: "<< std::endl;
-	ctx1.F.write(report, a);
+	report << "Coefficient a: ";
+	ctx1.F.write(report, a) << std::endl;
 
-        report << "Coefficient b: "<< std::endl;
-        ctx1.F.write(report, b);
+        report << "Coefficient b: ";
+        ctx1.F.write(report, b) << std::endl;
 
         reportUI << "Matrix a A_1 A_2 + c A_3: " << std::endl;
 	BLAS3::write (ctx1, reportUI, A9);
@@ -1572,8 +1572,8 @@ bool testtrsmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::trsm (ctx1, a, A1, A6, type, diagIsOne);
 
-	report <<"Coefficient a: "<< std::endl;
-	ctx1.F.write(report, a);
+	report <<"Coefficient a: ";
+	ctx1.F.write(report, a) << std::endl;
 
         reportUI << "Matrix a ((A_1)^-1) A_2: "<<std::endl;
 	BLAS3::write (ctx1, reportUI, A6);
