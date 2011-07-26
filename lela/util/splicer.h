@@ -70,6 +70,8 @@ public:
 	inline bool isDestIndexInBlock (size_t idx) const { return idx >= _dest_idx && idx < _dest_idx + _size; }
 };
 
+std::ostream &operator << (std::ostream &os, const Block &b);
+
 /** Class to chop matrices up and splice them together.
  *
  * This class maintains a set of data-structures which describe how a
