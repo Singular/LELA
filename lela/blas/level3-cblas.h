@@ -46,6 +46,9 @@ class _gemm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 		lela_check (A.rowdim () == C.rowdim ());
 		lela_check (B.coldim () == C.coldim ());
 		lela_check (A.coldim () == B.rowdim ());
+		lela_check (A.coldim () <= A.disp ());
+		lela_check (B.coldim () <= B.disp ());
+		lela_check (C.coldim () <= C.disp ());
 		cblas_sgemm (CblasRowMajor, CblasNoTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.coldim (),
 			     a, &A[0][0], A.disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
 		return C;
@@ -58,6 +61,9 @@ class _gemm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 		lela_check (A.rowdim () == C.rowdim ());
 		lela_check (B.coldim () == C.coldim ());
 		lela_check (A.coldim () == B.rowdim ());
+		lela_check (A.rowdim () <= A.parent ().disp ());
+		lela_check (B.coldim () <= B.disp ());
+		lela_check (C.coldim () <= C.disp ());
 		cblas_sgemm (CblasRowMajor, CblasTrans, CblasNoTrans, C.rowdim (), C.coldim (), A.coldim (),
 			     a, &(A.parent ())[0][0], A.parent ().disp (), &B[0][0], B.disp (), b, &C[0][0], C.disp ());
 		return C;
@@ -70,6 +76,9 @@ class _gemm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 		lela_check (A.rowdim () == C.rowdim ());
 		lela_check (B.coldim () == C.coldim ());
 		lela_check (A.coldim () == B.rowdim ());
+		lela_check (A.coldim () <= A.disp ());
+		lela_check (B.rowdim () <= B.parent ().disp ());
+		lela_check (C.coldim () <= C.disp ());
 		cblas_sgemm (CblasRowMajor, CblasNoTrans, CblasTrans, C.rowdim (), C.coldim (), A.coldim (),
 			     a, &A[0][0], A.disp (), &(B.parent ())[0][0], B.parent ().disp (), b, &C[0][0], C.disp ());
 		return C;
@@ -82,6 +91,9 @@ class _gemm<TypeWrapperRing<float>, BLASModule<float>::Tag>
 		lela_check (A.rowdim () == C.rowdim ());
 		lela_check (B.coldim () == C.coldim ());
 		lela_check (A.coldim () == B.rowdim ());
+		lela_check (A.rowdim () <= A.parent ().disp ());
+		lela_check (B.rowdim () <= B.parent ().disp ());
+		lela_check (C.coldim () <= C.disp ());
 		cblas_sgemm (CblasRowMajor, CblasTrans, CblasTrans, C.rowdim (), C.coldim (), A.coldim (),
 			     a, &(A.parent ())[0][0], A.parent ().disp (), &(B.parent ())[0][0], B.parent ().disp (), b, &C[0][0], C.disp ());
 		return C;
