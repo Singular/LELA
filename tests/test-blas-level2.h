@@ -100,8 +100,14 @@ static bool testGerGemm (Context<Field, Modules> &ctx, const char *text, const M
 	BLAS3::write (ctx, reportUI, A2);
 
 	if (!BLAS3::equal (ctx, A1, A2)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported a * u * v^T + A != a * U * V + A" << endl;
+		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: BLAS3 reported a * u * v^T + A != a * U * V + A" << endl;
+
+		BLAS3::axpy (ctx, ctx.F.minusOne (), A1, A2);
+
+		error << "Difference is" << std::endl;
+		BLAS3::write (ctx, error, A2);
+
 		ret = false;
 	}
 
@@ -129,6 +135,9 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 
 	DenseMatrix<typename Field::Element> ABgemm (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> ABgemv (A.rowdim (), B.coldim ());
+
+	BLAS3::scal (ctx, ctx.F.zero (), ABgemm);
+	BLAS3::scal (ctx, ctx.F.zero (), ABgemv);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
         ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
@@ -163,8 +172,14 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 	BLAS3::write (ctx, reportUI, ABgemm);
 
 	if (!BLAS3::equal (ctx, ABgemv, ABgemm)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrices from gemm and gemv are not equal" << endl;
+		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: BLAS3 reported matrices from gemm and gemv are not equal" << endl;
+
+		BLAS3::axpy (ctx, ctx.F.minusOne (), ABgemv, ABgemm);
+
+		error << "Difference is" << std::endl;
+		BLAS3::write (ctx, error, ABgemm);
+
 		ret = false;
 	}
 
@@ -187,6 +202,9 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 
 	DenseMatrix<typename Field::Element> ABgemm (A.rowdim (), B.coldim ());
 	DenseMatrix<typename Field::Element> ABgemv (A.rowdim (), B.coldim ());
+
+	BLAS3::scal (ctx, ctx.F.zero (), ABgemm);
+	BLAS3::scal (ctx, ctx.F.zero (), ABgemv);
 
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
         ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
@@ -221,8 +239,14 @@ static bool testGemvGemmSpecialised (Context<Field, Modules> &ctx, const char *t
 	BLAS3::write (ctx, reportUI, ABgemm);
 
 	if (!BLAS3::equal (ctx, ABgemv, ABgemm)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrices from gemm and gemv are not equal" << endl;
+		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+			<< "ERROR: BLAS3 reported matrices from gemm and gemv are not equal" << endl;
+
+		BLAS3::axpy (ctx, ctx.F.minusOne (), ABgemv, ABgemm);
+
+		error << "Difference is" << std::endl;
+		BLAS3::write (ctx, error, ABgemm);
+
 		ret = false;
 	}
 
@@ -276,6 +300,8 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	typename LELA::Vector<Field>::Dense aAv (A.rowdim ());
 
+	BLAS1::scal (ctx, ctx.F.zero (), aAv);
+
 	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
         ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -311,7 +337,7 @@ static bool testGemvCoeff (Context<Field, Modules> &ctx, const char *text, const
 
 	if (!BLAS1::is_zero (ctx, aAv)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported vector w is not zero" << endl;
+			<< "ERROR: BLAS1 reported vector w is not zero" << endl;
 		ret = false;
 	}
 
@@ -375,7 +401,7 @@ static bool testTrsmTrsv (Context<Field, Modules> &ctx, const char *text, const 
 
 	if (!BLAS3::equal (ctx, UinvBtrsv, UinvBtrsm)) {
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
-			<< "ERROR: MatrixDomain reported matrices from trsm and trsv are not equal" << endl;
+			<< "ERROR: BLAS3 reported matrices from trsm and trsv are not equal" << endl;
 		ret = false;
 	}
 
@@ -737,8 +763,8 @@ bool testgerConsistency (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS2::ger(ctx1, a, x1, x2, A3);
 
-	report << "Coefficient a: " << std::endl;
-	ctx1.F.write (report, a);
+	report << "Coefficient a: ";
+	ctx1.F.write (report, a) << std::endl;
 
 	reportUI << "Matrix A_1 + a x_1 y^T: " << std::endl;
 	BLAS3::write (ctx1, reportUI, A3);
@@ -759,8 +785,14 @@ bool testgerConsistency (LELA::Context<Ring, Modules1> &ctx1,
 
 	if (!BLAS3::equal (ctx1, A3, A4))
 	{
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
     			<< "ERROR: A_1 + a x_1 y^T  !=  A_2 + a x_2  y^T " << std::endl;
+
+		BLAS3::axpy (ctx1, ctx1.F.minusOne (), A3, A4);
+
+		error << "Difference is" << std::endl;
+		BLAS3::write (ctx1, error, A4);
+
 		pass = false;
 	}
 

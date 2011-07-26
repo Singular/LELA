@@ -313,8 +313,14 @@ static bool testGemmAssoc (Context<Field, Modules> &ctx, const char *text, const
 	BLAS3::write (ctx, report, ApBC);
 
 	if (!BLAS3::equal (ctx, ABpC, ApBC)) {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: BLAS3 reported (A * B) * C != A * (B * C)" << endl;
+
+		BLAS3::axpy (ctx, ctx.F.minusOne (), ABpC, ApBC);
+
+		error << "Difference is" << std::endl;
+		BLAS3::write (ctx, error, ApBC);
+
 		ret = false;
 	}
 
@@ -1419,8 +1425,14 @@ bool testgemmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
         if (!BLAS3::equal (ctx1, A9, A10))
 	{
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: a A_1 A_2 + b A_3  !=  a A_4 A_5 + b A_6 " << std::endl;
+
+		BLAS3::axpy (ctx1, ctx1.F.minusOne (), A9, A10);
+
+		error << "Difference is" << std::endl;
+		BLAS3::write (ctx1, error, A10);
+
 		pass = false;
 	}
 
@@ -1468,8 +1480,8 @@ bool testtrmmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
 	BLAS3::trmm (ctx1, a, A1, A6, type, diagIsOne);
 
-	report << "Coefficient a: "<< std::endl;
-	ctx1.F.write (report, a);
+	report << "Coefficient a: ";
+	ctx1.F.write (report, a) << std::endl;
 
         reportUI << "Matrix a A_1 A_2: "<< std::endl;
 	BLAS3::write (ctx1, reportUI, A6);
@@ -1487,8 +1499,14 @@ bool testtrmmConsistency  (LELA::Context<Ring, Modules1> &ctx1,
 
         if (!BLAS3::equal (ctx1, A6, A7))
         {
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+		std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
 			<< "ERROR: a A_1 A_2  !=  a A_3 A_4 " << std::endl;
+
+		BLAS3::axpy (ctx1, ctx1.F.minusOne (), A6, A7);
+
+		error << "Difference is" << std::endl;
+		BLAS3::write (ctx1, error, A7);
+
                 pass = false;
         }
 
@@ -2099,7 +2117,7 @@ bool testBLAS3RepsConsistency (LELA::Context<Ring, Modules> &ctx, const char *te
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/dense   with dense/dense (UT, diag = 1)", M6, M4, M4, M4,  UpperTriangular, true) && pass;
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/dense   with dense/dense (LT, diag != 1)", M6p, M4, M4, M4, LowerTriangular, false) && pass;
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/dense   with dense/dense (UT, diag != 1)", M6p, M4, M4, M4, UpperTriangular, false) && pass;
-	
+
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/sparse(row-wise)   with dense/dense (LT, diag = 1)", M6, M5n, M4, M4, LowerTriangular, true) && pass;
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/sparse(row-wise)   with dense/dense (UT, diag = 1)", M6, M5n, M4, M4,  UpperTriangular, true) && pass;
         pass = testtrsmConsistency (ctx, ctx, "sparse(col-wise)/sparse(row-wise)   with dense/dense (LT, diag != 1)", M6p, M5n, M4, M4, LowerTriangular, false) && pass;
@@ -2117,7 +2135,7 @@ bool testBLAS3RepsConsistency (LELA::Context<Ring, Modules> &ctx, const char *te
 }
 
 
-#endif // __LELA_TESTS_TEST_MATRIX_DOMAIN_H
+#endif // __LELA_TESTS_TEST_BLAS_LEVEL3_H
 
 // Local Variables:
 // mode: C++
