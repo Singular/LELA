@@ -24,10 +24,12 @@
 
 using namespace LELA;
 
-template <class Ring>
-bool testEchelonize (const Ring &F, size_t m, size_t n, size_t k)
+template <class Ring, class Matrix>
+bool testEchelonize (const Ring &F, const char *text, Matrix &A)
 {
-	commentator.start ("Testing Elimination::echelonize", __FUNCTION__);
+	std::ostringstream str;
+	str << "Testing Elimination::echelonize for " << text << " matrices" << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -38,9 +40,7 @@ bool testEchelonize (const Ring &F, size_t m, size_t n, size_t k)
 
 	Elimination<Ring> elim (ctx);
 
-	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
-
-	SparseMatrix<typename Ring::Element> A (A_stream), LPA (m, n);
+	typename Matrix::ContainerType LPA (A.rowdim (), A.coldim ());
 
 	BLAS3::copy (ctx, A, LPA);
 
@@ -64,7 +64,7 @@ bool testEchelonize (const Ring &F, size_t m, size_t n, size_t k)
 	report << "PA = " << std::endl;
 	BLAS3::write (ctx, report, LPA, FORMAT_PRETTY);
 
-	typename SparseMatrix<typename Ring::Element>::SubmatrixType Ap (A, 0, 0, A.rowdim (), A.rowdim ());
+	typename Matrix::SubmatrixType Ap (A, 0, 0, A.rowdim (), A.rowdim ());
 
 	BLAS3::trmm (ctx, F.one (), Ap, LPA, LowerTriangular, true);
 	report << "LPA = " << std::endl;
@@ -88,10 +88,12 @@ bool testEchelonize (const Ring &F, size_t m, size_t n, size_t k)
 	return pass;
 }
 
-template <class Ring>
-bool testEchelonizeReduced (const Ring &F, size_t m, size_t n, size_t k)
+template <class Ring, class Matrix>
+bool testEchelonizeReduced (const Ring &F, const char *text, Matrix &A)
 {
-	commentator.start ("Testing Elimination::echelonize_reduced", __FUNCTION__);
+	std::ostringstream str;
+	str << "Testing Elimination::echelonize_reduced for " << text << " matrices" << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -99,13 +101,9 @@ bool testEchelonizeReduced (const Ring &F, size_t m, size_t n, size_t k)
 	bool pass = true;
 
 	Context<Ring> ctx (F);
-
 	Elimination<Ring> elim (ctx);
 
-	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
-
-	SparseMatrix<typename Ring::Element> A (A_stream), Acopy (m, n), LPA (m, n);
-	DenseMatrix<typename Ring::Element> L (m, m);
+	typename Matrix::ContainerType Acopy (A.rowdim (), A.coldim ()), LPA (A.rowdim (), A.coldim ()), L (A.rowdim (), A.rowdim ());
 
 	BLAS3::copy (ctx, A, Acopy);
 
@@ -153,10 +151,12 @@ bool testEchelonizeReduced (const Ring &F, size_t m, size_t n, size_t k)
 	return pass;
 }
 
-template <class Ring>
-bool testPLUQ (const Ring &F, size_t m, size_t n, size_t k)
+template <class Ring, class Matrix>
+bool testPLUQ (const Ring &F, const char *text, Matrix &A)
 {
-	commentator.start ("Testing Elimination::pluq", __FUNCTION__);
+	std::ostringstream str;
+	str << "Testing Elimination::pluq for " << text << " matrices" << std::ends;
+	commentator.start (str.str ().c_str (), __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -167,10 +167,7 @@ bool testPLUQ (const Ring &F, size_t m, size_t n, size_t k)
 
 	Elimination<Ring> elim (ctx);
 
-	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
-
-	SparseMatrix<typename Ring::Element> A (A_stream), Acopy (m, n);
-	DenseMatrix<typename Ring::Element> L (m, m);
+	typename Matrix::ContainerType Acopy (A.rowdim (), A.coldim ()), L (A.rowdim (), A.rowdim ());
 
 	BLAS3::copy (ctx, A, Acopy);
 
@@ -224,6 +221,12 @@ bool testPLUQ (const Ring &F, size_t m, size_t n, size_t k)
 
 	if (!BLAS3::equal (ctx, A, Acopy)) {
 		error << "PLUQ != A, not okay" << std::endl;
+
+		BLAS3::axpy (ctx, ctx.F.minusOne (), A, Acopy);
+
+		error << "Difference is:" << std::endl;
+		BLAS3::write (ctx, error, Acopy);
+
 		pass = false;
 	}
 
@@ -268,17 +271,70 @@ int main (int argc, char **argv)
 
 	commentator.start (str.str ().c_str (), "Elimination");
 
-	pass1 = testEchelonize (GFq, m, n, k) && pass1;
-	pass1 = testEchelonizeReduced (GFq, m, n, k) && pass1;
-	pass1 = testPLUQ (GFq, m, n, k) && pass1;
+	RandomDenseStream<Modular<uint32>, DenseMatrix<uint32>::Row> A1_stream (GFq, n, m);
+	RandomSparseStream<Modular<uint32>, SparseMatrix<uint32>::Row> A2_stream (GFq, (double) k / (double) n, n, m);
+
+	DenseMatrix<uint32> A1 (A1_stream);
+	SparseMatrix<uint32> A2 (A2_stream);
+
+	pass1 = testEchelonize (GFq, "dense", A1) && pass1;
+	pass1 = testEchelonize (GFq, "sparse", A2) && pass1;
+
+	A1_stream.reset ();
+	A2_stream.reset ();
+
+	DenseMatrix<uint32> A3 (A1_stream);
+	SparseMatrix<uint32> A4 (A2_stream);
+
+	pass1 = testEchelonizeReduced (GFq, "dense", A3) && pass1;
+	pass1 = testEchelonizeReduced (GFq, "sparse", A4) && pass1;
+
+	A1_stream.reset ();
+	A2_stream.reset ();
+
+	DenseMatrix<uint32> A5 (A1_stream);
+	SparseMatrix<uint32> A6 (A2_stream);
+
+	pass1 = testPLUQ (GFq, "dense", A5) && pass1;
+	pass1 = testPLUQ (GFq, "sparse", A6) && pass1;
 
 	commentator.stop (MSG_STATUS (pass1));
 
 	commentator.start ("Running tests over GF(2)", "Elimination");
 
-	pass2 = testEchelonize (gf2, m, n, k) && pass2;
-	pass2 = testEchelonizeReduced (gf2, m, n, k) && pass2;
-	pass2 = testPLUQ (gf2, m, n, k) && pass2;
+	RandomDenseStream<GF2, DenseMatrix<bool>::Row> B1_stream (gf2, n, m);
+	RandomSparseStream<GF2, Vector<GF2>::Sparse> B2_stream (gf2, (double) k / (double) n, n, m);
+	RandomHybridStream<GF2, Vector<GF2>::Hybrid> B3_stream (gf2, (double) k / (double) n, n, m);
+
+	DenseMatrix<bool> B1 (B1_stream);
+	SparseMatrix<bool, Vector<GF2>::Sparse> B2 (B2_stream);
+	SparseMatrix<bool, Vector<GF2>::Hybrid> B3 (B3_stream);
+
+	pass2 = testEchelonize (gf2, "dense", B1) && pass2;
+	pass2 = testEchelonize (gf2, "sparse", B2) && pass2;
+	pass2 = testEchelonize (gf2, "hybrid", B3) && pass2;
+
+	B1_stream.reset ();
+	B2_stream.reset ();
+	B3_stream.reset ();
+
+	DenseMatrix<bool> B4 (B1_stream);
+	SparseMatrix<bool, Vector<GF2>::Sparse> B5 (B2_stream);
+	SparseMatrix<bool, Vector<GF2>::Hybrid> B6 (B3_stream);
+
+	pass2 = testEchelonizeReduced (gf2, "dense", B4) && pass2;
+	pass2 = testEchelonizeReduced (gf2, "sparse", B5) && pass2;
+	pass2 = testEchelonizeReduced (gf2, "hybrid", B6) && pass2;
+
+	B1_stream.reset ();
+	B2_stream.reset ();
+	DenseMatrix<bool> B7 (B1_stream);
+	SparseMatrix<bool, Vector<GF2>::Sparse> B8 (B2_stream);
+
+	pass2 = testPLUQ (gf2, "dense", B7) && pass2;
+	pass2 = testPLUQ (gf2, "sparse", B8) && pass2;
+
+	// Note: PLUQ not allowed on hybrid vectors
 
 	commentator.stop (MSG_STATUS (pass2));
 

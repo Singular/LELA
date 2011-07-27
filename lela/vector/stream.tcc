@@ -256,7 +256,7 @@ Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Hybrid01>::
 	typedef WordTraits<typename Vector::word_type> WT;
 
 	v.clear ();
-	v.push_back (_j >> WT::logof_size, Vector::Endianness::e_j (_j & WT::pos_mask));
+	v.push_back (typename Vector::value_type (_j >> WT::logof_size, Vector::Endianness::e_j (_j & WT::pos_mask)));
 	return v;
 }
 

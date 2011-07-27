@@ -205,8 +205,8 @@ Matrix1 &Elimination<Ring, Modules>::echelonize_reduced (Matrix1       &A,
 			BLAS3::permute_rows (ctx, &t, &t + 1, A);
 
 			if (compute_L) {
-				typename Matrix2::SubmatrixType L_sub (L, 0, 0, L.rowdim (), i);
-				BLAS3::permute_rows (ctx, &t, &t + 1, L_sub);
+				BLAS3::permute_rows (ctx, &t, &t + 1, L);
+				BLAS3::permute_cols (ctx, &t, &t + 1, L);
 			}
 		}
 		TIMER_STOP(Permute);

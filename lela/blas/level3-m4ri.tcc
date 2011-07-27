@@ -125,6 +125,8 @@ mzp_t *make_m4ri_permutation (Iterator P_start, Iterator P_end, size_t len)
 	return P;
 }
 
+#if 0
+
 template <class Modules, class Iterator, class Matrix>
 Matrix &_permute_rows<GF2, M4RIModule::Tag>::permute_rows_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A,
 								MatrixStorageTypes::M4RI)
@@ -134,6 +136,8 @@ Matrix &_permute_rows<GF2, M4RIModule::Tag>::permute_rows_impl (const GF2 &F, Mo
 	mzp_free (P);
 	return A;
 }
+
+#endif // Disabled
 
 template <class Modules, class Iterator, class Matrix>
 Matrix &_permute_cols<GF2, M4RIModule::Tag>::permute_cols_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A,

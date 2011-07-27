@@ -613,7 +613,7 @@ class StandardBasisStream : public VectorStream<_Vector>
 	 * @param F Ring over which to create vectors
 	 * @param n Size of vectors
 	 */
-	StandardBasisStream (Ring &F, size_t n);
+	StandardBasisStream (const Ring &F, size_t n);
 
 	/** Get next element
 	 * @param v Vector into which to generate vector
@@ -692,7 +692,7 @@ class StandardBasisStream<Ring, _Vector, VectorRepresentationTypes::Sparse> : pu
 	typedef _Vector Vector;
         typedef StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Sparse> Self_t;
 
-	StandardBasisStream (Ring &F, size_t n)
+	StandardBasisStream (const Ring &F, size_t n)
 		: _F (F), _n (n), _j (0)
 		{}
 
