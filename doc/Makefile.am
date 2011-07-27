@@ -4,7 +4,7 @@
 # License version 3. See COPYING for more information.
 
 if BUILD_DOCS
-DOC_TARGETS = index.html
+DOC_TARGETS = tutorial.html
 REFDOC_TARGETS = 
 endif
 
@@ -15,8 +15,10 @@ doc_DATA = $(DOC_TARGETS)
 
 refdocdir = $(datadir)/doc/lela-$(VERSION)/reference
 
-index.html: tutorial.xml
+tutorial.html: tutorial.xml
 	xmlto xhtml -m config.xsl tutorial.xml
+	sed -e s/index.html/tutorial.html/g index.html >tutorial.html
+	rm -f index.html
 
 reference: reference.xml
 	mkdir reference
