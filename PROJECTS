@@ -1,0 +1,105 @@
+In this file you will find some ideas for projects for improving
+LELA. They are ordered according to estimated difficulty from easist
+to hardest.
+
+1. New solutions
+
+Right now there is only one solution in lela/solutions, namely, the
+calculation of the row-echelon form of a matrix. Solutions for solving
+equations, computing the rank and determinant of a matrix, and
+constructing the nullspace of a matrix are relatively easy to
+implement with existing algorithms.
+
+Solutions should also have unit-tests covering various cases and each
+one should ideally have a command-line utility (in the directory util)
+associated with it.
+
+2. Implement readers for missing matrix-formats
+
+Several matrix-formats do not have corresponding read-formats
+implemented. See lela/matrix/io.tcc; the corresponding functions throw
+the exception NotImplemented.
+
+3. Parallelised GEMM
+
+LELA currently doesn't take advantage of multithreading at all. The
+easiest place to add it would be to implement a version of
+matrix-multiplication which chops its input into pieces and parcels
+the pieces out to different processors. This can be done relatively
+easily by creating a corresponding module for the BLAS-system and
+inserting it in a suitable place in the stack.
+
+4. Sparse elimination with full pivoting
+
+The current sparse pivot-strategy does not allow column-swaps. This is
+because such operations are not allowed for the construction of the
+row-echelon form of F4-matrices, the main application of
+LELA. However, a pivot-strategy for sparse matrices which does full
+pivoting may be useful for other applications. This can be done by
+creating a new class with the interface PivotStrategy (see
+lela/algorithms/pivot-strategy.h) and using it with the existing
+method Elimination::pluq (see lela/algorithms/elimination.h).
+
+5. Improve the implementation of Faugère-Lachartre
+
+The current implementation of Faugère-Lachartre (see
+lela/algorithms/faugere-lachartre.h) is quite basic in that it does
+not attempt to divide the input-matrix according to density and does
+not allow the configuration of whether the submatrices it extracts use
+a dense, sparse, or hybrid representation. This suffices for the
+examples which have been considered so far, but more flexibility may
+be required for a proper implementation of F4 in the future.
+
+Ideally, the algorithm should either take hints as input or somehow
+scan the matrix to find blocks which are better represented as sparse
+or as dense matrices, and then chop the matrix accordingly.
+
+6. Implement the remaining variants of Strassen-Winograd
+
+The implementation of Strassen-Winograd in LELA is based on the paper
+
+Boyer, B., Dumas, J.-G., Pernet, C., & Zhou, W. (2007). Memory efficient
+scheduling of Strassen-Winogradʼs matrix multiplication algorithm.
+Proceedings of the 2009 international symposium on Symbolic and algebraic
+computation ISSAC 09, 55. ACM Press. Retrieved from
+http://arxiv.org/abs/0707.2347
+
+This paper actually identifies three variants of Strassen-Winograd
+which can be implemented, each with its own advantages and
+disadvantages. LELA currently only implements one of the three but the
+class StrassenWinograd (see lela/algorithms/strassen-winograd.h)
+contains interfaces for all three. The functions need only be filled
+in.
+
+7. Implement a system for sensibly setting the cutoff for
+   Strassen-Winograd
+
+Right now the default cutoff for matrix-sizes below which classical
+matrix-multiplication is used is just an educated guess (see
+lela/algorithms/strassen-winograd.h). A correct value in fact depends
+on the computer-hardware and needs to be set somehow at
+configuration-time.
+
+Ideally there should be a utility "autotune" which runs after the rest
+of LELA has been configured and built and which determines the optimal
+cutoff and sets it in some configuration- or header-file.
+
+8. Algorithms over PIDs and PIRs
+
+The high-level algorithms which LELA implements (see
+lela/algorithms/elimination.h, lela/algorithms/gauss-jordan.h) work
+only over fields. Some can be modified relatively easily to produce
+fraction-free variants which work over PIRs (e.g. Z/n, n not
+prime). Algorithms which are relevant over PIDs such as the integers
+would also be useful, for example computing the Smith normal form of a
+matrix.
+
+9. Improve the hybrid subvector
+
+Currently the const_iterator in an arbitrary (i.e. not word-aligned)
+hybrid subvector is extremely slow (see
+lela/vector/sparse-subvector-hybrid.h, .tcc). There is much room for
+improvement by optimising the checks which it performs.
+
+WARNING: The hybrid subvector code is extremely delicate! Don't touch
+it unless you are certain of what you are doing.
