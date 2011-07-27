@@ -1,7 +1,0 @@
-Problems with shallow/deep copy:
-
- - axpy(Sparse,Sparse): fast_copy does v.assign (shallow copy) from tmp but then tmp is destroyed, so destructors on elements will be run
- - gemm(Row,Col,Generic):
-    - if c_ij exists, then shallow copy is made, modified, and stored back in the matrix, but then destructor will be run on the entry
-    - if c_ij doesn't exist, then shallow copy of d (local variable) makes it into matrix
- - copy(Row,Col), copy(Col,Row): append_entries makes only shallow copies
