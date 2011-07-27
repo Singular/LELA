@@ -4,12 +4,13 @@
  * Evolved from bit-vector.h
  *
  * -------------------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __VECTOR_BIT_SUBVECTOR_H
-#define __VECTOR_BIT_SUBVECTOR_H
+#ifndef __LELA_VECTOR_BIT_SUBVECTOR_H
+#define __LELA_VECTOR_BIT_SUBVECTOR_H
 
 #include <iterator>
 #include <vector>
@@ -626,7 +627,7 @@ void swap (LELA::BitSubvector<Iterator, ConstIterator> &x, LELA::BitSubvector<It
 
 } // namespace std
 
-#endif // __VECTOR_BIT_SUBVECTOR_H
+#endif // __LELA_VECTOR_BIT_SUBVECTOR_H
 
 // Local Variables:
 // mode: C++

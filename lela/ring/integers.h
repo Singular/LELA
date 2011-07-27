@@ -3,9 +3,12 @@
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ------------------------------------
+ * Ring of integers, using LELA::integer as an element-type
  *
- * See COPYING for license information.
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
  
 #ifndef __LELA_RING_INTEGERS_H

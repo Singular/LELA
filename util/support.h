@@ -2,11 +2,12 @@
  * Copyright 2010 Bradford Hovinen
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ---------------------------------------------------------
- *
- * See COPYING for license information.
- *
  * Support-routines for utilities: command-line-processing etc.
+ *
+ * ---------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_UTIL_SUPPORT_H

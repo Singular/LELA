@@ -1,5 +1,3 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* lela/matrix/submatrix.h
  * Copyright 2001 B. David Saunders,
  *           2001-2002, 2010 Bradford Hovinen,
@@ -10,12 +8,14 @@
  *            Zhendong Wan <wan@mail.eecis.udel.edu>
  *
  * evolved from dense-submatrix.h by -bds, Zhendong Wan, Bradford Hovinen
- *
- * See COPYING for license information
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __MATRIX_SUBMATRIX_H
-#define __MATRIX_SUBMATRIX_H
+#ifndef __LELA_MATRIX_SUBMATRIX_H
+#define __LELA_MATRIX_SUBMATRIX_H
 
 #include <cstddef>
 
@@ -698,5 +698,13 @@ class Submatrix<_Matrix, AlignedTrait, MatrixIteratorTypes::Col>
 
 } // namespace LELA
 
-#endif // __MATRIX_SUBMATRIX_H
+#endif // __LELA_MATRIX_SUBMATRIX_H
 
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

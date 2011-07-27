@@ -1,6 +1,8 @@
-# Copyright (c) 2010 the LELA group
-# This file is part of LELA
-# see COPYING for licence
+# Copyright 2011 Bradford Hovinen
+# 
+# This file is part of LELA, licensed under the GNU General Public
+# License version 3. See COPYING for more information.
+
 INCLUDES=-I$(top_srcdir)
 
 SUBDIRS=util element ring blas vector matrix randiter algorithms solutions

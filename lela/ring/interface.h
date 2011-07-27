@@ -1,4 +1,4 @@
-/* lela/ring/archetype.h
+/* lela/ring/interface.h
  * Copyright 1999-2005 William J Turner,
  *           2001 Bradford Hovinen
  *
@@ -6,8 +6,9 @@
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 

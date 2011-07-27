@@ -1,17 +1,16 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* lela/vector/bit-subvector-word-aligned.h
  * Copyright 2010 Bradford Hovinen
  *
  * Evolved from bit-subvector.h
  *
  * -------------------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H
-#define __VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H
+#ifndef __LELA_VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H
+#define __LELA_VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H
 
 #include <iterator>
 #include <vector>
@@ -217,4 +216,13 @@ void swap (LELA::BitSubvectorWordAligned<Iterator, ConstIterator, Endianness> &x
 
 } // namespace std
 
-#endif // __VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H
+#endif // __LELA_VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

@@ -1,5 +1,5 @@
 /* lela/util/timer.h
- * Copyright 1994-1997 Givaro Team
+ * Copyright 1994-1997 T. Gautier
  *
  * Written by T. Gautier
  *
@@ -10,13 +10,14 @@
  * class' memory of its start time. This allows it to be called repeatedly to
  * get elapsed times.
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  *
  */
 
-#ifndef __LELA_timer_H
-#define __LELA_timer_H
+#ifndef __LELA_UTIL_TIMER_H
+#define __LELA_UTIL_TIMER_H
 
 #include <iostream>
 
@@ -176,7 +177,7 @@ inline std::ostream &operator << (std::ostream &o, const Timer &T)
  
 } // namespace LELA
 
-#endif  //__LELA_timer_H
+#endif  //__LELA_UTIL_TIMER_H
 
 // Local Variables:
 // mode: C++

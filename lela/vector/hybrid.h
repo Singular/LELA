@@ -3,9 +3,12 @@
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ------------------------------------
+ * 0-1 vector in the hybrid format
  *
- * See COPYING for license information.
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_VECTOR_HYBRID_H

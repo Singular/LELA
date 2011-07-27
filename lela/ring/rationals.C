@@ -1,11 +1,14 @@
-/* lela/ring/rationals.h
+/* lela/ring/rationals.C
  * Copyright 2001, 2002 Bradford Hovinen
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ----------------------------------------
+ * Support-routines for rational numbers
  *
- * See COPYING for license information
+ * ----------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/ring/rationals.h"

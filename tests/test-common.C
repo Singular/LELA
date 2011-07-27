@@ -3,11 +3,11 @@
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
  * 
- * See COPYING for license information.
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
-
-#ifndef __LELA_test_common_C
-#define __LELA_test_common_C
 
 #include "lela/lela-config.h"
 
@@ -235,8 +235,6 @@ double chiSquaredCDF (double chi_sqr, double df)
 {
 	return incompleteGamma (df / 2.0, chi_sqr / 2.0, 1e-10) / exp (gamma (df / 2.0));
 }
-
-#endif // __LELA_test_common_C
 
 // Local Variables:
 // mode: C++

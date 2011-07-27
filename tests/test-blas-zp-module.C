@@ -1,13 +1,14 @@
 /* tests/test-blas-zp-module.C
- * Copyright 2001, 2002 Bradford Hovinen
+ * Copyright 2001, 2002, 2011 Bradford Hovinen
  *
- * Written by Bradford Hovinen <bghovinen@math.uwaterloo.ca>
- *
- * ---------------------------------------------------------
- *
- * See COPYING for license information.
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * Test suite for BLAS-routines using ZpModule
+ *
+ * ---------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/util/commentator.h"
@@ -32,7 +33,7 @@ bool runTests (const integer &q, const char *text, long l, long m, long n, long 
 
 	Modular<Element> F (q);
 	Context<Modular<Element>, ZpModule<Element> > ctx (F);
-	
+
 	Context<Modular<Element>, GenericModule<Modular<Element> > > ctx_gen (F);
 
 	ostringstream str;

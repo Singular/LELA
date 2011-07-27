@@ -4,12 +4,13 @@
  * Specialisation of SparseMatrix and helpers for 0-1 matrices
  * 
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_matrix_sparse_zero_one_H
-#define __LELA_matrix_sparse_zero_one_H
+#ifndef __LELA_MATRIX_SPARSE_ZERO_ONE_H
+#define __LELA_MATRIX_SPARSE_ZERO_ONE_H
 
 #include <vector>
 
@@ -252,7 +253,7 @@ protected:
 
 #include "lela/matrix/sparse-zero-one.tcc"
 
-#endif // __LELA_matrix_sparse_zero_one_H
+#endif // __LELA_MATRIX_SPARSE_ZERO_ONE_H
 
 // Local Variables:
 // mode: C++

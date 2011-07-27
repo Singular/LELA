@@ -1,12 +1,7 @@
-
 /* tests/test-commentator.C
- * Copyright (C) 2002 Bradford Hovinen
+ * Copyright 2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * --------------------------------------------------------
- *
- * See COPYING for license information.
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * N.B. This test differs from the others in that the output is not
  * automatically checked for correctness. This is partly because I do not feel
@@ -14,6 +9,11 @@
  * because implementation is rather nontrivial, and partly because of concerns
  * about maintainability. The user must look manually at the output file
  * (specified on the command line) for any anomolies.
+ *
+ * --------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/lela-config.h"

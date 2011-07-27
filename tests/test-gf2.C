@@ -1,16 +1,14 @@
 /* tests/test-gf2.C
- * Copyright (C) 2003 Bradford Hovinen,
+ * Copyright 2003 Bradford Hovinen,
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
+ * Written by Bradford Hovinen <hovinen@gmail.com>
+ *
+ * Tests for GF(2) field
  *
  * ------------------------------------
- * 2002-04-10 Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * Rename from test-large-modular.C to test-modular.C; made other updates in
- * accordance with changes to Modular interace.
- * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/lela-config.h"

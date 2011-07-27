@@ -1,16 +1,16 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* lela/vector/bit-iterator.h
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Reference- and iterator-clases for bit-vectors
- * -------------------------------------------------
  *
- * See COPYING for license information.
+ * -------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __BIT_ITERATOR_H
-#define __BIT_ITERATOR_H
+#ifndef __LELA_VECTOR_BIT_ITERATOR_H
+#define __LELA_VECTOR_BIT_ITERATOR_H
 
 #include <stdexcept>
 #include <vector>
@@ -681,4 +681,13 @@ void swap (LELA::BitVectorReference<word_iterator, Endianness> x, LELA::BitVecto
 
 } // namespace std
 
-#endif // __BIT_ITERATOR_H
+#endif // __LELA_VECTOR_BIT_ITERATOR_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

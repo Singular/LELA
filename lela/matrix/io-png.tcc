@@ -1,9 +1,12 @@
 /* lela/matrix/io-png.tcc
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
- * ------------------------------------
+ * Support for reading and writing matrices in PNG-format
  *
- * See COPYING for license information.
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_MATRIX_IO_PNG_TCC

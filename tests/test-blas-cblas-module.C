@@ -3,11 +3,12 @@
  *
  * Written by Florian Fischer <florian-fischer@gmx.net>
  *
+ * Test suite for BLAS routines using CBLAS-module
+ *
  * ---------------------------------------------------------
- *
- * See COPYING for license information.
- *
- * Test suite for BLAS routines using BLAS modules
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/lela-config.h"

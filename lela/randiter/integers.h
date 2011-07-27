@@ -1,11 +1,12 @@
 /* lela/randiter/integers.h
  * Copyright 2011 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_RANDITER_INTEGERS_H

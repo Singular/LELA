@@ -1,17 +1,18 @@
 /* lela/matrix/transpose.h
  * Copyright 2002 Bradford Hovinen,
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * Evolved from dense-base.h by Bradford Hovinen
+ * Transposed matrix
  *
  * --------------------------------------------------------
- *
- * See COPYING for license information
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_matrix_transpose_H
-#define __LELA_matrix_transpose_H
+#ifndef __LELA_MATRIX_TRANSPOSE_H
+#define __LELA_MATRIX_TRANSPOSE_H
 
 #include <iostream>
 #include <vector>
@@ -360,7 +361,7 @@ class TransposeMatrix<Matrix, MatrixIteratorTypes::Col>
 
 #include "lela/matrix/transpose-submatrix.h"
 
-#endif // __LELA_matrix_transpose_H
+#endif // __LELA_MATRIX_TRANSPOSE_H
 
 // Local Variables:
 // mode: C++

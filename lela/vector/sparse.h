@@ -2,6 +2,13 @@
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
+ *
+ * Sparse vector which makes a pair of vectors appear to be a vector of pairs
+ *
+ * -------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_VECTOR_SPARSE_H

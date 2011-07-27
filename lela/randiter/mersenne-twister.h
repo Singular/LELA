@@ -1,25 +1,25 @@
 /* lela/randiter/mersenne-twister.h
- * Copyright (C) 2002 Bradford Hovinen
+ * Copyright 2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
- *
- * ------------------------------------
- *
- * This file is part of LELA, licensed under the GNU Lesser General Public
- * License. See COPYING for more information.
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
  *
  * Header file for implementation of the Mersenne twister pseudo-random number
  * generator, crated by Makoto Matsumoto and Takuji Nishimura. Further
  * information on the Mersenne Twister can be found at
- * http://www.math.keio.ac.jp/~matsumoto/emt.html [ dead link.  -bds 2007feb]
+ * http://en.wikipedia.org/wiki/Mersenne_Twister
  *
  * This forms the basic underlying algorithm for most psuedo-random number
  * generation in LELA.
  *
  * N.B. This module is tested in test-modular under the random number
  * generator tests.
+ *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_mersenne_twister_H

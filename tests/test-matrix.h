@@ -2,8 +2,11 @@
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Generic tests for matrices
+ * 
+ * ------------------------------------
  *
- * See COPYING for license information.
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_TESTS_TEST_MATRIX_H

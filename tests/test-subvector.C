@@ -1,22 +1,11 @@
-/* Copyright (C) LELA
+/* Copyright members of the LinBox group
  *
  * Evolved from Will Turner's test-subvector.cpp  -bds
  *
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * ---------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/lela-config.h"
@@ -31,49 +20,20 @@
 
 using namespace LELA;
 
-template <class Ring>
-static bool testSubvector(Ring &F, size_t n); 
-
-int main(int argc, char** argv)
-{	
-    // set up command line options
-    static size_t n = 8;
-    static Argument args[] = 
-    {
- 		{ 'n', "-n N", "Set size of vector to N.", TYPE_INT, &n},
-		{ '\0' }
-    };
-    parseArguments (argc, argv, args);
- 
-    // start testing
-	commentator.start("Subvector test suite", "Subvector");
-    bool pass = true;
- 
-    // call tests
-    typedef LELA::TypeWrapperRing<int> Ring;
-    Ring F;
-    pass = testSubvector<Ring> (F, n);
- 
-    // finish
-	commentator.stop("Subvector test suite");
-    return pass? 0 : -1;
-}
-
 /* Test Subvector class 
  * Subvector has the vector interface less those that
  * can invalidate iterators.
  */
-
-using namespace LELA;
 
 template <class Ring>
 static bool testSubvector(Ring &F, size_t n) 
 {
 	// commentator setup
 	const char *  title = "Subvector test";
+
 	commentator.start(title, title, 1);
-	ostream &report = commentator.report 
-		(Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
+
+	ostream &report = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION);
 
 	report << "This test currently neglects several members including constructors." << endl;
 	bool ret = true;
@@ -294,5 +254,37 @@ static bool testSubvector(Ring &F, size_t n)
 	commentator.stop (MSG_STATUS (ret), (const char *) 0, title);
 	return ret;
 }
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+
+int main (int argc, char **argv)
+{	
+	// set up command line options
+	static size_t n = 8;
+	static Argument args[] = {
+		{ 'n', "-n N", "Set size of vector to N.", TYPE_INT, &n},
+		{ '\0' }
+	};
+
+	parseArguments (argc, argv, args);
+ 
+	// start testing
+	commentator.start("Subvector test suite", "Subvector");
+	bool pass = true;
+ 
+	// call tests
+	typedef LELA::TypeWrapperRing<int> Ring;
+	Ring F;
+	pass = testSubvector<Ring> (F, n);
+ 
+	// finish
+	commentator.stop("Subvector test suite");
+	return pass? 0 : -1;
+}
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
 // vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

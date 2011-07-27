@@ -1,12 +1,13 @@
-/* tests/test-hybrid-vector.C
+/* tests/test-bit-subvector.C
  * Copyright 2011 Bradford Hovinen
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ---------------------------------------------------------
- *
- * See COPYING for license information.
- *
  * Tests for BitSubvector
+ *
+ * ---------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include <iostream>

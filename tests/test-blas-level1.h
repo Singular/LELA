@@ -3,15 +3,16 @@
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ---------------------------------------------------------
- *
- * See COPYING for license information.
- *
  * Generic test suite for BLAS Level 1 routines
+ *
+ * ---------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_TEST_BLAS_LEVEL1_H
-#define __LELA_TEST_BLAS_LEVEL1_H
+#ifndef __LELA_TESTS_TEST_BLAS_LEVEL1_H
+#define __LELA_TESTS_TEST_BLAS_LEVEL1_H
 
 #include <iostream>
 #include <fstream>
@@ -875,7 +876,7 @@ bool testBLAS1RepsConsistency (LELA::Context<Ring, Modules> &ctx, const char *te
 	return pass;
 }
 
-#endif // __LELA_TEST_BLAS_LEVEL1_H
+#endif // __LELA_TESTS_TEST_BLAS_LEVEL1_H
 
 // Local Variables:
 // mode: C++

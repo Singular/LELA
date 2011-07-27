@@ -1,15 +1,19 @@
 /* Copyright 1994-1997 by Givaro Team
  * Copyright 2000-2002 by LELA Team 
- * see the COPYING file for license information.
+ *
  * Created by M. Samama, T. Gautier
  *
  * Modified Jean-Guillaume.Dumas <Jean-Guillaume.Dumas@imag.fr>
  *          B. David Saunders <saunders@cis.udel.edu>,
- *          Bradford Hovinen <hovinen@cis.udel.edu>
+ *          Bradford Hovinen <hovinen@gmail.com>
  *          Gilles Villard <Gilles.Villard@ens-lyon.fr>
  *                        JGD Random functions back.                          
  *                        (2002/02/12 16:05:24) 
  *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_integer_H

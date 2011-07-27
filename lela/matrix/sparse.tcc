@@ -6,12 +6,13 @@
  * Based on sparse-base.h by William J Turner <wjturner@math.ncsu.edu>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_matrix_sparse_TCC
-#define __LELA_matrix_sparse_TCC
+#ifndef __LELA_MATRIX_SPARSE_TCC
+#define __LELA_MATRIX_SPARSE_TCC
 
 #include "lela/lela-config.h"
 
@@ -119,7 +120,7 @@ SparseMatrix<Element, Row, VectorRepresentationTypes::Sparse>
 
 } // namespace LELA
 
-#endif // __LELA_matrix_sparse_TCC
+#endif // __LELA_MATRIX_SPARSE_TCC
 
 // Local Variables:
 // mode: C++

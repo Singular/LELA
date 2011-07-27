@@ -1,17 +1,20 @@
 /* lela/ring/modular.h
- * Copyright (C) 1999-2001 William J Turner,
- *               2001 Bradford Hovinen
+ * Copyright 1999-2001 William J Turner,
+ *           2001 Bradford Hovinen
  *
  * Written by William J Turner <wjturner@math.ncsu.edu>,
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
- * ------------------------------------
+ * Integers modulo n
  *
- * See COPYING for license information.
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_ring_modular_H
-#define __LELA_ring_modular_H
+#ifndef __LELA_RING_MODULAR_H
+#define __LELA_RING_MODULAR_H
 
 #include <iostream>
 #include <climits>
@@ -654,7 +657,7 @@ struct AllModules<Modular<Element> > : public StrassenModule<Modular<Element>, Z
 
 #include "lela/randiter/modular.h"
 
-#endif // __LELA_ring_modular_H
+#endif // __LELA_RING_MODULAR_H
 
 // Local Variables:
 // mode: C++

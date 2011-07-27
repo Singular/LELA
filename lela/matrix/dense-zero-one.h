@@ -1,15 +1,16 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* lela/matrix/dense-zero-one.h
  * Copyright 2010 Bradford Hovinen <hovinen@gmail.com>
  *
- * Specialisation of DenseMatrixBase for zero-one dense matrices
+ * Specialisation of DenseMatrix for zero-one dense matrices
  *
- * Evolved from dense.h
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __MATRIX_DENSE_ZERO_ONE_H
-#define __MATRIX_DENSE_ZERO_ONE_H
+#ifndef __LELA_MATRIX_DENSE_ZERO_ONE_H
+#define __LELA_MATRIX_DENSE_ZERO_ONE_H
 
 #include <vector>
 
@@ -397,4 +398,13 @@ public:
 
 #endif // __LELA_HAVE_M4RI
 
-#endif // __MATRIX_DENSE_ZERO_ONE_H
+#endif // __LELA_MATRIX_DENSE_ZERO_ONE_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

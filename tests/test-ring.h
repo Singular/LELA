@@ -1,13 +1,16 @@
 /* lela/tests/test-ring.h
  * Copyright 2001, 2002 Bradford Hovinen
+ * 
+ * Generic tests for rings
  *
- * See COPYING for license information.
- *
- * Extracted by bds from test-generic.h, written by Bradford Hovinen <hovinen@cis.udel.edu>
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_test_ring_H
-#define __LELA_test_ring_H
+#ifndef __LELA_TESTS_TEST_RING_H
+#define __LELA_TESTS_TEST_RING_H
 
 #include <iostream>
 #include <sstream>
@@ -1154,7 +1157,7 @@ bool runRingTests (const Ring &F, const char *desc, unsigned int iterations, boo
 	return ret;
 }
 
-#endif // __LELA_test_ring_H
+#endif // __LELA_TESTS_TEST_RING_H
 
 // Local Variables:
 // mode: C++

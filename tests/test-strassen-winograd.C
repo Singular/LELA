@@ -2,12 +2,13 @@
  * Copyright 2011 Bradford Hovinen
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ---------------------------------------------------------
- *
- * See COPYING for license information.
- *
  * Test for implementation of Strassen-Winograd fast
  * matrix-multiplication
+ *
+ * ---------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include <iostream>

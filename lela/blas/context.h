@@ -2,8 +2,9 @@
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __BLAS_CONTEXT_H

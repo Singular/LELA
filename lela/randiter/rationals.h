@@ -5,8 +5,9 @@
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_RANDITER_RATIONALS_H

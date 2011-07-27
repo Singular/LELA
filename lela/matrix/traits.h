@@ -1,13 +1,19 @@
 /* lela/matrix/traits.h
  * Copyright 2011 Bradford Hovinen
  *
- * See COPYING for license information.
+ * Properties of matrices on which algorithms are specialised
+ *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_MATRIX_TRAITS_H
 #define __LELA_MATRIX_TRAITS_H
 
-namespace LELA {
+namespace LELA
+{
 
 /** Matrix-iterator-types
  *

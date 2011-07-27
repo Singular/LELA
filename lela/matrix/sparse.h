@@ -6,12 +6,13 @@
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  * 
  * --------------------------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_matrix_sparse_H
-#define __LELA_matrix_sparse_H
+#ifndef __LELA_MATRIX_SPARSE_H
+#define __LELA_MATRIX_SPARSE_H
 
 #ifndef _SP_BB_VECTOR_
 #  include <vector>
@@ -277,7 +278,7 @@ class SparseMatrix<_Element, _Row, VectorRepresentationTypes::Sparse>
 
 #include "lela/matrix/sparse-zero-one.h"
 
-#endif // __LELA_matrix_sparse_H
+#endif // __LELA_MATRIX_SPARSE_H
 
 // Local Variables:
 // mode: C++

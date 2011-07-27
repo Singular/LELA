@@ -1,3 +1,8 @@
+# Copyright 2011 Bradford Hovinen
+# 
+# This file is part of LELA, licensed under the GNU General Public
+# License version 3. See COPYING for more information.
+
 if BUILD_DOCS
 DOC_TARGETS = index.html
 REFDOC_TARGETS = 

@@ -1,13 +1,18 @@
 /* lela/util/timer.C
- * Copyright 1994-1997 Givaro Team
+ * Copyright 1994-1997 T. Gautier
  *
  * Written by T. Gautier
  *
- * See COPYING for license information.
+ * Support for measuring timings
+ *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_timer_INL
-#define __LELA_timer_INL
+#ifndef __LELA_UTIL_TIMER_C
+#define __LELA_UTIL_TIMER_C
 
 // Description:
 // - various timer objects
@@ -202,7 +207,7 @@ const Timer Timer::operator + (const Timer & T)  const
  
 } // namespace LELA
 
-#endif //__LELA_timer_INL
+#endif //__LELA_UTIL_TIMER_C
 
 // Local Variables:
 // mode: C++

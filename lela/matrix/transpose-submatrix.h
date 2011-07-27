@@ -3,11 +3,12 @@
  *
  * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
  *
- * Evolved from dense-base.h by Bradford Hovinen
+ * Submatrix of a transposed matrix
  *
  * --------------------------------------------------------
- *
- * See COPYING for license information
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_MATRIX_TRANSPOSE_SUBMATRIX_H

@@ -1,26 +1,18 @@
 /* lela/util/error.h
- * Copyright (C) 1994-1997 Givaro Team
+ * Copyright 1994-1997 T. Gautier
  *
  * Written by T. Gautier
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * Support-routines for errors
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_util_error_H
-#define __LELA_util_error_H
+#ifndef __LELA_UTIL_ERROR_H
+#define __LELA_UTIL_ERROR_H
 
 #include <cstring>
 #include <iostream>
@@ -96,7 +88,7 @@ class DiagonalEntryNotInvertible
  
 }
 
-#endif // __LELA_util_error_H
+#endif // __LELA_UTIL_ERROR_H
 
 // Local Variables:
 // mode: C++

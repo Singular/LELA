@@ -5,12 +5,13 @@
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_randiter_nonzero_H
-#define __LELA_randiter_nonzero_H
+#ifndef __LELA_RANDITER_NONZERO_H
+#define __LELA_RANDITER_NONZERO_H
 
 #include "lela/lela-config.h"
 #include "lela/ring/interface.h"
@@ -70,7 +71,7 @@ private:
  
 } // namespace LELA
 
-#endif // __LELA_randiter_nonzero_H
+#endif // __LELA_RANDITER_NONZERO_H
 
 // Local Variables:
 // mode: C++

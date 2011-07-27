@@ -3,13 +3,16 @@
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
+ * Stream of vectors mimicing a C++-istream
+ *
  * ------------------------------------
- *  
- * See COPYING for license information.
+ *
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_vector_stream_TCC
-#define __LELA_vector_stream_TCC
+#ifndef __LELA_VECTOR_STREAM_TCC
+#define __LELA_VECTOR_STREAM_TCC
 
 #include "lela/blas/level1.h"
 
@@ -259,7 +262,7 @@ Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Hybrid01>::
 
 } // namespace LELA
 
-#endif // __LELA_vector_stream_TCC
+#endif // __LELA_VECTOR_STREAM_TCC
 
 // Local Variables:
 // mode: C++

@@ -1,15 +1,16 @@
 /* lela/ring/gf2.h
- * Copyright 2003-2007 The LELA group
+ * Copyright 2003-2007 Bradford Hovinen, Jean-Guillaume Dumas, Clement Pernet
  *
- * Authors : B. Hovinen, JG Dumas, C. Pernet
+ * Implementation of GF(2)
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_ring_gf2_H
-#define __LELA_ring_gf2_H
+#ifndef __LELA_RING_GF2_H
+#define __LELA_RING_GF2_H
 
 #include <iostream>
 #include <climits>
@@ -367,7 +368,7 @@ struct AllModules<GF2> : public StrassenModule<GF2, GenericModule<GF2> >
 
 #include "lela/randiter/gf2.h"
 
-#endif // __LELA_ring_gf2_H
+#endif // __LELA_RING_GF2_H
 
 // Local Variables:
 // mode: C++

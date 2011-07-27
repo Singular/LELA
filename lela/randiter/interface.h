@@ -1,13 +1,14 @@
-/* lela/randiter/archetype.h
+/* lela/randiter/interface.h
  * Copyright 1999-2001 William J Turner,
  *           2002 Bradford Hovinen
  *
  * Written by William J Turner <wjturner@math.ncsu.edu>,
- *            Bradford Hovinen <hovinen@cis.udel.edu>
+ *            Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_RANDITER_INTERFACE_H

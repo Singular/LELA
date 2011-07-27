@@ -1,13 +1,16 @@
 /* lela/vector/bit-vector.h
- * Copyright (C) 2003 Bradford Hovinen
+ * Copyright 2003 Bradford Hovinen
+ *
+ * Dense vectors over GF(2)
  *
  * -------------------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_bit_vector_H
-#define __LELA_bit_vector_H
+#ifndef __LELA_BIT_VECTOR_H
+#define __LELA_BIT_VECTOR_H
 
 #include <iterator>
 #include <vector>
@@ -201,7 +204,7 @@ class BitVector
 
 #include "lela/vector/bit-vector.tcc"
 
-#endif // __LELA_bit_vector_H
+#endif // __LELA_BIT_VECTOR_H
 
 // Local Variables:
 // mode: C++

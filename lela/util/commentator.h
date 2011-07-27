@@ -1,33 +1,20 @@
 /* lela/util/commentator.h
- * Copyright (C) 1999 B. David Saunders,
- *                    Jean-Guillaume Dumas
- * Copyright (C) 2002 Bradford Hovinen
+ * Copyright 1999 B. David Saunders,
+ *                Jean-Guillaume Dumas
+ * Copyright 2002 Bradford Hovinen
  *
  * Written by B. David Saunders <saunders@cis.udel.edu>,
  *            Jean-Guillaume Dumas <Jean-Guillaume.Dumas@imag.fr>,
  *            Bradford Hovinen <hovinen@cis.udel.edu>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- * This file implements the C++ interface to commentators (for 
- * providing runtime commentary to the user)
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_commentator_H
-#define __LELA_commentator_H
+#ifndef __LELA_UTIL_COMMENTATOR_H
+#define __LELA_UTIL_COMMENTATOR_H
 
 #include <deque>
 #include <stack>
@@ -834,7 +821,7 @@ extern Commentator commentator;
 
 #endif // DISABLE_COMMENTATOR
 
-#endif // __LELA_commentator_H
+#endif // __LELA_UTIL_COMMENTATOR_H
 
 // Local Variables:
 // mode: C++

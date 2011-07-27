@@ -6,12 +6,13 @@
  *            Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
- *
- * See COPYING for license details
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_vector_traits_H
-#define __LELA_vector_traits_H
+#ifndef __LELA_VECTOR_TRAITS_H
+#define __LELA_VECTOR_TRAITS_H
 
 #include <vector>
 #include <algorithm>
@@ -735,7 +736,7 @@ struct RawVector
 
 } // namespace LELA
 
-#endif // __LELA_vector_traits_H
+#endif // __LELA_VECTOR_TRAITS_H
 
 // Local Variables:
 // mode: C++

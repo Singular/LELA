@@ -2,6 +2,13 @@
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
+ *
+ * Class to chop matrices into pieces and splice them together
+ *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_UTIL_SPLICER_TCC

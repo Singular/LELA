@@ -3,7 +3,10 @@
  *
  * Wrapper for libm4ri-matrices
  *
- * Evolved from dense.h
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_MATRIX_M4RI_MATRIX_H

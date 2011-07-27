@@ -1,13 +1,14 @@
 /* tests/test-rationals.C
- * Copyright (C) 2001, 2002 Bradford Hovinen,
- * Copyright (C) 2002 Dave Saunders
+ * Copyright 2001, 2002 Bradford Hovinen,
+ * Copyright 2002 Dave Saunders
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>,
+ * Written by Bradford Hovinen <hovinen@gmail.com>,
  *            Dave Saunders <saunders@cis.udel.edu>
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/lela-config.h"

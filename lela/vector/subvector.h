@@ -1,18 +1,21 @@
 /* lela/vector/subvector.h
  * Copyright 2002 William J. Turner
  *
- * ------------------------------------
- *
- * See COPYING for license information.
- *
  * Written by William J. Turner <wjturner@acm.org>
  * Mods by -bds 
  * Maintained by: -bds <saunders@udel.edu> 
  * (where there is missing or buggy function, please contact me rather than workaround)
+ *
+ * Subvector of a dense vector
+ *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_subvector_H
-#define __LELA_subvector_H
+#ifndef __LELA_VECTOR_SUBVECTOR_H
+#define __LELA_VECTOR_SUBVECTOR_H
 
 #include <iterator>
 #include <stdexcept>
@@ -421,9 +424,9 @@ void swap (LELA::MutableSubvector<Vector> &x, LELA::MutableSubvector<Vector> &y)
 		std::swap (*i_x, *i_y);
 }
 
-}
+} // namespace std
 	
-#endif //__LELA_subvector_H
+#endif //__LELA_VECTOR_SUBVECTOR_H
 
 // Local Variables:
 // mode: C++

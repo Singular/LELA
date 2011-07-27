@@ -1,13 +1,16 @@
 /* lela/vector/bit-vector.tcc
  * Copyright 2003 Bradford Hovinen
  *
- * -------------------------------------------------
+ * Dense vectors over GF(2)
  *
- * See COPYING for license information.
+ * -------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_bit_vector_TCC
-#define __LELA_bit_vector_TCC
+#ifndef __LELA_BIT_VECTOR_TCC
+#define __LELA_BIT_VECTOR_TCC
 
 #include <stdexcept>
 #include <vector>
@@ -144,7 +147,7 @@ inline bool BitVector<Endianness>::operator == (const BitVector<Endianness> &v) 
 
 } // namespace LELA
 
-#endif // __LELA_bit_vector_TCC
+#endif // __LELA_BIT_VECTOR_TCC
 
 // Local Variables:
 // mode: C++

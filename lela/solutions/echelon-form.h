@@ -6,8 +6,9 @@
  * Compute the echelon-form of a matrix
  *
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_SOLUTIONS_ECHELON_FORM_H

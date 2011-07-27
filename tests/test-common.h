@@ -1,15 +1,16 @@
 /* lela/tests/test-common.C
  * Copyright (C) 2001, 2002 Bradford Hovinen
  *
- * Written by Bradford Hovinen <hovinen@cis.udel.edu>
+ * Written by Bradford Hovinen <hovinen@gmail.com>
  *
  * ------------------------------------
  * 
- * See COPYING for license information.
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_test_common_H
-#define __LELA_test_common_H
+#ifndef __LELA_TESTS_TEST_COMMON_H
+#define __LELA_TESTS_TEST_COMMON_H
 
 #include <iostream>
 #include <fstream>
@@ -106,7 +107,7 @@ extern inline double incompleteGamma (double a, double x, double tol);
 
 double chiSquaredCDF (double chi_sqr, double df);
 
-#endif // __LELA_test_common_H
+#endif // __LELA_TESTS_TEST_COMMON_H
 
 // Local Variables:
 // mode: C++

@@ -3,8 +3,9 @@
  *
  * BLAS Level 1 public interface
  * ------------------------------------
- *
- * See COPYING for license information.
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __BLAS_LEVEL1_H

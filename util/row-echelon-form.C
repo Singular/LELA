@@ -2,11 +2,12 @@
  * Copyright 2010 Bradford Hovinen
  * Written by Bradford Hovinen <hovinen@gmail.com>
  *
- * ---------------------------------------------------------
- *
- * See COPYING for license information.
- *
  * Utility to convert a matrix to row-echelon form
+ *
+ * ---------------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #include "lela/util/commentator.h"

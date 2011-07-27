@@ -1,11 +1,11 @@
-# Copyright (c) 2010 the LELA group
-# This file is part of LELA (and probably stolen here and there)
-# see COPYING for licence
+# Copyright 2010 members of the LinBox group
+# 
+# This file is part of LELA, licensed under the GNU General Public
+# License version 3. See COPYING for more information.
+
 AC_PREREQ(2.50)
-#AC_INIT(lela/lela.doxy)
 AC_INIT(lela,0.1.0,hovinen@gmail.com) 
 AM_INIT_AUTOMAKE([1.8 gnu no-dependencies])
-#AM_CONFIG_HEADER([config.h])
 AM_CONFIG_HEADER([lela/lela-config.h])
 AX_PREFIX_CONFIG_H(lela/lela-config.h, __LELA)
 AC_PATH_PROG(RM, rm, $FALSE)

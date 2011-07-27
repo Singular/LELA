@@ -2,11 +2,17 @@
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
  *
  * Written by Bradford Hovinen <hovinen@gmail.com>
+ *
  * ----------------------------
  *
  * Note: This header must not have dependencies, since
  * lela/integer.h depends on it to provide a 128-bit data-type when
  * one is not provided by the system.
+ *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_DOUBLE_WORD_H

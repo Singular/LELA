@@ -1,15 +1,16 @@
-/* -*- mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-
 /* lela/vector/shifted-vector.h
  * Copyright 2010 Bradford Hovinen
  *
- * -------------------------------------------------
+ * Wrapper around std::vector which shifts entries by a fixed amount
  *
- * See COPYING for license information.
+ * -------------------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __VECTOR_SHIFTED_VECTOR_H
-#define __VECTOR_SHIFTED_VECTOR_H
+#ifndef __LELA_VECTOR_SHIFTED_VECTOR_H
+#define __LELA_VECTOR_SHIFTED_VECTOR_H
 
 #include <iterator>
 
@@ -309,4 +310,13 @@ protected:
 
 } // namespace LELA
 
-#endif // __VECTOR_SHIFTED_VECTOR_H
+#endif // __LELA_VECTOR_SHIFTED_VECTOR_H
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax

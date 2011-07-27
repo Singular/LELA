@@ -3,18 +3,21 @@
  *
  * Written by William J. Turner <wjturner@acm.org>
  * Mods by -bds
- * ------------------------------------
  *
- * See COPYING for license information.
+ * Iterator over a dense vector which support for a fixed stride
+ *
+ * ------------------------------------
+ * 
+ * This file is part of LELA, licensed under the GNU General Public
+ * License version 3. See COPYING for more information.
  */
 
-#ifndef __LELA_subiterator_H
-#define __LELA_subiterator_H
+#ifndef __LELA_VECTOR_SUBITERATOR_H
+#define __LELA_VECTOR_SUBITERATOR_H
 
 #include <iterator>
 #include <vector>
 
-// namespace in which all LELA code resides
 namespace LELA
 {
 
@@ -151,7 +154,7 @@ class Subiterator
 
 } // namespace LELA
 
-#endif // __LELA_subiterator_H
+#endif // __LELA_VECTOR_SUBITERATOR_H
 
 // Local Variables:
 // mode: C++
