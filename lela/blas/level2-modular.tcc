@@ -1,7 +1,9 @@
 /* lela/blas/level2-modular.tcc
  * Copyright 2011 Bradford Hovinen <hovinen@gmail.com>
+ * Portions derived from LinBox, linbox/field/modular-int32.h
  *
  * Implementations of level 2 BLAS interface for Z/p
+ *
  * ------------------------------------
  * 
  * This file is part of LELA, licensed under the GNU General Public
