@@ -11,9 +11,98 @@
       <holder>Bradford Hovinen</holder>
     </copyright>
   </articleinfo>
-<!--  <section>
+  <section>
     <title>Downloading and installing</title>
-  </section> -->
+
+    <para>
+      The latest release of LELA may be obtained from
+      its <ulink url="http://www.singular.uni-kl.de/lela/">website</ulink>. Developement
+      of LELA occurs at
+      its <ulink url="https://github.com/hovinen/LELA">GIT
+      repository</ulink> to which anyone may obtain read-only access.
+    </para>
+
+    <para>
+      See the file INSTALL in the LELA-distribution for detailed
+      installation-instructions. The basic procedure is
+      <programlisting>
+./configure
+make
+make install</programlisting>
+    </para>
+
+    <para>
+      LELA has one mandatory library-dependency, the GNU
+      Multi-Precision Library (GMP) for calculations with large
+      integers and rational numbers. This is available for nearly all
+      platforms and can usually be obtained from your platform-vendor
+      or, for users of Windows,
+      from <ulink url="http://www.cygwin.com/">Cygwin</ulink>. See
+      also GMP's <ulink url="http://gmplib.org/">website</ulink>.
+    </para>
+
+    <para>
+      In addition, LELA can optionally make use of some libraries to
+      provide highly tuned implementations of algorithms in specific
+      cases or to provide additional functionality. Their presence is
+      detected when you run <filename>configure</filename>. They are
+      as follows:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The <emphasis>Basic Linear Algebra Subprograms</emphasis>
+	  or <emphasis>BLAS</emphasis>. This can dramatically improve
+	  performance over Z/n. LELA can use almost any implementation
+	  of BLAS. Such an implementation can be obtained from your
+	  vendor or from a project such
+	  as <ulink url="http://math-atlas.sourceforge.net/">ATLAS</ulink>.
+	</para>
+	<para>
+	  The use of BLAS may be enabled or disabled when
+	  running <filename>configure</filename> with the
+	  option <literal>--with-blas</literal>,
+	  respectively <literal>--without-blas</literal>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <emphasis>M4RI</emphasis>. This library dramatically
+	  improves performance for calculations with dense matrices
+	  over GF(2). It can be obtained
+	  from <ulink url="http://m4ri.sagemath.org/">its
+	  website</ulink>.
+	</para>
+	<para>
+	  The use of M4RI may be enabled or disabled when
+	  running <filename>configure</filename> with the
+	  option <literal>--with-m4ri</literal>,
+	  respectively <literal>--without-m4ri</literal>.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <emphasis>libpng</emphasis>. This library adds support for
+	  reading and writing 0-1 matrices in PNG format, which is
+	  extremely useful for large matrices.
+	</para>
+	<para>
+	  The use of libpng may be enabled or disabled when
+	  running <filename>configure</filename> with the
+	  option <literal>--with-png</literal>,
+	  respectively <literal>--without-png</literal>.
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      For a complete list of options
+      to <filename>configure</filename>, run
+      <programlisting>
+./configure --help</programlisting>
+    </para>
+  </section>
   <section>
     <title>Basic usage</title>
 
