@@ -38,11 +38,11 @@ xml:
 
 EXTRA_DIST = \
 	tutorial.xml	\
+	tutorial.html	\
 	caution.png	\
 	note.png	\
 	config.xsl	\
-	docbook.css	\
-	index.html
+	docbook.css
 
 MAINTAINERCLEANFILES = \
 	index.html		\

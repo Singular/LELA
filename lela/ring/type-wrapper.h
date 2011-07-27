@@ -197,6 +197,8 @@ public:
 
 }; // template <class K> class TypeWrapperRing
 
+#ifdef __LELA_BLAS_AVAILABLE
+
 template <class Element>
 struct BLASModule : public GenericModule<TypeWrapperRing<Element> >
 {
@@ -220,6 +222,8 @@ struct AllModules<TypeWrapperRing<double> > : public BLASModule<double>
 
 	AllModules (const TypeWrapperRing<double> &R) : BLASModule<double> (R) {}
 };
+
+#endif // __LELA_BLAS_AVAILABLE
 
 } // namespace LELA
 
