@@ -63,6 +63,8 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 	inline size_t         size  () const { return _end_marker - _begin; }
 	inline bool           empty () const { return _end_marker == _begin; }
 
+	inline value_type     front () const { return *(begin ()); }
+
     private:
 	size_t _start, _finish;
 	typename Vector::const_iterator _begin, _end, _end_marker;
@@ -93,6 +95,8 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 
 			index_type first;
 			word_type second;
+
+			operator value_type () const { return value_type (first, second); }
 		};
 
 		typedef const_reference reference;

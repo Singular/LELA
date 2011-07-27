@@ -17,6 +17,7 @@
 #include "lela/vector/traits.h"
 #include "lela/vector/bit-iterator.h"
 #include "lela/ring/gf2.h"
+#include "lela/algorithms/pivot-strategy.h"
 
 namespace LELA
 {
@@ -41,32 +42,6 @@ public:
 private:
 	Context<Ring, Modules> &ctx;
 
-	// Find a suitable pivot from the matrix A starting at
-	// start_row. If no pivot can be found (i.e. all rows
-	// from start_row onwards are already 0) return
-	// -1. Otherwise fill in col with the pivot-column.
-	template <class Matrix>
-	int GetPivot (const Matrix &A, int start_row, size_t &col) const
-		{ return GetPivotSpecialised (A, start_row, col, typename VectorTraits<Ring, typename Matrix::Row>::RepresentationType ()); }
-
-	// Find the first nonzero element in the given column
-	// starting at the row of the same index. Return -1 if
-	// none found.
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Dense) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Dense01) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Sparse) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Sparse01) const;
-
-	template <class Matrix>
-	int GetPivotSpecialised (const Matrix &A, int start_row, size_t &col, VectorRepresentationTypes::Hybrid01) const;
-
 public:
 	/**
 	 * \brief Constructor
@@ -77,33 +52,23 @@ public:
 		: ctx (_ctx) {}
 
 	/**
-	 * \brief Compute the (reduced or non-reduced)
+	 * \brief Compute the (non-reduced)
 	 * row-echelon form of a matrix
 	 *
 	 * At conclusion, the parameters will have the property that
 	 * A_out=LPA_in, where A_out is the matrix A at output and
-	 * A_in is the matrix A at input. A_out is in reduced
+	 * A_in is the matrix A at input. A_out is in (non-reduced)
 	 * row-echelon form, L is lower triangular, and P is a
 	 * permutation.
 	 *
-	 * In comparison with @see RowEchelonForm, this
-	 * version does not take advantage of fast
-	 * matrix-multiplication and does not use a
-	 * divide-and-conquer method. It also modifies the
-	 * input-matrix A.
+	 * If compute_L is set to true, then L is computed and stored
+	 * in A in place of the part under the main diagonal. The
+	 * diagonal-entries of L are of course omitted and may assumed
+	 * to be one.
 	 *
-	 * The pivot-strategy is to find the row with the
-	 * fewest elements. This seems to be the only sensible
-	 * approach, given that we are not allowed to permute
-	 * columns.
-	 *
-	 * @param A The sparse matrix whose reduced
-	 * row-echelon form to compute. Will be replaced by
-	 * its reduced row-echelon form during computation.
-	 *
-	 * @param L The dense matrix into which to store the
-	 * matrix L as defined above. Should be of size n x n,
-	 * with n the row-dimension of A.
+	 * @param A The matrix whose row-echelon form is to be
+	 * computed. Will be replaced by its row-echelon form during
+	 * computation.
 	 *
 	 * @param P The permutation into which to store the
 	 * permutation P as defined above.
@@ -115,53 +80,144 @@ public:
 	 * computed determinant of the submatrix of A formed
 	 * by taking pivot-rows and -columns.
 	 *
-	 * @param reduced True if the routine should compute
-	 * the reduced row-echelon form and false if it should
-	 * only compute the (non-reduced) row-echelon form.
+	 * @param compute_L True if the matrix L should be
+	 * computed. If false, then L is ignored.
+	 */
+	template <class Matrix>
+	Matrix &echelonize (Matrix        &A,
+			    Permutation   &P,
+			    size_t        &rank,
+			    Element       &det,
+			    bool           compute_L = true) const
+		{ return echelonize (A, P, rank, det, typename DefaultPivotStrategy<Ring, Modules, typename Matrix::Row>::Strategy (ctx), compute_L); }
+
+	/** Compute the non-reduced row-echelon form of a matrix using
+	 * the pivot-strategy provided
+	 *
+	 * Identical to echelonize above, but uses the given
+	 * pivot-strategy.
+	 */
+	template <class Matrix, class PivotStrategy>
+	Matrix &echelonize (Matrix        &A,
+			    Permutation   &P,
+			    size_t        &rank,
+			    Element       &det,
+			    PivotStrategy  PS,
+			    bool           compute_L) const;
+
+	/**
+	 * \brief Compute the reduced row-echelon form of a matrix
+	 *
+	 * At conclusion, the parameters will have the property that
+	 * A_out=LPA_in, where A_out is the matrix A at output and
+	 * A_in is the matrix A at input. A_out is in reduced
+	 * row-echelon form, L is the transform-matrix, and P is a
+	 * permutation.
+	 *
+	 * @param A The matrix whose reduced row-echelon form is to be
+	 * computed. Will be replaced by its reduced row-echelon form
+	 * during computation.
+	 *
+	 * @param L The matrix in which to store the
+	 * transform-matrix. Should be square of dimension equal to
+	 * the row-dimension of A.
+	 *
+	 * @param P The permutation into which to store the
+	 * permutation P as defined above.
+	 *
+	 * @param rank An integer into which to store the
+	 * computed rank of A.
+	 *
+	 * @param det A ring-element into which to store the
+	 * computed determinant of the submatrix of A formed
+	 * by taking pivot-rows and -columns.
 	 *
 	 * @param compute_L True if the matrix L should be
 	 * computed. If false, then L is ignored.
 	 *
-	 * @param start_row Start at this row. Intended for
-	 * internal use.
+	 * @returns Reference to A
 	 */
 	template <class Matrix1, class Matrix2>
-	void RowEchelonForm (Matrix1       &A,
-			     Matrix2       &L,
-			     Permutation   &P,
-			     size_t        &rank,
-			     Element       &det,
-			     bool           reduced = false,
-			     bool           compute_L = true,
-			     size_t         start_row = 0) const;
+	Matrix1 &echelonize_reduced (Matrix1       &A,
+				     Matrix2       &L,
+				     Permutation   &P,
+				     size_t        &rank,
+				     Element       &det,
+				     bool           compute_L = false) const
+		{ return echelonize_reduced (A, L, P, rank, det, typename DefaultPivotStrategy<Ring, Modules, typename Matrix1::Row>::Strategy (ctx), compute_L); }
 
-	/** \brief Take a matrix of known rank in row-echelon
-	 * form and convert to reduced row-echelon form
+	/** Compute the reduced row-echelon form of a matrix using the
+	 * pivot-strategy provided
 	 *
-	 * @param A Input matrix A in row-echelon form;
-	 * replaced by its reduced row-echelon form
-	 *
-	 * @param L Dense matrix L into which to store
-	 * conversion-matrix
-	 *
-	 * @param compute_L bool, true if L should be
-	 * computed; if false then L is left unchanged
-	 *
-	 * @param rank Rank of A; must be known a priori
-	 * (though can be easily computed by scanning rows of
-	 * A)
-	 *
-	 * @param start_row Pivot-rows begin at this
-	 * row. Intended for internal use only.
-	 *
-	 * @return Reference to A
+	 * Identical to echelonize_reduced above, but uses the given
+	 * pivot-strategy.
 	 */
-	template <class Matrix1, class Matrix2>
-	Matrix1 &ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row = 0) const;
+	template <class Matrix1, class Matrix2, class PivotStrategy>
+	Matrix1 &echelonize_reduced (Matrix1       &A,
+				     Matrix2       &L,
+				     Permutation   &P,
+				     size_t        &rank,
+				     Element       &det,
+				     PivotStrategy  PS,
+				     bool           compute_L) const;
 
-	/// Set the given matrix to the identity-matrix
+	/**
+	 * \brief Compute the PLUQ-decomposition of a matrix
+	 *
+	 * At conclusion, the parameters will have the property that
+	 * A=PLUQ, where L is unit lower triangular, U is upper
+	 * triangular, and P and Q are permutations.
+	 *
+	 * The matrices L and U are stored in place in A, with L
+	 * occupying the part below the main diagonal and U occupying
+	 * the part above. The entries on the diagonal of L are
+	 * omitted and are taken to be one.
+	 *
+	 * The matrix A must support row-iterators. This method can
+	 * not be used on sparse matrices with rows in the hybrid 0-1
+	 * format. Its use on dense 0-1 matrices is not currently
+	 * recommended.
+	 *
+	 * @param A The sparse matrix whose reduced row-echelon form
+	 * to compute. Will be replaced by the matrices L and U during
+	 * computation.
+	 *
+	 * @param P The permutation into which to store the
+	 * permutation P as defined above.
+	 *
+	 * @param rank An integer into which to store the
+	 * computed rank of A.
+	 *
+	 * @param det A ring-element into which to store the
+	 * computed determinant of the submatrix of A formed
+	 * by taking pivot-rows and -columns.
+	 */
 	template <class Matrix>
-	void SetIdentity (Matrix &U, size_t start_row = 0) const;
+	Matrix &pluq (Matrix        &A,
+		      Permutation   &P,
+		      Permutation   &Q,
+		      size_t        &rank,
+		      Element       &det) const
+		{ return pluq (A, P, Q, rank, det, typename DefaultPivotStrategy<Ring, Modules, typename Matrix::Row>::Strategy (ctx)); }
+
+	template <class Matrix, class PivotStrategy>
+	Matrix &pluq (Matrix        &A,
+		      Permutation   &P,
+		      Permutation   &Q,
+		      size_t        &rank,
+		      Element       &det,
+		      PivotStrategy  PS) const;
+
+	/** Move the lower-triangular part of A to L and reset the
+	 * lower-triangular part of A to 0
+	 *
+	 * This is a convenience-function. It is not written for
+	 * efficiency and may perform quite poorly on 0-1 matrices.
+	 *
+	 * Assumes L is preset to 0
+	 */
+	template <class Matrix1, class Matrix2>
+	void move_L (Matrix1 &L, Matrix2 &A) const;
 };
 
 } // namespace LELA

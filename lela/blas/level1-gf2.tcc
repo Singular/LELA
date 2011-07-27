@@ -16,6 +16,7 @@
 
 #include "lela/blas/level1-gf2.h"
 #include "lela/blas/level1-ll.h"
+#include "lela/blas/level1-generic.tcc"
 
 namespace LELA
 {

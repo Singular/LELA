@@ -176,7 +176,7 @@ bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n)
 	report << "Input matrix A:" << std::endl;
 	BLAS3::write (ctx, report, A);
 
-	Solver.RowEchelonForm (A, A, rank, det);
+	Solver.echelonize (A, A, rank, det);
 
 	report << "Output matrix:" << std::endl;
 	BLAS3::write (ctx, report, A);
@@ -188,7 +188,7 @@ bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n)
 	size_t rank1;
 	typename Ring::Element det1;
 
-	elim.RowEchelonForm (C, L, P, rank1, det1, true, false);
+	elim.echelonize_reduced (C, L, P, rank1, det1);
 
 	report << "True reduced row-echelon form:" << std::endl;
 	BLAS3::write (ctx, report, C);

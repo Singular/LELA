@@ -225,7 +225,7 @@ struct DefaultSparseMatrix<GF2>
 
 template <class Ring, class Modules>
 template <class Matrix>
-void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det)
+void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det)
 {
 	commentator.start ("Reduction of F4-matrix to reduced row-echelon form", __FUNCTION__);
 
@@ -294,7 +294,7 @@ void FaugereLachartre<Ring, Modules>::RowEchelonForm (Matrix &R, const Matrix &X
 
 	// size_t r_D;
 
-	EF.RowEchelonForm (D);
+	EF.echelonize (D);
 
 	reportUI << "Row-echelon form of D - C A^-1 B:" << std::endl;
 	BLAS3::write (ctx, reportUI, D);

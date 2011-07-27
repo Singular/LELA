@@ -19,17 +19,15 @@
 #include <lela/ring/modular.h>
 #include <lela/matrix/dense.h>
 #include <lela/vector/stream.h>
+#include <lela/algorithms/elimination.h>
 #include <lela/algorithms/gauss-jordan.h>
 
 using namespace LELA;
 
 template <class Ring>
-bool testGaussTransform (const Ring &F, size_t m, size_t n, bool reduce)
+bool testGaussTransform (const Ring &F, size_t m, size_t n)
 {
-	if (reduce)
-		commentator.start ("Testing GaussJordan::RowEchelonForm (Gauss-Jordan transform)", __FUNCTION__);
-	else
-		commentator.start ("Testing GaussJordan::RowEchelonForm (Gauss transform)", __FUNCTION__);
+	commentator.start ("Testing GaussJordan::echelonize", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -37,12 +35,89 @@ bool testGaussTransform (const Ring &F, size_t m, size_t n, bool reduce)
 	bool pass = true;
 
 	DenseMatrix<typename Ring::Element> R (m, n);
-	DenseMatrix<typename Ring::Element> U (m, m);
-	DenseMatrix<typename Ring::Element> UPA (m, n);
 
 	RandomDenseStream<Ring, typename DenseMatrix<typename Ring::Element>::Row> A_stream (F, n, m);
 
-	DenseMatrix<typename Ring::Element> A (A_stream);
+	DenseMatrix<typename Ring::Element> A (A_stream), A_copy (m, n);
+
+	typename GaussJordan<Ring>::Permutation P;
+
+	Context<Ring> ctx (F);
+
+	Elimination<Ring> elim (ctx);
+	GaussJordan<Ring> GJ (ctx);
+	size_t rank;
+	typename Ring::Element det;
+
+	BLAS3::copy (ctx, A, R);
+	BLAS3::copy (ctx, A, A_copy);
+
+	GJ.echelonize (R, P, rank, det);
+
+	report << "A = " << std::endl;
+	BLAS3::write (ctx, report, A);
+
+	report << "P = ";
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
+
+	report << "R, L = " << std::endl;
+	BLAS3::write (ctx, report, R);
+
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), A);
+
+	report << "PA = " << std::endl;
+	BLAS3::write (ctx, report, A);
+
+	typename DenseMatrix<typename Ring::Element>::SubmatrixType Rp (R, 0, 0, R.rowdim (), R.rowdim ());
+
+	BLAS3::trmm (ctx, F.one (), Rp, A, LowerTriangular, true);
+
+	report << "LPA = " << std::endl;
+	BLAS3::write (ctx, report, A);
+
+	report << "Computed rank = " << rank << std::endl;
+	report << "Computed det = ";
+	F.write (report, det);
+	report << std::endl;
+
+	// Trick to eliminate part below diagonal so that equality-check works
+	elim.move_L (R, R);
+
+	if (!BLAS3::equal (ctx, A, R)) {
+		error << "ERROR: LPA != R" << std::endl;
+		pass = false;
+	}
+
+	elim.echelonize (A_copy, P, rank, det, false);
+
+	report << "Result of Elimination::echelonize: " << std::endl;
+	BLAS3::write (ctx, report, A_copy);
+
+	if (!BLAS3::equal (ctx, A_copy, R)) {
+		error << "ERROR: Results from Elimination and GaussJordan not equal" << std::endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring>
+bool testGaussJordanTransform (const Ring &F, size_t m, size_t n)
+{
+	commentator.start ("Testing GaussJordan::echelonize_reduced", __FUNCTION__);
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+
+	bool pass = true;
+
+	DenseMatrix<typename Ring::Element> R (m, n);
+
+	RandomDenseStream<Ring, typename DenseMatrix<typename Ring::Element>::Row> A_stream (F, n, m);
+
+	DenseMatrix<typename Ring::Element> A (A_stream), L (m, m), LPA (m, n);
 
 	typename GaussJordan<Ring>::Permutation P;
 
@@ -54,13 +129,10 @@ bool testGaussTransform (const Ring &F, size_t m, size_t n, bool reduce)
 
 	BLAS3::copy (ctx, A, R);
 
-	GJ.RowEchelonForm (R, U, P, rank, det, reduce);
+	GJ.echelonize_reduced (R, L, P, rank, det);
 
 	report << "A = " << std::endl;
 	BLAS3::write (ctx, report, A);
-
-	report << "U = " << std::endl;
-	BLAS3::write (ctx, report, U);
 
 	report << "P = ";
 	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
@@ -68,25 +140,31 @@ bool testGaussTransform (const Ring &F, size_t m, size_t n, bool reduce)
 	report << "R = " << std::endl;
 	BLAS3::write (ctx, report, R);
 
+	report << "L = " << std::endl;
+	BLAS3::write (ctx, report, L);
+
 	BLAS3::permute_rows (ctx, P.begin (), P.end (), A);
 
 	report << "PA = " << std::endl;
 	BLAS3::write (ctx, report, A);
 
-	BLAS3::scal (ctx, ctx.F.zero (), UPA);
+	BLAS3::scal (ctx, F.zero (), LPA);
+	BLAS3::gemm (ctx, F.one (), L, A, F.zero (), LPA);
 
-	BLAS3::gemm (ctx, F.one (), U, A, F.zero (), UPA);
-
-	report << "UPA = " << std::endl;
-	BLAS3::write (ctx, report, UPA);
+	report << "LPA = " << std::endl;
+	BLAS3::write (ctx, report, LPA);
 
 	report << "Computed rank = " << rank << std::endl;
 	report << "Computed det = ";
 	F.write (report, det);
 	report << std::endl;
 
-	if (!BLAS3::equal (ctx, UPA, R)) {
-		error << "ERROR: UPA != R" << std::endl;
+	// Trick to eliminate part below diagonal so that equality-check works
+	Elimination<Ring> elim (ctx);
+	elim.move_L (R, R);
+
+	if (!BLAS3::equal (ctx, LPA, R)) {
+		error << "ERROR: LPA != R" << std::endl;
 		pass = false;
 	}
 
@@ -131,15 +209,15 @@ int main (int argc, char **argv)
 
 	commentator.start (str.str ().c_str (), "GaussJordan");
 
-	pass1 = testGaussTransform (GFq, m, n, false) && pass1;
-	pass1 = testGaussTransform (GFq, m, n, true) && pass1;
+	pass1 = testGaussTransform (GFq, m, n) && pass1;
+	pass1 = testGaussJordanTransform (GFq, m, n) && pass1;
 
 	commentator.stop (MSG_STATUS (pass1));
 
 	commentator.start ("Running tests over GF(2)", "GaussJordan");
 
-	pass2 = testGaussTransform (gf2, m, n, false) && pass2;
-	pass2 = testGaussTransform (gf2, m, n, true) && pass2;
+	pass2 = testGaussTransform (gf2, m, n) && pass2;
+	pass2 = testGaussJordanTransform (gf2, m, n) && pass2;
 
 	commentator.stop (MSG_STATUS (pass2));
 

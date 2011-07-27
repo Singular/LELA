@@ -308,7 +308,8 @@ Vector &_permute<Ring, typename GenericModule<Ring>::Tag>::permute_impl
 }
 
 template <class Iterator>
-typename Iterator::value_type::first_type image (typename Iterator::value_type::first_type x, Iterator P_begin, Iterator P_end)
+typename std::iterator_traits<Iterator>::value_type::first_type image
+	(typename std::iterator_traits<Iterator>::value_type::first_type x, Iterator P_begin, Iterator P_end)
 {
 	for (; P_begin != P_end; ++P_begin) {
 		if (P_begin->first == x)

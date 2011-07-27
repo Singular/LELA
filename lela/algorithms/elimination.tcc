@@ -21,6 +21,7 @@
 #include "lela/algorithms/elimination.h"
 #include "lela/blas/level1.h"
 #include "lela/blas/level3.h"
+#include "lela/vector/stream.h"
 
 #ifdef DETAILED_PROFILE
 #  define TIMER_DECLARE(part) LELA::UserTimer part##_timer; double part##_time = 0.0;
@@ -44,147 +45,15 @@ namespace LELA
 {
 
 template <class Ring, class Modules>
-template <class Matrix>
-void Elimination<Ring, Modules>::SetIdentity (Matrix &U, size_t start_row) const
+template <class Matrix, class PivotStrategy>
+Matrix &Elimination<Ring, Modules>::echelonize (Matrix        &A,
+						Permutation   &P,
+						size_t        &rank,
+						Element       &det,
+						PivotStrategy  PS,
+						bool           compute_L) const
 {
-	StandardBasisStream<Ring, typename Matrix::Row> stream (ctx.F, U.coldim ());
-	typename Matrix::RowIterator i = U.rowBegin () + start_row;
-
-	for (; i != U.rowEnd (); ++i)
-		stream >> *i;
-}
-
-template <class Ring, class Modules>
-template <class Matrix>
-int Elimination<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						     VectorRepresentationTypes::Dense) const
-{
-	typename Matrix::ConstRowIterator i;
-
-	for (; col < A.coldim (); ++col) {
-		int k = start_row;
-
-		for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k)
-			if (!ctx.F.isZero ((*i)[col]))
-				return k;
-	}
-
-	return -1;
-}
-
-template <class Ring, class Modules>
-template <class Matrix>
-int Elimination<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						     VectorRepresentationTypes::Dense01) const
-{
-	typename Matrix::ConstRowIterator i;
-
-	for (; col < A.coldim (); ++col) {
-		int k = start_row;
-
-		for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k)
-			if ((*i)[col])
-				return k;
-	}
-
-	return -1;
-}
-
-template <class Ring, class Modules>
-template <class Matrix>
-int Elimination<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						     VectorRepresentationTypes::Sparse) const
-{
-	typename Matrix::ConstRowIterator i;
-
-	size_t min_nonzero = (size_t) -1, pivot = -1, k = start_row;
-	col = A.coldim ();
-
-	for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
-		if (!i->empty ()) {
-			if (i->front ().first < col) {
-				col = i->front ().first;
-				min_nonzero = i->size ();
-				pivot = k;
-			}
-			else if (i->front ().first == col && i->size () < min_nonzero) {
-				min_nonzero = i->size ();
-				pivot = k;
-			}
-		}
-	}
-
-	return pivot;
-}
-
-template <class Ring, class Modules>
-template <class Matrix>
-int Elimination<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						     VectorRepresentationTypes::Sparse01) const
-{
-	typename Matrix::ConstRowIterator i;
-
-	size_t min_nonzero = (size_t) -1, pivot = -1, k = start_row, s;
-	col = A.coldim ();
-
-	for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
-		if (!i->empty ()) {
-			if (i->front () < col) {
-				col = i->front ();
-				min_nonzero = i->size ();
-				pivot = k;
-			}
-			else if (i->front () == col && (s = i->size ()) < min_nonzero) {
-				min_nonzero = s;
-				pivot = k;
-			}
-		}
-	}
-
-	return pivot;
-}
-
-template <class Ring, class Modules>
-template <class Matrix>
-int Elimination<Ring, Modules>::GetPivotSpecialised (const Matrix &A, int start_row, size_t &col,
-						     VectorRepresentationTypes::Hybrid01) const
-{
-	typename Matrix::ConstRowIterator i;
-	typename Ring::Element a;
-
-	size_t min_blocks = (size_t) -1, pivot = -1, k = start_row, s;
-	col = A.coldim ();
-
-	for (i = A.rowBegin () + start_row; i != A.rowEnd (); ++i, ++k) {
-		if (!i->empty () && i->front ().first << WordTraits<typename Matrix::Row::word_type>::logof_size <= (int) col) {
-			int idx = BLAS1::head (ctx, a, *i);
-			if ((size_t) idx < col) {
-				col = idx;
-				min_blocks = i->size ();
-				pivot = k;
-			}
-			else if ((size_t) idx == col && (s = i->size ()) < min_blocks) {
-				min_blocks = s;
-				pivot = k;
-			}
-		}
-	}
-
-	return pivot;
-}
-
-template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
-void Elimination<Ring, Modules>::RowEchelonForm (Matrix1       &A,
-						 Matrix2       &L,
-						 Permutation   &P,
-						 size_t        &rank,
-						 Element       &det,
-						 bool           reduced,
-						 bool           compute_L,
-						 size_t         start_row) const
-{
-	commentator.start ("Standard row-echelon form", __FUNCTION__, A.rowdim () / PROGRESS_STEP);
+	commentator.start ("Echelonize (elimination)", __FUNCTION__, A.rowdim () / PROGRESS_STEP);
 
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -192,183 +61,332 @@ void Elimination<Ring, Modules>::RowEchelonForm (Matrix1       &A,
 	TIMER_DECLARE(Permute);
 	TIMER_DECLARE(ElimBelow);
 
-	typename Matrix1::RowIterator i_A, j_A;
+	typename Matrix::RowIterator i_A, j_A;
 
-	size_t col = 0;
-	int k = start_row;
-	Element a, x, xinv, negxinv, negaxinv;
+	size_t pivot_row, pivot_col;
+	size_t i, j;
+	Element a, x, negxinv, negaxinv;
 
 	ctx.F.copy (a, ctx.F.zero ());
 	ctx.F.copy (x, ctx.F.zero ());
-
-	typename Matrix2::RowIterator i_L, j_L;
-
-	if (compute_L) {
-		SetIdentity (L, start_row);
-		i_L = L.rowBegin () + k;
-	}
 
 	P.clear ();
 	rank = 0;
 	ctx.F.init (det, 1);
 
-	for (i_A = A.rowBegin () + k; i_A != A.rowEnd (); ++k, ++i_A) {
+	for (i_A = A.rowBegin (), i = 0, pivot_col = 0; i_A != A.rowEnd () && pivot_col < A.coldim (); ++i, ++i_A, ++pivot_col) {
 		TIMER_START(GetPivot);
-		int pivot = GetPivot (A, k, col);
+		pivot_row = i;
+		if (!PS.getPivot (A, x, pivot_row, pivot_col))
+			break;
 		TIMER_STOP(GetPivot);
 
-		if (pivot == -1)
-			break;
+		lela_check (pivot_row < A.rowdim ());
+		lela_check (pivot_col < A.coldim ());
+
+		// DEBUG
+		// report << "Row " << i << ", pivot is (" << pivot_row << "," << pivot_col << ")" << std::endl;
+		// report << "Current A:" << std::endl;
+		// BLAS3::write (ctx, report, A);
 
 		TIMER_START(Permute);
-		if (k != pivot) {
-			// DEBUG
-			// report << "Permuting " << k << " and " << pivot << " (first " << k - start_row << " columns)" << std::endl;
-			// report << "L before permutation:" << std::endl;
-			// BLAS3::write (ctx, report, L);
-
-			Transposition t (k, pivot);
+		if (i != pivot_row) {
+			Transposition t (i, pivot_row);
 			P.push_back (t);
 			BLAS3::permute_rows (ctx, &t, &t + 1, A);
-
-			if (compute_L) {
-				typename Matrix2::SubmatrixType Lp (L, 0, 0, L.rowdim (), k - start_row);
-				BLAS3::permute_rows (ctx, &t, &t + 1, Lp);
-			}
-
-			// DEBUG
-			// report << "L after permutation:" << std::endl;
-			// BLAS3::write (ctx, report, L);
 		}
 		TIMER_STOP(Permute);
 
-		// DEBUG
-		// report << "Row " << k << ", pivot is " << pivot << std::endl;
-		// report << "Current A:" << std::endl;
+		// report << "A after permutation:" << std::endl;
 		// BLAS3::write (ctx, report, A);
-		// report << "Current L:" << std::endl;
-		// BLAS3::write (ctx, report, L);
-
-		BLAS1::head (ctx, x, *i_A);
 
 		ctx.F.mulin (det, x);
 
-		if (!ctx.F.inv (xinv, x))
+		if (!ctx.F.inv (negxinv, x))
 			throw LELAError ("Could not invert pivot-element in the ring");
 
-		ctx.F.neg (negxinv, xinv);
+		ctx.F.negin (negxinv);
 
 		TIMER_START(ElimBelow);
 
-		if (compute_L) {
-			j_L = i_L;
-			++j_L;
-		}
-
-		for (j_A = i_A; ++j_A != A.rowEnd ();) {
-			if (BLAS1::head (ctx, a, *j_A) == (int) col) {
+		for (j_A = i_A, j = i + 1; ++j_A != A.rowEnd (); ++j) {
+			if (A.getEntry (a, j, pivot_col) && !ctx.F.isZero (a)) {
 				// DEBUG
-				// report << "Eliminating row " << j_A - A.rowBegin () << " from row " << k << std::endl;
+				// report << "Eliminating row " << j << " from row " << i << std::endl;
 
-				ctx.F.mul (negaxinv, negxinv, a);
+				ctx.F.mul (negaxinv, a, negxinv);
 				BLAS1::axpy (ctx, negaxinv, *i_A, *j_A);
 
 				if (compute_L)
-					BLAS1::axpy (ctx, negaxinv, *i_L, *j_L);
+					A.setEntry (j, i, negaxinv);
 			}
-
-			if (compute_L)
-				++j_L;
 		}
 		TIMER_STOP(ElimBelow);
 
 		++rank;
 
-		if ((i_A - A.rowBegin ()) % PROGRESS_STEP == PROGRESS_STEP - 1)
+		if (i % PROGRESS_STEP == PROGRESS_STEP - 1)
 			commentator.progress ();
-
-		if (compute_L)
-			++i_L;
 	}
-
-	if (reduced)
-		ReduceRowEchelon (A, L, compute_L, rank + start_row, start_row);
 
 	TIMER_REPORT(GetPivot);
 	TIMER_REPORT(Permute);
 	TIMER_REPORT(ElimBelow);
 
 	commentator.stop (MSG_DONE);
+
+	return A;
+}
+
+template <class Ring, class Modules>
+template <class Matrix1, class Matrix2, class PivotStrategy>
+Matrix1 &Elimination<Ring, Modules>::echelonize_reduced (Matrix1       &A,
+							 Matrix2       &L,
+							 Permutation   &P,
+							 size_t        &rank,
+							 Element       &det,
+							 PivotStrategy  PS,
+							 bool           compute_L) const
+{
+	lela_check (!compute_L || L.rowdim () == A.rowdim ());
+	lela_check (!compute_L || L.coldim () == A.rowdim ());
+
+	commentator.start ("Echelonize (elimination)", __FUNCTION__, A.rowdim () / PROGRESS_STEP);
+
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	TIMER_DECLARE(GetPivot);
+	TIMER_DECLARE(Permute);
+	TIMER_DECLARE(Elim);
+
+	typename Matrix1::RowIterator i_A, j_A;
+	typename Matrix2::RowIterator i_L, j_L;
+
+	size_t pivot_row, pivot_col;
+	size_t i, j;
+	Element a, x, xinv, nega;
+
+	ctx.F.copy (a, ctx.F.zero ());
+	ctx.F.copy (x, ctx.F.zero ());
+
+	P.clear ();
+	rank = 0;
+	ctx.F.init (det, 1);
+
+	if (compute_L) {
+		// Set L initially to the identity-matrix
+		StandardBasisStream<Ring, typename Matrix2::Row> s (ctx.F, L.rowdim ());
+
+		for (i_L = L.rowBegin (); i_L != L.rowEnd (); ++i_L)
+			s >> *i_L;
+
+		i_L = L.rowBegin ();
+	}
+
+	for (i_A = A.rowBegin (), i = 0, pivot_col = 0; i_A != A.rowEnd () && pivot_col < A.coldim (); ++i, ++i_A, ++pivot_col) {
+		TIMER_START(GetPivot);
+		pivot_row = i;
+		if (!PS.getPivot (A, x, pivot_row, pivot_col))
+			break;
+		TIMER_STOP(GetPivot);
+
+		lela_check (pivot_row < A.rowdim ());
+		lela_check (pivot_col < A.coldim ());
+
+		// DEBUG
+		// report << "Row " << i << ", pivot is (" << pivot_row << "," << pivot_col << ")" << std::endl;
+		// report << "Current A:" << std::endl;
+		// BLAS3::write (ctx, report, A);
+
+		TIMER_START(Permute);
+		if (i != pivot_row) {
+			Transposition t (i, pivot_row);
+			P.push_back (t);
+			BLAS3::permute_rows (ctx, &t, &t + 1, A);
+
+			if (compute_L) {
+				typename Matrix2::SubmatrixType L_sub (L, 0, 0, L.rowdim (), i);
+				BLAS3::permute_rows (ctx, &t, &t + 1, L_sub);
+			}
+		}
+		TIMER_STOP(Permute);
+
+		// report << "A after permutation:" << std::endl;
+		// BLAS3::write (ctx, report, A);
+
+		ctx.F.mulin (det, x);
+
+		if (!ctx.F.inv (xinv, x))
+			throw LELAError ("Could not invert pivot-element in the ring");
+
+		TIMER_START(Elim);
+		BLAS1::scal (ctx, xinv, *i_A);
+
+		if (compute_L) {
+			BLAS1::scal (ctx, xinv, *i_L);
+			j_L = L.rowBegin ();
+		}
+
+		for (j_A = A.rowBegin (), j = 0; j_A != A.rowEnd (); ++j, ++j_A) {
+			if (j_A != i_A && A.getEntry (a, j, pivot_col) && !ctx.F.isZero (a)) {
+				// DEBUG
+				// report << "Eliminating row " << j << " from row " << i << std::endl;
+
+				ctx.F.neg (nega, a);
+				BLAS1::axpy (ctx, nega, *i_A, *j_A);
+				
+				if (compute_L)
+					BLAS1::axpy (ctx, nega, *i_L, *j_L);
+			}
+
+			if (compute_L)
+				++j_L;
+		}
+
+		TIMER_STOP(Elim);
+
+		if (compute_L)
+			++i_L;
+
+		++rank;
+
+		if (i % PROGRESS_STEP == PROGRESS_STEP - 1)
+			commentator.progress ();
+	}
+
+	TIMER_REPORT(GetPivot);
+	TIMER_REPORT(Permute);
+	TIMER_REPORT(Elim);
+
+	commentator.stop (MSG_DONE);
+
+	return A;
+}
+
+template <class Ring, class Modules>
+template <class Matrix, class PivotStrategy>
+Matrix &Elimination<Ring, Modules>::pluq (Matrix        &A,
+					  Permutation   &P,
+					  Permutation   &Q,
+					  size_t        &rank,
+					  Element       &det,
+					  PivotStrategy  PS) const
+{
+	commentator.start ("PLUQ-decomposition (elimination)", __FUNCTION__, A.rowdim () / PROGRESS_STEP);
+
+	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+
+	TIMER_DECLARE(GetPivot);
+	TIMER_DECLARE(Permute);
+	TIMER_DECLARE(ElimBelow);
+
+	typename Matrix::RowIterator i_A, j_A;
+
+	size_t pivot_row, pivot_col;
+	size_t i, j;
+	Element a, x, negxinv, negaxinv;
+
+	ctx.F.copy (a, ctx.F.zero ());
+	ctx.F.copy (x, ctx.F.zero ());
+
+	P.clear ();
+	Q.clear ();
+	rank = 0;
+	ctx.F.init (det, 1);
+
+	for (i_A = A.rowBegin (), i = 0; i_A != A.rowEnd () && i < A.coldim (); ++i, ++i_A) {
+		TIMER_START(GetPivot);
+		pivot_row = pivot_col = i;
+		if (!PS.getPivot (A, x, pivot_row, pivot_col))
+			break;
+		TIMER_STOP(GetPivot);
+
+		lela_check (pivot_row < A.rowdim ());
+		lela_check (pivot_col < A.coldim ());
+
+		TIMER_START(Permute);
+		if (i != pivot_row) {
+			Transposition t (i, pivot_row);
+			P.push_back (t);
+			BLAS3::permute_rows (ctx, &t, &t + 1, A);
+		}
+
+		if (i != pivot_col) {
+			Transposition t (i, pivot_col);
+			Q.push_back (t);
+			BLAS3::permute_cols (ctx, &t, &t + 1, A);
+		}
+		TIMER_STOP(Permute);
+
+		// DEBUG
+		// report << "Row " << i << ", pivot-row is " << pivot << ", pivot-col is " << col << std::endl;
+		// report << "Current A:" << std::endl;
+		// BLAS3::write (ctx, report, A);
+
+		ctx.F.mulin (det, x);
+
+		if (!ctx.F.inv (negxinv, x))
+			throw LELAError ("Could not invert pivot-element in the ring");
+
+		ctx.F.negin (negxinv);
+
+		TIMER_START(ElimBelow);
+
+		for (j_A = i_A, j = i + 1; ++j_A != A.rowEnd (); ++j) {
+			if (A.getEntry (a, j, i) && !ctx.F.isZero (a)) {
+				// DEBUG
+				// report << "Eliminating row " << j << " from row " << i << std::endl;
+
+				// Use subvectors here to avoid trampling on content of L
+				typename VectorTraits<Ring, typename Matrix::Row>::SubvectorType i_sub (*i_A, i + 1, A.coldim ());
+				typename VectorTraits<Ring, typename Matrix::Row>::SubvectorType j_sub (*j_A, i + 1, A.coldim ());
+
+				ctx.F.mul (negaxinv, a, negxinv);
+				BLAS1::axpy (ctx, negaxinv, i_sub, j_sub);
+
+				// Set entry in L
+				ctx.F.negin (negaxinv);
+				A.setEntry (j, i, negaxinv);
+			}
+		}
+		TIMER_STOP(ElimBelow);
+
+		++rank;
+
+		if (i % PROGRESS_STEP == PROGRESS_STEP - 1)
+			commentator.progress ();
+	}
+
+	std::reverse (P.begin (), P.end ());
+
+	TIMER_REPORT(GetPivot);
+	TIMER_REPORT(Permute);
+	TIMER_REPORT(ElimBelow);
+
+	commentator.stop (MSG_DONE);
+
+	return A;
 }
 
 template <class Ring, class Modules>
 template <class Matrix1, class Matrix2>
-Matrix1 &Elimination<Ring, Modules>::ReduceRowEchelon (Matrix1 &A, Matrix2 &L, bool compute_L, size_t rank, size_t start_row) const
+void Elimination<Ring, Modules>::move_L (Matrix1 &L, Matrix2 &A) const
 {
-	commentator.start ("Reducing row-echelon form", "Elimination::ReduceRowEchelon", A.rowdim () / PROGRESS_STEP);
+	lela_check (L.rowdim () == A.rowdim ());
+	lela_check (L.coldim () >= A.rowdim ());
 
-	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
+	size_t i, j;
+	typename Ring::Element aij;
 
-	if (rank == 0)
-		return A;
-
-	typename Matrix1::RowIterator i_A, j_A;
-	typename Matrix2::RowIterator i_L;
-
-	if (compute_L)
-		i_L = L.rowBegin () + (rank - 1);
-
-	int current_row = rank - 1, elim_row;
-
-	typename Ring::Element a, x, ainv, negx;
-
-	// Make the compiler happy
-	ctx.F.copy (a, ctx.F.zero ());
-
-	i_A = A.rowBegin () + current_row;
-
-	do {
-		// DEBUG
-		// report << "Row " << current_row << ", current A:" << std::endl;
-		// BLAS3::write (ctx, report, A);
-
-		for (elim_row = rank - 1, j_A = A.rowBegin () + elim_row; elim_row > std::max (current_row, (int) start_row - 1); --elim_row, --j_A) {
-			size_t col = BLAS1::head (ctx, a, *j_A);
-
-			if (VectorUtils::getEntry (*i_A, x, col) && !ctx.F.isZero (x)) {
-				// DEBUG
-				// report << "Eliminating " << current_row << " from " << elim_row << std::endl;
-
-				ctx.F.neg (negx, x);
-
-				BLAS1::axpy (ctx, negx, *j_A, *i_A);
-
-				if (compute_L)
-					BLAS1::axpy (ctx, negx, *(L.rowBegin () + elim_row), *i_L);
+	for (i = 0; i < L.rowdim (); ++i) {
+		for (j = 0; j < i; ++j) {
+			if (A.getEntry (aij, i, j)) {
+				L.setEntry (i, j, aij);
+				A.setEntry (i, j, ctx.F.zero ());
+				A.eraseEntry (i, j);
 			}
 		}
-
-		BLAS1::head (ctx, a, *i_A);
-
-		if (!ctx.F.inv (ainv, a))
-			throw LELAError ("Could not invert pivot-element in the ring");
-
-		BLAS1::scal (ctx, ainv, *i_A);
-
-		if (compute_L) {
-			BLAS1::scal (ctx, ainv, *i_L);
-			--i_L;
-		}
-
-		if ((rank - current_row) % PROGRESS_STEP == 0)
-			commentator.progress ();
-
-		--current_row;
-	} while (i_A-- != A.rowBegin ());
-
-	commentator.stop (MSG_DONE, NULL, "Elimination::ReduceRowEchelon");
-
-	return A;
+	}
 }
 
 } // namespace LELA

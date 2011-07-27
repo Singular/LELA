@@ -25,12 +25,9 @@
 using namespace LELA;
 
 template <class Ring>
-bool testElimination (const Ring &F, size_t m, size_t n, size_t k, bool reduce)
+bool testEchelonize (const Ring &F, size_t m, size_t n, size_t k)
 {
-	if (reduce)
-		commentator.start ("Testing Elimination::RowEchelonForm (with reduction)", __FUNCTION__);
-	else
-		commentator.start ("Testing Elimination::RowEchelonForm (without reduction)", __FUNCTION__);
+	commentator.start ("Testing Elimination::echelonize", __FUNCTION__);
 
 	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
@@ -43,11 +40,9 @@ bool testElimination (const Ring &F, size_t m, size_t n, size_t k, bool reduce)
 
 	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
 
-	SparseMatrix<typename Ring::Element> A (A_stream), Aorig (m, n);
-	DenseMatrix<typename Ring::Element> U (m, m);
-	DenseMatrix<typename Ring::Element> UPA (m, n);
+	SparseMatrix<typename Ring::Element> A (A_stream), LPA (m, n);
 
-	BLAS3::copy (ctx, A, Aorig);
+	BLAS3::copy (ctx, A, LPA);
 
 	typename Elimination<Ring>::Permutation P;
 
@@ -57,32 +52,178 @@ bool testElimination (const Ring &F, size_t m, size_t n, size_t k, bool reduce)
 	report << "A = " << std::endl;
 	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
 
-	elim.RowEchelonForm (A, U, P, rank, det, reduce, true);
+	elim.echelonize (A, P, rank, det, true);
 
-	report << "R = " << std::endl;
+	report << "L, R = " << std::endl;
 	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
-
-	report << "U = " << std::endl;
-	BLAS3::write (ctx, report, U, FORMAT_PRETTY);
 
 	report << "P = ";
 	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 
-	BLAS3::permute_rows (ctx, P.begin (), P.end (), Aorig);
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), LPA);
 	report << "PA = " << std::endl;
-	BLAS3::write (ctx, report, Aorig, FORMAT_PRETTY);
+	BLAS3::write (ctx, report, LPA, FORMAT_PRETTY);
 
-	BLAS3::gemm (ctx, F.one (), U, Aorig, F.zero (), UPA);
-	report << "UPA = " << std::endl;
-	BLAS3::write (ctx, report, UPA);
+	typename SparseMatrix<typename Ring::Element>::SubmatrixType Ap (A, 0, 0, A.rowdim (), A.rowdim ());
+
+	BLAS3::trmm (ctx, F.one (), Ap, LPA, LowerTriangular, true);
+	report << "LPA = " << std::endl;
+	BLAS3::write (ctx, report, LPA);
 
 	report << "Computed rank = " << rank << std::endl;
 	report << "Computed det = ";
 	F.write (report, det);
 	report << std::endl;
 
-	if (!BLAS3::equal (ctx, UPA, A)) {
-		error << "UPA != R, not okay" << std::endl;
+	// Trick to eliminate part below diagonal so that equality-check works
+	elim.move_L (A, A);
+
+	if (!BLAS3::equal (ctx, LPA, A)) {
+		error << "LPA != R, not okay" << std::endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring>
+bool testEchelonizeReduced (const Ring &F, size_t m, size_t n, size_t k)
+{
+	commentator.start ("Testing Elimination::echelonize_reduced", __FUNCTION__);
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+
+	bool pass = true;
+
+	Context<Ring> ctx (F);
+
+	Elimination<Ring> elim (ctx);
+
+	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
+
+	SparseMatrix<typename Ring::Element> A (A_stream), Acopy (m, n), LPA (m, n);
+	DenseMatrix<typename Ring::Element> L (m, m);
+
+	BLAS3::copy (ctx, A, Acopy);
+
+	typename Elimination<Ring>::Permutation P;
+
+	size_t rank;
+	typename Ring::Element det;
+
+	report << "A = " << std::endl;
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
+
+	elim.echelonize_reduced (A, L, P, rank, det, true);
+
+	report << "R = " << std::endl;
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
+
+	report << "L = " << std::endl;
+	BLAS3::write (ctx, report, L, FORMAT_PRETTY);
+
+	report << "P = ";
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
+
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), Acopy);
+	report << "PA = " << std::endl;
+	BLAS3::write (ctx, report, Acopy, FORMAT_PRETTY);
+
+	BLAS3::scal (ctx, F.zero (), LPA);
+	BLAS3::gemm (ctx, F.one (), L, Acopy, F.zero (), LPA);
+
+	report << "LPA = " << std::endl;
+	BLAS3::write (ctx, report, LPA);
+
+	report << "Computed rank = " << rank << std::endl;
+	report << "Computed det = ";
+	F.write (report, det);
+	report << std::endl;
+
+	if (!BLAS3::equal (ctx, LPA, A)) {
+		error << "LPA != R, not okay" << std::endl;
+		pass = false;
+	}
+
+	commentator.stop (MSG_STATUS (pass));
+
+	return pass;
+}
+
+template <class Ring>
+bool testPLUQ (const Ring &F, size_t m, size_t n, size_t k)
+{
+	commentator.start ("Testing Elimination::pluq", __FUNCTION__);
+
+	std::ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+	std::ostream &error = commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
+
+	bool pass = true;
+
+	Context<Ring> ctx (F);
+
+	Elimination<Ring> elim (ctx);
+
+	RandomSparseStream<Ring, typename SparseMatrix<typename Ring::Element>::Row> A_stream (F, (double) k / (double) n, n, m);
+
+	SparseMatrix<typename Ring::Element> A (A_stream), Acopy (m, n);
+	DenseMatrix<typename Ring::Element> L (m, m);
+
+	BLAS3::copy (ctx, A, Acopy);
+
+	typename Elimination<Ring>::Permutation P, Q;
+
+	size_t rank;
+	typename Ring::Element det;
+
+	report << "A = " << std::endl;
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
+
+	elim.pluq (A, P, Q, rank, det);
+
+	report << "L, U = " << std::endl;
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
+
+	report << "P = ";
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
+
+	report << "Q = ";
+	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
+
+	BLAS3::scal (ctx, ctx.F.zero (), L);
+	elim.move_L (L, A);
+
+	report << "L = " << std::endl;
+	BLAS3::write (ctx, report, L, FORMAT_PRETTY);
+
+	report << "U = " << std::endl;
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
+
+	BLAS3::trmm (ctx, F.one (), L, A, LowerTriangular, true);
+
+	report << "LU = " << std::endl;
+	BLAS3::write (ctx, report, A, FORMAT_PRETTY);
+
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), A);
+
+	report << "PLU = " << std::endl;
+	BLAS3::write (ctx, report, A);
+
+	BLAS3::permute_cols (ctx, Q.begin (), Q.end (), A);
+
+	report << "PLUQ = " << std::endl;
+	BLAS3::write (ctx, report, A);
+
+	report << "Computed rank = " << rank << std::endl;
+	report << "Computed det = ";
+	F.write (report, det);
+	report << std::endl;
+
+	if (!BLAS3::equal (ctx, A, Acopy)) {
+		error << "PLUQ != A, not okay" << std::endl;
 		pass = false;
 	}
 
@@ -127,15 +268,17 @@ int main (int argc, char **argv)
 
 	commentator.start (str.str ().c_str (), "Elimination");
 
-	pass1 = testElimination (GFq, m, n, k, false) && pass1;
-	pass1 = testElimination (GFq, m, n, k, true) && pass1;
+	pass1 = testEchelonize (GFq, m, n, k) && pass1;
+	pass1 = testEchelonizeReduced (GFq, m, n, k) && pass1;
+	pass1 = testPLUQ (GFq, m, n, k) && pass1;
 
 	commentator.stop (MSG_STATUS (pass1));
 
 	commentator.start ("Running tests over GF(2)", "Elimination");
 
-	pass2 = testElimination (gf2, m, n, k, false) && pass2;
-	pass2 = testElimination (gf2, m, n, k, true) && pass2;
+	pass2 = testEchelonize (gf2, m, n, k) && pass2;
+	pass2 = testEchelonizeReduced (gf2, m, n, k) && pass2;
+	pass2 = testPLUQ (gf2, m, n, k) && pass2;
 
 	commentator.stop (MSG_STATUS (pass2));
 

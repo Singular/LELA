@@ -78,7 +78,7 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_DESCRIPTION)
 			<< "Computing non-reduced form" << std::endl;
 
-	EF.RowEchelonForm (A, reduced, method);
+	EF.echelonize (A, reduced, method);
 
 	std::ostringstream str;
 	str << "Writing output-matrix (format " << format_names[output_format] << ")" << std::ends;

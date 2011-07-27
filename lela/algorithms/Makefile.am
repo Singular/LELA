@@ -10,6 +10,8 @@ pkgincludesubdir=$(pkgincludedir)/algorithms
 pkgincludesub_HEADERS =		\
 	strassen-winograd.h	\
 	strassen-winograd.tcc	\
+	pivot-strategy.h	\
+	pivot-strategy.tcc	\
 	elimination.h		\
 	elimination.tcc		\
 	gauss-jordan.h 		\

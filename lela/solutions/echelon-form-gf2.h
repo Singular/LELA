@@ -52,7 +52,7 @@ public:
 	EchelonForm (Context<GF2, AllModules<GF2> > &ctx) : _ctx (ctx), _elim (ctx), _GJ (ctx) {}
 
 	template <class Matrix>
-	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
+	Matrix &echelonize (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
 	{
 		static const char *method_names[] = { "unknown", "standard", "recursive", "M4RI", "Faugère-Lachartre" };
 
@@ -66,14 +66,18 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			if (reduced)
+				_elim.echelonize_reduced (A, _L, _P, rank, d, false);
+			else
+				_elim.echelonize (A, _P, rank, d, false);
+
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
 			if (reduced) {
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<GF2, AllModules<GF2> > FL (_ctx);
-				FL.RowEchelonForm (A, A, rank, d);
+				FL.echelonize (A, A, rank, d);
 			} else
 				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;
@@ -90,7 +94,7 @@ public:
 	}
 
 	// Specialisation for M4RI-matrices
-	DenseMatrix<bool> &RowEchelonForm (DenseMatrix<bool> &A, bool reduced = false, Method method = METHOD_M4RI)
+	DenseMatrix<bool> &echelonize (DenseMatrix<bool> &A, bool reduced = false, Method method = METHOD_M4RI)
 	{
 		static const char *method_names[] = { "unknown", "standard", "recursive", "M4RI", "Faugère-Lachartre" };
 
@@ -104,13 +108,24 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			_elim.RowEchelonForm (A, _L, _P, rank, d, reduced, false);
+			if (reduced)
+				_elim.echelonize_reduced (A, _L, _P, rank, d, false);
+			else
+				_elim.echelonize (A, _P, rank, d, false);
+
 			_rank_table[&A] = rank;
 			break;
 
 		case METHOD_ASYMPTOTICALLY_FAST_GJ:
 			_L.resize (A.rowdim (), A.rowdim ());
-			_GJ.RowEchelonForm (A, _L, _P, rank, d, reduced);
+
+			if (reduced)
+				_GJ.echelonize_reduced (A, _L, _P, rank, d);
+			else {
+				_GJ.echelonize (A, _P, rank, d);
+				_elim.move_L (A, A);
+			}
+
 			_rank_table[&A] = rank;
 			break;
 
@@ -122,7 +137,7 @@ public:
 			if (reduced) {
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<GF2, AllModules<GF2> > FL (_ctx);
-				FL.RowEchelonForm (A, A, rank, d);
+				FL.echelonize (A, A, rank, d);
 			} else
 				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;

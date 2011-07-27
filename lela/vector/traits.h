@@ -175,7 +175,7 @@ namespace VectorStorageTypes
 }
 
 // Forward-declaration
-template <class Element, class Vector> class ElementVectorTraits;
+template <class Element, class Vector> struct ElementVectorTraits;
 
 /** Vector traits
  *
@@ -285,8 +285,7 @@ template <class Vector> struct DefaultVectorTraits
  *
  * \ingroup vector
  */
-template <class Vector>
-struct GF2VectorTraits
+template <class Vector> struct GF2VectorTraits
 {
 	typedef typename Vector::RepresentationType RepresentationType;
 	typedef typename Vector::StorageType StorageType;
@@ -304,8 +303,7 @@ struct GF2VectorTraits
  *
  * \ingroup vector
  */
-template <class Element, class Vector>
-struct ElementVectorTraits
+template <class Element, class Vector> struct ElementVectorTraits
 {
 	typedef typename DefaultVectorTraits<Vector>::RepresentationType RepresentationType;
 	typedef typename DefaultVectorTraits<Vector>::StorageType StorageType;
@@ -318,8 +316,7 @@ struct ElementVectorTraits
 };
 
 // Specialisation of ElementVectorTraits for vectors over GF2
-template <class Vector>
-struct ElementVectorTraits<bool, Vector>
+template <class Vector> struct ElementVectorTraits<bool, Vector>
 {
 	typedef typename GF2VectorTraits<Vector>::RepresentationType RepresentationType;
 	typedef typename GF2VectorTraits<Vector>::StorageType StorageType;

@@ -23,7 +23,7 @@ namespace LELA
 {
 
 template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
+template <class Matrix1, class Matrix2, class PivotStrategy>
 void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 						       int           k,
 						       Element       d_0,
@@ -33,7 +33,8 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 						       int          &h,
 						       Element      &d,
 						       DenseMatrix<typename Ring::Element> &S,
-						       DenseMatrix<typename Ring::Element> &T) const
+						       DenseMatrix<typename Ring::Element> &T,
+						       PivotStrategy PS) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -55,23 +56,60 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 		h = A.rowdim () - k;
 		ctx.F.copy (d, d_0);
 	}
-	else if (A.coldim () <= _cutoff) {
+	else if (A.coldim () == 1) {
 		// DEBUG
-		// report << "A.coldim <= " << _cutoff << ", using standard elimination" << std::endl;
+		// report << "A.coldim == 1" << std::endl;
 
-		size_t l = P.size ();
+		size_t l = P.size (), j, row = k, col = 0;
+
+		typename Ring::Element aii, negaiiinv, aij;
+
+		// Find the pivot
+		if (!PS.getPivot (A, aii, row, col))
+			throw LELAError ("Could not find pivot even though matrix is reported as nonzero");
+
+		lela_check (col == 0);
+
+		// Set output variable d
+		ctx.F.mulin (d, aii);
+
+		// Prepare pivot for elimination
+		if (!ctx.F.inv (negaiiinv, aii))
+			throw LELAError ("Pivot not invertible in the ring");
+
+		ctx.F.negin (negaiiinv);
+
+		if (row != (size_t) k) {
+			// Set the permutation
+			P.push_back (Transposition (k, row));
+
+			// Swap the pivot-entry and the entry at (0,0)
+			if (A.getEntry (aij, k, 0)) {
+				A.setEntry (row, 0, aij);
+			} else {
+				A.setEntry (row, 0, ctx.F.zero ());
+				A.eraseEntry (row, 0);
+			}
+
+			A.setEntry (k, 0, aii);
+		}
+
+		// Perform elimination-steps to complete L
+		for (j = 0; j < A.rowdim (); ++j) {
+			if (j != (size_t) k && A.getEntry (aij, j, 0)) {
+				A.setEntry (j, 0, ctx.F.zero ());
+				A.eraseEntry (j, 0);
+				ctx.F.mulin (aij, negaiiinv);
+				U.setEntry (j, k, aij);
+			}
+		}
+
+		// Set output-variable r
+		r = 1;
 
 		// DEBUG
-		// report << "U before elimination:" << std::endl;
-		// BLAS3::write (ctx, report, U);
-
-		typename Matrix2::SubmatrixType Up (U, 0, k, U.rowdim (), U.coldim () - k);
-
-		elim.RowEchelonForm (A, Up, P, r, d, true, true, k);
-
-		// DEBUG
-		// report << "U after elimination:" << std::endl;
-		// BLAS3::write (ctx, report, U);
+		// report << "A after elimination:" << std::endl;
+		// BLAS3::write (ctx, report, A);
 
 		if (!P.empty ())
 			h = std::min_element (P.begin () + l, P.end (), CompareSecond ())->second;
@@ -80,9 +118,9 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 	}
 	else {
 		// DEBUG
-		// report << "A.coldim () > " << _cutoff << std::endl;
+		// report << "A.coldim () > 1" << std::endl;
 
-		int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
+		int m_1 = A.coldim () / 2, m_2 = A.coldim () - m_1;
 		typename Matrix1::SubmatrixType A_1 (A, 0, 0,   A.rowdim (), m_1);
 		typename Matrix1::SubmatrixType A_2 (A, 0, m_1, A.rowdim (), m_2);
 
@@ -90,7 +128,7 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 		int h_1, h_2;
 		Element d_1;
 
-		GaussJordanTransform (A_1, k, d_0, U, P, r_1, h_1, d_1, S, T);
+		GaussJordanTransform (A_1, k, d_0, U, P, r_1, h_1, d_1, S, T, PS);
 
 		// DEBUG
 		// report << "Status after first recursive call:" << std::endl;
@@ -108,14 +146,13 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 		typename Matrix2::SubmatrixType U_22 (U, k,       k, r_1,                   r_1);
 		typename Matrix2::SubmatrixType U_23 (U, r_1 + k, k, U.rowdim () - r_1 - k, r_1);
 
-		T.resize (r_1, m_2);
-
 		typename Matrix1::SubmatrixType A_21 (A, 0,       m_1, k,                     m_2);
 		typename Matrix1::SubmatrixType A_22 (A, k,       m_1, r_1,                   m_2);
 		typename Matrix1::SubmatrixType A_23 (A, k + r_1, m_1, A.rowdim () - r_1 - k, m_2);
 
 		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
 
+		T.resize (r_1, m_2);
 		BLAS3::copy (ctx, A_22, T);
 		BLAS3::gemm (ctx, ctx.F.one (), U_21, T, ctx.F.one (),  A_21);
 		BLAS3::gemm (ctx, ctx.F.one (), U_22, T, ctx.F.zero (), A_22);
@@ -128,7 +165,7 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 		// report << "B =" << std::endl;
 		// BLAS3::write (ctx, report, R_2);
 
-		GaussJordanTransform (A_2, k + r_1, d_1, U, P_2, r_2, h_2, d, S, T);
+		GaussJordanTransform (A_2, k + r_1, d_1, U, P_2, r_2, h_2, d, S, T, PS);
 
 		// DEBUG
 		// report << "Status after second recursive call:" << std::endl;
@@ -191,14 +228,15 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 }
 
 template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
+template <class Matrix1, class Matrix2, class PivotStrategy>
 void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
+						 Matrix2     &L,
 						 Element      d_0,
-						 Matrix2     &U,
 						 Permutation &P,
 						 size_t      &r,
 						 int         &h,
-						 Element     &d) const
+						 Element     &d,
+						 PivotStrategy PS) const
 {
 	// std::ostream &report = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
@@ -206,8 +244,6 @@ void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
 	// report << "enter" << std::endl;
 	// report << "A =" << std::endl;
 	// BLAS3::write (ctx, report, A);
-	// report << "U =" << std::endl;
-	// BLAS3::write (ctx, report, U);
 
 	if (BLAS3::is_zero (ctx, A)) {
 		// DEBUG
@@ -217,22 +253,62 @@ void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
 		h = A.rowdim ();
 		ctx.F.copy (d, d_0);
 	}
-	else if (A.coldim () <= _cutoff) {
+	else if (A.coldim () == 1) {
 		// DEBUG
-		// report << "A.coldim <= " << _cutoff << ", using standard elimination" << std::endl;
+		// report << "A.coldim == 1" << std::endl;
 
-		size_t l = P.size ();
+		size_t l = P.size (), j, row = 0, col = 0;
+
+		typename Ring::Element aii, negaiiinv, aij;
+
+		// Find the pivot
+		if (!PS.getPivot (A, aii, row, col))
+			throw LELAError ("Could not find pivot even though matrix is reported as nonzero");
+
+		lela_check (col == 0);
+
+		// Set output variable d
+		ctx.F.mulin (d, aii);
+
+		// Prepare pivot for elimination
+		if (!ctx.F.inv (negaiiinv, aii))
+			throw LELAError ("Pivot not invertible in the ring");
+
+		ctx.F.negin (negaiiinv);
+
+		if (row != 0) {
+			// Set the permutation
+			P.push_back (Transposition (0, row));
+
+			// Swap the pivot-entry and the entry at (0,0)
+			if (A.getEntry (aij, 0, 0)) {
+				A.setEntry (row, 0, aij);
+			} else {
+				A.setEntry (row, 0, ctx.F.zero ());
+				A.eraseEntry (row, 0);
+			}
+			    
+			A.setEntry (0, 0, aii);
+		}
+
+		// Perform elimination-steps to complete L
+		for (j = 1; j < A.rowdim (); ++j) {
+			if (A.getEntry (aij, j, 0)) {
+				A.setEntry (j, 0, ctx.F.zero ());
+				A.eraseEntry (j, 0);
+				ctx.F.mulin (aij, negaiiinv);
+				L.setEntry (j, 0, aij);
+			}
+		}
+
+		// Set output-variable r
+		r = 1;
 
 		// DEBUG
-		// report << "U before elimination:" << std::endl;
-		// BLAS3::write (ctx, report, U);
+		// report << "A after elimination:" << std::endl;
+		// BLAS3::write (ctx, report, A);
 
-		elim.RowEchelonForm (A, U, P, r, d, false, true);
-
-		// DEBUG
-		// report << "U after elimination:" << std::endl;
-		// BLAS3::write (ctx, report, U);
-
+		// Set output-variable h
 		if (!P.empty ())
 			h = std::min_element (P.begin () + l, P.end (), CompareSecond ())->second;
 		else
@@ -240,39 +316,37 @@ void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
 	}
 	else {
 		// DEBUG
-		// report << "A.coldim () > " << _cutoff << std::endl;
+		// report << "A.coldim () > 1" << std::endl;
 
-		int m_1 = round_up (A.coldim () / 2, _cutoff), m_2 = A.coldim () - m_1;
+		int m_1 = A.coldim () / 2, m_2 = A.coldim () - m_1;
 		typename Matrix1::SubmatrixType A_1 (A, 0, 0, A.rowdim (), m_1);
 
 		size_t r_1, r_2;
 		int h_1, h_2;
 		Element d_1;
 
-		GaussTransform (A_1, d_0, U, P, r_1, h_1, d_1);
+		GaussTransform (A_1, L, d_0, P, r_1, h_1, d_1, PS);
 
 		// DEBUG
 		// report << "Status after first recursive call:" << std::endl;
-		// report << "U =" << std::endl;
-		// BLAS3::write (ctx, report, U);
-		// report << "P = ";
-		// BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 		// report << "A =" << std::endl;
 		// BLAS3::write (ctx, report, A);
+		// report << "P = ";
+		// BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 		// report << "r_1 = " << r_1 << std::endl;
 		// report << "d_1 = " << d_1 << std::endl;
 
-		typename Matrix2::SubmatrixType U_11 (U, 0,   0,   r_1,               r_1);
-		typename Matrix2::SubmatrixType U_12 (U, r_1, 0,   U.rowdim () - r_1, r_1);
-		typename Matrix2::SubmatrixType U_22 (U, r_1, r_1, U.rowdim () - r_1, U.coldim () - r_1);
+		typename Matrix2::SubmatrixType L_11 (L, 0,   0,   r_1,               r_1);
+		typename Matrix2::SubmatrixType L_12 (L, r_1, 0,   L.rowdim () - r_1, r_1);
+		typename Matrix2::SubmatrixType L_22 (L, r_1, r_1, L.rowdim () - r_1, L.coldim () - r_1);
 
 		typename Matrix1::SubmatrixType A_2  (A, 0,   m_1, A.rowdim (),       m_2);
 		typename Matrix1::SubmatrixType A_21 (A, 0,   m_1, r_1,               m_2);
 		typename Matrix1::SubmatrixType A_22 (A, r_1, m_1, A.rowdim () - r_1, m_2);
 
 		BLAS3::permute_rows (ctx, P.begin (), P.end (), A_2);
-		BLAS3::gemm (ctx, ctx.F.one (), U_12, A_21, ctx.F.one (), A_22);
-		BLAS3::trmm (ctx, ctx.F.one (), U_11, A_21, LowerTriangular, true);
+		BLAS3::gemm (ctx, ctx.F.one (), L_12, A_21, ctx.F.one (), A_22);
+		BLAS3::trmm (ctx, ctx.F.one (), L_11, A_21, LowerTriangular, true);
 
 		Permutation P_2;
 
@@ -281,29 +355,32 @@ void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
 		// report << "A_22 =" << std::endl;
 		// BLAS3::write (ctx, report, A_22);
 
-		GaussTransform (A_22, d_1, U_22, P_2, r_2, h_2, d);
+		GaussTransform (A_22, L_22, d_1, P_2, r_2, h_2, d, PS);
 
 		// DEBUG
 		// report << "Status after second recursive call:" << std::endl;
-		// report << "U =" << std::endl;
-		// BLAS3::write (ctx, report, U);
-		// report << "R =" << std::endl;
-		// BLAS3::write (ctx, report, R);
+		// report << "A =" << std::endl;
+		// BLAS3::write (ctx, report, A);
 		// report << "r_2 = " << r_2 << std::endl;
 		// report << "d = " << d << std::endl;
 
 		// DEBUG
-		// report << "U_2 =" << std::endl;
-		// BLAS3::write (ctx, report, U);
 		// report << "P_2 = ";
 		// BLAS1::write_permutation (report, P_2.begin (), P_2.end ()) << std::endl;
 
-		BLAS3::permute_rows (ctx, P_2.begin (), P_2.end (), U_12);
-		BLAS3::trmm (ctx, ctx.F.one (), U_22, U_12, LowerTriangular, true);
-				
+		BLAS3::permute_rows (ctx, P_2.begin (), P_2.end (), L_12);
+
+		typename Matrix2::SubmatrixType L_12p (L, r_1, 0, r_2, r_1);
+		typename Matrix2::SubmatrixType L_13p (L, r_1 + r_2, 0, L.rowdim () - (r_1 + r_2), r_1);
+		typename Matrix2::SubmatrixType L_22p (L, r_1, r_1, r_2, r_2);
+		typename Matrix2::SubmatrixType L_23p (L, r_1 + r_2, r_1, L.rowdim () - (r_1 + r_2), r_2);
+
+		BLAS3::gemm (ctx, ctx.F.one (), L_23p, L_12p, ctx.F.one (), L_13p);
+		BLAS3::trmm (ctx, ctx.F.one (), L_22p, L_12p, LowerTriangular, true);
+
 		// DEBUG
-		// report << "P_2U_2 =" << std::endl;
-		// BLAS3::write (ctx, report, P_2U_2);
+		// report << "P_2L_12 =" << std::endl;
+		// BLAS3::write (ctx, report, P_2L_12);
 
 		size_t P_len = P.size ();
 		P.insert (P.end (), P_2.begin (), P_2.end ());
@@ -322,45 +399,62 @@ void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
 
 	// DEBUG
 	// report << "Status at end:" << std::endl;
-	// report << "U =" << std::endl;
-	// BLAS3::write (ctx, report, U);
 	// report << "P = ";
-	// BLAS3::write_permutation (report, P) << std::endl;
-	// report << "R =" << std::endl;
-	// BLAS3::write (ctx, report, R);
-	// report << "k = " << k << ", r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
+	// BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
+	// report << "A =" << std::endl;
+	// BLAS3::write (ctx, report, A);
+	// report << "r = " << r << ", d_0 = " << d_0 << ", d = " << d << std::endl;
 }
 
 template <class Ring, class Modules>
-template <class Matrix1, class Matrix2>
-void GaussJordan<Ring, Modules>::RowEchelonForm (Matrix1     &A,
-						 Matrix2     &U,
-						 Permutation &P,
-						 size_t      &rank,
-						 Element     &det,
-						 bool         reduced)
+template <class Matrix, class PivotStrategy>
+Matrix &GaussJordan<Ring, Modules>::echelonize (Matrix      &A,
+						Permutation &P,
+						size_t      &rank,
+						Element     &det,
+						PivotStrategy PS)
 {
-	lela_check (U.rowdim () == A.rowdim ());
-	lela_check (U.rowdim () == U.coldim ());
-
-	commentator.start ("Dense row-echelon form", __FUNCTION__);
+	commentator.start ("Asymptotically fast row-echelon form", __FUNCTION__);
 
 	int h;
 
-	elim.SetIdentity (U);  // Necessary in case where A.rowdim () > A.coldim ()
-	P.clear ();
-
-	if (reduced) {
-		DenseMatrix<typename Ring::Element> S, T;
-
-		GaussJordanTransform (A, 0, ctx.F.one (), U, P, rank, h, det, S, T);
-	} else {
-		typename Matrix2::SubmatrixType Up (U, 0, 0, U.rowdim (), U.coldim ());
-
-		GaussTransform (A, ctx.F.one (), Up, P, rank, h, det);
-	}
+	GaussTransform (A, A, ctx.F.one (), P, rank, h, det, PS);
 
 	commentator.stop (MSG_DONE);
+
+	return A;
+}
+
+template <class Ring, class Modules>
+template <class Matrix1, class Matrix2, class PivotStrategy>
+Matrix1 &GaussJordan<Ring, Modules>::echelonize_reduced (Matrix1       &A,
+							 Matrix2       &L,
+							 Permutation   &P,
+							 size_t        &rank,
+							 Element       &det,
+							 PivotStrategy  PS)
+{
+	lela_check (L.rowdim () == A.rowdim ());
+	lela_check (L.coldim () == A.rowdim ());
+
+	commentator.start ("Asymptotically fast reduced row-echelon form", __FUNCTION__);
+
+	int h;
+
+	DenseMatrix<typename Ring::Element> S, T;
+
+	// Set L first to the identity-matrix
+	StandardBasisStream<Ring, typename Matrix2::Row> s (ctx.F, L.rowdim ());
+	typename Matrix2::RowIterator i_L;
+
+	for (i_L = L.rowBegin (); i_L != L.rowEnd (); ++i_L)
+		s >> *i_L;
+
+	GaussJordanTransform (A, 0, ctx.F.one (), L, P, rank, h, det, S, T, PS);
+
+	commentator.stop (MSG_DONE);
+
+	return A;
 }
 
 } // namespace LELA

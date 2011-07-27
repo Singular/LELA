@@ -58,7 +58,7 @@ public:
 	 * @returns Reference to A
 	 */
 	template <class Matrix>
-	Matrix &RowEchelonForm (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
+	Matrix &echelonize (Matrix &A, bool reduced = false, Method method = METHOD_STANDARD_GJ)
 	{
 		static const char *method_names[] = { "unknown", "standard", "recursive", "Faugère-Lachartre" };
 
@@ -72,15 +72,18 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			L.resize (A.rowdim (), A.rowdim ());
-			_elim.RowEchelonForm (A, L, P, rank, d, reduced, false);
+			if (reduced)
+				_elim.echelonize_reduced (A, L, P, rank, d, false);
+			else
+				_elim.echelonize (A, P, rank, d, false);
+
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
 			if (reduced) {
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<Ring, Modules> FL (_ctx);
-				FL.RowEchelonForm (A, A, rank, d);
+				FL.echelonize (A, A, rank, d);
 			} else
 				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;
@@ -97,7 +100,7 @@ public:
 	}
 
 	// Specialisation for dense matrices
-	DenseMatrix<typename Ring::Element> &RowEchelonForm (DenseMatrix<typename Ring::Element> &A, bool reduced = false, Method method = METHOD_ASYMPTOTICALLY_FAST_GJ)
+	DenseMatrix<typename Ring::Element> &echelonize (DenseMatrix<typename Ring::Element> &A, bool reduced = false, Method method = METHOD_ASYMPTOTICALLY_FAST_GJ)
 	{
 		static const char *method_names[] = { "unknown", "standard", "recursive", "Faugère-Lachartre" };
 
@@ -111,20 +114,30 @@ public:
 
 		switch (method) {
 		case METHOD_STANDARD_GJ:
-			L.resize (A.rowdim (), A.rowdim ());
-			_elim.RowEchelonForm (A, L, P, rank, d, reduced, false);
+			if (reduced)
+				_elim.echelonize_reduced (A, L, P, rank, d, false);
+			else
+				_elim.echelonize (A, P, rank, d, false);
+
 			break;
 
 		case METHOD_ASYMPTOTICALLY_FAST_GJ:
 			L.resize (A.rowdim (), A.rowdim ());
-			GJ.RowEchelonForm (A, L, P, rank, d, reduced);
+
+			if (reduced)
+				GJ.echelonize_reduced (A, L, P, rank, d);
+			else {
+				GJ.echelonize (A, P, rank, d);
+				_elim.move_L (A, A);
+			}
+
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
 			if (reduced) {
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<Ring, Modules> FL (_ctx);
-				FL.RowEchelonForm (A, A, rank, d);
+				FL.echelonize (A, A, rank, d);
 			} else
 				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
 			break;
@@ -142,7 +155,7 @@ public:
 
 	/** Determine the rank of the given matrix
 	 *
-	 * @param A Input matrix. Must already have been an argument to RowEchelonForm.
+	 * @param A Input matrix. Must already have been an argument to echelonize.
 	 * @returns rank
 	 */
 	template <class Matrix>

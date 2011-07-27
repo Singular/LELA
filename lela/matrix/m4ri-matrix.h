@@ -227,7 +227,7 @@ public:
 	typedef RowIteratorPT<const word *, const word *, const M4RIMatrixBase *> ConstRowIterator;
 
 	M4RIMatrix ()
-		: M4RIMatrixBase (NULL)
+		: M4RIMatrixBase (NULL), _start_row (0), _start_col (0)
 	{}
 
 	M4RIMatrix (size_t m, size_t n)

@@ -25,8 +25,8 @@ namespace LELA
 namespace BLAS3
 {
 
-template <class Modules>
-M4RIMatrixBase &_scal<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool a, M4RIMatrixBase &A)
+template <class Modules, class Matrix>
+Matrix &_scal<GF2, M4RIModule::Tag>::scal_impl (const GF2 &F, Modules &M, bool a, Matrix &A, MatrixStorageTypes::M4RI)
 {
 	size_t i;
 
@@ -39,8 +39,9 @@ M4RIMatrixBase &_scal<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool 
 	return A;
 }
 
-template <class Modules>
-M4RIMatrixBase &_axpy<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B)
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_axpy<GF2, M4RIModule::Tag>::axpy_impl (const GF2 &F, Modules &M, bool a, const Matrix1 &A, Matrix2 &B,
+						 MatrixStorageTypes::M4RI, MatrixStorageTypes::M4RI)
 {
 	lela_check (A.rowdim () == B.rowdim ());
 	lela_check (A.coldim () == B.coldim ());
@@ -48,15 +49,18 @@ M4RIMatrixBase &_axpy<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool 
 	if (A.rowdim () == 0 || A.coldim () == 0)
 		return B;
 
+	if (A._rep->offset == 0 || B._rep->offset == 0)
+		return _axpy<GF2, M4RIModule::Tag::Parent>::op (F, M, a, A, B);
+
 	if (a)
 		mzd_add (B._rep, B._rep, A._rep);
 
 	return B;
 }
 
-template <class Modules>
-M4RIMatrixBase &_gemm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M,
-						 bool a, const M4RIMatrixBase &A, const M4RIMatrix &B, bool b, M4RIMatrixBase &C)
+template <class Modules, class Matrix1, class Matrix2, class Matrix3>
+Matrix3 &_gemm<GF2, M4RIModule::Tag>::gemm_impl (const GF2 &F, Modules &M, bool a, const Matrix1 &A, const Matrix2 &B, bool b, Matrix3 &C,
+						 MatrixStorageTypes::M4RI, MatrixStorageTypes::M4RI, MatrixStorageTypes::M4RI)
 {
 	lela_check (A.rowdim () == C.rowdim ());
 	lela_check (A.coldim () == B.rowdim ());
@@ -64,6 +68,10 @@ M4RIMatrixBase &_gemm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M,
 
 	if (A.rowdim () == 0 || B.rowdim () == 0 || B.coldim () == 0)
 		return C;
+
+	// We can't use M4RI on submatrices which aren't word-aligned
+	if (A._rep->offset != 0 || B._rep->offset != 0 || C._rep->offset != 0)
+		return _gemm<GF2, M4RIModule::Tag::Parent>::op (F, M, a, A, B, b, C);
 
 	if (a) {
 		if (b)
@@ -77,8 +85,10 @@ M4RIMatrixBase &_gemm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M,
 	return C;
 }
 
-template <class Modules>
-M4RIMatrixBase &_trsm<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, bool a, const M4RIMatrixBase &A, M4RIMatrixBase &B, TriangularMatrixType type, bool diagIsOne)
+template <class Modules, class Matrix1, class Matrix2>
+Matrix2 &_trsm<GF2, M4RIModule::Tag>::trsm_impl
+	(const GF2 &F, Modules &M, bool a, const Matrix1 &A, Matrix2 &B, TriangularMatrixType type, bool diagIsOne,
+	 MatrixStorageTypes::M4RI, MatrixStorageTypes::M4RI)
 {
 	lela_check (A.rowdim () == B.rowdim ());
 	lela_check (A.rowdim () == A.coldim ());
@@ -115,8 +125,9 @@ mzp_t *make_m4ri_permutation (Iterator P_start, Iterator P_end, size_t len)
 	return P;
 }
 
-template <class Modules, class Iterator>
-M4RIMatrixBase &_permute_rows<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A)
+template <class Modules, class Iterator, class Matrix>
+Matrix &_permute_rows<GF2, M4RIModule::Tag>::permute_rows_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A,
+								MatrixStorageTypes::M4RI)
 {
 	mzp_t *P = make_m4ri_permutation (P_begin, P_end, A.rowdim ());
 	mzd_apply_p_left (A._rep, P);
@@ -124,8 +135,9 @@ M4RIMatrixBase &_permute_rows<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &
 	return A;
 }
 
-template <class Modules, class Iterator>
-M4RIMatrixBase &_permute_cols<GF2, M4RIModule::Tag>::op (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, M4RIMatrixBase &A)
+template <class Modules, class Iterator, class Matrix>
+Matrix &_permute_cols<GF2, M4RIModule::Tag>::permute_cols_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A,
+								MatrixStorageTypes::M4RI)
 {
 	mzp_t *P = make_m4ri_permutation (P_begin, P_end, A.coldim ());
 	mzd_apply_p_right (A._rep, P);

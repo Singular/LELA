@@ -72,7 +72,7 @@ public:
 	 * store computed determinant of pivot-submatrix
 	 */
 	template <class Matrix>
-	void RowEchelonForm (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det);
+	void echelonize (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det);
 };
 
 } // namespace LELA
