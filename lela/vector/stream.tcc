@@ -257,6 +257,7 @@ Vector &StandardBasisStream<Ring, Vector, VectorRepresentationTypes::Hybrid01>::
 
 	v.clear ();
 	v.push_back (typename Vector::value_type (_j >> WT::logof_size, Vector::Endianness::e_j (_j & WT::pos_mask)));
+	++_j;
 	return v;
 }
 
