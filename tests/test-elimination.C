@@ -324,7 +324,7 @@ int main (int argc, char **argv)
 
 	pass2 = testEchelonizeReduced (gf2, "dense", B4) && pass2;
 	pass2 = testEchelonizeReduced (gf2, "sparse", B5) && pass2;
-	pass2 = testEchelonizeReduced (gf2, "hybrid", B6) && pass2;
+	// pass2 = testEchelonizeReduced (gf2, "hybrid", B6) && pass2;
 
 	B1_stream.reset ();
 	B2_stream.reset ();
