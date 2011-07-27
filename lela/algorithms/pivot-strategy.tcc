@@ -144,25 +144,45 @@ bool SparsePartialPivotStrategy<Ring, Modules>::getPivot_spec (const Matrix &A, 
 
 	typename Matrix::ConstRowIterator i;
 
-	size_t min_blocks = 0xffffffffU, k, s, start_col = col;
+	size_t min_blocks = 0xffffffffU, k, start_col = col, block_col;
+	typename Matrix::Row::word_type v, t;
 	col = A.coldim ();
 
 	for (i = A.rowBegin () + row, k = row; i != A.rowEnd (); ++i, ++k) {
-		typename VectorTraits<Ring, typename Matrix::ConstRow>::ConstSubvectorType row_sub (*i, start_col, A.coldim ());
+		typename Matrix::ConstRow::const_iterator block
+			= std::lower_bound (i->begin (), i->end (), start_col >> WordTraits<typename Matrix::Row::word_type>::logof_size,
+					    VectorUtils::FindSparseEntryLB ());
 
-		if (!row_sub.empty () && row_sub.front ().first << WordTraits<typename Matrix::Row::word_type>::logof_size <= (int) col) {
-			int idx = BLAS1::head (ctx, x, row_sub) + start_col;
-			if ((size_t) idx < col) {
-				col = idx;
-				min_blocks = i->size ();
+		if (block == i->end ())
+			continue;
+
+		do {
+			v = block->second;
+
+			if (block->first == start_col >> WordTraits<typename Matrix::Row::word_type>::logof_size)
+				v &= Matrix::Row::Endianness::mask_right (start_col & WordTraits<typename Matrix::Row::word_type>::pos_mask);
+
+			for (block_col = block->first << WordTraits<typename Matrix::Row::word_type>::logof_size, t = Matrix::Row::Endianness::e_0;
+			     t != 0 && (t & v) == 0; t = Matrix::Row::Endianness::shift_right (t, 1), ++block_col);
+
+			if (t == 0)
+				++block;
+		} while (t == 0 && block != i->end ());
+
+		if (block != i->end () && block_col <= col) {
+			if (block_col < col) {
+				col = block_col;
+				min_blocks = i->end () - block;
 				row = k;
 			}
-			else if ((size_t) idx == col && (s = i->size ()) < min_blocks) {
-				min_blocks = s;
+			else if (block_col == col && (i->end () - block) < (int) min_blocks) {
+				min_blocks = i->end () - block;
 				row = k;
 			}
 		}
 	}
+
+	x = true;
 
 	return min_blocks != 0xffffffffU;
 }
