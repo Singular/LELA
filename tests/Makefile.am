@@ -41,6 +41,7 @@ BASIC_TESTS =  \
 	test-strassen-winograd	\
 	test-elimination	\
 	test-gauss-jordan	\
+	test-splicer		\
 	test-faugere-lachartre
 
 # a benchmarker, not to be included in check.
@@ -153,6 +154,10 @@ test_elimination_SOURCES = \
 test_gauss_jordan_SOURCES = \
 	test-common.C		\
 	test-gauss-jordan.C
+
+test_splicer_SOURCES = \
+	test-splicer.C	\
+	test-common.C
 
 test_faugere_lachartre_SOURCES = \
 	test-common.C		\

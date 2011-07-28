@@ -100,6 +100,7 @@ tests/test-bit-subvector
 tests/test-strassen-winograd
 tests/test-elimination
 tests/test-gauss-jordan
+tests/test-splicer
 tests/test-faugere-lachartre
 tests/benchmark-blas
 doc/tutorial.html
