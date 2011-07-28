@@ -61,7 +61,7 @@ class Dense01MatrixRowIterator
     
 	Dense01MatrixRowIterator &operator ++ ()
 	{
-		_row = Row (_row.word_begin () + _disp, _row.word_end () + (_disp + 1), _row.size ());
+		_row = Row (_row.word_begin () + _disp, _row.word_begin () + (_disp + _row.word_size ()), _row.size ());
 		return *this;
 	}
     
@@ -74,7 +74,7 @@ class Dense01MatrixRowIterator
     
         Dense01MatrixRowIterator &operator -- ()
         {
-                _row = Row (_row.word_begin () - _disp, _row.word_end () - _disp + 1, _row.size ());
+                _row = Row (_row.word_begin () - _disp, _row.word_begin () + (_row.word_size () - _disp), _row.size ());
                 return *this;
         }
 
@@ -93,13 +93,13 @@ class Dense01MatrixRowIterator
 
 	Dense01MatrixRowIterator& operator += (int i)
 	{
-		_row = Row (_row.word_begin () + _disp * i, _row.word_end () + (_disp * i + 1), _row.size ());
+		_row = Row (_row.word_begin () + _disp * i, _row.word_end () + (_disp * i + _row.word_size ()), _row.size ());
 		return *this;
 	}
 
 	Row operator[] (int i) const
 		{ return Row (const_cast<Row&> (_row).word_begin () + _disp * i,
-			      const_cast<Row&> (_row).word_end () + (_disp * i + 1), _row.size ()); }
+			      const_cast<Row&> (_row).word_begin () + (_disp * i + _row.word_size ()), _row.size ()); }
 
 	Row *operator -> ()
 		{ return &_row; }
