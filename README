@@ -17,6 +17,9 @@ performance.
 An introductory tutorial on the use of LELA may be found in the file
 doc/tutorial.html
 
+For questions, please make use of our mailing-list at
+lela-users@googlegroups.com
+
 LELA was originally derived from LinBox (see http://www.linalg.org/).
 
 Some key differences between LELA and LinBox are the following:

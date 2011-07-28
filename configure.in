@@ -4,7 +4,7 @@
 # License version 3. See COPYING for more information.
 
 AC_PREREQ(2.50)
-AC_INIT(lela,0.1.0,hovinen@gmail.com) 
+AC_INIT(lela,0.1.0,lela-users@googlegroups.com) 
 AM_INIT_AUTOMAKE([1.8 gnu no-dependencies])
 AM_CONFIG_HEADER([lela/lela-config.h])
 AX_PREFIX_CONFIG_H(lela/lela-config.h, __LELA)

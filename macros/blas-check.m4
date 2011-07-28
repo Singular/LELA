@@ -25,12 +25,13 @@ AC_ARG_WITH(blas,
 
 dnl Check for existence
 
-BACKUP_CXXFLAGS=${CXXFLAGS}
+BACKUP_CPPFLAGS=${CPPFLAGS}
 BACKUP_LIBS=${LIBS}
 
 if test -n "$BLAS_HOME_PATH" ; then
 AC_MSG_CHECKING(for C interface to BLAS)
 fi
+
 
    
 ###
@@ -42,7 +43,7 @@ if test -n "$BLAS_VAL"; then
 
 	## check with user supplied value
 	CBLAS="yes"	 	
-	CBLAS_FLAG="-D__LELA_HAVE_CBLAS"
+	CBLAS_FLAG="-D__LELA_HAVE_CBLAS -I${srcdir}"
 
 	if   test -d "$BLAS_VAL"; then
 		if test -r "$BLAS_VAL/lib/libcblas.a" ; then 
@@ -79,7 +80,7 @@ if test -n "$BLAS_VAL"; then
 	else
 		BLAS_LIBS="$BLAS_VAL"
 	fi		
-	CXXFLAGS="${BACKUP_CXXFLAGS} ${CBLAS_FLAG}" 
+	CPPFLAGS="${BACKUP_CPPFLAGS} ${CBLAS_FLAG}" 
 	LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 	AC_TRY_LINK(
@@ -120,7 +121,7 @@ else
 	for BLAS_HOME in ${DEFAULT_CHECKING_PATH} 
 	do		
 		CBLAS="yes"
-		CBLAS_FLAG="-D__LELA_HAVE_CBLAS"
+		CBLAS_FLAG="-D__LELA_HAVE_CBLAS -I${srcdir}"
 	
 		if test -r "/System/Library/Frameworks/Accelerate.framework"; then
 			BLAS_LIBS="-Wl,-framework -Wl,Accelerate"
@@ -148,7 +149,7 @@ else
 			BLAS_LIBS="-L${BLAS_HOME} ${ATLAS_LIBS}"
 		fi 
 	
-		CXXFLAGS="${BACKUP_CXXFLAGS} ${CBLAS_FLAG}" 
+		CPPFLAGS="${BACKUP_CPPFLAGS} ${CBLAS_FLAG}" 
 		LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 		AC_TRY_LINK(
@@ -215,7 +216,7 @@ fi
 if test "x$blas_found" != "xyes" ; then
 	AC_MSG_CHECKING(for other BLAS)
 	CBLAS="no"
-	CBLAS_FLAG=""
+	CBLAS_FLAG="-I${srcdir}"
 	if test -n "$BLAS_VAL"; then
 		if   test -d "$BLAS_VAL"; then
 			if test -r "${BLAS_VAL}/lib/libblas.a" ; then
@@ -227,7 +228,7 @@ if test "x$blas_found" != "xyes" ; then
 		else
 			BLAS_LIBS=$BLAS_VAL
 		fi		
-		CXXFLAGS="${BACKUP_CXXFLAGS} ${CBLAS_FLAG}" 
+		CPPFLAGS="${BACKUP_CPPFLAGS} ${CBLAS_FLAG}" 
 		LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 		AC_TRY_LINK(
@@ -268,7 +269,7 @@ if test "x$blas_found" != "xyes" ; then
 		for BLAS_HOME in ${DEFAULT_CHECKING_PATH} 
 		do
 			CBLAS="no"
-			CBLAS_FLAG=""
+			CBLAS_FLAG="-I${srcdir}"
 
 			if test -r "$BLAS_HOME/lib/libblas.a"; then
 				if test "x$BLAS_HOME" = "x/usr" -o "x$BLAS_HOME" = "/usr/local" ; then
@@ -286,7 +287,7 @@ if test "x$blas_found" != "xyes" ; then
 				BLAS_LIBS="-L${BLAS_HOME} -lblas"
 			fi 
 	
-			CXXFLAGS="${BACKUP_CXXFLAGS} ${CBLAS_FLAG}" 
+			CPPFLAGS="${BACKUP_CPPFLAGS} ${CBLAS_FLAG}" 
 			LIBS="${BACKUP_LIBS} ${BLAS_LIBS}" 
 
 			AC_TRY_LINK(	
@@ -350,7 +351,7 @@ fi
 
 AM_CONDITIONAL(LELA_HAVE_BLAS, test "x$HAVE_BLAS" = "xyes")
 
-CXXFLAGS=${BACKUP_CXXFLAGS}
+CPPFLAGS=${BACKUP_CPPFLAGS}
 LIBS=${BACKUP_LIBS}
 #unset LD_LIBRARY_PATH
 

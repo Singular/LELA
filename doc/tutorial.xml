@@ -1901,9 +1901,8 @@ CXX=clang ./configure</programlisting>
 	</listitem>
 	<listitem>
 	  <simpara>
-	    If you are really stuck, send an email to Bradford Hovinen
-	    &lt;hovinen@gmail.com&gt; with your compiler-output and if
-	    possible representative source-code.
+	    If you are really stuck, send an email to the mailing list
+	    at lela-users@googlegroups.com.
 	  </simpara>
 	</listitem>
       </itemizedlist>
