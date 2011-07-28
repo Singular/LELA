@@ -8,7 +8,4 @@ EXTRA_DIST=\
 	gmp-check.m4		\
 	m4ri-check.m4		\
 	png-check.m4		\
-	blas-check.m4		\
-	maple-check.m4		\
-	sage-check.m4		\
-	maple-check-version.mpl
+	blas-check.m4

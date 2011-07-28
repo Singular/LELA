@@ -5,13 +5,13 @@
 
 if BUILD_DOCS
 DOC_TARGETS = tutorial.html
-REFDOC_TARGETS = 
+REFDOC_TARGETS = html/index.html
 endif
 
 all all-local: $(DOC_TARGETS) $(REFDOC_TARGETS)
 
 docdir = $(datadir)/doc/lela-$(VERSION)
-doc_DATA = $(DOC_TARGETS)
+doc_DATA = $(DOC_TARGETS) caution.png note.png docbook.css
 
 refdocdir = $(datadir)/doc/lela-$(VERSION)/reference
 refdoc_DATA = $(REFDOC_TARGETS)
@@ -21,8 +21,30 @@ tutorial.html: tutorial.xml
 	sed -e s/index.html/tutorial.html/g index.html >tutorial.html
 	rm -f index.html
 
-html:
+html/index.html:
 	$(DOXYGEN)
+
+install-data-local:
+	mkdir -p $(DESTDIR)$(refdocdir)
+	if test -x $(builddir)/html; then \
+		$(install_sh) $(builddir)/html/* $(DESTDIR)$(refdocdir); \
+	else \
+		$(install_sh) $(srcdir)/html/* $(DESTDIR)$(refdocdir); \
+	fi
+
+uninstall-hook:
+	rm -rf $(DESTDIR)$(refdocdir)
+
+maintainer-clean-local:
+	rm -rf $(builddir)/html
+
+dist-hook:
+	mkdir -p $(distdir)/html
+	if test -x $(builddir)/html; then \
+		cp $(builddir)/html/* $(distdir)/html; \
+	else \
+		cp $(srcdir)/html/* $(distdir)/html; \
+	fi
 
 EXTRA_DIST = \
 	tutorial.xml	\
