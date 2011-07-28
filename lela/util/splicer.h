@@ -46,6 +46,9 @@ public:
 	Block (unsigned int source, unsigned int dest, size_t src_idx, size_t dest_idx, size_t size)
 		: _source (source), _dest (dest), _src_idx (src_idx), _dest_idx (dest_idx), _size (size) {}
 
+	/// Empty constructor
+	Block () {}
+
 	/** Get index of source-matrix */
 	inline unsigned int source () const { return _source; }
 
