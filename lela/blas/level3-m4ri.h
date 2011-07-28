@@ -153,9 +153,9 @@ class _permute_cols<GF2, M4RIModule::Tag>
 					  MatrixStorageTypes::Generic)
 		{ return _permute_cols<GF2, M4RIModule::Tag::Parent>::op (F, M, P_begin, P_end, A); }
 
-	template <class Modules, class Iterator, class Matrix>
-	static Matrix &permute_cols_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A,
-					  MatrixStorageTypes::M4RI);
+	// template <class Modules, class Iterator, class Matrix>
+	// static Matrix &permute_cols_impl (const GF2 &F, Modules &M, Iterator P_begin, Iterator P_end, Matrix &A,
+	// 				  MatrixStorageTypes::M4RI);
 
 public:
 	template <class Modules, class Iterator, class Matrix>

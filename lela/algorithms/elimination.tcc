@@ -358,6 +358,7 @@ Matrix &Elimination<Ring, Modules>::pluq (Matrix        &A,
 	}
 
 	std::reverse (P.begin (), P.end ());
+	std::reverse (Q.begin (), Q.end ());
 
 	TIMER_REPORT(GetPivot);
 	TIMER_REPORT(Permute);
@@ -373,13 +374,13 @@ template <class Matrix1, class Matrix2>
 void Elimination<Ring, Modules>::move_L (Matrix1 &L, Matrix2 &A) const
 {
 	lela_check (L.rowdim () == A.rowdim ());
-	lela_check (L.coldim () >= A.rowdim ());
+	lela_check (std::min (A.rowdim (), A.coldim ()) <= L.coldim ());
 
 	size_t i, j;
 	typename Ring::Element aij;
 
 	for (i = 0; i < L.rowdim (); ++i) {
-		for (j = 0; j < i; ++j) {
+		for (j = 0; j < std::min (i, A.coldim ()); ++j) {
 			if (A.getEntry (aij, i, j)) {
 				L.setEntry (i, j, aij);
 				A.setEntry (i, j, ctx.F.zero ());

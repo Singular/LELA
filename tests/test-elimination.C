@@ -40,9 +40,9 @@ bool testEchelonize (const Ring &F, const char *text, Matrix &A)
 
 	Elimination<Ring> elim (ctx);
 
-	typename Matrix::ContainerType LPA (A.rowdim (), A.coldim ());
+	typename Matrix::ContainerType PA (A.rowdim (), A.coldim ()), LPA (A.rowdim (), A.coldim ());
 
-	BLAS3::copy (ctx, A, LPA);
+	BLAS3::copy (ctx, A, PA);
 
 	typename Elimination<Ring>::Permutation P;
 
@@ -60,13 +60,22 @@ bool testEchelonize (const Ring &F, const char *text, Matrix &A)
 	report << "P = ";
 	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 
-	BLAS3::permute_rows (ctx, P.begin (), P.end (), LPA);
+	BLAS3::permute_rows (ctx, P.begin (), P.end (), PA);
 	report << "PA = " << std::endl;
-	BLAS3::write (ctx, report, LPA, FORMAT_PRETTY);
+	BLAS3::write (ctx, report, PA, FORMAT_PRETTY);
 
-	typename Matrix::SubmatrixType Ap (A, 0, 0, A.rowdim (), A.rowdim ());
+	typename Matrix::ContainerType L (A.rowdim (), A.rowdim ());
 
-	BLAS3::trmm (ctx, F.one (), Ap, LPA, LowerTriangular, true);
+	typename Matrix::ContainerType::RowIterator i_L;
+	StandardBasisStream<Ring, typename Matrix::ContainerType::Row> s (ctx.F, A.rowdim ());
+
+	for (i_L = L.rowBegin (); i_L != L.rowEnd (); ++i_L)
+		s >> *i_L;
+
+	elim.move_L (L, A);
+
+	BLAS3::scal (ctx, F.zero (), LPA);
+	BLAS3::gemm (ctx, F.one (), L, PA, F.zero (), LPA);
 	report << "LPA = " << std::endl;
 	BLAS3::write (ctx, report, LPA);
 
@@ -74,9 +83,6 @@ bool testEchelonize (const Ring &F, const char *text, Matrix &A)
 	report << "Computed det = ";
 	F.write (report, det);
 	report << std::endl;
-
-	// Trick to eliminate part below diagonal so that equality-check works
-	elim.move_L (A, A);
 
 	if (!BLAS3::equal (ctx, LPA, A)) {
 		error << "LPA != R, not okay" << std::endl;
@@ -188,7 +194,7 @@ bool testPLUQ (const Ring &F, const char *text, Matrix &A)
 	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
 
 	report << "Q = ";
-	BLAS1::write_permutation (report, P.begin (), P.end ()) << std::endl;
+	BLAS1::write_permutation (report, Q.begin (), Q.end ()) << std::endl;
 
 	BLAS3::scal (ctx, ctx.F.zero (), L);
 	elim.move_L (L, A);
@@ -239,7 +245,7 @@ int main (int argc, char **argv)
 {
 	bool pass1 = true, pass2 = true;
 
-	static long m = 96;
+	static long m = 100;
 	static long n = 96;
 	static long k = 10;
 	static integer q = 101U;
