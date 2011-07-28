@@ -418,6 +418,8 @@ Matrix &GaussJordan<Ring, Modules>::echelonize (Matrix      &A,
 
 	int h;
 
+	ctx.F.copy (det, ctx.F.one ());
+
 	GaussTransform (A, A, ctx.F.one (), P, rank, h, det, PS);
 
 	commentator.stop (MSG_DONE);
@@ -440,6 +442,8 @@ Matrix1 &GaussJordan<Ring, Modules>::echelonize_reduced (Matrix1       &A,
 	commentator.start ("Asymptotically fast reduced row-echelon form", __FUNCTION__);
 
 	int h;
+
+	ctx.F.copy (det, ctx.F.one ());
 
 	DenseMatrix<typename Ring::Element> S, T;
 
