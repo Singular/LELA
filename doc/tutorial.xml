@@ -1568,7 +1568,7 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 	Context&lt;Ring&gt; ctx (R);
 	EchelonForm&lt;Ring&gt; EF (ctx);
 
-	RowEchelonForm (A); // A now replaced by its row echelon form
+	echelonize (A); // A now replaced by its row echelon form
 }</programlisting>
 
 	<para>
@@ -1587,8 +1587,58 @@ void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
 	Context&lt;Ring&gt; ctx (R);
 	EchelonForm&lt;Ring&gt; EF (ctx);
 
-	RowEchelonForm (A, true); // A now replaced by its reduced row echelon form
+	echelonize (A, true); // A now replaced by its reduced row echelon form
 }</programlisting>
+
+	<para>
+	  You can also instruct <type>EchelonForm</type> to use a
+	  particular method when computing the row-echelon form. For
+	  example, if your matrix comes from the F4 algorithm, it is
+	  useful to use the method of Faugère-Lachartre:
+	</para>
+
+	<programlisting>
+#include &lt;lela/solutions/echelon-form.h&gt;
+
+using namespace LELA;
+
+template &lt;class Ring, class Matrix&gt;
+void ComputeRowEchelonForm (const Ring &amp;R, Matrix &amp;A)
+{
+	Context&lt;Ring&gt; ctx (R);
+	EchelonForm&lt;Ring&gt; EF (ctx);
+
+	echelonize (A, true, METHOD_FAUGERE_LACHARTRE); // A now replaced by its reduced row echelon form
+}</programlisting>
+
+	<para>
+	  The supported methods are as follows:
+	</para>
+
+	<itemizedlist>
+	  <listitem>
+	    <para><literal>METHOD_STANDARD_GJ</literal>, naive
+	    Gaussian elimination. Slow, but available for any type of
+	    matrix in with any configuration.</para>
+	  </listitem>
+	  <listitem>
+	    <para><literal>METHOD_ASYMPTOTICALLY_FAST_GJ</literal>,
+	    asymptotically fast Gaussian elimination (using possibly
+	    fast matrix-multiplication). Only available for dense
+	    matrices.</para>
+	  </listitem>
+	  <listitem>
+	    <para><literal>METHOD_M4RI</literal>, wrapper for the
+	    method in M4RI. Only available for dense matrices over
+	    GF(2) when M4RI is enabled.</para>
+	  </listitem>
+	  <listitem>
+	    <para><literal>METHOD_FAUGERE_LACHARTRE</literal>, method
+	    based on the algorithm of Faugère and Lachartre. Only
+	    available for matrices of the form coming from the F4
+	    algorithm.</para>
+	  </listitem>
+	</itemizedlist>
       </section>
     </section>
     <section>

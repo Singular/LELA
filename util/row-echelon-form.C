@@ -289,9 +289,9 @@ int main (int argc, char **argv)
 		return run_row_echelon_form (GF2 (), methodString, matrixType, reduced, input, input_format, output, output_format);
 	else if (ring_type == RING_MODULAR) {
 		if (floatingPoint) {
-			if (ModularTraits<float>::valid_modulus (p))
+			if (p < 1U << 7)
 				return run_row_echelon_form (Modular<float> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
-			else if (ModularTraits<double>::valid_modulus (p))
+			else if (p < 1U << 21)
 				return run_row_echelon_form (Modular<double> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
 			else
 				return run_row_echelon_form (Modular<integer> (p), methodString, matrixType, reduced, input, input_format, output, output_format);
