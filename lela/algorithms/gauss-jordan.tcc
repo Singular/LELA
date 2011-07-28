@@ -128,6 +128,8 @@ void GaussJordan<Ring, Modules>::GaussJordanTransform (Matrix1      &A,
 		int h_1, h_2;
 		Element d_1;
 
+		ctx.F.copy (d_1, ctx.F.one ());
+
 		GaussJordanTransform (A_1, k, d_0, U, P, r_1, h_1, d_1, S, T, PS);
 
 		// DEBUG
@@ -324,6 +326,8 @@ void GaussJordan<Ring, Modules>::GaussTransform (Matrix1     &A,
 		size_t r_1, r_2;
 		int h_1, h_2;
 		Element d_1;
+
+		ctx.F.copy (d_1, ctx.F.one ());
 
 		GaussTransform (A_1, L, d_0, P, r_1, h_1, d_1, PS);
 
