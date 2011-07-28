@@ -592,6 +592,7 @@ WARN_LOGFILE           = doxy.debug
 # with spaces.
 
 INPUT                  = reference.doxy \
+		         ../lela/integer.h \
 		         ../lela/ring/interface.h \
 			 ../lela/element/abstract.h \
 		         ../lela/ring/integers.h \
@@ -625,6 +626,7 @@ INPUT                  = reference.doxy \
 			 ../lela/blas/level2.h \
 			 ../lela/blas/level3.h \
 			 ../lela/algorithms/strassen-winograd.h \
+			 ../lela/algorithms/pivot-strategy.h \
 			 ../lela/algorithms/elimination.h \
 			 ../lela/algorithms/gauss-jordan.h \
 			 ../lela/algorithms/faugere-lachartre.h \

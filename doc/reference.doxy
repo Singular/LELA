@@ -1,5 +1,7 @@
 /** \mainpage LELA Reference-Manual
  *
+ * \defgroup lela Generalities
+ *
  * \defgroup ring Rings
  *
  * \defgroup vector Vectors

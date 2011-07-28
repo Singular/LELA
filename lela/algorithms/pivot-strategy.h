@@ -21,6 +21,8 @@ namespace LELA
  * A pivot-strategy decides which entry in a matrix to use as a pivot
  * in elimination-algorithms. This class encapsulates such a
  * strategy. It is provided as an example for documentation only.
+ *
+ * \ingroup algorithms
  */
 class PivotStrategy 
 {
@@ -59,6 +61,8 @@ public:
  *
  * This strategy is only available for matrices with dense or dense
  * 0-1 rows.
+ *
+ * \ingroup algorithms
  */
 template <class Ring, class Modules>
 class DensePivotStrategy 
@@ -96,6 +100,8 @@ public:
  *
  * This strategy is only available for matrices with sparse, sparse
  * 0-1, or hybrid 0-1 rows.
+ *
+ * \ingroup algorithms
  */
 template <class Ring, class Modules>
 class SparsePartialPivotStrategy 

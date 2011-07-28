@@ -29,13 +29,13 @@ namespace LELA
 
 /** \brief This is a representation of arbitrary integers.  
  *
- * \ingroup lela
- *
  * It is a wrapper of GMP integers.  Arithmetic operations are via C++
  * infix operator forms (eg. a*b). It is for ``casual'' uses such as
  * characteristics and cardinalities and when initializing field
- * elements.  The integers are also represented as a LELA ring for use
- * in integer matrix computation, see pid-integers.h or ntl-ZZ.h.
+ * elements. The integers are also represented as a LELA ring for use
+ * in integer matrix computation, see integers.h
+ *
+ * \ingroup lela
  */
 typedef mpz_class integer;
 
@@ -46,6 +46,8 @@ typedef signed __LELA_INT16 int16;
  *
  * The use of `int32' ensures you are working with 
  * 32 bit signed ints, [-2^31..2^31).  Similarly, int8, int16, and int64 are defined.
+ *
+ * \ingroup lela
  */
 typedef signed __LELA_INT32 int32;
 
@@ -58,6 +60,8 @@ typedef unsigned __LELA_INT16 uint16;
  *
  * The use of `uint32' ensures you are working with 
  * 32 bit unsigned ints, [0..2^32).  Similarly, uint8, uint16, and uint64 are defined.
+ *
+ * \ingroup lela
  */
 typedef unsigned __LELA_INT32 uint32;
 
@@ -77,10 +81,14 @@ template <class T>
 T abs (const T &a) { return a <= 0 ? a * -1 : a; }
 
 /// Compile-time computation of the gcd of two integers
+///
+/// \ingroup lela
 template <int n, int m> struct const_gcd { static const int val = const_gcd<m, n % m>::val; };
 template <int n> struct const_gcd<n, 0> { static const int val = n; };
 
 /// Compile-time computation of the lcm of two integers
+///
+/// \ingroup lela
 template <int n, int m> struct const_lcm { static const int val = n * m / const_gcd<n, m>::val; };
 
 } // namespace LELA
