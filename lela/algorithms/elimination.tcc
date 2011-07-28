@@ -61,7 +61,7 @@ Matrix &Elimination<Ring, Modules>::echelonize (Matrix        &A,
 	TIMER_DECLARE(Permute);
 	TIMER_DECLARE(ElimBelow);
 
-	typename Matrix::RowIterator i_A, j_A;
+	typename Matrix::RowIterator i_A, j_A = A.rowBegin ();
 
 	size_t pivot_row, pivot_col;
 	size_t i, j;
@@ -160,7 +160,7 @@ Matrix1 &Elimination<Ring, Modules>::echelonize_reduced (Matrix1       &A,
 	TIMER_DECLARE(Elim);
 
 	typename Matrix1::RowIterator i_A, j_A;
-	typename Matrix2::RowIterator i_L, j_L;
+	typename Matrix2::RowIterator i_L = L.rowBegin (), j_L = L.rowBegin ();
 
 	size_t pivot_row, pivot_col;
 	size_t i, j;
