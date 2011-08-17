@@ -530,7 +530,7 @@ bool testfillVertical ()
 	std::ostringstream str;
 
         str << "Testing Splicer::fillVertical " << std::ends;
-        commentator.start (str.str ().c_str (), __FUNCTION__);
+        commentator.start (str.str () .c_str (), __FUNCTION__);
 
         Splicer S;
         S.addHorizontalBlock (Block (0, 0, 0, 0, 4));
@@ -585,6 +585,106 @@ bool testfillVertical ()
         return pass;
 }
 
+/*bool testConsolidate ()
+{
+       	bool pass = true;
+
+	grid1 g (2,2);
+	
+	std::ostringstream str;
+
+        str << "Testing Splicer::testconsolidate " << std::ends;
+        commentator.start (str.str () .c_str (), __FUNCTION__);
+	ostream &report = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
+
+        Splicer S;
+        S.addHorizontalBlock (Block (0, 0, 0, 0, 2));
+        S.addHorizontalBlock (Block (0, 0, 2, 0, 3));
+        S.addHorizontalBlock (Block (0, 1, 0, 2, 2));
+        S.addHorizontalBlock (Block (0, 1, 2, 2, 3));
+        S.addVerticalBlock (Block (0, 0, 0, 0, 2));
+        S.addVerticalBlock (Block (0, 0, 2, 0, 3));
+        S.addVerticalBlock (Block (0, 1, 0, 2, 2));
+        S.addVerticalBlock (Block (0, 1, 2, 2, 3));
+
+        S.consolidate ();
+
+        S.splice(g);
+
+        for(size_t i = 0; i < 2; ++i)
+	{
+		for(size_t j = 0; j < 2; ++j)
+		{
+			if( i != 1)
+			{
+				if ( g.horiz_array[i][j].source () == g.horiz_array[i+1][j].source () )
+				{
+					if(g.horiz_array[i][j].dest () == g.horiz_array[i+1][j].dest () )
+					{
+						commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+							<< "ERROR 1: Consolidation of 2 horizontal blocks didn't happen." << endl;
+						pass = false;
+					}
+				}
+			}
+
+			if( j != 1)
+			{
+				if (g.vert_array[i][j].source () == g.vert_array[i][j+1].source ())
+				{
+					if(g.vert_array[i][j].dest () == g.vert_array[i][j+1].dest () )
+					{
+						commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+							<< "ERROR 2: Consolidation of 2 vertical blocks didn't happen." << endl;
+						pass = false;
+					}
+				}
+			}
+			
+			if(g.horiz_array[i][j].source () != 0)
+			{
+				if(g.horiz_array[i][j].dest () != 0)
+				{
+					if(g.horiz_array[i][j].sourceIndex () != 0)
+					{
+						if(g.horiz_array[i][j].destIndex () != 0)
+						{
+							if(g.horiz_array[i][j].size () != 5)
+							{
+								commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+									<< "ERROR 3: Consolidation of 2 horizontal blocks went wrong." << endl;
+								pass = false;
+							}
+						}
+					}
+				}
+			}
+
+			if(g.vert_array[i][j].source () != 0)
+			{
+				if(g.vert_array[i][j].dest () != 0)
+				{
+					if(g.vert_array[i][j].sourceIndex () != 0)
+					{
+						if(g.vert_array[i][j].destIndex () != 0)
+						{
+							if(g.vert_array[i][j].size () != 5)
+							{
+								commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR)
+									<< "ERROR 4: Consolidation of 2 vertical blocks went wrong." << endl;
+								pass = false;
+							}
+						}
+					}
+				}
+			}
+		}
+        }
+
+        commentator.stop (MSG_STATUS (pass));
+        return pass;
+	}*/
+
 int main (int argc, char **argv)
 {
 	bool pass = true;
@@ -606,6 +706,7 @@ int main (int argc, char **argv)
 	pass = testclearVerticalBlocks () && pass;
 	pass = testfillHorizontal () && pass;
 	pass = testfillVertical () && pass;
+	pass = testConsolidate () && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
