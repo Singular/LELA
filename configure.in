@@ -24,8 +24,6 @@ AM_OUTPUT_DEPENDENCY_COMMANDS
 CFLAGS=${CFLAGS:-$DEFAULT_CFLAGS}
 CXXFLAGS=${CXXFLAGS:-$DEFAULT_CFLAGS}
 
-AM_ACLOCAL_INCLUDE(macros)
-
 # work around to fix the backward compatibility issue of automake 1.10 with 1.9 (pb with MKDIR_P)
 AC_SUBST([MKDIR_P])
 AC_PROG_CC

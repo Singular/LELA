@@ -5,6 +5,8 @@
 
 SUBDIRS=lela util macros tests doc
 
+ACLOCAL_AMFLAGS = -I macros
+
 bin_SCRIPTS=lela-config
 
 DISTCLEANFILES=_configs.sed
