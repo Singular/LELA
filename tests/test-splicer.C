@@ -706,7 +706,7 @@ int main (int argc, char **argv)
 	pass = testclearVerticalBlocks () && pass;
 	pass = testfillHorizontal () && pass;
 	pass = testfillVertical () && pass;
-	pass = testConsolidate () && pass;
+	// pass = testConsolidate () && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 	return pass ? 0 : -1;
