@@ -28,6 +28,18 @@
 namespace LELA
 {
 
+// Exception thrown when the matrix is not in the right form
+class WrongMatrixForm {
+	size_t _row;
+
+public:
+	WrongMatrixForm (size_t row) { _row = row; }
+	friend std::ostream &operator << (std::ostream &out, const WrongMatrixForm &e);
+};
+
+std::ostream &operator << (std::ostream &out, const WrongMatrixForm &e)
+	{ out << "Bad input-matrix for Faugère-Lachartre at row-index " << e._row << std::endl; }
+
 template <class Ring, class Modules>
 FaugereLachartre<Ring, Modules>::FaugereLachartre (Context<Ring, Modules> &_ctx)
 	: ctx (_ctx), EF (_ctx) {}
@@ -65,6 +77,8 @@ void FaugereLachartre<Ring, Modules>::setup_splicer (Splicer &splicer, Splicer &
 				last_was_same_col = true;
 			}
 		}
+		else if (col < last_col)
+			throw WrongMatrixForm (row);
 		else {
 			if (last_was_same_col) {
 				splicer.addHorizontalBlock (Block (0, 1, first_row_in_block, dest_row_res, row - first_row_in_block));
