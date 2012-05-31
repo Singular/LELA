@@ -24,6 +24,7 @@
 #include "lela/lela-config.h"
 
 #include <fcntl.h>
+#include <unistd.h>
 
 #include "lela/randiter/mersenne-twister.h"
 #include "lela/util/debug.h"
