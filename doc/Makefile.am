@@ -16,8 +16,8 @@ doc_DATA = $(DOC_TARGETS) caution.png note.png docbook.css
 refdocdir = $(datadir)/doc/lela-$(VERSION)/reference
 refdoc_DATA = $(REFDOC_TARGETS)
 
-tutorial.html: tutorial.xml
-	$(XMLTO) xhtml -m config.xsl tutorial.xml
+tutorial.html: $(srcdir)/config.xsl $(srcdir)/tutorial.xml
+	$(XMLTO) xhtml -m $(srcdir)/config.xsl $(srcdir)/tutorial.xml
 	sed -e s/index.html/tutorial.html/g index.html >tutorial.html
 	rm -f index.html
 

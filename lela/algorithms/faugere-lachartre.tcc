@@ -38,7 +38,10 @@ public:
 };
 
 std::ostream &operator << (std::ostream &out, const WrongMatrixForm &e)
-	{ out << "Bad input-matrix for Faugère-Lachartre at row-index " << e._row << std::endl; }
+{
+	out << "Bad input-matrix for Faugère-Lachartre at row-index " << e._row << std::endl;
+	return out;
+}
 
 template <class Ring, class Modules>
 FaugereLachartre<Ring, Modules>::FaugereLachartre (Context<Ring, Modules> &_ctx)

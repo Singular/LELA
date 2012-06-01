@@ -14,15 +14,20 @@
 
 #ifndef __LELA_HAVE_LIBPNG
 #  error "This header file requires that LELA be configured with libpng enabled. Please ensure that libpng is properly installed and re-run configure."
+#else
+#  include <pngconf.h>
+#  include <png.h>
 #endif
-
-#include <iostream>
-#include <png.h>
 
 #include "lela/matrix/io.h"
 #include "lela/vector/traits.h"
 #include "lela/vector/bit-iterator.h"
 #include "lela/vector/hybrid.h"
+
+#include <iostream>
+
+/// compression level for z-lib default:(3-6), best: 9
+const int COMPRESSION_LEVEL_PNG = 6;
 
 namespace LELA
 {
@@ -156,7 +161,7 @@ std::istream &MatrixReader<Ring>::readPNGSpecialised (std::istream &is, Matrix &
 		throw LELAError ("Error reading PNG-data");
 	}
 
-	png_set_read_fn (png_ptr, (voidp) &is, PNGReadData);
+	png_set_read_fn (png_ptr, (png_voidp) &is, PNGReadData);
 
 	// Get header-information and make sure PNG is suitable
 	png_set_sig_bytes (png_ptr, _png_sig_size); // We've already read the signature
@@ -296,10 +301,10 @@ std::ostream &MatrixWriter<Ring>::writePNGSpecialised (std::ostream &os, const M
 		throw LELAError ("Error writing PNG-data");
 	}
 
-	png_set_write_fn (png_ptr, (voidp) &os, PNGWriteData, PNGFlush);
+	png_set_write_fn (png_ptr, (png_voidp) &os, PNGWriteData, PNGFlush);
 
 	// Write the header
-	png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+	png_set_compression_level(png_ptr, COMPRESSION_LEVEL_PNG);
 	png_set_IHDR (png_ptr, info_ptr, A.coldim (), A.rowdim (), 1, 0, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info (png_ptr, info_ptr);
 
