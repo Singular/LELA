@@ -233,14 +233,14 @@ class MatrixInterface
 	 */
 	void eraseEntry (size_t i, size_t j);
 
-	/** Copy the (i, j) entry into x, and return a reference to x.
+	/** Copy the (i, j) entry into x, and return whether the entry exists in the matrix
 	 *
 	 * @param x Element in which to store result
 	 * @param i Row index
 	 * @param j Column index
-	 * @return Reference to x
+	 * @return true if the entry exists in the matrix, false otherwise
 	 */
-	Element &getEntry (Element &x, size_t i, size_t j) const;
+	bool getEntry (Element &x, size_t i, size_t j) const;
 
 	/// Obtain @ref RowIterator for first row of the matrix
 	RowIterator rowBegin ();  
