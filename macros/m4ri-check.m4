@@ -110,7 +110,7 @@ fi
 dnl Check m4ri version
 if test "x$m4ri_found" = "xyes" ; then
    	AC_MSG_CHECKING(whether version of M4RI is at least 20110601)
-	AC_LANG([C])
+	AC_LANG_PUSH([C])
 	BACKUP_CFLAGS=${CFLAGS}
 	CFLAGS="${CFLAGS} -std=c99 -I${M4RI_HOME}/include"
 	AC_COMPILE_IFELSE(
@@ -118,6 +118,7 @@ if test "x$m4ri_found" = "xyes" ; then
 		[m4ri_new_version=yes],
 		[m4ri_new_version=no])
 
+	AC_LANG_POP
 	CFLAGS=${BACKUP_CFLAGS}
 	if test "x$m4ri_new_version" = "xyes"; then
 	   	AC_DEFINE_UNQUOTED(HAVE_M4RI_GE_20110601,1,[Version of M4RI is at least 20110601])
