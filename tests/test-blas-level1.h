@@ -154,7 +154,7 @@ bool testInequality (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::
 		reportUI << "Testing with vector: ";
 		LELA::BLAS1::write (ctx, reportUI, v) << std::endl;
 
-		for (size_t i; i < stream1.dim (); ++i) {
+		for (size_t i = 0; i < stream1.dim (); ++i) {
 			LELA::BLAS1::copy (ctx, v, v_c);
 			LELA::BLAS1::scal (ctx, ctx.F.zero (), e_i);
 			set_entry<Ring, typename LELA::VectorTraits<Ring, Vector2>::ContainerType> (e_i, i, ctx.F.one ());
@@ -200,7 +200,7 @@ bool testNonzero (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::Vec
 
 	LELA::VectorUtils::ensureDim<Ring, Vector> (e_i, stream.dim ());
 
-	for (size_t i; i < stream.dim (); ++i) {
+	for (size_t i = 0; i < stream.dim (); ++i) {
 		LELA::BLAS1::scal (ctx, ctx.F.zero (), e_i);
 		set_entry<Ring, typename LELA::VectorTraits<Ring, Vector>::ContainerType> (e_i, i, ctx.F.one ());
 
