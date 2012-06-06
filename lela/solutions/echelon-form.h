@@ -80,12 +80,12 @@ public:
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
-			if (reduced) {
+			{
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<Ring, Modules> FL (_ctx);
-				FL.echelonize (A, A, rank, d);
-			} else
-				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
+				FL.echelonize (A, A, rank, d, reduced);
+			}
+
 			break;
 
 		default:
@@ -134,12 +134,12 @@ public:
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
-			if (reduced) {
+			{
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<Ring, Modules> FL (_ctx);
 				FL.echelonize (A, A, rank, d);
-			} else
-				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
+			}
+
 			break;
 
 		default:

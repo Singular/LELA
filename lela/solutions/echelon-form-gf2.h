@@ -74,12 +74,12 @@ public:
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
-			if (reduced) {
+			{
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<GF2, AllModules<GF2> > FL (_ctx);
-				FL.echelonize (A, A, rank, d);
-			} else
-				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
+				FL.echelonize (A, A, rank, d, reduced);
+			}
+
 			break;
 
 		default:
@@ -130,16 +130,16 @@ public:
 			break;
 
 		case METHOD_M4RI:
-			mzd_echelonize_pluq (A._rep, reduced ? 1 : 0);
+			mzd_echelonize (A._rep, reduced ? 1 : 0);
 			break;
 
 		case METHOD_FAUGERE_LACHARTRE:
-			if (reduced) {
+			{
 				// Must do it this way to avoid an infinite loop of inclusion...
 				FaugereLachartre<GF2, AllModules<GF2> > FL (_ctx);
-				FL.echelonize (A, A, rank, d);
-			} else
-				throw LELAError ("Only reduced row-echelon form is available with Faugère-Lachartre");
+				FL.echelonize (A, A, rank, d, reduced);
+			}
+
 			break;
 
 		default:
