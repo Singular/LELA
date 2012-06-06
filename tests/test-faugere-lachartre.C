@@ -148,12 +148,12 @@ void createRandomF4Matrix (const Ring &R, Matrix &A)
 // Small version of the test, for debugging
 
 template <class Ring>
-bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n)
+bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n, bool reduced)
 {
 	bool pass = true;
 
 	std::ostringstream str;
-	str << "Testing Faugère-Lachartre implementation over " << text << std::ends;
+	str << "Testing Faugère-Lachartre implementation over " << text << " (" << (reduced ? "reduced" : "non-reduced") << " variant)" << std::ends;
 
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
@@ -176,7 +176,7 @@ bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n)
 	report << "Input matrix A:" << std::endl;
 	BLAS3::write (ctx, report, A);
 
-	Solver.echelonize (A, A, rank, det);
+	Solver.echelonize (A, A, rank, det, reduced);
 
 	report << "Output matrix:" << std::endl;
 	BLAS3::write (ctx, report, A);
@@ -185,12 +185,19 @@ bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n)
 	       << "Computed determinant: ";
 	R.write (report, det) << std::endl;
 
+	if (!reduced) {
+		elim.echelonize_reduced (A, L, P, rank, det);
+
+		report << "Output matrix after reduction:" << std::endl;
+		BLAS3::write (ctx, report, A);
+	}
+
 	size_t rank1;
 	typename Ring::Element det1;
 
 	elim.echelonize_reduced (C, L, P, rank1, det1);
 
-	report << "True reduced row-echelon form:" << std::endl;
+	report << "True row-echelon form:" << std::endl;
 	BLAS3::write (ctx, report, C);
 
 	report << "True rank: " << rank1 << std::endl;
@@ -236,13 +243,24 @@ int main (int argc, char **argv)
 
 	Modular<float> R (101);
 
-	pass = testFaugereLachartre (R, "GF(5)", m, n);
+	pass = testFaugereLachartre (R, "GF(5)", m, n, false);
+	pass = testFaugereLachartre (R, "GF(5)", m, n, true) && pass;
 
 	GF2 gf2;
 
-	pass = testFaugereLachartre (gf2, "GF(2)", m, n) && pass;
+	pass = testFaugereLachartre (gf2, "GF(2)", m, n, false) && pass;
+	pass = testFaugereLachartre (gf2, "GF(2)", m, n, true) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 
 	return pass ? 0 : -1;
 }
+
+// Local Variables:
+// mode: C++
+// tab-width: 8
+// indent-tabs-mode: t
+// c-basic-offset: 8
+// End:
+
+// vim:sts=8:sw=8:ts=8:noet:sr:cino=>s,f0,{0,g0,(0,\:0,t0,+0,=s:syntax=cpp.doxygen:foldmethod=syntax
