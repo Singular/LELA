@@ -30,12 +30,6 @@ int row_echelon_form (const Ring &R, const char *input, FileFormatTag input_form
 
 	commentator.start ("Converting matrix to row-echelon-form", __FUNCTION__);
 
-	if (method == EchelonForm<Ring>::METHOD_FAUGERE_LACHARTRE && !reduced) {
-		reduced = true;
-		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_WARNING)
-			<< "Note: constructing reduced row-echelon form, since non-reduced form is not available with the chosen method" << std::endl;
-	}
-
 	Matrix A;
 
 	commentator.start ("Reading input-matrix");
