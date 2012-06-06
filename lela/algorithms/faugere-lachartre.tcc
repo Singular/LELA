@@ -38,10 +38,7 @@ public:
 };
 
 std::ostream &operator << (std::ostream &out, const WrongMatrixForm &e)
-{
-	out << "Bad input-matrix for Faugère-Lachartre at row-index " << e._row << std::endl;
-	return out;
-}
+	{ out << "Bad input-matrix for Faugère-Lachartre at row-index " << e._row << std::endl; return out; }
 
 template <class Ring, class Modules>
 FaugereLachartre<Ring, Modules>::FaugereLachartre (Context<Ring, Modules> &_ctx)
@@ -228,6 +225,55 @@ public:
 	}
 };
 
+template <class Ring, class Matrix1, class Matrix2>
+class MatrixGrid4
+{
+	const Ring &R;
+	Matrix1 &D2;
+	Matrix2 &X;
+
+public:
+	MatrixGrid4 (const Ring &__R, Matrix1 &__D2, Matrix2 &__X)
+		: R (__R), D2 (__D2), X (__X)
+		{}
+
+	void operator () (const Block &horiz_block, const Block &vert_block)
+	{
+		if (horiz_block.source () == 0) {
+			if (vert_block.source () == 1)
+				Splicer::copyIdentity (R, X, horiz_block, vert_block);
+			else if (vert_block.source () == 2)
+				Splicer::copyBlock (R, D2, X, horiz_block, vert_block);
+		}
+	}
+};
+
+template <class Ring, class Matrix1, class Matrix2>
+class MatrixGrid5
+{
+	const Ring &R;
+	Matrix1 &B, &D;
+	Matrix2 &X;
+
+public:
+	MatrixGrid5 (const Ring &__R, Matrix1 &__B, Matrix1 &__D, Matrix2 &__X)
+		: R (__R), B (__B), D (__D), X (__X)
+		{}
+
+	void operator () (const Block &horiz_block, const Block &vert_block)
+	{
+		if (horiz_block.source () == 0) {
+			if (vert_block.source () == 0)
+				Splicer::copyIdentity (R, X, horiz_block, vert_block);
+			else
+				Splicer::copyBlock (R, B, X, horiz_block, vert_block);
+		} else {
+			if (vert_block.source () == 1)
+				Splicer::copyBlock (R, D, X, horiz_block, vert_block);
+		}
+	}
+};
+
 template <class Ring>
 struct DefaultSparseMatrix
 {
@@ -242,7 +288,7 @@ struct DefaultSparseMatrix<GF2>
 
 template <class Ring, class Modules>
 template <class Matrix>
-void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det)
+void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det, bool reduced, bool only_D)
 {
 	commentator.start ("Reduction of F4-matrix to reduced row-echelon form", __FUNCTION__);
 
@@ -320,6 +366,7 @@ void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, si
 	// 	<< "Rank of dense part is " << r_D << std::endl;
 
 	Splicer D_splicer, D_reconst_splicer;
+	Splicer composed_splicer, subst_splicer, D_splicer_rev;
 
 	setup_splicer (D_splicer, D_reconst_splicer, D, num_pivot_rows, det);
 	rank += num_pivot_rows;
@@ -328,57 +375,81 @@ void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, si
 		<< "(In D) found " << num_pivot_rows << " pivots" << std::endl;
 	reportUI << "Splicer:" << std::endl << D_splicer << std::endl;
 
-	DenseMatrix<typename Ring::Element> B1 (B.rowdim (), num_pivot_rows);
-	DenseMatrix<typename Ring::Element> B2 (B.rowdim (), D.coldim () - num_pivot_rows);
-	DenseMatrix<typename Ring::Element> D1 (num_pivot_rows, num_pivot_rows);
-	DenseMatrix<typename Ring::Element> D2 (num_pivot_rows, D.coldim () - num_pivot_rows);
-
-	Splicer B_splicer (D_splicer);
-	B_splicer.clearHorizontalBlocks ();
-	B_splicer.addHorizontalBlock (Block (0, 0, 0, 0, B.rowdim ()));
-
-	B_splicer.splice (MatrixGrid2<Ring, DenseMatrix<typename Ring::Element> > (ctx.F, B, B1, B2));
-	D_splicer.splice (MatrixGrid2<Ring, DenseMatrix<typename Ring::Element> > (ctx.F, D, D1, D2));
-
-	reportUI << "Matrix B1:" << std::endl;
-	BLAS3::write (ctx, reportUI, B1);
-	reportUI << "Matrix B2:" << std::endl;
-	BLAS3::write (ctx, reportUI, B2);
-	reportUI << "Matrix D1:" << std::endl;
-	BLAS3::write (ctx, reportUI, D1);
-	reportUI << "Matrix D2:" << std::endl;
-	BLAS3::write (ctx, reportUI, D2);
-
-	commentator.start ("Constructing D1^-1 D2");
-
-	BLAS3::trsm (ctx, ctx.F.one (), D1, D2, UpperTriangular, false);
-
-	commentator.stop (MSG_DONE);
-
-	commentator.start ("Constructing B2 - B1 D1^-1 D2");
-
-	BLAS3::gemm (ctx, ctx.F.minusOne (), B1, D2, ctx.F.one (), B2);
-
-	commentator.stop (MSG_DONE);
-
-	reportUI << "B2 - B1 D1^-1 D2:" << std::endl;
-	BLAS3::write (ctx, reportUI, B2);
-
-	Splicer composed_splicer, subst_splicer, D_splicer_rev;
-
-	D_splicer.reverse (D_splicer_rev);
 	X_reconst_splicer.compose (subst_splicer, D_reconst_splicer, 1, Splicer::noSource, 0, Splicer::noSource);
 	subst_splicer.removeGaps ();
 	subst_splicer.consolidate ();
-	subst_splicer.compose (composed_splicer, D_splicer_rev, 1, 1);
-	composed_splicer.fillHorizontal (2, 0, X.rowdim ());
 
 	reportUI << "Splicer after substitution:" << std::endl << subst_splicer << std::endl;
-	reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
 
 	BLAS3::scal (ctx, ctx.F.zero (), R);
 
-	composed_splicer.splice (MatrixGrid3<Ring, DenseMatrix<typename Ring::Element>, Matrix> (ctx.F, B2, D2, R));
+	if (reduced) {
+		DenseMatrix<typename Ring::Element> D1 (num_pivot_rows, num_pivot_rows);
+		DenseMatrix<typename Ring::Element> D2 (num_pivot_rows, D.coldim () - num_pivot_rows);
+
+		D_splicer.splice (MatrixGrid2<Ring, DenseMatrix<typename Ring::Element> > (ctx.F, D, D1, D2));
+
+		reportUI << "Matrix D1:" << std::endl;
+		BLAS3::write (ctx, reportUI, D1);
+		reportUI << "Matrix D2:" << std::endl;
+		BLAS3::write (ctx, reportUI, D2);
+
+		commentator.start ("Constructing D1^-1 D2");
+
+		BLAS3::trsm (ctx, ctx.F.one (), D1, D2, UpperTriangular, false);
+
+		commentator.stop (MSG_DONE);
+
+		D_splicer.reverse (D_splicer_rev);
+
+		if (only_D) {
+			subst_splicer.compose (composed_splicer, D_splicer_rev, 1, 1, 1, Splicer::noSource);
+			composed_splicer.clearHorizontalBlocks ();
+			composed_splicer.addHorizontalBlock (Block (0, 0, 0, 0, D1.rowdim ()));
+			R.resize (D1.rowdim (), R.coldim ());
+			composed_splicer.splice (MatrixGrid4<Ring, DenseMatrix<typename Ring::Element>, Matrix> (ctx.F, D2, R));
+
+			reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
+		} else {
+			DenseMatrix<typename Ring::Element> B1 (B.rowdim (), num_pivot_rows);
+			DenseMatrix<typename Ring::Element> B2 (B.rowdim (), D.coldim () - num_pivot_rows);
+
+			Splicer B_splicer (D_splicer);
+			B_splicer.clearHorizontalBlocks ();
+			B_splicer.addHorizontalBlock (Block (0, 0, 0, 0, B.rowdim ()));
+
+			B_splicer.splice (MatrixGrid2<Ring, DenseMatrix<typename Ring::Element> > (ctx.F, B, B1, B2));
+
+			reportUI << "Matrix B1:" << std::endl;
+			BLAS3::write (ctx, reportUI, B1);
+			reportUI << "Matrix B2:" << std::endl;
+			BLAS3::write (ctx, reportUI, B2);
+
+			commentator.start ("Constructing B2 - B1 D1^-1 D2");
+
+			BLAS3::gemm (ctx, ctx.F.minusOne (), B1, D2, ctx.F.one (), B2);
+
+			commentator.stop (MSG_DONE);
+
+			reportUI << "B2 - B1 D1^-1 D2:" << std::endl;
+			BLAS3::write (ctx, reportUI, B2);
+
+			subst_splicer.compose (composed_splicer, D_splicer_rev, 1, 1);
+			composed_splicer.fillHorizontal (2, 0, X.rowdim ());
+			composed_splicer.splice (MatrixGrid3<Ring, DenseMatrix<typename Ring::Element>, Matrix> (ctx.F, B2, D2, R));
+
+			reportUI << "Composed splicer:" << std::endl << composed_splicer << std::endl;
+		}
+	} else {
+		if (only_D) {
+			subst_splicer.clearHorizontalBlocks ();
+			subst_splicer.addHorizontalBlock (Block (0, 0, 0, 0, num_pivot_rows));
+			R.resize (num_pivot_rows, R.coldim ());
+			subst_splicer.splice (MatrixGrid4<Ring, DenseMatrix<typename Ring::Element>, Matrix> (ctx.F, D, R));
+		} else {
+			subst_splicer.splice (MatrixGrid5<Ring, DenseMatrix<typename Ring::Element>, Matrix> (ctx.F, B, D, R));
+		}
+	}
 
 	commentator.stop (MSG_DONE, NULL, __FUNCTION__);
 }

@@ -70,9 +70,15 @@ public:
 	 *
 	 * @param det Ring-element-reference into which to
 	 * store computed determinant of pivot-submatrix
+	 *
+	 * @param reduced Whether to compute the reduced
+	 * row-echelon form (default true)
+	 *
+	 * @param only_D Whether to return only the rows of
+	 * the lower block (default false)
 	 */
 	template <class Matrix>
-	void echelonize (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det);
+	void echelonize (Matrix &R, const Matrix &X, size_t &rank, typename Ring::Element &det, bool reduced = true, bool only_D = false);
 };
 
 } // namespace LELA
