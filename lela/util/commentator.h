@@ -539,14 +539,26 @@ protected:
 	struct Activity
 	{
 		Activity (const char *desc, const char *fn, unsigned long len) 
-			: _desc (desc), _fn (fn), _len (len), _progress (0) {}
+			: _len (len), _progress (0)
+		{
+			_desc = new char[strlen (desc) + 1];
+			_fn = new char[strlen (fn) + 1];
+			strcpy (_desc, desc);
+			strcpy (_fn, fn);
+		}
 
-		const char              *_desc;
-		const char              *_fn;
-		unsigned long            _len;
-		unsigned long            _progress;
-		Timer                    _timer;
-		Estimator                _estimate;
+		~Activity ()
+		{
+			delete[] _desc;
+			delete[] _fn;
+		}
+
+		char              *_desc;
+		char              *_fn;
+		unsigned long      _len;
+		unsigned long      _progress;
+		Timer              _timer;
+		Estimator          _estimate;
 	};
 
 	std::stack<Activity *>           _activities;      // Stack of activity structures
