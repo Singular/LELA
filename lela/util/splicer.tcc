@@ -155,13 +155,13 @@ void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vecto
 	Subvector2 v1 (in, src_idx, src_idx + size);
 
 	typename Subvector2::const_iterator i;
+	typename Vector2::word_type w;
 
 	for (i = v1.begin (); i != v1.end (); ++i) {
-		typename Subvector2::word_type t;
 		size_t idx = (i->first << WordTraits<typename Subvector2::word_type>::logof_size) + dest_idx;
 
-		for (t = Subvector2::Endianness::e_0; t != 0; t = Subvector2::Endianness::shift_right (t, 1), ++idx)
-			if (i->second & t)
+		for (w = i->second; w != 0; w = Subvector2::Endianness::shift_left (w, 1), ++idx)
+			if (w & Subvector2::Endianness::e_0 != 0)
 				out.push_back (idx);
 	}
 }
@@ -212,17 +212,20 @@ template <class Ring, class Vector1, class Vector2>
 void Splicer::attach_block_specialised (const Ring &F, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, size_t size,
 					VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Sparse01)
 {
-	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType> v1 (in, src_idx, src_idx + size);
+	typedef WordTraits<typename Vector1::word_type> WT;
 
+	SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType> v1 (in, src_idx, src_idx + size);
 	typename SparseSubvector<const Vector2, typename VectorTraits<Ring, Vector2>::RepresentationType>::const_iterator i_v1;
+	size_t idx;
 
 	for (i_v1 = v1.begin (); i_v1 != v1.end (); ++i_v1) {
-		typename Vector1::word_type m = Vector1::Endianness::e_j (*i_v1 & WordTraits<typename Vector1::word_type>::pos_mask);
+		idx = *i_v1 + dest_idx;
+		typename Vector1::word_type m = Vector1::Endianness::e_j (idx & WT::pos_mask);
 
-		if (*i_v1 >> WordTraits<typename Vector1::word_type>::logof_size == out.back ().first)
+		if (idx >> WT::logof_size == out.back ().first)
 			out.back ().second |= m;
 		else
-			out.push_back (typename Vector1::value_type (*i_v1 >> WordTraits<typename Vector1::word_type>::logof_size, m));
+			out.push_back (typename Vector1::value_type (idx >> WT::logof_size, m));
 	}
 }
 
@@ -289,7 +292,7 @@ void Splicer::copyIdentitySpecialised (const Ring &R, Matrix &dest, const Block 
 }
 
 template <class Grid>
-void Splicer::splice (Grid grid) const
+void Splicer::spliceSpecialised (Grid grid, GridTypeNormal) const
 {
 	lela_check (check ());
 
@@ -300,6 +303,42 @@ void Splicer::splice (Grid grid) const
 	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block)
 		for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block)
 			grid (*horiz_block, *vert_block);
+
+	commentator.stop (MSG_DONE);
+}
+
+template <class Grid>
+void Splicer::spliceSpecialised (Grid grid, GridTypeRowOptimised) const
+{
+	int i;
+
+	lela_check (check ());
+
+	commentator.start ("Splicing matrices", __FUNCTION__);
+
+	typename std::vector<Block>::const_iterator horiz_block, vert_block;
+
+	for (horiz_block = _horiz_blocks.begin (); horiz_block != _horiz_blocks.end (); ++horiz_block)
+		for (i = 0; i < horiz_block->size (); ++i)
+			grid.moveRow (*horiz_block, i, _vert_blocks);
+
+	commentator.stop (MSG_DONE);
+}
+
+template <class Grid>
+void Splicer::spliceSpecialised (Grid grid, GridTypeColOptimised) const
+{
+	int i;
+
+	lela_check (check ());
+
+	commentator.start ("Splicing matrices", __FUNCTION__);
+
+	typename std::vector<Block>::const_iterator vert_block;
+
+	for (vert_block = _vert_blocks.begin (); vert_block != _vert_blocks.end (); ++vert_block)
+		for (i = 0; i < vert_block->size (); ++i)
+			grid.moveCol (*vert_block, i, _horiz_blocks);
 
 	commentator.stop (MSG_DONE);
 }

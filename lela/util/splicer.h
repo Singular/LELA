@@ -22,6 +22,18 @@
 namespace LELA
 {
 
+/** Types of grids
+ *
+ * GridTypeNormal: grid provides only the standard block-wise closure
+ * GridTypeRowOptimised: grid provides a method moveRow which moves one row at a time
+ * GridTypeColOptimised: grid provides a method moveCol which moves one column at a time
+ *
+ * Grid-type must be a typedef of the name GridType in the grid-class
+ */
+struct GridTypeNormal {};
+struct GridTypeRowOptimised {};
+struct GridTypeColOptimised {};
+
 /** Class representing a horizontal or vertical block for the splicer.
  *
  * \ingroup util
@@ -248,6 +260,15 @@ class Splicer {
 					     MatrixIteratorTypes::RowCol)
 		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block, MatrixIteratorTypes::Row ()); }
 
+	template <class Grid>
+	void spliceSpecialised (Grid grid, GridTypeNormal) const;
+
+	template <class Grid>
+	void spliceSpecialised (Grid grid, GridTypeRowOptimised) const;
+
+	template <class Grid>
+	void spliceSpecialised (Grid grid, GridTypeColOptimised) const;
+
 public:
 	/// @name Management of the blocks
 	//@{
@@ -352,7 +373,8 @@ public:
 	 * available to assist.
 	 */
 	template <class Grid>
-	void splice (Grid grid) const;
+	void splice (Grid grid) const
+	{ spliceSpecialised (grid, typename Grid::GridType ()); }
 
 	/** Copy from the source-matrix to the destination-matrix
 	 * according to the information in horiz_block and
