@@ -168,7 +168,7 @@ class M4RIMatrix : public M4RIMatrixBase
 			{ return RowIteratorPT (_M, _idx + i); }
 
 		difference_type operator- (const RowIteratorPT &c) const
-			{ return c._idx - _idx; }
+			{ return _idx - c._idx; }
 
 		RowIteratorPT &operator += (int i)
 		{
@@ -363,7 +363,7 @@ class M4RISubmatrix : public M4RIMatrixBase
 			{ return RowIteratorPT (_M, _idx + i); }
 
 		difference_type operator- (const RowIteratorPT &c) const
-			{ return c._idx - _idx; }
+			{ return _idx - c._idx; }
 
 		RowIteratorPT &operator += (int i)
 		{
