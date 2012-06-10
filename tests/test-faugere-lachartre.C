@@ -54,6 +54,35 @@ void randomVectorStartingAtSpec (const Ring &R, Vector &v, size_t col, size_t co
 }
 
 template <class Ring, class Vector>
+void randomVectorStartingAtSpec (const Ring &R, Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Dense01)
+{
+	size_t colend = (coldim + WordTraits<typename Vector::word_type>::bits - 1) & ~WordTraits<typename Vector::word_type>::pos_mask;
+	size_t t = 0, idx;
+
+	typename Vector::word_type w;
+	typename Vector::word_type mask;
+
+	for (idx = col & ~WordTraits<typename Vector::word_type>::pos_mask; idx < colend; idx += t) {
+		w = 0ULL;
+
+		if (idx <= col) {
+			t = col & WordTraits<typename Vector::word_type>::pos_mask;
+			mask = Endianness::e_j (t);
+			w |= mask;  // Force leading entry to be one
+		} else {
+			t = 0;
+			mask = Endianness::e_0;
+		}
+
+		for (; t < WordTraits<typename Vector::word_type>::bits && idx + t < coldim; mask = Endianness::shift_right (mask, 1), ++t)
+			if (MT.randomDoubleRange (0.0, 1.0) < nonzero_density)
+				w |= mask;
+
+		*(v.word_begin () + (idx >> WordTraits<typename Vector::word_type>::logof_size)) = w;
+	}
+}
+
+template <class Ring, class Vector>
 void randomVectorStartingAtSpec (const Ring &R, Vector &v, size_t col, size_t coldim, MersenneTwister &MT, VectorRepresentationTypes::Sparse01)
 {
 	double val;
@@ -147,7 +176,7 @@ void createRandomF4Matrix (const Ring &R, Matrix &A)
 
 // Small version of the test, for debugging
 
-template <class Ring>
+template <class Ring, class Matrix>
 bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n, bool reduced)
 {
 	bool pass = true;
@@ -157,7 +186,7 @@ bool testFaugereLachartre (const Ring &R, const char *text, size_t m, size_t n, 
 
 	commentator.start (str.str ().c_str (), __FUNCTION__);
 
-	typename DefaultSparseMatrix<Ring>::Type A (m, n), C (m, n);
+	Matrix A (m, n), C (m, n);
 	DenseMatrix<typename Ring::Element> L (m, m);
 	typename GaussJordan<Ring>::Permutation P;
 
@@ -243,13 +272,17 @@ int main (int argc, char **argv)
 
 	Modular<float> R (101);
 
-	pass = testFaugereLachartre (R, "GF(5)", m, n, false);
-	pass = testFaugereLachartre (R, "GF(5)", m, n, true) && pass;
+	pass = testFaugereLachartre<Modular<float>, DefaultSparseMatrix<Modular<float> >::Type> (R, "GF(5)", m, n, false);
+	pass = testFaugereLachartre<Modular<float>, DefaultSparseMatrix<Modular<float> >::Type> (R, "GF(5)", m, n, true) && pass;
 
 	GF2 gf2;
 
-	pass = testFaugereLachartre (gf2, "GF(2)", m, n, false) && pass;
-	pass = testFaugereLachartre (gf2, "GF(2)", m, n, true) && pass;
+	typedef SparseMatrix<bool, HybridVector<DefaultEndianness<uint64>, uint16, uint64> > GF2Matrix;
+	// typedef DenseMatrix<bool> GF2Matrix;
+	// typedef SparseMatrix<bool, Vector<GF2>::Sparse> GF2Matrix;
+
+	pass = testFaugereLachartre<GF2, GF2Matrix> (gf2, "GF(2)", m, n, false) && pass;
+	pass = testFaugereLachartre<GF2, GF2Matrix> (gf2, "GF(2)", m, n, true) && pass;
 
 	commentator.stop (MSG_STATUS (pass));
 
