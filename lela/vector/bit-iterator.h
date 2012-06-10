@@ -217,14 +217,12 @@ public:
 	static const word e_0 = 1ULL << (WordTraits<word>::bits - 1);
 
 	// Shift the given word pos positions to the right
-	static inline word shift_right (word w, uint8 pos) { return w >> pos; }
-
-	static inline typename WordTraits<word>::DoubleWord shift_right (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w >> pos; }
+	template <class Word>
+	static inline Word shift_right (Word w, uint8 pos) { return w >> pos; }
 
 	// Shift the given word pos positions to the left
-	static inline word shift_left (word w, uint8 pos) { return w << pos; }
-
-	static inline typename WordTraits<word>::DoubleWord shift_left (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w << pos; }
+	template <class Word>
+	static inline Word shift_left (Word w, uint8 pos) { return w << pos; }
 
 	// Return a word with all positions from pos onwards set to one and the rest set to zero
 	static inline word mask_right (uint8 pos) { return (((e_0 >> pos) << 1) - 1); }
@@ -278,14 +276,12 @@ public:
 	static const word e_0 = 1ULL;
 
 	// Shift the given word pos positions to the right
-	static inline word shift_right (word w, uint8 pos) { return w << pos; }
-
-	static inline typename WordTraits<word>::DoubleWord shift_right (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w << pos; }
+	template <class Word>
+	static inline Word shift_right (Word w, uint8 pos) { return w << pos; }
 
 	// Shift the given word pos positions to the left
-	static inline word shift_left (word w, uint8 pos) { return w >> pos; }
-
-	static inline typename WordTraits<word>::DoubleWord shift_left (typename WordTraits<word>::DoubleWord w, uint8 pos) { return w >> pos; }
+	template <class Word>
+	static inline Word shift_left (Word w, uint8 pos) { return w >> pos; }
 
 	// Return a word with all positions from pos onwards set to one and the rest set to zero
 	static inline word mask_right (uint8 pos) { return ~((e_0 << pos) - 1); }
