@@ -30,6 +30,8 @@ using namespace std;
 class grid1
 {
 public:
+	typedef GridTypeNormal GridType;
+
 	Block **horiz_array;
 	Block **vert_array;
 	size_t i, j, m, n;
@@ -68,6 +70,8 @@ class grid2
 {
         bool &pass;
 public:
+	typedef GridTypeNormal GridType;
+
         grid2(bool &_pass):pass(_pass)
         {}
 
