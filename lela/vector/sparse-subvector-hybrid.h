@@ -48,27 +48,38 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 	SparseSubvector () {}
 	SparseSubvector (const Vector &v, size_t start, size_t finish)
 		: _start (start), _finish (finish)
-		{ set_start_end (v.begin (), v.end ()); _end_is_end = (_end == v.end ()); }
+		{ set_start_end (v.begin (), v.end ()); }
 	SparseSubvector (const SparseSubvector &v, size_t start, size_t finish)
 		: _start (v._start + start), _finish (v._start + finish)
-		{ set_start_end (v._begin, v._end); _end_is_end = v._end_is_end && (_end == v._end); }
+		{ set_start_end (v._begin, v._end); }
+	SparseSubvector (const Vector &v, const_iterator &iter, size_t start, size_t finish)
+		: _start (start), _finish (finish), _begin (iter._pos), _end (v.end ())
+	{
+		if (_begin != v.begin ()) {
+			typename Vector::const_iterator t = _begin;
+
+			--t;
+
+			if (start >> WordTraits<word_type>::logof_size == t->first)
+			    _begin = t;
+		}
+	}
 
 	~SparseSubvector () {}
 
 	inline const_iterator begin () const
-		{ return const_iterator (*this, _begin); }
+		{ return const_iterator (_start, _finish, _begin, false); }
 	inline const_iterator end   () const
-		{ return const_iterator (*this, _end_marker); }
+		{ return const_iterator (_start, _finish, _end, true); }
 
-	inline size_t         size  () const { return _end_marker - _begin; }
-	inline bool           empty () const { return _end_marker == _begin; }
+	//	inline size_t         size  () const { return _end - _begin; }
+	inline bool           empty () const { return begin () == end (); }
 
 	inline value_type     front () const { return *(begin ()); }
 
     private:
 	size_t _start, _finish;
-	typename Vector::const_iterator _begin, _end, _end_marker;
-	bool _end_is_end;
+	typename Vector::const_iterator _begin, _end;
 
 	void set_start_end (typename Vector::const_iterator begin, typename Vector::const_iterator end);
 
@@ -101,24 +112,28 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 
 		typedef const_reference reference;
 
+		friend class SparseSubvector;
+
 		const_iterator () {}
-		const_iterator (const container_type &v, const typename Vector::const_iterator &pos)
-			: _v (&v), _pos (pos), _ref_first_valid (false), _ref_second_valid (false), _start (true)
+		const_iterator (index_type start_idx, index_type end_idx, const typename Vector::const_iterator &pos, bool end)
+			: _pos (pos), _start_idx (start_idx), _end_idx (end_idx), _ref_first_valid (false), _ref_second_valid (false), _start (true), _end (end)
 			{}
 
 		const_iterator (const const_iterator &i)
-			: _v (i._v), _pos (i._pos),
-			  _ref (i._ref), _ref_first_valid (i._ref_first_valid), _ref_second_valid (i._ref_second_valid), _start (i._start) {}
+			: _pos (i._pos), _start_idx (i._start_idx), _end_idx (i._end_idx),
+			  _ref (i._ref), _ref_first_valid (i._ref_first_valid), _ref_second_valid (i._ref_second_valid), _start (i._start), _end (i._end) {}
 
 		const_iterator &operator = (const const_iterator &i)
 		{
-			_v = reinterpret_cast<const container_type *> (i._v);
 			_pos = i._pos;
+			_start_idx = i._start_idx;
+			_end_idx = i._end_idx;
 			_ref.first = i._ref.first;
 			_ref.second = i._ref.second;
 			_ref_first_valid = i._ref_first_valid;
 			_ref_second_valid = i._ref_second_valid;
 			_start = i._start;
+			_end = i._end;
 			return *this;
 		}
 
@@ -140,18 +155,20 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 		const const_reference *operator -> ()
 			{ update_ref (); return &_ref; }
 
-		bool operator == (const const_iterator &c) const 
-			{ return (_pos == c._pos); }
+		bool operator == (const const_iterator &c);
 
-		bool operator != (const const_iterator &c);
+		bool operator != (const const_iterator &c)
+			{ return !(*this == c); }
 
 	private:
-		const container_type *_v;
 		typename Vector::const_iterator _pos;
+		index_type _start_idx;
+		index_type _end_idx;
 		const_reference _ref;
 		bool _ref_first_valid;
 		bool _ref_second_valid;
 		bool _start;
+		bool _end;
 
 		void update_ref ();
 	};
