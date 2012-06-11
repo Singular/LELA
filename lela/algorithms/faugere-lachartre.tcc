@@ -153,91 +153,6 @@ class MatrixGrid1
 	Matrix2 &A;
 	Matrix3 &B, &C, &D;
 
-	template <class Vector, class Iterator>
-	Iterator moveBlockSpecialised (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
-		{ Iterator finish = start + size; std::copy (start, finish, out.begin () + dest_idx); return finish; }
-
-	template <class Vector, class Iterator>
-	Iterator moveBlockSpecialised (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse)
-	{
-		Iterator finish = start + size;
-
-		for (; start != finish; ++start, ++src_idx)
-			if (!R.isZero (*start))
-				out.push_back (typename Vector::value_type (src_idx - dest_idx, *start));
-
-		return start;
-	}
-
-	template <class Vector, class Iterator>
-	Iterator moveBlockSpecialised (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense)
-	{
-		size_t end_idx = src_idx + size;
-
-		for (; start != end && start->first < end_idx; ++start)
-			R.copy (out[start->first - src_idx + dest_idx], start->second);
-
-		return start;
-	}
-
-	template <class Vector, class Iterator>
-	Iterator moveBlockSpecialised (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse)
-	{
-		size_t end_idx = src_idx + size;
-
-		for (; start != end && start->first < end_idx; ++start)
-			out.push_back (typename Vector::value_type (start->first - src_idx + dest_idx, start->second));
-
-		return start;
-	}
-
-	template <class Vector, class Iterator>
-	Iterator moveBlockSpecialised (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
-	{
-		size_t end_idx = src_idx + size;
-
-		for (; start != end && *start < end_idx; ++start)
-			out[*start - src_idx + dest_idx] = true;
-
-		return start;
-	}
-
-	template <class Vector, class Iterator>
-	Iterator moveBlockSpecialised (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01)
-	{
-		size_t end_idx = src_idx + size;
-
-		for (; start != end && *start < end_idx; ++start)
-			out.push_back (*start - src_idx + dest_idx);
-
-		return start;
-	}
-
-	template <class Vector, class Iterator>
-	Iterator moveBlockSpecialised (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01)
-	{
-		typedef WordTraits<typename Vector::word_type> WT;
-
-		size_t end_idx = src_idx + size;
-		size_t idx;
-
-		for (; start != end && *start < end_idx; ++start) {
-			idx = *start - src_idx + dest_idx;
-			typename Vector::word_type m = Vector::Endianness::e_j (idx & WT::pos_mask);
-
-			if (!out.empty () && idx >> WT::logof_size == out.back ().first)
-				out.back ().second |= m;
-			else
-				out.push_back (typename Vector::value_type (idx >> WT::logof_size, m));
-		}
-
-		return start;
-	}
-
-	template <class Vector, class Iterator, class Trait>
-	Iterator moveBlock (Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, Trait t)
-		{ return moveBlockSpecialised (out, start, end, src_idx, dest_idx, size, t, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
-
 	template <class Container>
 	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Generic)
 	{
@@ -251,11 +166,11 @@ class MatrixGrid1
 
 			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
 				if (vert_block->dest () == 0)
-					i = moveBlock (*v_A, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
-						       typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					i = Splicer::moveBlock (R, *v_A, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
 				else
-					i = moveBlock (*v_B, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
-						       typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					i = Splicer::moveBlock (R, *v_B, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
 			}
 		} else {
 			typename Matrix3::RowIterator v_C = C.rowBegin () + (horiz_block.destIndex () + row);
@@ -263,155 +178,14 @@ class MatrixGrid1
 
 			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
 				if (vert_block->dest () == 0)
-					i = moveBlock (*v_C, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
-						       typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					i = Splicer::moveBlock (R, *v_C, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
 				else
-					i = moveBlock (*v_D, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
-						       typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					i = Splicer::moveBlock (R, *v_D, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
 			}
 		}
 	}
-
-	template <class Vector>
-	void attachWordSpecialised (Vector &out, size_t index, typename Vector::word_type word, VectorRepresentationTypes::Dense01) const
-	{
-		typedef WordTraits<typename Vector::word_type> WT;
-
-		size_t word_index = index >> WT::logof_size;
-
-		typename Vector::Endianness::word_pair w;
-		w.parts.low = word;
-		w.parts.high = 0ULL;
-		w.full = Vector::Endianness::shift_right (w.full, index & WT::pos_mask);
-
-		if (word_index < out.word_size () - 1)
-			*(out.word_begin () + word_index) |= w.parts.low;
-		else
-			out.back_word () |= w.parts.low;
-
-		if (w.parts.high != 0) {
-			if (word_index + 1 < out.word_size () - 1)
-				*(out.word_begin () + (word_index + 1)) |= w.parts.high;
-			else
-				out.back_word () |= w.parts.high;
-		}
-	}
-
-	template <class Vector>
-	void attachWordSpecialised (Vector &out, size_t index, typename Vector::word_type word, VectorRepresentationTypes::Hybrid01) const
-	{
-		typedef WordTraits<typename Vector::word_type> WT;
-
-		typename Vector::Endianness::word_pair w;
-
-		w.parts.low = word;
-		w.parts.high = 0ULL;
-		w.full = Vector::Endianness::shift_right (w.full, index & WT::pos_mask);
-
-		if (w.parts.low != 0) {
-			if (out.empty () || out.back ().first != index >> WT::logof_size)
-				out.push_back (typename Vector::value_type (index >> WT::logof_size, w.parts.low));
-			else
-				out.back ().second |= w.parts.low;
-		}
-
-		if (w.parts.high != 0)
-			out.push_back (typename Vector::value_type ((index >> WT::logof_size) + 1, w.parts.high));
-	}
-
-	template <class Vector>
-	void attachWord (Vector &out, size_t index, typename Vector::word_type word) const
-		{ attachWordSpecialised (out, index, word, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
-
-	template <class Vector1, class Vector2>
-	void moveBitBlockSpecialised (Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, VectorRepresentationTypes::Dense01, VectorRepresentationTypes::Dense01)
-	{
-		Context<Ring> ctx (R);
-		typename VectorTraits<Ring, Vector1>::SubvectorType w (out, dest_idx, dest_idx + in.size ());
-		BLAS1::copy (ctx, in, w);
-	}
-
-	template <class Vector1, class Vector2>
-	void moveBitBlockSpecialised (Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01)
-	{
-		typename Vector2::const_word_iterator i;
-		typename Vector2::word_type w;
-		size_t t_idx;
-
-		for (i = in.word_begin (); i != in.word_end (); ++i, dest_idx += WordTraits<typename Vector2::word_type>::bits) {
-			w = *i;
-
-			for (t_idx = 0; w != 0; w = Vector2::Endianness::shift_left (w, 1), ++t_idx)
-				if (w & Vector2::Endianness::e_0)
-					out.push_back (dest_idx + t_idx);
-		}
-
-		w = in.back_word ();
-
-		for (t_idx = 0; t_idx < WordTraits<typename Vector2::word_type>::bits; w = Vector2::Endianness::shift_left (w, 1), ++t_idx)
-			if (w & Vector2::Endianness::e_0)
-				out.push_back (dest_idx + t_idx);
-	}
-
-	template <class Vector1, class Vector2>
-	void moveBitBlockSpecialised (Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, VectorRepresentationTypes::Hybrid01, VectorRepresentationTypes::Dense01)
-	{
-		typename Vector2::const_word_iterator i;
-		typename Vector2::word_type w;
-
-		for (i = in.word_begin (); i != in.word_end (); ++i, dest_idx += WordTraits<typename Vector1::word_type>::bits)
-			if (*i != 0)
-				attachWord (out, dest_idx, *i);
-
-		w = in.back_word ();
-
-		if (w != 0)
-			attachWord (out, dest_idx, *i);
-	}
-
-	template <class Vector1, class Vector2>
-	void moveBitBlock (Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx)
-		{ moveBitBlockSpecialised (out, in, src_idx, dest_idx,
-						typename VectorTraits<Ring, Vector1>::RepresentationType (),
-						typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
-
-	template <class Vector1, class Vector2>
-	typename Vector2::const_iterator moveBitBlockHybridSpecialised (Vector1 &out, const Vector2 &in, size_t dest_idx,
-									VectorRepresentationTypes::Generic, VectorRepresentationTypes::Hybrid01)
-	{
-		typename Vector2::const_iterator i;
-
-		for (i = in.begin (); i != in.end (); ++i)
-			attachWord (out, (static_cast<size_t> (i->first) << WordTraits<typename Vector2::word_type>::logof_size) + dest_idx, i->second);
-
-		return i;
-	}
-
-	template <class Vector1, class Vector2>
-	typename Vector2::const_iterator moveBitBlockHybridSpecialised (Vector1 &out, const Vector2 &in, size_t dest_idx,
-									VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01)
-	{
-		typename Vector2::const_iterator i;
-		typename Vector2::word_type w;
-		size_t idx;
-
-		for (i = in.begin (); i != in.end (); ++i) {
-			w = i->second;
-			idx = (static_cast<size_t> (i->first) << WordTraits<typename Vector2::word_type>::logof_size) + dest_idx;
-
-			for (; w != 0; w = Vector2::Endianness::shift_left (w, 1), ++idx)
-				if (w & Vector2::Endianness::e_0)
-					out.push_back (idx);
-		}
-
-		return i;
-	}
-
-	template <class Vector1, class Vector2>
-	typename Vector2::const_iterator moveBitBlockHybrid (Vector1 &out, const Vector2 &in, size_t dest_idx)
-		{ return moveBitBlockHybridSpecialised (out, in, dest_idx,
-							typename VectorTraits<Ring, Vector1>::RepresentationType (),
-							typename VectorTraits<Ring, Vector2>::RepresentationType ()); }
 
 	template <class Container>
 	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Dense01)
@@ -427,9 +201,9 @@ class MatrixGrid1
 				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType v (*v_X, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
 
 				if (vert_block->dest () == 0)
-					moveBitBlock (*v_A, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					Splicer::moveBitBlockDense (R, *v_A, v, vert_block->sourceIndex (), vert_block->destIndex ());
 				else
-					moveBitBlock (*v_B, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					Splicer::moveBitBlockDense (R, *v_B, v, vert_block->sourceIndex (), vert_block->destIndex ());
 			}
 		} else {
 			typename Matrix3::RowIterator v_C = C.rowBegin () + (horiz_block.destIndex () + row);
@@ -439,9 +213,9 @@ class MatrixGrid1
 				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType v (*v_X, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
 
 				if (vert_block->dest () == 0)
-					moveBitBlock (*v_C, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					Splicer::moveBitBlockDense (R, *v_C, v, vert_block->sourceIndex (), vert_block->destIndex ());
 				else
-					moveBitBlock (*v_D, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					Splicer::moveBitBlockDense (R, *v_D, v, vert_block->sourceIndex (), vert_block->destIndex ());
 			}
 		}
 	}
@@ -464,9 +238,9 @@ class MatrixGrid1
 				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType w (*v_X, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
 
 				if (vert_block->dest () == 0)
-					i = moveBitBlockHybrid (*v_A, w, vert_block->destIndex ());
+					i = Splicer::moveBitBlockHybrid (R, *v_A, w, vert_block->destIndex ());
 				else
-					i = moveBitBlockHybrid (*v_B, w, vert_block->destIndex ());
+					i = Splicer::moveBitBlockHybrid (R, *v_B, w, vert_block->destIndex ());
 			}
 		} else {
 			typename Matrix3::RowIterator v_C = C.rowBegin () + (horiz_block.destIndex () + row);
@@ -476,9 +250,9 @@ class MatrixGrid1
 				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType w (*v_X, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
 
 				if (vert_block->dest () == 0)
-					i = moveBitBlockHybrid (*v_C, w, vert_block->destIndex ());
+					i = Splicer::moveBitBlockHybrid (R, *v_C, w, vert_block->destIndex ());
 				else
-					i = moveBitBlockHybrid (*v_D, w, vert_block->destIndex ());
+					i = Splicer::moveBitBlockHybrid (R, *v_D, w, vert_block->destIndex ());
 			}
 		}
 	}

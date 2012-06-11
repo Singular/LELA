@@ -260,6 +260,65 @@ class Splicer {
 					     MatrixIteratorTypes::RowCol)
 		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block, MatrixIteratorTypes::Row ()); }
 
+	template <class Vector>
+	static void attachWordSpecialised (Vector &out, size_t index, typename Vector::word_type word, VectorRepresentationTypes::Dense01);
+
+	template <class Vector>
+	static void attachWordSpecialised (Vector &out, size_t index, typename Vector::word_type word, VectorRepresentationTypes::Hybrid01);
+
+	template <class Ring, class Vector>
+	static void attachWord (const Ring &R, Vector &out, size_t index, typename Vector::word_type word)
+		{ attachWordSpecialised (out, index, word, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
+
+	template <class Ring, class Vector, class Iterator>
+	static Iterator moveBlockSpecialised (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Dense, VectorRepresentationTypes::Dense)
+		{ Iterator finish = start + size; std::copy (start, finish, out.begin () + dest_idx); return finish; }
+
+	template <class Ring, class Vector, class Iterator>
+	static Iterator moveBlockSpecialised (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Dense, VectorRepresentationTypes::Sparse);
+
+	template <class Ring, class Vector, class Iterator>
+	static Iterator moveBlockSpecialised (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Dense);
+
+	template <class Ring, class Vector, class Iterator>
+	static Iterator moveBlockSpecialised (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Sparse, VectorRepresentationTypes::Sparse);
+
+	template <class Ring, class Vector, class Iterator>
+	static Iterator moveBlockSpecialised (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Dense01);
+
+	template <class Ring, class Vector, class Iterator>
+	static Iterator moveBlockSpecialised (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Sparse01);
+
+	template <class Ring, class Vector, class Iterator>
+	static Iterator moveBlockSpecialised (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size,
+					      VectorRepresentationTypes::Sparse01, VectorRepresentationTypes::Hybrid01);
+
+	template <class Ring, class Vector1, class Vector2>
+	static void moveBitBlockDenseSpecialised (const Ring &R, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, VectorRepresentationTypes::Dense01)
+	{
+		Context<Ring> ctx (R);
+		typename VectorTraits<Ring, Vector1>::SubvectorType w (out, dest_idx, dest_idx + in.size ());
+		BLAS1::copy (ctx, in, w);
+	}
+
+	template <class Ring, class Vector1, class Vector2>
+	static void moveBitBlockDenseSpecialised (const Ring &R, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, VectorRepresentationTypes::Sparse01);
+
+	template <class Ring, class Vector1, class Vector2>
+	static void moveBitBlockDenseSpecialised (const Ring &R, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx, VectorRepresentationTypes::Hybrid01);
+
+	template <class Ring, class Vector1, class Vector2>
+	static typename Vector2::const_iterator moveBitBlockHybridSpecialised (const Ring &R, Vector1 &out, const Vector2 &in, size_t dest_idx, VectorRepresentationTypes::Generic);
+
+	template <class Ring, class Vector1, class Vector2>
+	static typename Vector2::const_iterator moveBitBlockHybridSpecialised (const Ring &R, Vector1 &out, const Vector2 &in, size_t dest_idx, VectorRepresentationTypes::Sparse01);
+
 	template <class Grid>
 	void spliceSpecialised (Grid grid, GridTypeNormal) const;
 
@@ -406,6 +465,42 @@ public:
 	static void copyIdentity (const Ring &R, Matrix &dest, const Block &horiz_block, const Block &vert_block)
 		{ copyIdentitySpecialised (R, dest, horiz_block, vert_block,
 					   typename Matrix::IteratorType ()); }
+
+	/** Move the contents of the vector in to the indicated index in out
+	 *
+	 * @param out Vector to which to write data
+	 * @param start Starting iterator of vector from which to read data
+	 * @param end Ending iterator of vector from which to read data
+	 * @param src_idx Index of data in source-vector
+	 * @param dest_idx Starting index of data in destination-vector
+	 * @param size Size of block to be moved
+	 * @param t Representation-type of input-vector
+	 */
+	template <class Ring, class Vector, class Iterator, class Trait>
+	static Iterator moveBlock (const Ring &R, Vector &out, Iterator start, Iterator end, size_t src_idx, size_t dest_idx, size_t size, Trait t)
+		{ return moveBlockSpecialised (R, out, start, end, src_idx, dest_idx, size, t, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
+
+	/** Move the contents of the dense vector (over GF(2) only) in to the indicated index in out
+	 *
+	 * @param out Vector to which to write data
+	 * @param in Vector from which to read data
+	 * @param src_idx Index of data in source-vector
+	 * @param dest_idx Starting index of data in destination-vector
+	 */
+	template <class Ring, class Vector1, class Vector2>
+	static void moveBitBlockDense (const Ring &R, Vector1 &out, const Vector2 &in, size_t src_idx, size_t dest_idx)
+		{ moveBitBlockDenseSpecialised (R, out, in, src_idx, dest_idx, typename VectorTraits<Ring, Vector1>::RepresentationType ()); }
+
+	/** Move the contents of the hybrid vector (over GF(2) only) in to the indicated index in out
+	 *
+	 * @param out Vector to which to write data
+	 * @param in Vector from which to read data
+	 * @param src_idx Index of data in source-vector
+	 * @param dest_idx Starting index of data in destination-vector
+	 */
+	template <class Ring, class Vector1, class Vector2>
+	static typename Vector2::const_iterator moveBitBlockHybrid (const Ring &R, Vector1 &out, const Vector2 &in, size_t dest_idx)
+		{ return moveBitBlockHybridSpecialised (R, out, in, dest_idx, typename VectorTraits<Ring, Vector1>::RepresentationType ()); }
 };
 
 } // namespace LELA
