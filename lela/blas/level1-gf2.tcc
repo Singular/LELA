@@ -562,12 +562,8 @@ bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M,
 				return false;
 		}
 
-		if (i == x.word_end ()) {
-			if (j->second != x.back_word ())
-				return false;
-
-			break;
-		}
+		if (i == x.word_end ())
+			return j->second == x.back_word ();
 
 		if (*i++ != j->second)
 			return false;
@@ -578,7 +574,7 @@ bool _equal<GF2, GenericModule<GF2>::Tag>::equal_impl (const GF2 &F, Modules &M,
 	for (; i != x.word_end (); ++i)
 		if (*i) return false;
 
-	return true;
+	return x.back_word () == 0;
 }
 
 template <class Modules, class Vector1, class Vector2>
