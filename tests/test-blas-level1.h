@@ -163,6 +163,8 @@ bool testInequality (LELA::Context<Ring, Modules> &ctx, const char *text, LELA::
 			if (LELA::BLAS1::equal (ctx, v, v_c)) {
 				std::ostream &error = LELA::commentator.report (LELA::Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR);
 				error << "ERROR: Vectors still reported as equal after change at position " << i << std::endl;
+				error << "Original       : ";
+				LELA::BLAS1::write (ctx, error, v) << std::endl;
 				error << "Modified copy  : ";
 				LELA::BLAS1::write (ctx, error, v_c) << std::endl;
 				pass = false;
