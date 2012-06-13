@@ -344,9 +344,9 @@ Iterator Splicer::moveBlockSpecialised (const Ring &R, Vector &out, Iterator sta
 {
 	Iterator finish = start + size;
 
-	for (; start != finish; ++start, ++src_idx)
+	for (; start != finish; ++start, ++dest_idx)
 		if (!R.isZero (*start))
-			out.push_back (typename Vector::value_type (src_idx - dest_idx, *start));
+			out.push_back (typename Vector::value_type (dest_idx, *start));
 
 	return start;
 }
@@ -456,7 +456,7 @@ void Splicer::moveBitBlockDenseSpecialised (const Ring &R, Vector1 &out, const V
 	w = in.back_word ();
 
 	if (w != 0)
-		attachWord (R, out, dest_idx, *i);
+		attachWord (R, out, dest_idx, w);
 }
 
 template <class Ring, class Vector1, class Vector2>
