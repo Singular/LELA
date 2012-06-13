@@ -501,6 +501,16 @@ public:
 	template <class Ring, class Vector1, class Vector2>
 	static typename Vector2::const_iterator moveBitBlockHybrid (const Ring &R, Vector1 &out, const Vector2 &in, size_t dest_idx)
 		{ return moveBitBlockHybridSpecialised (R, out, in, dest_idx, typename VectorTraits<Ring, Vector1>::RepresentationType ()); }
+
+	/** Attach the given standard unit-vector to the given output-vector
+	 *
+	 * @param R Ring over which to operate
+	 * @param v Vector to which to attach data
+	 * @param idx Index of non-zero entry to be attached
+	 */
+	template <class Ring, class Vector>
+	static void attachEi (const Ring &R, Vector &v, size_t idx)
+		{ attach_e_i_specialised (R, v, idx, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 };
 
 } // namespace LELA
