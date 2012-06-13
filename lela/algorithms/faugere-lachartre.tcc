@@ -275,22 +275,84 @@ class MatrixGrid2
 	const Ring &R;
 	Matrix &B, &B1, &B2;
 
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Generic)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix::ConstRowIterator v_B = B.rowBegin () + (horiz_block.sourceIndex () + row);
+		typename Matrix::ConstRow::const_iterator i = v_B->begin ();
+
+		if (horiz_block.dest () == 0) {
+			typename Matrix::RowIterator v_B1 = B1.rowBegin () + (horiz_block.destIndex () + row);
+			typename Matrix::RowIterator v_B2 = B2.rowBegin () + (horiz_block.destIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				if (vert_block->dest () == 0)
+					i = Splicer::moveBlock (R, *v_B1, i, v_B->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix::ConstRow>::RepresentationType ());
+				else
+					i = Splicer::moveBlock (R, *v_B2, i, v_B->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix::ConstRow>::RepresentationType ());
+			}
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Dense01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix::ConstRowIterator v_B = B.rowBegin () + (horiz_block.sourceIndex () + row);
+
+		if (horiz_block.dest () == 0) {
+			typename Matrix::RowIterator v_B1 = B1.rowBegin () + (horiz_block.destIndex () + row);
+			typename Matrix::RowIterator v_B2 = B2.rowBegin () + (horiz_block.destIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix::ConstRow>::ConstSubvectorType v (*v_B, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				if (vert_block->dest () == 0)
+					Splicer::moveBitBlockDense (R, *v_B1, v, vert_block->sourceIndex (), vert_block->destIndex ());
+				else
+					Splicer::moveBitBlockDense (R, *v_B2, v, vert_block->sourceIndex (), vert_block->destIndex ());
+			}
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Hybrid01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix::ConstRowIterator v_B = B.rowBegin () + (horiz_block.sourceIndex () + row);
+		typename VectorTraits<Ring, typename Matrix::ConstRow>::ConstSubvectorType::const_iterator i;
+
+		typename VectorTraits<Ring, typename Matrix::ConstRow>::ConstSubvectorType vp (*v_B, 0, vert_blocks.back ().sourceIndex () + vert_blocks.back ().size ());
+		i = vp.begin ();
+
+		if (horiz_block.dest () == 0) {
+			typename Matrix::RowIterator v_B1 = B1.rowBegin () + (horiz_block.destIndex () + row);
+			typename Matrix::RowIterator v_B2 = B2.rowBegin () + (horiz_block.destIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix::ConstRow>::ConstSubvectorType w (*v_B, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				if (vert_block->dest () == 0)
+					i = Splicer::moveBitBlockHybrid (R, *v_B1, w, vert_block->destIndex ());
+				else
+					i = Splicer::moveBitBlockHybrid (R, *v_B2, w, vert_block->destIndex ());
+			}
+		}
+	}
+
 public:
-	typedef GridTypeNormal GridType;
+	typedef GridTypeRowOptimised GridType;
 
 	MatrixGrid2 (const Ring &__R, Matrix &__B, Matrix &__B1, Matrix &__B2)
 		: R (__R), B (__B), B1 (__B1), B2 (__B2)
 		{}
 
-	void operator () (const Block &horiz_block, const Block &vert_block)
-	{
-		if (horiz_block.dest () == 0) {
-			if (vert_block.dest () == 0)
-				Splicer::copyBlock (R, B, B1, horiz_block, vert_block);
-			else
-				Splicer::copyBlock (R, B, B2, horiz_block, vert_block);
-		}
-	}
+	template <class Container>
+	void moveRow (const Block &horiz_block, int row, const Container &vert_blocks)
+		{ moveRowSpecialised (horiz_block, row, vert_blocks, typename VectorTraits<Ring, typename Matrix::Row>::RepresentationType ()); }
 };
 
 template <class Ring, class Matrix1, class Matrix2>
@@ -300,28 +362,140 @@ class MatrixGrid3
 	Matrix1 &B2, &D2;
 	Matrix2 &X;
 
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Generic)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.destIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_B2 = B2.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_B2->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				switch (vert_block->source ()) {
+				case 0:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					i = Splicer::moveBlock (R, *v_X, i, v_B2->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					break;
+				}
+			}
+		} else if (horiz_block.source () == 1) {
+			typename Matrix1::ConstRowIterator v_D2 = D2.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_D2->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				switch (vert_block->source ()) {
+				case 1:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					i = Splicer::moveBlock (R, *v_X, i, v_D2->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					break;
+				}
+			}
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Dense01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.destIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_B2 = B2.rowBegin () + (horiz_block.sourceIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType v (*v_B2, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				switch (vert_block->source ()) {
+				case 0:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					Splicer::moveBitBlockDense (R, *v_X, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					break;
+				}
+			}
+		} else if (horiz_block.source () == 1) {
+			typename Matrix1::ConstRowIterator v_D2 = D2.rowBegin () + (horiz_block.sourceIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType v (*v_D2, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				switch (vert_block->source ()) {
+				case 1:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					Splicer::moveBitBlockDense (R, *v_X, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					break;
+				}
+			}
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Hybrid01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.sourceIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_B2 = B2.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_B2->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType w (*v_B2, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+				switch (vert_block->source ()) {
+				case 0:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					i = Splicer::moveBitBlockHybrid (R, *v_X, w, vert_block->destIndex ());
+					break;
+				}
+			}
+		} else if (horiz_block.source () == 1) {
+			typename Matrix1::ConstRowIterator v_D2 = D2.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_D2->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType w (*v_D2, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				switch (vert_block->source ()) {
+				case 1:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					i = Splicer::moveBitBlockHybrid (R, *v_X, w, vert_block->destIndex ());
+					break;
+				}
+			}
+		}
+	}
+
 public:
-	typedef GridTypeNormal GridType;
+	typedef GridTypeRowOptimised GridType;
 
 	MatrixGrid3 (const Ring &__R, Matrix1 &__B2, Matrix1 &__D2, Matrix2 &__X)
 		: R (__R), B2 (__B2), D2 (__D2), X (__X)
 		{}
 
-	void operator () (const Block &horiz_block, const Block &vert_block)
-	{
-		if (horiz_block.source () == 0) {
-			if (vert_block.source () == 0)
-				Splicer::copyIdentity (R, X, horiz_block, vert_block);
-			else if (vert_block.source () == 2)
-				Splicer::copyBlock (R, B2, X, horiz_block, vert_block);
-		}
-		else if (horiz_block.source () == 1) {
-			if (vert_block.source () == 1)
-				Splicer::copyIdentity (R, X, horiz_block, vert_block);
-			else if (vert_block.source () == 2)
-				Splicer::copyBlock (R, D2, X, horiz_block, vert_block);
-		}
-	}
+	template <class Container>
+	void moveRow (const Block &horiz_block, int row, const Container &vert_blocks)
+		{ moveRowSpecialised (horiz_block, row, vert_blocks, typename VectorTraits<Ring, typename Matrix1::Row>::RepresentationType ()); }
 };
 
 template <class Ring, class Matrix1, class Matrix2>
@@ -331,22 +505,92 @@ class MatrixGrid4
 	Matrix1 &D2;
 	Matrix2 &X;
 
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Generic)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.destIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_D2 = D2.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_D2->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				switch (vert_block->source ()) {
+				case 1:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					i = Splicer::moveBlock (R, *v_X, i, v_D2->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					break;
+				}
+			}
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Dense01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.destIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_D2 = D2.rowBegin () + (horiz_block.sourceIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType v (*v_D2, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				switch (vert_block->source ()) {
+				case 1:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					Splicer::moveBitBlockDense (R, *v_X, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					break;
+				}
+			}
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Hybrid01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.sourceIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_D2 = D2.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_D2->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType w (*v_D2, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				switch (vert_block->source ()) {
+				case 1:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 2:
+					i = Splicer::moveBitBlockHybrid (R, *v_X, w, vert_block->destIndex ());
+					break;
+				}
+			}
+		}
+	}
+
 public:
-	typedef GridTypeNormal GridType;
+	typedef GridTypeRowOptimised GridType;
 
 	MatrixGrid4 (const Ring &__R, Matrix1 &__D2, Matrix2 &__X)
 		: R (__R), D2 (__D2), X (__X)
 		{}
 
-	void operator () (const Block &horiz_block, const Block &vert_block)
-	{
-		if (horiz_block.source () == 0) {
-			if (vert_block.source () == 1)
-				Splicer::copyIdentity (R, X, horiz_block, vert_block);
-			else if (vert_block.source () == 2)
-				Splicer::copyBlock (R, D2, X, horiz_block, vert_block);
-		}
-	}
+	template <class Container>
+	void moveRow (const Block &horiz_block, int row, const Container &vert_blocks)
+		{ moveRowSpecialised (horiz_block, row, vert_blocks, typename VectorTraits<Ring, typename Matrix1::Row>::RepresentationType ()); }
 };
 
 template <class Ring, class Matrix1, class Matrix2>
@@ -356,25 +600,119 @@ class MatrixGrid5
 	Matrix1 &B, &D;
 	Matrix2 &X;
 
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Generic)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.destIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_B = B.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_B->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				switch (vert_block->source ()) {
+				case 0:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 1:
+					i = Splicer::moveBlock (R, *v_X, i, v_B->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+					break;
+				}
+			}
+		} else if (horiz_block.source () == 1) {
+			typename Matrix1::ConstRowIterator v_D = D.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_D->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block)
+				if (vert_block->source () == 1)
+					i = Splicer::moveBlock (R, *v_X, i, v_D->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
+								typename VectorTraits<Ring, typename Matrix1::ConstRow>::RepresentationType ());
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Dense01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.destIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_B = B.rowBegin () + (horiz_block.sourceIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType v (*v_B, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+				switch (vert_block->source ()) {
+				case 0:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 1:
+					Splicer::moveBitBlockDense (R, *v_X, v, vert_block->sourceIndex (), vert_block->destIndex ());
+					break;
+				}
+			}
+		} else if (horiz_block.source () == 1) {
+			typename Matrix1::ConstRowIterator v_D = D.rowBegin () + (horiz_block.sourceIndex () + row);
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				if (vert_block->source () == 1) {
+					typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType v (*v_D, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+
+					Splicer::moveBitBlockDense (R, *v_X, v, vert_block->sourceIndex (), vert_block->destIndex ());
+				}
+			}
+		}
+	}
+
+	template <class Container>
+	void moveRowSpecialised (const Block &horiz_block, int row, const Container &vert_blocks, VectorRepresentationTypes::Hybrid01)
+	{
+		typename Container::const_iterator vert_block;
+		typename Matrix2::RowIterator v_X = X.rowBegin () + (horiz_block.sourceIndex () + row);
+
+		if (horiz_block.source () == 0) {
+			typename Matrix1::ConstRowIterator v_B = B.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_B->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType w (*v_B, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+				switch (vert_block->source ()) {
+				case 0:
+					if (vert_block->isSourceIndexInBlock (horiz_block.sourceIndex () + row))
+						Splicer::attachEi (R, *v_X, vert_block->sourceToDestIndex (horiz_block.sourceIndex () + row));
+					break;
+				case 1:
+					i = Splicer::moveBitBlockHybrid (R, *v_X, w, vert_block->destIndex ());
+					break;
+				}
+			}
+		} else {
+			typename Matrix1::ConstRowIterator v_D = D.rowBegin () + (horiz_block.sourceIndex () + row);
+			typename Matrix1::ConstRow::const_iterator i = v_D->begin ();
+
+			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
+				if (vert_block->source () == 1) {
+					typename VectorTraits<Ring, typename Matrix1::ConstRow>::ConstSubvectorType w (*v_D, i, vert_block->sourceIndex (), vert_block->sourceIndex () + vert_block->size ());
+					i = Splicer::moveBitBlockHybrid (R, *v_X, w, vert_block->destIndex ());
+				}
+			}
+		}
+	}
+
 public:
-	typedef GridTypeNormal GridType;
+	typedef GridTypeRowOptimised GridType;
 
 	MatrixGrid5 (const Ring &__R, Matrix1 &__B, Matrix1 &__D, Matrix2 &__X)
 		: R (__R), B (__B), D (__D), X (__X)
 		{}
 
-	void operator () (const Block &horiz_block, const Block &vert_block)
-	{
-		if (horiz_block.source () == 0) {
-			if (vert_block.source () == 0)
-				Splicer::copyIdentity (R, X, horiz_block, vert_block);
-			else
-				Splicer::copyBlock (R, B, X, horiz_block, vert_block);
-		} else {
-			if (vert_block.source () == 1)
-				Splicer::copyBlock (R, D, X, horiz_block, vert_block);
-		}
-	}
+	template <class Container>
+	void moveRow (const Block &horiz_block, int row, const Container &vert_blocks)
+		{ moveRowSpecialised (horiz_block, row, vert_blocks, typename VectorTraits<Ring, typename Matrix1::Row>::RepresentationType ()); }
 };
 
 template <class Ring>
