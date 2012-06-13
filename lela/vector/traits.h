@@ -521,6 +521,17 @@ class VectorUtils
 		return true;
 	}
 
+	template <class Vector>
+	static inline void reserveSpecialized (Vector &v, size_t len, VectorRepresentationTypes::Generic) {}
+
+	template <class Vector>
+	static inline void reserveSpecialized (Vector &v, size_t len, VectorRepresentationTypes::Sparse)
+		{ v.reserve (len); }
+
+	template <class Vector>
+	static inline void reserveSpecialized (Vector &v, size_t len, VectorRepresentationTypes::Sparse01)
+		{ v.reserve (len); }
+
 public:
 	/** Closure to find an entry with a given index in a sparse
 	 * vector, to be used with std::lower_bound
@@ -603,6 +614,12 @@ public:
 	template <class Ring, class Vector>
 	static inline bool isValid (const Vector &v) 
 		{ return isValidSpecialized (v, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
+
+	/// Indicates approximately how many nonzero entries there will be in a vector
+	/// Has no effect on dense vectors; causes sparse vectors to reserve the required space
+	template <class Ring, class Vector>
+	static inline void reserve (Vector &v, size_t len)
+		{ reserveSpecialized (v, len, typename VectorTraits<Ring, Vector>::RepresentationType ()); }
 
 	/// Compute the image of an index under a permutation
 	template <class Iterator>
