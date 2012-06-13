@@ -211,6 +211,15 @@ public:
 	 */
 	void resize (size_type s);
 
+	/** Reserve space for the vector
+	 *
+	 * This function must be available but need not do
+	 * anything. It can optionally reserve the given amount of
+	 * space for the vector to make pushing elements more
+	 * efficient.
+	 */
+	void reserve (size_type s) {}
+
 	/** Replace the vector with the contents of the iterators from first to last
 	 *
 	 * This should clear the vector and then copy the contents of

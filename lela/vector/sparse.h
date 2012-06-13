@@ -410,7 +410,8 @@ public:
 	template <class T>
 	inline void            push_back (T v)         { _idx.push_back (v.first); _elt.push_back (v.second); }
 	inline void            clear     ()            { _idx.clear (); _elt.clear (); }
-	inline void            resize    (size_type s) { _idx.resize (s); _elt.resize (s); }
+	inline void            resize    (size_type s) { _idx.resize (s);  _elt.resize (s);  }
+	inline void            reserve   (size_type s) { _idx.reserve (s); _elt.reserve (s); }
 
 	template <class InputIterator>
 	void assign (InputIterator first, InputIterator last)
