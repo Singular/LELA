@@ -160,9 +160,14 @@ class MatrixGrid1
 		typename Matrix1::ConstRowIterator v_X = X.rowBegin () + (horiz_block.sourceIndex () + row);
 		typename Matrix1::ConstRow::const_iterator i = v_X->begin ();
 
+		double density_est = v_X->size () / X.coldim ();
+
 		if (horiz_block.dest () == 0) {
 			typename Matrix2::RowIterator v_A = A.rowBegin () + (horiz_block.destIndex () + row);
 			typename Matrix3::RowIterator v_B = B.rowBegin () + (horiz_block.destIndex () + row);
+
+			VectorUtils::reserve<Ring> (*v_A, density_est * A.coldim ());
+			VectorUtils::reserve<Ring> (*v_B, density_est * B.coldim ());
 
 			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
 				if (vert_block->dest () == 0)
@@ -175,6 +180,9 @@ class MatrixGrid1
 		} else {
 			typename Matrix3::RowIterator v_C = C.rowBegin () + (horiz_block.destIndex () + row);
 			typename Matrix3::RowIterator v_D = D.rowBegin () + (horiz_block.destIndex () + row);
+
+			VectorUtils::reserve<Ring> (*v_C, density_est * C.coldim ());
+			VectorUtils::reserve<Ring> (*v_D, density_est * D.coldim ());
 
 			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
 				if (vert_block->dest () == 0)
