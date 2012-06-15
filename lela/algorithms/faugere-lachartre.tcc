@@ -166,9 +166,6 @@ class MatrixGrid1
 			typename Matrix2::RowIterator v_A = A.rowBegin () + (horiz_block.destIndex () + row);
 			typename Matrix3::RowIterator v_B = B.rowBegin () + (horiz_block.destIndex () + row);
 
-			VectorUtils::reserve<Ring> (*v_A, density_est * A.coldim ());
-			VectorUtils::reserve<Ring> (*v_B, density_est * B.coldim ());
-
 			for (vert_block = vert_blocks.begin (); vert_block != vert_blocks.end (); ++vert_block) {
 				if (vert_block->dest () == 0)
 					i = Splicer::moveBlock (R, *v_A, i, v_X->end (), vert_block->sourceIndex (), vert_block->destIndex (), vert_block->size (),
@@ -741,6 +738,7 @@ void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, si
 {
 	commentator.start ("Reduction of F4-matrix to reduced row-echelon form", __FUNCTION__);
 
+	// std::ostream &reportN = commentator.report (Commentator::LEVEL_NORMAL, INTERNAL_DESCRIPTION);
 	std::ostream &reportUI = commentator.report (Commentator::LEVEL_UNIMPORTANT, INTERNAL_DESCRIPTION);
 
 	Splicer X_splicer, X_reconst_splicer;
@@ -779,7 +777,7 @@ void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, si
 	BLAS3::write (ctx, reportUI, D);
 
 	// std::ofstream Aout ("A.png");
-	// BLAS3::write (ctx, Aout, A, FORMAT_PNG);
+	// BLAS3::write (ctx, Aout, Asub, FORMAT_PNG);
 	// std::ofstream Bout ("B.png");
 	// BLAS3::write (ctx, Bout, B, FORMAT_PNG);
 	// std::ofstream Cout ("C.png");
@@ -789,7 +787,16 @@ void FaugereLachartre<Ring, Modules>::echelonize (Matrix &R, const Matrix &X, si
 
 	commentator.start ("Constructing A^-1 B");
 
-	BLAS3::trsm (ctx, ctx.F.one (), A, B, UpperTriangular, false);
+	try {
+		BLAS3::trsm (ctx, ctx.F.one (), A, B, UpperTriangular, false);
+	}
+	catch (DiagonalEntryNotInvertible e) {
+		commentator.report (Commentator::LEVEL_IMPORTANT, INTERNAL_ERROR) << e << std::endl;
+		commentator.stop (MSG_ERROR);
+		commentator.report (Commentator::LEVEL_IMPORTANT, BRIEF_REPORT) << e << std::endl;
+		commentator.stop (MSG_ERROR);
+		return;
+	}
 
 	commentator.stop (MSG_DONE);
 
