@@ -74,10 +74,14 @@ std::istream &MatrixReader<Ring>::read (std::istream &is, Matrix &A, FileFormatT
 template <class Ring>
 bool MatrixReader<Ring>::isDumas (char *buf, std::streamsize n)
 {
-	regex_t re;
+	static regex_t re;
+	static bool compiled = false;
 
-	if (regcomp (&re, "^[:digit:]+ [:digit:]+ M$", REG_EXTENDED) != 0)
-		throw LELAError ("regcomp failure (isDumas)");
+	if (!compiled) {
+		if (regcomp (&re, "^[:digit:]+ [:digit:]+ M$", REG_EXTENDED) != 0)
+			throw LELAError ("regcomp failure (isDumas)");
+		compiled = true;
+	}
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -85,10 +89,14 @@ bool MatrixReader<Ring>::isDumas (char *buf, std::streamsize n)
 template <class Ring>
 bool MatrixReader<Ring>::isTurner (char *buf, std::streamsize n)
 {
-	regex_t re;
+	static regex_t re;
+	static bool compiled = false;
 
-	if (regcomp (&re, "^[:digit:]+ [:digit:]+ [:digit:]+$", REG_EXTENDED) != 0)
-		throw LELAError ("regcomp failure (isTurner)");
+	if (!compiled) {
+		if (regcomp (&re, "^[:digit:]+ [:digit:]+ [:digit:]+$", REG_EXTENDED) != 0)
+			throw LELAError ("regcomp failure (isTurner)");
+		compiled = true;
+	}
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -96,10 +104,14 @@ bool MatrixReader<Ring>::isTurner (char *buf, std::streamsize n)
 template <class Ring>
 bool MatrixReader<Ring>::isMaple (char *buf, std::streamsize n)
 {
-	regex_t re;
+	static regex_t re;
+	static bool compiled = false;
 
-	if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
-		throw LELAError ("regcomp failure (isMaple)");
+	if (!compiled) {
+		if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
+			throw LELAError ("regcomp failure (isMaple)");
+		compiled = true;
+	}
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -107,10 +119,14 @@ bool MatrixReader<Ring>::isMaple (char *buf, std::streamsize n)
 template <class Ring>
 bool MatrixReader<Ring>::isMatlab (char *buf, std::streamsize n)
 {
-	regex_t re;
+	static regex_t re;
+	static bool compiled = false;
 
-	if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
-		throw LELAError ("regcomp failure (isMatlab)");
+	if (!compiled) {
+		if (regcomp (&re, "(\\[[:space:]+\\])|(\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+)", REG_EXTENDED) != 0)
+			throw LELAError ("regcomp failure (isMatlab)");
+		compiled = true;
+	}
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -118,10 +134,14 @@ bool MatrixReader<Ring>::isMatlab (char *buf, std::streamsize n)
 template <class Ring>
 bool MatrixReader<Ring>::isSage (char *buf, std::streamsize n)
 {
-	regex_t re;
+	static regex_t re;
+	static bool compiled = false;
 
-	if (regcomp (&re, "matrix\\((GF\\([:digit:]+\\),|ZZ|QQ)?[ \t\n]+\\[[ \t\n]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+", REG_EXTENDED) != 0)
-		throw LELAError ("regcomp failure (isSage)");
+	if (!compiled) {
+		if (regcomp (&re, "matrix\\((GF\\([:digit:]+\\),|ZZ|QQ)?[ \t\n]+\\[[ \t\n]+\\[[:space:]+([:digit:]+[:space:]+,[:space:]+)*[:digit:]+", REG_EXTENDED) != 0)
+			throw LELAError ("regcomp failure (isSage)");
+		compiled = true;
+	}
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
@@ -129,10 +149,14 @@ bool MatrixReader<Ring>::isSage (char *buf, std::streamsize n)
 template <class Ring>
 bool MatrixReader<Ring>::isPretty (char *buf, std::streamsize n)
 {
-	regex_t re;
+	static regex_t re;
+	static bool compiled = false;
 
-	if (regcomp (&re, "((\\[[:space:]+\\])|(\\[[:space:]+((\\.|[:digit:]+)[:space:]+)*(\\.|[:digit:]+)))", REG_EXTENDED) != 0)
-		throw LELAError ("regcomp failure (isPretty)");
+	if (!compiled) {
+		if (regcomp (&re, "((\\[[:space:]+\\])|(\\[[:space:]+((\\.|[:digit:]+)[:space:]+)*(\\.|[:digit:]+)))", REG_EXTENDED) != 0)
+			throw LELAError ("regcomp failure (isPretty)");
+		compiled = true;
+	}
 
 	return regexec (&re, buf, 0, NULL, 0) == 0;
 }
