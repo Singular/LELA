@@ -16,11 +16,23 @@
 #include "lela/ring/modular.h"
 #include "lela/blas/level1.h"
 #include "lela/blas/level3.h"
-#include "lela/matrix/dense.h"
+#include "lela/matrix/sparse.h"
 
 #include "support.h"
 
 using namespace LELA;
+
+template <class Ring>
+struct DefaultSparseMatrix
+{
+	typedef SparseMatrix<typename Ring::Element> Type;
+};
+
+template <>
+struct DefaultSparseMatrix<GF2>
+{
+	typedef SparseMatrix<bool, Vector<GF2>::Hybrid> Type;
+};
 
 template <class Ring>
 int run_diff (const Ring &R, const char *input1, FileFormatTag input1_format, const char *input2, FileFormatTag input2_format,
@@ -30,7 +42,7 @@ int run_diff (const Ring &R, const char *input1, FileFormatTag input1_format, co
 
 	commentator.start ("Computing difference", __FUNCTION__);
 
-	DenseMatrix<typename Ring::Element> A, B;
+	typename DefaultSparseMatrix<Ring>::Type A, B;
 
 	commentator.start ("Reading input-matrix 1");
 
