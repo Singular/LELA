@@ -29,6 +29,8 @@ lela/util/libutil.la
 util/convert
 util/equal
 util/diff
+util/is-zero
+util/submatrix
 util/row-echelon-form
 macros/libtool.m4
 macros/ltoptions.m4

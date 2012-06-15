@@ -11,7 +11,9 @@ LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/lela/
 noinst_PROGRAMS = \
 	row-echelon-form \
 	equal		\
-	diff
+	is-zero		\
+	diff		\
+	submatrix
 #	convert
 
 # convert_SOURCES = \
@@ -22,12 +24,20 @@ equal_SOURCES = \
 	equal.C	\
 	support.C
 
+is_zero_SOURCES = \
+	is-zero.C	\
+	support.C
+
 diff_SOURCES = \
 	diff.C	\
 	support.C
 
 row_echelon_form_SOURCES = \
 	row-echelon-form.C	\
+	support.C
+
+submatrix_SOURCES = \
+	submatrix.C	\
 	support.C
 
 noinst_HEADERS = \
