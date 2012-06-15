@@ -18,6 +18,8 @@
 
 #include "lela/vector/traits.h"
 #include "lela/matrix/traits.h"
+#include "lela/blas/context.h"
+#include "lela/blas/level1.h"
 
 namespace LELA
 {
