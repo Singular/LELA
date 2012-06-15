@@ -47,6 +47,7 @@
 #define MSG_DONE             "done"
 #define MSG_PASSED           "passed"
 #define MSG_FAILED           "FAILED"
+#define MSG_ERROR            "ERROR"
 
 #define MSG_STATUS(ret) (ret ? MSG_PASSED : MSG_FAILED)
 
