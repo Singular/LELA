@@ -115,7 +115,7 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 		friend class SparseSubvector;
 
 		const_iterator () {}
-		const_iterator (index_type start_idx, index_type end_idx, const typename Vector::const_iterator &pos, bool end)
+		const_iterator (size_t start_idx, size_t end_idx, const typename Vector::const_iterator &pos, bool end)
 			: _pos (pos), _start_idx (start_idx), _end_idx (end_idx), _ref_first_valid (false), _ref_second_valid (false), _start (true), _end (end)
 			{}
 
@@ -162,8 +162,8 @@ class SparseSubvector<Vector, VectorRepresentationTypes::Hybrid01>
 
 	private:
 		typename Vector::const_iterator _pos;
-		index_type _start_idx;
-		index_type _end_idx;
+		size_t _start_idx;
+		size_t _end_idx;
 		const_reference _ref;
 		bool _ref_first_valid;
 		bool _ref_second_valid;
