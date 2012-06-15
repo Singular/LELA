@@ -228,7 +228,7 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::trsv_impl
 			typename Ring::Element ai;
 
 			if (!A.getEntry (ai, 0, 0) || !F.invin (ai))
-				throw DiagonalEntryNotInvertible ();
+				throw DiagonalEntryNotInvertible (0);
 			else
 				return BLAS1::_scal<Ring, typename Modules::Tag>::op (F, M, ai, x);
 		}
@@ -245,11 +245,13 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::trsv_impl
 			typename Matrix::ConstSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
 			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
 			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A21, x1, F.one (), x2);
-			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+			try { _trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne); }
+			catch (DiagonalEntryNotInvertible e) { throw DiagonalEntryNotInvertible (e.idx () + l); }
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix::ConstSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
-			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+			try { _trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne); }
+			catch (DiagonalEntryNotInvertible e) { throw DiagonalEntryNotInvertible (e.idx () + l); }
 			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A12, x2, F.one (), x1);
 			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
 		}
@@ -267,11 +269,13 @@ Vector &_trsv<Ring, typename GenericModule<Ring>::Tag>::trsv_impl
 			typename Matrix::ConstAlignedSubmatrixType A21 (A, l, 0, A.rowdim () - l, l);
 			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
 			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A21, x1, F.one (), x2);
-			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+			try { _trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne); }
+			catch (DiagonalEntryNotInvertible e) { throw DiagonalEntryNotInvertible (e.idx () + l); }
 		}
 		else if (type == UpperTriangular) {
 			typename Matrix::ConstAlignedSubmatrixType A12 (A, 0, l, l, A.coldim () - l);
-			_trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne);
+			try { _trsv<Ring, typename Modules::Tag>::op (F, M, A22, x2, type, diagIsOne); }
+			catch (DiagonalEntryNotInvertible e) { throw DiagonalEntryNotInvertible (e.idx () + l); }
 			_gemv<Ring, typename Modules::Tag>::op (F, M, F.minusOne (), A12, x2, F.one (), x1);
 			_trsv<Ring, typename Modules::Tag>::op (F, M, A11, x1, type, diagIsOne);
 		}

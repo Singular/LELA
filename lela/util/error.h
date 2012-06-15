@@ -82,8 +82,15 @@ public:
 
 class DiagonalEntryNotInvertible 
 {
+	size_t _idx;
+
+public:
+	DiagonalEntryNotInvertible (size_t idx) : _idx (idx) {}
+
+	size_t idx () const { return _idx; }
+
 	friend std::ostream &operator << (std::ostream &os, const DiagonalEntryNotInvertible &e)
-		{ os << "Entry on the diagonal is not invertible" << std::endl; return os; }
+		{ os << "Entry at (" << e._idx << ", " << e._idx << ") is not invertible" << std::endl; return os; }
 };
  
 }
