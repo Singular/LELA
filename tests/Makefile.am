@@ -10,8 +10,8 @@ BENCHMARK_CXXFLAGS = -O2
 
 SUBDIRS = data
 
-AM_CPPFLAGS= $(GMP_CFLAGS) $(PNG_CFLAGS) $(M4RI_CFLAGS)
-LDADD = $(GMP_LIBS)  $(PNG_LIBS) $(M4RI_LIBS) $(BLAS_LIBS) $(top_builddir)/lela/liblela.la
+AM_CPPFLAGS = $(GMP_CFLAGS) $(PNG_CFLAGS) $(M4RI_CFLAGS)
+LDADD = $(top_builddir)/lela/liblela.la $(M4RI_LIBS) $(BLAS_LIBS) $(PNG_LIBS) $(GMP_LIBS)
 
 # Put an entry for your test-mycomponent.C here (or in one of the other test groups).  
 # Don't forget to add a test_mycomponent_SOURCES entry below.
