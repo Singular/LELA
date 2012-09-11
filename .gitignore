@@ -32,6 +32,7 @@ util/diff
 util/is-zero
 util/submatrix
 util/row-echelon-form
+util/*.exe # for Windows
 macros/libtool.m4
 macros/ltoptions.m4
 macros/ltsugar.m4
