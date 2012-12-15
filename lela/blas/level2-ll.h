@@ -4,8 +4,8 @@
  * Low-level BLAS-2 interface, to be used by implementation-functions
  * ------------------------------------
  * 
- * This file is part of LELA, licensed under the GNU General Public
- * License version 3. See COPYING for more information.
+ * This file is part of LELA, licensed under the GNU Lesser General
+ * Public License version 3. See COPYING for more information.
  */
 
 #ifndef __BLAS_LEVEL2_LL_H

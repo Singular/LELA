@@ -59,7 +59,3 @@ Some key differences between LELA and LinBox are the following:
    floating-point operations, the user must use such a representation
    throughout.
 
- - LELA is licensed under the GNU General Public License (GPL), while
-   LinBox is licensed under the GNU Lesser General Public License
-   (LGPL). This means that it is in general forbidden to use LELA in
-   software with a license which is incompatible with the GPL.

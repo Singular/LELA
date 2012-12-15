@@ -5,8 +5,8 @@
  *
  * -------------------------------------------------
  * 
- * This file is part of LELA, licensed under the GNU General Public
- * License version 3. See COPYING for more information.
+ * This file is part of LELA, licensed under the GNU Lesser General
+ * Public License version 3. See COPYING for more information.
  */
 
 #ifndef __LELA_VECTOR_BIT_SUBVECTOR_WORD_ALIGNED_H
